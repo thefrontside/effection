@@ -1,8 +1,13 @@
 {
   "name": "effection",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A structured concurrency library that makes working with side-effects in JavaScript lovely.",
-  "keywords": ["concurrency", "structured-concurrency", "async", "side-effects"],
+  "keywords": [
+    "concurrency",
+    "structured-concurrency",
+    "async",
+    "side-effects"
+  ],
   "homepage": "https://github.com/cowboyd/effection.js#readme",
   "bugs": {
     "url": "https://github.com/cowboyd/effection.js/issues"
@@ -14,7 +19,8 @@
     "README.md",
     "dist"
   ],
-  "module": "index",
+  "main": "dist/effection.cjs.js",
+  "module": "dist/effection.es.js",
   "repository": "git+ssh://git@github.com/cowboyd/effection.js.git",
   "scripts": {
     "lint": "eslint ./",
@@ -27,12 +33,16 @@
     "@babel/preset-env": "^7.0.0",
     "@babel/register": "^7.0.0",
     "babel-eslint": "^10.0.1",
+    "coveralls": "3.0.2",
     "eslint": "^5.7.0",
     "eslint-plugin-prefer-let": "^1.0.1",
     "expect": "^23.4.0",
     "mocha": "^5.2.0",
-    "coveralls": "3.0.2",
-    "nyc": "13.1.0"
+    "nyc": "13.1.0",
+    "rollup": "^0.63.4",
+    "rollup-plugin-babel": "4.0.0-beta.7",
+    "rollup-plugin-filesize": "4.0.1",
+    "rollup-plugin-node-resolve": "3.3.0"
   },
   "dependencies": {},
   "nyc": {

@@ -10,6 +10,6 @@
 export function timeout(durationMillis = 0) {
   return function(execution) {
     let timeoutId = setTimeout(() => execution.resume(), durationMillis);
-    execution.finally(() => clearTimeout(timeoutId));
+    return () => clearTimeout(timeoutId);
   };
 }

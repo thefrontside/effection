@@ -122,22 +122,29 @@ class Running extends Status {
     super(execution);
     this.iterator = iterator;
     this.current = current;
+    this.noop = x => x;
+    this.releaseControl = this.noop;
   }
 
   thunk(thunk) {
     let { execution, iterator } = this;
     try {
+      this.releaseControl();
       let next = thunk(iterator);
       if (next.done) {
         if (execution.hasBlockingChildren) {
           execution.status = new Waiting(execution, next.value);
         } else {
           this.finalize(new Completed(execution, next.value));
-
         }
       } else {
         let control = controllerFor(next.value);
-        control(execution);
+        let release = control(execution);
+        if (typeof release === 'function') {
+          this.releaseControl = release;
+        } else {
+          this.releaseControl = this.noop;
+        }
       }
     } catch (e) {
       // error was thrown, but not caught in the generator.
@@ -158,6 +165,7 @@ class Running extends Status {
 
   halt(value) {
     let { execution, iterator } = this;
+    this.releaseControl();
     iterator.return(value);
     execution.status = new Halted(execution, value);
     execution.children.forEach(child => {

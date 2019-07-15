@@ -1,53 +1,73 @@
 {
   "name": "effection",
-  "version": "0.0.2",
-  "description": "A structured concurrency library that makes working with side-effects in JavaScript lovely.",
-  "keywords": [
-    "concurrency",
-    "structured-concurrency",
-    "async",
-    "side-effects"
-  ],
-  "homepage": "https://github.com/cowboyd/effection.js#readme",
-  "bugs": {
-    "url": "https://github.com/cowboyd/effection.js/issues"
-  },
+  "version": "1.0.0",
+  "description": "Effortlessly composable structured concurrency primitive for JavaScript",
+  "repository": "http://github.com/cowboyd/effection.js",
+  "author": "Charles Lowell <cowboyd@frontside.io>",
   "license": "MIT",
-  "author": "Charles Lowell <charles@frontside.io>, Taras Mankovski <taras@frontside.io>",
-  "files": [
-    "src",
-    "README.md",
-    "dist"
-  ],
-  "main": "dist/effection.cjs.js",
-  "module": "dist/effection.es.js",
   "repository": "git+ssh://git@github.com/cowboyd/effection.js.git",
+  "private": false,
   "scripts": {
-    "lint": "eslint ./",
-    "test": "mocha --recursive -r tests/setup tests",
     "coverage": "nyc --reporter=html --reporter=text npm run test",
-    "coveralls": "nyc report --reporter=text-lcov | coveralls"
+    "coveralls": "nyc report --reporter=text-lcov | coveralls",
+    "build": "pack build",
+    "prepare": "yarn build",
+    "publish": "pack publish",
+    "prepublishOnly": "yarn test && yarn build",
+    "test": "mocha --recursive -r ./tests/setup tests",
+    "test-types": "mocha -r ts-node/register types/*.test.ts",
+    "lint": "eslint ./"
   },
   "devDependencies": {
-    "@babel/core": "7.0.0",
-    "@babel/preset-env": "^7.0.0",
-    "@babel/register": "^7.0.0",
-    "babel-eslint": "^10.0.1",
-    "coveralls": "3.0.2",
-    "eslint": "^5.7.0",
-    "eslint-plugin-prefer-let": "^1.0.1",
-    "expect": "^23.4.0",
-    "mocha": "^5.2.0",
     "nyc": "13.1.0",
-    "rollup": "^0.63.4",
-    "rollup-plugin-babel": "4.0.0-beta.7",
-    "rollup-plugin-filesize": "4.0.1",
-    "rollup-plugin-node-resolve": "3.3.0"
+    "@babel/core": "7.4.4",
+    "@babel/preset-env": "7.4.4",
+    "@babel/register": "7.4.4",
+    "@pika/pack": "0.3.7",
+    "@pika/plugin-build-node": "0.3.16",
+    "@pika/plugin-build-web": "0.3.16",
+    "@pika/plugin-copy-assets": "^0.3.16",
+    "@pika/plugin-standard-pkg": "0.3.16",
+    "@types/mocha": "^5.2.6",
+    "babel-eslint": "10.0.1",
+    "eslint": "5.16.0",
+    "eslint-plugin-prefer-let": "1.0.1",
+    "expect": "24.7.1",
+    "jest-mock": "^24.8.0",
+    "mocha": "6.1.4",
+    "ts-expect": "^1.1.0",
+    "ts-node": "^8.1.0",
+    "typescript": "^3.4.5"
   },
-  "dependencies": {},
   "nyc": {
     "exclude": [
       "**/tests"
+    ]
+  },
+  "@pika/pack": {
+    "pipeline": [
+      [
+        "@pika/plugin-standard-pkg",
+        {
+          "exclude": [
+            "tests/**/*"
+          ]
+        }
+      ],
+      [
+        "@pika/plugin-build-node"
+      ],
+      [
+        "@pika/plugin-build-web"
+      ],
+      [
+        "@pika/plugin-copy-assets",
+        {
+          "files": [
+            "index.d.ts"
+          ]
+        }
+      ]
     ]
   }
 }

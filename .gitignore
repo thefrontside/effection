@@ -1,6 +1,7 @@
 node_modules
 .esm-cache
 /dist
+/pkg
 .nyc_output/
 coverage
 package-lock.json

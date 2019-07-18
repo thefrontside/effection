@@ -184,4 +184,39 @@ describe('Exec', () => {
       });
     });
   });
+
+  describe('An execution with an empty yield', () => {
+    let execution, error;
+
+    beforeEach(() => {
+      execution = execute(function*() {
+        return yield;
+      }).catch(e => error = e);
+    });
+
+    it('is running while yielded', () => {
+      expect(execution.isRunning).toEqual(true);
+    });
+
+    describe('resuming the execution externally', () => {
+      beforeEach(() => {
+        execution.resume(10);
+      });
+
+      it('completes', () => {
+        expect(execution.result).toEqual(10);
+      });
+    });
+
+    describe('erroring the execution externally', () => {
+      beforeEach(() => {
+        execution.throw(new Error('boom'));
+      });
+
+      it('errors', () => {
+        expect(error).toBeDefined();
+        expect(error.message).toEqual('boom');
+      });
+    });
+  });
 });

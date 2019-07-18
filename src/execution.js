@@ -236,6 +236,8 @@ function controllerFor(value) {
     return call(value);
   } else if (typeof value === 'function') {
     return value;
+  } else if (value == null) {
+    return x => x;
   } else {
     throw new Error('generators should yield either another generator or control function, not `${value}`');
   }

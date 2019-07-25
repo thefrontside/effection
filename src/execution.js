@@ -27,23 +27,23 @@ export default class Execution {
   }
 
   start(args) {
-    this.status.start(args);
+    return this.status.start(args);
   }
 
   resume(value) {
-    this.status.resume(value);
+    return this.status.resume(value);
   }
 
   throw(error) {
-    this.status.throw(error);
+    return this.status.throw(error);
   }
 
   halt(message) {
-    this.status.halt(message);
+    return this.status.halt(message);
   }
 
-  fork(task, ...args) {
-    this.status.fork(task, args);
+  fork(task, args) {
+    return this.status.fork(task, args);
   }
 
   then(...args) {

@@ -274,7 +274,31 @@ describe('Async executon', () => {
         expect(parent.isRunning).toEqual(true);
       });
     });
+  });
 
+
+  describe('the fork function', () => {
+    let a,b;
+    let forkReturn, forkContext;
+    beforeEach(() => {
+      execute(function*() {
+        forkReturn = this.fork(function*(x, y) {
+          forkContext = this;
+          a = x;
+          b = y;
+        }, [1,2]);
+      });
+    });
+
+    it('passes the arguments array as positional arguments to its generator', () => {
+      expect(a).toEqual(1);
+      expect(b).toEqual(2);
+    });
+
+    it('returns the forked child', () => {
+      expect(forkReturn).toBeDefined();
+      expect(forkReturn).toEqual(forkContext);
+    });
   });
 
 });

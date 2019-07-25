@@ -1,10 +1,9 @@
-import isGeneratorFunction from './is-generator';
-import Task, { isTask } from './task';
+import { isGeneratorFunction, toGeneratorFunction } from './generator-function';
 import Continuation from './continuation';
 
 export default class Execution {
-  static of(task) {
-    return new Execution(task, x => x);
+  static of(proc) {
+    return new Execution(proc, x => x);
   }
 
   get isUnstarted() { return this.status instanceof Unstarted; }
@@ -19,8 +18,8 @@ export default class Execution {
 
   get result() { return this.status.result; }
 
-  constructor(task) {
-    this.task = Task(task);
+  constructor(proc) {
+    this.proc = toGeneratorFunction(proc);
     this.status = new Unstarted(this);
     this.children = [];
     this.continuation = ExecutionFinalized;
@@ -42,8 +41,8 @@ export default class Execution {
     return this.status.halt(message);
   }
 
-  fork(task, args) {
-    return this.status.fork(task, args);
+  fork(proc, args) {
+    return this.status.fork(proc, args);
   }
 
   then(...args) {
@@ -107,10 +106,10 @@ const Finalized = Status => class FinalizedStatus extends Status {
 
 class Unstarted extends Status {
   start(args) {
-    let { generator } = this.execution.task;
+    let { proc } = this.execution;
     let { execution } = this;
 
-    let iterator = generator.apply(execution, args);
+    let iterator = proc.apply(execution, args);
 
     execution.status = new Running(execution, iterator);
     execution.resume();
@@ -232,7 +231,7 @@ class Waiting extends Completed {
 }
 
 function controllerFor(value) {
-  if (isGeneratorFunction(value) || isTask(value)) {
+  if (isGeneratorFunction(value)) {
     return call(value);
   } else if (typeof value === 'function') {
     return value;

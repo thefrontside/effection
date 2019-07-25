@@ -5,7 +5,6 @@
   "repository": "http://github.com/cowboyd/effection.js",
   "author": "Charles Lowell <cowboyd@frontside.io>",
   "license": "MIT",
-  "repository": "git+ssh://git@github.com/cowboyd/effection.js.git",
   "private": false,
   "scripts": {
     "coverage": "nyc --reporter=html --reporter=text npm run test",

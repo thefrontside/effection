@@ -1,3 +1,4 @@
+import { promiseOf } from './promise-of';
 import { isGeneratorFunction, toGeneratorFunction } from './generator-function';
 import Continuation from './continuation';
 
@@ -237,8 +238,10 @@ function controllerFor(value) {
     return value;
   } else if (value == null) {
     return x => x;
+  } else if (typeof value.then === 'function' && typeof value.catch === 'function') {
+    return promiseOf(value);
   } else {
-    throw new Error('generators should yield either another generator or control function, not `${value}`');
+    throw new Error(`generators should yield either another generator or control function, not '${value}'`);
   }
 }
 

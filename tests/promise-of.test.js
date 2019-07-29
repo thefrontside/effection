@@ -1,8 +1,8 @@
 import expect from 'expect';
 
-import { promiseOf, execute } from '../src/index';
+import { execute } from '../src/index';
 
-describe('promise-of yielding on a promise', () => {
+describe('yielding on a promise', () => {
   let execution, deferred, error;
 
   beforeEach(() => {
@@ -10,7 +10,7 @@ describe('promise-of yielding on a promise', () => {
     deferred = new Deferred();
     execution = execute(function*() {
       try {
-        return yield promiseOf(deferred.promise);
+        return yield deferred.promise;
       } catch (e) {
         error = e;
       }

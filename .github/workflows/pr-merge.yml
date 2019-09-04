@@ -35,11 +35,12 @@ jobs:
         then 
           echo Skipping because this commit is automated
         else
-          # git setup
+          # change remote & git config
           git remote set-url origin https://${GITHUB_TOKEN}:x-oauth-basic@github.com/${GITHUB_REPOSITORY}.git
           git fetch origin +refs/heads/*:refs/heads/*
           branch=$(printf "%s\n" "${GITHUB_REF#*refs\/heads\/}")
           git checkout $branch
+            # part above is to switch from ssh to http. circleci has fingerprints for registering ssh keys but I wasn't sure if there was a way of doing so in actions.
           if [ "${#SEMVER_USER_NAME}" -ne "0" -a "${#SEMVER_USER_EMAIL}" -ne "0" ]
           then
             git_config_email=$SEMVER_USER_NAME

@@ -10,10 +10,6 @@ gzip)](https://badgen.net/bundlephobia/minzip/effection)](https://bundlephobia.c
 Effortlessly composable structured concurrency primitive for
 JavaScript
 
-> Note: this is currently a playground for exploring how structured
-> concurrency should ideally work in the context of JavaScript and not
-> a production library with stable APIs and dedicated support.
-
 See [examples](examples/)
 
 To run an example with NAME:
@@ -23,6 +19,10 @@ $ node -r ./tests/setup examples/NAME
 ```
 
 ## Structured Concurrency and Effects
+
+> Note: For an general introduction to the concept of structured
+> concurrency, and why it is so important, see [this excellent primer
+> on the subject][1] by Nathaniel Smith.
 
 There's an entire hive of bugs that occur when asynchronous processes
 outlive their welcome. The concept of structured concurrency eliminates
@@ -202,3 +202,5 @@ run tests:
 ``` text
 $ yarn test
 ```
+
+[1]: https://vorpus.org/blog/notes-on-structured-concurrency-or-go-statement-considered-harmful/

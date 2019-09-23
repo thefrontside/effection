@@ -165,30 +165,6 @@ considered completed until _both_ servers shutdown. More importantly
 though, if we shutdown the main process, then both servers will be
 halted.
 
-## Tasks
-
-While execution provides the low-level semantics that implement the
-structured concurrency guarantees, Task are "templates" of
-executions. In other words, given some model, I can evaluate the
-template and it will produce a corresponding tree of executions.
-
-Tasks are both _stateful and mutative_. There is no guarantee that they
-will just replace an execution tree. Rather, they are designed to
-modify an excution tree in place, so that it _converges_ on the
-desired shape.
-
-An analogy is the relationship between a component and a DOM
-tree. Evaluating the component determines what the corresponding DOM
-should look like, and it is the framework runtime's responsibility for
-making sure that the DOM ends up in that state.
-
-> Note: This is all a theory that it should work like this, I have no
-> idea what the syntax might even look like, but it seems like it
-> should definitely be possible. right?
->
-> This is the edge of the current research
-
-
 ## Development
 
 yarn install

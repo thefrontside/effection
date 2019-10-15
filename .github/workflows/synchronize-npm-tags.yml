@@ -9,6 +9,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - uses: minkimcello/actions/synchronize-npm-tags@mk/publish-pr-preview
+    - uses: thefrontside/actions/synchronize-npm-tags@master
       env:
         NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}

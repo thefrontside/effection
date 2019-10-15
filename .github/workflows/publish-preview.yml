@@ -1,0 +1,25 @@
+name: Publish Preview
+
+on:
+  pull_request:
+    branches:
+      - master
+      - release-*
+
+jobs:
+  preview: 
+    name: Publish Preview Package
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Write NPM Snapshot Version
+      uses: thefrontside/actions/write-npm-snapshot-version@master
+    - name: NPM Publish Commit
+      uses: minkimcello/actions/npm-publish-branch-preview@mk/publish-pr-preview
+      env:
+        NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+    - name: Post Instructions Comment
+      uses: thefrontside/actions/post-npm-usage-instructions-comment@master
+      env:
+        #GITHUB_TOKEN: ${{ secrets.GITHUB_POST_COMMENT_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

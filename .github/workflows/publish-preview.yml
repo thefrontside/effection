@@ -15,10 +15,12 @@ jobs:
     - name: Write NPM Snapshot Version
       uses: thefrontside/actions/write-npm-snapshot-version@master
     - name: NPM Publish Commit
-      uses: thefrontside/actions/npm-publish-branch-preview@master
+      uses: minkimcello/actions/npm-publish-branch-preview@mk/extending-publishing
       env:
         NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+      with:
+        NPM_PUBLISH: bin/publish
     - name: Post Instructions Comment
       uses: thefrontside/actions/post-npm-usage-instructions-comment@master
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_POST_COMMENT_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

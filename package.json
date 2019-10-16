@@ -1,6 +1,6 @@
 {
-  "name": "effection",
-  "version": "0.1.0",
+  "name": "@minkimcello/effection",
+  "version": "0.1.1",
   "description": "Effortlessly composable structured concurrency primitive for JavaScript",
   "repository": "http://github.com/cowboyd/effection.js",
   "author": "Charles Lowell <cowboyd@frontside.io>",
@@ -15,7 +15,8 @@
     "prepublishOnly": "yarn test && yarn build",
     "test": "mocha --recursive -r ./tests/setup tests",
     "test-types": "mocha -r ts-node/register types/*.test.ts",
-    "lint": "eslint ./"
+    "lint": "eslint ./",
+    "bin/publish": "pack build && cd pkg && npm publish $*"
   },
   "devDependencies": {
     "nyc": "13.1.0",

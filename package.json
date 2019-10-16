@@ -6,6 +6,7 @@
   "author": "Charles Lowell <cowboyd@frontside.io>",
   "license": "MIT",
   "private": false,
+  "types": "./index.d.ts",
   "scripts": {
     "coverage": "nyc --reporter=html --reporter=text npm run test",
     "coveralls": "nyc report --reporter=text-lcov | coveralls",
@@ -14,7 +15,6 @@
     "publish": "pack publish",
     "prepublishOnly": "yarn test && yarn build",
     "test": "mocha --recursive -r ./tests/setup tests",
-    "test-types": "mocha -r ts-node/register types/*.test.ts",
     "lint": "eslint ./",
     "pack:publish": "pack build && cd pkg && npm publish $*"
   },
@@ -37,7 +37,7 @@
     "mocha": "6.1.4",
     "ts-expect": "^1.1.0",
     "ts-node": "^8.1.0",
-    "typescript": "^3.4.5"
+    "typescript": "^3.6.4"
   },
   "nyc": {
     "exclude": [

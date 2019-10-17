@@ -1,5 +1,8 @@
 /dist
 /pkg
+/scratchpad
 /node_modules
 /benchmarks
 /README
+/**/*.d.ts
+/tests/typescript/*.ts

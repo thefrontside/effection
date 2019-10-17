@@ -16,7 +16,7 @@
     "test": "mocha --recursive -r ./tests/setup tests",
     "test-types": "mocha -r ts-node/register types/*.test.ts",
     "lint": "eslint ./",
-    "bin/publish": "pack build && cd pkg && npm publish $*"
+    "pack:publish": "pack build && cd pkg && npm publish $*"
   },
   "devDependencies": {
     "nyc": "13.1.0",

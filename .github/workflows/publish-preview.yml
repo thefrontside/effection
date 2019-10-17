@@ -19,7 +19,7 @@ jobs:
       env:
         NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
       with:
-        NPM_PUBLISH: npm run bin/publish
+        NPM_PUBLISH: npm run pack:publish
     - name: Post Instructions Comment
       uses: thefrontside/actions/post-npm-usage-instructions-comment@master
       env:

@@ -15,7 +15,8 @@
     "prepublishOnly": "yarn test && yarn build",
     "test": "mocha --recursive -r ./tests/setup tests",
     "test-types": "mocha -r ts-node/register types/*.test.ts",
-    "lint": "eslint ./"
+    "lint": "eslint ./",
+    "pack:publish": "pack build && cd pkg && npm publish $*"
   },
   "devDependencies": {
     "nyc": "13.1.0",

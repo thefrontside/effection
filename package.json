@@ -19,7 +19,6 @@
     "pack:publish": "pack build && cd pkg && npm publish $*"
   },
   "devDependencies": {
-    "nyc": "13.1.0",
     "@babel/core": "7.4.4",
     "@babel/preset-env": "7.4.4",
     "@babel/register": "7.4.4",
@@ -35,6 +34,7 @@
     "expect": "24.7.1",
     "jest-mock": "^24.8.0",
     "mocha": "6.1.4",
+    "nyc": "~14.1.1",
     "ts-expect": "^1.1.0",
     "ts-node": "^8.1.0",
     "typescript": "^3.6.4"

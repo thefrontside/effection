@@ -1,14 +1,14 @@
 /* eslint no-console: 0 */
 /* eslint require-yield: 0 */
-import { execute, timeout } from '../src/index';
+import { execute, fork, timeout } from '../src/index';
 
 
 /**
  * Fires up some random servers
  */
 execute(interruptable(function*() {
-  this.fork(randoLogger('Bob'));
-  this.fork(randoLogger('Alice'));
+  fork(randoLogger('Bob'));
+  fork(randoLogger('Alice'));
 
   console.log('Up and running with random number servers Bob and Alice....');
 }));

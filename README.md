@@ -152,11 +152,11 @@ part of your main process. To do this, you would use the `fork` method
 on the execution:
 
 ``` javascript
-import { execute } from 'effection';
+import { execute, fork } from 'effection';
 
 execute(function*() {
-  this.fork(createFileServer);
-  this.fork(createHttpServer);
+  fork(createFileServer);
+  fork(createHttpServer);
 });
 ```
 

@@ -4,7 +4,7 @@
 
 import expect from 'expect';
 
-import { execute } from '../src/index';
+import { execute, fork } from '../src/index';
 
 describe('Async executon', () => {
   describe('with asynchronously executing children', () => {
@@ -12,15 +12,15 @@ describe('Async executon', () => {
 
     beforeEach(() => {
       execution = execute(function() {
-        this.fork(function*() {
+        fork(function*() {
           yield cxt => one = cxt;
         });
 
-        this.fork(function*() {
+        fork(function*() {
           yield cxt => two = cxt;
         });
 
-        this.fork(function*() {
+        fork(function*() {
           yield cxt => three = cxt;
         });
       });
@@ -131,8 +131,8 @@ describe('Async executon', () => {
       error = undefined;
       boom = new Error('boom!');
       execution = execute(function*() {
-        this.fork(function*() { yield cxt => one = cxt; });
-        this.fork(function*() { yield cxt => two = cxt; });
+        fork(function*() { yield cxt => one = cxt; });
+        fork(function*() { yield cxt => two = cxt; });
         yield function*() {
           yield cxt => sync = cxt;
         };
@@ -256,7 +256,7 @@ describe('Async executon', () => {
     let parent, child;
     beforeEach(() => {
       parent = execute(function*() {
-        this.fork(function*() { yield cxt => child = cxt; });
+        fork(function*() { yield cxt => child = cxt; });
         yield x => x;
       });
     });
@@ -276,13 +276,12 @@ describe('Async executon', () => {
     });
   });
 
-
   describe('the fork function', () => {
     let a,b;
     let forkReturn, forkContext;
     beforeEach(() => {
       execute(function*() {
-        forkReturn = this.fork(function*(x, y) {
+        forkReturn = fork(function*(x, y) {
           forkContext = this;
           a = x;
           b = y;
@@ -300,5 +299,4 @@ describe('Async executon', () => {
       expect(forkReturn).toEqual(forkContext);
     });
   });
-
 });

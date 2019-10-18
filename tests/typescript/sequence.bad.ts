@@ -6,4 +6,9 @@ function* sequence(): Sequence {
   // therefore `function*() { yield 5 }` is not
   // a valid operation.
   yield function*() { yield 5; };
+
+
+  // this is not allowed because as an operation, a
+  // generator function must have no arguments
+  yield function*(one, two) {};
 }

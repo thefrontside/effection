@@ -33,7 +33,8 @@ function formatTypescriptDiagnostic(diagnostic) {
         file.getLineAndCharacterOfPosition(diagnostic.start);
 
     let { originalFileName } = file;
-    return `${originalFileName}:${line + 1}:${character} ${messageText}`;
+    let text = messageText.messageText || messageText;
+    return `${originalFileName}:${line + 1}:${character} ${text}`;
   } else {
     return messageText;
   }

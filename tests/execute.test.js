@@ -219,4 +219,38 @@ describe('Exec', () => {
       });
     });
   });
+
+  describe('executing a generators', () => {
+    let execution;
+    function* add(a, b) {
+      return a + b;
+    }
+
+
+    describe('nested inside generator functions', () => {
+      beforeEach(() => {
+
+        execution = execute(function*() {
+          let one = yield function*() { return 1; };
+          let two = yield function*() { return 2; };
+          return yield add(one, two);
+        });
+      });
+
+      it('computes the result just fine', () => {
+        expect(execution.isCompleted).toEqual(true);
+        expect(execution.result).toEqual(3);
+      });
+    });
+
+    describe('directly', () => {
+      beforeEach(() => {
+        execution = execute(add(1, 2));
+      })
+      it('computes the result just fine', () => {
+        expect(execution.isCompleted).toEqual(true);
+        expect(execution.result).toEqual(3);
+      });
+    });
+  });
 });

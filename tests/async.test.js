@@ -277,21 +277,13 @@ describe('Async executon', () => {
   });
 
   describe('the fork function', () => {
-    let a,b;
     let forkReturn, forkContext;
     beforeEach(() => {
       execute(function*() {
-        forkReturn = fork(function*(x, y) {
+        forkReturn = fork(function*() {
           forkContext = this;
-          a = x;
-          b = y;
-        }, [1,2]);
+        });
       });
-    });
-
-    it('passes the arguments array as positional arguments to its generator', () => {
-      expect(a).toEqual(1);
-      expect(b).toEqual(2);
     });
 
     it('returns the forked child', () => {

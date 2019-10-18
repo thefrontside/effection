@@ -6,6 +6,8 @@ let execution: Execution;
 
 execution = execute(operation);
 
+execution = execute(operation());
+
 execution = execute(Promise.resolve("hello world"));
 
 execution = execute(function*() {});

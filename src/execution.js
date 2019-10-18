@@ -1,10 +1,10 @@
 import { promiseOf } from './promise-of';
-import { isGeneratorFunction, toGeneratorFunction } from './generator-function';
+import { isGeneratorFunction, isGenerator, toGeneratorFunction } from './generator-function';
 import Continuation from './continuation';
 
 export default class Execution {
-  static of(proc) {
-    return new Execution(proc, x => x);
+  static of(operation) {
+    return new Execution(operation, x => x);
   }
 
   get isUnstarted() { return this.status instanceof Unstarted; }
@@ -19,15 +19,15 @@ export default class Execution {
 
   get result() { return this.status.result; }
 
-  constructor(proc) {
-    this.proc = toGeneratorFunction(proc);
+  constructor(operation) {
+    this.operation = toGeneratorFunction(operation);
     this.status = new Unstarted(this);
     this.children = [];
     this.continuation = ExecutionFinalized;
   }
 
-  start(args) {
-    return this.status.start(args);
+  start() {
+    return this.status.start();
   }
 
   resume(value) {
@@ -90,7 +90,6 @@ class Status {
     execution.status = status;
     execution.continuation.call(execution);
   }
-
 }
 
 const Finalized = Status => class FinalizedStatus extends Status {
@@ -98,11 +97,11 @@ const Finalized = Status => class FinalizedStatus extends Status {
 };
 
 class Unstarted extends Status {
-  start(args) {
-    let { proc } = this.execution;
+  start() {
+    let { operation } = this.execution;
     let { execution } = this;
 
-    let iterator = proc.apply(execution, args);
+    let iterator = operation.apply(execution);
 
     execution.status = new Running(execution, iterator);
     execution.resume();
@@ -225,8 +224,8 @@ class Waiting extends Completed {
 }
 
 function controllerFor(value) {
-  if (isGeneratorFunction(value)) {
-    return call(value);
+  if (isGeneratorFunction(value) || isGenerator(value)) {
+    return invoke(value);
   } else if (typeof value === 'function') {
     return value;
   } else if (value == null) {
@@ -238,8 +237,7 @@ function controllerFor(value) {
   }
 }
 
-
-export function fork(operation, args) {
+export function fork(operation) {
   let parent = currentExecution;
 
   let child = new Execution(operation).then(() => {
@@ -249,13 +247,13 @@ export function fork(operation, args) {
   }).catch(e => parent.throw(e));
 
   parent.children.push(child);
-  child.start(args);
+  child.start();
   return child;
 }
 
-export function call(task, ...args) {
+function invoke(operation) {
   return parent => {
-    let child = new Execution(task).then(child => {
+    let child = new Execution(operation).then(child => {
       if (child.isCompleted) {
         return parent.resume(child.result);
       }
@@ -270,10 +268,9 @@ export function call(task, ...args) {
     }).catch(e => parent.throw(e));
 
     parent.children.push(child);
-    child.start(args);
+    child.start();
   };
 }
-
 
 const ExecutionFinalized = Continuation.of(execution => {
   if (execution.isErrored) {

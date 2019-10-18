@@ -1,8 +1,9 @@
 declare module "effection" {
-  export type Operation = SequenceFn | Promise<any> | Controller | undefined;
-  export type SequenceFn = (this: Execution, ...args: any[]) => Sequence;
-  export type Sequence = Generator<Operation, any, any>;
+  export type Operation = SequenceFn | Sequence | Promise<any> | Controller | undefined;
+  export type SequenceFn = (this: Execution) => Sequence;
   export type Controller = (execution: Execution) => void | (() => void);
+
+  export interface Sequence extends Generator<Operation, any, any> {}
 
   export interface Execution<T = any> {
     resume(result: T): void;
@@ -10,7 +11,6 @@ declare module "effection" {
   }
 
   export function execute<T>(operation: Operation): Execution<T>;
-  export function call(operation: Operation, ...args: any[]): Operation;
   export function fork<T>(operation: Operation): Execution<T>;
 
   export function timeout(durationMillis: number): Operation;

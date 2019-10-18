@@ -13,4 +13,5 @@ function* sequence(): Sequence {
 
 function* asynchronous(): Sequence {
   fork(sequence);
+  fork(sequence());
 }

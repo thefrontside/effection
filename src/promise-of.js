@@ -13,6 +13,7 @@ export function promiseOf(promise) {
 
     // this execution has passed out of scope, so we don't care
     // what happened to the promise, so make the callbacks noops.
+    // this effectively "unsubscribes" to the promise.
     return () => succeed = fail = noop;
   };
 }

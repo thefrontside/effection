@@ -1,4 +1,4 @@
-import { Sequence } from 'effection';
+import { Sequence, fork } from 'effection';
 
 function* sequence(): Sequence {
   //bare generator function is ok
@@ -9,4 +9,8 @@ function* sequence(): Sequence {
 
   // other Operation also ok.
   yield sequence
+}
+
+function* asynchronous(): Sequence {
+  fork(sequence);
 }

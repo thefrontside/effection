@@ -11,6 +11,7 @@ declare module "effection" {
 
   export function execute<T>(operation: Operation): Execution<T>;
   export function call(operation: Operation, ...args: any[]): Operation;
+  export function fork<T>(operation: Operation): Execution<T>;
 
   export function timeout(durationMillis: number): Operation;
 }

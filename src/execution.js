@@ -42,10 +42,6 @@ export default class Execution {
     return this.status.halt(message);
   }
 
-  fork(proc, args) {
-    return this.status.fork(proc, args);
-  }
-
   then(...args) {
     this.continuation = this.continuation.then(...args);
     return this;
@@ -83,10 +79,6 @@ class Status {
     this.cannot('halt');
   }
 
-  fork() {
-    this.cannot('fork');
-  }
-
   cannot(operationName) {
     let name = this.constructor.name;
     let message = `tried to perfom operation ${operationName}() on an execution with status '${name}'`;
@@ -117,6 +109,19 @@ class Unstarted extends Status {
   }
 }
 
+
+let currentExecution;
+
+function withCurrentExecution(execution, fn) {
+  let previousExecution = currentExecution;
+  try {
+    currentExecution = execution;
+    return fn();
+  } finally {
+    currentExecution = previousExecution;
+  }
+}
+
 class Running extends Status {
   constructor(execution, iterator, current = { done: false }) {
     super(execution);
@@ -129,8 +134,10 @@ class Running extends Status {
   thunk(thunk) {
     let { execution, iterator } = this;
     try {
-      this.releaseControl();
-      let next = thunk(iterator);
+      let next = withCurrentExecution(execution, () => {
+        this.releaseControl();
+        return thunk(iterator);
+      });
       if (next.done) {
         if (execution.hasBlockingChildren) {
           execution.status = new Waiting(execution, next.value);
@@ -172,20 +179,6 @@ class Running extends Status {
       child.halt(value);
     });
     this.finalize(new Halted(execution, value));
-  }
-
-  fork(task, args) {
-    let parent = this.execution;
-
-    let child = new Execution(task).then(() => {
-      if (parent.isWaiting && !parent.hasBlockingChildren) {
-        this.finalize(new Completed(parent, parent.result));
-      }
-    }).catch(e => parent.throw(e));
-
-    parent.children.push(child);
-    child.start(args);
-    return child;
   }
 }
 
@@ -243,6 +236,21 @@ function controllerFor(value) {
   } else {
     throw new Error(`generators should yield either another generator or control function, not '${value}'`);
   }
+}
+
+
+export function fork(operation, args) {
+  let parent = currentExecution;
+
+  let child = new Execution(operation).then(() => {
+    if (parent.isWaiting && !parent.hasBlockingChildren) {
+      parent.status.finalize(new Completed(parent, parent.result));
+    }
+  }).catch(e => parent.throw(e));
+
+  parent.children.push(child);
+  child.start(args);
+  return child;
 }
 
 export function call(task, ...args) {

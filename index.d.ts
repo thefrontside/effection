@@ -10,7 +10,6 @@ declare module "effection" {
     throw(error: Error): void;
   }
 
-  export function execute<T>(operation: Operation): Execution<T>;
   export function fork<T>(operation: Operation): Execution<T>;
 
   export function timeout(durationMillis: number): Operation;

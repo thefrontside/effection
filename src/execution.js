@@ -7,6 +7,12 @@ export default class Execution {
     return new Execution(operation, x => x);
   }
 
+  static start(operation) {
+    let execution = Execution.of(operation);
+    execution.start();
+    return execution;
+  }
+
   get isUnstarted() { return this.status instanceof Unstarted; }
   get isRunning() { return this.status instanceof Running; }
   get isBlocking() { return this.isRunning || this.isWaiting; }
@@ -238,6 +244,9 @@ function controllerFor(value) {
 }
 
 export function fork(operation) {
+  if (currentExecution == null) {
+    return Execution.start(operation);
+  }
   let parent = currentExecution;
 
   let child = new Execution(operation).then(() => {

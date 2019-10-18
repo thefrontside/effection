@@ -5,7 +5,7 @@
 import expect from 'expect';
 import mock from 'jest-mock';
 
-import { execute } from '../src/index';
+import { fork } from '../src/index';
 
 describe('Exec', () => {
   describe('deeply nested task', () => {
@@ -15,7 +15,7 @@ describe('Exec', () => {
       onSuccess = mock.fn(x => x);
       onError = mock.fn(x => x);
       onFinally = mock.fn(x => x);
-      execution = execute(function*() {
+      execution = fork(function*() {
         try {
           return yield function*() {
             return yield function*() {
@@ -110,7 +110,7 @@ describe('Exec', () => {
   describe('deeply nested task that throws an error', () => {
     let execution, error;
     beforeEach(() => {
-      execution = execute(function*() {
+      execution = fork(function*() {
         try {
           return yield function*() {
             return yield function*() {
@@ -139,7 +139,7 @@ describe('Exec', () => {
     let id = x => x;
 
     beforeEach(() => {
-      execution = execute(function*() {
+      execution = fork(function*() {
         return yield function*() {
           return yield function*() {
             return yield function*() {
@@ -189,7 +189,7 @@ describe('Exec', () => {
     let execution, error;
 
     beforeEach(() => {
-      execution = execute(function*() {
+      execution = fork(function*() {
         return yield;
       }).catch(e => error = e);
     });
@@ -230,7 +230,7 @@ describe('Exec', () => {
     describe('nested inside generator functions', () => {
       beforeEach(() => {
 
-        execution = execute(function*() {
+        execution = fork(function*() {
           let one = yield function*() { return 1; };
           let two = yield function*() { return 2; };
           return yield add(one, two);
@@ -245,7 +245,7 @@ describe('Exec', () => {
 
     describe('directly', () => {
       beforeEach(() => {
-        execution = execute(add(1, 2));
+        execution = fork(add(1, 2));
       })
       it('computes the result just fine', () => {
         expect(execution.isCompleted).toEqual(true);

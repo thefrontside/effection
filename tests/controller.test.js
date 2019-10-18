@@ -2,7 +2,7 @@
 
 import expect from 'expect';
 
-import { execute } from '../src/index';
+import { fork } from '../src/index';
 import mock from 'jest-mock';
 
 describe('Controlling execution', () => {
@@ -22,7 +22,7 @@ describe('Controlling execution', () => {
     beforeEach(() => {
       relinquish = mock.fn();
 
-      execution = execute(function*() {
+      execution = fork(function*() {
         yield control;
       }).catch(e => error = e);
 
@@ -69,7 +69,7 @@ describe('Controlling execution', () => {
   describe('from an intermediate step in an execution', () => {
     beforeEach(() => {
       relinquish = mock.fn();
-      execute(function* () {
+      fork(function* () {
         yield control;
         yield ctl => ctl.resume();
       });
@@ -85,7 +85,7 @@ describe('Controlling execution', () => {
   describe('a release function that throws an error', () => {
     beforeEach(() => {
       relinquish = () => { throw new Error('this is a bug in the release control!'); };
-      execute(function* () {
+      fork(function* () {
         yield control;
       });
     });

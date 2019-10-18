@@ -1,3 +1,3 @@
-import { Execution, Sequence, execute } from 'effection';
+import { fork } from 'effection';
 
-execute(5);
+fork(5);

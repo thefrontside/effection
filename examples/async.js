@@ -1,12 +1,12 @@
 /* eslint no-console: 0 */
 /* eslint require-yield: 0 */
-import { execute, fork, timeout } from '../src/index';
+import { fork, timeout } from '../src/index';
 
 
 /**
  * Fires up some random servers
  */
-execute(interruptable(function*() {
+fork(interruptable(function*() {
   fork(randoLogger('Bob'));
   fork(randoLogger('Alice'));
 

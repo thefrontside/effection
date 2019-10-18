@@ -65,14 +65,14 @@ siblings are immediately halted.
 ## Execution
 
 The process primitive is the `Execution`. To create (and start) an
-`Execution`, use the `execute` function and pass it a generator. This
+`Execution`, use the `fork` function and pass it a generator. This
 simplest example waits for 1 second, then prints out "hello world" to
 the console.
 
 ``` javascript
-import { execute, timeout } from 'effection';
+import { fork, timeout } from 'effection';
 
-let process = execute(function*() {
+let process = fork(function*() {
   yield timeout(1000);
   return 'hello world';
 });
@@ -87,7 +87,7 @@ Child processes can be composed freely. So instead of yielding for
 1000 ms, we could instead, yield 10 times for 100ms.
 
 ``` javascript
-execute(function*() {
+fork(function*() {
   yield function*() {
     for (let i = 0; i < 10; i++) {
       yield timeout(100);
@@ -100,7 +100,7 @@ execute(function*() {
 And in fact, processes can be easily and arbitrarly deeply nested:
 
 ``` javascript
-let process = execute(function*() {
+let process = fork(function*() {
   return yield function*() {
     return yield function*() {
       return yield function*() {
@@ -119,13 +119,13 @@ use the `call` function:
 
 ``` javascript
 
-import { execute, timeout, call } from 'effection';
+import { fork, timeout, call } from 'effection';
 
 function* waitForSeconds(durationSeconds) {
   yield timeout(durationSeconds * 1000);
 }
 
-execute(function*() {
+fork(function*() {
   yield call(waitforseconds, 10);
 });
 ```
@@ -144,7 +144,7 @@ function waitForSeconds(durationSeconds) {
 
 ### Asynchronous Execution
 
-Sometimes you want to execute some processes in parallel and not
+Sometimes you want to fork some processes in parallel and not
 necessarily block further execution on them. You still want the
 guarantees associated with structured concurrency however. For
 example, you might want to create a couple of different servers as
@@ -152,9 +152,9 @@ part of your main process. To do this, you would use the `fork` method
 on the execution:
 
 ``` javascript
-import { execute, fork } from 'effection';
+import { fork, fork } from 'effection';
 
-execute(function*() {
+fork(function*() {
   fork(createFileServer);
   fork(createHttpServer);
 });

@@ -1,5 +1,5 @@
 /* eslint no-console: 0 */
-import { execute, timeout } from '../src/index';
+import { fork, timeout } from '../src/index';
 
 
 /**
@@ -24,7 +24,7 @@ import { execute, timeout } from '../src/index';
  * handler is uninstalled. Once again, the node process is left with
  * nothing left to do and no event handlers, so it exits.
  */
-execute(interruptable(function*() {
+fork(interruptable(function*() {
   for (let i = 5; i > 0; i--) {
     console.log(`${i}...`);
     yield timeout(1000);

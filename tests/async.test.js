@@ -4,14 +4,14 @@
 
 import expect from 'expect';
 
-import { execute, fork } from '../src/index';
+import { fork } from '../src/index';
 
 describe('Async executon', () => {
   describe('with asynchronously executing children', () => {
     let execution, one, two, three;
 
     beforeEach(() => {
-      execution = execute(function() {
+      execution = fork(function() {
         fork(function*() {
           yield cxt => one = cxt;
         });
@@ -130,7 +130,7 @@ describe('Async executon', () => {
     beforeEach(() => {
       error = undefined;
       boom = new Error('boom!');
-      execution = execute(function*() {
+      execution = fork(function*() {
         fork(function*() { yield cxt => one = cxt; });
         fork(function*() { yield cxt => two = cxt; });
         yield function*() {
@@ -255,7 +255,7 @@ describe('Async executon', () => {
   describe('A parent that block, but also has an async child', () => {
     let parent, child;
     beforeEach(() => {
-      parent = execute(function*() {
+      parent = fork(function*() {
         fork(function*() { yield cxt => child = cxt; });
         yield x => x;
       });
@@ -279,7 +279,7 @@ describe('Async executon', () => {
   describe('the fork function', () => {
     let forkReturn, forkContext;
     beforeEach(() => {
-      execute(function*() {
+      fork(function*() {
         forkReturn = fork(function*() {
           forkContext = this;
         });

@@ -1,6 +1,6 @@
 import expect from 'expect';
 
-import { execute } from '../src/index';
+import { fork } from '../src/index';
 
 describe('yielding on a promise', () => {
   let execution, deferred, error;
@@ -8,7 +8,7 @@ describe('yielding on a promise', () => {
   beforeEach(() => {
     error = undefined;
     deferred = new Deferred();
-    execution = execute(function*() {
+    execution = fork(function*() {
       try {
         return yield deferred.promise;
       } catch (e) {

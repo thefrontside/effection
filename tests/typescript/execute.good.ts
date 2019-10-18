@@ -1,17 +1,17 @@
-import { Execution, Sequence, execute } from 'effection';
+import { Execution, Sequence, fork } from 'effection';
 
 function* operation(): Sequence {}
 
 let execution: Execution;
 
-execution = execute(operation);
+execution = fork(operation);
 
-execution = execute(operation());
+execution = fork(operation());
 
-execution = execute(Promise.resolve("hello world"));
+execution = fork(Promise.resolve("hello world"));
 
-execution = execute(function*() {});
+execution = fork(function*() {});
 
-execution = execute(undefined);
+execution = fork(undefined);
 
-execution = execute((execution: Execution<void>) => execution.resume());
+execution = fork((execution: Execution<void>) => execution.resume());

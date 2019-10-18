@@ -114,32 +114,17 @@ process.isCompleted //=> true
 process.result //=> "hello world"
 ```
 
-In order to abstract a process so that it can take arguments, you can
-use the `call` function:
+You can pass arguments to an operation by invoking it.
 
 ``` javascript
 
-import { fork, timeout, call } from 'effection';
+import { fork, timeout } from 'effection';
 
 function* waitForSeconds(durationSeconds) {
   yield timeout(durationSeconds * 1000);
 }
 
-fork(function*() {
-  yield call(waitforseconds, 10);
-});
-```
-
-More likely though, you would want to define a higher-order function
-that took your argument and returned a generator:
-
-
-``` javascript
-function waitForSeconds(durationSeconds) {
-  return function*() {
-    yield timeout(durationSeconds * 1000);
-  }
-}
+fork(waitforseconds(10));
 ```
 
 ### Asynchronous Execution
@@ -152,7 +137,7 @@ part of your main process. To do this, you would use the `fork` method
 on the execution:
 
 ``` javascript
-import { fork, fork } from 'effection';
+import { fork } from 'effection';
 
 fork(function*() {
   fork(createFileServer);

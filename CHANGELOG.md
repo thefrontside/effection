@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.3.1] - 2019-10-23
+
+- unroll continuation and state classes in execution. This makes stack
+  traces much smaller and easier to debug:
+  https://github.com/thefrontside/effection.js/pull/19
+- remove some dead files that were not contributing to the API
+  https://github.com/thefrontside/effection.js/pull/18
+
 ## [0.3.0] - 2019-10-18
 
 - unify the fork() and execute() methods. There is now a single API

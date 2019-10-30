@@ -140,7 +140,7 @@ Thanks!
       if (child.sync) {
         this.throw(new Error(`Interupted: ${child.result}`));
       } else {
-        if (!this.hasBlockingChildren) {
+        if (this.isWaiting && !this.hasBlockingChildren) {
           this.finalize('completed');
         }
       }

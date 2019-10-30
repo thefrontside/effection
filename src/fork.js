@@ -125,25 +125,31 @@ https://github.com/thefrontside/effection.js/issues/new
 Thanks!
 `);
     }
+    if (child.isBlocking) {
+      throw new Error(`
+Tried to call Fork#join() with a child that has not been
+finalized. This should never happen and so probably indicates a bug
+in effection. All of its users would be in your eternal debt were you
+to please take the time to report this issue here:
+https://github.com/thefrontside/effection.js/issues/new
+`)
+    }
+    this.children.delete(child);
+
     if (child.isCompleted) {
       if (this.isWaiting && !this.hasBlockingChildren) {
         this.finalize('completed');
-      } else if (this.isRunning) {
-        this.children.delete(child);
-        if (child.sync) {
-          this.resume(child.result);
-        }
+      } else if (this.isRunning && child.sync) {
+        this.resume(child.result);
+      }
+    } else if (child.isHalted) {
+      if (this.isWaiting && !this.hasBlockingChildren) {
+        this.finalize('completed');
+      } else if (this.isRunning && child.sync) {
+        this.throw(new Error(`Interupted: ${child.result}`));
       }
     } else if (child.isErrored) {
       this.throw(child.result);
-    } else if (child.isHalted) {
-      if (child.sync) {
-        this.throw(new Error(`Interupted: ${child.result}`));
-      } else {
-        if (this.isWaiting && !this.hasBlockingChildren) {
-          this.finalize('completed');
-        }
-      }
     }
   }
 

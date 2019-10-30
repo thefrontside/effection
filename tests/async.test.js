@@ -282,6 +282,9 @@ describe('Async executon', () => {
       it('keeps the parent running because it is still yielding on its own', () => {
         expect(parent.isRunning).toEqual(true);
       });
+      it('removes the child from the list of children', () => {
+        expect(parent.children.has(child)).toEqual(false);
+      });
     });
   });
 

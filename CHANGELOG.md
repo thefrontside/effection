@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.3.2] - 2019-10-30
+
+- (fix) in certain cases, execution forks were being marked as
+  completed when they actually were not.
+  https://github.com/thefrontside/effection.js/pull/21
+- (fix) sometimes halted children were being kept around unecessarily,
+  and while not running will cause memory leaks long-term
+  https://github.com/thefrontside/effection.js/pull/22
+
 ## [0.3.1] - 2019-10-23
 
 - unroll continuation and state classes in execution. This makes stack

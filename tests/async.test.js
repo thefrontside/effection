@@ -274,6 +274,15 @@ describe('Async executon', () => {
         expect(parent.isRunning).toEqual(true);
       });
     });
+
+    describe('when the async child is halted', () => {
+      beforeEach(() => {
+        child.halt();
+      });
+      it('keeps the parent running because it is still yielding on its own', () => {
+        expect(parent.isRunning).toEqual(true);
+      });
+    });
   });
 
   describe('the fork function', () => {

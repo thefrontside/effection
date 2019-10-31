@@ -8,6 +8,7 @@ declare module "effection" {
   export interface Execution<T = any> {
     resume(result: T): void;
     throw(error: Error): void;
+    halt(reason?: any): void;
   }
 
   export function fork<T>(operation: Operation): Execution<T>;

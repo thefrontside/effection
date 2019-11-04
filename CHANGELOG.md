@@ -6,7 +6,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.3.3] - 2019-11-04
+
+### Added
+
+- type signature for Exceution.halt() which is necessary in the
+  construction of non-trivial async processes like servers.
+  https://github.com/thefrontside/effection.js/pull/24
+
 ## [0.3.2] - 2019-10-30
+
+### Changed
 
 - (fix) in certain cases, execution forks were being marked as
   completed when they actually were not.
@@ -17,6 +27,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [0.3.1] - 2019-10-23
 
+### Changed
+
 - unroll continuation and state classes in execution. This makes stack
   traces much smaller and easier to debug:
   https://github.com/thefrontside/effection.js/pull/19
@@ -24,6 +36,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   https://github.com/thefrontside/effection.js/pull/18
 
 ## [0.3.0] - 2019-10-18
+
+### Changed
 
 - unify the fork() and execute() methods. There is now a single API
   for initiating asynchronous execution, fork() which makes the mental

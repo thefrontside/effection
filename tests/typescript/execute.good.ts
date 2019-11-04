@@ -14,4 +14,9 @@ execution = fork(function*() {});
 
 execution = fork(undefined);
 
-execution = fork((execution: Execution<void>) => execution.resume());
+execution = fork((execution: Execution<number>) => {
+  execution.resume(10);
+  execution.halt("optional reason");
+  execution.halt();
+  execution.throw(new Error('boom!'));
+});

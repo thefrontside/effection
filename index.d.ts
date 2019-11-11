@@ -6,6 +6,7 @@ declare module "effection" {
   export interface Sequence extends Generator<Operation, any, any> {}
 
   export interface Execution<T = any> {
+    id: number;
     resume(result: T): void;
     throw(error: Error): void;
     halt(reason?: any): void;

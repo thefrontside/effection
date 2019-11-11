@@ -17,6 +17,7 @@
   },
   "devDependencies": {
     "@babel/core": "7.4.4",
+    "@babel/plugin-proposal-class-properties": "^7.7.0",
     "@babel/preset-env": "7.4.4",
     "@babel/register": "7.4.4",
     "@pika/pack": "0.3.7",

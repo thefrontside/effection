@@ -28,8 +28,16 @@ describe('Exec', () => {
       });
     });
 
+    it('has an id', () => {
+      expect(typeof execution.id).toEqual('number');
+    });
+
     it('calls all the way through to the inner child', () => {
       expect(inner).toBeDefined();
+    });
+
+    it('allocates a bigger number to the child id', () => {
+      expect(inner.id > execution.id).toEqual(true);
     });
 
     it('does not invoke any callback', () => {

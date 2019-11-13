@@ -198,6 +198,14 @@ https://github.com/thefrontside/effection.js/issues/new
       this.continuation.call(this);
     }
   }
+
+  get root() {
+    if(this.parent) {
+      return this.parent.root;
+    } else {
+      return this;
+    }
+  }
 }
 
 export function fork(operation, parent = Fork.currentlyExecuting) {

@@ -4,6 +4,7 @@ import { isGenerator, isGeneratorFunction, toGeneratorFunction } from './generat
 import Continuation from './continuation';
 
 class Fork {
+  static ids = 0;
   get isUnstarted() { return this.state === 'unstarted'; }
   get isRunning() { return this.state === 'running'; }
   get isWaiting() { return this.state === 'waiting'; }
@@ -23,6 +24,7 @@ class Fork {
   }
 
   constructor(operation, parent, sync) {
+    this.id = Fork.ids++;
     this.operation = toGeneratorFunction(operation);
     this.parent = parent;
     this.sync = sync;

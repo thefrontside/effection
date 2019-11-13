@@ -15,6 +15,7 @@ execution = fork(function*() {});
 execution = fork(undefined);
 
 execution = fork((execution: Execution<number>) => {
+  execution.id;
   execution.resume(10);
   execution.halt("optional reason");
   execution.halt();

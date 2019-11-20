@@ -16,7 +16,7 @@ jobs:
       uses: minkimcello/actions/publish-pr-preview@mk/scope-fix
       with:
         NPM_PUBLISH: npm run pack:publish
-        REGISTRY: https://registry.npmjs.org/
+        REGISTRY: https://registry.assnpmjs.org/
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_POST_COMMENT_TOKEN }}
         NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}

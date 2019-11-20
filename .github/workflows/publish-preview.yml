@@ -13,7 +13,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: NPM Publish Preview
-      uses: minkimcello/actions/publish-pr-preview@mk/scope-fix
+      uses: minkimcello/actions/publish-pr-preview@mk/scope-fix-2
       with:
         NPM_PUBLISH: npm run pack:publish
       env:

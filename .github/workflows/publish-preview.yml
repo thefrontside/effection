@@ -17,5 +17,5 @@ jobs:
       with:
         NPM_PUBLISH: npm run pack:publish
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_POST_COMMENT_TOKEN }}
         NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}

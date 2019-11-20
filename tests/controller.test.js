@@ -18,13 +18,12 @@ describe('Controlling execution', () => {
   });
 
   describe('from the last step in an execption', () => {
-    let error;
     beforeEach(() => {
       relinquish = mock.fn();
 
       execution = fork(function*() {
         yield control;
-      }).catch(e => error = e);
+      });
 
       expect(controller).toBeDefined();
     });
@@ -44,9 +43,9 @@ describe('Controlling execution', () => {
 
     describe('erroring execution', () => {
       beforeEach(() => {
-        error = undefined;
         controller.throw(new Error('boom!'));
-        expect(error).toBeDefined();
+        expect(execution.isErrored).toEqual(true);
+        expect(execution.result.message).toEqual('boom!');
       });
 
       it('invokes the release function', () => {

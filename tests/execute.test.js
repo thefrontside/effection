@@ -139,67 +139,13 @@ describe('Exec', () => {
     });
   });
 
-  describe('callbacks', () => {
-    let execution, inner;
-
-    let onSuccess, onError, onFinally;
-
-    let id = x => x;
-
-    beforeEach(() => {
-      execution = fork(function*() {
-        return yield function*() {
-          return yield function*() {
-            return yield function*() {
-              return yield exec => inner = exec;
-            };
-          };
-        };
-      }).then(onSuccess = mock.fn(id))
-        .catch(onError = mock.fn(id))
-        .finally(onFinally = mock.fn(id));
-
-      expect(inner).toBeDefined();
-    });
-
-    it('does not invoke any of the callbacks', () => {
-      expect(onSuccess).not.toHaveBeenCalled();
-      expect(onError).not.toHaveBeenCalled();
-      expect(onFinally).not.toHaveBeenCalled();
-    });
-
-    describe('completing the innermost execution', () => {
-      beforeEach(() => {
-        inner.resume(10);
-      });
-
-      it('calls the success callback, and the finally callback, but not the error callback', () => {
-        expect(onSuccess).toHaveBeenCalledWith(execution);
-        expect(onError).not.toHaveBeenCalled();
-        expect(onFinally).toHaveBeenCalledWith(execution);
-      });
-    });
-
-    describe('throwing an error from within the inner-most execution', () => {
-      beforeEach(() => {
-        inner.throw(new Error('boom!'));
-      });
-
-      it('calls the error callback, and the finally callback, but not the success callback', () => {
-        expect(onError).toHaveBeenCalled();
-        expect(onSuccess).not.toHaveBeenCalled();
-        expect(onFinally).toHaveBeenCalledWith(execution);
-      });
-    });
-  });
-
   describe('An execution with an empty yield', () => {
     let execution, error;
 
     beforeEach(() => {
       execution = fork(function*() {
         return yield;
-      }).catch(e => error = e);
+      });
     });
 
     it('is running while yielded', () => {
@@ -211,8 +157,10 @@ describe('Exec', () => {
         execution.resume(10);
       });
 
-      it('completes', () => {
+      it('completes', async () => {
+        expect(execution.state).toEqual('completed');
         expect(execution.result).toEqual(10);
+        await expect(execution).resolves.toBe(10);
       });
     });
 
@@ -221,9 +169,10 @@ describe('Exec', () => {
         execution.throw(new Error('boom'));
       });
 
-      it('errors', () => {
-        expect(error).toBeDefined();
-        expect(error.message).toEqual('boom');
+      it('errors', async () => {
+        expect(execution.state).toEqual('errored');
+        expect(execution.result.message).toEqual('boom');
+        await expect(execution).rejects.toThrow('boom');
       });
     });
   });
@@ -233,7 +182,6 @@ describe('Exec', () => {
     function* add(a, b) {
       return a + b;
     }
-
 
     describe('nested inside generator functions', () => {
       beforeEach(() => {

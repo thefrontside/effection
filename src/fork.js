@@ -1,7 +1,6 @@
 import { noop } from './noop';
 import { promiseOf } from './promise-of';
 import { isGenerator, isGeneratorFunction, toGeneratorFunction } from './generator-function';
-import Continuation from './continuation';
 
 class Fork {
   static ids = 0;
@@ -31,30 +30,27 @@ class Fork {
     this.children = new Set();
     this.state = 'unstarted';
     this.exitPrevious = noop;
-    this.continuation = Continuation.of(frame => {
-      if (frame.isErrored) {
-        let error = frame.result;
-        error.frame = frame;
-        throw error;
-      } else {
-        return frame;
-      }
+  }
+
+  get promise() {
+    this._promise = new Promise((resolve, reject) => {
+      this.resolve = resolve;
+      this.reject = reject;
     });
+    this.finalizePromise();
+    return this._promise;
   }
 
-  then(fn) {
-    this.continuation = this.continuation.then(fn);
-    return this;
+  then(...args) {
+    return this.promise.then(...args);
   }
 
-  catch(fn) {
-    this.continuation = this.continuation.catch(fn);
-    return this;
+  catch(...args) {
+    return this.promise.catch(...args);
   }
 
-  finally(fn) {
-    this.continuation = this.continuation.finally(fn);
-    return this;
+  finally(...args) {
+    return this.promise.finally(...args);
   }
 
   halt(value) {
@@ -196,8 +192,17 @@ https://github.com/thefrontside/effection.js/issues/new
     });
     if (this.parent) {
       this.parent.join(this);
-    } else {
-      this.continuation.call(this);
+    }
+    this.finalizePromise();
+  }
+
+  finalizePromise() {
+    if(this.isCompleted && this.resolve) {
+      this.resolve(this.result);
+    } else if(this.isErrored && this.reject) {
+      this.reject(this.result);
+    } else if(this.isHalted && this.reject) {
+      this.reject(new HaltError(this.result));
     }
   }
 
@@ -218,6 +223,13 @@ export function fork(operation, parent = Fork.currentlyExecuting) {
   }
 }
 
+class HaltError extends Error {
+  constructor(cause) {
+    super("halt");
+    this.cause = cause;
+  }
+}
+
 function controllerFor(value) {
   if (isGeneratorFunction(value) || isGenerator(value)) {
     return parent => parent.fork(value, true);
@@ -225,7 +237,7 @@ function controllerFor(value) {
     return value;
   } else if (value == null) {
     return x => x;
-  } else if (typeof value.then === 'function' && typeof value.catch === 'function') {
+  } else if (typeof value.then === 'function') {
     return promiseOf(value);
   } else {
     throw new Error(`generators should yield either another generator or control function, not '${value}'`);

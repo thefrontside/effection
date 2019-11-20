@@ -106,16 +106,15 @@ describe('Async executon', () => {
     });
 
     describe('throwing an error in one of the children', () => {
-      let error, boom;
+      let boom;
       beforeEach(() => {
         boom = new Error('boom!');
-        execution.catch(e => error = e);
         one.throw(boom);
       });
 
       it('errors out the parent', () => {
         expect(execution.isErrored).toEqual(true);
-        expect(error).toEqual(boom);
+        expect(execution.result).toEqual(boom);
       });
 
       it('has the error as its result', () => {
@@ -126,9 +125,8 @@ describe('Async executon', () => {
   });
 
   describe('with a mixture of synchronous and asynchronous executions', () => {
-    let execution, one, two, sync, boom, error;
+    let execution, one, two, sync, boom;
     beforeEach(() => {
-      error = undefined;
       boom = new Error('boom!');
       execution = fork(function*() {
         fork(function*() { yield cxt => one = cxt; });
@@ -136,7 +134,7 @@ describe('Async executon', () => {
         yield function*() {
           yield cxt => sync = cxt;
         };
-      }).catch(e => error = e);
+      });
       expect(one).toBeDefined();
       expect(two).toBeDefined();
       expect(sync).toBeDefined();
@@ -209,7 +207,7 @@ describe('Async executon', () => {
 
       it('errors out the top level execution', () => {
         expect(execution.isErrored).toEqual(true);
-        expect(error).toEqual(boom);
+        expect(execution.result).toEqual(boom);
       });
 
       it('halts the async children', () => {
@@ -225,7 +223,7 @@ describe('Async executon', () => {
 
       it('errors out the top level execution', () => {
         expect(execution.isErrored).toEqual(true);
-        expect(error).toEqual(boom);
+        expect(execution.result).toEqual(boom);
       });
 
       it('halts the async children', () => {
@@ -240,7 +238,7 @@ describe('Async executon', () => {
       });
 
       it('does not throw an error', () => {
-        expect(error).toBeUndefined();
+        expect(execution.result).toBeUndefined();
       });
 
       it('halts the execution, and all its children', () => {

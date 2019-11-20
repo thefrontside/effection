@@ -254,7 +254,7 @@ describe('Exec', () => {
     describe('directly', () => {
       beforeEach(() => {
         execution = fork(add(1, 2));
-      })
+      });
       it('computes the result just fine', () => {
         expect(execution.isCompleted).toEqual(true);
         expect(execution.result).toEqual(3);

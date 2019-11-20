@@ -105,7 +105,6 @@ Thanks!`);
   }
 
   fork(operation, sync = false) {
-    // console.log(`parent.fork(${operation}, ${sync})`);
     let child = new Fork(operation, this, sync);
     this.children.add(child);
     child.resume();
@@ -134,7 +133,7 @@ finalized. This should never happen and so probably indicates a bug
 in effection. All of its users would be in your eternal debt were you
 to please take the time to report this issue here:
 https://github.com/thefrontside/effection.js/issues/new
-`)
+`);
     }
     this.children.delete(child);
 
@@ -156,8 +155,20 @@ https://github.com/thefrontside/effection.js/issues/new
   }
 
   thunk(fn) {
+    let next;
+    let previouslyExecuting = Fork.currentlyExecuting;
     try {
-      let next = this.enter(fn);
+      Fork.currentlyExecuting = this;
+
+      this.exitPrevious();
+
+      try {
+        next = fn(this.iterator);
+      } catch(error) {
+        this.finalize('errored', error);
+        return;
+      }
+
       if (next.done) {
         if (this.hasBlockingChildren) {
           this.state = 'waiting';
@@ -170,17 +181,6 @@ https://github.com/thefrontside/effection.js/issues/new
         let exit = controller(this);
         this.exitPrevious = typeof exit === 'function' ? exit : noop;
       }
-    } catch (error) {
-      this.finalize('errored', error);
-    }
-  }
-
-  enter(fn) {
-    let previouslyExecuting = Fork.currentlyExecuting;
-    try {
-      Fork.currentlyExecuting = this;
-      this.exitPrevious();
-      return fn(this.iterator);
     } finally {
       Fork.currentlyExecuting = previouslyExecuting;
     }

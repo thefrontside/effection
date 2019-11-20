@@ -7,13 +7,13 @@ on:
       - release-*
 
 jobs:
-  preview: 
+  preview:
     name: Publish Preview Package
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
     - name: NPM Publish Preview
-      uses: thefrontside/actions/publish-pr-preview@master
+      uses: thefrontside/actions/publish-pr-preview@2be7576
       with:
         NPM_PUBLISH: npm run pack:publish
       env:

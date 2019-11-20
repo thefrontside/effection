@@ -6,6 +6,23 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.4.0] - 2019-11-20
+
+### Added
+
+- add a monotonic `id` field to every fork to help with debugging
+  https://github.com/thefrontside/effection.js/pull/32
+
+### Changed
+
+- (fix) do not swallow some errors that are thrown inside of a yield
+  point destructor: https://github.com/thefrontside/effection.js/pull/37
+
+- Make every fork conform to the Promises A+
+  API. E.g. `fork(operation).then()`
+  https://github.com/thefrontside/effection.js/pull/38
+
+
 ## [0.3.3] - 2019-11-04
 
 ### Added

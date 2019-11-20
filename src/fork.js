@@ -4,6 +4,7 @@ import { isGenerator, isGeneratorFunction, toGeneratorFunction } from './generat
 import Continuation from './continuation';
 
 class Fork {
+  static ids = 0;
   get isUnstarted() { return this.state === 'unstarted'; }
   get isRunning() { return this.state === 'running'; }
   get isWaiting() { return this.state === 'waiting'; }
@@ -23,6 +24,7 @@ class Fork {
   }
 
   constructor(operation, parent, sync) {
+    this.id = Fork.ids++;
     this.operation = toGeneratorFunction(operation);
     this.parent = parent;
     this.sync = sync;
@@ -103,7 +105,6 @@ Thanks!`);
   }
 
   fork(operation, sync = false) {
-    // console.log(`parent.fork(${operation}, ${sync})`);
     let child = new Fork(operation, this, sync);
     this.children.add(child);
     child.resume();
@@ -132,7 +133,7 @@ finalized. This should never happen and so probably indicates a bug
 in effection. All of its users would be in your eternal debt were you
 to please take the time to report this issue here:
 https://github.com/thefrontside/effection.js/issues/new
-`)
+`);
     }
     this.children.delete(child);
 
@@ -154,8 +155,20 @@ https://github.com/thefrontside/effection.js/issues/new
   }
 
   thunk(fn) {
+    let next;
+    let previouslyExecuting = Fork.currentlyExecuting;
     try {
-      let next = this.enter(fn);
+      Fork.currentlyExecuting = this;
+
+      this.exitPrevious();
+
+      try {
+        next = fn(this.iterator);
+      } catch(error) {
+        this.finalize('errored', error);
+        return;
+      }
+
       if (next.done) {
         if (this.hasBlockingChildren) {
           this.state = 'waiting';
@@ -168,17 +181,6 @@ https://github.com/thefrontside/effection.js/issues/new
         let exit = controller(this);
         this.exitPrevious = typeof exit === 'function' ? exit : noop;
       }
-    } catch (error) {
-      this.finalize('errored', error);
-    }
-  }
-
-  enter(fn) {
-    let previouslyExecuting = Fork.currentlyExecuting;
-    try {
-      Fork.currentlyExecuting = this;
-      this.exitPrevious();
-      return fn(this.iterator);
     } finally {
       Fork.currentlyExecuting = previouslyExecuting;
     }
@@ -196,6 +198,14 @@ https://github.com/thefrontside/effection.js/issues/new
       this.parent.join(this);
     } else {
       this.continuation.call(this);
+    }
+  }
+
+  get root() {
+    if(this.parent) {
+      return this.parent.root;
+    } else {
+      return this;
     }
   }
 }

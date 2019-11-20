@@ -13,7 +13,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: NPM Publish Preview
-      uses: thefrontside/actions/publish-pr-preview@2be7576
+      uses: thefrontside/actions/publish-pr-preview@v1
       with:
         NPM_PUBLISH: npm run pack:publish
       env:

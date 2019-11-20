@@ -13,11 +13,10 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: NPM Publish Preview
-      uses: minkimcello/actions/publish-pr-preview@mk/scope-fix-2
+      uses: minkimcello/actions/publish-pr-preview@mk/scope-fix
       with:
         NPM_PUBLISH: npm run pack:publish
-        npm_config_registry: https://registry.123npm123js.org/
+        REGISTRY: https://registry.npmjs.org/
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_POST_COMMENT_TOKEN }}
         NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
-###

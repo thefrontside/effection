@@ -1,5 +1,5 @@
 declare module "effection" {
-  export type Operation = SequenceFn | Sequence | Promise<any> | Controller | undefined;
+  export type Operation = SequenceFn | Sequence | Promise<any> | Controller | Execution<any> | undefined;
   export type SequenceFn = (this: Execution) => Sequence;
   export type Controller = (execution: Execution) => void | (() => void);
 

@@ -9,6 +9,9 @@ function* sequence(): Sequence {
 
   // other Operation also ok.
   yield sequence
+
+  // can yield to forks
+  yield fork(function*() { yield });
 }
 
 function* asynchronous(): Sequence {

@@ -301,4 +301,33 @@ describe('Async executon', () => {
       expect(forkReturn).toEqual(forkContext);
     });
   });
+
+  describe('yielding on fork', () => {
+    let root, child;
+    beforeEach(() => {
+      root = fork(function*() {
+        child = fork(function*() {
+          let number = yield;
+          return number * 2;
+        });
+        let value = yield child;
+        return value + 1;
+      });
+    });
+
+    it('awaits the value from the child', async () => {
+      child.resume(5);
+      await expect(root).resolves.toBe(11);
+    });
+
+    it('throws if child is thrown', async () => {
+      child.throw(new Error("boom"));
+      await expect(root).rejects.toThrow("boom");
+    });
+
+    it('throws if child is halted', async () => {
+      child.halt();
+      await expect(root).rejects.toThrow("halt");
+    });
+  });
 });

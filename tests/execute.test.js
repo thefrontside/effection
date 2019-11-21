@@ -140,7 +140,7 @@ describe('Exec', () => {
   });
 
   describe('An execution with an empty yield', () => {
-    let execution, error;
+    let execution;
 
     beforeEach(() => {
       execution = fork(function*() {

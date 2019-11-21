@@ -11,7 +11,7 @@ export function promiseOf(promise) {
 
     // return values of succeed and fail are deliberately ignored.
     // see https://github.com/thefrontside/effection.js/pull/44
-    promise.then(value => { succeed(value) }, error => { fail(error) });
+    promise.then(value => { succeed(value); }, error => { fail(error); });
 
     // this execution has passed out of scope, so we don't care
     // what happened to the promise, so make the callbacks noops.

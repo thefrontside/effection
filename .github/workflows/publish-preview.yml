@@ -13,8 +13,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: NPM Publish Preview
-      #uses: minkimcello/actions/publish-pr-preview@mk/scope-fix
-      uses: thefrontside/actions/publish-pr-preview@master
+      uses: minkimcello/actions/publish-pr-preview@mk/scope-fix
       with:
         NPM_PUBLISH: npm run pack:publish
         REGISTRY: https://registry.npmjs.org/

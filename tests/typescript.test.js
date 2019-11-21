@@ -13,6 +13,9 @@ describe("Typescript types", function() {
   it('can execute anything that is a valid operation', () => {
     expect('execute.good.ts').toCompile();
   });
+  it('can treat forks as promises', () => {
+    expect('promise.ts').toCompile();
+  });
   it('cannot execute things that are not operations', () => {
     expect('execute.bad.ts').not.toCompile();
   });

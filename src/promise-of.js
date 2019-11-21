@@ -9,7 +9,7 @@ export function promiseOf(promise) {
     let fail = err => execution.throw(err);
     let noop = x => x;
 
-    promise.then(value => succeed(value), error => fail(error));
+    promise.then(value => { succeed(value) }, error => { fail(error) });
 
     // this execution has passed out of scope, so we don't care
     // what happened to the promise, so make the callbacks noops.

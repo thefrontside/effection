@@ -36,8 +36,8 @@ describe('forks as promises', () => {
 
       expect(onResolveRoot).not.toHaveBeenCalled();
       expect(onResolveChild).not.toHaveBeenCalled();
-      expect(onRejectRoot).not.toHaveBeenCalled()
-      expect(onRejectChild).not.toHaveBeenCalled()
+      expect(onRejectRoot).not.toHaveBeenCalled();
+      expect(onRejectChild).not.toHaveBeenCalled();
     });
 
     it('resolves inner when inner operation finishes', async () => {
@@ -46,8 +46,8 @@ describe('forks as promises', () => {
 
       expect(onResolveRoot).not.toHaveBeenCalled();
       expect(onResolveChild).toHaveBeenCalledWith(123);
-      expect(onRejectRoot).not.toHaveBeenCalled()
-      expect(onRejectChild).not.toHaveBeenCalled()
+      expect(onRejectRoot).not.toHaveBeenCalled();
+      expect(onRejectChild).not.toHaveBeenCalled();
     });
 
     it('resolves when operation and all children finish', async () => {
@@ -57,8 +57,8 @@ describe('forks as promises', () => {
 
       expect(onResolveRoot).toHaveBeenCalledWith(567);
       expect(onResolveChild).toHaveBeenCalledWith(123);
-      expect(onRejectRoot).not.toHaveBeenCalled()
-      expect(onRejectChild).not.toHaveBeenCalled()
+      expect(onRejectRoot).not.toHaveBeenCalled();
+      expect(onRejectChild).not.toHaveBeenCalled();
     });
 
     it('rejects when child errors', async () => {

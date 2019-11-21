@@ -9,6 +9,8 @@ export function promiseOf(promise) {
     let fail = err => execution.throw(err);
     let noop = x => x;
 
+    // return values of succeed and fail are deliberately ignored.
+    // see https://github.com/thefrontside/effection.js/pull/44
     promise.then(value => { succeed(value) }, error => { fail(error) });
 
     // this execution has passed out of scope, so we don't care

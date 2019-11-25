@@ -2,9 +2,13 @@
 #
 # Check https://circleci.com/docs/2.0/language-javascript/ for more details
 #
-version: 2
+version: 2.1
 jobs:
-  build:
+  run:
+    parameters:
+      script:
+        description: "script to run after build"
+        type: string
     docker:
       # specify the version you desire here
       - image: circleci/node:10
@@ -33,5 +37,17 @@ jobs:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
 
-      # run tests!
-      - run: yarn test
+      # run script
+      - run: yarn << parameters.script >>
+
+workflows:
+  test:
+    jobs:
+      - run:
+          name: "tests"
+          script: test
+  test-types:
+    jobs:
+      - run:
+          name: "test types"
+          script: test:types

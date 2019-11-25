@@ -11,7 +11,8 @@
     "coverage": "nyc --reporter=html --reporter=text npm run test",
     "coveralls": "nyc report --reporter=text-lcov | coveralls",
     "build": "pack build",
-    "test": "mocha --recursive -r ./tests/setup tests",
+    "test": "mocha --recursive -r ./tests/setup tests/**/*.test.js",
+    "test:types": "mocha --recursive -r ./tests/setup tests/typescript.js",
     "lint": "eslint ./",
     "pack:publish": "pack build && cd pkg && npm publish $*"
   },

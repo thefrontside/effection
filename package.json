@@ -13,7 +13,7 @@
     "build": "pack build",
     "test": "mocha --recursive -r ./tests/setup tests",
     "lint": "eslint ./",
-    "pack:publish": "pack build && cd pkg && npm publish $*"
+    "pack:publish": "pack build && cd pkg && npm_config_unsafe_perm=true npm publish $*"
   },
   "devDependencies": {
     "@babel/core": "7.4.4",

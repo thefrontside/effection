@@ -17,6 +17,6 @@ jobs:
       uses: minkimcello/actions/publish-pr-preview@mk/remove-npmrc
       with:
         NPM_PUBLISH: npm run pack:publish
-        NPM_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
       env:
+        NPM_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_POST_COMMENT_TOKEN }}

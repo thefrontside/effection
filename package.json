@@ -2,7 +2,7 @@
   "name": "effection",
   "version": "0.4.0",
   "description": "Effortlessly composable structured concurrency primitive for JavaScript",
-  "repository": "http://github.com/thefrontside/effection.js",
+  "repository": "http://github.com/cowboyd/effection.js",
   "author": "Charles Lowell <cowboyd@frontside.io>",
   "license": "MIT",
   "private": false,
@@ -13,7 +13,7 @@
     "build": "pack build",
     "test": "mocha --recursive -r ./tests/setup tests",
     "lint": "eslint ./",
-    "pack:publish": "pack build && cd pkg && npm_config_unsafe_perm=true npm publish $*"
+    "pack:publish": "pack build && cd pkg && NPM_TOKEN=${NPM_TOKEN} npm_config_unsafe_perm=true npm publish $*"
   },
   "devDependencies": {
     "@babel/core": "7.4.4",

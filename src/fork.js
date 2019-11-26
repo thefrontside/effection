@@ -1,8 +1,9 @@
 import { noop } from './noop';
 import { promiseOf } from './promise-of';
 import { isGenerator, isGeneratorFunction, toGeneratorFunction } from './generator-function';
+import { EventEmitter } from 'events';
 
-class Fork {
+export class Fork extends EventEmitter {
   static ids = 0;
   get isUnstarted() { return this.state === 'unstarted'; }
   get isRunning() { return this.state === 'running'; }
@@ -23,11 +24,13 @@ class Fork {
   }
 
   constructor(operation, parent, sync) {
+    super();
     this.id = Fork.ids++;
     this.operation = toGeneratorFunction(operation);
     this.parent = parent;
     this.sync = sync;
     this.children = new Set();
+    this.mailbox = [];
     this.state = 'unstarted';
     this.exitPrevious = noop;
   }
@@ -204,6 +207,11 @@ https://github.com/thefrontside/effection.js/issues/new
     } else if(this.isHalted && this.reject) {
       this.reject(new HaltError(this.result));
     }
+  }
+
+  send(message) {
+    this.mailbox.push(message);
+    this.emit("message", message);
   }
 
   get root() {

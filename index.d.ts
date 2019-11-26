@@ -5,11 +5,13 @@ declare module "effection" {
 
   export interface Sequence extends Generator<Operation, any, any> {}
 
-  export interface Execution<T = any> {
+  export interface Execution<T = any> extends PromiseLike<any> {
     id: number;
     resume(result: T): void;
     throw(error: Error): void;
     halt(reason?: any): void;
+    catch<R>(fn: (Error) => R): Promise<R>;
+    finally(fn: () => void): Promise<any>;
   }
 
   export function fork<T>(operation: Operation): Execution<T>;

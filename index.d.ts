@@ -13,6 +13,7 @@ declare module "effection" {
     halt(reason?: any): void;
     catch<R>(fn: (error: Error) => R): Promise<R>;
     finally(fn: () => void): Promise<any>;
+    atExit(fn: () => void): void;
   }
 
   export function fork<T>(operation: Operation): Execution<T>;

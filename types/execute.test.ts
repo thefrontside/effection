@@ -22,6 +22,7 @@ execution = fork((execution: Execution<number>) => {
   execution.throw(new Error('boom!'));
   execution.send({ some: "message" });
   execution.send("message");
+  execution.atExit(() => {});
 });
 
 // $ExpectError

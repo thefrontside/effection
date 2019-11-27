@@ -31,6 +31,7 @@ export class Fork extends EventEmitter {
     this.sync = sync;
     this.children = new Set();
     this.mailbox = [];
+    this.atExitHooks = [];
     this.state = 'unstarted';
     this.exitPrevious = noop;
   }
@@ -54,6 +55,10 @@ export class Fork extends EventEmitter {
 
   finally(...args) {
     return this.promise.finally(...args);
+  }
+
+  atExit(fn) {
+    this.atExitHooks.push(fn);
   }
 
   halt(value) {
@@ -196,6 +201,7 @@ https://github.com/thefrontside/effection.js/issues/new
     if (this.parent) {
       this.parent.join(this);
     }
+    this.atExitHooks.forEach((fn) => fn(this));
     this.finalizePromise();
   }
 

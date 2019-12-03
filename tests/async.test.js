@@ -10,7 +10,7 @@ describe('Async executon', () => {
   describe('with asynchronously executing children', () => {
     let execution, one, two, three;
 
-    beforeEach(() => {
+    beforeEach((done) => {
       execution = fork(function() {
         fork(function*() {
           yield cxt => one = cxt;
@@ -21,7 +21,10 @@ describe('Async executon', () => {
         });
 
         fork(function*() {
-          yield cxt => three = cxt;
+          yield cxt => {
+            three = cxt;
+            done();
+          };
         });
       });
     });
@@ -126,15 +129,17 @@ describe('Async executon', () => {
 
   describe('with a mixture of synchronous and asynchronous executions', () => {
     let execution, one, two, sync, boom;
-    beforeEach(() => {
-      boom = new Error('boom!');
-      execution = fork(function*() {
-        fork(function*() { yield cxt => one = cxt; });
-        fork(function*() { yield cxt => two = cxt; });
-        yield function*() {
-          yield cxt => sync = cxt;
-        };
-      });
+    beforeEach(async () => {
+      await new Promise((resolve, reject) => {
+        boom = new Error('boom!');
+        execution = fork(function*() {
+          fork(function*() { yield cxt => one = cxt; });
+          fork(function*() { yield cxt => two = cxt; });
+          yield function*() {
+            yield cxt => (sync = cxt) && resolve();
+          };
+        });
+      })
       expect(one).toBeDefined();
       expect(two).toBeDefined();
       expect(sync).toBeDefined();
@@ -252,9 +257,12 @@ describe('Async executon', () => {
 
   describe('A parent that block, but also has an async child', () => {
     let parent, child;
-    beforeEach(() => {
+    beforeEach((done) => {
       parent = fork(function*() {
-        fork(function*() { yield cxt => child = cxt; });
+        fork(function*() {
+          done();
+          yield cxt => child = cxt;
+        });
         yield x => x;
       });
     });
@@ -288,10 +296,11 @@ describe('Async executon', () => {
 
   describe('the fork function', () => {
     let forkReturn, forkContext;
-    beforeEach(() => {
+    beforeEach((done) => {
       fork(function*() {
         forkReturn = fork(function*() {
           forkContext = this;
+          done();
         });
       });
     });
@@ -304,9 +313,10 @@ describe('Async executon', () => {
 
   describe('yielding on fork', () => {
     let root, child;
-    beforeEach(() => {
+    beforeEach((done) => {
       root = fork(function*() {
         child = fork(function*() {
+          done();
           let number = yield;
           return number * 2;
         });
@@ -315,19 +325,34 @@ describe('Async executon', () => {
       });
     });
 
-    it('awaits the value from the child', async () => {
-      child.resume(5);
-      await expect(root).resolves.toBe(11);
+    describe('when the child resumes', () => {
+      beforeEach(() => {
+        child.resume(5);
+      });
+
+      it('awaits the value from the child', async () => {
+        await expect(root).resolves.toBe(11);
+      });
     });
 
-    it('throws if child is thrown', async () => {
-      child.throw(new Error("boom"));
-      await expect(root).rejects.toThrow("boom");
+    describe('when the child is thrown', () => {
+      beforeEach(() => {
+        child.throw(new Error("boom"));
+      });
+
+      it('throws if child is thrown', async () => {
+        await expect(root).rejects.toThrow("boom");
+      });
     });
 
-    it('throws if child is halted', async () => {
-      child.halt();
-      await expect(root).rejects.toThrow("halt");
+    describe('when the child is halted', () => {
+      beforeEach(() => {
+        child.halt();
+      });
+
+      it('throws if child is halted', async () => {
+        await expect(root).rejects.toThrow("halt");
+      });
     });
   });
 });

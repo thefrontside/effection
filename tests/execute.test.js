@@ -11,7 +11,7 @@ describe('Exec', () => {
   describe('deeply nested task', () => {
     let inner, execution, error;
     let onSuccess, onError, onFinally;
-    beforeEach(() => {
+    beforeEach((done) => {
       onSuccess = mock.fn(x => x);
       onError = mock.fn(x => x);
       onFinally = mock.fn(x => x);
@@ -19,7 +19,10 @@ describe('Exec', () => {
         try {
           return yield function*() {
             return yield function*() {
-              return yield ctl => inner = ctl;
+              return yield ctl => {
+                inner = ctl;
+                done();
+              };
             };
           };
         } catch (e) {
@@ -118,7 +121,7 @@ describe('Exec', () => {
   describe('deeply nested task that throws an error', () => {
     let execution, error;
     beforeEach(() => {
-      execution = fork(function*() {
+      return execution = fork(function*() {
         try {
           return yield function*() {
             return yield function*() {
@@ -185,8 +188,7 @@ describe('Exec', () => {
 
     describe('nested inside generator functions', () => {
       beforeEach(() => {
-
-        execution = fork(function*() {
+        return execution = fork(function*() {
           let one = yield function*() { return 1; };
           let two = yield function*() { return 2; };
           return yield add(one, two);

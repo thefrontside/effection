@@ -9,10 +9,11 @@ import { fork } from '../src/index';
 describe('Root', () => {
   let execution, child, grandchild;
 
-  beforeEach(() => {
+  beforeEach((done) => {
     execution = fork(function() {
       child = fork(function*() {
         grandchild = fork(function*() {
+          done();
           yield;
         });
       });

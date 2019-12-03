@@ -11,7 +11,7 @@ class Fork {
   get isErrored() { return this.state === 'errored'; }
   get isHalted() { return this.state === 'halted'; }
 
-  get isBlocking() { return this.isRunning || this.isWaiting; }
+  get isBlocking() { return this.isRunning || this.isWaiting || this.isUnstarted; }
 
   get hasBlockingChildren() {
     for (let child of this.children) {
@@ -103,7 +103,9 @@ Thanks!`);
   fork(operation, sync = false) {
     let child = new Fork(operation, this, sync);
     this.children.add(child);
-    child.resume();
+    setTimeout(() => {
+      child.resume();
+    }, 0);
     return child;
   }
 

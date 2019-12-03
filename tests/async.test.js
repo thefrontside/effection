@@ -130,7 +130,7 @@ describe('Async executon', () => {
   describe('with a mixture of synchronous and asynchronous executions', () => {
     let execution, one, two, sync, boom;
     beforeEach(async () => {
-      await new Promise((resolve, reject) => {
+      await new Promise((resolve) => {
         boom = new Error('boom!');
         execution = fork(function*() {
           fork(function*() { yield cxt => one = cxt; });
@@ -139,7 +139,7 @@ describe('Async executon', () => {
             yield cxt => (sync = cxt) && resolve();
           };
         });
-      })
+      });
       expect(one).toBeDefined();
       expect(two).toBeDefined();
       expect(sync).toBeDefined();

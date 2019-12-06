@@ -13,9 +13,9 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: NPM Publish Preview
-      uses: thefrontside/actions/publish-pr-preview@v1
+      uses: thefrontside/actions/publish-pr-preview@v1.2
       with:
         NPM_PUBLISH: npm run pack:publish
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_POST_COMMENT_TOKEN }}
-        NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+        NPM_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}

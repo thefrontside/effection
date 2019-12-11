@@ -7,9 +7,9 @@
 *     console.log(`Hello ${target}!`);
 *   }
 */
-export function timeout(durationMillis = 0) {
-  return function(execution) {
-    let timeoutId = setTimeout(() => execution.resume(), durationMillis);
-    return () => clearTimeout(timeoutId);
+export function timeout(duration) {
+  return ({ resume, ensure }) => {
+    let timeoutId = setTimeout(resume, duration);
+    ensure(() => clearTimeout(timeoutId));
   };
 }

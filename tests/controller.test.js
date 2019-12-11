@@ -2,30 +2,32 @@
 
 import expect from 'expect';
 
-import { fork } from '../src/index';
+import { enter } from '../src/index';
+
 import mock from 'jest-mock';
 
 describe('Controlling execution', () => {
-  let execution, controller, relinquish;
+  let execution, resume, fail, relinquish;
 
-  function control(ctl) {
-    controller = ctl;
-    return relinquish;
+  function control(controller) {
+    ({ resume, fail } = controller);
+    controller.ensure(relinquish);
   }
 
   beforeEach(() => {
-    execution = controller = relinquish = undefined;
+    execution = resume = fail = relinquish = undefined;
   });
 
   describe('from the last step in an execption', () => {
     beforeEach(() => {
       relinquish = mock.fn();
 
-      execution = fork(function*() {
+      execution = enter(function*() {
         yield control;
       });
 
-      expect(controller).toBeDefined();
+      expect(resume).toBeDefined();
+      expect(fail).toBeDefined();
     });
 
     it('does not call the relinquish upon entering the control context', () => {
@@ -34,7 +36,7 @@ describe('Controlling execution', () => {
 
     describe('resuming execution', () => {
       beforeEach(() => {
-        controller.resume();
+        resume();
       });
       it('invokes the release function', () => {
         expect(relinquish).toHaveBeenCalled();
@@ -43,7 +45,7 @@ describe('Controlling execution', () => {
 
     describe('erroring execution', () => {
       beforeEach(() => {
-        controller.throw(new Error('boom!'));
+        fail(new Error('boom!'));
         expect(execution.isErrored).toEqual(true);
         expect(execution.result.message).toEqual('boom!');
       });
@@ -68,12 +70,12 @@ describe('Controlling execution', () => {
   describe('from an intermediate step in an execution', () => {
     beforeEach(() => {
       relinquish = mock.fn();
-      fork(function* () {
+      enter(function* () {
         yield control;
         yield ctl => ctl.resume();
       });
-      expect(controller).toBeDefined();
-      controller.resume();
+      expect(resume).toBeDefined();
+      resume();
     });
 
     it('still invokes the relinquish function', () => {
@@ -84,13 +86,13 @@ describe('Controlling execution', () => {
   describe('a release function that throws an error', () => {
     beforeEach(() => {
       relinquish = () => { throw new Error('this is a bug in the release control!'); };
-      fork(function* () {
+      enter(function* () {
         yield control;
       });
     });
 
     it('throws that error when trying to resume execution', () => {
-      expect(() => controller.resume()).toThrow(/this is a bug/);
+      expect(() => resume()).toThrow(/this is a bug/);
     });
   });
 });

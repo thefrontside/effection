@@ -1,14 +1,14 @@
 /* eslint no-console: 0 */
-/* eslint require-yield: 0 */
-import { fork, timeout } from '../src/index';
+import { enter, fork, timeout } from '../src/index';
 
+import { interruptable } from './inerruptable';
 
 /**
  * Fires up some random servers
  */
-fork(interruptable(function*() {
-  fork(randoLogger('Bob'));
-  fork(randoLogger('Alice'));
+enter(interruptable(function*() {
+  yield fork(randoLogger('Bob'));
+  yield fork(randoLogger('Alice'));
 
   console.log('Up and running with random number servers Bob and Alice....');
 }));
@@ -29,19 +29,6 @@ function randoLogger(name) {
       }
     } finally {
       console.log(`${name} is shutting down`);
-    }
-  };
-}
-
-
-function interruptable(proc) {
-  return function*() {
-    let interrupt = () => console.log('') || this.halt();
-    process.on('SIGINT', interrupt);
-    try {
-      yield proc;
-    } finally {
-      process.off('SIGINT', interrupt);
     }
   };
 }

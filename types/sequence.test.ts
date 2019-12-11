@@ -27,6 +27,6 @@ function* sequence(): Sequence {
 }
 
 function* asynchronous(): Sequence {
-  fork(sequence);
-  fork(sequence());
+  yield fork(sequence);
+  yield fork(sequence());
 }

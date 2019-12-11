@@ -64,20 +64,20 @@ siblings are immediately halted.
 
 ## Execution
 
-The process primitive is the `Execution`. To create (and start) an
+The process primitive is the `Execution`. To create (and enter) an
 `Execution`, use the `fork` function and pass it a generator. This
 simplest example waits for 1 second, then prints out "hello world" to
 the console.
 
 ``` javascript
-import { fork, timeout } from 'effection';
+import { enter, timeout } from 'effection';
 
-let process = fork(function*() {
+let execution = enter(function*() {
   yield timeout(1000);
   return 'hello world';
 });
 
-process.isRunning //=> true
+execution.isRunning //=> true
 // 1000ms passes
 // process.isRunning //=> false
 // process.result //=> 'hello world'
@@ -87,7 +87,7 @@ Child processes can be composed freely. So instead of yielding for
 1000 ms, we could instead, yield 10 times for 100ms.
 
 ``` javascript
-fork(function*() {
+enter(function*() {
   yield function*() {
     for (let i = 0; i < 10; i++) {
       yield timeout(100);
@@ -100,7 +100,7 @@ fork(function*() {
 And in fact, processes can be easily and arbitrarly deeply nested:
 
 ``` javascript
-let process = fork(function*() {
+let process = enter(function*() {
   return yield function*() {
     return yield function*() {
       return yield function*() {
@@ -118,13 +118,13 @@ You can pass arguments to an operation by invoking it.
 
 ``` javascript
 
-import { fork, timeout } from 'effection';
+import { enter, timeout } from 'effection';
 
 function* waitForSeconds(durationSeconds) {
   yield timeout(durationSeconds * 1000);
 }
 
-fork(waitforseconds(10));
+enter(waitforseconds(10));
 ```
 
 ### Asynchronous Execution
@@ -137,11 +137,11 @@ part of your main process. To do this, you would use the `fork` method
 on the execution:
 
 ``` javascript
-import { fork } from 'effection';
+import { enter, fork } from 'effection';
 
-fork(function*() {
-  fork(createFileServer);
-  fork(createHttpServer);
+enter(function*() {
+  yield fork(createFileServer);
+  yield fork(createHttpServer);
 });
 ```
 

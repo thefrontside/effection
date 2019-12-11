@@ -21,3 +21,6 @@ execution = fork((execution: Execution<number>) => {
   execution.halt();
   execution.throw(new Error('boom!'));
 });
+
+// $ExpectError
+fork(5);

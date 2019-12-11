@@ -1,3 +1,4 @@
+// TypeScript Version: 3.6
 declare module "effection" {
   export type Operation = SequenceFn | Sequence | Promise<any> | Controller | Execution<any> | undefined;
   export type SequenceFn = (this: Execution) => Sequence;
@@ -10,7 +11,7 @@ declare module "effection" {
     resume(result: T): void;
     throw(error: Error): void;
     halt(reason?: any): void;
-    catch<R>(fn: (Error) => R): Promise<R>;
+    catch<R>(fn: (error: Error) => R): Promise<R>;
     finally(fn: () => void): Promise<any>;
   }
 

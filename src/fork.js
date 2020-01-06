@@ -16,14 +16,14 @@ export class Fork extends EventEmitter {
 
   get hasBlockingChildren() {
     for (let child of this.children) {
-      if (child.isBlocking) {
+      if (child.canBlock && child.isBlocking) {
         return true;
       }
     }
     return false;
   }
 
-  constructor(operation, parent, sync) {
+  constructor(operation, parent, sync, canBlock = true) {
     super();
     this.id = Fork.ids++;
     this.operation = toGeneratorFunction(operation);
@@ -34,6 +34,7 @@ export class Fork extends EventEmitter {
     this.atExitHooks = [];
     this.state = 'unstarted';
     this.exitPrevious = noop;
+    this.canBlock = canBlock;
   }
 
   get promise() {
@@ -110,6 +111,13 @@ Thanks!`);
 
   fork(operation, sync = false) {
     let child = new Fork(operation, this, sync);
+    this.children.add(child);
+    child.resume();
+    return child;
+  }
+
+  monitor(operation) {
+    let child = new Fork(operation, this, false, false);
     this.children.add(child);
     child.resume();
     return child;
@@ -234,6 +242,14 @@ export function fork(operation, parent = Fork.currentlyExecuting) {
     return parent.fork(operation);
   } else {
     return new Fork(operation).resume();
+  }
+}
+
+export function monitor(operation, parent = Fork.currentlyExecuting) {
+  if (parent) {
+    return parent.monitor(operation);
+  } else {
+    throw new Error("cannot call monitor in top level context");
   }
 }
 

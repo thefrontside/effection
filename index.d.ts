@@ -25,6 +25,8 @@ declare module "effection" {
 
   export function fork<T>(operation: Operation): Execution<T>;
 
+  export function monitor<T>(operation: Operation): Execution<T>;
+
   export function receive(): Controller;
   export function receive(fork: Execution<any>): Controller;
   export function receive(match: PatternMatchOptions): Controller;

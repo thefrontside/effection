@@ -23,6 +23,9 @@ execution = fork((execution: Execution<number>) => {
   execution.send({ some: "message" });
   execution.send("message");
   execution.atExit(() => {});
+  execution.monitor(function*() {
+    yield
+  });
 });
 
 // $ExpectError

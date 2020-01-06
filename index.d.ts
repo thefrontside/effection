@@ -21,6 +21,7 @@ declare module "effection" {
     finally(fn: () => void): Promise<any>;
     send(message: any): void;
     atExit(fn: () => void): void;
+    monitor<T>(operation: Operation): Execution<T>;
   }
 
   export function fork<T>(operation: Operation): Execution<T>;

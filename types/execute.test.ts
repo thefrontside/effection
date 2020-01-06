@@ -20,6 +20,9 @@ execution = fork((execution: Execution<number>) => {
   execution.halt("optional reason");
   execution.halt();
   execution.throw(new Error('boom!'));
+  execution.monitor(function*() {
+    yield
+  });
 });
 
 // $ExpectError

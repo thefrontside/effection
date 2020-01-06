@@ -6,7 +6,7 @@
   "author": "Charles Lowell <cowboyd@frontside.io>",
   "license": "MIT",
   "private": false,
-  "types": "types/index.d.ts",
+  "types": "index.d.ts",
   "scripts": {
     "coverage": "nyc --reporter=html --reporter=text npm run test",
     "coveralls": "nyc report --reporter=text-lcov | coveralls",
@@ -63,7 +63,7 @@
         "@pika/plugin-copy-assets",
         {
           "files": [
-            "types/index.d.ts"
+            "index.d.ts"
           ]
         }
       ]

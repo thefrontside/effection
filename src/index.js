@@ -1,2 +1,2 @@
 export { timeout } from './timeout';
-export { fork } from './fork';
+export { fork, monitor } from './fork';

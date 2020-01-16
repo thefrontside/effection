@@ -1,7 +1,7 @@
 /* eslint no-console: 0 */
 import { enter, fork, timeout } from '../src/index';
 
-import { interruptable } from './inerruptable';
+import { interruptable } from './interruptable';
 
 /**
  * Fires up some random servers

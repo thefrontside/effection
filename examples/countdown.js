@@ -1,7 +1,7 @@
 /* eslint no-console: 0 */
 import { enter, timeout } from '../src/index';
 
-import { interruptable } from './inerruptable';
+import { interruptable } from './interruptable';
 
 /**
  * A simple script that counts down from 5 to 1, pausing for one

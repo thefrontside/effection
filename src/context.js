@@ -102,9 +102,8 @@ export class ExecutionContext {
   }
 
   ensure(hook) {
-    let { exitHooks } = this;
-    exitHooks.add(hook);
-    return () => exitHooks.delete(hook);
+    this.exitHooks.add(hook);
+    return () => this.exitHooks.delete(hook);
   }
 
   enter(operation) {

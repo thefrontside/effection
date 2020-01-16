@@ -141,6 +141,9 @@ Thanks!`);
       } else {
         this.finalize('completed', value);
       }
+      if (this.options.resume) {
+        this.options.resume(value);
+      }
     } else {
       throw new Error(`
 Tried to call Fork#resume() on a Fork with state '${this.state}' This
@@ -150,9 +153,6 @@ report this issue here:
 https://github.com/thefrontside/effection.js/issues/new
 
 Thanks!`);
-    }
-    if (this.options.resume) {
-      this.options.resume(value);
     }
   }
 

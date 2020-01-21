@@ -134,25 +134,16 @@ Thanks!`);
   }
 
   resume(value) {
-    if (this.isRunning) {
-      this.result = value;
-      if (this.hasBlockingChildren) {
-        this.state = 'waiting';
-      } else {
-        this.finalize('completed', value);
-      }
-      if (this.options.resume) {
-        this.options.resume(value);
-      }
-    } else {
-      throw new Error(`
-Tried to call Fork#resume() on a Fork with state '${this.state}' This
-should never happen and so is almost assuredly a bug in effection. All of
-its users would be in your eternal debt were you to please take the time to
-report this issue here:
-https://github.com/thefrontside/effection.js/issues/new
+    if (!this.isRunning) { return; }
 
-Thanks!`);
+    this.result = value;
+    if (this.hasBlockingChildren) {
+      this.state = 'waiting';
+    } else {
+      this.finalize('completed', value);
+    }
+    if (this.options.resume) {
+      this.options.resume(value);
     }
   }
 

@@ -20,10 +20,9 @@ export class ExecutionContext {
     return false;
   }
 
-  constructor(parent = undefined, options = {}) {
+  constructor(parent = undefined) {
     this.id = this.constructor.ids++;
     this.parent = parent;
-    this.options = options;
     this.children = new Set();
     this.exitHooks = new Set();
     this.state = 'unstarted';
@@ -72,29 +71,13 @@ export class ExecutionContext {
     }
   }
 
-  call(operation, options = {}) {
-    let child = new ExecutionContext(this, options);
+  call(operation) {
+    let child = new ExecutionContext(this);
     this.children.add(child);
     child.ensure(() => {
       this.children.delete(child);
-      let { result } = child;
-      if (this.isRunning || this.isWaiting) {
-        if (child.isErrored) {
-          if (typeof options.fail === 'function') {
-            options.fail(result, this.fail);
-          } else {
-            this.fail(result);
-          }
-        } else if (child.isHalted) {
-          if (typeof options.halt === 'function') {
-            options.halt(result);
-          } else {
-            this.fail(new HaltError(result));
-          }
-        }
-        if (this.isWaiting && !this.hasBlockingChildren) {
-          this.finalize('completed');
-        }
+      if (this.isWaiting && !this.hasBlockingChildren) {
+        this.finalize('completed');
       }
     });
     child.enter(operation);
@@ -102,8 +85,14 @@ export class ExecutionContext {
   }
 
   ensure(hook) {
-    this.exitHooks.add(hook);
-    return () => this.exitHooks.delete(hook);
+    let run = hook.bind(null, this);
+    if (this.isBlocking) {
+      this.exitHooks.add(run);
+      return () => this.exitHooks.delete(run);
+    } else {
+      hook();
+      return x => x;
+    }
   }
 
   enter(operation) {
@@ -142,9 +131,6 @@ Thanks!`);
     } else {
       this.finalize('completed', value);
     }
-    if (this.options.resume) {
-      this.options.resume(value);
-    }
   }
 
   fail(error) {
@@ -156,7 +142,7 @@ Thanks!`);
     this.state = state;
     for (let hook of this.exitHooks) {
       this.exitHooks.delete(hook);
-      hook(this);
+      hook();
     }
     for (let child of this.children) {
       this.children.delete(child);

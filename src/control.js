@@ -88,7 +88,21 @@ export const GeneratorControl = generator => ControlFunction.of(self => {
         self.resume(next.value);
       } else {
         let operation = next.value;
-        self.call(operation, { fail, resume });
+        let child = self.call(operation);
+
+        child.ensure(function done() {
+          if (self.context.isBlocking) {
+            if (child.isErrored) {
+              fail(child.result);
+            }
+            if (child.isCompleted) {
+              resume(child.result);
+            }
+            if (child.isHalted) {
+              fail(new HaltError(child.result));
+            }
+          }
+        });
       }
     } catch (error) {
       self.fail(error);
@@ -99,9 +113,15 @@ export const GeneratorControl = generator => ControlFunction.of(self => {
 });
 
 export function fork(operation) {
-  return ({ resume, call } ) => {
-    let noop = x => x;
-    let child = call(operation, { halt: noop });
+  return ({ resume, context } ) => {
+    let parent = context.parent ? context.parent : context;
+    let child = parent.call(operation);
+
+    child.ensure(() => {
+      if (child.isErrored) {
+        parent.fail(child.result);
+      }
+    });
 
     resume(child);
   };

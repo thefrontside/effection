@@ -41,8 +41,7 @@ describe('calling operations', () => {
       it('fails both the child and the parent', () => {
         expect(child.isErrored).toEqual(true);
         expect(child.result).toEqual(boom);
-        expect(context.isErrored).toEqual(true);
-        expect(context.result).toEqual(boom);
+        expect(context.isRunning).toEqual(true);
       });
     });
 
@@ -82,62 +81,4 @@ describe('calling operations', () => {
 
     });
   });
-
-  describe('resume callbacks', () => {
-    let context, control, resume;
-
-    beforeEach(() => {
-      resume = mock.fn();
-      context = enter(({ resume, fail }) => {
-        control = { resume, fail };
-      }, { resume });
-    });
-
-    it('starts out like any other call', () => {
-      expect(context.isRunning).toEqual(true);
-    });
-
-    describe('resuming with a value', () => {
-      beforeEach(() => {
-        control.resume(2);
-      });
-      it('invokes the resume callback', () => {
-        expect(resume).toHaveBeenCalledWith(2);
-      });
-    });
-  });
-
-  describe('fail callbacks', () => {
-    let top, child, error, propagate;
-    let fail = (e, p) => { error = e; propagate = p; };
-
-    beforeEach(() => {
-      top = enter(({ call }) => {
-        child = call(({ fail }) => fail('boom!'), { fail });
-      });
-      expect(child).toBeDefined();
-    });
-    it('invokes the fail callback', () => {
-      expect(error).toBeDefined();
-      expect(propagate).toBeDefined();
-    });
-
-    it('starts out like a normal call', () => {
-      expect(child.isErrored).toEqual(true);
-    });
-    it('does nothing to the parent yet', () => {
-      expect(top.isRunning).toEqual(true);
-    });
-
-    describe('propagating the error', () => {
-      beforeEach(() => {
-        propagate(error);
-      });
-      it('fails the parent scope', () => {
-        expect(top.isErrored).toEqual(true);
-      });
-    });
-
-  });
-
 });

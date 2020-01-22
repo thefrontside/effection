@@ -3,8 +3,8 @@ export { fork, join } from './control';
 
 import { ExecutionContext } from './context';
 
-export function enter(operation, options) {
-  let top = new ExecutionContext(null, options);
+export function enter(operation) {
+  let top = new ExecutionContext();
   top.enter(operation);
   return top;
 }

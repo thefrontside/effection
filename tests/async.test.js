@@ -4,14 +4,14 @@
 
 import expect from 'expect';
 
-import { enter, fork, join } from '../src/index';
+import { spawn, fork, join } from '../src/index';
 
 describe('Async executon', () => {
   describe('with asynchronously executing children', () => {
     let execution, one, two, three;
 
     beforeEach(() => {
-      execution = enter(function* outer() {
+      execution = spawn(function* outer() {
         one = yield fork();
 
         two = yield fork();
@@ -122,7 +122,7 @@ describe('Async executon', () => {
     let execution, one, two, three, sync, boom;
     beforeEach(() => {
       boom = new Error('boom!');
-      execution = enter(function*() {
+      execution = spawn(function*() {
         one = yield fork();
         two = yield fork();
         yield function*() {
@@ -250,7 +250,7 @@ describe('Async executon', () => {
   describe('A parent that block, but also has an async child', () => {
     let parent, child;
     beforeEach(() => {
-      parent = enter(function*() {
+      parent = spawn(function*() {
         child = yield fork();
         yield x => x;
       });
@@ -286,7 +286,7 @@ describe('Async executon', () => {
   describe('joining a fork', () => {
     let root, child, getNumber;
     beforeEach(() => {
-      root = enter(function*() {
+      root = spawn(function*() {
         child = yield fork(function*() {
           getNumber = yield fork();
           let number = yield join(getNumber);

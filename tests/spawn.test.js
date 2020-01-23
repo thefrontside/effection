@@ -1,13 +1,12 @@
 import expect from 'expect';
-import mock from 'jest-mock';
-import { enter } from '../src/index';
+import { spawn } from '../src/index';
 
-describe('calling operations', () => {
+describe('spawning operations', () => {
   describe('with default resume/fail', () => {
     let context, child, resolve, reject;
     beforeEach(() => {
-      context = enter(({ call }) => {
-        child = call(({ resume, fail }) => {
+      context = spawn(({ spawn }) => {
+        child = spawn(({ resume, fail }) => {
           resolve = resume;
           reject = fail;
         });
@@ -17,7 +16,7 @@ describe('calling operations', () => {
       expect(context.isRunning).toEqual(true);
       expect(child.isRunning).toEqual(true);
     });
-    it('creates a child for the call', () => {
+    it('creates a child for the spawn', () => {
       expect(context.children.has(child)).toEqual(true);
     });
 

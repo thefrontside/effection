@@ -29,7 +29,7 @@ export class ExecutionContext {
     this.resume = this.resume.bind(this);
     this.fail = this.fail.bind(this);
     this.ensure = this.ensure.bind(this);
-    this.call = this.call.bind(this);
+    this.spawn = this.spawn.bind(this);
   }
 
   get promise() {
@@ -71,7 +71,7 @@ export class ExecutionContext {
     }
   }
 
-  call(operation) {
+  spawn(operation) {
     let child = new ExecutionContext(this);
     this.children.add(child);
     child.ensure(() => {
@@ -101,8 +101,8 @@ export class ExecutionContext {
       this.operation = operation;
       this.state = 'running';
 
-      let { resume, fail, ensure, call } = this;
-      controller.call({ resume, fail, ensure, call, context: this });
+      let { resume, fail, ensure, spawn } = this;
+      controller.call({ resume, fail, ensure, spawn, context: this });
 
     } else {
       throw new Error(`

@@ -62,22 +62,22 @@ scenario `d` is of particular importance. It means that if a child
 throws an error and its parent doesn't catch it, then all of its
 siblings are immediately halted.
 
-## Execution
+## Context
 
-The process primitive is the `Execution`. To create (and enter) an
-`Execution`, use the `fork` function and pass it a generator. This
-simplest example waits for 1 second, then prints out "hello world" to
+Every operation takes place within an execution context. To create the
+very first context, use the `spawn` function and pass it a generator. This
+example waits for 1 second, then prints out "hello world" to
 the console.
 
 ``` javascript
-import { enter, timeout } from 'effection';
+import { spawn, timeout } from 'effection';
 
-let execution = enter(function*() {
+let context = spawn(function*() {
   yield timeout(1000);
   return 'hello world';
 });
 
-execution.isRunning //=> true
+context.isRunning //=> true
 // 1000ms passes
 // process.isRunning //=> false
 // process.result //=> 'hello world'
@@ -87,7 +87,7 @@ Child processes can be composed freely. So instead of yielding for
 1000 ms, we could instead, yield 10 times for 100ms.
 
 ``` javascript
-enter(function*() {
+spawn(function*() {
   yield function*() {
     for (let i = 0; i < 10; i++) {
       yield timeout(100);
@@ -100,7 +100,7 @@ enter(function*() {
 And in fact, processes can be easily and arbitrarly deeply nested:
 
 ``` javascript
-let process = enter(function*() {
+let process = spawn(function*() {
   return yield function*() {
     return yield function*() {
       return yield function*() {
@@ -118,13 +118,13 @@ You can pass arguments to an operation by invoking it.
 
 ``` javascript
 
-import { enter, timeout } from 'effection';
+import { spawn, timeout } from 'effection';
 
 function* waitForSeconds(durationSeconds) {
   yield timeout(durationSeconds * 1000);
 }
 
-enter(waitforseconds(10));
+spawn(waitforseconds(10));
 ```
 
 ### Asynchronous Execution
@@ -137,9 +137,9 @@ part of your main process. To do this, you would use the `fork` method
 on the execution:
 
 ``` javascript
-import { enter, fork } from 'effection';
+import { spawn, fork } from 'effection';
 
-enter(function*() {
+spawn(function*() {
   yield fork(createFileServer);
   yield fork(createHttpServer);
 });

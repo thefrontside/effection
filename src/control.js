@@ -53,7 +53,7 @@ export function PromiseControl(promise) {
  * generator function to get a reference to the generator, and then
  * delegates to the GeneratorControl to do all the work.
  *
- *  enter(function*() { yield timeout(10); return 5; });
+ *  spawn(function*() { yield timeout(10); return 5; });
  */
 export const GeneratorFunctionControl = sequence => ControlFunction.of((...args) => {
   return GeneratorControl(sequence()).call(...args);
@@ -88,7 +88,7 @@ export const GeneratorControl = generator => ControlFunction.of(self => {
         self.resume(next.value);
       } else {
         let operation = next.value;
-        let child = self.call(operation);
+        let child = self.spawn(operation);
 
         child.ensure(function done() {
           if (self.context.isBlocking) {
@@ -115,7 +115,7 @@ export const GeneratorControl = generator => ControlFunction.of(self => {
 export function fork(operation) {
   return ({ resume, context } ) => {
     let parent = context.parent ? context.parent : context;
-    let child = parent.call(operation);
+    let child = parent.spawn(operation);
 
     child.ensure(() => {
       if (child.isErrored) {

@@ -1,5 +1,5 @@
 /* eslint no-console: 0 */
-import { enter, timeout } from '../src/index';
+import { spawn, timeout } from '../src/index';
 
 import { interruptable } from './interruptable';
 
@@ -25,7 +25,7 @@ import { interruptable } from './interruptable';
  * handler is uninstalled. Once again, the node process is left with
  * nothing left to do and no event handlers, so it exits.
  */
-enter(interruptable(function*() {
+spawn(interruptable(function*() {
   for (let i = 5; i > 0; i--) {
     console.log(`${i}...`);
     yield timeout(1000);

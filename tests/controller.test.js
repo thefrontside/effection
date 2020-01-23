@@ -2,7 +2,7 @@
 
 import expect from 'expect';
 
-import { enter } from '../src/index';
+import { spawn } from '../src/index';
 
 import mock from 'jest-mock';
 
@@ -22,7 +22,7 @@ describe('Controlling execution', () => {
     beforeEach(() => {
       relinquish = mock.fn();
 
-      execution = enter(function*() {
+      execution = spawn(function*() {
         yield control;
       });
 
@@ -30,7 +30,7 @@ describe('Controlling execution', () => {
       expect(fail).toBeDefined();
     });
 
-    it('does not call the relinquish upon entering the control context', () => {
+    it('does not call the relinquish upon spawning the control context', () => {
       expect(relinquish).not.toHaveBeenCalled();
     });
 
@@ -70,7 +70,7 @@ describe('Controlling execution', () => {
   describe('from an intermediate step in an execution', () => {
     beforeEach(() => {
       relinquish = mock.fn();
-      enter(function* () {
+      spawn(function* () {
         yield control;
         yield ctl => ctl.resume();
       });
@@ -86,7 +86,7 @@ describe('Controlling execution', () => {
   describe('a release function that throws an error', () => {
     beforeEach(() => {
       relinquish = () => { throw new Error('this is a bug in the release control!'); };
-      enter(function* () {
+      spawn(function* () {
         yield control;
       });
     });

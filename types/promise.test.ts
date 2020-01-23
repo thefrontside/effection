@@ -1,16 +1,16 @@
-import { enter } from 'effection';
+import { spawn } from 'effection';
 
 async function someAsyncFunction() {
-  await enter(function*() {
+  await spawn(function*() {
     yield
   });
 
   await Promise.all([
-    enter(function*() { yield }),
-    enter(function*() { yield }),
+    spawn(function*() { yield }),
+    spawn(function*() { yield }),
   ]);
 
-  let someFork = enter<number>(function*() {
+  let someFork = spawn(function*() {
     yield
     return 123;
   });

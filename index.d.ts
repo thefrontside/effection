@@ -31,5 +31,7 @@ declare module "effection" {
 
   export function join(context: Context): Operation;
 
+  export function monitor(operation: Operation): Operation;
+
   export function timeout(durationMillis: number): Operation;
 }

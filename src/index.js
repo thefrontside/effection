@@ -1,5 +1,5 @@
 export { timeout } from './timeout';
-export { fork, join } from './control';
+export { fork, join, monitor } from './control';
 export { any } from './pattern';
 export { send, receive } from './mailbox';
 

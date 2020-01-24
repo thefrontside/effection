@@ -26,6 +26,7 @@ export class ExecutionContext {
     this.children = new Set();
     this.exitHooks = new Set();
     this.state = 'unstarted';
+    this.mailbox = { messages: new Set(), receivers: new Set() };
     this.resume = this.resume.bind(this);
     this.fail = this.fail.bind(this);
     this.ensure = this.ensure.bind(this);

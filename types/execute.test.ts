@@ -1,20 +1,20 @@
-import { Context, Sequence, spawn, fork } from 'effection';
+import { Context, Sequence, main, fork } from 'effection';
 
 function* operation(): Sequence {}
 
 let execution: Context;
 
-execution = spawn(fork(operation));
+execution = main(fork(operation));
 
-execution = spawn(operation());
+execution = main(operation());
 
-execution = spawn(Promise.resolve("hello world"));
+execution = main(Promise.resolve("hello world"));
 
-execution = spawn(function*() {});
+execution = main(function*() {});
 
-execution = spawn(undefined);
+execution = main(undefined);
 
-execution = spawn(({ resume, fail, ensure, context }) => {
+execution = main(({ resume, fail, ensure, context }) => {
   context.id;
   resume(10);
   context.halt();

@@ -1,16 +1,16 @@
-import { spawn } from 'effection';
+import { main } from 'effection';
 
 async function someAsyncFunction() {
-  await spawn(function*() {
+  await main(function*() {
     yield
   });
 
   await Promise.all([
-    spawn(function*() { yield }),
-    spawn(function*() { yield }),
+    main(function*() { yield }),
+    main(function*() { yield }),
   ]);
 
-  let someFork = spawn(function*() {
+  let someFork = main(function*() {
     yield
     return 123;
   });

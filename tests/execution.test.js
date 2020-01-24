@@ -1,6 +1,6 @@
 import expect from 'expect';
 import mock from 'jest-mock';
-import { spawn, join, fork } from '../src/index';
+import { main, join, fork } from '../src/index';
 
 describe('execution', () => {
 
@@ -8,7 +8,7 @@ describe('execution', () => {
     let exec, exit;
     beforeEach(() => {
       exit = mock.fn();
-      exec = spawn(({ resume, ensure }) => {
+      exec = main(({ resume, ensure }) => {
         ensure(exit);
         resume(1234);
       });
@@ -27,7 +27,7 @@ describe('execution', () => {
     let exec, exit;
     beforeEach(() => {
       exit = mock.fn();
-      exec = spawn(({ fail, ensure }) => {
+      exec = main(({ fail, ensure }) => {
         ensure(exit);
         fail(new Error('boom!'));
       });
@@ -49,7 +49,7 @@ describe('execution', () => {
     let exec, resume, fail;
 
     beforeEach(() => {
-      exec = spawn(join(spawn(context => ({ resume, fail } = context))));
+      exec = main(join(main(context => ({ resume, fail } = context))));
     });
     it('is still running', () => { //invariant
       expect(exec.isRunning).toBe(true);
@@ -81,7 +81,7 @@ describe('execution', () => {
     let exec, resume, fail;
 
     beforeEach(() => {
-      exec = spawn(fork(context => ({ resume, fail } = context)));
+      exec = main(fork(context => ({ resume, fail } = context)));
     });
 
     it('makes the external process waiting and blocking', () => {

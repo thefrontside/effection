@@ -25,7 +25,7 @@ declare module "effection" {
     context: Context;
   }
 
-  export function spawn(operation: Operation): Context;
+  export function main(operation: Operation): Context;
 
   export function fork(operation: Operation): Operation;
 

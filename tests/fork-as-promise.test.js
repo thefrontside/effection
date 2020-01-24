@@ -1,7 +1,7 @@
 import expect from 'expect';
 import mock from 'jest-mock';
 
-import { spawn, fork } from '../src/index';
+import { main, fork } from '../src/index';
 
 const HALT = expect.stringContaining('Interrupted');
 async function suspend() {}
@@ -10,7 +10,7 @@ describe('forks as promises', () => {
   let root, child, awaken;
 
   beforeEach(async () => {
-    root = spawn(function*() {
+    root = main(function*() {
       child = yield fork();
       return yield ({ resume }) => awaken = resume;
     });

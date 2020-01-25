@@ -1,11 +1,12 @@
 // TypeScript Version: 3.6
 declare module "effection" {
-  export type Operation = SequenceFn | Sequence | Promise<any> | Controller | undefined;
-  export type SequenceFn = () => Sequence;
+  export type Operation = OperationFn | Sequence | Promise<any> | Controller | undefined;
 
-  export type Controller = (controls: Controls) => void | (() => void);
+  type OperationFn = () => Operation;
 
-  export interface Sequence extends Generator<Operation, any, any> {}
+  type Controller = (controls: Controls) => void | (() => void);
+
+  interface Sequence extends Generator<Operation, any, any> {}
 
   export interface Context extends PromiseLike<any> {
     id: number;
@@ -18,7 +19,7 @@ declare module "effection" {
 
   export interface Controls {
     id: number;
-    resume(result: any): void;
+    resume(result?: any): void;
     fail(error: Error): void;
     ensure(hook: (context?: Context) => void): () => void;
     spawn(operation: Operation): Context;

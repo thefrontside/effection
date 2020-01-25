@@ -185,3 +185,46 @@ describe('executing a generators', () => {
     });
   });
 });
+
+describe('catching errors repeatedly', () => {
+  let execution, body, error;
+  beforeEach(() => {
+    execution = main(function*() {
+      while (true) {
+        try {
+          return yield ctl => body = ctl;
+        } catch (e) {
+          error = e;
+        }
+      }
+    });
+    expect(body).toBeDefined();
+  });
+
+  describe('when an error is thrown the first time', () => {
+    beforeEach(() => {
+      body.fail(new Error('first time error'));
+    });
+
+    it('catches the error', () => {
+      expect(error).toBeDefined();
+      expect(error.message).toEqual('first time error');
+    });
+
+    describe('failing the second time', () => {
+      beforeEach(() => {
+        body.fail(new Error('second time error'));
+      });
+
+      it('continues to run', () => {
+        expect(execution.state).toEqual('running');
+      });
+
+      it('catches the error again', () => {
+        expect(error).toBeDefined();
+        expect(error.message).toEqual('second time error');
+      });
+    });
+
+  });
+});

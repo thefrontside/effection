@@ -73,17 +73,13 @@ export const GeneratorControl = generator => ControlFunction.of(self => {
 
   self.ensure(() => generator.return());
 
-  function fail(error) {
-    try {
-      resume(generator.throw(error));
-    } catch (e) {
-      self.fail(e);
-    }
-  }
+  let resume = value => advance(() => generator.next(value));
 
-  function resume(value) {
+  let fail = error => advance(() => generator.throw(error));
+
+  function advance(getNext) {
     try {
-      let next = generator.next(value);
+      let next = getNext();
       if (next.done) {
         self.resume(next.value);
       } else {

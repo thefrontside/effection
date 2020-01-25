@@ -17,6 +17,7 @@ execution = main(undefined);
 execution = main(({ resume, fail, ensure, context }) => {
   context.id;
   resume(10);
+  resume();
   context.halt();
   ensure((context?: Context) => console.log('done'));
   fail(new Error('boom!'));

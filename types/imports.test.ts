@@ -1,7 +1,5 @@
 import {
   Operation,
-  Sequence,
-  SequenceFn,
   Context,
   fork,
   join,

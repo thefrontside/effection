@@ -13,20 +13,21 @@ export class ExecutionContext {
 
   get hasBlockingChildren() {
     for (let child of this.children) {
-      if (child.isBlocking) {
+      if (child.isBlocking && child.isRequired) {
         return true;
       }
     }
     return false;
   }
 
-  constructor(parent = undefined) {
+  constructor(parent = undefined, isRequired = true) {
     this.id = this.constructor.ids++;
     this.parent = parent;
     this.children = new Set();
     this.exitHooks = new Set();
     this.state = 'unstarted';
     this.mailbox = { messages: new Set(), receivers: new Set() };
+    this.isRequired = isRequired;
     this.resume = this.resume.bind(this);
     this.fail = this.fail.bind(this);
     this.ensure = this.ensure.bind(this);
@@ -72,8 +73,8 @@ export class ExecutionContext {
     }
   }
 
-  spawn(operation) {
-    let child = new ExecutionContext(this);
+  spawn(operation, isRequired) {
+    let child = new ExecutionContext(this, isRequired);
     this.children.add(child);
     child.ensure(() => {
       this.children.delete(child);

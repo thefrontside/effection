@@ -108,10 +108,10 @@ export const GeneratorControl = generator => ControlFunction.of(self => {
   resume();
 });
 
-export function fork(operation) {
+export function fork(operation, required = true) {
   return ({ resume, context } ) => {
     let parent = context.parent ? context.parent : context;
-    let child = parent.spawn(operation);
+    let child = parent.spawn(operation, required);
 
     child.ensure(() => {
       if (child.isErrored) {
@@ -121,6 +121,10 @@ export function fork(operation) {
 
     resume(child);
   };
+}
+
+export function monitor(operation) {
+  return fork(operation, false);
 }
 
 export function join(antecedent) {

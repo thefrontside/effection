@@ -1,21 +1,35 @@
 // TypeScript Version: 3.6
 declare module "effection" {
-  export type Operation = SequenceFn | Sequence | Promise<any> | Controller | Execution<any> | undefined;
-  export type SequenceFn = (this: Execution) => Sequence;
-  export type Controller = (execution: Execution) => void | (() => void);
+  export type Operation = SequenceFn | Sequence | Promise<any> | Controller | undefined;
+  export type SequenceFn = () => Sequence;
+
+  export type Controller = (controls: Controls) => void | (() => void);
 
   export interface Sequence extends Generator<Operation, any, any> {}
 
-  export interface Execution<T = any> extends PromiseLike<any> {
+  export interface Context extends PromiseLike<any> {
     id: number;
-    resume(result: T): void;
-    throw(error: Error): void;
+    parent?: Context;
+    result?: any;
     halt(reason?: any): void;
     catch<R>(fn: (error: Error) => R): Promise<R>;
     finally(fn: () => void): Promise<any>;
   }
 
-  export function fork<T>(operation: Operation): Execution<T>;
+  export interface Controls {
+    id: number;
+    resume(result: any): void;
+    fail(error: Error): void;
+    ensure(hook: (context?: Context) => void): () => void;
+    spawn(operation: Operation): Context;
+    context: Context;
+  }
+
+  export function main(operation: Operation): Context;
+
+  export function fork(operation: Operation): Operation;
+
+  export function join(context: Context): Operation;
 
   export function timeout(durationMillis: number): Operation;
 }

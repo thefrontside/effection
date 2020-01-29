@@ -4,25 +4,19 @@
 
 import expect from 'expect';
 
-import { fork } from '../src/index';
+import { main, fork, join } from '../src/index';
 
 describe('Async executon', () => {
   describe('with asynchronously executing children', () => {
     let execution, one, two, three;
 
     beforeEach(() => {
-      execution = fork(function() {
-        fork(function*() {
-          yield cxt => one = cxt;
-        });
+      execution = main(function* outer() {
+        one = yield fork();
 
-        fork(function*() {
-          yield cxt => two = cxt;
-        });
+        two = yield fork();
 
-        fork(function*() {
-          yield cxt => three = cxt;
-        });
+        three = yield fork();
       });
     });
     it('begins execution of each child immediately', () => {
@@ -109,7 +103,7 @@ describe('Async executon', () => {
       let boom;
       beforeEach(() => {
         boom = new Error('boom!');
-        one.throw(boom);
+        one.fail(boom);
       });
 
       it('errors out the parent', () => {
@@ -125,14 +119,17 @@ describe('Async executon', () => {
   });
 
   describe('with a mixture of synchronous and asynchronous executions', () => {
-    let execution, one, two, sync, boom;
+    let execution, one, two, three, sync, boom;
     beforeEach(() => {
       boom = new Error('boom!');
-      execution = fork(function*() {
-        fork(function*() { yield cxt => one = cxt; });
-        fork(function*() { yield cxt => two = cxt; });
+      execution = main(function*() {
+        one = yield fork();
+        two = yield fork();
         yield function*() {
-          yield cxt => sync = cxt;
+          yield ({ context, ...control }) => {
+            sync = control;
+            three = context;
+          };
         };
       });
       expect(one).toBeDefined();
@@ -202,7 +199,7 @@ describe('Async executon', () => {
 
     describe('throwing from within the synchronous task', () => {
       beforeEach(() => {
-        sync.throw(boom);
+        sync.fail(boom);
       });
 
       it('errors out the top level execution', () => {
@@ -218,7 +215,7 @@ describe('Async executon', () => {
 
     describe('throwing from within one of the async tasks', () => {
       beforeEach(() => {
-        one.throw(boom);
+        one.fail(boom);
       });
 
       it('errors out the top level execution', () => {
@@ -228,7 +225,7 @@ describe('Async executon', () => {
 
       it('halts the async children', () => {
         expect(two.isHalted).toEqual(true);
-        expect(sync.isHalted).toEqual(true);
+        expect(three.isHalted).toEqual(true);
       });
     });
 
@@ -245,7 +242,7 @@ describe('Async executon', () => {
         expect(execution.isHalted).toEqual(true);
         expect(one.isHalted).toEqual(true);
         expect(two.isHalted).toEqual(true);
-        expect(sync.isHalted).toEqual(true);
+        expect(three.isHalted).toEqual(true);
       });
     });
   });
@@ -253,8 +250,8 @@ describe('Async executon', () => {
   describe('A parent that block, but also has an async child', () => {
     let parent, child;
     beforeEach(() => {
-      parent = fork(function*() {
-        fork(function*() { yield cxt => child = cxt; });
+      parent = main(function*() {
+        child = yield fork();
         yield x => x;
       });
     });
@@ -286,48 +283,50 @@ describe('Async executon', () => {
     });
   });
 
-  describe('the fork function', () => {
-    let forkReturn, forkContext;
+  describe('joining a fork', () => {
+    let root, child, getNumber;
     beforeEach(() => {
-      fork(function*() {
-        forkReturn = fork(function*() {
-          forkContext = this;
-        });
-      });
-    });
-
-    it('returns the forked child', () => {
-      expect(forkReturn).toBeDefined();
-      expect(forkReturn).toEqual(forkContext);
-    });
-  });
-
-  describe('yielding on fork', () => {
-    let root, child;
-    beforeEach(() => {
-      root = fork(function*() {
-        child = fork(function*() {
-          let number = yield;
+      root = main(function*() {
+        child = yield fork(function*() {
+          getNumber = yield fork();
+          let number = yield join(getNumber);
           return number * 2;
         });
-        let value = yield child;
+        let value = yield join(child);
         return value + 1;
       });
     });
 
-    it('awaits the value from the child', async () => {
-      child.resume(5);
-      await expect(root).resolves.toBe(11);
+    describe('when the child resumes', () => {
+      beforeEach(() => {
+        getNumber.resume(5);
+      });
+
+      it('awaits the value from the child', () => {
+        expect(root.result).toBe(11);
+      });
+
     });
 
-    it('throws if child is thrown', async () => {
-      child.throw(new Error("boom"));
-      await expect(root).rejects.toThrow("boom");
+    describe('when the child fails', () => {
+      beforeEach(() => {
+        getNumber.fail(new Error("boom!"));
+
+      });
+
+      it('throws if child is thrown', () => {
+        expect(root.result.message).toEqual('boom!');
+      });
     });
 
-    it('throws if child is halted', async () => {
-      child.halt();
-      await expect(root).rejects.toThrow("halt");
+    describe('when the child halts', () => {
+      beforeEach(() => {
+        getNumber.halt();
+      });
+
+      it('throws if child is halted', () => {
+        expect(root.result.message).toMatch("Interrupt");
+      });
     });
   });
 });

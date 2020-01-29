@@ -1,20 +1,18 @@
 import expect from 'expect';
 import mock from 'jest-mock';
 
-import { fork } from '../src/index';
+import { main, fork } from '../src/index';
 
+const HALT = expect.stringContaining('Interrupted');
 async function suspend() {}
 
 describe('forks as promises', () => {
-  let root, child;
+  let root, child, awaken;
 
   beforeEach(async () => {
-    root = fork(function*() {
-      child = fork(function* () {
-        return yield;
-      });
-
-      return yield;
+    root = main(function*() {
+      child = yield fork();
+      return yield ({ resume }) => awaken = resume;
     });
   });
 
@@ -32,99 +30,106 @@ describe('forks as promises', () => {
     });
 
     it('starts off in pending state', async () => {
-      await suspend();
-
       expect(onResolveRoot).not.toHaveBeenCalled();
       expect(onResolveChild).not.toHaveBeenCalled();
       expect(onRejectRoot).not.toHaveBeenCalled();
       expect(onRejectChild).not.toHaveBeenCalled();
     });
 
-    it('resolves inner when inner operation finishes', async () => {
-      child.resume(123);
-      await suspend();
+    describe('when the inner operation finishes', () => {
+      beforeEach(async () => {
+        child.resume(123);
+      });
 
-      expect(onResolveRoot).not.toHaveBeenCalled();
-      expect(onResolveChild).toHaveBeenCalledWith(123);
-      expect(onRejectRoot).not.toHaveBeenCalled();
-      expect(onRejectChild).not.toHaveBeenCalled();
+      it('resolves inner promise', () => {
+        expect(onResolveRoot).not.toHaveBeenCalled();
+        expect(onResolveChild).toHaveBeenCalledWith(123);
+        expect(onRejectRoot).not.toHaveBeenCalled();
+        expect(onRejectChild).not.toHaveBeenCalled();
+      });
     });
 
-    it('resolves when operation and all children finish', async () => {
-      child.resume(123);
-      root.resume(567);
-      await suspend();
+    describe('when operation and all childen finish', () => {
+      beforeEach(async () => {
+        child.resume(123);
+        awaken(567);
+      });
 
-      expect(onResolveRoot).toHaveBeenCalledWith(567);
-      expect(onResolveChild).toHaveBeenCalledWith(123);
-      expect(onRejectRoot).not.toHaveBeenCalled();
-      expect(onRejectChild).not.toHaveBeenCalled();
+      it('resolves', () => {
+        expect(onResolveRoot).toHaveBeenCalledWith(567);
+        expect(onResolveChild).toHaveBeenCalledWith(123);
+        expect(onRejectRoot).not.toHaveBeenCalled();
+        expect(onRejectChild).not.toHaveBeenCalled();
+      });
     });
 
-    it('rejects when child errors', async () => {
-      child.throw(new Error('boom'));
-      await suspend();
+    describe('when child errors', () => {
+      beforeEach(async () => {
+        child.fail(new Error('boom'));
+      });
 
-      expect(onResolveRoot).not.toHaveBeenCalled();
-      expect(onResolveChild).not.toHaveBeenCalled();
-      expect(onRejectRoot).toHaveBeenCalledWith(expect.objectContaining({ message: 'boom' }));
-      expect(onRejectChild).toHaveBeenCalledWith(expect.objectContaining({ message: 'boom' }));
+      it('rejects when child errors', () => {
+        expect(onResolveRoot).not.toHaveBeenCalled();
+        expect(onResolveChild).not.toHaveBeenCalled();
+        expect(onRejectRoot).toHaveBeenCalledWith(expect.objectContaining({ message: 'boom' }));
+        expect(onRejectChild).toHaveBeenCalledWith(expect.objectContaining({ message: 'boom' }));
+      });
+
     });
 
-    it('rejects when parent errors (child is halted)', async () => {
-      root.throw(new Error('boom'));
-      await suspend();
+    describe('when parent errors because child is halted', () => {
+      beforeEach(async () => {
+        root.fail(new Error('boom'));
+      });
 
-      expect(onResolveRoot).not.toHaveBeenCalled();
-      expect(onResolveChild).not.toHaveBeenCalled();
-      expect(onRejectRoot).toHaveBeenCalledWith(
-        expect.objectContaining({ message: 'boom' })
-      );
-      expect(onRejectChild).toHaveBeenCalledWith(
-        expect.objectContaining({
-          message: 'halt',
-          cause: expect.objectContaining({ message: 'boom' })
-        })
-      );
+      it('rejects', async () => {
+        expect(onResolveRoot).not.toHaveBeenCalled();
+        expect(onResolveChild).not.toHaveBeenCalled();
+        expect(onRejectRoot).toHaveBeenCalledWith(
+          expect.objectContaining({ message: 'boom' })
+        );
+        expect(onRejectChild).toHaveBeenCalledWith(
+          expect.objectContaining({
+            message: expect.stringContaining('Interrupted'),
+            cause: expect.objectContaining({ message: 'boom' })
+          })
+        );
+      });
     });
 
-    it('rejects with halt when parent halts', async () => {
-      root.halt();
-      await suspend();
+    describe('when parent halts', () => {
+      beforeEach(async () => {
+        root.halt(999);
+      });
 
-      expect(onResolveRoot).not.toHaveBeenCalled();
-      expect(onResolveChild).not.toHaveBeenCalled();
-      expect(onRejectRoot).toHaveBeenCalledWith(expect.objectContaining({ message: 'halt' }));
-      expect(onRejectChild).toHaveBeenCalledWith(expect.objectContaining({ message: 'halt' }));
+      it('rejects with halt with result', () => {
+        expect(onResolveRoot).not.toHaveBeenCalled();
+        expect(onResolveChild).not.toHaveBeenCalled();
+        expect(onRejectRoot).toHaveBeenCalledWith(expect.objectContaining({ message: HALT, cause: 999 }));
+        expect(onRejectChild).toHaveBeenCalledWith(expect.objectContaining({ message: HALT, cause: 999 }));
+      });
     });
 
-    it('rejects with halt with result when parent halts', async () => {
-      root.halt(999);
-      await suspend();
 
-      expect(onResolveRoot).not.toHaveBeenCalled();
-      expect(onResolveChild).not.toHaveBeenCalled();
-      expect(onRejectRoot).toHaveBeenCalledWith(expect.objectContaining({ message: 'halt', cause: 999 }));
-      expect(onRejectChild).toHaveBeenCalledWith(expect.objectContaining({ message: 'halt', cause: 999 }));
-    });
   });
 
   describe('with promise attached after finalization', function() {
     it('starts is resolved immediately', async () => {
       child.resume(567);
-      root.resume(123);
+      awaken(123);
       await expect(child).resolves.toBe(567);
       await expect(root).resolves.toBe(123);
     });
 
     it('starts is rejected immediately if halted', async () => {
-      root.halt();
-      await expect(root).rejects.toThrow('halt');
+      root.halt('stop');
+      await suspend();
+      await expect(root).rejects.toThrow("stop");
     });
 
     it('starts is rejected immediately if errored', async () => {
-      root.throw(new Error('boom'));
-      await expect(root).rejects.toThrow('boom');
+      root.fail(new Error('boom'));
+      expect(root.result.message).toEqual('boom');
     });
   });
 });

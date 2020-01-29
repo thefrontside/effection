@@ -1,6 +1,7 @@
 /* eslint no-console: 0 */
-import { fork, timeout } from '../src/index';
+import { spawn, timeout } from '../src/index';
 
+import { interruptable } from './interruptable';
 
 /**
  * A simple script that counts down from 5 to 1, pausing for one
@@ -24,23 +25,10 @@ import { fork, timeout } from '../src/index';
  * handler is uninstalled. Once again, the node process is left with
  * nothing left to do and no event handlers, so it exits.
  */
-fork(interruptable(function*() {
+spawn(interruptable(function*() {
   for (let i = 5; i > 0; i--) {
     console.log(`${i}...`);
     yield timeout(1000);
   }
   console.log('liftoff!');
 }));
-
-
-function interruptable(proc) {
-  return function*() {
-    let interrupt = () => console.log('') || this.halt();
-    process.on('SIGINT', interrupt);
-    try {
-      yield proc;
-    } finally {
-      process.off('SIGINT', interrupt);
-    }
-  };
-}

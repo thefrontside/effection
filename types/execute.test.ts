@@ -1,25 +1,25 @@
-import { Execution, Sequence, fork } from 'effection';
+import { Context, Sequence, main, fork } from 'effection';
 
 function* operation(): Sequence {}
 
-let execution: Execution;
+let execution: Context;
 
-execution = fork(operation);
+execution = main(fork(operation));
 
-execution = fork(operation());
+execution = main(operation());
 
-execution = fork(Promise.resolve("hello world"));
+execution = main(Promise.resolve("hello world"));
 
-execution = fork(function*() {});
+execution = main(function*() {});
 
-execution = fork(undefined);
+execution = main(undefined);
 
-execution = fork((execution: Execution<number>) => {
-  execution.id;
-  execution.resume(10);
-  execution.halt("optional reason");
-  execution.halt();
-  execution.throw(new Error('boom!'));
+execution = main(({ resume, fail, ensure, context }) => {
+  context.id;
+  resume(10);
+  context.halt();
+  ensure((context?: Context) => console.log('done'));
+  fail(new Error('boom!'));
 });
 
 // $ExpectError

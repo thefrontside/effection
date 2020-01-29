@@ -1,21 +1,21 @@
-import { fork } from 'effection';
+import { main } from 'effection';
 
 async function someAsyncFunction() {
-  await fork(function*() {
+  await main(function*() {
     yield
   });
 
   await Promise.all([
-    fork(function*() { yield }),
-    fork(function*() { yield }),
+    main(function*() { yield }),
+    main(function*() { yield }),
   ]);
 
-  let someFork = fork(function*() {
+  let someFork = main(function*() {
     yield
     return 123;
   });
 
   someFork.then((value: number) => {}, (error) => {});
-  someFork.catch((error: Error) => "string").then((some: string) => {});
-  someFork.finally(() => "string").then((some: number) => {});
+  someFork.catch((error: Error) => "string").then((some) => {});
+  someFork.finally(() => "string").then((some) => {});
 }

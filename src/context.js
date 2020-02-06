@@ -11,27 +11,19 @@ export class ExecutionContext {
 
   get isBlocking() { return this.isRunning || this.isWaiting || this.isUnstarted; }
 
-  get hasBlockingChildren() {
-    for (let child of this.children) {
-      if (child.isBlocking && child.isRequired) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  constructor(parent = undefined, isRequired = true) {
+  constructor(parent = undefined, continuation = x => x) {
     this.id = this.constructor.ids++;
     this.parent = parent;
     this.children = new Set();
+    this.requiredChildren = new Set();
     this.exitHooks = new Set();
     this.state = 'unstarted';
-    this.isRequired = isRequired;
     this.mailbox = { messages: new Set(), receivers: new Set() };
     this.resume = this.resume.bind(this);
     this.fail = this.fail.bind(this);
     this.ensure = this.ensure.bind(this);
     this.spawn = this.spawn.bind(this);
+    this.continue = continuation.bind(null, this);
   }
 
   get promise() {
@@ -73,15 +65,9 @@ export class ExecutionContext {
     }
   }
 
-  spawn(operation, isRequired) {
-    let child = new ExecutionContext(this, isRequired);
+  spawn(operation, continuation = x => x) {
+    let child = new ExecutionContext(this, continuation);
     this.children.add(child);
-    child.ensure(() => {
-      this.children.delete(child);
-      if (this.isWaiting && !this.hasBlockingChildren) {
-        this.finalize('completed');
-      }
-    });
     child.enter(operation);
     return child;
   }
@@ -125,10 +111,10 @@ Thanks!`);
   }
 
   resume(value) {
-    if (!this.isRunning) { return; }
-
-    this.result = value;
-    if (this.hasBlockingChildren) {
+    if (this.isRunning) {
+      this.result = value;
+    }
+    if (this.requiredChildren.size > 0) {
       this.state = 'waiting';
     } else {
       this.finalize('completed', value);
@@ -140,17 +126,27 @@ Thanks!`);
   }
 
   finalize(state, result) {
-    this.result = result || this.result;
+    this.halt = this.resume = this.fail = this.finalize = function noop() {};
+
     this.state = state;
-    for (let hook of this.exitHooks) {
-      this.exitHooks.delete(hook);
-      hook();
-    }
-    for (let child of this.children) {
-      this.children.delete(child);
+    this.result = result || this.result;
+
+    for (let child of [...this.children].reverse()) {
       child.halt(result);
     }
+
+    for (let hook of [...this.exitHooks].reverse()) {
+      hook();
+    }
+
+    if (this.parent) {
+      this.parent.children.delete(this);
+      this.parent.requiredChildren.delete(this);
+    }
+
     this.finalizePromise();
+
+    this.continue();
   }
 
   createController(operation) {

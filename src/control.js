@@ -84,9 +84,8 @@ export const GeneratorControl = generator => ControlFunction.of(self => {
         self.resume(next.value);
       } else {
         let operation = next.value;
-        let child = self.spawn(operation);
+        let child = self.context.spawn(operation, child => {
 
-        child.ensure(function done() {
           if (self.context.isBlocking) {
             if (child.isErrored) {
               fail(child.result);
@@ -99,6 +98,9 @@ export const GeneratorControl = generator => ControlFunction.of(self => {
             }
           }
         });
+        if (child.isBlocking) {
+          self.context.requiredChildren.add(child);
+        }
       }
     } catch (error) {
       self.fail(error);
@@ -108,23 +110,39 @@ export const GeneratorControl = generator => ControlFunction.of(self => {
   resume();
 });
 
-export function fork(operation, required = true) {
+export function fork(operation) {
   return ({ resume, context } ) => {
     let parent = context.parent ? context.parent : context;
-    let child = parent.spawn(operation, required);
-
-    child.ensure(() => {
+    let child = parent.spawn(operation, child => {
       if (child.isErrored) {
         parent.fail(child.result);
+      } else if (parent.requiredChildren.size === 0) {
+        parent.resume();
       }
     });
+
+    if (child.isBlocking) {
+      parent.requiredChildren.add(child);
+    }
 
     resume(child);
   };
 }
 
 export function monitor(operation) {
-  return fork(operation, false);
+  return ({ resume, context } ) => {
+    let parent = context.parent ? context.parent : context;
+    let child = parent.spawn(operation, () => {
+
+      if (child.isErrored) {
+        parent.fail(child.result);
+      } else if (parent.requiredChildren.size === 0) {
+        parent.resume();
+      }
+    });
+
+    resume(child);
+  };
 }
 
 export function join(antecedent) {

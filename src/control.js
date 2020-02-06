@@ -116,7 +116,7 @@ export function fork(operation) {
     let child = parent.spawn(operation, child => {
       if (child.isErrored) {
         parent.fail(child.result);
-      } else if (parent.requiredChildren.size === 0) {
+      } else if (parent.isWaiting && parent.requiredChildren.size === 0) {
         parent.resume();
       }
     });
@@ -133,10 +133,9 @@ export function monitor(operation) {
   return ({ resume, context } ) => {
     let parent = context.parent ? context.parent : context;
     let child = parent.spawn(operation, () => {
-
       if (child.isErrored) {
         parent.fail(child.result);
-      } else if (parent.requiredChildren.size === 0) {
+      } else if (parent.isWaiting && parent.requiredChildren.size === 0) {
         parent.resume();
       }
     });

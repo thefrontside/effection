@@ -37,7 +37,7 @@ describe('spawning operations', () => {
       beforeEach(() => {
         reject(boom = new Error('boom!'));
       });
-      it('fails both the child and the parent', () => {
+      it('fails the child, but not the parent', () => {
         expect(child.isErrored).toEqual(true);
         expect(child.result).toEqual(boom);
         expect(context.isRunning).toEqual(true);
@@ -66,8 +66,9 @@ describe('spawning operations', () => {
       beforeEach(() => {
         context.resume('parent done');
       });
-      it('is still not finished until the child is finished', () => {
-        expect(context.isWaiting).toEqual(true);
+      it('makes it complete, which immediately halts the child', () => {
+        expect(context.state).toEqual('completed');
+        expect(child.state).toEqual('halted');
       });
       describe('and then resuming the child', () => {
         beforeEach(() => {

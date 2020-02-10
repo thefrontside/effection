@@ -329,4 +329,27 @@ describe('Async executon', () => {
       });
     });
   });
+
+  describe('a parent halting a child', () => {
+    let root, wait;
+
+    beforeEach(() => {
+      root = main(function* root() {
+        let child = yield fork();
+
+        try {
+          return yield cxt => wait = cxt;
+        } finally {
+          child.halt();
+        }
+      });
+
+      wait.resume(5);
+    });
+
+    it('returns its own result result', () => {
+      expect(root.result).toEqual(5);
+    });
+  });
+
 });

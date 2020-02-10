@@ -6,6 +6,22 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.5.0] - 2020-02-10
+
+### Added
+
+* `join` to synchronize on a currently executing context.
+* `monitor` operation to propagate failures
+* `spawn` control function to create a "detached" process.
+
+### Changed
+
+* Refactored the `fork` method to be an operation instead of a static
+  function
+
+* Introduced a `main` function to enter a brand new context
+
+
 ## [0.4.0] - 2019-11-20
 
 ### Added

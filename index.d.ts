@@ -35,23 +35,4 @@ declare module "effection" {
   export function monitor(operation: Operation): Operation;
 
   export function timeout(durationMillis: number): Operation;
-
-
-  // send/receive operations, will probably be moved to library at some point.
-  type PredicateFn = (value: any) => boolean;
-  type AnyTypeName = "undefined" | "object" | "boolean" | "number" | "bigint" | "string" | "symbol" | "function" | "array"
-  type Primitive = string | boolean | number | bigint | symbol | null | undefined;
-  interface PatternMatchObject { [key: string]: Pattern }
-  export type Pattern = Primitive | PatternMatchObject | Pattern[] | PredicateFn
-
-  export function receive(): Operation;
-  export function receive(context: Context): Operation;
-  export function receive(pattern: Pattern): Operation;
-  export function receive(pattern: Pattern, context: Context): Operation;
-
-  export function any(): PredicateFn;
-  export function any(type: AnyTypeName): PredicateFn;
-
-  export function send(message: any): Operation;
-  export function send(message: any, context: Context): Operation;
 }

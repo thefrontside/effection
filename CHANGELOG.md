@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.5.0] - 2020-02-24
+
+### Changed
+
+* For runtimes that do not use native generators, the code to
+  recognize generator functions was broken which prevented effection
+  from working in those environments. This was addressed with
+  https://github.com/thefrontside/effection.js/pull/77
+
 ## [0.5.0] - 2020-02-10
 
 ### Added

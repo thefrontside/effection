@@ -1,5 +1,7 @@
 export function isGeneratorFunction(fn) {
-  return fn && fn.constructor && fn.constructor.name === 'GeneratorFunction';
+  return fn != null
+    && typeof fn.constructor === 'function'
+    && fn.constructor.name === 'GeneratorFunction';
 }
 
 export function isGenerator(value) {

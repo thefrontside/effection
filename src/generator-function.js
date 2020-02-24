@@ -1,8 +1,5 @@
-const GeneratorFunction = (function*() {}).constructor;
-
-
 export function isGeneratorFunction(fn) {
-  return fn != null && Object.getPrototypeOf(fn) === GeneratorFunction.prototype;
+  return fn && fn.constructor && fn.constructor.name === 'GeneratorFunction';
 }
 
 export function isGenerator(value) {

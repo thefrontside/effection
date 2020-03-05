@@ -1,38 +1,38 @@
 // TypeScript Version: 3.7
 declare module "effection" {
-  export type Operation = OperationFn | Sequence | Promise<any> | Controller | undefined;
+  export type Operation<T = any> = undefined | OperationFn<T> | Sequence<T> | PromiseLike<T> | Controller<T>;
 
-  type OperationFn = () => Operation;
+  type OperationFn<T = any> = () => Operation<T>;
 
-  type Controller = (controls: Controls) => void | (() => void);
+  type Controller<T = any> = (controls: Controls<T>) => void | (() => void);
 
-  interface Sequence extends Generator<Operation, any, any> {}
+  interface Sequence<T = any> extends Generator<Operation<any>, T, any> {}
 
-  export interface Context extends PromiseLike<any> {
+  export interface Context<T = any> extends PromiseLike<T> {
     id: number;
-    parent?: Context;
+    parent?: Context<any>;
     result?: any;
     halt(reason?: any): void;
     catch<R>(fn: (error: Error) => R): Promise<R>;
-    finally(fn: () => void): Promise<any>;
+    finally(fn: () => void): Promise<undefined>;
   }
 
-  export interface Controls {
+  export interface Controls<T = any> {
     id: number;
-    resume(result?: any): void;
+    resume(result?: T): void;
     fail(error: Error): void;
-    ensure(hook: (context?: Context) => void): () => void;
-    spawn(operation: Operation): Context;
-    context: Context;
+    ensure(hook: (context?: Context<T>) => void): () => void;
+    spawn<C>(operation: Operation<C>): Context<C>;
+    context: Context<T>;
   }
 
-  export function main(operation: Operation): Context;
+  export function main<T>(operation: Operation<T>): Context<T>;
 
-  export function fork(operation: Operation): Operation;
+  export function fork<T>(operation: Operation<T>): Operation<Context<T>>;
 
-  export function join(context: Context): Operation;
+  export function join<T>(context: Context<T>): Operation<T>;
 
-  export function monitor(operation: Operation): Operation;
+  export function monitor<T>(operation: Operation<T>): Operation<T>;
 
-  export function timeout(durationMillis: number): Operation;
+  export function timeout(durationMillis: number): Operation<number>;
 }

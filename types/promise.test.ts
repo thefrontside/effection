@@ -18,4 +18,11 @@ async function someAsyncFunction() {
   someFork.then((value: number) => {}, (error) => {});
   someFork.catch((error: Error) => "string").then((some) => {});
   someFork.finally(() => "string").then((some) => {});
+
+  // promise has type of the generator function
+  // $ExpectError
+  let broken: string = await main(function*() {
+    yield
+    return 123;
+  });
 }

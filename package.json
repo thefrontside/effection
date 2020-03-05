@@ -12,7 +12,7 @@
     "coveralls": "nyc report --reporter=text-lcov | coveralls",
     "build": "pack build",
     "test": "mocha --recursive -r ./tests/setup tests/**/*.test.js",
-    "test:types": "dtslint types --expectOnly",
+    "test:types": "dtslint types --localTs node_modules/typescript/lib --expectOnly",
     "lint": "eslint ./",
     "pack:publish": "pack build && cd pkg && npm publish $*"
   },

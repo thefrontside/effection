@@ -135,7 +135,17 @@ Thanks!`);
     }
 
     for (let hook of [...this.exitHooks].reverse()) {
-      hook();
+      try {
+        hook();
+      } catch(e) {
+        /* eslint-disable no-console */
+        console.error(`
+CRITICAL ERROR: an exception was thrown in an exit handler, this might put
+Effection into an unknown state, and you should avoid this ever happening.
+Original error:`);
+        console.error(e);
+        /* eslint-enable no-console */
+      }
     }
 
     if (this.parent) {

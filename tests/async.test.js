@@ -3,6 +3,7 @@
 /* eslint no-unreachable: 0 */
 
 import expect from 'expect';
+import * as capcon from 'capture-console';
 
 import { main, fork, join } from '../src/index';
 
@@ -113,6 +114,31 @@ describe('Async executon', () => {
 
       it('has the error as its result', () => {
         expect(execution.result).toEqual(boom);
+      });
+    });
+
+    describe('throwing an error in an ensure block', () => {
+      let boom;
+      let consoleOutput;
+
+      beforeEach(() => {
+        boom = new Error('boom!');
+        two.ensure(() => { throw boom; });
+        consoleOutput = capcon.interceptStderr(() => {
+          execution.halt();
+        });
+      });
+
+      it('swallows the error so that it does not leave the tree in an inconsistent state', () => {
+        expect(execution.isHalted).toEqual(true);
+        expect(one.isHalted).toEqual(true);
+        expect(two.isHalted).toEqual(true);
+        expect(three.isHalted).toEqual(true);
+      });
+
+      it('prints a nasty warning to the console', () => {
+        expect(consoleOutput).toMatch(/CRITICAL ERROR/);
+        expect(consoleOutput).toMatch(/boom!/);
       });
     });
 

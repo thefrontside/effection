@@ -12,6 +12,7 @@
     "coveralls": "nyc report --reporter=text-lcov | coveralls",
     "build": "pack build",
     "test": "mocha --recursive -r ./tests/setup tests/**/*.test.js",
+    "mocha": "mocha --recursive -r ./tests/setup",
     "test:types": "dtslint types --localTs node_modules/typescript/lib --expectOnly",
     "lint": "eslint ./",
     "pack:publish": "pack build && cd pkg && npm publish $*"
@@ -28,6 +29,7 @@
     "@pika/plugin-standard-pkg": "0.3.16",
     "@types/mocha": "^5.2.6",
     "babel-eslint": "10.0.1",
+    "capture-console": "^1.0.1",
     "conditional-type-checks": "^1.0.5",
     "dtslint": "^2.0.2",
     "eslint": "5.16.0",

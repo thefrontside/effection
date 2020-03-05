@@ -82,17 +82,4 @@ describe('Controlling execution', () => {
       expect(relinquish).toHaveBeenCalled();
     });
   });
-
-  describe('a release function that throws an error', () => {
-    beforeEach(() => {
-      relinquish = () => { throw new Error('this is a bug in the release control!'); };
-      main(function* () {
-        yield control;
-      });
-    });
-
-    it('throws that error when trying to resume execution', () => {
-      expect(() => resume()).toThrow(/this is a bug/);
-    });
-  });
 });

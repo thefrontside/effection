@@ -6,7 +6,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-## [0.5.0] - 2020-02-24
+## [0.5.2] - 2020-03-09
+
+### Added
+
+* Make Typescript Operation type generic over the returned value. Enables
+  better type checking in Typescript.
+  https://github.com/thefrontside/effection.js/pull/81
+
+### Changed
+
+* Catch errors raised in ensure blocks and print nasty warning
+  https://github.com/thefrontside/effection.js/pull/80
+
+## [0.5.1] - 2020-02-24
 
 ### Changed
 

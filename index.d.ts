@@ -34,5 +34,5 @@ declare module "effection" {
 
   export function monitor<T>(operation: Operation<T>): Operation<T>;
 
-  export function timeout(durationMillis: number): Operation<number>;
+  export function timeout(durationMillis: number): Operation<void>;
 }

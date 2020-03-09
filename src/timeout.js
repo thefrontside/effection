@@ -9,7 +9,7 @@
 */
 export function timeout(duration) {
   return ({ resume, ensure }) => {
-    let timeoutId = setTimeout(resume, duration);
+    let timeoutId = setTimeout(() => resume(), duration);
     ensure(() => clearTimeout(timeoutId));
   };
 }

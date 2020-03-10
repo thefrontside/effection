@@ -1,0 +1,16 @@
+name: Tests
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  test-effection:
+    runs-on: ubuntu-latest
+    name: Effection Tests
+    steps:
+    - uses: actions/checkout@v1
+    - run: yarn
+    - run: yarn test
+    - run: yarn test-effection-types

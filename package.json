@@ -16,7 +16,7 @@
     "prepack": "yarn workspaces run prepack",
     "test": "yarn workspaces run test",
     "lint": "yarn workspaces run lint",
-    "test:types": "yarn workspaces run test:types"
+    "test-effection-types": "cd packages/effection && yarn test:types"
   },
   "volta": {
     "node": "12.11.1",

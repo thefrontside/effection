@@ -1,3 +1,5 @@
+name: Publish Preview
+
 on:
   pull_request:
     branches:

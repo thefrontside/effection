@@ -46,8 +46,8 @@ workflows:
       - run:
           name: "tests"
           script: test
-  test-types:
-    jobs:
-      - run:
-          name: "test types"
-          script: test:types
+  # test-types:
+  #   jobs:
+  #     - run:
+  #         name: "test types"
+  #         script: test:types

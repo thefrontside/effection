@@ -1,0 +1,74 @@
+{
+  "name": "effection",
+  "version": "0.5.2",
+  "description": "Effortlessly composable structured concurrency primitive for JavaScript",
+  "repository": "http://github.com/cowboyd/effection.js",
+  "author": "Charles Lowell <cowboyd@frontside.io>",
+  "license": "MIT",
+  "private": false,
+  "types": "index.d.ts",
+  "scripts": {
+    "coverage": "nyc --reporter=html --reporter=text npm run test",
+    "coveralls": "nyc report --reporter=text-lcov | coveralls",
+    "build": "pack build",
+    "test": "mocha --recursive -r ./tests/setup tests/**/*.test.js",
+    "mocha": "mocha --recursive -r ./tests/setup",
+    "test:types": "dtslint types --localTs node_modules/typescript/lib --expectOnly",
+    "lint": "eslint ./",
+    "pack:publish": "pack build && cd pkg && npm publish $*"
+  },
+  "devDependencies": {
+    "@babel/core": "7.4.4",
+    "@babel/plugin-proposal-class-properties": "^7.7.0",
+    "@babel/preset-env": "7.4.4",
+    "@babel/register": "7.4.4",
+    "@pika/pack": "0.3.7",
+    "@pika/plugin-build-node": "0.3.16",
+    "@pika/plugin-build-web": "0.3.16",
+    "@pika/plugin-copy-assets": "^0.3.16",
+    "@pika/plugin-standard-pkg": "0.3.16",
+    "@types/mocha": "^5.2.6",
+    "babel-eslint": "10.0.1",
+    "capture-console": "^1.0.1",
+    "conditional-type-checks": "^1.0.5",
+    "dtslint": "^2.0.2",
+    "eslint": "5.16.0",
+    "eslint-plugin-prefer-let": "1.0.1",
+    "expect": "24.7.1",
+    "jest-mock": "^24.8.0",
+    "mocha": "6.1.4",
+    "nyc": "~14.1.1",
+    "typescript": "^3.6.4"
+  },
+  "nyc": {
+    "exclude": [
+      "**/tests"
+    ]
+  },
+  "@pika/pack": {
+    "pipeline": [
+      [
+        "@pika/plugin-standard-pkg",
+        {
+          "exclude": [
+            "tests/**/*"
+          ]
+        }
+      ],
+      [
+        "@pika/plugin-build-node"
+      ],
+      [
+        "@pika/plugin-build-web"
+      ],
+      [
+        "@pika/plugin-copy-assets",
+        {
+          "files": [
+            "index.d.ts"
+          ]
+        }
+      ]
+    ]
+  }
+}

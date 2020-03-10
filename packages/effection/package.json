@@ -24,6 +24,7 @@
     "@babel/register": "7.4.4",
     "@pika/pack": "0.3.7",
     "@pika/plugin-build-node": "0.3.16",
+    "@pika/plugin-build-types": "^0.9.2",
     "@pika/plugin-build-web": "0.3.16",
     "@pika/plugin-copy-assets": "^0.3.16",
     "@pika/plugin-standard-pkg": "0.3.16",
@@ -62,12 +63,7 @@
         "@pika/plugin-build-web"
       ],
       [
-        "@pika/plugin-copy-assets",
-        {
-          "files": [
-            "index.d.ts"
-          ]
-        }
+        "@pika/plugin-build-types"
       ]
     ]
   }

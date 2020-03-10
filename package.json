@@ -3,7 +3,7 @@
   "version": "0.0.0-monorepo",
   "description": "Effortlessly composable structured concurrency primitive for JavaScript",
   "repository": "git@github.com:thefrontside/effection.js.git",
-  "author": "Charles Lowell <cowboyd@frontside.io>",
+  "author": "Frontside Engineering <engineering@frontside.io>",
   "license": "MIT",
   "private": true,
   "workspaces": {
@@ -15,7 +15,8 @@
     "clean": "find . \\( -name node_modules -o -name dist \\) -exec rm -rf {} +",
     "prepack": "yarn workspaces run prepack",
     "test": "yarn workspaces run test",
-    "lint": "yarn workspaces run lint"
+    "lint": "yarn workspaces run lint",
+    "test:types": "yarn workspaces run test:types"
   },
   "volta": {
     "node": "12.11.1",

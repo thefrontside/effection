@@ -13,7 +13,7 @@
     "build": "pack build",
     "test": "mocha --recursive -r ./tests/setup tests/**/*.test.js",
     "mocha": "mocha --recursive -r ./tests/setup",
-    "test:types": "dtslint types --localTs node_modules/typescript/lib --expectOnly",
+    "test:types": "dtslint types --localTs ../../node_modules/typescript/lib --expectOnly",
     "lint": "eslint ./",
     "pack:publish": "pack build && cd pkg && npm publish $*"
   },

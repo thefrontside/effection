@@ -1,21 +1,18 @@
-name: Publish Release
-
 on:
   push:
     branches:
       - master
-      - release-*
 
 jobs:
-  publish:
-    name: Synchronize with NPM
+  publish-releases:
+    name: Publish Releases
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - name: Tag and Publish
-      uses: thefrontside/actions/synchronize-with-npm@v1.1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+    - name: Publish Releases
+      uses: thefrontside/actions/synchronize-with-npm@v1.3
       with:
         NPM_PUBLISH: npm run pack:publish
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        NPM_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}

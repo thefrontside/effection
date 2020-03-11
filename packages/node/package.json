@@ -1,0 +1,28 @@
+{
+  "name": "@effection/node",
+  "version": "0.5.2",
+  "description": "Work in Node.js with Effection",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.js",
+  "repository": "https://github.com/thefrontside/bigtest.git",
+  "author": "Frontside Engineering <engineering@frontside.io>",
+  "license": "MIT",
+  "files": ["dist/*", "README.md"],
+  "scripts": {
+    "lint": "echo [skip @effection/node]",
+    "test": "echo '[no-tests @effection/node]'",
+    "pack:publish": "npm publish $*",
+    "prepack": "tsc --outdir dist --project tsconfig.dist.json --declaration --sourcemap --module commonjs"
+  },
+  "devDependencies": {
+    "@types/node": "^12.7.11",
+    "typescript": "^3.7.0"
+  },
+  "peerDependencies": {
+    "effection": "^0.5.2"
+  },
+  "volta": {
+    "node": "12.16.0",
+    "yarn": "1.19.1"
+  }
+}

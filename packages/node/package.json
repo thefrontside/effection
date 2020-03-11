@@ -11,6 +11,7 @@
   "scripts": {
     "lint": "echo [skip @effection/node]",
     "test": "echo '[no-tests @effection/node]'",
+    "pack:publish": "npm publish $*",
     "prepack": "tsc --outdir dist --project tsconfig.dist.json --declaration --sourcemap --module commonjs"
   },
   "devDependencies": {

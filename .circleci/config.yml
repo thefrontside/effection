@@ -38,16 +38,16 @@ jobs:
           key: v1-dependencies-{{ checksum "package.json" }}
 
       # run script
-      - run: yarn << parameters.script >>
+      - run: << parameters.script >>
 
 workflows:
   test:
     jobs:
       - run:
           name: "tests"
-          script: test
+          script: yarn test
   test-types:
     jobs:
       - run:
           name: "test types"
-          script: test:types
+          script: cd packages/effection && yarn test:types

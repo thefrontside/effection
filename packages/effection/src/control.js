@@ -1,3 +1,4 @@
+import { ExecutionContext } from './context';
 import { isGeneratorFunction, isGenerator } from './generator-function';
 
 export class ControlFunction {
@@ -70,7 +71,6 @@ export const GeneratorFunctionControl = sequence => ControlFunction.of((...args)
  * throws an exception, control is passed back to the calling parent.
  */
 export const GeneratorControl = generator => ControlFunction.of(self => {
-
   self.ensure(() => generator.return());
 
   let resume = value => advance(() => generator.next(value));
@@ -84,9 +84,15 @@ export const GeneratorControl = generator => ControlFunction.of(self => {
         self.resume(next.value);
       } else {
         let operation = next.value;
-        let child = self.context.spawn(operation, child => {
+        let child = new ExecutionContext();
 
+        self.ensure(() => child.halt(self.context.result));
+
+        child.enter(operation, child => {
           if (self.context.isBlocking) {
+            if (child.result instanceof ExecutionContext) {
+              self.context.link(child.result);
+            }
             if (child.isErrored) {
               fail(child.result);
             }
@@ -98,9 +104,6 @@ export const GeneratorControl = generator => ControlFunction.of(self => {
             }
           }
         });
-        if (child.isBlocking) {
-          self.context.requiredChildren.add(child);
-        }
       }
     } catch (error) {
       self.fail(error);
@@ -111,35 +114,17 @@ export const GeneratorControl = generator => ControlFunction.of(self => {
 });
 
 export function fork(operation) {
-  return ({ resume, context } ) => {
-    let parent = context.parent ? context.parent : context;
-    let child = parent.spawn(operation, child => {
-      if (child.isErrored) {
-        parent.fail(child.result);
-      } else if (parent.isWaiting && parent.requiredChildren.size === 0) {
-        parent.resume();
-      }
-    });
-
-    if (child.isBlocking) {
-      parent.requiredChildren.add(child);
-    }
-
+  return ({ resume } ) => {
+    let child = new ExecutionContext(true);
+    child.enter(operation);
     resume(child);
   };
 }
 
-export function monitor(operation) {
-  return ({ resume, context } ) => {
-    let parent = context.parent ? context.parent : context;
-    let child = parent.spawn(operation, () => {
-      if (child.isErrored) {
-        parent.fail(child.result);
-      } else if (parent.isWaiting && parent.requiredChildren.size === 0) {
-        parent.resume();
-      }
-    });
-
+export function spawn(operation) {
+  return ({ resume } ) => {
+    let child = new ExecutionContext();
+    child.enter(operation);
     resume(child);
   };
 }

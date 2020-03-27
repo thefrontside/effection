@@ -11,18 +11,16 @@ export class ExecutionContext {
 
   get isBlocking() { return this.isRunning || this.isWaiting || this.isUnstarted; }
 
-  constructor(parent = undefined, continuation = x => x) {
+  constructor(isRequired = false) {
     this.id = this.constructor.ids++;
-    this.parent = parent;
+    this.isRequired = isRequired;
     this.children = new Set();
-    this.requiredChildren = new Set();
     this.exitHooks = new Set();
     this.state = 'unstarted';
     this.resume = this.resume.bind(this);
     this.fail = this.fail.bind(this);
-    this.ensure = this.ensure.bind(this);
     this.spawn = this.spawn.bind(this);
-    this.continue = continuation.bind(null, this);
+    this.ensure = this.ensure.bind(this);
   }
 
   get promise() {
@@ -64,9 +62,9 @@ export class ExecutionContext {
     }
   }
 
-  spawn(operation, continuation = x => x) {
-    let child = new ExecutionContext(this, continuation);
-    this.children.add(child);
+  spawn(operation, required = false) {
+    let child = new ExecutionContext(required);
+    this.link(child);
     child.enter(operation);
     return child;
   }
@@ -82,15 +80,16 @@ export class ExecutionContext {
     }
   }
 
-  enter(operation) {
+  enter(operation, continuation) {
     if (this.isUnstarted) {
+      this.continuation = continuation;
+
       let controller = this.createController(operation);
       this.operation = operation;
       this.state = 'running';
 
       let { resume, fail, ensure, spawn } = this;
       controller.call({ resume, fail, ensure, spawn, context: this });
-
     } else {
       throw new Error(`
 Tried to call #enter() on a Context that has already been finalized. This
@@ -113,7 +112,7 @@ Thanks!`);
     if (this.isRunning) {
       this.result = value;
     }
-    if (this.requiredChildren.size > 0) {
+    if (Array.from(this.children).some((c) => (!this.parent || c !== value) && c.isRequired)) {
       this.state = 'waiting';
     } else {
       this.finalize('completed', value);
@@ -131,7 +130,9 @@ Thanks!`);
     this.result = result || this.result;
 
     for (let child of [...this.children].reverse()) {
-      child.halt(result);
+      if(this.result !== child) {
+        child.halt(result);
+      }
     }
 
     for (let hook of [...this.exitHooks].reverse()) {
@@ -148,14 +149,43 @@ Original error:`);
       }
     }
 
+    if(this.result instanceof ExecutionContext) {
+      if (this.parent) {
+        this.parent.link(this.result);
+      }
+    }
+
     if (this.parent) {
-      this.parent.children.delete(this);
-      this.parent.requiredChildren.delete(this);
+      this.parent.trapExit(this);
     }
 
     this.finalizePromise();
 
-    this.continue();
+    if(this.continuation) {
+      this.continuation(this);
+    }
+  }
+
+  trapExit(child) {
+    this.unlink(child);
+
+    if (child.isErrored) {
+      this.fail(child.result);
+    } else if (this.isWaiting && Array.from(this.children).every((c) => !c.isRequired)) {
+      this.finalize('completed');
+    }
+  }
+
+  link(child) {
+    if(child.isBlocking) {
+      child.parent = this;
+      this.children.add(child);
+    }
+  }
+
+  unlink(child) {
+    child.parent = null;
+    this.children.delete(child);
   }
 
   createController(operation) {

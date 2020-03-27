@@ -1,5 +1,7 @@
 export { timeout } from './timeout';
-export { fork, join, monitor } from './control';
+export { fork, join, spawn, spawn as monitor } from './control';
+
+export { ExecutionContext } from './context';
 
 import { ExecutionContext } from './context';
 

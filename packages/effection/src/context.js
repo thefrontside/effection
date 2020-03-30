@@ -1,4 +1,5 @@
 import { ControlFunction, HaltError } from './control';
+import { contextOf } from './resource';
 
 export class ExecutionContext {
   static ids = 1;
@@ -130,7 +131,7 @@ Thanks!`);
     this.result = result || this.result;
 
     for (let child of [...this.children].reverse()) {
-      if(this.result !== child) {
+      if(contextOf(this.result) !== child) {
         child.halt(result);
       }
     }
@@ -149,12 +150,6 @@ Original error:`);
       }
     }
 
-    if(this.result instanceof ExecutionContext) {
-      if (this.parent) {
-        this.parent.link(this.result);
-      }
-    }
-
     if (this.parent) {
       this.parent.trapExit(this);
     }
@@ -169,7 +164,11 @@ Original error:`);
   trapExit(child) {
     this.unlink(child);
 
-    if (child.isErrored) {
+    if(child.isCompleted && contextOf(child.result)) {
+      this.link(contextOf(child.result));
+    }
+
+    if(child.isErrored) {
       this.fail(child.result);
     } else if (this.isWaiting && Array.from(this.children).every((c) => !c.isRequired)) {
       this.finalize('completed');
@@ -180,6 +179,8 @@ Original error:`);
     if(child.isBlocking) {
       child.parent = this;
       this.children.add(child);
+    } else {
+      this.trapExit(child);
     }
   }
 

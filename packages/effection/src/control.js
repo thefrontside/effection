@@ -1,4 +1,5 @@
 import { ExecutionContext } from './context';
+import { contextOf } from './resource';
 import { isGeneratorFunction, isGenerator } from './generator-function';
 
 export class ControlFunction {
@@ -90,8 +91,8 @@ export const GeneratorControl = generator => ControlFunction.of(self => {
 
         child.enter(operation, child => {
           if (self.context.isBlocking) {
-            if (child.result instanceof ExecutionContext) {
-              self.context.link(child.result);
+            if(contextOf(child.result)) {
+              self.context.link(contextOf(child.result));
             }
             if (child.isErrored) {
               fail(child.result);
@@ -114,16 +115,19 @@ export const GeneratorControl = generator => ControlFunction.of(self => {
 });
 
 export function fork(operation) {
-  return ({ resume } ) => {
+  return ({ resume, context } ) => {
     let child = new ExecutionContext(true);
+    context.link(child);
     child.enter(operation);
+    context.unlink(child); // otherwise we will get stuck
     resume(child);
   };
 }
 
 export function spawn(operation) {
-  return ({ resume } ) => {
+  return ({ resume, context } ) => {
     let child = new ExecutionContext();
+    context.link(child);
     child.enter(operation);
     resume(child);
   };

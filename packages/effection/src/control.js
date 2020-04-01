@@ -83,7 +83,7 @@ class GeneratorExecutionContext extends ExecutionContext {
       if (next.done) {
         this.resume(next.value);
       } else {
-        this.spawn(next.value, true);
+        this.fork(next.value);
       }
     } catch (error) {
       this.fail(error);
@@ -126,8 +126,8 @@ export const GeneratorControl = generator => ControlFunction.of(self => {
 });
 
 export function fork(operation) {
-  return ({ resume, spawn } ) => {
-    resume(spawn(operation, true));
+  return ({ resume, fork } ) => {
+    resume(fork(operation));
   };
 }
 

@@ -22,6 +22,7 @@ export class ExecutionContext {
     this.resume = this.resume.bind(this);
     this.fail = this.fail.bind(this);
     this.spawn = this.spawn.bind(this);
+    this.fork = this.fork.bind(this);
     this.ensure = this.ensure.bind(this);
   }
 
@@ -64,8 +65,15 @@ export class ExecutionContext {
     }
   }
 
-  spawn(operation, required = false) {
-    let child = new ExecutionContext(required);
+  spawn(operation) {
+    let child = new ExecutionContext(false);
+    this.link(child);
+    child.enter(operation);
+    return child;
+  }
+
+  fork(operation) {
+    let child = new ExecutionContext(true);
     this.link(child);
     child.enter(operation);
     return child;
@@ -88,8 +96,8 @@ export class ExecutionContext {
       this.operation = operation;
       this.state = 'running';
 
-      let { resume, fail, ensure, spawn } = this;
-      controller.call({ resume, fail, ensure, spawn, context: this });
+      let { resume, fail, ensure, spawn, fork } = this;
+      controller.call({ resume, fail, ensure, spawn, fork, context: this });
     } else {
       throw new Error(`
 Tried to call #enter() on a Context that has already been finalized. This

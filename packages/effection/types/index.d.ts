@@ -23,6 +23,7 @@ declare module "effection" {
     fail(error: Error): void;
     ensure(hook: (context?: Context<T>) => void): () => void;
     spawn<C>(operation: Operation<C>): Context<C>;
+    fork<C>(operation: Operation<C>): Context<C>;
     context: Context<T>;
   }
 

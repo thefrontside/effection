@@ -32,7 +32,13 @@ declare module "effection" {
 
   export function join<T>(context: Context<T>): Operation<T>;
 
+  export function spawn<T>(operation: Operation<T>): Operation<T>;
+
+  export function resource<T extends Object>(object: T, operation: Operation<void>): Operation<T>;
+
   export function monitor<T>(operation: Operation<T>): Operation<T>;
 
   export function timeout(durationMillis: number): Operation<void>;
+
+  export function contextOf(object: Object): Context<any> | undefined;
 }

@@ -61,6 +61,54 @@ export const GeneratorFunctionControl = sequence => ControlFunction.of((...args)
   return GeneratorControl(sequence()).call(...args);
 });
 
+class GeneratorExecutionContext extends ExecutionContext {
+  constructor(parentControls, generator) {
+    super(true);
+    this.generator = generator;
+    this.parentControls = parentControls;
+    this.ensure(() => {
+      this.generator.return();
+      parentControls.resume(this.result);
+    });
+  }
+
+  enter() {
+    super.enter(undefined);
+    this.advance(() => this.generator.next());
+  }
+
+  advance(getNext) {
+    try {
+      let next = getNext();
+      if (next.done) {
+        this.resume(next.value);
+      } else {
+        this.spawn(next.value, true);
+      }
+    } catch (error) {
+      this.fail(error);
+    }
+  }
+
+  trapExit(child) {
+    this.unlink(child);
+
+    if(this.isBlocking) {
+      if(contextOf(child.result)) {
+        this.parentControls.context.link(contextOf(child.result));
+      }
+      if (child.isErrored) {
+        this.advance(() => this.generator.throw(child.result));
+      }
+      if (child.isCompleted) {
+        this.advance(() => this.generator.next(child.result));
+      }
+      if (child.isHalted) {
+        this.advance(() => this.generator.throw(new HaltError(child.result)));
+      }
+    }
+  }
+}
 
 /**
  * Control a sequence of operations expressed as a generator.
@@ -72,64 +120,20 @@ export const GeneratorFunctionControl = sequence => ControlFunction.of((...args)
  * throws an exception, control is passed back to the calling parent.
  */
 export const GeneratorControl = generator => ControlFunction.of(self => {
-  self.ensure(() => generator.return());
-
-  let resume = value => advance(() => generator.next(value));
-
-  let fail = error => advance(() => generator.throw(error));
-
-  function advance(getNext) {
-    try {
-      let next = getNext();
-      if (next.done) {
-        self.resume(next.value);
-      } else {
-        let operation = next.value;
-        let child = new ExecutionContext();
-
-        self.ensure(() => child.halt(self.context.result));
-
-        child.enter(operation, child => {
-          if (self.context.isBlocking) {
-            if(contextOf(child.result)) {
-              self.context.link(contextOf(child.result));
-            }
-            if (child.isErrored) {
-              fail(child.result);
-            }
-            if (child.isCompleted) {
-              resume(child.result);
-            }
-            if (child.isHalted) {
-              fail(new HaltError(child.result));
-            }
-          }
-        });
-      }
-    } catch (error) {
-      self.fail(error);
-    }
-  }
-
-  resume();
+  let generatorContext = new GeneratorExecutionContext(self, generator);
+  self.context.link(generatorContext);
+  generatorContext.enter();
 });
 
 export function fork(operation) {
-  return ({ resume, context } ) => {
-    let child = new ExecutionContext(true);
-    context.link(child);
-    child.enter(operation);
-    context.unlink(child); // otherwise we will get stuck
-    resume(child);
+  return ({ resume, spawn } ) => {
+    resume(spawn(operation, true));
   };
 }
 
 export function spawn(operation) {
-  return ({ resume, context } ) => {
-    let child = new ExecutionContext();
-    context.link(child);
-    child.enter(operation);
-    resume(child);
+  return ({ resume, spawn } ) => {
+    resume(spawn(operation));
   };
 }
 

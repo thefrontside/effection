@@ -1,8 +1,9 @@
 import { ControlFunction, HaltError } from './control';
 import { contextOf } from './resource';
 
+let ids = 1;
+
 export class ExecutionContext {
-  static ids = 1;
   get isUnstarted() { return this.state === 'unstarted'; }
   get isRunning() { return this.state === 'running'; }
   get isWaiting() { return this.state === 'waiting'; }
@@ -13,7 +14,7 @@ export class ExecutionContext {
   get isBlocking() { return this.isRunning || this.isWaiting || this.isUnstarted; }
 
   constructor(isRequired = false) {
-    this.id = this.constructor.ids++;
+    this.id = ids++;
     this.isRequired = isRequired;
     this.children = new Set();
     this.exitHooks = new Set();
@@ -81,10 +82,8 @@ export class ExecutionContext {
     }
   }
 
-  enter(operation, continuation) {
+  enter(operation) {
     if (this.isUnstarted) {
-      this.continuation = continuation;
-
       let controller = this.createController(operation);
       this.operation = operation;
       this.state = 'running';
@@ -110,54 +109,57 @@ Thanks!`);
   }
 
   resume(value) {
-    if (this.isRunning) {
-      this.result = value;
-    }
-    if (Array.from(this.children).some((c) => (!this.parent || c !== value) && c.isRequired)) {
-      this.state = 'waiting';
-    } else {
-      this.finalize('completed', value);
+    if(this.isBlocking) {
+      if (this.isRunning) {
+        this.result = value;
+        if(contextOf(value)) {
+          this.link(contextOf(value));
+        }
+      }
+      if(Array.from(this.children).every((c) => (this.parent && c === value) || !c.isRequired)) {
+        this.finalize('completed', value);
+      } else {
+        this.state = 'waiting';
+      }
     }
   }
 
   fail(error) {
-    this.finalize('errored', error);
+    if(this.isBlocking) {
+      this.finalize('errored', error);
+    }
   }
 
   finalize(state, result) {
-    this.halt = this.resume = this.fail = this.finalize = function noop() {};
+    if(this.isBlocking) {
+      this.state = state;
+      this.result = result || this.result;
 
-    this.state = state;
-    this.result = result || this.result;
-
-    for (let child of [...this.children].reverse()) {
-      if(contextOf(this.result) !== child) {
-        child.halt(result);
+      for (let child of [...this.children].reverse()) {
+        if(!this.parent || contextOf(this.result) !== child) {
+          child.halt(result);
+        }
       }
-    }
 
-    for (let hook of [...this.exitHooks].reverse()) {
-      try {
-        hook();
-      } catch(e) {
-        /* eslint-disable no-console */
-        console.error(`
+      for (let hook of [...this.exitHooks].reverse()) {
+        try {
+          hook();
+        } catch(e) {
+          /* eslint-disable no-console */
+          console.error(`
 CRITICAL ERROR: an exception was thrown in an exit handler, this might put
 Effection into an unknown state, and you should avoid this ever happening.
 Original error:`);
-        console.error(e);
-        /* eslint-enable no-console */
+          console.error(e);
+          /* eslint-enable no-console */
+        }
       }
-    }
 
-    if (this.parent) {
-      this.parent.trapExit(this);
-    }
+      if (this.parent) {
+        this.parent.trapExit(this);
+      }
 
-    this.finalizePromise();
-
-    if(this.continuation) {
-      this.continuation(this);
+      this.finalizePromise();
     }
   }
 
@@ -176,6 +178,13 @@ Original error:`);
   }
 
   link(child) {
+    if(this.id === child.id) {
+      throw new Error('cannot link context to itself');
+    }
+
+    if(child.parent) {
+      child.parent.unlink(child);
+    }
     if(child.isBlocking) {
       child.parent = this;
       this.children.add(child);

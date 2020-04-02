@@ -63,17 +63,13 @@ export const GeneratorFunctionControl = sequence => ControlFunction.of((...args)
 
 class GeneratorExecutionContext extends ExecutionContext {
   constructor(parentControls, generator) {
-    super(true);
+    super();
     this.generator = generator;
     this.parentControls = parentControls;
-    this.ensure(() => {
-      this.generator.return();
-      parentControls.resume(this.result);
-    });
+    this.ensure(() => this.generator.return());
   }
 
   enter() {
-    super.enter(undefined);
     this.advance(() => this.generator.next());
   }
 
@@ -81,7 +77,8 @@ class GeneratorExecutionContext extends ExecutionContext {
     try {
       let next = getNext();
       if (next.done) {
-        this.resume(next.value);
+        this.resume();
+        this.parentControls.resume(next.value);
       } else {
         this.fork(next.value);
       }

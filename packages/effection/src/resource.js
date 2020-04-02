@@ -12,7 +12,7 @@ export function contextOf(resource) {
 
 export function resource(object, operation) {
   return ({ resume, context } ) => {
-    let child = new ExecutionContext();
+    let child = new ExecutionContext({ isRequired: false, allowContextReturn: false });
     context.link(child);
     child.enter(operation);
     Object.defineProperty(object, symbol, {

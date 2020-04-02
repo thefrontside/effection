@@ -13,9 +13,10 @@ export class ExecutionContext {
 
   get isBlocking() { return this.isRunning || this.isWaiting || this.isUnstarted; }
 
-  constructor(isRequired = false) {
+  constructor({ isRequired = false, allowContextReturn = true } = {}) {
     this.id = ids++;
     this.isRequired = isRequired;
+    this.allowContextReturn = allowContextReturn;
     this.children = new Set();
     this.exitHooks = new Set();
     this.state = 'unstarted';
@@ -66,14 +67,14 @@ export class ExecutionContext {
   }
 
   spawn(operation) {
-    let child = new ExecutionContext(false);
+    let child = new ExecutionContext({ isRequired: false });
     this.link(child);
     child.enter(operation);
     return child;
   }
 
   fork(operation) {
-    let child = new ExecutionContext(true);
+    let child = new ExecutionContext({ isRequired: true });
     this.link(child);
     child.enter(operation);
     return child;
@@ -124,7 +125,7 @@ Thanks!`);
           this.link(contextOf(value));
         }
       }
-      if(Array.from(this.children).every((c) => (this.parent && c === value) || !c.isRequired)) {
+      if(Array.from(this.children).every((c) => (this.allowContextReturn && c === value) || !c.isRequired)) {
         this.finalize('completed', value);
       } else {
         this.state = 'waiting';
@@ -144,7 +145,7 @@ Thanks!`);
       this.result = result || this.result;
 
       for (let child of [...this.children].reverse()) {
-        if(!this.parent || contextOf(this.result) !== child) {
+        if(!this.allowContextReturn || contextOf(this.result) !== child) {
           child.halt(result);
         }
       }

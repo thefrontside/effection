@@ -7,7 +7,7 @@ export { resource, contextOf } from './resource';
 import { ExecutionContext } from './context';
 
 export function main(operation) {
-  let top = new ExecutionContext();
+  let top = new ExecutionContext({ allowContextReturn: false });
   top.enter(operation);
   return top;
 }

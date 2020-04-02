@@ -13,10 +13,10 @@ export class ExecutionContext {
 
   get isBlocking() { return this.isRunning || this.isWaiting || this.isUnstarted; }
 
-  constructor({ isRequired = false, allowContextReturn = true } = {}) {
+  constructor({ isRequired = false, blockOnReturnedContext = false } = {}) {
     this.id = ids++;
     this.isRequired = isRequired;
-    this.allowContextReturn = allowContextReturn;
+    this.blockOnReturnedContext = blockOnReturnedContext;
     this.children = new Set();
     this.exitHooks = new Set();
     this.state = 'unstarted';
@@ -125,10 +125,10 @@ Thanks!`);
           this.link(contextOf(value));
         }
       }
-      if(Array.from(this.children).every((c) => (this.allowContextReturn && c === value) || !c.isRequired)) {
-        this.finalize('completed', value);
-      } else {
+      if(Array.from(this.children).some((c) => (c === value) ? this.blockOnReturnedContext : c.isRequired)) {
         this.state = 'waiting';
+      } else {
+        this.finalize('completed', value);
       }
     }
   }
@@ -145,7 +145,7 @@ Thanks!`);
       this.result = result || this.result;
 
       for (let child of [...this.children].reverse()) {
-        if(!this.allowContextReturn || contextOf(this.result) !== child) {
+        if(this.blockOnReturnedContext || contextOf(this.result) !== child) {
           child.halt(result);
         }
       }
@@ -189,6 +189,10 @@ Original error:`);
   link(child) {
     if(this.id === child.id) {
       throw new Error('cannot link context to itself');
+    }
+
+    if(!this.isBlocking) {
+      child.halt();
     }
 
     if(child.parent) {

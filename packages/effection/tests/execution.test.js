@@ -1,6 +1,6 @@
 import expect from 'expect';
 import mock from 'jest-mock';
-import { main, join, fork } from '../src/index';
+import { main, join, fork, spawn } from '../src/index';
 
 describe('execution', () => {
 
@@ -99,6 +99,42 @@ describe('execution', () => {
     });
 
     describe('failing the forked process', () => {
+      beforeEach(() => {
+        fail(new Error('boom!'));
+      });
+
+      it('fails the process', () => {
+        expect(exec.isErrored).toBe(true);
+      });
+      it('has the error as the result', () => {
+        expect(exec.result).toBeDefined();
+        expect(exec.result.message).toEqual('boom!');
+      });
+    });
+  });
+
+  describe('spawning from a process', () => {
+    let exec, resume, fail;
+
+    beforeEach(() => {
+      exec = main(spawn(context => ({ resume, fail } = context)));
+    });
+
+    it('makes the external process waiting and blocking', () => {
+      expect(exec.isBlocking).toBe(true);
+      expect(exec.isWaiting).toBe(true);
+    });
+
+    describe('resuming the spawned process', () => {
+      beforeEach(() => {
+        resume();
+      });
+      it('completes the external process', () => {
+        expect(exec.isCompleted).toBe(true);
+      });
+    });
+
+    describe('failing the spawned process', () => {
       beforeEach(() => {
         fail(new Error('boom!'));
       });

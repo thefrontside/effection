@@ -70,6 +70,7 @@ class GeneratorExecutionContext extends ExecutionContext {
   }
 
   enter() {
+    super.enter(undefined);
     this.advance(() => this.generator.next());
   }
 

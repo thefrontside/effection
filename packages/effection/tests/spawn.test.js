@@ -37,10 +37,11 @@ describe('spawning operations', () => {
       beforeEach(() => {
         reject(boom = new Error('boom!'));
       });
-      it('fails the child, but not the parent', () => {
+      it('fails the child, and also the parent', () => {
         expect(child.isErrored).toEqual(true);
         expect(child.result).toEqual(boom);
-        expect(context.isRunning).toEqual(true);
+        expect(context.isErrored).toEqual(true);
+        expect(context.result).toEqual(boom);
       });
     });
 

@@ -1,7 +1,9 @@
 import { ControlFunction, HaltError } from './control';
+import { contextOf } from './resource';
+
+let ids = 1;
 
 export class ExecutionContext {
-  static ids = 1;
   get isUnstarted() { return this.state === 'unstarted'; }
   get isRunning() { return this.state === 'running'; }
   get isWaiting() { return this.state === 'waiting'; }
@@ -11,18 +13,18 @@ export class ExecutionContext {
 
   get isBlocking() { return this.isRunning || this.isWaiting || this.isUnstarted; }
 
-  constructor(parent = undefined, continuation = x => x) {
-    this.id = this.constructor.ids++;
-    this.parent = parent;
+  constructor({ isRequired = false, blockOnReturnedContext = false } = {}) {
+    this.id = ids++;
+    this.isRequired = isRequired;
+    this.blockOnReturnedContext = blockOnReturnedContext;
     this.children = new Set();
-    this.requiredChildren = new Set();
     this.exitHooks = new Set();
     this.state = 'unstarted';
     this.resume = this.resume.bind(this);
     this.fail = this.fail.bind(this);
-    this.ensure = this.ensure.bind(this);
     this.spawn = this.spawn.bind(this);
-    this.continue = continuation.bind(null, this);
+    this.fork = this.fork.bind(this);
+    this.ensure = this.ensure.bind(this);
   }
 
   get promise() {
@@ -64,9 +66,16 @@ export class ExecutionContext {
     }
   }
 
-  spawn(operation, continuation = x => x) {
-    let child = new ExecutionContext(this, continuation);
-    this.children.add(child);
+  spawn(operation) {
+    let child = new ExecutionContext({ isRequired: false });
+    this.link(child);
+    child.enter(operation);
+    return child;
+  }
+
+  fork(operation) {
+    let child = new ExecutionContext({ isRequired: true });
+    this.link(child);
     child.enter(operation);
     return child;
   }
@@ -88,9 +97,8 @@ export class ExecutionContext {
       this.operation = operation;
       this.state = 'running';
 
-      let { resume, fail, ensure, spawn } = this;
-      controller.call({ resume, fail, ensure, spawn, context: this });
-
+      let { resume, fail, ensure, spawn, fork } = this;
+      controller.call({ resume, fail, ensure, spawn, fork, context: this });
     } else {
       throw new Error(`
 Tried to call #enter() on a Context that has already been finalized. This
@@ -110,52 +118,97 @@ Thanks!`);
   }
 
   resume(value) {
-    if (this.isRunning) {
-      this.result = value;
-    }
-    if (this.requiredChildren.size > 0) {
-      this.state = 'waiting';
-    } else {
-      this.finalize('completed', value);
+    if(this.isBlocking) {
+      if (this.isRunning) {
+        this.result = value;
+        if(contextOf(value)) {
+          this.link(contextOf(value));
+        }
+      }
+      if(Array.from(this.children).some((c) => (c === value) ? this.blockOnReturnedContext : c.isRequired)) {
+        this.state = 'waiting';
+      } else {
+        this.finalize('completed', value);
+      }
     }
   }
 
   fail(error) {
-    this.finalize('errored', error);
+    if(this.isBlocking) {
+      this.finalize('errored', error);
+    }
   }
 
   finalize(state, result) {
-    this.halt = this.resume = this.fail = this.finalize = function noop() {};
+    if(this.isBlocking) {
+      this.state = state;
+      this.result = result || this.result;
 
-    this.state = state;
-    this.result = result || this.result;
+      for (let child of [...this.children].reverse()) {
+        if(this.blockOnReturnedContext || contextOf(this.result) !== child) {
+          child.halt(result);
+        }
+      }
 
-    for (let child of [...this.children].reverse()) {
-      child.halt(result);
-    }
-
-    for (let hook of [...this.exitHooks].reverse()) {
-      try {
-        hook();
-      } catch(e) {
-        /* eslint-disable no-console */
-        console.error(`
+      for (let hook of [...this.exitHooks].reverse()) {
+        try {
+          hook();
+        } catch(e) {
+          /* eslint-disable no-console */
+          console.error(`
 CRITICAL ERROR: an exception was thrown in an exit handler, this might put
 Effection into an unknown state, and you should avoid this ever happening.
 Original error:`);
-        console.error(e);
-        /* eslint-enable no-console */
+          console.error(e);
+          /* eslint-enable no-console */
+        }
       }
+
+      if (this.parent) {
+        this.parent.trapExit(this);
+      }
+
+      this.finalizePromise();
+    }
+  }
+
+  trapExit(child) {
+    this.unlink(child);
+
+    if(child.isCompleted && contextOf(child.result)) {
+      this.link(contextOf(child.result));
     }
 
-    if (this.parent) {
-      this.parent.children.delete(this);
-      this.parent.requiredChildren.delete(this);
+    if(child.isErrored) {
+      this.fail(child.result);
+    } else if (this.isWaiting && Array.from(this.children).every((c) => !c.isRequired)) {
+      this.finalize('completed');
+    }
+  }
+
+  link(child) {
+    if(this.id === child.id) {
+      throw new Error('cannot link context to itself');
     }
 
-    this.finalizePromise();
+    if(!this.isBlocking) {
+      child.halt();
+    }
 
-    this.continue();
+    if(child.parent) {
+      child.parent.unlink(child);
+    }
+    if(child.isBlocking) {
+      child.parent = this;
+      this.children.add(child);
+    } else {
+      this.trapExit(child);
+    }
+  }
+
+  unlink(child) {
+    child.parent = null;
+    this.children.delete(child);
   }
 
   createController(operation) {

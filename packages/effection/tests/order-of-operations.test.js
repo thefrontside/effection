@@ -24,17 +24,15 @@ describe('Order of Shutdown Operations', () => {
   beforeEach(() => {
     order = [];
 
-    let self = ({ resume, context: { parent }}) => resume(parent);
+    Node = function Node(name, operations = []) {
+      return ({ ensure, context, spawn }) => {
+        Node[name] = context;
+        ensure(() => order.push([name, context.state]));
 
-    Node = function* Node(name, operations = []) {
-      let context = yield self;
-      Node[name] = context;
-      context.ensure(() => order.push([name, context.state]));
-
-      for (let operation of operations) {
-        yield fork(operation);
-      }
-      yield;
+        for (let operation of operations) {
+          spawn(fork(operation));
+        }
+      };
     };
 
     main(

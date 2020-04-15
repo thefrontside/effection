@@ -1,6 +1,6 @@
 {
   "name": "@effection/node",
-  "version": "0.5.2",
+  "version": "0.6.0",
   "description": "Work in Node.js with Effection",
   "main": "dist/index.js",
   "typings": "dist/index.d.js",
@@ -19,7 +19,7 @@
     "typescript": "^3.7.0"
   },
   "peerDependencies": {
-    "effection": "^0.5.2"
+    "effection": "^0.6.0"
   },
   "volta": {
     "node": "12.16.0",

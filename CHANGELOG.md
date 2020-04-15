@@ -6,6 +6,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.6.0] - 2020-04-15
+
+### Changed
+
+* Returning a context from a context passes links it to the parent context
+  rather than halting it.
+  https://github.com/thefrontside/effection.js/pull/89
+
+### Added
+
+* Resources are a new feature in Effection which allow you to tie a context
+  to any JavaScript object.
+  https://github.com/thefrontside/effection.js/pull/89
+
 ## [0.5.2] - 2020-03-09
 
 ### Added

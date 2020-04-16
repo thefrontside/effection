@@ -1,3 +1,4 @@
+import { Deferred } from './deferred';
 /**
 * Create an execution controller that resumes after the specified
 * duration. E.g.
@@ -7,9 +8,12 @@
 *     console.log(`Hello ${target}!`);
 *   }
 */
-export function timeout(duration) {
-  return ({ resume, ensure }) => {
-    let timeoutId = setTimeout(() => resume(), duration);
-    ensure(() => clearTimeout(timeoutId));
-  };
+export function* timeout(duration) {
+  let { resolve, promise } = Deferred();
+  let timeoutId = setTimeout(resolve, duration);
+  try {
+    yield promise;
+  } finally {
+    clearTimeout(timeoutId);
+  }
 }

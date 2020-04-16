@@ -3,5 +3,6 @@ import {
   Context,
   fork,
   join,
-  timeout
+  timeout,
+  Deferred
 } from 'effection';

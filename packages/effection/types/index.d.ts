@@ -44,4 +44,12 @@ declare module "effection" {
   export function timeout(durationMillis: number): Operation<void>;
 
   export function contextOf(object: Object): Context<any> | undefined;
+
+  export function Deferred<T>(): Deferred<T>;
+
+  export interface Deferred<T> {
+    resolve(value: T): void;
+    reject(error: Error): void;
+    promise: Promise<T>;
+  }
 }

@@ -1,3 +1,4 @@
+export { Deferred } from './deferred';
 export { timeout } from './timeout';
 export { fork, join, spawn, spawn as monitor } from './control';
 

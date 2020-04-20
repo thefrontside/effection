@@ -4,6 +4,7 @@ gzip)](https://badgen.net/bundlephobia/minzip/effection)](https://bundlephobia.c
 [![CircleCI](https://circleci.com/gh/cowboyd/effection.js.svg?style=shield)](https://circleci.com/gh/cowboyd/effection.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Created by The Frontside](https://img.shields.io/badge/created%20by-frontside.io-blue.svg)](https://frontside.io)
+[![Chat on Discord](https://img.shields.io/discord/700803887132704931?Label=Discord)](https://discord.gg/Ug5nWH8)
 
 # effection
 

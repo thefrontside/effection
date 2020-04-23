@@ -107,4 +107,16 @@ describe('Returning resources', () => {
       });
     });
   });
+
+  describe('null operations', () => {
+    beforeEach(() => {
+      return execution = main(function*() {
+        yield Promise.resolve(null);
+      });
+    });
+    it('completes', () => {
+      expect(execution.state).toEqual('completed');
+    });
+  });
+
 });

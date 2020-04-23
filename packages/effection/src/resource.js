@@ -5,7 +5,7 @@ let symbol = Symbol("resource");
 export function contextOf(resource) {
   if(resource instanceof ExecutionContext) {
     return resource;
-  } else if(typeof(resource) === "object" || typeof(resource) === "function") {
+  } else if(resource != null) {
     return resource[symbol];
   }
 }

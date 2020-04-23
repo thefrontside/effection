@@ -15,7 +15,7 @@
     "prepack": "tsc --outdir dist --project tsconfig.dist.json --declaration --sourcemap --module commonjs"
   },
   "devDependencies": {
-    "@types/node": "^12.7.11",
+    "@types/node": "^13.13.2",
     "typescript": "^3.7.0"
   },
   "peerDependencies": {

@@ -144,13 +144,13 @@ Thanks!`);
       this.state = state;
       this.result = result || this.result;
 
-      for (let child of [...this.children].reverse()) {
+      for (let child of Array.from(this.children).reverse()) {
         if(this.blockOnReturnedContext || contextOf(this.result) !== child) {
           child.halt(result);
         }
       }
 
-      for (let hook of [...this.exitHooks].reverse()) {
+      for (let hook of Array.from(this.exitHooks).reverse()) {
         try {
           hook();
         } catch(e) {
@@ -221,7 +221,7 @@ Original error:`);
 
   toString(indent = '') {
     let name = this.operation ? this.operation.name || '' : '';
-    let children = [...this.children].map(child => `${child.toString(indent + '  ')}`);
+    let children = Array.from(this.children).map(child => `${child.toString(indent + '  ')}`);
     return [`${indent}-> [${this.id}](${name}): ${this.state}`, ...children].join("\n");
   }
 }

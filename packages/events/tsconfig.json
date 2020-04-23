@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "moduleResolution": "node",
+    "noImplicitAny": true,
+    "typeRoots": [
+      "./node_modules/@types"
+    ],
+    "baseUrl": "."
+  },
+  "include": [
+    "src/**/*.ts",
+    "bin/*.ts",
+    "test/**/*.ts"
+  ]
+}

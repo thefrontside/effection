@@ -14,7 +14,6 @@
   "scripts": {
     "lint": "echo [skip @effection/node]",
     "test": "mocha -r ts-node/register test/**/*.test.ts",
-    "pack:publish": "npm publish $*",
     "prepack": "tsc --outdir dist --project tsconfig.dist.json --declaration --sourcemap --module commonjs",
     "mocha": "mocha -r ts-node/register"
   },
@@ -30,6 +29,9 @@
   },
   "peerDependencies": {
     "effection": "^0.6.0"
+  },
+  "dependencies": {
+    "@effection/events": "^0.6.0"
   },
   "volta": {
     "node": "12.16.0",

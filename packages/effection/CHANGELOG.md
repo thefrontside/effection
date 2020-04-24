@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.6.2] - 2020-04-24
+
+## Changed
+
+* fix bug where typescript type declarations were not being referenced
+  properly as part of the migration to
+  `microbundle`. https://github.com/thefrontside/effection.js/pull/107
 ## [0.6.1] - 2020-04-24
 
 ### Changed

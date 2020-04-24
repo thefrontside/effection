@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 * fix bug where operations that returned `null` was causing effection
   to crash: https://github.com/thefrontside/effection.js/pull/98
+* `effection` is now compiled with microbundle instead of
+  pika. https://github.com/thefrontside/effection.js/pull/100
 
 ## [0.6.0] - 2020-04-15
 

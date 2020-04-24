@@ -14,7 +14,6 @@
   "scripts": {
     "lint": "echo [skip @effection/events]",
     "test": "mocha -r ts-node/register test/**/*.test.ts",
-    "pack:publish": "npm publish $*",
     "prepack": "tsc --outdir dist --project tsconfig.dist.json --declaration --sourcemap --module commonjs",
     "mocha": "mocha -r ts-node/register"
   },

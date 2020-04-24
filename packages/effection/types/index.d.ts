@@ -1,5 +1,6 @@
 // TypeScript Version: 3.7
 declare module "effection" {
+  export type ContextState = 'unstarted' | 'running' | 'waiting' | 'completed' | 'errored' | 'halted';
   export type Operation<T = any> = undefined | OperationFn<T> | Sequence<T> | PromiseLike<T> | Controller<T>;
 
   type OperationFn<T = any> = () => Operation<T>;
@@ -10,6 +11,7 @@ declare module "effection" {
 
   export interface Context<T = any> extends PromiseLike<T> {
     id: number;
+    state: ContextState;
     parent?: Context<any>;
     result?: any;
     halt(reason?: any): void;

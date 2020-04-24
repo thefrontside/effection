@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.6.1] - 2020-04-24
+
+### Changed
+
+* fix bug where operations that returned `null` was causing effection
+  to crash: https://github.com/thefrontside/effection.js/pull/98
+
 ## [0.6.0] - 2020-04-15
 
 ### Changed

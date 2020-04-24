@@ -12,7 +12,10 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Publish Releases
-      uses: thefrontside/actions/synchronize-with-npm@v1.3
+      uses: thefrontside/actions/synchronize-with-npm@v1.6
+      with:
+        before_all: yarn prepack
+        npm_publish: yarn publish
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         NPM_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}

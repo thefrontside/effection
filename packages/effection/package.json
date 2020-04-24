@@ -6,7 +6,7 @@
   "author": "Charles Lowell <cowboyd@frontside.io>",
   "license": "MIT",
   "private": false,
-  "types": "index.d.ts",
+  "types": "types/index.d.ts",
   "source": "src/index.js",
   "main": "dist/effection.js",
   "module": "dist/effection.module.js",

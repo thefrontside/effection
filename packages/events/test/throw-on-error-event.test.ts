@@ -11,6 +11,7 @@ import { throwOnErrorEvent } from '../src/index';
 describe("throwOnErrorEvent", () => {
   let emitter: EventEmitter;
   let context: Context;
+  let error = new Error("moo");
 
   beforeEach(async () => {
     emitter = new EventEmitter();
@@ -22,12 +23,11 @@ describe("throwOnErrorEvent", () => {
 
   describe('throws an erro when the event occurs', () => {
     beforeEach(() => {
-      emitter.emit("error", new Error("moo"));
+      emitter.emit("error", error);
     });
 
     it('throws error', async () => {
-      expect(context.state).toEqual("errored");
-      expect(context.result.message).toEqual("moo");
+      await expect(context).rejects.toEqual(error);
     });
   });
 });

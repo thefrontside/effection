@@ -1,6 +1,6 @@
 {
   "name": "@effection/events",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Helpers for listening to events with effection",
   "main": "dist/index.js",
   "typings": "dist/index.d.js",

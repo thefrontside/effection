@@ -1,6 +1,6 @@
 {
   "name": "@effection/node",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Work in Node.js with Effection",
   "main": "dist/index.js",
   "typings": "dist/index.d.js",

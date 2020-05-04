@@ -6,9 +6,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.6.2] - 2020-05-04
+
+### Changed
+* cancel main context upon SIGTERM
+  https://github.com/thefrontside/effection/pull/116
+
 ## [0.6.1] - 2020-04-29
 
-## Added
+### Added
 
 * ChildProcess helpers
   https://github.com/thefrontside/effection.js/pull/101

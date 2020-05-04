@@ -7,6 +7,7 @@ export function main<T>(operation: Operation<T>): Context<T> {
       let debug = () => console.debug(mainContext.toString());
       try {
         process.on('SIGINT', interrupt);
+        process.on('SIGTERM', interrupt);
         process.on('SIGUSR1', debug);
         return yield operation;
       } catch(e) {
@@ -14,6 +15,7 @@ export function main<T>(operation: Operation<T>): Context<T> {
         process.exit(-1);
       } finally {
         process.off('SIGINT', interrupt);
+        process.off('SIGTERM', interrupt);
         process.off('SIGUSR1', debug);
       }
     });

@@ -18,7 +18,7 @@ afterEach(() => {
 })
 
 export class TestStream {
-  private output = "";
+  public output = "";
 
   static *of(value: Readable) {
     let testStream = new TestStream(value);

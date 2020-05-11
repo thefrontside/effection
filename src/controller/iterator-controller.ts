@@ -8,7 +8,7 @@ export class IteratorController<TOut> implements Controller<TOut> {
   private haltPromise: Promise<undefined>;
   private resolveHaltPromise: () => void;
 
-  constructor(private iterator: Iterator<unknown>) {
+  constructor(private iterator: Iterator<Operation<unknown>, TOut, any>) {
     this.haltPromise = new Promise((resolve) => {
       this.resolveHaltPromise = () => { resolve() };
     });
@@ -18,10 +18,7 @@ export class IteratorController<TOut> implements Controller<TOut> {
 
   private async run(): Promise<TOut> {
     let didHalt = false;
-    let resume = (value) => () => this.iterator.next(value);
-    let fail = (error) => () => this.iterator.throw(error);
-    let halt = () => this.iterator.return();
-    let getNext: (value?: Operation<unknown> | Error | undefined) => IteratorResult<unknown> = resume(undefined);
+    let getNext: () => IteratorResult<unknown> = () => this.iterator.next();
 
     while(true) {
       let next;
@@ -37,16 +34,16 @@ export class IteratorController<TOut> implements Controller<TOut> {
         await Promise.race([
           subTask.then(
             (value) => {
-              getNext = resume(value)
+              getNext = () => this.iterator.next(value);
             },
             (error) => {
-              getNext = fail(error)
+              getNext = () => this.iterator.throw(error);
             }
           ),
           this.haltPromise.then(
             () => {
               didHalt = true;
-              getNext = halt;
+              getNext = () => this.iterator.return();
             }
           ),
         ]);

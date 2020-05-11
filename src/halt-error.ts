@@ -1,7 +1,13 @@
 export class HaltError extends Error {
-  __isEffectionHaltError: true;
+  get __isEffectionHaltError() {
+    return true;
+  }
 
   constructor() {
     super("halted");
   }
+}
+
+export function isHaltError(value: any): value is HaltError {
+  return !!(value && value.__isEffectionHaltError);
 }

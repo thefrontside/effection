@@ -97,6 +97,23 @@ describe('run', () => {
 
       await expect(eventually).resolves.toEqual("did run");
     });
+
+    it('can can await halt', async () => {
+      let didRun = false;
+
+      let task = run(function*() {
+        try {
+          yield new Promise(() => {});
+        } finally {
+          yield Promise.resolve(1);
+          didRun = true;
+        }
+      });
+
+      await task.halt();
+
+      expect(didRun).toEqual(true);
+    });
   });
 
 });

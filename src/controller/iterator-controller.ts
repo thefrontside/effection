@@ -1,6 +1,6 @@
 import { Controller } from './controller';
 import { Task } from '../task';
-import { HaltError } from '../halt-error';
+import { HaltError, isHaltError } from '../halt-error';
 import { Operation } from '../operation';
 
 export class IteratorController<TOut> implements Controller<TOut> {
@@ -51,8 +51,15 @@ export class IteratorController<TOut> implements Controller<TOut> {
     }
   }
 
-  halt() {
+  async halt() {
     this.resolveHaltPromise();
+    try {
+      await this.promise;
+    } catch(e) {
+      if(!isHaltError(e)) {
+        throw e
+      }
+    }
   }
 
   then<TResult1 = TOut, TResult2 = never>(onfulfilled?: ((value: TOut) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): PromiseLike<TResult1 | TResult2> {

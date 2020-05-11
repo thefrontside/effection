@@ -25,8 +25,8 @@ export class Task<TOut> implements PromiseLike<TOut> {
     this.controller = controllerOf(operation);
   }
 
-  halt() {
-    this.controller.halt();
+  async halt() {
+    await this.controller.halt();
   }
 
   then<TResult1 = TOut, TResult2 = never>(onfulfilled?: ((value: TOut) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): PromiseLike<TResult1 | TResult2> {

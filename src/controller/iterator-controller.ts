@@ -3,20 +3,14 @@ import { Task } from '../task';
 import { HaltError } from '../halt-error';
 import { Operation } from '../operation';
 
-type Halt = { halted: true }
-
-function isHalt(value: any): value is Halt {
-  return value && value.halted;
-}
-
 export class IteratorController<TOut> implements Controller<TOut> {
   private promise: Promise<TOut>;
-  private haltPromise: Promise<Halt>;
+  private haltPromise: Promise<undefined>;
   private resolveHaltPromise: () => void;
 
   constructor(private iterator: Iterator<unknown>) {
     this.haltPromise = new Promise((resolve) => {
-      this.resolveHaltPromise = () => { resolve({ halted: true }) };
+      this.resolveHaltPromise = () => { resolve() };
     });
 
     this.promise = this.run();
@@ -40,20 +34,22 @@ export class IteratorController<TOut> implements Controller<TOut> {
         }
       } else {
         let subTask: Task<unknown> = new Task(next.value);
-        try {
-          let wrapper = await Promise.race([
-            subTask.then((value: unknown) => ({ value })),
-            this.haltPromise,
-          ]);
-          if(isHalt(wrapper)) {
-            didHalt = true;
-            getNext = halt;
-          } else {
-            getNext = resume(wrapper.value);
-          }
-        } catch(error) {
-          getNext = fail(error)
-        }
+        await Promise.race([
+          subTask.then(
+            (value) => {
+              getNext = resume(value)
+            },
+            (error) => {
+              getNext = fail(error)
+            }
+          ),
+          this.haltPromise.then(
+            () => {
+              didHalt = true;
+              getNext = halt;
+            }
+          ),
+        ]);
       }
     }
   }

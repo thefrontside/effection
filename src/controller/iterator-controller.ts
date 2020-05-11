@@ -25,35 +25,38 @@ export class IteratorController<TOut> implements Controller<TOut> {
       let fail = (error) => () => this.iterator.throw(error);
       let halt = () => this.iterator.return();
       let getNext: (value?: Operation<unknown> | Error | undefined) => IteratorResult<unknown> = resume(undefined);
+
       while(true) {
+        let next;
         try {
-          let next = getNext();
-          if (next.done) {
-            if(didHalt) {
-              reject(new HaltError());
-            } else {
-              resolve(next.value);
-            }
-            break;
-          } else {
-            let subTask: Task<unknown> = new Task(next.value);
-            try {
-              let wrapper = await Promise.race([
-                subTask.then((value: unknown) => ({ value })),
-                this.haltPromise,
-              ]);
-              if(isHalt(wrapper)) {
-                didHalt = true;
-                getNext = halt;
-              } else {
-                getNext = resume(wrapper.value);
-              }
-            } catch(error) {
-              getNext = fail(error)
-            }
-          }
+          next = getNext();
         } catch (error) {
           reject(error)
+          return;
+        }
+        if (next.done) {
+          if(didHalt) {
+            reject(new HaltError());
+          } else {
+            resolve(next.value);
+          }
+          break;
+        } else {
+          let subTask: Task<unknown> = new Task(next.value);
+          try {
+            let wrapper = await Promise.race([
+              subTask.then((value: unknown) => ({ value })),
+              this.haltPromise,
+            ]);
+            if(isHalt(wrapper)) {
+              didHalt = true;
+              getNext = halt;
+            } else {
+              getNext = resume(wrapper.value);
+            }
+          } catch(error) {
+            getNext = fail(error)
+          }
         }
       }
     });

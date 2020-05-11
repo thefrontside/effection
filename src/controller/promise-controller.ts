@@ -12,7 +12,7 @@ export class PromiseController<TOut> implements Controller<TOut> {
     });
   }
 
-  halt() {
+  async halt() {
     this._reject(new HaltError());
   }
 

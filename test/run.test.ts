@@ -41,6 +41,25 @@ describe('run', () => {
 
       await expect(task).rejects.toHaveProperty("message", "halted")
     });
+
+    it('can suspend in finally block', async () => {
+      let callable;
+      let eventually = new Promise((resolve) => {
+        callable = function*() { resolve("did run"); }
+      });
+
+      let task = run(function*() {
+        try {
+          yield new Promise(() => {});
+        } finally {
+          yield callable;
+        }
+      });
+
+      task.halt();
+
+      await expect(eventually).resolves.toEqual("did run");
+    });
   });
 
 });

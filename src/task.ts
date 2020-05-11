@@ -13,7 +13,7 @@ function controllerOf<TOut>(operation: Operation<TOut>): Controller<TOut> {
   } else if(typeof(operation) === 'function') {
     return new IteratorController(operation());
   } else {
-    throw new Error("unkown type of operation");
+    throw new Error(`unkown type of operation: ${operation}`);
   }
 }
 

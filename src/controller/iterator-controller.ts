@@ -20,6 +20,7 @@ export class IteratorController<TOut> implements Controller<TOut> {
     });
 
     this.promise = new Promise(async (resolve, reject) => {
+      let didHalt = false;
       let resume = (value) => () => this.iterator.next(value);
       let fail = (error) => () => this.iterator.throw(error);
       let halt = () => this.iterator.return();
@@ -28,7 +29,11 @@ export class IteratorController<TOut> implements Controller<TOut> {
         try {
           let next = getNext();
           if (next.done) {
-            resolve(next.value);
+            if(didHalt) {
+              reject(new HaltError());
+            } else {
+              resolve(next.value);
+            }
             break;
           } else {
             let subTask: Task<unknown> = new Task(next.value);
@@ -38,8 +43,8 @@ export class IteratorController<TOut> implements Controller<TOut> {
                 this.haltPromise,
               ]);
               if(isHalt(wrapper)) {
+                didHalt = true;
                 getNext = halt;
-                reject(new HaltError());
               } else {
                 getNext = resume(wrapper.value);
               }

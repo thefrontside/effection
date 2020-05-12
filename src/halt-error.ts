@@ -11,3 +11,9 @@ export class HaltError extends Error {
 export function isHaltError(value: any): value is HaltError {
   return !!(value && value.__isEffectionHaltError);
 }
+
+export function swallowHalt(error) {
+  if(!isHaltError(error)) {
+    throw error;
+  }
+}

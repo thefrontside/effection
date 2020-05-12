@@ -1,8 +1,8 @@
 import { Controller } from './controller';
-import { HaltError } from '../halt-error';
+import { HaltError, swallowHalt } from '../halt-error';
 
 export class PromiseController<TOut> implements Controller<TOut> {
-  private promise: PromiseLike<TOut>;
+  private promise: Promise<TOut>;
   private _reject: (error: Error) => void;
 
   constructor(promise: PromiseLike<TOut>) {
@@ -14,6 +14,8 @@ export class PromiseController<TOut> implements Controller<TOut> {
 
   async halt() {
     this._reject(new HaltError());
+
+    await this.promise.catch(swallowHalt);
   }
 
   then<TResult1 = TOut, TResult2 = never>(onfulfilled?: ((value: TOut) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): PromiseLike<TResult1 | TResult2> {

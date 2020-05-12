@@ -1,16 +1,18 @@
 import { Controller } from './controller';
 import { Task } from '../task';
-import { HaltError, isHaltError } from '../halt-error';
+import { HaltError, swallowHalt } from '../halt-error';
 import { Operation } from '../operation';
+
+const HALT = Symbol("halt");
 
 export class IteratorController<TOut> implements Controller<TOut> {
   private promise: Promise<TOut>;
-  private haltPromise: Promise<undefined>;
+  private haltPromise: Promise<Symbol>;
   private resolveHaltPromise: () => void;
 
   constructor(private iterator: Iterator<Operation<unknown>, TOut, any>) {
     this.haltPromise = new Promise((resolve) => {
-      this.resolveHaltPromise = () => { resolve() };
+      this.resolveHaltPromise = () => { resolve(HALT) };
     });
 
     this.promise = this.run();
@@ -31,35 +33,29 @@ export class IteratorController<TOut> implements Controller<TOut> {
         }
       } else {
         let subTask: Task<unknown> = new Task(next.value);
-        await Promise.race([
-          subTask.then(
-            (value) => {
-              getNext = () => this.iterator.next(value);
-            },
-            (error) => {
-              getNext = () => this.iterator.throw(error);
-            }
-          ),
-          this.haltPromise.then(
-            () => {
-              didHalt = true;
-              getNext = () => this.iterator.return();
-            }
-          ),
-        ]);
+        let result;
+
+        try {
+          result = await Promise.race([subTask, this.haltPromise]);
+        } catch(error) {
+          getNext = () => this.iterator.throw(error);
+          continue;
+        }
+
+        if(!didHalt && result === HALT) {
+          didHalt = true;
+          getNext = () => this.iterator.return();
+          await subTask.halt().catch(swallowHalt);
+        } else {
+          getNext = () => this.iterator.next(result);
+        }
       }
     }
   }
 
   async halt() {
     this.resolveHaltPromise();
-    try {
-      await this.promise;
-    } catch(e) {
-      if(!isHaltError(e)) {
-        throw e
-      }
-    }
+    await this.promise.catch(swallowHalt);
   }
 
   then<TResult1 = TOut, TResult2 = never>(onfulfilled?: ((value: TOut) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): PromiseLike<TResult1 | TResult2> {

@@ -98,7 +98,7 @@ describe('run', () => {
       await expect(eventually).resolves.toEqual("did run");
     });
 
-    it('can can await halt', async () => {
+    it('can await halt', async () => {
       let didRun = false;
 
       let task = run(function*() {

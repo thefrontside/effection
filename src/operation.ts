@@ -1,1 +1,5 @@
-export type Operation<TOut> = PromiseLike<TOut> | (() => Iterator<Operation<unknown>, TOut, any>)
+import { Task } from './task';
+
+export type Operation<TOut> =
+  ((task: Task<TOut>) => Iterator<Operation<unknown>, TOut, any>) |
+  PromiseLike<TOut>

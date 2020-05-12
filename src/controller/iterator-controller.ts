@@ -8,9 +8,9 @@ const HALT = Symbol("halt");
 export class IteratorController<TOut> implements Controller<TOut> {
   private promise: Promise<TOut>;
   private haltPromise: Promise<Symbol>;
-  private resolveHaltPromise: () => void;
+  private resolveHaltPromise?: () => void;
 
-  constructor(private iterator: Iterator<Operation<unknown>, TOut, any>) {
+  constructor(private iterator: Generator<Operation<unknown>, TOut | undefined>) {
     this.haltPromise = new Promise((resolve) => {
       this.resolveHaltPromise = () => { resolve(HALT) };
     });
@@ -33,7 +33,7 @@ export class IteratorController<TOut> implements Controller<TOut> {
         }
       } else {
         let subTask: Task<unknown> = new Task(next.value);
-        let result;
+        let result: unknown | Symbol;
 
         try {
           result = await Promise.race([subTask, this.haltPromise]);
@@ -44,7 +44,7 @@ export class IteratorController<TOut> implements Controller<TOut> {
 
         if(!didHalt && result === HALT) {
           didHalt = true;
-          getNext = () => this.iterator.return();
+          getNext = () => this.iterator.return(undefined);
           await subTask.halt().catch(swallowHalt);
         } else {
           getNext = () => this.iterator.next(result);
@@ -54,7 +54,7 @@ export class IteratorController<TOut> implements Controller<TOut> {
   }
 
   async halt() {
-    this.resolveHaltPromise();
+    this.resolveHaltPromise && this.resolveHaltPromise();
     await this.promise.catch(swallowHalt);
   }
 

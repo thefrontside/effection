@@ -10,6 +10,7 @@
     "prepack": "tsc --project tsconfig.dist.json --outdir dist --module commonjs --sourcemap --declaration"
   },
   "devDependencies": {
+    "@types/mocha": "^7.0.2",
     "@types/node": "^13.13.5",
     "eslint": "^6.8.0",
     "expect": "^25.3.0",

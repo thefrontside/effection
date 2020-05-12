@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "esnext",
     "moduleResolution": "node",
-    "noImplicitAny": false,
+    "strict": true,
     "typeRoots": [
       "./node_modules/@types",
       "./typings"

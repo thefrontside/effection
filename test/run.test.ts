@@ -1,7 +1,7 @@
 import { describe, beforeEach, it } from 'mocha';
 import * as expect from 'expect';
 
-import { run } from '../src/index';
+import { run, Operation } from '../src/index';
 
 process.on('unhandledRejection', (reason, promise) => {
   // silence warnings in tests
@@ -75,6 +75,7 @@ describe('run', () => {
         let two: number;
         try {
           yield Promise.reject(error);
+          two = 9;
         } catch(e) {
           // swallow error and yield in catch block
           two = yield Promise.resolve(8);
@@ -98,7 +99,7 @@ describe('run', () => {
     });
 
     it('can suspend in finally block', async () => {
-      let callable;
+      let callable: Operation<unknown>
       let eventually = new Promise((resolve) => {
         callable = function*() { resolve('did run'); }
       });

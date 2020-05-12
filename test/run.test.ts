@@ -32,7 +32,7 @@ describe('run', () => {
 
   describe('with undefined', () => {
     it('suspends indefinitely', () => {
-      let task = run(undefined);
+      let task = run();
     });
   });
 

@@ -23,12 +23,20 @@ export class Task<TOut> implements PromiseLike<TOut> {
     this.promise = this.run();
   }
 
+  private async haltChildren() {
+    await Promise.all(Array.from(this.children).map((c) => c.halt()));
+  }
+
   private async run(): Promise<TOut> {
-    return await this.controller;
+    let result = await this.controller;
+
+    await this.haltChildren();
+
+    return result;
   }
 
   async halt() {
-    await Promise.all(Array.from(this.children).map((c) => c.halt()));
+    await this.haltChildren();
     await this.controller.halt();
   }
 

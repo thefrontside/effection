@@ -30,7 +30,25 @@ describe('run', () => {
     });
   });
 
+  describe('with undefined', () => {
+    it('suspends indefinitely', () => {
+      let task = run(undefined);
+    });
+  });
+
   describe('with generator', () => {
+    it('can compose multiple promises via generator', () => {
+      function* gen() {
+        let one: number = yield Promise.resolve(12);
+        let two: number = yield Promise.resolve(55);
+        return one + two;
+      };
+      let task = run(gen());
+      expect(task).resolves.toEqual(67);
+    });
+  });
+
+  describe('with generator function', () => {
     it('can compose multiple promises via generator', () => {
       let task = run(function*() {
         let one: number = yield Promise.resolve(12);
@@ -70,7 +88,7 @@ describe('run', () => {
     it('can halt generator', async () => {
       let task = run(function*() {
         let one: number = yield Promise.resolve(12);
-        let two: number = yield new Promise(() => {});
+        let two: number = yield;
         return one + two;
       });
 
@@ -87,7 +105,7 @@ describe('run', () => {
 
       let task = run(function*() {
         try {
-          yield new Promise(() => {});
+          yield;
         } finally {
           yield callable;
         }
@@ -103,7 +121,7 @@ describe('run', () => {
 
       let task = run(function*() {
         try {
-          yield new Promise(() => {});
+          yield;
         } finally {
           yield Promise.resolve(1);
           didRun = true;

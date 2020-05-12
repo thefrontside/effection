@@ -26,10 +26,10 @@ describe('spawn', () => {
     let child;
     let root = run(function*(context: Task<unknown>) {
       child = context.spawn(function*() {
-        yield new Promise(() => {});
+        yield;
       });
 
-      yield new Promise(() => {});
+      yield;
     });
 
     await root.halt();
@@ -41,7 +41,7 @@ describe('spawn', () => {
     let child;
     let root = run(function*(context: Task<unknown>) {
       child = context.spawn(function*() {
-        yield new Promise(() => {});
+        yield;
       });
 
       return 1;

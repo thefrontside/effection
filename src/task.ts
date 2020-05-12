@@ -7,14 +7,22 @@ function isPromise(value: any): value is PromiseLike<unknown> {
   return value && typeof(value.then) === 'function';
 }
 
+function isGenerator(value: any): value is Iterator<unknown> {
+  return value && typeof(value.next) === 'function';
+}
+
 export class Task<TOut> implements PromiseLike<TOut> {
   private controller: Controller<TOut>;
   private children: Set<Task<unknown>> = new Set();
   private promise: Promise<TOut>;
 
   constructor(private operation: Operation<TOut>) {
-    if(isPromise(operation)) {
+    if(!operation) {
+      this.controller = new PromiseController(new Promise(() => {}));
+    } else if(isPromise(operation)) {
       this.controller = new PromiseController(operation);
+    } else if(isGenerator(operation)) {
+      this.controller = new IteratorController(operation);
     } else if(typeof(operation) === 'function') {
       this.controller = new IteratorController(operation(this));
     } else {

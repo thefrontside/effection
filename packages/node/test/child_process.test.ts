@@ -18,8 +18,11 @@ describe('child_process', () => {
         stdio: "pipe",
         cwd: __dirname,
       }));
-      let output = await World.spawn(TestStream.of(child.stdout));
-      await World.spawn(output.waitFor("listening"));
+      let output;
+      if (child.stdout) {
+        output = await World.spawn(TestStream.of(child.stdout));
+        await World.spawn(output.waitFor("listening"));
+      }
     });
 
     it('starts the given child', async () => {
@@ -40,8 +43,11 @@ describe('child_process', () => {
         stdio: "pipe",
         cwd: __dirname,
       }));
-      let output = await World.spawn(TestStream.of(child.stdout));
-      await World.spawn(output.waitFor("listening"));
+      let output;
+      if (child.stdout) {
+        output = await World.spawn(TestStream.of(child.stdout));
+        await World.spawn(output.waitFor("listening"))
+      }
     });
 
     it('starts the given child', async () => {

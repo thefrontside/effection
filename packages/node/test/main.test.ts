@@ -11,8 +11,10 @@ describe('main', () => {
   beforeEach(async () => {
     child = spawnProcess("ts-node", [path.join(__dirname, 'text-writer.ts')]);
 
-    stdout = await World.spawn(TestStream.of(child.stdout));
-    await World.spawn(stdout.waitFor("started"));
+    if (child.stdout) {
+      stdout = await World.spawn(TestStream.of(child.stdout));
+      await World.spawn(stdout.waitFor("started"));
+    }
   });
   afterEach(() => {
     child.kill('SIGKILL');

@@ -20,4 +20,11 @@ export abstract class Channel<T> {
   map<R>(mapper: Mapper<T, R>): MapChannel<T, R> {
     return new MapChannel(this, mapper);
   }
+
+  match(reference: Partial<T>): FilterChannel<T> {
+    return new FilterChannel(this, (value) => {
+      let casted = value as Record<string, unknown>;
+      return Object.entries(reference).every(([key, value]) => casted[key] === value);
+    });
+  }
 }

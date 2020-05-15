@@ -123,4 +123,29 @@ describe('createChannel', () => {
       });
     });
   });
+
+  describe('match', () => {
+    let source: SendChannel<{ foo: string, bar: number }>;
+    let filtered: FilterChannel<{ foo: string, bar: number }>;
+
+    let subscription: Subscription<{ foo: string, bar: number }>;
+
+    describe('with simple filter', () => {
+      beforeEach(async () => {
+        source = createChannel();
+        filtered = source.match({ foo: "foo" });
+
+        subscription = await World.spawn(filtered.subscribe());
+      });
+
+      it('receives message on subscription', async () => {
+        source.send({ foo: "foo", bar: 1 });
+        source.send({ foo: "bar", bar: 2 });
+        source.send({ foo: "foo", bar: 3 });
+
+        expect(await World.spawn(subscription.next())).toEqual({ foo: "foo", bar: 1 });
+        expect(await World.spawn(subscription.next())).toEqual({ foo: "foo", bar: 3 });
+      });
+    });
+  });
 });

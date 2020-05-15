@@ -6,7 +6,7 @@ import { EventSource, addListener, removeListener } from './event-source';
  * operation which resumes when the event occurs.
  */
 export function *once(source: EventSource, eventName: string): Operation {
-  let onceListener;
+  let onceListener = () => {};
   try {
     return yield new Promise((resolve) => {
       onceListener = (...args: unknown[]) => resolve(args);

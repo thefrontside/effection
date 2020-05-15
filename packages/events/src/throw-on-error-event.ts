@@ -2,8 +2,8 @@ import { EventSource } from './event-source';
 import { Operation, spawn } from 'effection';
 import { once } from './once';
 
-export function throwOnErrorEvent(source: EventSource): Operation<void> {
-  return spawn(function*() {
+export function throwOnErrorEvent(source: EventSource) {
+  return spawn(function*(): Operation<void> {
     let [error]: [Error] = yield once(source, 'error');
     throw error;
   });

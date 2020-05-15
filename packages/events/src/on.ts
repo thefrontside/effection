@@ -9,8 +9,10 @@ export class Subscription<T extends Array<unknown>> {
 
   *next(): Operation<T> {
     while(true) {
-      if(this.events.length > 0) {
-        return this.events.shift();
+      let [event, ...events] = this.events;
+      if (event) {
+        this.events = events;
+        return event;
       }
       yield once(this.source, this.eventName);
     }

@@ -23,10 +23,10 @@ export class FakeEvent implements Event {
   }
 
   composedPath(): EventTarget[] { return [] }
-  initEvent(): void { return null; }
-  preventDefault(): void { return null; }
-  stopImmediatePropagation(): void { return null; }
-  stopPropagation(): void { return null; }
+  initEvent(): void { return; }
+  preventDefault(): void { return; }
+  stopImmediatePropagation(): void { return; }
+  stopPropagation(): void { return; }
 
   readonly AT_TARGET: number = 0;
   readonly BUBBLING_PHASE: number = 1;

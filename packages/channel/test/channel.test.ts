@@ -125,12 +125,12 @@ describe('createChannel', () => {
   });
 
   describe('match', () => {
-    let source: SendChannel<{ foo: string, bar: number }>;
-    let filtered: FilterChannel<{ foo: string, bar: number }>;
-
-    let subscription: Subscription<{ foo: string, bar: number }>;
-
     describe('with simple filter', () => {
+      let source: SendChannel<{ foo: string, bar: number }>;
+      let filtered: FilterChannel<{ foo: string, bar: number }>;
+
+      let subscription: Subscription<{ foo: string, bar: number }>;
+
       beforeEach(async () => {
         source = createChannel();
         filtered = source.match({ foo: "foo" });
@@ -145,6 +145,29 @@ describe('createChannel', () => {
 
         expect(await World.spawn(subscription.next())).toEqual({ foo: "foo", bar: 1 });
         expect(await World.spawn(subscription.next())).toEqual({ foo: "foo", bar: 3 });
+      });
+    });
+
+    describe('with deep filter', () => {
+      let source: SendChannel<{ test: { foo: string, bar: number } }>;
+      let filtered: FilterChannel<{ test: { foo: string, bar: number } }>;
+
+      let subscription: Subscription<{ test: { foo: string, bar: number } }>;
+
+      beforeEach(async () => {
+        source = createChannel();
+        filtered = source.match({ test: { foo: "foo" } });
+
+        subscription = await World.spawn(filtered.subscribe());
+      });
+
+      it('receives message on subscription', async () => {
+        source.send({ test: { foo: "foo", bar: 1 } });
+        source.send({ test: { foo: "bar", bar: 2 } });
+        source.send({ test: { foo: "foo", bar: 3 } });
+
+        expect(await World.spawn(subscription.next())).toEqual({ test: { foo: "foo", bar: 1 } });
+        expect(await World.spawn(subscription.next())).toEqual({ test: { foo: "foo", bar: 3 } });
       });
     });
   });

@@ -5,6 +5,23 @@ import { on, EventSource, Subscription as EventSubscription } from '@effection/e
 
 import { Subscription, FilterChannel, MapChannel, Mapper, Predicate } from './index';
 
+export type DeepPartial<T> = {
+  [P in keyof T]?: T[P] extends Array<infer I>
+    ? Array<DeepPartial<I>>
+    : DeepPartial<T[P]>
+};
+
+function matcher<T>(reference: DeepPartial<T>): (value: T) => boolean {
+  return (value: T) => {
+    if(typeof(value) === 'object') {
+      let casted = value as Record<string, any>;
+      return Object.entries(reference).every(([key, ref]) => matcher(ref)(casted[key]));
+    } else {
+      return value === reference;
+    }
+  };
+}
+
 export abstract class Channel<T> {
   abstract subscribe(): Operation<Subscription<T>>;
 
@@ -21,10 +38,7 @@ export abstract class Channel<T> {
     return new MapChannel(this, mapper);
   }
 
-  match(reference: Partial<T>): FilterChannel<T> {
-    return new FilterChannel(this, (value) => {
-      let casted = value as Record<string, unknown>;
-      return Object.entries(reference).every(([key, value]) => casted[key] === value);
-    });
+  match(reference: DeepPartial<T>): FilterChannel<T> {
+    return new FilterChannel(this, matcher(reference));
   }
 }

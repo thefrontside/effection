@@ -2,10 +2,6 @@ import { resource, Operation } from 'effection';
 import { EventSource, addListener, removeListener } from './event-source';
 import { once } from './once';
 
-function isNotEmpty<T>(array: T[]): array is { shift(): T; } & Array<T> {
-  return array.length > 0;
-}
-
 export class Subscription<T extends Array<unknown>> {
   private events: T[] = [];
 
@@ -13,8 +9,10 @@ export class Subscription<T extends Array<unknown>> {
 
   *next(): Operation<T> {
     while(true) {
-      if (isNotEmpty(this.events)) {
-        return this.events.shift();
+      let [event, ...events] = this.events;
+      if (event) {
+        this.events = events;
+        return event;
       }
       yield once(this.source, this.eventName);
     }

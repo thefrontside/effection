@@ -4,6 +4,7 @@
   "description": "Helpers for listening to events with effection",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "module": "dist/events.esm.js",
   "repository": "https://github.com/thefrontside/bigtest.git",
   "author": "Frontside Engineering <engineering@frontside.io>",
   "license": "MIT",
@@ -15,7 +16,7 @@
   "scripts": {
     "lint": "echo [skip @effection/events]",
     "test": "mocha -r ts-node/register test/**/*.test.ts",
-    "prepack": "tsdx build --target node --format cjs --tsconfig tsconfig.dist.json",
+    "prepack": "tsdx build --tsconfig tsconfig.dist.json",
     "mocha": "mocha -r ts-node/register"
   },
   "devDependencies": {

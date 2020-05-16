@@ -1,0 +1,9 @@
+{
+  "presets": [
+    [
+      "@babel/env",
+      { "exclude": ["transform-async-to-generator", "transform-regenerator"] }
+    ]
+  ],
+  "plugins": ["@babel/proposal-class-properties"]
+}

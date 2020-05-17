@@ -14,7 +14,7 @@
   ],
   "scripts": {
     "lint": "echo [skip @effection/node]",
-    "test": "mocha -r ts-node/register test/**/*.test.ts",
+    "test": "mocha -r ts-node/register --timeout 5000 test/**/*.test.ts",
     "prepack": "tsdx build --target node --format cjs --tsconfig tsconfig.dist.json",
     "mocha": "mocha -r ts-node/register"
   },

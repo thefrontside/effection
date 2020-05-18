@@ -82,4 +82,38 @@ describe("on", () => {
       });
     });
   });
+
+  describe('iterating through a subscription', () => {
+    let target: EventEmitter;
+    let events: string[];
+
+    beforeEach(() => {
+      target = new EventEmitter();
+      events = [];
+
+      World.spawn(function*() {
+        for (let next of yield on(target, "thing")) {
+          let event = yield next;
+          events.push(event);
+        }
+      })
+    });
+
+    describe('sending a few events', () => {
+      beforeEach(async () => {
+        target.emit("thing", 1)
+        target.emit("thing", 2)
+        await Promise.resolve();
+      });
+
+      it('receives the events', () => {
+        expect(events).toEqual([[1],[2]]);
+      });
+
+    });
+
+
+
+  });
+
 });

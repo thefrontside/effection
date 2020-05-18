@@ -2,7 +2,7 @@ import { resource, Operation } from 'effection';
 import { EventSource, addListener, removeListener } from './event-source';
 import { once } from './once';
 
-export class Subscription<T extends Array<unknown>> {
+export class Subscription<T extends Array<unknown>> implements Iterable<Operation<T>> {
   private events: T[] = [];
 
   constructor(private source: EventSource, private eventName: string) {}
@@ -27,6 +27,12 @@ export class Subscription<T extends Array<unknown>> {
       removeListener(this.source, this.eventName, listener);
     }
 
+  }
+
+  [Symbol.iterator]() {
+    return {
+      next: () => ({ done: false, value: this.next() })
+    }
   }
 }
 

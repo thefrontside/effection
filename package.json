@@ -15,6 +15,7 @@
   },
   "scripts": {
     "clean": "git clean -dxf",
+    "postinstall": "patch-package",
     "prepack": "yarn workspaces run prepack",
     "test": "yarn workspaces run test",
     "lint": "yarn workspaces run lint"
@@ -22,5 +23,8 @@
   "volta": {
     "node": "12.11.1",
     "yarn": "1.19.1"
+  },
+  "devDependencies": {
+    "patch-package": "6.2.2"
   }
 }

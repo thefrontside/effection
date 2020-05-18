@@ -34,7 +34,7 @@ function *supervise(child: ChildProcess) { // eslint-disable-line @typescript-es
 }
 
 export function *spawn(command: string, args?: ReadonlyArray<string>, options?: SpawnOptions): Operation {
-  let child = childProcess.spawn(command, args, Object.assign({}, options, {
+  let child = childProcess.spawn(command, args || [], Object.assign({}, options, {
     shell: true,
     detached: true,
   }));

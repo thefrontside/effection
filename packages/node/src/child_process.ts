@@ -6,7 +6,7 @@ import { SpawnOptions, ForkOptions, ChildProcess } from 'child_process';
 
 export { ChildProcess } from 'child_process';
 
-function *supervise(child: ChildProcess) { // eslint-disable-line @typescript-eslint/no-explicit-any
+function *supervise(child: ChildProcess, command: string, args: readonly string[] = []) {
   // Killing all child processes started by this command is surprisingly
   // tricky. If a process spawns another processes and we kill the parent,
   // then the child process is NOT automatically killed. Instead we're using
@@ -22,7 +22,7 @@ function *supervise(child: ChildProcess) { // eslint-disable-line @typescript-es
 
     let [code]: [number] = yield once(child, "exit");
     if(code !== 0) {
-      throw new Error("child exited with non-zero exit code")
+      throw new Error(`'${(command + args.join(' ')).trim()}' exited with non-zero exit code`);
     }
   } finally {
     try {
@@ -38,12 +38,12 @@ export function *spawn(command: string, args?: ReadonlyArray<string>, options?: 
     shell: true,
     detached: true,
   }));
-  return yield resource(child, supervise(child));
+  return yield resource(child, supervise(child, command, args));
 }
 
 export function *fork(module: string, args?: ReadonlyArray<string>, options?: ForkOptions): Operation {
   let child = childProcess.fork(module, args, Object.assign({}, options, {
     detached: true,
   }));
-  return yield resource(child, supervise(child));
+  return yield resource(child, supervise(child, module, args));
 }

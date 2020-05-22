@@ -65,7 +65,7 @@ siblings are immediately halted.
 ## Context
 
 Every operation takes place within an execution context. To create the
-very first context, use the `spawn` function and pass it a generator. This
+very first context, use the `main` function and pass it a generator. This
 example waits for 1 second, then prints out "hello world" to
 the console.
 

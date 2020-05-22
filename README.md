@@ -70,9 +70,9 @@ example waits for 1 second, then prints out "hello world" to
 the console.
 
 ``` javascript
-import { spawn, timeout } from 'effection';
+import { main, timeout } from 'effection';
 
-let context = spawn(function*() {
+let context = main(function*() {
   yield timeout(1000);
   return 'hello world';
 });
@@ -87,7 +87,7 @@ Child processes can be composed freely. So instead of yielding for
 1000 ms, we could instead, yield 10 times for 100ms.
 
 ``` javascript
-spawn(function*() {
+main(function*() {
   yield function*() {
     for (let i = 0; i < 10; i++) {
       yield timeout(100);
@@ -100,7 +100,7 @@ spawn(function*() {
 And in fact, processes can be easily and arbitrarly deeply nested:
 
 ``` javascript
-let process = spawn(function*() {
+let process = main(function*() {
   return yield function*() {
     return yield function*() {
       return yield function*() {
@@ -118,13 +118,13 @@ You can pass arguments to an operation by invoking it.
 
 ``` javascript
 
-import { spawn, timeout } from 'effection';
+import { main, timeout } from 'effection';
 
 function* waitForSeconds(durationSeconds) {
   yield timeout(durationSeconds * 1000);
 }
 
-spawn(waitforseconds(10));
+main(waitforseconds(10));
 ```
 
 ### Asynchronous Execution
@@ -137,9 +137,9 @@ part of your main process. To do this, you would use the `fork` method
 on the execution:
 
 ``` javascript
-import { spawn, fork } from 'effection';
+import { main, fork } from 'effection';
 
-spawn(function*() {
+main(function*() {
   yield fork(createFileServer);
   yield fork(createHttpServer);
 });

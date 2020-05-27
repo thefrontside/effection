@@ -54,7 +54,7 @@ export class Task<TOut> implements PromiseLike<TOut> {
 
   spawn<R>(operation?: Operation<R>): Task<R> {
     let child = new Task(operation);
-    this.children.add(child);
+    this.children.add(child as Task<unknown>);
     return child;
   }
 }

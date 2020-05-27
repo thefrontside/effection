@@ -3,7 +3,7 @@ import { HaltError, swallowHalt } from '../halt-error';
 
 export class PromiseController<TOut> implements Controller<TOut> {
   private promise: Promise<TOut>;
-  private _reject: (error: Error) => void;
+  private _reject?: (error: Error) => void;
 
   constructor(promise: PromiseLike<TOut>) {
     this.promise = new Promise((resolve, reject) => {
@@ -13,7 +13,7 @@ export class PromiseController<TOut> implements Controller<TOut> {
   }
 
   async halt() {
-    this._reject(new HaltError());
+    this._reject && this._reject(new HaltError());
 
     await this.promise.catch(swallowHalt);
   }

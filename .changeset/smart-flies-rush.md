@@ -1,7 +1,7 @@
 ---
-"effection": minor
-"@effection/events": minor
-"@effection/node": minor
+"effection": patch
+"@effection/events": patch
+"@effection/node": patch
 ---
 
 ## Fix sourcemaps and types entrypoint

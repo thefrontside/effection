@@ -307,7 +307,7 @@ treating a subscription [like a co-routine][#subscription-co-routines]
 since it does not effect either `T` or `TReturn`.
 
 ```ts
-contramap<TNextIn>(fn: (value: TNextIn) => TNext): Subscribeable<T,TReturn,TNextNew>;
+contramap<TNextNew>(fn: (value: TNextNew) => TNext): Subscribeable<T,TReturn,TNextNew>;
 ```
 
 #### `.reduce(accumulator, initial)`
@@ -359,7 +359,7 @@ first(): Operation<T|undefined>
 
 #### `.forEach(visit)`
 
-Converts a `Subscribeable into an `Operation` that visits each item in
+Converts a `Subscribeable` into an `Operation` that visits each item in
 the subscription, and returns the subscription's return value. The
 result of each iteration will be sent to the underlying subscription's
 `next()` operation.

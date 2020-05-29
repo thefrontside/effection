@@ -9,6 +9,7 @@
   "workspaces": {
     "packages": [
       "packages/effection",
+      "packages/subscription",
       "packages/events",
       "packages/node"
     ]

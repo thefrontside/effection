@@ -1,0 +1,38 @@
+
+{
+  "private": true,
+  "name": "@effection/subscription",
+  "version": "0.6.2",
+  "description": "Effection Subscriptions",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "repository": "https://github.com/thefrontside/effection.git",
+  "author": "Frontside Engineering <engineering@frontside.com>",
+  "license": "MIT",
+  "files": [
+    "dist/*",
+    "README.md",
+    "src"
+  ],
+  "scripts": {
+    "lint": "echo 'skip'",
+    "test": "mocha -r ts-node/register --timeout 5000 test/**/*.test.ts",
+    "prepack": "tsdx build --tsconfig tsconfig.dist.json",
+    "mocha": "mocha -r ts-node/register"
+  },
+  "devDependencies": {
+    "@frontside/tsconfig": "0.0.1",
+    "expect": "^25.4.0",
+    "mocha": "^7.1.1",
+    "ts-node": "^8.9.0",
+    "tsdx": "0.13.2",
+    "typescript": "^3.7.0"
+  },
+  "peerDependencies": {
+    "effection": "^0.6.0"
+  },
+  "volta": {
+    "node": "12.16.0",
+    "yarn": "1.19.1"
+  }
+}

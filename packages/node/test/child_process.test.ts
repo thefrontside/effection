@@ -4,6 +4,7 @@ import fetch from 'node-fetch';
 
 import { on } from '@effection/events';
 
+
 import { World, TestStream } from './helpers';
 
 import { spawn as spawnProcess, fork as forkProcess, ChildProcess } from '../src/child_process';
@@ -61,9 +62,9 @@ describe('child_process', () => {
     it('can send messages', async () => {
       let messages = await World.spawn(on(child, "message"));
       child.send("moo");
-      let [reply] = await World.spawn(messages.next());
+      let { value } = await World.spawn(messages.next());
 
-      expect(reply).toEqual("moo");
+      expect(value).toEqual(["moo", undefined]);
     });
   });
 });

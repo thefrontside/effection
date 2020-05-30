@@ -2,17 +2,18 @@ import { describe, it, beforeEach } from 'mocha';
 import * as expect from 'expect'
 
 import { timeout } from 'effection';
+import { Subscription } from '@effection/subscription';
 import { EventEmitter } from 'events';
 
 import { World } from './helpers';
 
-import { on, Subscription } from '../src/index';
+import { on } from '../src/index';
 import { FakeEventEmitter, FakeEvent } from './fake-event-target';
 
 describe("on", () => {
   describe('subscribe to an EventEmitter', () => {
     let emitter: EventEmitter;
-    let subscription: Subscription<[string]>;
+    let subscription: Subscription<[string], void>;
 
     beforeEach(async () => {
       emitter = new EventEmitter();
@@ -25,8 +26,8 @@ describe("on", () => {
       });
 
       it('receives event', async () => {
-        let args = await World.spawn(subscription.next());
-        expect(args).toEqual([123, true]);
+        let { value } = await World.spawn(subscription.next());
+        expect(value).toEqual([123, true]);
       });
     });
 
@@ -39,8 +40,8 @@ describe("on", () => {
       });
 
       it('receives event', async () => {
-        let args = await World.spawn(subscription.next());
-        expect(args).toEqual([123, true]);
+        let { value } = await World.spawn(subscription.next());
+        expect(value).toEqual([123, true]);
       });
     });
 
@@ -54,15 +55,15 @@ describe("on", () => {
       });
 
       it('receives all of them', async () => {
-        expect(await World.spawn(subscription.next())).toEqual(["foo"]);
-        expect(await World.spawn(subscription.next())).toEqual(["bar"]);
+        expect(await World.spawn(subscription.next())).toEqual({ done: false, value: ["foo"]});
+        expect(await World.spawn(subscription.next())).toEqual({done: false, value: ["bar"] });
       });
     });
   });
 
   describe('subscribing to an EventTarget', () => {
     let target: FakeEventEmitter;
-    let subscription: Subscription<[string]>;
+    let subscription: Subscription<[string], void>;
     let thingEvent: FakeEvent;
 
     beforeEach(async () => {
@@ -77,8 +78,8 @@ describe("on", () => {
       });
 
       it('receives event', async () => {
-        let args = await World.spawn(subscription.next());
-        expect(args).toEqual([thingEvent]);
+        let { value } = await World.spawn(subscription.next());
+        expect(value).toEqual([thingEvent]);
       });
     });
   });

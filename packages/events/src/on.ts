@@ -1,37 +1,15 @@
-import { resource, Operation } from 'effection';
+import { createSubscription } from '@effection/subscription';
+
 import { EventSource, addListener, removeListener } from './event-source';
-import { once } from './once';
 
-export class Subscription<T extends Array<unknown>> {
-  private events: T[] = [];
-
-  constructor(private source: EventSource, private eventName: string) {}
-
-  *next(): Operation<T> {
-    while(true) {
-      let [event, ...events] = this.events;
-      if (event) {
-        this.events = events;
-        return event;
-      }
-      yield once(this.source, this.eventName);
-    }
-  }
-
-  *subscribe(): Operation<void> {
-    let listener = (...args: T) => this.events.push(args)
+export function on<T extends Array<unknown> = unknown[]>(source: EventSource, name: string){
+  return createSubscription<T, void>(function*(publish) {
+    let listener = (...args: T) => publish(args);
     try {
-      addListener(this.source, this.eventName, listener);
+      addListener(source, name, listener);
       yield;
     } finally {
-      removeListener(this.source, this.eventName, listener);
+      removeListener(source, name, listener);
     }
-
-  }
-}
-
-
-export function* on<T extends Array<unknown> = unknown[]>(source: EventSource, name: string): Operation<Subscription<T>> {
-  let subscription = new Subscription<T>(source, name);
-  return yield resource(subscription, subscription.subscribe());
+  })
 }

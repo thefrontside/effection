@@ -24,7 +24,7 @@ export function * createSubscription<T, TReturn>(subscribe: Subscriber<T,TReturn
     if (values.length > 0) {
       semaphore.signal(false);
     }
-    return wait.then(done => ({ done, value: done ? result: values.shift()}));
+    return wait.then(done => ({ done, value: done ? result : values.shift()}));
   };
 
   let subscription =  yield resource({ next }, function*() {

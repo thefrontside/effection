@@ -50,3 +50,8 @@ while (true) {
   yield handleMessage(message);
 }
 ```
+
+One of the greatest advantages of using `createSubscription` is that
+the `Subscription` produced is an effection resource, and so will
+automatically be shut down when no longer needed. That way, there is
+no need to call the `unsubscribe()` method ever.

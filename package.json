@@ -26,5 +26,8 @@
   },
   "devDependencies": {
     "patch-package": "6.2.2"
+  },
+  "dependencies": {
+    "@changesets/cli": "2.7.2"
   }
 }

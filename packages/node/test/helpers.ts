@@ -1,7 +1,6 @@
 import { beforeEach } from 'mocha';
-import { main, resource, Context, Controls, Operation } from 'effection';
+import { main, resource, Context, Controls } from 'effection';
 import { on, once } from '@effection/events';
-import { EventEmitter } from 'events';
 import { Readable } from 'stream';
 
 export let World: Context & Controls;
@@ -30,7 +29,7 @@ export class TestStream {
   *run() {
     let events = yield on(this.stream, "data");
     while(true) {
-      let chunk = yield events.next();
+      let { value: chunk } = yield events.next();
       this.output += chunk;
     }
   }
@@ -38,6 +37,7 @@ export class TestStream {
   *waitFor(text: string) {
     while(!this.output.match(text)) {
       yield once(this.stream, "data");
+      yield Promise.resolve();
     }
   }
 }

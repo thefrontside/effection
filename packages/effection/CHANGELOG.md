@@ -1,5 +1,16 @@
 # Changelog
-All notable changes to this project will be documented in this file.
+
+## 0.6.3
+
+### Patch Changes
+
+- 60ed704: ## Fix sourcemaps and types entrypoint
+  We saw strange errors while installing Effection from BigTest. One of the problems was that sourcemaps were not working. This was happening because sourcemaps referenced ts file which were not being included in the package.
+  https://github.com/thefrontside/effection/pull/119
+  ## Distribute node packages without transpiling generators
+  We made a decision to ship generators in our distribution bundles because IE11 compatibility is not important to us. It's surprisingly difficult to get this to work. We tried using microbundle but that turned out to be even more complicated because their [modern and cjs formats have mutually conflicting configuration](https://github.com/developit/microbundle/issues/618).
+  https://github.com/thefrontside/effection/pull/120
+  All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
@@ -10,30 +21,31 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Changed
 
-* fix bug where typescript type declarations were not being referenced
+- fix bug where typescript type declarations were not being referenced
   properly as part of the migration to
   `microbundle`. https://github.com/thefrontside/effection.js/pull/107
+
 ## [0.6.1] - 2020-04-24
 
 ### Changed
 
-* fix bug where operations that returned `null` was causing effection
+- fix bug where operations that returned `null` was causing effection
   to crash: https://github.com/thefrontside/effection.js/pull/98
-* `effection` is now compiled with microbundle instead of
+- `effection` is now compiled with microbundle instead of
   pika. https://github.com/thefrontside/effection.js/pull/100
-* removed custom publish scripts in order to fix releases 🙏
+- removed custom publish scripts in order to fix releases 🙏
 
 ## [0.6.0] - 2020-04-15
 
 ### Changed
 
-* Returning a context from a context passes links it to the parent context
+- Returning a context from a context passes links it to the parent context
   rather than halting it.
   https://github.com/thefrontside/effection.js/pull/89
 
 ### Added
 
-* Resources are a new feature in Effection which allow you to tie a context
+- Resources are a new feature in Effection which allow you to tie a context
   to any JavaScript object.
   https://github.com/thefrontside/effection.js/pull/89
 
@@ -41,20 +53,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-* Make Typescript Operation type generic over the returned value. Enables
+- Make Typescript Operation type generic over the returned value. Enables
   better type checking in Typescript.
   https://github.com/thefrontside/effection.js/pull/81
 
 ### Changed
 
-* Catch errors raised in ensure blocks and print nasty warning
+- Catch errors raised in ensure blocks and print nasty warning
   https://github.com/thefrontside/effection.js/pull/80
 
 ## [0.5.1] - 2020-02-24
 
 ### Changed
 
-* For runtimes that do not use native generators, the code to
+- For runtimes that do not use native generators, the code to
   recognize generator functions was broken which prevented effection
   from working in those environments. This was addressed with
   https://github.com/thefrontside/effection.js/pull/77
@@ -63,17 +75,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-* `join` to synchronize on a currently executing context.
-* `monitor` operation to propagate failures
-* `spawn` control function to create a "detached" process.
+- `join` to synchronize on a currently executing context.
+- `monitor` operation to propagate failures
+- `spawn` control function to create a "detached" process.
 
 ### Changed
 
-* Refactored the `fork` method to be an operation instead of a static
+- Refactored the `fork` method to be an operation instead of a static
   function
 
-* Introduced a `main` function to enter a brand new context
-
+- Introduced a `main` function to enter a brand new context
 
 ## [0.4.0] - 2019-11-20
 
@@ -90,7 +101,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Make every fork conform to the Promises A+
   API. E.g. `fork(operation).then()`
   https://github.com/thefrontside/effection.js/pull/38
-
 
 ## [0.3.3] - 2019-11-04
 

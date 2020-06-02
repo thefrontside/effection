@@ -28,12 +28,19 @@ export function * createSubscription<T, TReturn>(subscribe: Subscriber<T,TReturn
   };
 
   let subscription =  yield resource({ next }, function*() {
-    result = yield subscribe(publish);
-    semaphore.signal(true);
+    try {
+      result = yield subscribe((value: T) => publish(value));
+      semaphore.signal(true);
+    } finally {
+      publish = value => { throw InvalidPublication(value); }
+    }
   });
 
   return subscription;
 }
 
-// what happens if publish after computation is done.
-// what happens if multiple publishes before signal?
+function InvalidPublication(value: unknown) {
+  let error = new Error(`tried to publish a value: ${value} on an already finished subscription`);
+  error.name = 'TypeError';
+  return error;
+}

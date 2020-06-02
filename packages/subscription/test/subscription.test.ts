@@ -73,8 +73,22 @@ describe('subscriptions', () => {
       it('marks the loop as being completed', () => {
         expect(num).toEqual(42);
       });
+
+      describe('publishing after the subscription is exhausted ', () => {
+        let error: Error;
+        beforeEach(() => {
+          try {
+            publish('should never happen');
+          } catch (e) {
+            error = e;
+          }
+        });
+
+        it('throws a TypeError ', () => {
+          expect(error).toBeDefined();
+          expect(error.name).toEqual('TypeError');
+        });
+      });
     });
-
   });
-
 });

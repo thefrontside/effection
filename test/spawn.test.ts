@@ -50,4 +50,18 @@ describe('spawn', () => {
     await expect(root).resolves.toEqual(1);
     await expect(child).rejects.toHaveProperty('message', 'halted')
   });
+
+  it('halts child when errored', async () => {
+    let child;
+    let root = run(function*(context: Task<unknown>) {
+      child = context.spawn(function*() {
+        yield;
+      });
+
+      throw new Error('boom');
+    });
+
+    await expect(root).rejects.toHaveProperty('message', 'boom');
+    await expect(child).rejects.toHaveProperty('message', 'halted');
+  });
 });

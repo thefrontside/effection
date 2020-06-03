@@ -36,11 +36,12 @@ export class Task<TOut> implements PromiseLike<TOut> {
   }
 
   private async run(): Promise<TOut> {
-    let result = await this.controller;
-
-    await this.haltChildren();
-
-    return result;
+    try {
+      let result = await this.controller;
+      return result;
+    } finally {
+      await this.haltChildren();
+    }
   }
 
   async halt() {

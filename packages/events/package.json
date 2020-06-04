@@ -19,6 +19,9 @@
     "prepack": "tsdx build --tsconfig tsconfig.dist.json",
     "mocha": "mocha -r ts-node/register"
   },
+  "dependencies": {
+    "@effection/subscription": "^0.6.3"
+  },
   "devDependencies": {
     "@frontside/tsconfig": "0.0.1",
     "@types/node": "^12.7.11",

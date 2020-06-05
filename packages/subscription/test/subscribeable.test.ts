@@ -90,4 +90,27 @@ describe('subscribeable objects', () => {
       expect(result).toEqual(3);
     });
   });
-})
+
+  describe('first', () => {
+    let first: string | undefined;
+
+    describe('on a subscription with at least one element', () => {
+      beforeEach(async () => {
+        first = await spawn(Subscribeable.from(subscribeable).map(t => t.name).first())
+      });
+      it('returns the thing', () => {
+        expect(first).toEqual('bob');
+      });
+    });
+
+    describe('on an empty subscription', () => {
+      beforeEach(async () => {
+        let subscribeable = createSubscription<string, void>(function*() {});
+        first = await spawn(Subscribeable.from(subscribeable).first());
+      });
+      it('returns undefined', () => {
+        expect(first).toBeUndefined();
+      });
+    });
+  });
+});

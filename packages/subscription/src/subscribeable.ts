@@ -53,6 +53,16 @@ export class Chain<T, TReturn> implements Subscribeable<T,TReturn> {
   forEach(visit: (value: T) => Operation<void>): Operation<TReturn> {
     return forEach(this.source, visit);
   }
+
+  *first(): Operation<T | undefined> {
+    let subscription: Subscription<T, TReturn> = yield subscribe(this.source);
+    let { done, value } = yield subscription.next();
+    if (done) {
+      return undefined;
+    } else {
+      return value;
+    }
+  }
 }
 
 function subscribe<T, TReturn>(source: SubscriptionSource<T,TReturn>): Operation<Subscription<T,TReturn>> {

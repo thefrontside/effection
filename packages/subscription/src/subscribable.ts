@@ -1,13 +1,13 @@
 import { Operation } from 'effection';
 import { Subscription, createSubscription, Subscriber } from './subscription';
 
-export const SymbolSubscribeable: unique symbol = Symbol.for('Symbol.subscription');
+export const SymbolSubscribable: unique symbol = Symbol.for('Symbol.subscription');
 
-export interface Subscribeable<T,TReturn> {
-  [SymbolSubscribeable](): Operation<Subscription<T,TReturn>>;
+export interface Subscribable<T,TReturn> {
+  [SymbolSubscribable](): Operation<Subscription<T,TReturn>>;
 }
 
-export type SubscriptionSource<T,TReturn> = Subscribeable<T,TReturn> | Operation<Subscription<T,TReturn>>;
+export type SubscriptionSource<T,TReturn> = Subscribable<T,TReturn> | Operation<Subscription<T,TReturn>>;
 
 export function* forEach<T,TReturn>(source: SubscriptionSource<T,TReturn>, visit: (value: T) => Operation<void>): Operation<TReturn> {
   let subscription: Subscription<T,TReturn> = yield subscribe(source);
@@ -21,14 +21,14 @@ export function* forEach<T,TReturn>(source: SubscriptionSource<T,TReturn>, visit
   }
 }
 
-export const Subscribeable = {
+export const Subscribable = {
   from: <T,TReturn>(source: SubscriptionSource<T,TReturn>) => new Chain(source)
 }
 
-export class Chain<T, TReturn> implements Subscribeable<T,TReturn> {
+export class Chain<T, TReturn> implements Subscribable<T,TReturn> {
   constructor(private source: SubscriptionSource<T,TReturn>) {}
 
-  [SymbolSubscribeable](): Operation<Subscription<T,TReturn>> {
+  [SymbolSubscribable](): Operation<Subscription<T,TReturn>> {
     return subscribe(this.source)
   }
 
@@ -66,7 +66,7 @@ export class Chain<T, TReturn> implements Subscribeable<T,TReturn> {
 }
 
 function subscribe<T, TReturn>(source: SubscriptionSource<T,TReturn>): Operation<Subscription<T,TReturn>> {
-  if (isSubscribeable<T,TReturn>(source)) {
+  if (isSubscribable<T,TReturn>(source)) {
     let subscriber = getSubscriber<T,TReturn>(source);
     if (subscriber) {
       return subscriber.call(source);
@@ -80,10 +80,10 @@ function subscribe<T, TReturn>(source: SubscriptionSource<T,TReturn>): Operation
   }
 }
 
-function isSubscribeable<T,TReturn>(value: unknown): value is Subscribeable<T,TReturn> {
+function isSubscribable<T,TReturn>(value: unknown): value is Subscribable<T,TReturn> {
   return !!getSubscriber<T,TReturn>(value);
 }
 
 function getSubscriber<T,TReturn>(source: any): undefined | (() => Operation<Subscription<T,TReturn>>) {
-  return source[SymbolSubscribeable] as () => Operation<Subscription<T,TReturn>>;
+  return source[SymbolSubscribable] as () => Operation<Subscription<T,TReturn>>;
 }

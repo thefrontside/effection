@@ -1,2 +1,2 @@
 export { Subscription, createSubscription } from './subscription';
-export { SymbolSubscribeable, SubscriptionSource, forEach, Subscribeable } from './subscribeable';
+export { SymbolSubscribable, SubscriptionSource, forEach, Subscribable } from './subscribable';

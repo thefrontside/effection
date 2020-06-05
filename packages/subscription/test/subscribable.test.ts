@@ -1,19 +1,19 @@
 import * as expect from 'expect';
 import { spawn } from './helpers';
 
-import { createSubscription, Subscribeable, SymbolSubscribeable, forEach } from '../src/index';
+import { createSubscription, Subscribable, SymbolSubscribable, forEach } from '../src/index';
 
 interface Thing {
   name: string;
   type: string;
 }
 
-describe('subscribeable objects', () => {
-  let subscribeable: Subscribeable<Thing, number>;
+describe('subscribable objects', () => {
+  let source: Subscribable<Thing, number>;
 
   beforeEach(() => {
-    subscribeable = {
-      [SymbolSubscribeable]: () => createSubscription(function*(publish) {
+    source = {
+      [SymbolSubscribable]: () => createSubscription(function*(publish) {
         publish({name: 'bob', type: 'person' });
         publish({name: 'alice', type: 'person' });
         publish({name: 'world', type: 'planet' });
@@ -27,10 +27,10 @@ describe('subscribeable objects', () => {
     let result: number;
     beforeEach(async () => {
       values = [];
-      result = await spawn(forEach(subscribeable, function*(item) { values.push(item); }));
+      result = await spawn(forEach(source, function*(item) { values.push(item); }));
     });
 
-    it('iterates through all members of the subscribeable', () => {
+    it('iterates through all members of the subscribable', () => {
       expect(values).toEqual([
         {name: 'bob', type: 'person' },
         {name: 'alice', type: 'person' },
@@ -50,7 +50,7 @@ describe('subscribeable objects', () => {
 
     beforeEach(async () => {
       values = [];
-      let mapping = Subscribeable.from(subscribeable).map(item => `hello ${item.name}`);
+      let mapping = Subscribable.from(source).map(item => `hello ${item.name}`);
       result = await spawn(forEach(mapping, function*(item) {
         values.push(item);
       }));
@@ -75,7 +75,7 @@ describe('subscribeable objects', () => {
 
     beforeEach(async () => {
       values = [];
-      let filtered = Subscribeable.from(subscribeable).filter(item => item.type === 'person');
+      let filtered = Subscribable.from(source).filter(item => item.type === 'person');
       result = await spawn(filtered.forEach(function*(item) { values.push(item) }));
     });
 
@@ -96,7 +96,7 @@ describe('subscribeable objects', () => {
 
     describe('on a subscription with at least one element', () => {
       beforeEach(async () => {
-        first = await spawn(Subscribeable.from(subscribeable).map(t => t.name).first())
+        first = await spawn(Subscribable.from(source).map(t => t.name).first())
       });
       it('returns the thing', () => {
         expect(first).toEqual('bob');
@@ -105,8 +105,8 @@ describe('subscribeable objects', () => {
 
     describe('on an empty subscription', () => {
       beforeEach(async () => {
-        let subscribeable = createSubscription<string, void>(function*() {});
-        first = await spawn(Subscribeable.from(subscribeable).first());
+        let empty = createSubscription<string, void>(function*() {});
+        first = await spawn(Subscribable.from(empty).first());
       });
       it('returns undefined', () => {
         expect(first).toBeUndefined();

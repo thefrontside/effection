@@ -87,3 +87,12 @@ that match `predicate`.
 ``` javascript
 Subscribable.from(websocket).filter(message => message.type === 'command');
 ```
+
+### Subscribable#first()
+
+An operation that produces the first item in a subscription or
+undefined if the subscription has no items.
+
+``` javascript
+let message = yield Subscribable.from(websocket).first();
+```

@@ -9,16 +9,18 @@
   "license": "MIT",
   "files": [
     "dist/*",
-    "README.md"
+    "README.md",
+    "src"
   ],
   "scripts": {
     "lint": "eslint '{src,test}/**/*.ts'",
-    "prepack": "tsc --outdir dist --declaration --sourcemap",
+    "prepack": "tsdx build --target node --format cjs --tsconfig tsconfig.dist.json",
     "test": "echo No tests for @effection/fetch yet..."
   },
   "devDependencies": {
     "@frontside/tsconfig": "^0.0.1",
-    "@types/node": "^13.13.4"
+    "@types/node": "^13.13.4",
+    "tsdx": "0.13.2"
   },
   "peerDependencies": {
     "effection": "^0.6.2"

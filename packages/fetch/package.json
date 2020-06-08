@@ -13,7 +13,8 @@
   ],
   "scripts": {
     "lint": "eslint '{src,test}/**/*.ts'",
-    "prepack": "tsc --outdir dist --declaration --sourcemap"
+    "prepack": "tsc --outdir dist --declaration --sourcemap",
+    "test": "echo No tests for @effection/fetch yet..."
   },
   "devDependencies": {
     "@frontside/tsconfig": "^0.0.1",

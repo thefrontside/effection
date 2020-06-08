@@ -11,7 +11,8 @@
       "packages/effection",
       "packages/subscription",
       "packages/events",
-      "packages/node"
+      "packages/node",
+      "packages/fetch"
     ]
   },
   "scripts": {

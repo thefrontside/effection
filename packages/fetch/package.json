@@ -1,0 +1,30 @@
+{
+  "name": "@effection/fetch",
+  "version": "0.0.1",
+  "description": "Fetch operation for Effection",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "repository": "https://github.com/thefrontside/effection.git",
+  "author": "Frontside Engineering <engineering@frontside.io>",
+  "license": "MIT",
+  "files": [
+    "dist/*",
+    "README.md"
+  ],
+  "scripts": {
+    "lint": "eslint '{src,test}/**/*.ts'",
+    "prepack": "tsc --outdir dist --declaration --sourcemap"
+  },
+  "devDependencies": {
+    "@frontside/tsconfig": "^0.0.1",
+    "@types/node": "^13.13.4"
+  },
+  "peerDependencies": {
+    "effection": "^0.6.2"
+  },
+  "dependencies": {
+    "abort-controller": "^3.0.0",
+    "cross-fetch": "^3.0.4",
+    "node-fetch": "^2.6.0"
+  }
+}

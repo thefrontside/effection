@@ -88,6 +88,16 @@ that match `predicate`.
 Subscribable.from(websocket).filter(message => message.type === 'command');
 ```
 
+### Subscribable#match(reference)
+
+Return a new `Subscribable` that only produces items from its source that match
+`reference` in the sense that the produced items have the same properties and
+values as `reference`.
+
+``` javascript
+Subscribable.from(websocket).match({ type: 'command' });
+```
+
 ### Subscribable#first()
 
 An operation that produces the first item in a subscription or

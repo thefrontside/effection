@@ -1,5 +1,6 @@
 import { Operation } from 'effection';
 import { Subscription, createSubscription, Subscriber } from './subscription';
+import { DeepPartial, matcher } from './match';
 
 export const SymbolSubscribable: unique symbol = Symbol.for('Symbol.subscription');
 
@@ -44,6 +45,10 @@ export class Chain<T, TReturn> implements Subscribable<T,TReturn> {
         publish(item);
       }
     }))
+  }
+
+  match(reference: DeepPartial<T>): Chain<T,TReturn> {
+    return this.filter(matcher(reference));
   }
 
   chain<X = T,XReturn = TReturn>(next: (source: SubscriptionSource<T,TReturn>) => Subscriber<X,XReturn>): Chain<X,XReturn> {

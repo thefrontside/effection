@@ -10,6 +10,12 @@
   "source": "src/index.js",
   "main": "dist/effection.js",
   "module": "dist/effection.module.js",
+  "files": [
+    "README.md",
+    "dist/**/*",
+    "src/**/*",
+    "types/index.d.ts"
+  ],
   "scripts": {
     "coverage": "nyc --reporter=html --reporter=text npm run test",
     "coveralls": "nyc report --reporter=text-lcov | coveralls",

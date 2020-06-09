@@ -9,9 +9,9 @@
   "author": "Frontside Engineering <engineering@frontside.io>",
   "license": "MIT",
   "files": [
-    "dist/*",
-    "src",
-    "README.md"
+    "README.md",
+    "dist/**/*",
+    "src/**/*"
   ],
   "scripts": {
     "lint": "echo [skip @effection/events]",

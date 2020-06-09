@@ -8,9 +8,9 @@
   "author": "Frontside Engineering <engineering@frontside.com>",
   "license": "MIT",
   "files": [
-    "dist/*",
     "README.md",
-    "src"
+    "dist/**/*",
+    "src/**/*"
   ],
   "scripts": {
     "lint": "echo 'skip'",

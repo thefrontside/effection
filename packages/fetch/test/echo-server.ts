@@ -1,40 +1,47 @@
-import { Operation } from 'effection';
+import { Operation, resource } from 'effection';
 import * as express from 'express';
-import { throwOnErrorEvent, once, on, Subscription } from '@effection/events';
+import { throwOnErrorEvent, once, on } from '@effection/events';
+import { Subscribable } from '@effection/subscription';
 import { AddressInfo } from 'net';
 
 export class EchoServer {
-  app = express();
   lastRequest?: express.Request;
-  addressInfo?: AddressInfo;
+  
+  constructor(private addressInfo: AddressInfo) {}
+  
+  get address() {
+    return `http://localhost:${this.addressInfo.port}`;
+  }
+  
+  static *listen(): Operation<EchoServer> {
+    
+    let app = express().use(express.json());
 
-  *listen(ready: () => void): Operation<void> {
-    let http = this.app.listen();
-
-    yield throwOnErrorEvent(http);
+    let http = app.listen();
 
     try {
       yield once(http, 'listening');
-
-      this.addressInfo = http.address() as AddressInfo;
-
-      ready();
-
-      let subscription: Subscription<[express.Request, express.Response]> = yield on(http, 'request');
-
-      while (true) {
-        let next = yield subscription.next();
-        
-        let [req, res]: [express.Request, express.Response] = next.value;
-
-        this.lastRequest = req;
-
-        res.end("ok");
-      }
-
-    } finally {
+    } catch (e) {
       http.close();
+
+      throw e;
     }
+
+    let server = yield resource(new EchoServer(http.address() as AddressInfo), function*() {
+      yield throwOnErrorEvent(http);
+
+      try {
+        yield Subscribable
+          .from<[express.Request, express.Response], void>(on(http, 'request'))
+          .forEach(function *([req, res]) {
+            server.lastRequest = req;
+          });
+      } finally {
+        http.close();        
+      }
+    });
+
+    return server;
   }
 }
 

@@ -1,13 +1,6 @@
 import { Operation } from 'effection';
-import {
-  fetch as nativeFetch,
-  AbortController,
-  RequestInfo,
-  RequestInit,
-  Response
-} from './native-fetch';
-
-export { AbortController, RequestInfo, RequestInit, Response };
+import { fetch as nativeFetch } from 'cross-fetch';
+import { AbortController } from 'abort-controller';
 
 export function* fetch(resource: RequestInfo, init: RequestInit = {}): Operation<Response> {
   let controller = new AbortController();

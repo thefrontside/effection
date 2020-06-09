@@ -1,0 +1,39 @@
+{
+  "name": "@effection/fetch",
+  "version": "0.0.1",
+  "description": "Fetch operation for Effection",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "repository": "https://github.com/thefrontside/effection.git",
+  "author": "Frontside Engineering <engineering@frontside.io>",
+  "license": "MIT",
+  "files": [
+    "dist/*",
+    "README.md",
+    "src"
+  ],
+  "scripts": {
+    "lint": "echo 'skip'",
+    "prepack": "tsdx build --tsconfig tsconfig.dist.json",
+    "test": "mocha -r ts-node/register test/**/*.test.ts",
+    "mocha": "mocha -r ts-node/register"
+  },
+  "devDependencies": {
+    "@frontside/tsconfig": "^0.0.1",
+    "@types/express": "4.17.6",
+    "@types/node": "^13.13.4",
+    "expect": "26.0.1",
+    "express": "4.17.1",
+    "mocha": "7.2.0",
+    "ts-node": "8.10.2",
+    "tsdx": "0.13.2"
+  },
+  "peerDependencies": {
+    "effection": "^0.6.2"
+  },
+  "dependencies": {
+    "abort-controller": "^3.0.0",
+    "cross-fetch": "^3.0.4",
+    "node-fetch": "^2.6.0"
+  }
+}

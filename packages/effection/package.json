@@ -13,7 +13,8 @@
   "files": [
     "README.md",
     "dist/**/*",
-    "src/**/*"
+    "src/**/*",
+    "types/index.d.ts"
   ],
   "scripts": {
     "coverage": "nyc --reporter=html --reporter=text npm run test",

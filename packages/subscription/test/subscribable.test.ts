@@ -1,4 +1,5 @@
 import * as expect from 'expect';
+import { describe, it, beforeEach } from 'mocha';
 import { spawn } from './helpers';
 
 import { createSubscription, Subscribable, SymbolSubscribable, forEach } from '../src/index';
@@ -88,6 +89,52 @@ describe('subscribable objects', () => {
 
     it('preserves the return type', () => {
       expect(result).toEqual(3);
+    });
+  });
+
+  describe('match', () => {
+    describe('with simple filter', () => {
+      let values: Thing[];
+      let result: number;
+
+      beforeEach(async () => {
+        values = [];
+        let filtered = Subscribable.from(source).match({ type: 'person' });
+        result = await spawn(filtered.forEach(function*(item) { values.push(item) }));
+      });
+
+      it('filters the items', () => {
+        expect(values).toEqual([
+          {name: 'bob', type: 'person' },
+          {name: 'alice', type: 'person' },
+        ]);
+      });
+
+      it('preserves the return type', () => {
+        expect(result).toEqual(3);
+      });
+    });
+
+    describe('with deep filter', () => {
+      let values: Array<{ thing: Thing }>;
+      let result: number;
+
+      beforeEach(async () => {
+        values = [];
+        let filtered = Subscribable.from(source).map((t) => ({ thing: t })).match({ thing: { type: 'person' } });
+        result = await spawn(filtered.forEach(function*(item) { values.push(item) }));
+      });
+
+      it('filters the items', () => {
+        expect(values).toEqual([
+          { thing: {name: 'bob', type: 'person' } },
+          { thing: {name: 'alice', type: 'person' } }
+        ]);
+      });
+
+      it('preserves the return type', () => {
+        expect(result).toEqual(3);
+      });
     });
   });
 

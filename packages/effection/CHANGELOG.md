@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.6.4
+
+### Patch Changes
+
+- 68c4dab: include typescript sources with package in order for sourcemaps to work.
+
 ## 0.6.3
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@effection/subscription",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Effection Subscriptions",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -27,7 +27,7 @@
     "typescript": "^3.7.0"
   },
   "peerDependencies": {
-    "effection": "^0.6.3"
+    "effection": "^0.6.4"
   },
   "volta": {
     "node": "12.16.0",

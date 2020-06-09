@@ -1,6 +1,6 @@
 {
   "name": "@effection/fetch",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Fetch operation for Effection",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -29,7 +29,7 @@
     "tsdx": "0.13.2"
   },
   "peerDependencies": {
-    "effection": "^0.6.2"
+    "effection": "^0.6.4"
   },
   "dependencies": {
     "abort-controller": "^3.0.0",

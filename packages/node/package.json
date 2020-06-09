@@ -1,6 +1,6 @@
 {
   "name": "@effection/node",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "description": "Work in Node.js with Effection",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -19,7 +19,7 @@
     "mocha": "mocha -r ts-node/register"
   },
   "devDependencies": {
-    "@effection/events": "^0.7.0",
+    "@effection/events": "^0.7.3",
     "@frontside/tsconfig": "0.0.1",
     "@types/node": "^13.13.2",
     "@types/node-fetch": "^2.5.7",
@@ -31,10 +31,10 @@
     "typescript": "^3.7.0"
   },
   "peerDependencies": {
-    "effection": "^0.6.3"
+    "effection": "^0.6.4"
   },
   "dependencies": {
-    "@effection/events": "^0.7.0"
+    "@effection/events": "^0.7.3"
   },
   "volta": {
     "node": "12.16.0",

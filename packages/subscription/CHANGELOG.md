@@ -1,5 +1,13 @@
 # @effection/subscription
 
+## 0.7.1
+
+### Patch Changes
+
+- 68c4dab: include typescript sources with package in order for sourcemaps to work.
+- Updated dependencies [68c4dab]
+  - effection@0.6.4
+
 ## 0.7.0
 
 ### Minor Changes

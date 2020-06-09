@@ -1,8 +1,11 @@
 node_modules
 .esm-cache
-/dist
+.node-version
+dist/
 pkg/
 .nyc_output/
 coverage
 package-lock.json
 /scratchpad
+yarn-error.log
+.cache

@@ -55,3 +55,44 @@ One of the greatest advantages of using `createSubscription` is that
 the `Subscription` produced is an effection resource, and so will
 automatically be shut down when no longer needed. That way, there is
 no need to call the `unsubscribe()` method ever.
+
+### SymbolSubscribable
+
+In order to facilitate interoperation of subscription producers and
+consumers, any object can implement the `[SymbolSubscribable]()`
+method in order to be turned into a subscription. This follows the
+pattern of `Symbol.iterator`, and `Symbol.observable`. Any object that
+implements this method can be consumed as a subscription.
+
+### Subscribable.from(source)
+
+In order to lift functions into the context of a subscription, you can
+use `Subscribable.from` which will return an instance of
+`Subscribable` that allows you to transform a subscription produced
+
+### Subscribable#map(fn)
+
+Returns a new subscribable whose items are transformed by `fn`. For
+example:
+
+``` javascript
+Subscribable.from(websocket).map(message => JSON.parse(message));
+```
+
+### Subscribable#filter(predicate)
+
+Return a new `Subscribable` that only produces items from its source
+that match `predicate`.
+
+``` javascript
+Subscribable.from(websocket).filter(message => message.type === 'command');
+```
+
+### Subscribable#first()
+
+An operation that produces the first item in a subscription or
+undefined if the subscription has no items.
+
+``` javascript
+let message = yield Subscribable.from(websocket).first();
+```

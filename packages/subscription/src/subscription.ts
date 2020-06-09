@@ -9,28 +9,28 @@ export interface Subscription<T,TReturn> {
 }
 
 export function * createSubscription<T, TReturn>(subscribe: Subscriber<T,TReturn>): Operation<Subscription<T,TReturn>> {
-  let values: T[] = [];
-  let result: TReturn;
+  let results: IteratorResult<T,TReturn>[] = [];
 
-  let semaphore = new Semaphore<boolean>();
+  let semaphore = new Semaphore<void>();
 
   let publish = (value: T) => {
-    values.push(value);
-    semaphore.signal(false);
+    results.push({ done: false, value });
+    semaphore.signal();
   };
 
-  let next = async () => {
+  let next = async (): Promise<IteratorResult<T,TReturn>> => {
     let wait = semaphore.wait();
-    if (values.length > 0) {
-      semaphore.signal(false);
+    if (results.length > 0) {
+      semaphore.signal();
     }
-    return wait.then(done => ({ done, value: done ? result : values.shift()}));
+    return wait.then(() => results.shift() as IteratorResult<T,TReturn>);
   };
 
   let subscription =  yield resource({ next }, function*() {
     try {
-      result = yield subscribe((value: T) => publish(value));
-      semaphore.signal(true);
+      let value = yield subscribe((value: T) => publish(value));
+      results.push({ done: true, value });
+      semaphore.signal();
     } finally {
       publish = value => { throw InvalidPublication(value); }
     }

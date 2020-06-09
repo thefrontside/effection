@@ -1,4 +1,5 @@
 import * as expect from 'expect';
+import { describe, it, beforeEach } from 'mocha';
 import { spawn } from './helpers';
 
 import { createSubscription, Subscribable, SymbolSubscribable, forEach } from '../src/index';

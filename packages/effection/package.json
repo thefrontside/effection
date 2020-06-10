@@ -3,7 +3,7 @@
   "version": "0.6.4",
   "description": "Effortlessly composable structured concurrency primitive for JavaScript",
   "repository": "http://github.com/thefrontside/effection",
-  "author": "Charles Lowell <cowboyd@frontside.io>",
+  "author": "Charles Lowell <cowboyd@frontside.com>",
   "license": "MIT",
   "private": false,
   "types": "types/index.d.ts",

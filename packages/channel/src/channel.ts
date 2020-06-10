@@ -19,6 +19,6 @@ export class Channel<T> implements Subscribable<T, void> {
   }
 
   subscribe(): Operation<Subscription<T, void>> {
-    return Subscribable.from(on(this.bus, 'message')).map(([message]) => message as T)[SymbolSubscribable]();
+    return Subscribable.from(on(this.bus, 'message')).map(([message]: [T]) => message)[SymbolSubscribable]();
   }
 }

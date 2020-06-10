@@ -1127,11 +1127,6 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
-"@effection/subscription@^0.6.3":
-  version "0.6.3"
-  resolved "https://registry.yarnpkg.com/@effection/subscription/-/subscription-0.6.3.tgz#52be85ed25fd41ab973676e718bd4e8fece1bc6a"
-  integrity sha512-ocqN8PkfkhGVi7WHT4G79KSkYK81dAEhMZs9gN9701owmKwEUJhbs+pOSr0PizGYSTlYkxevItIUC3+IFRwLvQ==
-
 "@frontside/eslint-config@^1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@frontside/eslint-config/-/eslint-config-1.0.0.tgz#d4db29f1cceafc6ad3735d339964160c96e19b3d"

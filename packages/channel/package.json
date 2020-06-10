@@ -33,6 +33,6 @@
   },
   "dependencies": {
     "@effection/events": "^0.7.1",
-    "@effection/subscription": "^0.6.3"
+    "@effection/subscription": "^0.7.1"
   }
 }

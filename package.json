@@ -3,7 +3,7 @@
   "version": "0.0.0-monorepo",
   "description": "Effortlessly composable structured concurrency primitive for JavaScript",
   "repository": "git@github.com:thefrontside/effection.git",
-  "author": "Frontside Engineering <engineering@frontside.io>",
+  "author": "Frontside Engineering <engineering@frontside.com>",
   "license": "MIT",
   "private": true,
   "workspaces": {

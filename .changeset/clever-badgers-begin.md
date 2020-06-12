@@ -2,4 +2,4 @@
 "@effection/node": major
 ---
 
-Let spawn shell be set, but default to process.env.shell which is a good default for Windows along with windowsHide.
+Remove shell default and only force detached as that is a requirement.

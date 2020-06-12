@@ -34,14 +34,8 @@ function *supervise(child: ChildProcess, command: string, args: readonly string[
 }
 
 export function *spawn(command: string, args?: ReadonlyArray<string>, options?: SpawnOptions): Operation {
-  // Use the process.env.shell if it isn't set. This will likely be most useful for Windows
-  // as there are more terminals and the defaults are not amazing.
-  // windowsHide also hides the terminals from showing when a child process is init. Setting the boolean
-  // to true makes this operate in line with other OS, and how one might expect.
   let child = childProcess.spawn(command, args || [], Object.assign({}, options, {
-    shell: !options && !options.shell ? process.env.shell : options.shell,
     detached: true,
-    windowsHide: !options && !options.windowsHide ? true : options.windowsHide,
   }));
   return yield resource(child, supervise(child, command, args));
 }

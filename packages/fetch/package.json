@@ -13,7 +13,7 @@
     "src"
   ],
   "scripts": {
-    "lint": "echo 'skip'",
+    "lint": "eslint '{src,tests}/**/*.ts'",
     "prepack": "tsdx build --tsconfig tsconfig.dist.json",
     "test": "mocha -r ts-node/register test/**/*.test.ts",
     "mocha": "mocha -r ts-node/register"

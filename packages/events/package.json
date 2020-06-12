@@ -14,7 +14,7 @@
     "src/**/*"
   ],
   "scripts": {
-    "lint": "echo [skip @effection/events]",
+    "lint": "eslint '{src,tests}/**/*.ts'",
     "test": "mocha -r ts-node/register test/**/*.test.ts",
     "prepack": "tsdx build --tsconfig tsconfig.dist.json",
     "mocha": "mocha -r ts-node/register"

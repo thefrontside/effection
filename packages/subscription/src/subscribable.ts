@@ -89,6 +89,7 @@ function isSubscribable<T,TReturn>(value: unknown): value is Subscribable<T,TRet
   return !!getSubscriber<T,TReturn>(value);
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function getSubscriber<T,TReturn>(source: any): undefined | (() => Operation<Subscription<T,TReturn>>) {
   return source[SymbolSubscribable] as () => Operation<Subscription<T,TReturn>>;
 }

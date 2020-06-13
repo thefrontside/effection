@@ -6,6 +6,7 @@ import { EventSource, addListener, removeListener } from './event-source';
  * operation which resumes when the event occurs.
  */
 export function *once(source: EventSource, eventName: string): Operation {
+   // eslint-disable-next-line @typescript-eslint/no-empty-function
   let onceListener = () => {};
   try {
     return yield new Promise((resolve) => {

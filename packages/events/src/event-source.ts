@@ -1,9 +1,9 @@
 import { EventEmitter } from 'events';
 
-export type EventSource = EventEmitter | EventTarget
+export type EventSource = EventEmitter | DOMEventTarget
 
-function isEventTarget(target: EventSource): target is EventTarget {
-  return typeof (target as EventTarget).addEventListener === 'function';
+function isEventTarget(target: EventSource): target is DOMEventTarget {
+  return typeof (target as DOMEventTarget).addEventListener === 'function';
 }
 
 export function addListener(source: EventSource, name: string, listener: () => void) {
@@ -20,4 +20,9 @@ export function removeListener(source: EventSource, name: string, listener: () =
   } else {
     source.off(name, listener);
   }
+}
+
+interface DOMEventTarget {
+  addEventListener: EventTarget["addEventListener"];
+  removeEventListener: EventTarget["removeEventListener"];
 }

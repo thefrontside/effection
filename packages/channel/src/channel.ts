@@ -1,6 +1,6 @@
-import { Operation } from 'effection';
-import { Subscribable, Subscription, SymbolSubscribable } from '@effection/subscription';
-import { on } from '@effection/events';
+import { Operation, spawn } from 'effection';
+import { Subscribable, Subscription, SymbolSubscribable, createSubscription, forEach } from '@effection/subscription';
+import { on, once } from '@effection/events';
 import { EventEmitter } from 'events';
 
 export class Channel<T> implements Subscribable<T, void> {
@@ -19,6 +19,16 @@ export class Channel<T> implements Subscribable<T, void> {
   }
 
   subscribe(): Operation<Subscription<T, void>> {
-    return Subscribable.from(on(this.bus, 'message')).map(([message]: [T]) => message)[SymbolSubscribable]();
+    let { bus } = this;
+    return createSubscription(function*(publish) {
+      yield spawn(forEach(on(bus, 'message'), function*([message]: [T]) {
+        publish(message)
+      }));
+      yield once(bus, 'close');
+    });
+  }
+
+  close() {
+    this.bus.emit('close');
   }
 }

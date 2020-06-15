@@ -58,4 +58,21 @@ describe('Channel', () => {
       });
     });
   });
+
+  describe('close', () => {
+    let channel: Channel<string>;
+    let subscription: Subscription<string, void>;
+
+    beforeEach(async () => {
+      channel = new Channel();
+      subscription = await World.spawn(channel.subscribe());
+      channel.close();
+    });
+
+    it('closes subscriptions', async () => {
+      let result = await World.spawn(subscription.next());
+      expect(result.done).toEqual(true);
+      expect(result.value).toEqual(undefined);
+    });
+  });
 });

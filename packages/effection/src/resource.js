@@ -1,6 +1,6 @@
 import { ExecutionContext } from './context';
 
-let symbol = Symbol("resource");
+const symbol = Symbol.for("@effection.resource");
 
 export function contextOf(resource) {
   if(resource instanceof ExecutionContext) {

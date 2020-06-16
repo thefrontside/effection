@@ -1,5 +1,13 @@
 # @effection/subscription
 
+## 0.7.2
+
+### Patch Changes
+
+- db11b3f: convert `effection` dependency into normal, non-peer dependency
+- Updated dependencies [0e8951f]
+  - effection@0.7.0
+
 ## 0.7.1
 
 ### Patch Changes

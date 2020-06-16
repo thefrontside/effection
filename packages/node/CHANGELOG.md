@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.6.5
+
+### Patch Changes
+
+- db11b3f: convert `effection` dependency into normal, non-peer dependency
+- Updated dependencies [db11b3f]
+- Updated dependencies [3688203]
+- Updated dependencies [0e8951f]
+  - @effection/events@0.7.4
+  - effection@0.7.0
+
 ## 0.6.4
 
 ### Patch Changes

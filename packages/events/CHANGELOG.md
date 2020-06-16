@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.7.4
+
+### Patch Changes
+
+- db11b3f: convert `effection` dependency into normal, non-peer dependency
+- 3688203: Only require EventTarget-like objects for the `on()` method to
+  implement the `addEventListener` and `removeEventlistener` functions,
+  not `dispatchEvent`
+- Updated dependencies [db11b3f]
+- Updated dependencies [0e8951f]
+  - @effection/subscription@0.7.2
+  - effection@0.7.0
+
 ## 0.7.3
 
 ### Patch Changes

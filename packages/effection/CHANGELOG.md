@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.7.0
+
+### Minor Changes
+
+- 0e8951f: Use unique symbol for effection resources
+
 ## 0.6.4
 
 ### Patch Changes

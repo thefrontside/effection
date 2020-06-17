@@ -8,35 +8,37 @@ export interface Subscription<T,TReturn> {
   next(): Operation<IteratorResult<T,TReturn>>;
 }
 
-export function * createSubscription<T, TReturn>(subscribe: Subscriber<T,TReturn>): Operation<Subscription<T,TReturn>> {
-  let results: IteratorResult<T,TReturn>[] = [];
+export function createSubscription<T, TReturn>(subscribe: Subscriber<T,TReturn>): Operation<Subscription<T,TReturn>> {
+  return function*() {
+    let results: IteratorResult<T,TReturn>[] = [];
 
-  let semaphore = new Semaphore<void>();
+    let semaphore = new Semaphore<void>();
 
-  let publish = (value: T) => {
-    results.push({ done: false, value });
-    semaphore.signal();
-  };
-
-  let next = async (): Promise<IteratorResult<T,TReturn>> => {
-    let wait = semaphore.wait();
-    if (results.length > 0) {
+    let publish = (value: T) => {
+      results.push({ done: false, value });
       semaphore.signal();
-    }
-    return wait.then(() => results.shift() as IteratorResult<T,TReturn>);
-  };
+    };
 
-  let subscription =  yield resource({ next }, function*() {
-    try {
-      let value = yield subscribe((value: T) => publish(value));
-      results.push({ done: true, value });
-      semaphore.signal();
-    } finally {
-      publish = value => { throw InvalidPublication(value); }
-    }
-  });
+    let next = async (): Promise<IteratorResult<T,TReturn>> => {
+      let wait = semaphore.wait();
+      if (results.length > 0) {
+        semaphore.signal();
+      }
+      return wait.then(() => results.shift() as IteratorResult<T,TReturn>);
+    };
 
-  return subscription;
+    let subscription =  yield resource({ next }, function*() {
+      try {
+        let value = yield subscribe((value: T) => publish(value));
+        results.push({ done: true, value });
+        semaphore.signal();
+      } finally {
+        publish = value => { throw InvalidPublication(value); }
+      }
+    });
+
+    return subscription;
+  }
 }
 
 function InvalidPublication(value: unknown) {

@@ -1,7 +1,8 @@
 import * as expect from 'expect';
+import { timeout } from 'effection';
 import { spawn } from './helpers';
 
-import { Subscription, createSubscription } from '../src/index';
+import { Subscription, Subscribable, createSubscription } from '../src/index';
 
 import { Semaphore } from '../src/semaphore';
 
@@ -89,6 +90,20 @@ describe('subscriptions', () => {
           expect(error.name).toEqual('TypeError');
         });
       });
+    });
+  });
+
+  describe('when used as direct return value', () => {
+    it('dispatches results independently', async () => {
+      let doSubscribe = () => createSubscription<number,void>(function*(publish) { yield timeout(2); publish(1) })
+
+      let subscribable = Subscribable.from(doSubscribe());
+
+      let one = spawn(subscribable.first())
+      let two = spawn(subscribable.first())
+
+      expect(await one).toEqual(1);
+      expect(await two).toEqual(1);
     });
   });
 });

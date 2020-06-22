@@ -1,47 +1,61 @@
 import { Operation, resource } from 'effection';
-import * as express from 'express';
 import { throwOnErrorEvent, once, on } from '@effection/events';
-import { Subscribable } from '@effection/subscription';
 import { AddressInfo } from 'net';
+import { createServer, IncomingMessage, ServerResponse } from 'http';
 
 export class EchoServer {
-  lastRequest?: express.Request;
-  
+  requests: Array<[IncomingMessage, ServerResponse]> = [];
+
   constructor(private addressInfo: AddressInfo) {}
-  
+
+  get last() {
+    return this.requests[this.requests.length - 1];
+  }
+
   get address() {
     return `http://localhost:${this.addressInfo.port}`;
   }
-  
-  static *listen(): Operation<EchoServer> {
-    
-    let app = express().use(express.json());
 
-    let http = app.listen();
+  get lastRequest(): IncomingMessage {
+    if (this.last) {
+      return this.last[0];
+    } else {
+      throw new Error('there have been no requests');
+    }
+  }
+
+  get lastResponse(): ServerResponse {
+    if (this.last) {
+      return this.last[1];
+    } else {
+      throw new Error('there have been no requests');
+    }
+  }
+
+  static *listen(): Operation<EchoServer>
+{
+    let http = createServer((req, res) => {
+      server.requests.push([req, res]);
+    });
+    http.listen();
 
     try {
       yield once(http, 'listening');
     } catch (e) {
       http.close();
-
       throw e;
     }
 
-    let server = yield resource(new EchoServer(http.address() as AddressInfo), function*() {
+    let server: EchoServer = yield resource(new EchoServer(http.address() as AddressInfo), function*() {
       yield throwOnErrorEvent(http);
 
       try {
-        yield Subscribable
-          .from<[express.Request, express.Response], void>(on(http, 'request'))
-          .forEach(function *([req, res]) {
-            server.lastRequest = req;
-          });
+        yield;
       } finally {
-        http.close();        
+        http.close();
       }
     });
 
     return server;
   }
 }
-

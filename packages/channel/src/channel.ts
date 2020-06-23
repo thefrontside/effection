@@ -21,8 +21,8 @@ export class Channel<T> implements Subscribable<T, void> {
   subscribe(): Operation<Subscription<T, void>> {
     let { bus } = this;
     return createSubscription(function*(publish) {
-      yield spawn(forEach(on(bus, 'message'), function*([message]: [T]) {
-        publish(message)
+      yield spawn(forEach(on(bus, 'message'), function*([message]) {
+        publish(message as T);
       }));
       yield once(bus, 'close');
     });

@@ -3,7 +3,7 @@ name: Publish Preview
 on:
   pull_request:
     branches:
-      - master
+      - 'master'
 
 jobs:
   publish-previews:
@@ -13,6 +13,7 @@ jobs:
     - uses: actions/checkout@v1
     - name: Publish PR Preview
       uses: thefrontside/actions/publish-pr-preview@v1.4
+      if: ${{ github.head_ref != 'changeset/release-master' }}
       with:
         before_all: yarn prepack
         npm_publish: yarn publish

@@ -35,7 +35,6 @@ function *supervise(child: ChildProcess, command: string, args: readonly string[
 
 export function *spawn(command: string, args?: ReadonlyArray<string>, options?: SpawnOptions): Operation {
   let child = childProcess.spawn(command, args || [], Object.assign({}, options, {
-    shell: true,
     detached: true,
   }));
   return yield resource(child, supervise(child, command, args));

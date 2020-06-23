@@ -1,6 +1,6 @@
 {
   "name": "@effection/fetch",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Fetch operation for Effection",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",

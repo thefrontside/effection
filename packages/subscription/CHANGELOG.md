@@ -1,5 +1,11 @@
 # @effection/subscription
 
+## 0.7.3
+
+### Patch Changes
+
+- 7671de1: Fixed bug where subscription was cached when `createSubscription` is returned without using `yield`.
+
 ## 0.7.2
 
 ### Patch Changes

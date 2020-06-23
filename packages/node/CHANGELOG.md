@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.7.0
+
+### Minor Changes
+
+- a414d68: Remove shell default and only force detached as that is a requirement.
+
 ## 0.6.5
 
 ### Patch Changes

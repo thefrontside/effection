@@ -11,6 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
+    - name: Create Release Pull Request
+      uses: changesets/action@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Publish Releases
       uses: thefrontside/actions/synchronize-with-npm@v1.7
       with:

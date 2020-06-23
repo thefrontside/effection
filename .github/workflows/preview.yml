@@ -3,7 +3,7 @@ name: Publish Preview
 on:
   pull_request:
     branches:
-      - 'master'
+      - master
 
 jobs:
   publish-previews:

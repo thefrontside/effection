@@ -11,7 +11,7 @@ import { Channel } from '../src/index';
 describe('Channel', () => {
   describe('subscribe', () => {
     let channel: Channel<string>;
-    let subscription: Subscription<string, void>;
+    let subscription: Subscription<string, undefined>;
 
     beforeEach(async () => {
       channel = new Channel();
@@ -31,7 +31,7 @@ describe('Channel', () => {
     });
 
     describe('blocking on next', () => {
-      let result: Context<IteratorResult<string, void>>;
+      let result: Context<IteratorResult<string, undefined>>;
 
       beforeEach(async () => {
         result = World.spawn(subscription.next());
@@ -60,19 +60,38 @@ describe('Channel', () => {
   });
 
   describe('close', () => {
-    let channel: Channel<string>;
-    let subscription: Subscription<string, void>;
+    describe('without argument', () => {
+      let channel: Channel<string>;
+      let subscription: Subscription<string, undefined>;
 
-    beforeEach(async () => {
-      channel = new Channel();
-      subscription = await World.spawn(channel.subscribe());
-      channel.close();
+      beforeEach(async () => {
+        channel = new Channel();
+        subscription = await World.spawn(channel.subscribe());
+        channel.close();
+      });
+
+      it('closes subscriptions', async () => {
+        let result = await World.spawn(subscription.next());
+        expect(result.done).toEqual(true);
+        expect(result.value).toEqual(undefined);
+      });
     });
 
-    it('closes subscriptions', async () => {
-      let result = await World.spawn(subscription.next());
-      expect(result.done).toEqual(true);
-      expect(result.value).toEqual(undefined);
+    describe('with close argument', () => {
+      let channel: Channel<string, number>;
+      let subscription: Subscription<string, number>;
+
+      beforeEach(async () => {
+        channel = new Channel();
+        subscription = await World.spawn(channel.subscribe());
+        channel.close(12);
+      });
+
+      it('closes subscriptions with the argument', async () => {
+        let result = await World.spawn(subscription.next());
+        expect(result.done).toEqual(true);
+        expect(result.value).toEqual(12);
+      });
     });
   });
 });

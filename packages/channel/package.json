@@ -1,6 +1,6 @@
 {
   "name": "@effection/channel",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "MPMC Channel implementation for effection",
   "main": "dist/index.js",
   "typings": "dist/index.d.js",
@@ -34,7 +34,7 @@
     "yarn": "1.19.1"
   },
   "dependencies": {
-    "@effection/events": "^0.7.1",
-    "@effection/subscription": "^0.7.1"
+    "@effection/events": "^0.7.5",
+    "@effection/subscription": "^0.8.0"
   }
 }

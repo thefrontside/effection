@@ -1,5 +1,11 @@
 # @effection/subscription
 
+## 0.8.0
+
+### Minor Changes
+
+- 8303e92: Add a free `subscribe` function, allow chaining of `map`, `filter` etc on subscriptions and deprecate chaining on subscribables.
+
 ## 0.7.3
 
 ### Patch Changes

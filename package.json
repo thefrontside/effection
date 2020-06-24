@@ -12,7 +12,8 @@
       "packages/subscription",
       "packages/events",
       "packages/node",
-      "packages/fetch"
+      "packages/fetch",
+      "packages/channel"
     ]
   },
   "scripts": {

@@ -11,7 +11,6 @@ export interface Subscribable<T,TReturn> {
 export type SubscriptionSource<T,TReturn> = Subscribable<T,TReturn> | Operation<Subscription<T,TReturn>>;
 
 export function* forEach<T,TReturn>(source: SubscriptionSource<T,TReturn>, visit: (value: T) => Operation<void>): Operation<TReturn> {
-  console.warn('forEach is deprecated, please use `subscribe(...).forEach(...)` instead');
   let subscription: Subscription<T,TReturn> = yield subscribe(source);
   while (true) {
     let result: IteratorResult<T,TReturn> = yield subscription.next();
@@ -24,11 +23,7 @@ export function* forEach<T,TReturn>(source: SubscriptionSource<T,TReturn>, visit
 }
 
 export const Subscribable = {
-  from: <T,TReturn>(source: SubscriptionSource<T,TReturn>) => {
-    console.warn('Subscribable.from is deprecated, please use `subscribe(...)` instead');
-
-    return new Chain(source);
-  }
+  from: <T,TReturn>(source: SubscriptionSource<T,TReturn>) => new Chain(source)
 }
 
 export class Chain<T, TReturn> implements Subscribable<T,TReturn> {

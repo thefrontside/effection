@@ -70,7 +70,7 @@ export class Chain<T, TReturn> implements Subscribable<T,TReturn> {
   }
 }
 
-function subscribe<T, TReturn>(source: SubscriptionSource<T,TReturn>): Operation<Subscription<T,TReturn>> {
+export function subscribe<T, TReturn>(source: SubscriptionSource<T,TReturn>): Operation<Subscription<T,TReturn>> {
   if (isSubscribable<T,TReturn>(source)) {
     let subscriber = getSubscriber<T,TReturn>(source);
     if (subscriber) {

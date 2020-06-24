@@ -1,5 +1,6 @@
 import { Operation, resource } from 'effection';
 
+import { ChainableSubscription } from './chainable-subscription';
 import { Semaphore } from './semaphore';
 
 export type Subscriber<T,TReturn> = (publish: (value: T) => void) => Operation<TReturn>;
@@ -27,7 +28,7 @@ export function createSubscription<T, TReturn>(subscribe: Subscriber<T,TReturn>)
       return wait.then(() => results.shift() as IteratorResult<T,TReturn>);
     };
 
-    let subscription =  yield resource({ next }, function*() {
+    let subscription = yield resource(new ChainableSubscription({ next }), function*() {
       try {
         let value = yield subscribe((value: T) => publish(value));
         results.push({ done: true, value });

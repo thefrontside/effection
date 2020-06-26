@@ -72,24 +72,13 @@ export class Chain<T, TReturn> implements Subscribable<T,TReturn> {
 
 export function subscribe<T, TReturn>(source: SubscriptionSource<T,TReturn>): Operation<Subscription<T,TReturn>> {
   if (isSubscribable<T,TReturn>(source)) {
-    let subscriber = getSubscriber<T,TReturn>(source);
-    if (subscriber) {
-      return subscriber.call(source);
-    } else {
-      let error = new Error(`cannot subscribe to ${source} because it does not contain Symbol.subscription`)
-      error.name = 'TypeError';
-      throw error;
-    }
+    return source[SymbolSubscribable]()
   } else {
     return source;
   }
 }
 
-function isSubscribable<T,TReturn>(value: unknown): value is Subscribable<T,TReturn> {
-  return !!getSubscriber<T,TReturn>(value);
-}
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function getSubscriber<T,TReturn>(source: any): undefined | (() => Operation<Subscription<T,TReturn>>) {
-  return source[SymbolSubscribable] as () => Operation<Subscription<T,TReturn>>;
+function isSubscribable<T,TReturn>(value: any): value is Subscribable<T,TReturn> {
+  return !!value[SymbolSubscribable];
 }

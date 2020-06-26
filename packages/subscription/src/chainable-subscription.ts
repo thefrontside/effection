@@ -1,9 +1,21 @@
-import { Operation } from 'effection';
+import { Operation, resource } from 'effection';
 import { Subscription } from './subscription';
 import { DeepPartial, matcher } from './match';
+import { SubscriptionSource, subscribe } from './subscribable';
+
+const DUMMY = { next() { throw new Error('dummy') } };
 
 export class ChainableSubscription<T,TReturn> implements Subscription<T,TReturn> {
   constructor(private subscription: Subscription<T, TReturn>) {}
+
+  static *of<T, TReturn>(source: SubscriptionSource<T, TReturn>): Operation<ChainableSubscription<T, TReturn>> {
+    let chain = new ChainableSubscription(DUMMY);
+
+    return yield resource(chain, function*() {
+      chain.subscription = yield subscribe(source);
+      yield;
+    });
+  }
 
   filter(predicate: (value: T) => boolean): ChainableSubscription<T, TReturn> {
     let { subscription } = this;

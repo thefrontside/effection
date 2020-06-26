@@ -2,7 +2,7 @@ import { timeout, Context } from 'effection';
 import { describe, it, beforeEach } from 'mocha';
 import * as expect from 'expect';
 
-import { Subscription } from '@effection/subscription';
+import { Subscription, subscribe } from '@effection/subscription';
 
 import { World } from './helpers';
 
@@ -55,6 +55,28 @@ describe('Channel', () => {
         expect(await World.spawn(subscription.next())).toHaveProperty('value', 'hello');
         expect(await World.spawn(subscription.next())).toHaveProperty('value', 'foo');
         expect(await World.spawn(subscription.next())).toHaveProperty('value', 'bar');
+      });
+    });
+  });
+
+  describe('subscribe free function', () => {
+    let channel: Channel<string>;
+    let subscription: Subscription<string, undefined>;
+
+    beforeEach(async () => {
+      channel = new Channel();
+      subscription = await World.spawn(subscribe(channel));
+    });
+
+    describe('sending a message', () => {
+      beforeEach(() => {
+        channel.send('hello');
+      });
+
+      it('receives message on subscription', async () => {
+        let result = await World.spawn(subscription.next());
+        expect(result.done).toEqual(false);
+        expect(result.value).toEqual('hello');
       });
     });
   });

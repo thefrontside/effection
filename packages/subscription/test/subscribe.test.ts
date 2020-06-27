@@ -2,7 +2,9 @@ import * as expect from 'expect';
 import { describe, it, beforeEach } from 'mocha';
 import { spawn } from './helpers';
 
+import { EventEmitter } from 'events';
 import { Operation } from 'effection';
+import { on } from '@effection/events';
 
 import { subscribe, ChainableSubscription, Subscription, createSubscription, Subscribable, SymbolSubscribable, forEach } from '../src/index';
 
@@ -28,6 +30,14 @@ function* subscribableAsOperation(): Operation<Subscription<Thing, number>> {
     return 12;
   });
 }
+
+let emitter = new EventEmitter();
+
+const subscribableWithResource = {
+  [SymbolSubscribable](): Operation<Subscription<[number], void>> {
+    return on(emitter, 'message');
+  }
+};
 
 describe('subscribe', () => {
   describe('with symbol subscribable', () => {
@@ -69,6 +79,19 @@ describe('subscribe', () => {
       let filteredSubscription = subscription.filter((t) => t.type === 'person');
       await expect(spawn(filteredSubscription.next())).resolves.toEqual({ done: false, value: { name: 'sally', type: 'person' } });
       await expect(spawn(filteredSubscription.next())).resolves.toEqual({ done: true, value: 12 });
+    });
+  });
+
+  describe('with resource subscribable', () => {
+    let subscription: ChainableSubscription<[number], void>;
+
+    beforeEach(async () => {
+      subscription = await spawn(subscribe(subscribableWithResource));
+    });
+
+    it('retains resource', async () => {
+      emitter.emit('message', 123);
+      await expect(spawn(subscription.next())).resolves.toEqual({ done: false, value: [123] });
     });
   });
 });

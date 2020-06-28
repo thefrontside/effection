@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.3
+
+### Patch Changes
+
+- 2a008aa: use effection as dependency, not peer dependency
+- Updated dependencies [a7f9396]
+  - @effection/subscription@0.8.1
+
 ## 0.6.2
 
 ### Patch Changes

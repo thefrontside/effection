@@ -1,5 +1,6 @@
 export { Subscription, createSubscription } from './subscription';
-export { SymbolSubscribable, SubscriptionSource, forEach, Subscribable } from './subscribable';
+export { SymbolSubscribable } from './symbol-subscribable';
+export { SubscriptionSource, forEach, Subscribable } from './subscribable';
 export { ChainableSubscription } from './chainable-subscription';
 
 import { Operation } from 'effection';

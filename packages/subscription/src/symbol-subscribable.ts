@@ -16,6 +16,8 @@
  * See https://github.com/microsoft/TypeScript/issues/8099#issuecomment-210134773
  * for details.
  */
+
+/* eslint-disable */
 declare global {
   const __global_variable_to_hold_type_of_global_subscribable_symbol: unique symbol;
 }

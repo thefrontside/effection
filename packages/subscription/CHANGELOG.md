@@ -1,5 +1,11 @@
 # @effection/subscription
 
+## 0.9.0
+
+### Minor Changes
+
+- 786b20e: make the type of SymbolSubscribable global, not just the value
+
 ## 0.8.1
 
 ### Patch Changes

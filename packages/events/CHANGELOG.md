@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.7.6
+
+### Patch Changes
+
+- Updated dependencies [786b20e]
+  - @effection/subscription@0.9.0
+
 ## 0.7.5
 
 ### Patch Changes

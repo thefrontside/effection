@@ -1,6 +1,6 @@
 {
   "name": "@effection/events",
-  "version": "0.7.5",
+  "version": "0.7.6",
   "description": "Helpers for listening to events with effection",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "effection": "^0.7.0",
-    "@effection/subscription": "^0.8.0"
+    "@effection/subscription": "^0.9.0"
   },
   "devDependencies": {
     "@frontside/tsconfig": "0.0.1",

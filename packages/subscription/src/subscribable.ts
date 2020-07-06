@@ -1,8 +1,7 @@
 import { Operation } from 'effection';
 import { Subscription, createSubscription, Subscriber } from './subscription';
 import { DeepPartial, matcher } from './match';
-
-export const SymbolSubscribable: unique symbol = Symbol.for('Symbol.subscription');
+import { SymbolSubscribable } from './symbol-subscribable';
 
 export interface Subscribable<T,TReturn> {
   [SymbolSubscribable](): Operation<Subscription<T,TReturn>>;

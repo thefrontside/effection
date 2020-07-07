@@ -30,7 +30,8 @@
   "devDependencies": {
     "@frontside/eslint-config": "mk_remove-deps",
     "eslint": "5.16.0",
-    "patch-package": "6.2.2"
+    "patch-package": "6.2.2",
+    "typescript": "^3.9.5"
   },
   "dependencies": {
     "@changesets/cli": "2.7.2"

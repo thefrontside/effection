@@ -36,8 +36,6 @@
     "capture-console": "^1.0.1",
     "conditional-type-checks": "^1.0.5",
     "dtslint": "^2.0.2",
-    "eslint": "5.16.0",
-    "eslint-plugin-prefer-let": "1.0.1",
     "expect": "24.7.1",
     "jest-mock": "^24.8.0",
     "microbundle": "^0.12.0",

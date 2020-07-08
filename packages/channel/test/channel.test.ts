@@ -89,13 +89,13 @@ describe('Channel', () => {
       beforeEach(async () => {
         channel = new Channel();
         subscription = await World.spawn(channel.subscribe());
+        channel.send('foo');
         channel.close();
       });
 
       it('closes subscriptions', async () => {
-        let result = await World.spawn(subscription.next());
-        expect(result.done).toEqual(true);
-        expect(result.value).toEqual(undefined);
+        await expect(World.spawn(subscription.next())).resolves.toEqual({ done: false, value: 'foo' });
+        await expect(World.spawn(subscription.next())).resolves.toEqual({ done: true, value: undefined });
       });
     });
 
@@ -106,13 +106,13 @@ describe('Channel', () => {
       beforeEach(async () => {
         channel = new Channel();
         subscription = await World.spawn(channel.subscribe());
+        channel.send('foo');
         channel.close(12);
       });
 
       it('closes subscriptions with the argument', async () => {
-        let result = await World.spawn(subscription.next());
-        expect(result.done).toEqual(true);
-        expect(result.value).toEqual(12);
+        await expect(World.spawn(subscription.next())).resolves.toEqual({ done: false, value: 'foo' });
+        await expect(World.spawn(subscription.next())).resolves.toEqual({ done: true, value: 12 });
       });
     });
   });

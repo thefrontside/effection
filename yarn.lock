@@ -1161,14 +1161,14 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
-"@frontside/eslint-config@mk_remove-deps":
-  version "1.1.1-a83e2f6"
-  resolved "https://registry.yarnpkg.com/@frontside/eslint-config/-/eslint-config-1.1.1-a83e2f6.tgz#31304f612bd8b647b2c7e65cf72ca0626ca0666a"
-  integrity sha512-6C2i0vqK95GvkoeIiTIJ35x3AAG3Vc4vTCku6qPHmYjZFo53AplVNdEIiYV5iGAeMCBKYJQsRRAJRWrZJikbAw==
+"@frontside/eslint-config@1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@frontside/eslint-config/-/eslint-config-1.1.1.tgz#829318c20321e9a2ebe534f7d4df10f688de6600"
+  integrity sha512-H0eehRvgN9gRDKBIgIcaFV+3SQDGrVd0jnFDmrAj7Yt2haoYzlrYuV8Hb6LX6PqNsQ1on1n73h3V5R1Dxp3mGg==
   dependencies:
     "@typescript-eslint/eslint-plugin" "^3.5.0"
     "@typescript-eslint/parser" "^3.5.0"
-    eslint-plugin-prefer-let "^1.0.1"
+    eslint-plugin-prefer-let "^1.0.2"
 
 "@frontside/tsconfig@0.0.1", "@frontside/tsconfig@^0.0.1":
   version "0.0.1"
@@ -3564,10 +3564,10 @@ eslint-plugin-jsx-a11y@^6.2.3:
     jsx-ast-utils "^2.4.1"
     language-tags "^1.0.5"
 
-eslint-plugin-prefer-let@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-prefer-let/-/eslint-plugin-prefer-let-1.0.1.tgz#ef7216bcabf6d4cb0a7b7b5ecf55e85e9ee58067"
-  integrity sha1-73IWvKv21MsKe3tez1XoXp7lgGc=
+eslint-plugin-prefer-let@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-prefer-let/-/eslint-plugin-prefer-let-1.0.2.tgz#db5e20252b7805baf4ced0892a35cafb25f3ed67"
+  integrity sha512-nPOl0ZQVtWmG0tI75qtNCJ/N8oHfltqZy0JovBys0amfA6HX24NlU1Q4gzxZz+aWa84QJsDwvgagUnLOneUSFw==
   dependencies:
     requireindex "~1.1.0"
 

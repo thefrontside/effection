@@ -11,8 +11,10 @@ export function main<T>(operation: Operation<T>): Context<T> {
         process.on('SIGUSR1', debug);
         return yield operation;
       } catch(e) {
-        console.error(e);
-        process.exit(-1);
+        if(!e.effectionSilent) {
+          console.error(e);
+        }
+        process.exit(e.effectionExitCode || -1);
       } finally {
         process.off('SIGINT', interrupt);
         process.off('SIGTERM', interrupt);

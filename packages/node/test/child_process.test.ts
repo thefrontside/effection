@@ -14,7 +14,7 @@ describe('child_process', () => {
     let child: ChildProcess;
 
     beforeEach(async () => {
-      child = await World.spawn(spawnProcess('node', ['./echo-server.js'], {
+      child = await World.spawn(spawnProcess('node', ['./fixtures/echo-server.js'], {
         env: { PORT: '29000', PATH: process.env.PATH },
         stdio: "pipe",
         cwd: __dirname,
@@ -39,7 +39,7 @@ describe('child_process', () => {
     let child: ChildProcess;
 
     beforeEach(async () => {
-      child = await World.spawn(forkProcess('./echo-server.js', [], {
+      child = await World.spawn(forkProcess('./fixtures/echo-server.js', [], {
         env: { PORT: '29000' },
         stdio: "pipe",
         cwd: __dirname,

@@ -1,5 +1,5 @@
 import { Operation } from 'effection';
-import { main } from '../src/main';
+import { main } from '../../src/main';
 
 import { createServer } from 'net';
 

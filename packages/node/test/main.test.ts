@@ -9,7 +9,7 @@ describe('main', () => {
   let child: ChildProcess;
   let stdout: TestStream;
   beforeEach(async () => {
-    child = spawnProcess("ts-node", [path.join(__dirname, 'text-writer.ts')]);
+    child = spawnProcess("ts-node", [path.join(__dirname, 'fixtures/text-writer.ts')]);
 
     if (child.stdout) {
       stdout = await World.spawn(TestStream.of(child.stdout));

@@ -1,12 +1,7 @@
 import { Operation, timeout } from 'effection';
-import { main } from '../../src/main';
-
-class MyError extends Error {
-  public effectionExitCode = 23;
-  public effectionSilent = true;
-}
+import { main, MainError } from '../../src/main';
 
 main(function*(): Operation<void> {
   yield timeout(10);
-  throw new MyError('moo');
+  throw new MainError({ exitCode: 23, silent: true });
 })

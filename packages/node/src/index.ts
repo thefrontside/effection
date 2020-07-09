@@ -1,2 +1,2 @@
-export { main } from './main';
+export { main, MainError } from './main';
 export * as ChildProcess from './child_process';

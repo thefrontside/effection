@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.6.5
+
+### Patch Changes
+
+- 731035e: Preserve order of events when closing channel
+
 ## 0.6.4
 
 ### Patch Changes

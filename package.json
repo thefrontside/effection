@@ -29,7 +29,6 @@
   },
   "devDependencies": {
     "@frontside/eslint-config": "1.1.1",
-    "eslint": "5.16.0",
     "patch-package": "6.2.2"
   },
   "dependencies": {

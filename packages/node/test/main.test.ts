@@ -1,6 +1,7 @@
 import * as path from 'path';
+import * as expect from 'expect';
 import { describe, it, beforeEach } from 'mocha';
-import { ChildProcess, spawn as spawnProcess } from 'child_process';
+import { ChildProcess, spawn as spawnProcess, spawnSync } from 'child_process';
 import { once } from '@effection/events';
 
 import { World, TestStream } from './helpers';
@@ -8,37 +9,57 @@ import { World, TestStream } from './helpers';
 describe('main', () => {
   let child: ChildProcess;
   let stdout: TestStream;
-  beforeEach(async () => {
-    child = spawnProcess("ts-node", [path.join(__dirname, 'text-writer.ts')]);
 
-    if (child.stdout) {
-      stdout = await World.spawn(TestStream.of(child.stdout));
-      await World.spawn(stdout.waitFor("started"));
-    }
-  });
-  afterEach(() => {
-    child.kill('SIGKILL');
-  })
-
-  describe('sending SIGINT', () => {
+  describe('with sucessful process', () => {
     beforeEach(async () => {
-      setTimeout(() => child.kill('SIGINT'), 10);
-      await World.spawn(once(child, 'exit'));
+      child = spawnProcess("ts-node", [path.join(__dirname, 'fixtures/text-writer.ts')]);
+
+      if (child.stdout) {
+        stdout = await World.spawn(TestStream.of(child.stdout));
+        await World.spawn(stdout.waitFor("started"));
+      }
+    });
+    afterEach(() => {
+      child.kill('SIGKILL');
+    })
+
+    describe('sending SIGINT', () => {
+      beforeEach(async () => {
+        setTimeout(() => child.kill('SIGINT'), 10);
+        await World.spawn(once(child, 'exit'));
+      });
+
+      it('shuts down gracefully', async () => {
+        await World.spawn(stdout.waitFor("stopped"));
+      });
     });
 
-    it('shuts down gracefully', async () => {
-      await World.spawn(stdout.waitFor("stopped"));
+    describe('sending SIGTERM', () => {
+      beforeEach(async () => {
+        child.kill('SIGTERM');
+        await World.spawn(once(child, 'exit'));
+      });
+
+      it('shuts down gracefully', async () => {
+        await World.spawn(stdout.waitFor("stopped"));
+      });
     });
   });
 
-  describe('sending SIGTERM', () => {
-    beforeEach(async () => {
-      child.kill('SIGTERM');
-      await World.spawn(once(child, 'exit'));
+  describe('with failing process', () => {
+    it('sets exit code and prints error', async () => {
+      let result = spawnSync("ts-node", [path.join(__dirname, 'fixtures/main-failed.ts')]);
+
+      expect(result.stderr.toString()).toContain('Error: moo');
+      expect(result.status).toEqual(255);
     });
 
-    it('shuts down gracefully', async () => {
-      await World.spawn(stdout.waitFor("stopped"));
+    it('sets custom exit code and hides error', async () => {
+      let result = spawnSync("ts-node", [path.join(__dirname, 'fixtures/main-failed-custom.ts')]);
+
+      expect(result.stderr.toString()).toContain('It all went horribly wrong');
+      expect(result.stderr.toString()).not.toContain('EffectionMainError');
+      expect(result.status).toEqual(23);
     });
   });
 });

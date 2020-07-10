@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.8.0
+
+### Minor Changes
+
+- 16c3038: Can set custom exit code and silence error printing on exceptions for cleaner exit.
+
 ## 0.7.0
 
 ### Minor Changes

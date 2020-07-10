@@ -2,20 +2,15 @@ import { main as effectionMain, Context, Operation } from 'effection';
 
 interface MainErrorOptions {
   exitCode?: number;
-  silent?: boolean;
+  verbose?: boolean;
   message?: string;
 }
 
 export class MainError extends Error {
   name = "EffectionMainError"
 
-  public exitCode: number;
-  public silent: boolean;
-
-  constructor(options: MainErrorOptions = {}) {
+  constructor(public options: MainErrorOptions = {}) {
     super(options.message || "error");
-    this.exitCode = options.exitCode || -1;
-    this.silent = options.silent || false;
   }
 }
 
@@ -31,10 +26,13 @@ export function main<T>(operation: Operation<T>): Context<T> {
         return yield operation;
       } catch(e) {
         if(e.name === 'EffectionMainError') {
-          if(!e.silent) {
-            console.error(e);
+          if(e.options.message) {
+            console.error(e.options.message);
           }
-          process.exit(e.exitCode);
+          if(e.options.verbose) {
+            console.error(e.stack);
+          }
+          process.exit(e.options.exitCode || -1);
         } else {
           console.error(e);
           process.exit(-1);

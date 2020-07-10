@@ -50,14 +50,15 @@ describe('main', () => {
     it('sets exit code and prints error', async () => {
       let result = spawnSync("ts-node", [path.join(__dirname, 'fixtures/main-failed.ts')]);
 
-      expect(result.stderr.toString()).toContain('moo');
+      expect(result.stderr.toString()).toContain('Error: moo');
       expect(result.status).toEqual(255);
     });
 
     it('sets custom exit code and hides error', async () => {
       let result = spawnSync("ts-node", [path.join(__dirname, 'fixtures/main-failed-custom.ts')]);
 
-      expect(result.stderr.toString()).not.toContain('moo');
+      expect(result.stderr.toString()).toContain('It all went horribly wrong');
+      expect(result.stderr.toString()).not.toContain('EffectionMainError');
       expect(result.status).toEqual(23);
     });
   });

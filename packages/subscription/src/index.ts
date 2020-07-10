@@ -1,12 +1,17 @@
 export { Subscription, createSubscription } from './subscription';
 export { SymbolSubscribable } from './symbol-subscribable';
-export { SubscriptionSource, forEach, Subscribable } from './subscribable';
+export { Subscribable } from './subscribable';
+export { SubscriptionSource } from './subscription-source';
 export { ChainableSubscription } from './chainable-subscription';
+export { ChainableSubscribable } from './chainable-subscribable';
+export { subscribe } from './subscribe';
 
 import { Operation } from 'effection';
-import { ChainableSubscription } from './chainable-subscription';
-import { SubscriptionSource } from './subscribable';
+import { SubscriptionSource } from './subscription-source';
+import { subscribe } from './subscribe';
 
-export function* subscribe<T, TReturn>(source: SubscriptionSource<T,TReturn>): Operation<ChainableSubscription<T,TReturn>> {
-  return yield ChainableSubscription.of(source);
+export function* forEach<T,TReturn>(source: SubscriptionSource<T,TReturn>, visit: (value: T) => Operation<void>): Operation<TReturn> {
+  console.warn('`forEach(source, ...)` is deprecated, use `subscribe(source).forEach(...)` instead');
+  return yield subscribe<T, TReturn>(source).forEach(visit);
 }
+

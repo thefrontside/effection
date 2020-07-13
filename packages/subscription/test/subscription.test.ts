@@ -2,7 +2,7 @@ import * as expect from 'expect';
 import { timeout } from 'effection';
 import { spawn } from './helpers';
 
-import { Subscription, Subscribable, createSubscription } from '../src/index';
+import { subscribe, Subscription, createSubscription } from '../src/index';
 
 import { Semaphore } from '../src/semaphore';
 
@@ -97,7 +97,7 @@ describe('subscriptions', () => {
     it('dispatches results independently', async () => {
       let doSubscribe = () => createSubscription<number,void>(function*(publish) { yield timeout(2); publish(1) })
 
-      let subscribable = Subscribable.from(doSubscribe());
+      let subscribable = subscribe(doSubscribe());
 
       let one = spawn(subscribable.first())
       let two = spawn(subscribable.first())

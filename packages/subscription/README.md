@@ -64,45 +64,64 @@ method in order to be turned into a subscription. This follows the
 pattern of `Symbol.iterator`, and `Symbol.observable`. Any object that
 implements this method can be consumed as a subscription.
 
-### Subscribable.from(source)
+### subscribe(source)
 
-In order to lift functions into the context of a subscription, you can
-use `Subscribable.from` which will return an instance of
-`Subscribable` that allows you to transform a subscription produced
+In order to lift functions into the context of a subscription, you can use
+`subscribe` which can be used to transform subscriptions via combinators.
 
-### Subscribable#map(fn)
+### map(fn)
 
 Returns a new subscribable whose items are transformed by `fn`. For
 example:
 
 ``` javascript
-Subscribable.from(websocket).map(message => JSON.parse(message));
+subscribe(websocket).map(message => JSON.parse(message));
 ```
 
-### Subscribable#filter(predicate)
+### filter(predicate)
 
 Return a new `Subscribable` that only produces items from its source
 that match `predicate`.
 
 ``` javascript
-Subscribable.from(websocket).filter(message => message.type === 'command');
+subscribe(websocket).filter(message => message.type === 'command');
 ```
 
-### Subscribable#match(reference)
+### match(reference)
 
 Return a new `Subscribable` that only produces items from its source that match
 `reference` in the sense that the produced items have the same properties and
 values as `reference`.
 
 ``` javascript
-Subscribable.from(websocket).match({ type: 'command' });
+subscribe(websocket).match({ type: 'command' });
 ```
 
-### Subscribable#first()
+### first()
 
 An operation that produces the first item in a subscription or
 undefined if the subscription has no items.
 
 ``` javascript
-let message = yield Subscribable.from(websocket).first();
+let message = yield subscribe(websocket).first();
+```
+
+### expect()
+
+An operation that produces the first item in a subscription or
+throws an error if the subscription has no items.
+
+``` javascript
+let message = yield subscribe(websocket).expect();
+```
+
+### forEach()
+
+Calls the given operation function with each item in the subscription. Returns
+the return value of the subscriopion when done.
+
+``` javascript
+let exitCode = yield subscribe(websocket).forEach(function*(message) {
+  // ...
+});
 ```

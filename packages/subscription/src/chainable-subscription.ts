@@ -1,7 +1,7 @@
 import { Operation, resource } from 'effection';
 import { Subscription } from './subscription';
 import { DeepPartial, matcher } from './match';
-import { SubscriptionSource, subscribe } from './subscribable';
+import { SubscriptionSource, rawSubscribe } from './subscription-source';
 
 const DUMMY = { next() { throw new Error('dummy') } };
 
@@ -12,7 +12,20 @@ export class ChainableSubscription<T,TReturn> implements Subscription<T,TReturn>
     let chain = new ChainableSubscription(DUMMY);
 
     return yield resource(chain, function*() {
-      chain.subscription = yield subscribe(source);
+      chain.subscription = yield rawSubscribe(source);
+      yield;
+    });
+  }
+
+  static *wrap<T, TReturn, R = T>(
+    source: Operation<ChainableSubscription<T, TReturn>>,
+    fn: (inner: ChainableSubscription<T, TReturn>) => ChainableSubscription<R, TReturn>,
+  ): Operation<ChainableSubscription<R, TReturn>> {
+    let chain = new ChainableSubscription<R, TReturn>(DUMMY);
+
+    return yield resource(chain, function*() {
+      let subscription = yield source;
+      chain.subscription = fn(subscription);
       yield;
     });
   }

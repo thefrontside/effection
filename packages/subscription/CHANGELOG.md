@@ -1,5 +1,11 @@
 # @effection/subscription
 
+## 0.10.0
+
+### Minor Changes
+
+- 5d118ee: Chain via `subscribe` instead of `Subscribable.from` which is now deprecated.
+
 ## 0.9.0
 
 ### Minor Changes

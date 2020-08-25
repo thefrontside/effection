@@ -13,8 +13,8 @@ interface Thing {
   type: string;
 }
 const subscribableWithSymbol = {
-  [SymbolSubscribable](): Operation<Subscription<Thing, number>> {
-    return createSubscription(function*(publish) {
+  *[SymbolSubscribable](): Operation<Subscription<Thing, number>> {
+    return yield createSubscription(function*(publish) {
       publish({name: 'bob', type: 'person' });
       publish({name: 'alice', type: 'person' });
       publish({name: 'world', type: 'planet' });
@@ -34,8 +34,8 @@ function* subscribableAsOperation(): Operation<Subscription<Thing, number>> {
 let emitter = new EventEmitter();
 
 const subscribableWithResource = {
-  [SymbolSubscribable](): Operation<Subscription<[number], void>> {
-    return on(emitter, 'message');
+  *[SymbolSubscribable](): Operation<Subscription<[number], void>> {
+    return yield on(emitter, 'message');
   }
 };
 

@@ -15,7 +15,7 @@ describe('Channel', () => {
 
     beforeEach(async () => {
       channel = new Channel();
-      subscription = await World.spawn(channel.subscribe());
+      subscription = await World.spawn(subscribe(channel));
     });
 
     describe('sending a message', () => {
@@ -88,7 +88,7 @@ describe('Channel', () => {
 
       beforeEach(async () => {
         channel = new Channel();
-        subscription = await World.spawn(channel.subscribe());
+        subscription = await World.spawn(subscribe(channel));
         channel.send('foo');
         channel.close();
       });
@@ -105,7 +105,7 @@ describe('Channel', () => {
 
       beforeEach(async () => {
         channel = new Channel();
-        subscription = await World.spawn(channel.subscribe());
+        subscription = await World.spawn(subscribe(channel));
         channel.send('foo');
         channel.close(12);
       });

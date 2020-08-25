@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.6.6
+
+### Patch Changes
+
+- 6a41f0b: Bump lodash from 4.17.15 to 4.17.19 in /packages/channel
+- Updated dependencies [5d118ee]
+  - @effection/subscription@0.10.0
+  - @effection/events@0.7.7
+
 ## 0.6.5
 
 ### Patch Changes

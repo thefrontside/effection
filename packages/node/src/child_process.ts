@@ -1,22 +1,10 @@
 import { Operation, resource } from 'effection';
 import { once, throwOnErrorEvent } from '@effection/events';
 
-import * as childProcess from 'child_process';
-import { SpawnOptions, ForkOptions, ChildProcess } from 'child_process';
+const execa = require('execa');
+import { Options, NodeOptions, ExecaChildProcess } from 'execa';
 
-export { ChildProcess } from 'child_process';
-
-function *supervise(child: ChildProcess, command: string, args: readonly string[] = []) {
-  // Killing all child processes started by this command is surprisingly
-  // tricky. If a process spawns another processes and we kill the parent,
-  // then the child process is NOT automatically killed. Instead we're using
-  // the `detached` option to force the child into its own process group,
-  // which all of its children in turn will inherit. By sending the signal to
-  // `-pid` rather than `pid`, we are sending it to the entire process group
-  // instead. This will send the signal to all processes started by the child
-  // process.
-  //
-  // More information here: https://unix.stackexchange.com/questions/14815/process-descendants
+function *supervise(child: ExecaChildProcess, command: string, args: readonly string[] = []) {
   try {
     yield throwOnErrorEvent(child);
 
@@ -26,23 +14,26 @@ function *supervise(child: ChildProcess, command: string, args: readonly string[
     }
   } finally {
     try {
-      process.kill(-child.pid, "SIGTERM")
+      // https://github.com/sindresorhus/execa#killsignal-options
+      // Same as the original child_process#kill() except: if signal is SIGTERM (the default value)
+      // and the child process is not terminated after 5 seconds, force it by sending SIGKILL.
+      child.kill("SIGTERM")
     } catch(e) {
       // do nothing, process is probably already dead
     }
   }
 }
 
-export function *spawn(command: string, args?: ReadonlyArray<string>, options?: SpawnOptions): Operation {
-  let child = childProcess.spawn(command, args || [], Object.assign({}, options, {
-    detached: true,
-  }));
+export function *spawn(command: string, args?: ReadonlyArray<string>, options?: Options): Operation {
+  // execa provides sugar on top of child_process.spawn
+  let child = execa(command, args || [], options);
   return yield resource(child, supervise(child, command, args));
 }
 
-export function *fork(module: string, args?: ReadonlyArray<string>, options?: ForkOptions): Operation {
-  let child = childProcess.fork(module, args, Object.assign({}, options, {
-    detached: true,
-  }));
+export function *fork(module: string, args?: ReadonlyArray<string>, options?: NodeOptions): Operation {
+  // execa.node creates a nodejs process, sugar on top of child_process.fork
+  let child = execa.node(module, args, options);
   return yield resource(child, supervise(child, module, args));
 }
+
+export {ExecaChildProcess as ChildProcess}

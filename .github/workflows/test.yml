@@ -3,7 +3,7 @@ name: test
 on: [push, pull_request]
 
 jobs:
-  create-and-upload-assets:
+  test:
     runs-on: ${{ matrix.platform }}
     timeout-minutes: 30
 

@@ -8,7 +8,7 @@ function *supervise(child: ExecaChildProcess, command: string, args: readonly st
   try {
     yield throwOnErrorEvent(child);
 
-    let [code]: [number] = yield once(child, "exit");
+    let {exitCode: code}: {exitCode: number} = yield once(child, "exit");
     if(code !== 0) {
       throw new Error(`'${(command + args.join(' ')).trim()}' exited with non-zero exit code`);
     }
@@ -24,15 +24,20 @@ function *supervise(child: ExecaChildProcess, command: string, args: readonly st
   }
 }
 
+// buffer will wait to resolve the promise until stdio is read, which works well for generators in effection
+// shell and detached will cover random piping errors, and windowsHide:true is the default
+// preferLocal runs node scripts local first
+const EXECA_DEFAULTS = {shell: process.env.shell || true, detached: true, preferLocal: true, buffer: false, stdio: 'inherit'}
+
 export function *spawn(command: string, args?: ReadonlyArray<string>, options?: Options): Operation {
   // execa provides sugar on top of child_process.spawn
-  let child = execa(command, args || [], options);
+  let child = execa(command, args || [], Object.assign({}, options, EXECA_DEFAULTS))
   return yield resource(child, supervise(child, command, args));
 }
 
 export function *fork(module: string, args?: ReadonlyArray<string>, options?: NodeOptions): Operation {
   // execa.node creates a nodejs process, sugar on top of child_process.fork
-  let child = execa.node(module, args, options);
+  let child = execa.node(module, args, Object.assign({}, options, EXECA_DEFAULTS))
   return yield resource(child, supervise(child, module, args));
 }
 

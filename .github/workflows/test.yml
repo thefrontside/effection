@@ -6,6 +6,7 @@ jobs:
   test:
     runs-on: ${{ matrix.platform }}
     timeout-minutes: 30
+    name: all pkgs on ${{ matrix.platform }}
 
     strategy:
       fail-fast: false

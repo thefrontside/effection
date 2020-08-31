@@ -1,20 +1,21 @@
 import * as path from 'path';
 import * as expect from 'expect';
 import { describe, it, beforeEach } from 'mocha';
-import { ChildProcess, spawn as spawnProcess, spawnSync } from 'child_process';
+import { ChildProcess, spawn as spawnProcess } from '../src/child_process';
+import { Operation } from 'effection';
 import { once } from '@effection/events';
 
 import { World, TestStream } from './helpers';
 
 describe('main', () => {
-  let child: ChildProcess;
+  let child: Operation<ChildProcess>;
   let stdout: TestStream;
 
   describe('with sucessful process', () => {
     beforeEach(async () => {
       child = spawnProcess("ts-node", [path.join(__dirname, 'fixtures/text-writer.ts')]);
 
-      if (child.stdout) {
+      if (child?.stdout) {
         stdout = await World.spawn(TestStream.of(child.stdout));
         await World.spawn(stdout.waitFor("started"));
       }
@@ -48,14 +49,14 @@ describe('main', () => {
 
   describe('with failing process', () => {
     it('sets exit code and prints error', async () => {
-      let result = spawnSync("ts-node", [path.join(__dirname, 'fixtures/main-failed.ts')]);
+      let result = await spawnProcess("ts-node", [path.join(__dirname, 'fixtures/main-failed.ts')]);
 
       expect(result.stderr.toString()).toContain('Error: moo');
       expect(result.status).toEqual(255);
     });
 
     it('sets custom exit code and hides error', async () => {
-      let result = spawnSync("ts-node", [path.join(__dirname, 'fixtures/main-failed-custom.ts')]);
+      let result = await spawnProcess("ts-node", [path.join(__dirname, 'fixtures/main-failed-custom.ts')]);
 
       expect(result.stderr.toString()).toContain('It all went horribly wrong');
       expect(result.stderr.toString()).not.toContain('EffectionMainError');

@@ -2,7 +2,7 @@ import { Operation, resource } from 'effection';
 import { once, throwOnErrorEvent } from '@effection/events';
 
 const execa = require('execa');
-import { Options, NodeOptions, ExecaChildProcess } from 'execa';
+import { Options, NodeOptions, ExecaChildProcess, ExecaReturnValue } from 'execa';
 
 function *supervise(child: ExecaChildProcess, command: string, args: readonly string[] = []) {
   try {
@@ -41,4 +41,12 @@ export function *fork(module: string, args?: ReadonlyArray<string>, options?: No
   return yield resource(child, supervise(child, module, args));
 }
 
-export {ExecaChildProcess as ChildProcess}
+export function spawnUnsupervised(command: string, args?: ReadonlyArray<string>, options?: Options): ExecaChildProcess {
+  return execa(command, args || [], Object.assign({}, options, EXECA_DEFAULTS, {buffer: true}))
+}
+
+export function forkUnsupervised(command: string, args?: ReadonlyArray<string>, options?: Options): ExecaChildProcess {
+  return execa.node(command, args, Object.assign({}, options, EXECA_DEFAULTS, {buffer: true}))
+}
+
+export {ExecaChildProcess as ChildProcess, ExecaReturnValue as ChildProcessReturn}

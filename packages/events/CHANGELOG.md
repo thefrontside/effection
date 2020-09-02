@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.7.8
+
+### Patch Changes
+
+- 25b68eb: Subscriptions created via `createSubscription` are chainable on both sides of the yield
+- Updated dependencies [25b68eb]
+  - @effection/subscription@0.11.0
+
 ## 0.7.7
 
 ### Patch Changes

@@ -6,8 +6,8 @@ import { EventEmitter } from 'events';
 export class Channel<T, TClose = undefined> implements Subscribable<T, TClose> {
   private bus = new EventEmitter();
 
-  [SymbolSubscribable](): Operation<Subscription<T, TClose>> {
-    return this.subscribe();
+  *[SymbolSubscribable](): Operation<Subscription<T, TClose>> {
+    return yield this.subscribe();
   }
 
   setMaxListeners(value: number) {
@@ -18,7 +18,7 @@ export class Channel<T, TClose = undefined> implements Subscribable<T, TClose> {
     this.bus.emit('event', { done: false, value: message });
   }
 
-  subscribe(): Operation<Subscription<T, TClose>> {
+  subscribe() {
     let { bus } = this;
     return createSubscription(function*(publish) {
       let subscription = yield on(bus, 'event');

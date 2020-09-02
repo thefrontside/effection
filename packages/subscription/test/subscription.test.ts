@@ -106,4 +106,17 @@ describe('subscriptions', () => {
       expect(await two).toEqual(1);
     });
   });
+
+  describe('when chaining on createSubscription', () => {
+    it('handles the chain', async () => {
+      let doSubscribe = createSubscription<number,void>(function*(publish) {
+        yield timeout(2);
+        publish(12)
+      }).map((value) => value * 2);
+
+      let subscription = await spawn(doSubscribe);
+
+      await expect(spawn(subscription.expect())).resolves.toEqual(24);
+    });
+  });
 });

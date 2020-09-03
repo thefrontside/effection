@@ -11,8 +11,11 @@ import { Operation } from 'effection';
 import { SubscriptionSource } from './subscription-source';
 import { subscribe } from './subscribe';
 
-export function* forEach<T,TReturn>(source: SubscriptionSource<T,TReturn>, visit: (value: T) => Operation<void>): Operation<TReturn> {
-  console.warn('`forEach(source, ...)` is deprecated, use `subscribe(source).forEach(...)` instead');
-  return yield subscribe<T, TReturn>(source).forEach(visit);
-}
+import { deprecated } from './deprecated';
 
+export const forEach = deprecated(
+  '`forEach(source, ...)` is deprecated, use `subscribe(source).forEach(...)` instead',
+  function* forEach<T,TReturn>(source: SubscriptionSource<T,TReturn>, visit: (value: T) => Operation<void>): Operation<TReturn> {
+    return yield subscribe<T, TReturn>(source).forEach(visit);
+  }
+);

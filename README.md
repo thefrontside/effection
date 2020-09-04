@@ -79,8 +79,8 @@ let context = main(function*() {
 
 context.isRunning //=> true
 // 1000ms passes
-// process.isRunning //=> false
-// process.result //=> 'hello world'
+// context.isRunning //=> false
+// context.result //=> 'hello world'
 ```
 
 Child processes can be composed freely. So instead of yielding for

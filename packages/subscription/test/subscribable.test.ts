@@ -14,12 +14,14 @@ describe('subscribable objects', () => {
 
   beforeEach(() => {
     source = {
-      [SymbolSubscribable]: () => createSubscription(function*(publish) {
-        publish({name: 'bob', type: 'person' });
-        publish({name: 'alice', type: 'person' });
-        publish({name: 'world', type: 'planet' });
-        return 3;
-      })
+      *[SymbolSubscribable]() {
+        return yield createSubscription(function*(publish) {
+          publish({name: 'bob', type: 'person' });
+          publish({name: 'alice', type: 'person' });
+          publish({name: 'world', type: 'planet' });
+          return 3;
+        })
+      }
     }
   });
 

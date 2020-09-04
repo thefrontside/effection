@@ -1,4 +1,5 @@
-export { Subscription, createSubscription } from './subscription';
+export { Subscription } from './subscription';
+export { createSubscription } from './create-subscription';
 export { SymbolSubscribable } from './symbol-subscribable';
 export { Subscribable } from './subscribable';
 export { SubscriptionSource } from './subscription-source';

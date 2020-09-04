@@ -1,5 +1,11 @@
 # @effection/subscription
 
+## 0.11.0
+
+### Minor Changes
+
+- 25b68eb: Subscriptions created via `createSubscription` are chainable on both sides of the yield
+
 ## 0.10.0
 
 ### Minor Changes

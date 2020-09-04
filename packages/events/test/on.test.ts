@@ -83,4 +83,25 @@ describe("on", () => {
       });
     });
   });
+
+  describe('chaining', () => {
+    let emitter: EventEmitter;
+    let subscription: Subscription<number, void>;
+
+    beforeEach(async () => {
+      emitter = new EventEmitter();
+      subscription = await World.spawn(on(emitter, "thing").map(([value]) => (value as number) * 2));
+    });
+
+    describe('emitting an event', () => {
+      beforeEach(() => {
+        emitter.emit("thing", 12);
+      });
+
+      it('receives event', async () => {
+        let { value } = await World.spawn(subscription.next());
+        expect(value).toEqual(24);
+      });
+    });
+  });
 });

@@ -10,17 +10,17 @@ describe('main', () => {
   let child: ChildProcess | any;
   let stdout: TestStream;
 
-  describe('with successful process', () => {
+  describe('with sucessful process', () => {
     beforeEach(async () => {
       child = spawnProcess("ts-node", [path.join(__dirname, 'fixtures/text-writer.ts')]);
 
-      if (child?.stdout) {
+      if (child.stdout) {
         stdout = await World.spawn(TestStream.of(child.stdout));
         await World.spawn(stdout.waitFor("started"));
       }
     });
     afterEach(() => {
-      child?.kill('SIGKILL');
+      child.kill('SIGKILL');
     })
 
     describe('sending SIGINT', () => {
@@ -47,15 +47,15 @@ describe('main', () => {
   });
 
   describe('with failing process', () => {
-    it('sets exit code and prints error', async () => {
-      let result = await spawnProcess("ts-node", [path.join(__dirname, 'fixtures/main-failed.ts')]);
+    it('sets exit code and prints error', function* () {
+      let result = yield spawnProcess("ts-node", [path.join(__dirname, 'fixtures/main-failed.ts')]);
 
       expect(result.stderr).toContain('Error: moo');
       expect(result.status).toEqual(255);
     });
 
-    it('sets custom exit code and hides error', async () => {
-      let result = await spawnProcess("ts-node", [path.join(__dirname, 'fixtures/main-failed-custom.ts')]);
+    it('sets custom exit code and hides error', function* () {
+      let result = yield spawnProcess("ts-node", [path.join(__dirname, 'fixtures/main-failed-custom.ts')]);
 
       expect(result.stderr).toContain('It all went horribly wrong');
       expect(result.stderr).not.toContain('EffectionMainError');

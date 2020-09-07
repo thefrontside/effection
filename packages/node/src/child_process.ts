@@ -1,43 +1,52 @@
 import { Operation, resource } from 'effection';
+import { once, throwOnErrorEvent } from '@effection/events';
 
-import * as ExecaProcess from 'execa'
-const execa = require('execa');
+import * as childProcessCross from 'cross-spawn';
+import * as childProcess from 'child_process'
+import { SpawnOptions, ForkOptions, ChildProcess } from 'child_process';
 
-// buffer will wait to resolve the promise until stdio is read, which works well for generators in effection
-// shell and detached will cover random piping errors, and windowsHide:true is the default
-// preferLocal runs node scripts local first
-const EXECA_DEFAULTS = {shell: process.env.shell || true, detached: true, preferLocal: true, buffer: false, stdio: 'inherit'}
+export { ChildProcess } from 'child_process';
 
-export function *spawn(command: string, args?: ReadonlyArray<string>, options?: ExecaProcess.Options): Operation<ExecaProcess.ExecaReturnValue> {
-  // execa provides sugar on top of child_process.spawn
-  let child = execa(command, args || [], Object.assign({}, options, EXECA_DEFAULTS))
-  return yield resource(child, function*() {
-    try {
-      yield child;
-    } finally {
-      child.cancel();
+function *supervise(child: ChildProcess, command: string, args: readonly string[] = []) {
+  // Killing all child processes started by this command is surprisingly
+  // tricky. If a process spawns another processes and we kill the parent,
+  // then the child process is NOT automatically killed. Instead we're using
+  // the `detached` option to force the child into its own process group,
+  // which all of its children in turn will inherit. By sending the signal to
+  // `-pid` rather than `pid`, we are sending it to the entire process group
+  // instead. This will send the signal to all processes started by the child
+  // process.
+  //
+  // More information here: https://unix.stackexchange.com/questions/14815/process-descendants
+  try {
+    yield throwOnErrorEvent(child);
+
+    let [code]: [number] = yield once(child, "exit");
+    if(code !== 0) {
+      throw new Error(`'${(command + args.join(' ')).trim()}' exited with non-zero exit code`);
     }
-  });
+  } finally {
+    try {
+      process.kill(-child.pid, "SIGTERM")
+      setTimeout(() => process.kill(-child.pid, "SIGKILL"), 5000)
+    } catch(e) {
+      // do nothing, process is probably already dead
+    }
+  }
 }
 
-export function *fork(module: string, args?: ReadonlyArray<string>, options?: ExecaProcess.NodeOptions): Operation<ExecaProcess.ExecaReturnValue> {
-  // execa.node creates a nodejs process, sugar on top of child_process.fork
-  let child = execa.node(module, args, Object.assign({}, options, EXECA_DEFAULTS))
-  return yield resource(child, function*() {
-    try {
-      yield child;
-    } finally {
-      child.cancel();
-    }
-  });
+// using the shell that invokes will also hide the window on windows
+const PROCESS_DEFAULTS = {
+  shell: process.env.shell || true,
+  stdio: "inherit"
 }
 
-// export function *spawnUnsupervised(command: string, args?: ReadonlyArray<string>, options?: execa.Options): Generator<execa.ExecaReturnValue> {
-//   return yield execa(command, args || [], Object.assign({}, options, EXECA_DEFAULTS, {buffer: true}))
-// }
+export function *spawn(command: string, args?: ReadonlyArray<string>, options?: SpawnOptions): Operation {
+  let child = childProcessCross.spawn(command, args || [], Object.assign({}, options, PROCESS_DEFAULTS));
+  return yield resource(child, supervise(child, command, args));
+}
 
-// export function *forkUnsupervised(command: string, args?: ReadonlyArray<string>, options?: execa.Options): Generator<execa.ExecaReturnValue> {
-//   return yield execa.node(command, args, Object.assign({}, options, EXECA_DEFAULTS, {buffer: true}))
-// }
-
-export { ExecaProcess }
+export function *fork(module: string, args?: ReadonlyArray<string>, options?: ForkOptions): Operation {
+  let child = childProcess.fork(module, args, Object.assign({}, options, PROCESS_DEFAULTS));
+  return yield resource(child, supervise(child, module, args));
+}

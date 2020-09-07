@@ -6,11 +6,11 @@ import { on } from '@effection/events';
 
 import { World, TestStream } from './helpers';
 
-import { spawn as spawnProcess, fork as forkProcess, ExecaProcess } from '../src/child_process';
+import { spawn as spawnProcess, fork as forkProcess, ChildProcess } from '../src/child_process';
 
 describe('child_process', () => {
   describe('spawnProcess', () => {
-    let child: ExecaProcess.ExecaReturnValue;
+    let child: ChildProcess;
 
     beforeEach(async () => {
       child = await World.spawn(spawnProcess('node', ['./fixtures/echo-server.js'], {
@@ -24,6 +24,10 @@ describe('child_process', () => {
       }
     });
 
+    afterEach(async () => {
+      child.kill("SIGTERM")
+    })
+
     it('starts the given child', async () => {
       let result = await fetch('http://localhost:29000', { method: "POST", body: "hello" });
       let text = await result.text();
@@ -34,11 +38,11 @@ describe('child_process', () => {
   });
 
   describe('forkProcess', () => {
-    let child: ExecaProcess.ExecaReturnValue;
+    let child: ChildProcess;
 
     beforeEach(async () => {
       child = await World.spawn(forkProcess('./fixtures/echo-server.js', [], {
-        env: { PORT: '29000' },
+        env: { PORT: '29001' },
         cwd: __dirname,
       }));
       let output;
@@ -48,8 +52,12 @@ describe('child_process', () => {
       }
     });
 
+    afterEach(async () => {
+      child.kill("SIGTERM")
+    })
+
     it('starts the given child', async () => {
-      let result = await fetch('http://localhost:29000', { method: "POST", body: "hello" });
+      let result = await fetch('http://localhost:29001', { method: "POST", body: "hello" });
       let text = await result.text();
 
       expect(result.status).toEqual(200);

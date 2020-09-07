@@ -6,11 +6,11 @@ import { on } from '@effection/events';
 
 import { World, TestStream } from './helpers';
 
-import { spawn as spawnProcess, fork as forkProcess, ChildProcess } from '../src/child_process';
+import { spawn as spawnProcess, fork as forkProcess, ExecaProcess } from '../src/child_process';
 
 describe('child_process', () => {
   describe('spawnProcess', () => {
-    let child: ChildProcess;
+    let child: ExecaProcess.ExecaReturnValue;
 
     beforeEach(async () => {
       child = await World.spawn(spawnProcess('node', ['./fixtures/echo-server.js'], {
@@ -34,7 +34,7 @@ describe('child_process', () => {
   });
 
   describe('forkProcess', () => {
-    let child: ChildProcess;
+    let child: ExecaProcess.ExecaReturnValue;
 
     beforeEach(async () => {
       child = await World.spawn(forkProcess('./fixtures/echo-server.js', [], {

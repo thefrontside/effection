@@ -44,8 +44,8 @@ function* supervise(
 // using the shell that invokes will also hide the window on windows
 const PROCESS_DEFAULTS = {
   shell: process.env.shell || true,
-  detached: true,
-  stdio: "pipe",
+  stdio: 'pipe',
+  timeout: 20 * 60 * 1000
 };
 
 export function* spawn(

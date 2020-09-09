@@ -65,11 +65,16 @@ export function spawnProcess(
   args?: ReadonlyArray<string>,
   options?: SpawnOptions
 ): ChildProcess {
-  return childProcessCross.spawn(
+  const spawned = childProcessCross.spawn(
     command,
     args || [],
     Object.assign({}, options, PROCESS_DEFAULTS)
   );
+  spawned.on('SIGINT', () => forceShutDown(spawned, 5000));
+  spawned.on('SIGTERM', () => forceShutDown(spawned, 5000));
+  // force after 5 minutes regardless
+  forceShutDown(spawned, 5 * 60 * 1000);
+  return spawned
 }
 
 export function* fork(
@@ -83,4 +88,11 @@ export function* fork(
     Object.assign({}, options, PROCESS_DEFAULTS)
   );
   return yield resource(child, supervise(child, module, args));
+}
+
+function forceShutDown(child: ChildProcess, timeout: number){
+  setTimeout(() => {
+    console.error(`forcing process shutdown of ${child.pid}\n`, child)
+    child.kill("SIGKILL")
+  }, timeout);
 }

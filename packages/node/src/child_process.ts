@@ -71,6 +71,7 @@ export function spawnProcess(
     args || [],
     Object.assign({}, options, PROCESS_DEFAULTS)
   );
+  spawned.unref()
   spawned.on('SIGINT', () => forceShutDown(spawned, 'SIGINT', 5000));
   spawned.on('SIGTERM', () => forceShutDown(spawned, 'SIGTERM', 5000));
   // force after 5 minutes regardless

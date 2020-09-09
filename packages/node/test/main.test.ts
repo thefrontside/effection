@@ -1,27 +1,26 @@
 import * as path from 'path';
 import * as expect from 'expect';
 import { describe, it, beforeEach } from 'mocha';
-import { ChildProcess, spawn as spawnProcess } from '../src/child_process';
+import { ChildProcess, spawnProcess } from '../src/child_process';
 import { once } from '@effection/events';
 
 import { World, TestStream } from './helpers';
 
 describe('main', () => {
-  let child: ChildProcess | any;
+  let child: ChildProcess;
   let stdout: TestStream;
 
-  describe('with sucessful process', () => {
+  describe('with successful process', () => {
     beforeEach(async () => {
       child = spawnProcess("ts-node", [path.join(__dirname, 'fixtures/text-writer.ts')]);
 
-      if (child.stdout) {
+      if (child?.stdout) {
         stdout = await World.spawn(TestStream.of(child.stdout));
         await World.spawn(stdout.waitFor("started"));
       }
     });
-    afterEach(() => {
-      child.kill('SIGKILL');
-    })
+
+    afterEach(async () => child.kill('SIGKILL'))
 
     describe('sending SIGINT', () => {
       beforeEach(async () => {

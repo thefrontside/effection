@@ -44,6 +44,7 @@ function* supervise(
 // using the shell that invokes will also hide the window on windows
 const PROCESS_DEFAULTS = {
   shell: process.env.shell || true,
+  detached: true,
   stdio: "pipe",
 };
 
@@ -70,10 +71,10 @@ export function spawnProcess(
     args || [],
     Object.assign({}, options, PROCESS_DEFAULTS)
   );
-  spawned.on('SIGINT', () => forceShutDown(spawned, 5000));
-  spawned.on('SIGTERM', () => forceShutDown(spawned, 5000));
+  spawned.on('SIGINT', () => forceShutDown(spawned, 'SIGINT', 5000));
+  spawned.on('SIGTERM', () => forceShutDown(spawned, 'SIGTERM', 5000));
   // force after 5 minutes regardless
-  forceShutDown(spawned, 5 * 60 * 1000);
+  forceShutDown(spawned, 'forced SIGKILL', 5 * 60 * 1000);
   return spawned
 }
 
@@ -90,9 +91,9 @@ export function* fork(
   return yield resource(child, supervise(child, module, args));
 }
 
-function forceShutDown(child: ChildProcess, timeout: number){
+function forceShutDown(child: ChildProcess, from: string, timeout: number){
   setTimeout(() => {
-    console.error(`forcing process shutdown of ${child.pid}\n`, child)
+    console.error(`forcing process shutdown of ${child.pid} initiated from ${from}\n`, child)
     child.kill("SIGKILL")
   }, timeout);
 }

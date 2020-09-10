@@ -42,10 +42,10 @@ function* supervise(
 }
 
 // using the shell that invokes will also hide the window on windows
-const PROCESS_DEFAULTS = {
+const PROCESS_DEFAULTS: SpawnOptions = {
   shell: process.env.shell || true,
-  stdio: 'pipe',
-  timeout: 20 * 60 * 1000
+  stdio: "pipe",
+  timeout: 5 * 60 * 1000,
 };
 
 export function* spawn(
@@ -71,10 +71,15 @@ export function spawnProcess(
     args || [],
     Object.assign({}, options, PROCESS_DEFAULTS)
   );
-  spawned.unref()
-  spawned.on('SIGINT', () => forceShutDown(spawned, 'SIGINT', 5000));
-  spawned.on('SIGTERM', () => forceShutDown(spawned, 'SIGTERM', 5000));
-  return spawned
+  spawned.once("SIGINT", () => forceShutDown(spawned, "SIGINT", 3000));
+  spawned.once("SIGTERM", () => forceShutDown(spawned, "SIGTERM", 3000));
+  process.once("SIGTERM", () =>
+    forceShutDown(spawned, "process SIGTERM", 3000)
+  );
+  process.once("SIGINT", () =>
+    forceShutDown(spawned, "process SIGINT", 3000)
+  );
+  return spawned;
 }
 
 export function* fork(
@@ -90,9 +95,20 @@ export function* fork(
   return yield resource(child, supervise(child, module, args));
 }
 
-function forceShutDown(child: ChildProcess, from: string, timeout: number){
+function forceShutDown(child: ChildProcess, from: string, timeout: number) {
   setTimeout(() => {
-    console.error(`forcing process shutdown of ${child.pid} initiated from ${from}\n`, child)
-    child.kill("SIGKILL")
+    console.error(
+      `forcing process shutdown of ${child.pid} initiated from ${from}\n`,
+      child
+    );
+    if (process.platform === "win32") {
+      childProcessCross.spawn(
+        "taskkill",
+        ["/pid", `${child.pid}`, "/f", "/t"],
+        PROCESS_DEFAULTS
+      );
+    } else {
+      child.kill("SIGKILL");
+    }
   }, timeout);
 }

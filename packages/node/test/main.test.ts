@@ -20,8 +20,6 @@ describe('main', () => {
       }
     });
 
-    afterEach(async () => child.kill('SIGKILL'))
-
     describe('sending SIGINT', () => {
       beforeEach(async () => {
         setTimeout(() => child.kill('SIGINT'), 10);

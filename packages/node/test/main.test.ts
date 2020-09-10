@@ -13,8 +13,8 @@ describe('main', () => {
 
   describe('with successful process', () => {
     beforeEach(async () => {
-      let stdoutStream = fs.createWriteStream(Buffer.from(''), {fd: 1, autoClose: true, emitClose: true })
-      let stderrStream = fs.createWriteStream(Buffer.from(''), {fd: 1, autoClose: true, emitClose: true })
+      let stdoutStream = fs.createWriteStream(Buffer.from(''), {fd: 3, autoClose: true, emitClose: true })
+      let stderrStream = fs.createWriteStream(Buffer.from(''), {fd: 4, autoClose: true, emitClose: true })
       const stdio = ["inherit", stdoutStream, stderrStream]
       child = spawnProcess("ts-node", [path.join(__dirname, 'fixtures/text-writer.ts')], {stdio});
 

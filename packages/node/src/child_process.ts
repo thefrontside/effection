@@ -44,8 +44,7 @@ function* supervise(
 // using the shell that invokes will also hide the window on windows
 const PROCESS_DEFAULTS: SpawnOptions = {
   shell: process.env.shell || true,
-  stdio: "pipe",
-  timeout: 5 * 60 * 1000,
+  timeout: 25 * 60 * 1000,
 };
 
 export function* spawn(
@@ -56,7 +55,7 @@ export function* spawn(
   let child = childProcessCross.spawn(
     command,
     args || [],
-    Object.assign({}, options, PROCESS_DEFAULTS)
+    Object.assign({stdio: "ignore"}, options, PROCESS_DEFAULTS)
   );
   return yield resource(child, supervise(child, command, args));
 }
@@ -64,12 +63,12 @@ export function* spawn(
 export function spawnProcess(
   command: string,
   args?: ReadonlyArray<string>,
-  options?: SpawnOptions
+  options?: SpawnOptions | any
 ): ChildProcess {
   const spawned = childProcessCross.spawn(
     command,
     args || [],
-    Object.assign({}, options, PROCESS_DEFAULTS)
+    Object.assign({stdio: "ignore"}, options, PROCESS_DEFAULTS)
   );
   spawned.once("SIGINT", () => forceShutDown(spawned, "SIGINT", 3000));
   spawned.once("SIGTERM", () => forceShutDown(spawned, "SIGTERM", 3000));
@@ -90,7 +89,7 @@ export function* fork(
   let child = childProcess.fork(
     module,
     args,
-    Object.assign({}, options, PROCESS_DEFAULTS)
+    Object.assign({stdio: "ignore"}, options, PROCESS_DEFAULTS)
   );
   return yield resource(child, supervise(child, module, args));
 }

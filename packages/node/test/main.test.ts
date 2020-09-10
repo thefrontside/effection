@@ -1,4 +1,5 @@
 import * as path from 'path';
+import * as fs from 'fs'
 import * as expect from 'expect';
 import { describe, it, beforeEach } from 'mocha';
 import { ChildProcess, spawnProcess } from '../src/child_process';
@@ -12,7 +13,10 @@ describe('main', () => {
 
   describe('with successful process', () => {
     beforeEach(async () => {
-      child = spawnProcess("ts-node", [path.join(__dirname, 'fixtures/text-writer.ts')]);
+      let stdoutStream = fs.createWriteStream(Buffer.from(''), {fd: 1, autoClose: true, emitClose: true })
+      let stderrStream = fs.createWriteStream(Buffer.from(''), {fd: 1, autoClose: true, emitClose: true })
+      const stdio = ["inherit", stdoutStream, stderrStream]
+      child = spawnProcess("ts-node", [path.join(__dirname, 'fixtures/text-writer.ts')], {stdio});
 
       if (child?.stdout) {
         stdout = await World.spawn(TestStream.of(child.stdout));

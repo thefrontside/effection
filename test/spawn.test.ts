@@ -2,10 +2,22 @@ import { describe, beforeEach, it } from 'mocha';
 import * as expect from 'expect';
 
 import { run, Task } from '../src/index';
+import { Deferred } from '../src/deferred';
 
 process.on('unhandledRejection', (reason, promise) => {
   // silence warnings in tests
 });
+
+function* sleep(ms: number) {
+  let timeout;
+  let deferred = Deferred();
+  try {
+    timeout = setTimeout(deferred.resolve, ms);
+    yield deferred.promise;
+  } finally {
+    timeout && clearTimeout(timeout);
+  }
+};
 
 describe('spawn', () => {
   it('can spawn a new child task', async () => {
@@ -20,10 +32,11 @@ describe('spawn', () => {
       return yield child;
     });
     await expect(root).resolves.toEqual(67);
+    expect(root.state).toEqual('completed');
   });
 
   it('halts child when halted', async () => {
-    let child;
+    let child: Task<void> | undefined;
     let root = run(function*(context: Task<unknown>) {
       child = context.spawn(function*() {
         yield;
@@ -35,10 +48,12 @@ describe('spawn', () => {
     await root.halt();
 
     await expect(child).rejects.toHaveProperty('message', 'halted')
+    expect(root.state).toEqual('halted');
+    expect(child && child.state).toEqual('halted');
   });
 
   it('halts child when finishing normally', async () => {
-    let child;
+    let child: Task<void> | undefined;
     let root = run(function*(context: Task<unknown>) {
       child = context.spawn(function*() {
         yield;
@@ -49,6 +64,8 @@ describe('spawn', () => {
 
     await expect(root).resolves.toEqual(1);
     await expect(child).rejects.toHaveProperty('message', 'halted')
+    expect(root.state).toEqual('completed');
+    expect(child && child.state).toEqual('halted');
   });
 
   it('halts child when errored', async () => {
@@ -63,5 +80,40 @@ describe('spawn', () => {
 
     await expect(root).rejects.toHaveProperty('message', 'boom');
     await expect(child).rejects.toHaveProperty('message', 'halted');
+  });
+
+  it('rejects parent when child errors', async () => {
+    let child;
+    let error = new Error("moo");
+    let root = run(function*(context: Task<unknown>) {
+      child = context.spawn(function*() {
+        throw error;
+      });
+
+      yield;
+    });
+
+    await expect(child).rejects.toEqual(error);
+    await expect(root).rejects.toEqual(error);
+  });
+
+  it('throws an error when called after controller finishes', async () => {
+    let child;
+    let error = new Error("moo");
+    let root = run(function*(context: Task<unknown>) {
+      child = context.spawn(function*() {
+        try {
+          yield sleep(1);
+        } finally {
+          yield sleep(100);
+        }
+      });
+
+      yield sleep(10);
+    });
+
+    await run(sleep(20));
+
+    expect(() => root.spawn()).toThrowError('cannot spawn a child on a task which is not running');
   });
 });

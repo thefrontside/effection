@@ -1,7 +1,8 @@
 {
   "extends": "./tsconfig",
   "compilerOptions": {
-    "module": "esnext"
+    "module": "esnext",
+    "esModuleInterop": true
   },
   "exclude": ["./test/*"]
 }

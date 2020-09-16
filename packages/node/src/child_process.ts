@@ -1,6 +1,9 @@
 import { Operation, resource } from "effection";
 import { once, throwOnErrorEvent } from "@effection/events";
 
+import * as npmRunPath from "npm-run-path";
+import * as TreeKill from "tree-kill";
+const treeKill: any = TreeKill;
 import * as childProcessCross from "cross-spawn";
 import * as childProcess from "child_process";
 import { SpawnOptions, ForkOptions, ChildProcess } from "child_process";
@@ -32,9 +35,12 @@ function* supervise(
       );
     }
   } finally {
+    // @ts-ignore
+    child?.stdout?.end();
+    // @ts-ignore
+    child?.stderr?.end();
     try {
-      process.kill(-child.pid, "SIGTERM");
-      setTimeout(() => child.kill("SIGKILL"), 5000);
+      treeKill(child.pid)
     } catch (e) {
       // do nothing, process is probably already dead
     }
@@ -42,9 +48,27 @@ function* supervise(
 }
 
 // using the shell that invokes will also hide the window on windows
-const PROCESS_DEFAULTS: SpawnOptions = {
-  shell: process.env.shell || true,
-  timeout: 25 * 60 * 1000,
+const withDefaults = (options: SpawnOptions | undefined): SpawnOptions => {
+  return {
+  shell: process.platform !== 'win32' ? process.env.shell || true : true,
+  stdio: "pipe",
+  // detached: false,
+  // if we use true than it opens a window in windows+powershell
+  // mac and linux don't need it either
+  env: npmRunPath.env({
+    env: Object.assign({}, process.env, options?.env),
+    cwd: options?.cwd || process.cwd(),
+    execPath: process.execPath,
+  })}
+};
+
+const c = (command: string) => {
+  if (process.platform !== 'win32') return command
+  if (command === 'npm' || command === 'yarn') {
+    return `${command}.cmd`
+  } else {
+    return command
+  }
 };
 
 export function* spawn(
@@ -53,31 +77,34 @@ export function* spawn(
   options?: SpawnOptions
 ): Operation {
   let child = childProcessCross.spawn(
-    command,
+    c(command),
     args || [],
-    Object.assign({stdio: "ignore"}, options, PROCESS_DEFAULTS)
+    withDefaults(options)
   );
+  child?.stdin?.end();
   return yield resource(child, supervise(child, command, args));
 }
 
 export function spawnProcess(
   command: string,
   args?: ReadonlyArray<string>,
-  options?: SpawnOptions | any
+  options?: SpawnOptions
 ): ChildProcess {
   const spawned = childProcessCross.spawn(
-    command,
+    c(command),
     args || [],
-    Object.assign({stdio: "ignore"}, options, PROCESS_DEFAULTS)
+    withDefaults(options)
   );
-  spawned.once("SIGINT", () => forceShutDown(spawned, "SIGINT", 3000));
-  spawned.once("SIGTERM", () => forceShutDown(spawned, "SIGTERM", 3000));
-  process.once("SIGTERM", () =>
-    forceShutDown(spawned, "process SIGTERM", 3000)
-  );
-  process.once("SIGINT", () =>
-    forceShutDown(spawned, "process SIGINT", 3000)
-  );
+  spawned?.stdin?.end();
+
+  spawned.once("exit", () => {
+    // @ts-ignore
+    spawned?.stdout?.end();
+    // @ts-ignore
+    spawned?.stderr?.end();
+    treeKill(spawned.pid)
+  });
+
   return spawned;
 }
 
@@ -89,25 +116,9 @@ export function* fork(
   let child = childProcess.fork(
     module,
     args,
-    Object.assign({stdio: "ignore"}, options, PROCESS_DEFAULTS)
+    withDefaults(options)
   );
+  child?.stdin?.end();
+  child.unref();
   return yield resource(child, supervise(child, module, args));
-}
-
-function forceShutDown(child: ChildProcess, from: string, timeout: number) {
-  setTimeout(() => {
-    console.error(
-      `forcing process shutdown of ${child.pid} initiated from ${from}\n`,
-      child
-    );
-    if (process.platform === "win32") {
-      childProcessCross.spawn(
-        "taskkill",
-        ["/pid", `${child.pid}`, "/f", "/t"],
-        PROCESS_DEFAULTS
-      );
-    } else {
-      child.kill("SIGKILL");
-    }
-  }, timeout);
 }

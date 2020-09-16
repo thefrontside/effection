@@ -14,11 +14,12 @@
   ],
   "scripts": {
     "lint": "eslint '{src,tests}/**/*.ts'",
-    "test": "mocha -r ts-node/register --timeout 10000 test/**/*.test.ts",
+    "test": "mocha -r ts-node/register --timeout 5000 test/**/*.test.ts",
     "prepack": "tsdx build --target node --format cjs --tsconfig tsconfig.dist.json",
     "mocha": "mocha -r ts-node/register"
   },
   "devDependencies": {
+    "@effection/events": "^0.7.7",
     "@frontside/tsconfig": "0.0.1",
     "@types/cross-spawn": "^6.0.2",
     "@types/node": "^13.13.2",
@@ -33,7 +34,9 @@
   "dependencies": {
     "@effection/events": "^0.7.7",
     "cross-spawn": "^7.0.3",
-    "effection": "^0.7.0"
+    "effection": "^0.7.0",
+    "npm-run-path": "^4.0.1",
+    "tree-kill": "^1.2.2"
   },
   "volta": {
     "node": "12.16.0",

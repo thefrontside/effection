@@ -52,7 +52,7 @@ const withDefaults = (options: SpawnOptions | undefined): SpawnOptions => {
   return {
   shell: process.platform !== 'win32' ? process.env.shell || true : true,
   stdio: "pipe",
-  // detached: false,
+  detached: process.platform === 'win32' ? false : true,
   // if we use true than it opens a window in windows+powershell
   // mac and linux don't need it either
   env: npmRunPath.env({

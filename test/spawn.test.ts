@@ -97,6 +97,20 @@ describe('spawn', () => {
     await expect(root).rejects.toEqual(error);
   });
 
+  it('finishes normally when child halts', async () => {
+    let child;
+    let error = new Error("moo");
+    let root = run(function*(context: Task<string>) {
+      child = context.spawn();
+      yield child.halt();
+
+      return "foo";
+    });
+
+    await expect(child).rejects.toHaveProperty('message', 'halted');
+    await expect(root).resolves.toEqual("foo");
+  });
+
   it('throws an error when called after controller finishes', async () => {
     let child;
     let error = new Error("moo");

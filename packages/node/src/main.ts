@@ -17,7 +17,7 @@ export class MainError extends Error {
 export function main<T>(operation: Operation<T>): Context<T> {
   return effectionMain(({ context: mainContext, spawn }) => {
     spawn(function* main() {
-      let interrupt = () => { mainContext.halt(); process.exit(); };
+      let interrupt = () => { mainContext.halt(); };
       let debug = () => console.debug(mainContext.toString());
       try {
         process.on('SIGINT', interrupt);

@@ -27,7 +27,6 @@ function* supervise(
   // More information here: https://unix.stackexchange.com/questions/14815/process-descendants
   try {
     yield throwOnErrorEvent(child);
-
     let [code]: [number] = yield once(child, "exit");
     if (code !== 0) {
       throw new Error(
@@ -39,20 +38,23 @@ function* supervise(
     child?.stdout?.end();
     // @ts-ignore
     child?.stderr?.end();
-    try {
-      treeKill(child.pid)
-    } catch (e) {
-      // do nothing, process is probably already dead
-    }
+    treeKill(child.pid, "SIGTERM", (err: Error) =>
+      console.error(`tree-kill of process ${child.pid} failed.`, err)
+    );
   }
 }
 
 // using the shell that invokes will also hide the window on windows
 const withDefaults = (options: SpawnOptions | undefined): SpawnOptions => {
   return {
-    ...(process.platform === 'win32' ? {} : {shell: true}),
+    // when windows shell is true, it runs with cmd.exe by default
+    // node has trouble with PATHEXT and exe
+    // `cross-spawn` handles running it with the shell in windows if needed
+    ...(process.platform === "win32" ? {} : { shell: true }),
     stdio: "pipe",
-    detached: process.platform === 'win32' ? false : true,
+    // we lose exit information and events if this is
+    // detached in windows
+    detached: process.platform === "win32" ? false : true,
     cwd: options?.cwd || process.cwd(),
     // if we use true than it opens a window in windows+powershell
     // mac and linux don't need it either
@@ -60,16 +62,16 @@ const withDefaults = (options: SpawnOptions | undefined): SpawnOptions => {
       env: Object.assign({}, process.env, options?.env),
       cwd: options?.cwd || process.cwd(),
       execPath: process.execPath,
-    })
-  }
+    }),
+  };
 };
 
 const c = (command: string) => {
-  if (process.platform !== 'win32') return command
-  if (command === 'npm' || command === 'yarn') {
-    return `${command}.cmd`
+  if (process.platform !== "win32") return command;
+  if (command === "npm" || command === "yarn") {
+    return `${command}.cmd`;
   } else {
-    return command
+    return command;
   }
 };
 
@@ -104,7 +106,7 @@ export function spawnProcess(
     spawned?.stdout?.end();
     // @ts-ignore
     spawned?.stderr?.end();
-    treeKill(spawned.pid)
+    treeKill(spawned.pid, "SIGTERM");
   });
 
   return spawned;
@@ -115,11 +117,7 @@ export function* fork(
   args?: ReadonlyArray<string>,
   options?: ForkOptions
 ): Operation {
-  let child = childProcess.fork(
-    module,
-    args,
-    withDefaults(options)
-  );
+  let child = childProcess.fork(module, args, withDefaults(options));
   child?.stdin?.end();
   return yield resource(child, supervise(child, module, args));
 }

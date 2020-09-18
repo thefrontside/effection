@@ -21,7 +21,7 @@ function* sleep(ms: number) {
 
 describe('spawn', () => {
   it('can spawn a new child task', async () => {
-    let root = run(function*(context: Task<unknown>) {
+    let root = run(function*(context: Task) {
       let child = context.spawn(function*() {
         let one: number = yield Promise.resolve(12);
         let two: number = yield Promise.resolve(55);
@@ -37,7 +37,7 @@ describe('spawn', () => {
 
   it('halts child when halted', async () => {
     let child: Task<void> | undefined;
-    let root = run(function*(context: Task<unknown>) {
+    let root = run(function*(context: Task) {
       child = context.spawn(function*() {
         yield;
       });
@@ -54,7 +54,7 @@ describe('spawn', () => {
 
   it('halts child when finishing normally', async () => {
     let child: Task<void> | undefined;
-    let root = run(function*(context: Task<unknown>) {
+    let root = run(function*(context: Task) {
       child = context.spawn(function*() {
         yield;
       });
@@ -70,7 +70,7 @@ describe('spawn', () => {
 
   it('halts child when errored', async () => {
     let child;
-    let root = run(function*(context: Task<unknown>) {
+    let root = run(function*(context: Task) {
       child = context.spawn(function*() {
         yield;
       });
@@ -85,7 +85,7 @@ describe('spawn', () => {
   it('rejects parent when child errors', async () => {
     let child;
     let error = new Error("moo");
-    let root = run(function*(context: Task<unknown>) {
+    let root = run(function*(context: Task) {
       child = context.spawn(function*() {
         throw error;
       });
@@ -151,7 +151,7 @@ describe('spawn', () => {
 
   it('throws an error when called after controller finishes', async () => {
     let child;
-    let root = run(function*(context: Task<unknown>) {
+    let root = run(function*(context: Task) {
       child = context.spawn(function*() {
         try {
           yield sleep(1);

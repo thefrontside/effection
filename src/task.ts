@@ -15,7 +15,11 @@ function isGenerator(value: any): value is Iterator<unknown> {
 
 type TaskState = 'running' | 'halting' | 'halted' | 'erroring' | 'errored' | 'completing' | 'completed';
 
+let COUNTER = 0;
+
 export class Task<TOut> implements PromiseLike<TOut> {
+  public id = ++COUNTER;
+
   private children: Set<Task<unknown>> = new Set();
   private signal: Deferred<never> = Deferred();
 

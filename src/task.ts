@@ -62,9 +62,15 @@ export class Task<TOut> implements PromiseLike<TOut> {
     } catch(error) {
       if(isHaltError(error)) {
         this.state = 'halting';
-        await this.haltChildren();
-        this.state = 'halted';
-        this.parent && this.parent.trapHalt(this as Task<unknown>);
+        try {
+          await this.haltChildren();
+          this.state = 'halted';
+          this.parent && this.parent.trapHalt(this as Task<unknown>);
+        } catch(error) {
+          this.state = 'errored';
+          this.parent && this.parent.trapError(this as Task<unknown>, error);
+          throw(error);
+        }
         throw(error);
       } else {
         this.state = 'erroring';

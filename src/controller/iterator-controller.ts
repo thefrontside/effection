@@ -32,7 +32,7 @@ export class IteratorController<TOut> implements Controller<TOut> {
           return next.value;
         }
       } else {
-        let subTask: Task<unknown> = new Task(next.value);
+        let subTask = new Task(next.value);
         let result: unknown | Symbol;
 
         try {

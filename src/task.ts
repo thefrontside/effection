@@ -17,15 +17,15 @@ type TaskState = 'running' | 'halting' | 'halted' | 'erroring' | 'errored' | 'co
 
 let COUNTER = 0;
 
-export class Task<TOut> implements PromiseLike<TOut> {
+export class Task<TOut = unknown> implements PromiseLike<TOut> {
   public id = ++COUNTER;
 
-  private children: Set<Task<unknown>> = new Set();
+  private children: Set<Task> = new Set();
   private signal: Deferred<never> = Deferred();
 
   private controller: Controller<TOut>;
   private promise: Promise<TOut>;
-  private parent?: Task<unknown>;
+  private parent?: Task;
 
   public state: TaskState = 'running';
 
@@ -69,10 +69,10 @@ export class Task<TOut> implements PromiseLike<TOut> {
         try {
           await this.haltChildren();
           this.state = 'halted';
-          this.parent && this.parent.trapHalt(this as Task<unknown>);
+          this.parent && this.parent.trapHalt(this as Task);
         } catch(error) {
           this.state = 'errored';
-          this.parent && this.parent.trapError(this as Task<unknown>, error);
+          this.parent && this.parent.trapError(this as Task, error);
           throw(error);
         }
         throw(error);
@@ -80,7 +80,7 @@ export class Task<TOut> implements PromiseLike<TOut> {
         this.state = 'erroring';
         await this.haltChildren(true);
         this.state = 'errored';
-        this.parent && this.parent.trapError(this as Task<unknown>, error);
+        this.parent && this.parent.trapError(this as Task, error);
         throw(error);
       }
     }
@@ -100,21 +100,21 @@ export class Task<TOut> implements PromiseLike<TOut> {
       throw new Error('cannot spawn a child on a task which is not running');
     }
     let child = new Task(operation);
-    child.link(this as Task<unknown>);
+    child.link(this as Task);
     return child;
   }
 
-  link(parent: Task<unknown>) {
+  link(parent: Task) {
     this.parent = parent;
-    parent.children.add(this as Task<unknown>);
+    parent.children.add(this as Task);
   }
 
-  trapError(child: Task<unknown>, error: Error) {
+  trapError(child: Task, error: Error) {
     this.signal.reject(error);
     this.children.delete(child);
   }
 
-  trapHalt(child: Task<unknown>) {
+  trapHalt(child: Task) {
     this.children.delete(child);
   }
 }

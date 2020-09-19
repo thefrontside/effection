@@ -1,21 +1,23 @@
-import { timeout, Context } from '@effection/core';
 import { describe, it, beforeEach } from 'mocha';
 import * as expect from 'expect';
 
+import { sleep, run, Task, Effection } from '@effection/core';
 import { Subscription, subscribe } from '@effection/subscription';
-
-import { World } from './helpers';
 
 import { Channel } from '../src/index';
 
 describe('Channel', () => {
+  beforeEach(async () => {
+    await Effection.reset();
+  });
+
   describe('subscribe', () => {
     let channel: Channel<string>;
     let subscription: Subscription<string, undefined>;
 
     beforeEach(async () => {
       channel = new Channel();
-      subscription = await World.spawn(subscribe(channel));
+      subscription = channel.subscribe(Effection.root);
     });
 
     describe('sending a message', () => {
@@ -24,18 +26,18 @@ describe('Channel', () => {
       });
 
       it('receives message on subscription', async () => {
-        let result = await World.spawn(subscription.next());
+        let result = await run(subscription.next());
         expect(result.done).toEqual(false);
         expect(result.value).toEqual('hello');
       });
     });
 
     describe('blocking on next', () => {
-      let result: Context<IteratorResult<string, undefined>>;
+      let result: Task<IteratorResult<string, undefined>>;
 
       beforeEach(async () => {
-        result = World.spawn(subscription.next());
-        await World.spawn(timeout(10));
+        result = run(subscription.next());
+        await run(sleep(10));
         channel.send('hello');
       });
 
@@ -52,9 +54,9 @@ describe('Channel', () => {
       });
 
       it('receives messages in order', async () => {
-        expect(await World.spawn(subscription.next())).toHaveProperty('value', 'hello');
-        expect(await World.spawn(subscription.next())).toHaveProperty('value', 'foo');
-        expect(await World.spawn(subscription.next())).toHaveProperty('value', 'bar');
+        expect(await run(subscription.next())).toHaveProperty('value', 'hello');
+        expect(await run(subscription.next())).toHaveProperty('value', 'foo');
+        expect(await run(subscription.next())).toHaveProperty('value', 'bar');
       });
     });
   });
@@ -65,7 +67,7 @@ describe('Channel', () => {
 
     beforeEach(async () => {
       channel = new Channel();
-      subscription = await World.spawn(subscribe(channel));
+      subscription = subscribe(Effection.root, channel);
     });
 
     describe('sending a message', () => {
@@ -74,7 +76,7 @@ describe('Channel', () => {
       });
 
       it('receives message on subscription', async () => {
-        let result = await World.spawn(subscription.next());
+        let result = await run(subscription.next());
         expect(result.done).toEqual(false);
         expect(result.value).toEqual('hello');
       });
@@ -88,14 +90,14 @@ describe('Channel', () => {
 
       beforeEach(async () => {
         channel = new Channel();
-        subscription = await World.spawn(subscribe(channel));
+        subscription = subscribe(Effection.root, channel);
         channel.send('foo');
         channel.close();
       });
 
       it('closes subscriptions', async () => {
-        await expect(World.spawn(subscription.next())).resolves.toEqual({ done: false, value: 'foo' });
-        await expect(World.spawn(subscription.next())).resolves.toEqual({ done: true, value: undefined });
+        await expect(run(subscription.next())).resolves.toEqual({ done: false, value: 'foo' });
+        await expect(run(subscription.next())).resolves.toEqual({ done: true, value: undefined });
       });
     });
 
@@ -105,14 +107,14 @@ describe('Channel', () => {
 
       beforeEach(async () => {
         channel = new Channel();
-        subscription = await World.spawn(subscribe(channel));
+        subscription = subscribe(Effection.root, channel);
         channel.send('foo');
         channel.close(12);
       });
 
       it('closes subscriptions with the argument', async () => {
-        await expect(World.spawn(subscription.next())).resolves.toEqual({ done: false, value: 'foo' });
-        await expect(World.spawn(subscription.next())).resolves.toEqual({ done: true, value: 12 });
+        await expect(run(subscription.next())).resolves.toEqual({ done: false, value: 'foo' });
+        await expect(run(subscription.next())).resolves.toEqual({ done: true, value: 12 });
       });
     });
   });

@@ -1,9 +1,10 @@
-import { createSubscription } from '@effection/subscription';
+import { Task } from '@effection/core';
+import { Subscription } from '@effection/subscription';
 
 import { EventSource, addListener, removeListener } from './event-source';
 
-export function on<T extends Array<unknown> = unknown[]>(source: EventSource, name: string){
-  return createSubscription<T, void>(function*(publish) {
+export function on<T extends Array<unknown> = unknown[]>(task: Task, source: EventSource, name: string): Subscription<T, void> {
+  return Subscription.create(task, (publish) => function*() {
     let listener = (...args: T) => publish(args);
     try {
       addListener(source, name, listener);
@@ -11,5 +12,5 @@ export function on<T extends Array<unknown> = unknown[]>(source: EventSource, na
     } finally {
       removeListener(source, name, listener);
     }
-  })
+  });
 }

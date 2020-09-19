@@ -1,10 +1,12 @@
-import { EventSource } from './event-source';
-import { Operation, spawn } from '@effection/core';
+import { Operation } from '@effection/core';
 import { once } from './once';
+import { EventSource } from './event-source';
 
-export function throwOnErrorEvent(source: EventSource) {
-  return spawn(function*(): Operation<void> {
-    let [error]: [Error] = yield once(source, 'error');
-    throw error;
-  });
+export function throwOnErrorEvent(source: EventSource): Operation<void> {
+  return function*(task) {
+    task.spawn(function*() {
+      let [error]: [Error] = yield once(source, 'error');
+      throw error;
+    });
+  };
 }

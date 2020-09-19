@@ -1,11 +1,5 @@
-import { run, Context, Controls, Operation } from '@effection/core';
+import { Effection } from '@effection/core';
 
-export let World: Context & Controls;
-
-beforeEach(() => {
-  World = run(undefined) as Context & Controls;
+beforeEach(async () => {
+  await Effection.reset();
 });
-
-afterEach(() => {
-  World.halt();
-})

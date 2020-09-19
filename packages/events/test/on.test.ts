@@ -1,11 +1,11 @@
+import './helpers';
+
 import { describe, it, beforeEach } from 'mocha';
 import * as expect from 'expect'
 
-import { sleep } from '@effection/core';
+import { Effection, run, sleep } from '@effection/core';
 import { Subscription } from '@effection/subscription';
 import { EventEmitter } from 'events';
-
-import { World } from './helpers';
 
 import { on } from '../src/index';
 import { FakeEventEmitter, FakeEvent } from './fake-event-target';
@@ -17,7 +17,7 @@ describe("on", () => {
 
     beforeEach(async () => {
       emitter = new EventEmitter();
-      subscription = await World.spawn(on(emitter, "thing"));
+      subscription = on(Effection.root, emitter, "thing");
     });
 
     describe('emitting an event', () => {
@@ -26,28 +26,28 @@ describe("on", () => {
       });
 
       it('receives event', async () => {
-        let { value } = await World.spawn(subscription.next());
+        let { value } = await run(subscription.next());
         expect(value).toEqual([123, true]);
       });
     });
 
     describe('emitting an event efter subscribing', () => {
       beforeEach(() => {
-        World.spawn(function*() {
+        run(function*() {
           yield sleep(5);
           emitter.emit("thing", 123, true);
         });
       });
 
       it('receives event', async () => {
-        let { value } = await World.spawn(subscription.next());
+        let { value } = await run(subscription.next());
         expect(value).toEqual([123, true]);
       });
     });
 
     describe('emitting multiple events', () => {
       beforeEach(() => {
-        World.spawn(function*() {
+        run(function*() {
           yield sleep(5);
           emitter.emit("thing", "foo");
           emitter.emit("thing", "bar");
@@ -55,8 +55,8 @@ describe("on", () => {
       });
 
       it('receives all of them', async () => {
-        expect(await World.spawn(subscription.next())).toEqual({ done: false, value: ["foo"]});
-        expect(await World.spawn(subscription.next())).toEqual({done: false, value: ["bar"] });
+        expect(await run(subscription.next())).toEqual({ done: false, value: ["foo"]});
+        expect(await run(subscription.next())).toEqual({done: false, value: ["bar"] });
       });
     });
   });
@@ -68,7 +68,7 @@ describe("on", () => {
 
     beforeEach(async () => {
       target = new FakeEventEmitter();
-      subscription = await World.spawn(on(target, "thing"));
+      subscription = on(Effection.root, target, "thing");
     });
 
     describe('emitting an event', () => {
@@ -78,7 +78,7 @@ describe("on", () => {
       });
 
       it('receives event', async () => {
-        let { value } = await World.spawn(subscription.next());
+        let { value } = await run(subscription.next());
         expect(value).toEqual([thingEvent]);
       });
     });
@@ -90,7 +90,7 @@ describe("on", () => {
 
     beforeEach(async () => {
       emitter = new EventEmitter();
-      subscription = await World.spawn(on(emitter, "thing").map(([value]) => (value as number) * 2));
+      subscription = on(Effection.root, emitter, "thing").map(([value]) => (value as number) * 2);
     });
 
     describe('emitting an event', () => {
@@ -99,7 +99,7 @@ describe("on", () => {
       });
 
       it('receives event', async () => {
-        let { value } = await World.spawn(subscription.next());
+        let { value } = await run(subscription.next());
         expect(value).toEqual(24);
       });
     });

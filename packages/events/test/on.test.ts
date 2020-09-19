@@ -1,7 +1,7 @@
 import { describe, it, beforeEach } from 'mocha';
 import * as expect from 'expect'
 
-import { timeout } from 'effection';
+import { sleep } from 'effection';
 import { Subscription } from '@effection/subscription';
 import { EventEmitter } from 'events';
 
@@ -17,7 +17,7 @@ describe("on", () => {
 
     beforeEach(async () => {
       emitter = new EventEmitter();
-      subscription = await World.spawn(on(emitter, "thing"));
+      subscription = on(World, emitter, "thing");
     });
 
     describe('emitting an event', () => {
@@ -34,7 +34,7 @@ describe("on", () => {
     describe('emitting an event efter subscribing', () => {
       beforeEach(() => {
         World.spawn(function*() {
-          yield timeout(5);
+          yield sleep(5);
           emitter.emit("thing", 123, true);
         });
       });
@@ -48,7 +48,7 @@ describe("on", () => {
     describe('emitting multiple events', () => {
       beforeEach(() => {
         World.spawn(function*() {
-          yield timeout(5);
+          yield sleep(5);
           emitter.emit("thing", "foo");
           emitter.emit("thing", "bar");
         });
@@ -68,7 +68,7 @@ describe("on", () => {
 
     beforeEach(async () => {
       target = new FakeEventEmitter();
-      subscription = await World.spawn(on(target, "thing"));
+      subscription = on(World, target, "thing");
     });
 
     describe('emitting an event', () => {
@@ -90,7 +90,7 @@ describe("on", () => {
 
     beforeEach(async () => {
       emitter = new EventEmitter();
-      subscription = await World.spawn(on(emitter, "thing").map(([value]) => (value as number) * 2));
+      subscription = on(World, emitter, "thing").map(([value]) => (value as number) * 2);
     });
 
     describe('emitting an event', () => {

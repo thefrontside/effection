@@ -3,11 +3,14 @@ import { DeepPartial, matcher } from './match';
 import { OperationIterator } from './operation-iterator';
 import { OperationIterable } from './operation-iterable';
 import { SymbolOperationIterable } from './symbol-operation-iterable';
+import { Callback, createOperationIterator } from './create-operation-iterator';
 
-const DUMMY = { next() { throw new Error('dummy') } };
-
-export class Subscription<T,TReturn> implements OperationIterator<T,TReturn> {
+export class Subscription<T, TReturn = undefined> implements OperationIterator<T, TReturn> {
   constructor(private iterator: OperationIterator<T, TReturn>) {}
+
+  static create<T, TReturn>(task: Task<unknown>, callback: Callback<T,TReturn>): Subscription<T,TReturn> {
+    return new Subscription(createOperationIterator(task, callback));
+  }
 
   static of<T, TReturn>(task: Task<unknown>, iterable: OperationIterable<T, TReturn>): Subscription<T, TReturn> {
     let iterator = iterable[SymbolOperationIterable](task);

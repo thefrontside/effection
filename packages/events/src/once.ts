@@ -5,7 +5,7 @@ import { EventSource, addListener, removeListener } from './event-source';
  * Takes an event source and event name and returns a yieldable
  * operation which resumes when the event occurs.
  */
-export function *once(source: EventSource, eventName: string): Operation {
+export function *once(source: EventSource, eventName: string): Operation<void> {
    // eslint-disable-next-line @typescript-eslint/no-empty-function
   let onceListener = () => {};
   try {

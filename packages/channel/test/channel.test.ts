@@ -1,4 +1,4 @@
-import { timeout, Context } from 'effection';
+import { sleep, Task } from 'effection';
 import { describe, it, beforeEach } from 'mocha';
 import * as expect from 'expect';
 
@@ -15,7 +15,7 @@ describe('Channel', () => {
 
     beforeEach(async () => {
       channel = new Channel();
-      subscription = await World.spawn(subscribe(channel));
+      subscription = channel.subscribe(World);
     });
 
     describe('sending a message', () => {
@@ -31,11 +31,11 @@ describe('Channel', () => {
     });
 
     describe('blocking on next', () => {
-      let result: Context<IteratorResult<string, undefined>>;
+      let result: Task<IteratorResult<string, undefined>>;
 
       beforeEach(async () => {
         result = World.spawn(subscription.next());
-        await World.spawn(timeout(10));
+        await World.spawn(sleep(10));
         channel.send('hello');
       });
 
@@ -65,7 +65,7 @@ describe('Channel', () => {
 
     beforeEach(async () => {
       channel = new Channel();
-      subscription = await World.spawn(subscribe(channel));
+      subscription = subscribe(World, channel);
     });
 
     describe('sending a message', () => {
@@ -88,7 +88,7 @@ describe('Channel', () => {
 
       beforeEach(async () => {
         channel = new Channel();
-        subscription = await World.spawn(subscribe(channel));
+        subscription = subscribe(World, channel);
         channel.send('foo');
         channel.close();
       });
@@ -105,7 +105,7 @@ describe('Channel', () => {
 
       beforeEach(async () => {
         channel = new Channel();
-        subscription = await World.spawn(subscribe(channel));
+        subscription = subscribe(World, channel);
         channel.send('foo');
         channel.close(12);
       });

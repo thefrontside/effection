@@ -1,13 +1,13 @@
-import { Operation } from 'effection';
-import { Subscribable, Subscription, SymbolSubscribable, createSubscription } from '@effection/subscription';
+import { Operation, Task } from 'effection';
+import { Subscription, SymbolOperationIterable, OperationIterator, OperationIterable } from '@effection/subscription';
 import { on } from '@effection/events';
 import { EventEmitter } from 'events';
 
-export class Channel<T, TClose = undefined> implements Subscribable<T, TClose> {
+export class Channel<T, TClose = undefined> implements OperationIterable<T, TClose> {
   private bus = new EventEmitter();
 
-  *[SymbolSubscribable](): Operation<Subscription<T, TClose>> {
-    return yield this.subscribe();
+  [SymbolOperationIterable](task: Task): OperationIterator<T, TClose> {
+    return this.subscribe(task);
   }
 
   setMaxListeners(value: number) {
@@ -18,10 +18,10 @@ export class Channel<T, TClose = undefined> implements Subscribable<T, TClose> {
     this.bus.emit('event', { done: false, value: message });
   }
 
-  subscribe() {
+  subscribe(task: Task): Subscription<T, TClose> {
     let { bus } = this;
-    return createSubscription(function*(publish) {
-      let subscription = yield on(bus, 'event');
+    return Subscription.create(task, function*(publish): Operation<TClose> {
+      let subscription = on(task, bus, 'event');
       while(true) {
         let [event] = yield subscription.expect();
         if(event.done) {

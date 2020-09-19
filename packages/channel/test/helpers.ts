@@ -1,11 +1,11 @@
-import { main, Context, Controls, Operation } from 'effection';
+import { run, Task } from 'effection';
 
-export let World: Context & Controls;
+export let World: Task
 
 beforeEach(() => {
-  World = main(undefined) as Context & Controls;
+  World = run();
 });
 
-afterEach(() => {
-  World.halt();
+afterEach(async () => {
+  await World.halt();
 })

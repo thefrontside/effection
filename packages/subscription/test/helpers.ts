@@ -1,18 +1,18 @@
-import { main, Context, Controls, Operation } from 'effection';
+import { run as effectionRun, Task, Operation } from 'effection';
 
-export let World: Context & Controls;
+export let World: Task<unknown>;
 
 beforeEach(() => {
-  World = main(undefined) as Context & Controls;
+  World = effectionRun();
 });
 
-afterEach(() => {
+afterEach(async () => {
   if(World.state === "errored") {
-    console.error(World.result);
+    await World.then(null, (error) => console.error(error));
   }
-  World.halt();
+  await World.halt();
 })
 
-export async function spawn<T>(operation: Operation<T>): Promise<T> {
+export function run<T>(operation?: Operation<T>): Task<T> {
   return World?.spawn(operation);
 }

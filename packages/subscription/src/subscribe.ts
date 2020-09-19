@@ -1,8 +1,7 @@
-import { Operation } from 'effection';
-import { ChainableSubscription } from './chainable-subscription';
-import { SubscriptionSource } from './subscription-source';
-import { makeChainable, ChainableSubscribable } from './chainable-subscribable';
+import { Operation, Task } from 'effection';
+import { Subscription } from './subscription';
+import { OperationIterable } from './operation-iterable';
 
-export function subscribe<T, TReturn>(source: SubscriptionSource<T,TReturn>): Operation<ChainableSubscription<T, TReturn>> & ChainableSubscribable<T,TReturn> {
-  return makeChainable(function*() { return yield ChainableSubscription.of(source) });
+export function subscribe<T, TReturn>(task: Task<unknown>, iterable: OperationIterable<T, TReturn>): Subscription<T, TReturn> {
+  return Subscription.of(task, iterable);
 }

@@ -1,122 +1,112 @@
+import './helpers';
 import * as expect from 'expect';
-import { sleep } from '@effection/core';
-import { spawn } from './helpers';
+import { describe, it, beforeEach } from 'mocha';
 
-import { subscribe, Subscription, createSubscription } from '../src/index';
+import { run, Task, Effection } from '@effection/core';
+import { createOperationIterator, Subscription, OperationIterator } from '../src/index';
 
-import { Semaphore } from '../src/semaphore';
+interface Thing {
+  name: string;
+  type: string;
+}
 
-describe('subscriptions', () => {
-  let publish: (value: string) => void;
-  let complete: Semaphore<void>;
-  let next: Semaphore<void>;
-  let result: Promise<number>;
-  let seen: string[];
+function stuff(task: Task<unknown>): OperationIterator<Thing, number> {
+  return createOperationIterator(task, (publish) => function*() {
+    publish({name: 'bob', type: 'person' });
+    publish({name: 'alice', type: 'person' });
+    publish({name: 'world', type: 'planet' });
+    return 3;
+  })
+}
+
+function emptySubscription(task: Task<unknown>): OperationIterator<Thing, number> {
+  return createOperationIterator(task, () => function*() {
+    return 12;
+  })
+}
+
+describe('chaining subscriptions', () => {
+  let subscription: Subscription<Thing, number>;
 
   beforeEach(() => {
-    complete = new Semaphore();
-    next = new Semaphore();
-    seen = [];
-    result = spawn(function*() {
-      let subscription: Subscription<string,number> = yield createSubscription<string,number>(function*(_publish) {
-        publish = _publish;
-        yield complete.wait();
-        return 42;
-      });
-
-      while (true) {
-        let current: IteratorResult<string, number> = yield subscription.next();
-        if (current.done) {
-          complete.signal();
-          return current.value;
-        } else {
-          seen.push(current.value);
-          next.signal();
-        }
-      }
-    }).catch(e => e);
+    subscription = new Subscription(stuff(Effection.root));
   });
 
-  describe('publishing a result', () => {
+  describe('forEach', () => {
+    let values: Thing[];
+    let result: number;
     beforeEach(async () => {
-      let wait = next.wait();
-      publish('hello world');
-      await wait;
-    });
-    it('updates the current', () => {
-      expect(seen).toEqual(['hello world']);
-    });
-  });
-
-  describe('publishing a whole bunch of results', () => {
-    beforeEach(async () => {
-      let [one, two, three] = [next.wait(), next.wait(), next.wait()];
-      publish('hello bob');
-      publish('hello anne');
-      publish('hello roxy');
-      await Promise.all([one, two, three]);
+      values = [];
+      result = await run(subscription.forEach((item) => function*() { values.push(item); }));
     });
 
-    it('has the last result', () => {
-      expect(seen).toEqual([
-        'hello bob',
-        'hello anne',
-        'hello roxy'
-      ]);
+    it('iterates through all members of the subscribable', () => {
+      expect(values).toEqual([
+        {name: 'bob', type: 'person' },
+        {name: 'alice', type: 'person' },
+        {name: 'world', type: 'planet' },
+      ])
     });
 
-    describe('and then returning', () => {
-      let num: number;
-      beforeEach(async () => {
-        complete.signal();
-        num = await result;
-      });
-      it('marks the loop as being completed', () => {
-        expect(num).toEqual(42);
-      });
-
-      describe('publishing after the subscription is exhausted ', () => {
-        let error: Error;
-        beforeEach(() => {
-          try {
-            publish('should never happen');
-          } catch (e) {
-            error = e;
-          }
-        });
-
-        it('throws a TypeError ', () => {
-          expect(error).toBeDefined();
-          expect(error.name).toEqual('TypeError');
-        });
-      });
+    it('returns the original result', () => {
+      expect(result).toEqual(3);
     });
   });
 
-  describe('when used as direct return value', () => {
-    it('dispatches results independently', async () => {
-      let doSubscribe = () => createSubscription<number,void>(function*(publish) { yield sleep(2); publish(1) })
-
-      let subscribable = subscribe(doSubscribe());
-
-      let one = spawn(subscribable.first())
-      let two = spawn(subscribable.first())
-
-      expect(await one).toEqual(1);
-      expect(await two).toEqual(1);
+  describe('map', () => {
+    it('maps over the values', async () => {
+      let mapped = subscription.map(item => `hello ${item.name}`);
+      await expect(run(mapped.next())).resolves.toEqual({ done: false, value: 'hello bob' });
+      await expect(run(mapped.next())).resolves.toEqual({ done: false, value: 'hello alice' });
+      await expect(run(mapped.next())).resolves.toEqual({ done: false, value: 'hello world' });
+      await expect(run(mapped.next())).resolves.toEqual({ done: true, value: 3 });
     });
   });
 
-  describe('when chaining on createSubscription', () => {
-    it('handles the chain', async () => {
-      let doSubscribe = createSubscription<number,void>(function*(publish) {
-        yield sleep(2);
-        publish(12)
-      }).map((value) => value * 2);
+  describe('filter', () => {
+    it('filters the values', async () => {
+      let filtered = subscription.filter(item => item.type === 'person');
+      await expect(run(filtered.next())).resolves.toEqual({ done: false, value: { name: 'bob', type: 'person' } });
+      await expect(run(filtered.next())).resolves.toEqual({ done: false, value: { name: 'alice', type: 'person' } });
+      await expect(run(filtered.next())).resolves.toEqual({ done: true, value: 3 });
+    });
+  });
 
-      let subscription = await spawn(doSubscribe);
+  describe('match', () => {
+    it('filters the values based on the given pattern', async () => {
+      let matched = subscription.match({ type: 'person' });
+      await expect(run(matched.next())).resolves.toEqual({ done: false, value: { name: 'bob', type: 'person' } });
+      await expect(run(matched.next())).resolves.toEqual({ done: false, value: { name: 'alice', type: 'person' } });
+      await expect(run(matched.next())).resolves.toEqual({ done: true, value: 3 });
+    });
 
-      await expect(spawn(subscription.expect())).resolves.toEqual(24);
+    it('can work on nested items', async () => {
+      let matched = subscription.map(item => ({ thing: item })).match({ thing: { type: 'person' } });
+      await expect(run(matched.next())).resolves.toEqual({ done: false, value: { thing: { name: 'bob', type: 'person' } } });
+      await expect(run(matched.next())).resolves.toEqual({ done: false, value: { thing: { name: 'alice', type: 'person' } } });
+      await expect(run(matched.next())).resolves.toEqual({ done: true, value: 3 });
+    });
+  });
+
+  describe('first', () => {
+    it('returns the first item in the subscription', async () => {
+      await expect(run(subscription.first())).resolves.toEqual({ name: 'bob', type: 'person' });
+    });
+
+    it('returns undefined if the subscription is empty', async () => {
+      let subscription = new Subscription(emptySubscription(Effection.root));
+      await expect(run(subscription.first())).resolves.toEqual(undefined);
+    });
+  });
+
+  describe('expect', () => {
+    it('returns the first item in the subscription', async () => {
+      await expect(run(subscription.expect())).resolves.toEqual({ name: 'bob', type: 'person' });
+    });
+
+    it('throws an error if the subscription is empty', async () => {
+      let subscription = new Subscription(emptySubscription(Effection.root));
+      await expect(run(subscription.expect())).rejects.toHaveProperty('message', 'expected subscription to contain a value');
     });
   });
 });

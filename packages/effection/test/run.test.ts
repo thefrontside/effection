@@ -1,11 +1,21 @@
 import { describe, beforeEach, it } from 'mocha';
 import * as expect from 'expect';
 
-import { run, Operation } from '../src/index';
+import { run, sleep, Operation } from '../src/index';
 
 process.on('unhandledRejection', (reason, promise) => {
   // silence warnings in tests
 });
+
+function *createNumber(value: number) {
+  yield sleep(1);
+  return value;
+}
+
+function *blowUp() {
+  yield sleep(1);
+  throw new Error('boom');
+}
 
 describe('run', () => {
   describe('with promise', () => {
@@ -58,23 +68,58 @@ describe('run', () => {
       expect(task).resolves.toEqual(67);
     });
 
-    it('rejects generator if subtask fails', () => {
+    it('can compose operations', () => {
+      let task = run(function*() {
+        let one: number = yield createNumber(12);
+        let two: number = yield createNumber(55);
+        return one + two;
+      });
+      expect(task).resolves.toEqual(67);
+    });
+
+    it('rejects generator if subtask promise fails', () => {
       let error = new Error('boom');
       let task = run(function*() {
-        let one: number = yield Promise.resolve(12);
-        let two: number = yield Promise.reject(error);
+        let one: number = yield createNumber(12);
+        let two: number = yield blowUp();
         return one + two;
       });
       expect(task).rejects.toEqual(error);
     });
 
-    it('can recover from errors', () => {
+    it('rejects generator if subtask operation fails', () => {
+      let task = run(function*() {
+        let one: number = yield createNumber(12);
+        let two: number = yield blowUp();
+        return one + two;
+      });
+      expect(task).rejects.toHaveProperty('message', 'boom');
+    });
+
+    it('can recover from errors in promise', () => {
       let error = new Error('boom');
       let task = run(function*() {
         let one: number = yield Promise.resolve(12);
         let two: number;
         try {
           yield Promise.reject(error);
+          two = 9;
+        } catch(e) {
+          // swallow error and yield in catch block
+          two = yield Promise.resolve(8);
+        }
+        let three: number = yield Promise.resolve(55);
+        return one + two + three;
+      });
+      expect(task).resolves.toEqual(75);
+    });
+
+    it('can recover from errors in operation', () => {
+      let task = run(function*() {
+        let one: number = yield Promise.resolve(12);
+        let two: number;
+        try {
+          yield blowUp();
           two = 9;
         } catch(e) {
           // swallow error and yield in catch block
@@ -134,5 +179,4 @@ describe('run', () => {
       expect(didRun).toEqual(true);
     });
   });
-
 });

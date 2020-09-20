@@ -1,4 +1,4 @@
-import { Operation, resource } from 'effection';
+import { Operation, Task } from 'effection';
 import { once, throwOnErrorEvent } from '@effection/events';
 
 import * as childProcess from 'child_process';
@@ -33,16 +33,18 @@ function *supervise(child: ChildProcess, command: string, args: readonly string[
   }
 }
 
-export function *spawn(command: string, args?: ReadonlyArray<string>, options?: SpawnOptions): Operation {
+export function spawn(task: Task, command: string, args?: ReadonlyArray<string>, options?: SpawnOptions): ChildProcess {
   let child = childProcess.spawn(command, args || [], Object.assign({}, options, {
     detached: true,
   }));
-  return yield resource(child, supervise(child, command, args));
+  task.spawn(supervise(child, command, args));
+  return child;
 }
 
-export function *fork(module: string, args?: ReadonlyArray<string>, options?: ForkOptions): Operation {
+export function fork(task: Task, module: string, args?: ReadonlyArray<string>, options?: ForkOptions): ChildProcess {
   let child = childProcess.fork(module, args, Object.assign({}, options, {
     detached: true,
   }));
-  return yield resource(child, supervise(child, module, args));
+  task.spawn(supervise(child, module, args));
+  return child;
 }

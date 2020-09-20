@@ -1,33 +1,25 @@
 import { beforeEach } from 'mocha';
-import { main, resource, Context, Controls } from 'effection';
+import { run, Task } from 'effection';
 import { on, once } from '@effection/events';
 import { Readable } from 'stream';
 
-export let World: Context & Controls;
+export let World: Task;
 
 beforeEach(() => {
-  World = main(undefined) as Context & Controls;
+  World = run();
 });
 
-afterEach(() => {
-  if(World.state === "errored") {
-    console.error(World.result);
-  }
-  World.halt();
+afterEach(async () => {
+  await World.halt();
 })
 
 export class TestStream {
   public output = "";
 
-  static *of(value: Readable) {
-    let testStream = new TestStream(value);
-    return yield resource(testStream, testStream.run());
-  }
+  constructor(private task: Task, private stream: Readable) {};
 
-  constructor(private stream: Readable) {};
-
-  *run() {
-    let events = yield on(this.stream, "data");
+  *run(task: Task) {
+    let events = on(task, this.stream, "data");
     while(true) {
       let { value: chunk } = yield events.next();
       this.output += chunk;

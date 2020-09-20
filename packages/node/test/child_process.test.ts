@@ -4,7 +4,6 @@ import fetch from 'node-fetch';
 
 import { on } from '@effection/events';
 
-
 import { World, TestStream } from './helpers';
 
 import { spawn as spawnProcess, fork as forkProcess, ChildProcess } from '../src/child_process';
@@ -14,14 +13,14 @@ describe('child_process', () => {
     let child: ChildProcess;
 
     beforeEach(async () => {
-      child = await World.spawn(spawnProcess('node', ['./fixtures/echo-server.js'], {
+      child = spawnProcess(World, 'node', ['./fixtures/echo-server.js'], {
         env: { PORT: '29000', PATH: process.env.PATH },
         stdio: "pipe",
         cwd: __dirname,
-      }));
+      });
       let output;
       if (child.stdout) {
-        output = await World.spawn(TestStream.of(child.stdout));
+        output = new TestStream(World, child.stdout);
         await World.spawn(output.waitFor("listening"));
       }
     });
@@ -39,14 +38,14 @@ describe('child_process', () => {
     let child: ChildProcess;
 
     beforeEach(async () => {
-      child = await World.spawn(forkProcess('./fixtures/echo-server.js', [], {
+      child = forkProcess(World, './fixtures/echo-server.js', [], {
         env: { PORT: '29000' },
         stdio: "pipe",
         cwd: __dirname,
-      }));
+      });
       let output;
       if (child.stdout) {
-        output = await World.spawn(TestStream.of(child.stdout));
+        output = new TestStream(World, child.stdout);
         await World.spawn(output.waitFor("listening"))
       }
     });
@@ -60,7 +59,7 @@ describe('child_process', () => {
     });
 
     it('can send messages', async () => {
-      let messages = await World.spawn(on(child, "message"));
+      let messages = await on(World, child, "message");
       child.send("moo");
       let { value } = await World.spawn(messages.next());
 

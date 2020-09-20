@@ -15,7 +15,7 @@ describe('main', () => {
       child = spawnProcess("ts-node", [path.join(__dirname, 'fixtures/text-writer.ts')]);
 
       if (child.stdout) {
-        stdout = await World.spawn(TestStream.of(child.stdout));
+        stdout = new TestStream(World, child.stdout);
         await World.spawn(stdout.waitFor("started"));
       }
     });

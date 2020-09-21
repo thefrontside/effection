@@ -34,13 +34,21 @@ function* supervise(
       );
     }
   } finally {
-    // @ts-ignore
-    child?.stdout?.end();
-    // @ts-ignore
-    child?.stderr?.end();
-    treeKill(child.pid, "SIGTERM", (err: Error) =>
-      console.error(`tree-kill of process ${child.pid} failed.`, err)
-    );
+    try {
+      if (process.platform === 'win32') {
+      // @ts-ignore
+      child?.stdout?.end();
+      // @ts-ignore
+      child?.stderr?.end();
+      treeKill(child.pid, "SIGTERM", (err: Error) =>
+        console.error(`tree-kill of process ${child.pid} failed.`, err)
+      );
+      } else {
+        process.kill(-child.pid, "SIGTERM")
+      }
+    } catch(e) {
+      // do nothing, process is probably already dead
+    }
   }
 }
 
@@ -102,11 +110,21 @@ export function spawnProcess(
   spawned?.stdin?.end();
 
   spawned.once("exit", () => {
-    // @ts-ignore
-    spawned?.stdout?.end();
-    // @ts-ignore
-    spawned?.stderr?.end();
-    treeKill(spawned.pid, "SIGTERM");
+    try {
+      if (process.platform === 'win32') {
+      // @ts-ignore
+      child?.stdout?.end();
+      // @ts-ignore
+      child?.stderr?.end();
+      treeKill(spawned.pid, "SIGTERM", (err: Error) =>
+        console.error(`tree-kill of process ${spawned.pid} failed.`, err)
+      );
+      } else {
+        process.kill(-spawned.pid, "SIGTERM")
+      }
+    } catch(e) {
+      // do nothing, process is probably already dead
+    }
   });
 
   return spawned;

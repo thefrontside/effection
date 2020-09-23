@@ -15,6 +15,7 @@ function* supervise(
   command: string,
   args: readonly string[] = []
 ) {
+  let forceKillSignal: string = "SIGKILL"
   // Killing all child processes started by this command is surprisingly
   // tricky. If a process spawns another processes and we kill the parent,
   // then the child process is NOT automatically killed. Instead we're using
@@ -27,7 +28,8 @@ function* supervise(
   // More information here: https://unix.stackexchange.com/questions/14815/process-descendants
   try {
     yield throwOnErrorEvent(child);
-    let [code]: [number] = yield once(child, "exit");
+    let [code, signal]: [number, any] = yield once(child, "exit");
+    if (typeof signal === "string") forceKillSignal = signal
     if (code !== 0) {
       throw new Error(
         `'${(command + args.join(" ")).trim()}' exited with non-zero exit code`
@@ -36,13 +38,11 @@ function* supervise(
   } finally {
     try {
       if (process.platform === 'win32') {
-      // @ts-ignore
-      child?.stdout?.end();
-      // @ts-ignore
-      child?.stderr?.end();
-      treeKill(child.pid, "SIGTERM", (err: Error) =>
-        console.error(`tree-kill of process ${child.pid} failed.`, err)
-      );
+        // @ts-ignore
+        child?.stdout?.end();
+        // @ts-ignore
+        child?.stderr?.end();
+        treeKill(child.pid, forceKillSignal, (err: any) => {/*no-op*/});
       } else {
         process.kill(-child.pid, "SIGTERM")
       }
@@ -109,18 +109,18 @@ export function spawnProcess(
   );
   spawned?.stdin?.end();
 
-  spawned.once("exit", () => {
+  spawned.once("exit", (code, signal) => {
+    const safeSignal = signal === null ? 'SIGTERM' : signal;
+    console.dir(`process exited with ${safeSignal}`)
     try {
       if (process.platform === 'win32') {
-      // @ts-ignore
-      child?.stdout?.end();
-      // @ts-ignore
-      child?.stderr?.end();
-      treeKill(spawned.pid, "SIGTERM", (err: Error) =>
-        console.error(`tree-kill of process ${spawned.pid} failed.`, err)
-      );
+        // @ts-ignore
+        spawned?.stdout?.end();
+        // @ts-ignore
+        spawned?.stderr?.end();
+        treeKill(spawned.pid, safeSignal, (err: any) => {/*no-op*/});
       } else {
-        process.kill(-spawned.pid, "SIGTERM")
+        process.kill(-spawned.pid, safeSignal)
       }
     } catch(e) {
       // do nothing, process is probably already dead

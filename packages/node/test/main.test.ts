@@ -12,7 +12,12 @@ describe('main', () => {
 
   describe('with successful process', () => {
     beforeEach(async () => {
-      child = spawnProcess("ts-node", [path.join(__dirname, 'fixtures/text-writer.ts')]);
+      child = spawnProcess("ts-node", ['./fixtures/text-writer.ts'], {
+        // set cwd here as depending on where this is run from
+        // it won't properly pick up the tsconfig and transpile
+        // the generators correctly
+        cwd: __dirname,
+      });
 
       if (child?.stdout) {
         stdout = await World.spawn(TestStream.of(child.stdout));
@@ -45,14 +50,14 @@ describe('main', () => {
 
   describe('with failing process', () => {
     it('sets exit code and prints error', function* () {
-      let result = yield spawnProcess("ts-node", [path.join(__dirname, 'fixtures/main-failed.ts')]);
+      let result = yield spawnProcess("ts-node", ['./fixtures/main-failed.ts']);
 
       expect(result.stderr).toContain('Error: moo');
       expect(result.status).toEqual(255);
     });
 
     it('sets custom exit code and hides error', function* () {
-      let result = yield spawnProcess("ts-node", [path.join(__dirname, 'fixtures/main-failed-custom.ts')]);
+      let result = yield spawnProcess("ts-node", ['./fixtures/main-failed-custom.ts']);
 
       expect(result.stderr).toContain('It all went horribly wrong');
       expect(result.stderr).not.toContain('EffectionMainError');

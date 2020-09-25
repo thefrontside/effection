@@ -111,7 +111,6 @@ export function spawnProcess(
 
   spawned.once("exit", (code, signal) => {
     const safeSignal = signal === null ? 'SIGTERM' : signal;
-    console.dir(`process exited with ${safeSignal}`)
     try {
       if (process.platform === 'win32') {
         // @ts-ignore

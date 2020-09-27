@@ -5,7 +5,7 @@ on: [push, pull_request]
 jobs:
   test:
     runs-on: ${{ matrix.platform }}
-    timeout-minutes: 5
+    timeout-minutes: 15
     name: all pkgs on ${{ matrix.platform }}
 
     strategy:

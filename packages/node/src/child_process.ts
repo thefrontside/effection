@@ -26,6 +26,9 @@ function* supervise(
   // process.
   //
   // More information here: https://unix.stackexchange.com/questions/14815/process-descendants
+  // Windows is even more tricky as it doesn't have the process groups and
+  // doesn't have signals. We resort to `treeKill` which does not gracefully
+  // shut down the processes, but it is the best we have?
   try {
     yield throwOnErrorEvent(child);
     let [code, signal]: [number, any] = yield once(child, "exit");
@@ -52,19 +55,20 @@ function* supervise(
   }
 }
 
-// using the shell that invokes will also hide the window on windows
 const withDefaults = (options: SpawnOptions | undefined): SpawnOptions => {
   return {
-    // when windows shell is true, it runs with cmd.exe by default
-    // node has trouble with PATHEXT and exe
-    // `cross-spawn` handles running it with the shell in windows if needed
+    // When windows shell is true, it runs with cmd.exe by default, but
+    // node has trouble with PATHEXT and exe. It can't run exe directly for example.
+    // `cross-spawn` handles running it with the shell in windows if needed.
+    // Neither mac nor linux need shell and we run it detached.
+    // shell: ~false,
+    // With stdio as pipe, windows gets stuck where neither the child nor the
+    // parent wants to close the stream, so we call it ourselves in the exit event.
     stdio: "pipe",
-    // we lose exit information and events if this is
-    // detached in windows
+    // We lose exit information and events if this is detached in windows
+    // and it opens a window in windows+powershell.
     detached: process.platform === "win32" ? false : true,
     cwd: options?.cwd || process.cwd(),
-    // if we use true than it opens a window in windows+powershell
-    // mac and linux don't need it either
     env: npmRunPath.env({
       env: Object.assign({}, process.env, options?.env),
       cwd: options?.cwd || process.cwd(),
@@ -73,6 +77,8 @@ const withDefaults = (options: SpawnOptions | undefined): SpawnOptions => {
   };
 };
 
+// Windows can't run exe through the child_process so it creates
+// these .cmd files that can instead be run. Adjust for it here.
 const c = (command: string) => {
   if (process.platform !== "win32") return command;
   if (command === "npm" || command === "yarn") {

@@ -58,7 +58,6 @@ const withDefaults = (options: SpawnOptions | undefined): SpawnOptions => {
     // when windows shell is true, it runs with cmd.exe by default
     // node has trouble with PATHEXT and exe
     // `cross-spawn` handles running it with the shell in windows if needed
-    ...(process.platform === "win32" ? {} : { shell: true }),
     stdio: "pipe",
     // we lose exit information and events if this is
     // detached in windows

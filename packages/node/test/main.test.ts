@@ -24,9 +24,6 @@ describe('main', () => {
         await World.spawn(stdout.waitFor("started"));
       }
     });
-    afterEach(() => {
-      child.kill('SIGKILL');
-    })
 
     describe('sending SIGINT', () => {
       beforeEach(async () => {

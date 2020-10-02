@@ -2,7 +2,7 @@ import { Operation, resource, spawn } from 'effection';
 import { Channel } from '@effection/channel';
 import { subscribe } from '@effection/subscription';
 
-import { exec, Process, ExecOptions, StdIO, ExitStatus, stringifyExitStatus  } from '.';
+import { exec, Process, ExecOptions, StdIO, ExitStatus, stringifyExitStatus  } from './exec';
 
 /**
  * Start a long-running process, like a web server that run perpetually.

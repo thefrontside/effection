@@ -3,14 +3,17 @@ import { Subscription } from './subscription';
 import { SymbolSubscribable } from './symbol-subscribable';
 import { subscribe } from './subscribe';
 import { SubscriptionSource } from './subscription-source';
+import { deprecated } from './deprecated';
 
 export interface Subscribable<T,TReturn> {
   [SymbolSubscribable](): Operation<Subscription<T,TReturn>>;
 }
 
 export const Subscribable = {
-  from<T,TReturn>(source: SubscriptionSource<T,TReturn>) {
-    console.warn('`Subscribable.from(source)` is deprecated, use `subscribe(source).map(...)` instead');
-    return subscribe(source)
-  }
+  from: deprecated(
+    '`Subscribable.from(source)` is deprecated, use `subscribe(source).map(...)` instead',
+      <T,TReturn>(source: SubscriptionSource<T,TReturn>) => {
+        return subscribe(source)
+      }
+  )
 }

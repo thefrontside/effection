@@ -58,7 +58,19 @@ export class IteratorController<TOut> implements Controller<TOut> {
     await this.promise.catch(swallowHalt);
   }
 
-  then<TResult1 = TOut, TResult2 = never>(onfulfilled?: ((value: TOut) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): PromiseLike<TResult1 | TResult2> {
+  then<TResult1 = TOut, TResult2 = never>(onfulfilled?: ((value: TOut) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): Promise<TResult1 | TResult2> {
     return this.promise.then(onfulfilled, onrejected);
+  }
+
+  catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): Promise<TOut | TResult> {
+    return this.promise.catch(onrejected);
+  }
+
+  finally(onfinally?: (() => void) | null | undefined): Promise<TOut> {
+    return this.promise.finally(onfinally);
+  }
+
+  get [Symbol.toStringTag](): string {
+    return '[IteratorController]'
   }
 }

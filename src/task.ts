@@ -17,7 +17,7 @@ type TaskState = 'running' | 'halting' | 'halted' | 'erroring' | 'errored' | 'co
 
 let COUNTER = 0;
 
-export class Task<TOut = unknown> implements PromiseLike<TOut> {
+export class Task<TOut = unknown> implements Promise<TOut> {
   public id = ++COUNTER;
 
   private children: Set<Task> = new Set();
@@ -91,8 +91,16 @@ export class Task<TOut = unknown> implements PromiseLike<TOut> {
     await this.then(() => {}, swallowHalt);
   }
 
-  then<TResult1 = TOut, TResult2 = never>(onfulfilled?: ((value: TOut) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): PromiseLike<TResult1 | TResult2> {
+  then<TResult1 = TOut, TResult2 = never>(onfulfilled?: ((value: TOut) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): Promise<TResult1 | TResult2> {
     return this.promise.then(onfulfilled, onrejected);
+  }
+
+  catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): Promise<TOut | TResult> {
+    return this.promise.catch(onrejected);
+  }
+
+  finally(onfinally?: (() => void) | null | undefined): Promise<TOut> {
+    return this.promise.finally(onfinally);
   }
 
   spawn<R>(operation?: Operation<R>): Task<R> {
@@ -116,5 +124,9 @@ export class Task<TOut = unknown> implements PromiseLike<TOut> {
 
   trapHalt(child: Task) {
     this.children.delete(child);
+  }
+
+  get [Symbol.toStringTag](): string {
+    return '[Task ${this.id]'
   }
 }

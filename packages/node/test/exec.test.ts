@@ -54,17 +54,28 @@ describe('exec()', () => {
   describe('a process that starts successfully', () => {
     let proc: Process;
     let output: string;
+    let didClose: {stdout: boolean; stderr: boolean };
 
     beforeEach(async () => {
       output = '';
+      didClose = { stdout: false, stderr: false };
+
       proc = await World.spawn(exec("node './fixtures/echo-server.js'", {
         env: { PORT: '29000', PATH: process.env.PATH as string },
         cwd: __dirname,
       }));
 
-      World.spawn(subscribe(proc.stdout).forEach(function*(chunk) {
-        output += chunk;
-      }));
+      World.spawn(function*() {
+        yield subscribe(proc.stdout).forEach(function*(chunk) {
+          output += chunk;
+        });
+        didClose.stdout = true;
+      });
+
+      World.spawn(function*() {
+        yield subscribe(proc.stderr).forEach(function*() {});
+        didClose.stderr = true;
+      });
 
       await converge(() => expect(output).toContain("listening"));
     });
@@ -82,6 +93,10 @@ describe('exec()', () => {
       it('expects successfully', async () => {
         let status = await World.spawn(proc.expect());
         expect(status.code).toEqual(0);
+      });
+
+      it('closes stdout and stderr', async () => {
+        await converge(() => expect(didClose).toEqual({ stdout: true, stderr: true }));
       });
     });
 

@@ -73,6 +73,8 @@ export const createPosixProcess: CreateOSProcess = function* (command, options) 
       getResult.resolve({ type: 'status', value });
     } finally {
       try {
+        stdout.close();
+        stderr.close();
         childProcess.off('error', onError);
         process.kill(-childProcess.pid, "SIGTERM")
       } catch(e) {

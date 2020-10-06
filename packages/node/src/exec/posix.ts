@@ -6,7 +6,7 @@ import { subscribe } from '@effection/subscription';
 import { ExitStatus, CreateOSProcess, stringifyExitStatus } from './api';
 import { Deferred } from './deferred';
 
-type Result = { type: 'error', value: unknown } | { type: 'status', value: [number?, string?] };
+type Result = { type: 'error'; value: unknown } | { type: 'status'; value: [number?, string?] };
 
 export const createPosixProcess: CreateOSProcess = function* (command, options) {
   let childProcess = spawnProcess(command, options.arguments || [], {

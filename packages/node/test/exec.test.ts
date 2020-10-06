@@ -6,11 +6,10 @@ import { subscribe } from '@effection/subscription';
 
 import { World, converge } from './helpers';
 
-import { exec, Process, ExitStatus } from '../src';
+import { exec, Process } from '../src';
 
 describe('exec()', () => {
   let proc: Process;
-  let status: ExitStatus;
 
   describe('a process that fails to start', () => {
     let error: unknown;

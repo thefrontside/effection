@@ -74,7 +74,7 @@ export const createPosixProcess: CreateOSProcess = function* (command, options) 
 
       yield spawn(on<[string]>(childProcess.stderr, 'data').forEach(function*([data]) {
         addToTail(data);
-        stdout.send(data);
+        stderr.send(data);
       }));
 
       yield spawn(subscribe(stdin).forEach(function*(data) {

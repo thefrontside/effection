@@ -98,7 +98,7 @@ export function stringifyExitStatus(status: ExitStatus) {
 
   let cwd = options.cwd ? `cwd: ${options.cwd}` : null;
 
-  let command = `$ ${status.command} ${options.arguments}`.trim()
+  let command = `$ ${status.command} ${options.arguments?.join(" ")}`.trim()
 
   let tail = status.tail.join("");
 

@@ -1,3 +1,6 @@
+/// <reference types="../types/shellwords" />
+import { split } from 'shellwords';
+
 import { Operation } from 'effection';
 import { ExecOptions, Process, } from './exec/api';
 import { createPosixProcess } from './exec/posix';
@@ -12,9 +15,12 @@ export * from './exec/api';
  * forever, consider using `daemon()`
  */
 export function exec(command: string, options: ExecOptions = {}): Operation<Process> {
+  let [cmd, ...args] = split(command);
+  let opts = { ...options, arguments: args.concat(options.arguments || []) }
+
   if (isWin32()) {
-    return createWin32Process(command, options);
+    return createWin32Process(cmd, opts);
   } else {
-    return createPosixProcess(command, options);
+    return createPosixProcess(cmd, opts);
   }
 }

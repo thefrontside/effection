@@ -33,7 +33,8 @@
     "@effection/channel": "^0.6.7",
     "@effection/events": "^0.7.8",
     "@effection/subscription": "^0.11.0",
-    "effection": "^0.7.0"
+    "effection": "^0.7.0",
+    "shellwords": "^0.1.1"
   },
   "volta": {
     "node": "12.16.0",

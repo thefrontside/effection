@@ -5,7 +5,7 @@ export function Deferred<T>(): Deferred<T> {
   let promise = new Promise<T>((_resolve, _reject) => {
     resolve = _resolve;
     reject = _reject;
-  }) ;
+  });
 
   return {
     resolve,

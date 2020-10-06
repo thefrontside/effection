@@ -120,6 +120,10 @@ describe('exec()', () => {
         });
         expect(error).toBeDefined()
       });
+
+      it('closes stdout and stderr', async () => {
+        await converge(() => expect(didClose).toEqual({ stdout: true, stderr: true }));
+      });
     });
   });
 });

@@ -13,17 +13,24 @@ describe('exec()', () => {
   let status: ExitStatus;
 
   describe('a process that fails to start', () => {
+    let error: unknown;
     beforeEach(async () => {
       proc = await World.spawn(exec("argle", { arguments: ['bargle'] }));
     });
 
     describe('calling join()', () => {
       beforeEach(async () => {
-        status = await World.spawn(proc.join());
+        await World.spawn(function*() {
+          try {
+            yield proc.join();
+          } catch(e) {
+            error = e;
+          }
+        });
       });
 
       it('reports the failed status', () => {
-        expect(status.code).not.toEqual(0);
+        expect(error).toBeInstanceOf(Error);
       });
     });
 
@@ -40,7 +47,6 @@ describe('exec()', () => {
 
       it('fails', () => {
         expect(error).toBeDefined();
-        expect(error).toMatchObject({ name: 'ExecError' });
       });
     });
   });
@@ -51,8 +57,7 @@ describe('exec()', () => {
 
     beforeEach(async () => {
       output = '';
-      proc = await World.spawn(exec("node", {
-        arguments: ['./fixtures/echo-server.js'],
+      proc = await World.spawn(exec("node './fixtures/echo-server.js'", {
         env: { PORT: '29000', PATH: process.env.PATH as string },
         cwd: __dirname,
       }));

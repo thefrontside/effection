@@ -63,11 +63,6 @@ export interface ExitStatus {
   signal?: string;
 
   /**
-   * Any `error` events that were emitted during the lifetime of the process
-   */
-  errors: unknown[];
-
-  /**
    * A buffer of the recent output from both `stdout` and `stderr` that can
    * be helpful for debugging
    */
@@ -97,8 +92,6 @@ export function stringifyExitStatus(status: ExitStatus) {
 
   let signal = status.signal ? `signal: ${status.signal}` : null;
 
-  let errors = status.errors.map(error => `ERROR: ${error}`).join("\n");
-
   let env = `env: ${JSON.stringify(options.env || {})}`;
 
   let shell = options.shell ? `shell: ${options.shell}` : null;
@@ -109,5 +102,5 @@ export function stringifyExitStatus(status: ExitStatus) {
 
   let tail = status.tail.join("");
 
-  return [code, signal, errors, env, shell, cwd, command, tail].filter(item => !!item).join("\n");
+  return [code, signal, env, shell, cwd, command, tail].filter(item => !!item).join("\n");
 }

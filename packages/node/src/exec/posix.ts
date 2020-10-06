@@ -3,13 +3,15 @@ import { Channel } from '@effection/channel';
 import { on, once } from '@effection/events';
 import { spawn as spawnProcess } from 'child_process';
 import { subscribe } from '@effection/subscription';
-import { Buffer } from './buffer';
 import { ExitStatus, CreateOSProcess, stringifyExitStatus } from './api';
+import { Deferred } from './deferred';
+
+type Result = { type: 'error', value: unknown } | { type: 'status', value: [number?, string?] };
 
 export const createPosixProcess: CreateOSProcess = function* (command, options) {
   let childProcess = spawnProcess(command, options.arguments || [], {
     detached: true,
-    shell: options.shell == null ? true : options.shell,
+    shell: options.shell,
     env: options.env,
     cwd: options.cwd
   });
@@ -17,9 +19,9 @@ export const createPosixProcess: CreateOSProcess = function* (command, options) 
   let stdin = new Channel<string>();
   let stdout = new Channel<string>();
   let stderr = new Channel<string>();
-  let exit = new Buffer<[number?, string?]>();
-  let errors: unknown[] = [];
   let tail: string[] = [];
+
+  let getResult = Deferred<Result>();
 
   function addToTail(chunk: string) {
     if (tail.length < 100) {
@@ -28,8 +30,13 @@ export const createPosixProcess: CreateOSProcess = function* (command, options) 
   }
 
   function* join(): Operation<ExitStatus> {
-    let [code, signal]: [number?, string?] = yield subscribe(exit).expect();
-    return { command, options, code, signal, errors, tail };
+    let result: Result = yield getResult.promise;
+    if (result.type === 'status') {
+      let [code, signal] = result.value;
+      return { command, options, code, signal, tail };
+    } else {
+      throw result.value;
+    }
   }
 
   function* expect(): Operation<ExitStatus> {
@@ -44,10 +51,9 @@ export const createPosixProcess: CreateOSProcess = function* (command, options) 
   }
 
   return yield resource({ stdin, stdout, stderr, join, expect }, function*() {
+    let onError = (value: unknown) => getResult.resolve({ type: 'error', value });
     try {
-      yield spawn(on(childProcess, 'error').forEach(function*([error]) {
-        errors.push(error);
-      }));
+      childProcess.on('error', onError);
 
       yield spawn(on<[string]>(childProcess.stdout, 'data').forEach(function*([data]) {
         addToTail(data);
@@ -63,10 +69,11 @@ export const createPosixProcess: CreateOSProcess = function* (command, options) 
         childProcess.stdin.write(data);
       }))
 
-      let status = yield once(childProcess, 'exit')
-      exit.send(status)
+      let value = yield once(childProcess, 'exit')
+      getResult.resolve({ type: 'status', value });
     } finally {
       try {
+        childProcess.off('error', onError);
         process.kill(-childProcess.pid, "SIGTERM")
       } catch(e) {
         // do nothing, process is probably already dead

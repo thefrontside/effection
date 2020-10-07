@@ -1,6 +1,6 @@
 console.log("starting server");
 require('http').createServer((request,response) => {
-  console.log("got request");
+  process.stderr.write(`got request\n`);
   response.writeHead(200);
   request.pipe(response);
 

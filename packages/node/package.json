@@ -19,7 +19,6 @@
     "mocha": "mocha -r ts-node/register"
   },
   "devDependencies": {
-    "@effection/events": "^0.7.4",
     "@frontside/tsconfig": "0.0.1",
     "@types/node": "^13.13.2",
     "@types/node-fetch": "^2.5.7",
@@ -31,8 +30,11 @@
     "typescript": "^3.7.0"
   },
   "dependencies": {
+    "@effection/channel": "^0.6.7",
+    "@effection/events": "^0.7.8",
+    "@effection/subscription": "^0.11.0",
     "effection": "^0.7.0",
-    "@effection/events": "^0.7.4"
+    "shellwords": "^0.1.1"
   },
   "volta": {
     "node": "12.16.0",

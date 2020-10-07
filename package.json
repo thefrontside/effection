@@ -11,9 +11,9 @@
       "packages/effection",
       "packages/subscription",
       "packages/events",
+      "packages/channel",
       "packages/node",
-      "packages/fetch",
-      "packages/channel"
+      "packages/fetch"
     ]
   },
   "scripts": {

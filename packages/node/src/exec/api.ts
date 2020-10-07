@@ -6,6 +6,9 @@ import { Channel } from '@effection/channel';
  * standard io handles, and methods for synchronizing on return.
  */
 export interface Process extends StdIO {
+
+  readonly pid: number;
+
   /**
    * Completes once the process has finished regardless of whether it was
    * successful or not.

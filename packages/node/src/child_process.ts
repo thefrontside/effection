@@ -4,6 +4,7 @@ import { once, throwOnErrorEvent } from '@effection/events';
 import * as childProcess from 'child_process';
 import { SpawnOptions, ForkOptions, ChildProcess } from 'child_process';
 
+import { deprecated } from './deprecated';
 export { ChildProcess } from 'child_process';
 
 function *supervise(child: ChildProcess, command: string, args: readonly string[] = []) {
@@ -33,16 +34,22 @@ function *supervise(child: ChildProcess, command: string, args: readonly string[
   }
 }
 
-export function *spawn(command: string, args?: ReadonlyArray<string>, options?: SpawnOptions): Operation {
-  let child = childProcess.spawn(command, args || [], Object.assign({}, options, {
-    detached: true,
-  }));
-  return yield resource(child, supervise(child, command, args));
-}
+export const spawn = deprecated(
+  "ChildProcess.spawn() in @effection/node is deprecated. Use exec() or daemon() for fine motor control of external processes",
+  function *spawn(command: string, args?: ReadonlyArray<string>, options?: SpawnOptions): Operation {
+    let child = childProcess.spawn(command, args || [], Object.assign({}, options, {
+      detached: true,
+    }));
+    return yield resource(child, supervise(child, command, args));
+  }
+);
 
-export function *fork(module: string, args?: ReadonlyArray<string>, options?: ForkOptions): Operation {
-  let child = childProcess.fork(module, args, Object.assign({}, options, {
-    detached: true,
-  }));
-  return yield resource(child, supervise(child, module, args));
-}
+export const fork = deprecated(
+  "ChildProcess.fork() in @effection/node is deprecated. Use exec() or daemon() for fine motor control of external processes",
+  function *fork(module: string, args?: ReadonlyArray<string>, options?: ForkOptions): Operation {
+    let child = childProcess.fork(module, args, Object.assign({}, options, {
+      detached: true,
+    }));
+    return yield resource(child, supervise(child, module, args));
+  }
+);

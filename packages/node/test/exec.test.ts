@@ -83,6 +83,11 @@ describe('exec()', () => {
       await converge(() => expect(output).toContain("listening"));
     });
 
+    it('has a pid', () => {
+      expect(typeof proc.pid).toBe('number');
+      expect(proc.pid).not.toBeNaN();
+    });
+
     describe('when it succeeds', () => {
       beforeEach(async () => {
         await fetch('http://localhost:29000', { method: "POST", body: "exit" });

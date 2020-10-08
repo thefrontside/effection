@@ -1,5 +1,12 @@
 # @effection/subscription
 
+## 0.11.1
+
+### Patch Changes
+
+- 649ec8d: Deprecated functions only emit a single warning, and print out the
+  line from which they were invoked
+
 ## 0.11.0
 
 ### Minor Changes

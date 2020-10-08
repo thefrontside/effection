@@ -1,6 +1,6 @@
 {
   "name": "@effection/node",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "Work in Node.js with Effection",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -32,7 +32,7 @@
   "dependencies": {
     "@effection/channel": "^0.6.7",
     "@effection/events": "^0.7.8",
-    "@effection/subscription": "^0.11.0",
+    "@effection/subscription": "^0.11.1",
     "effection": "^0.7.0",
     "shellwords": "^0.1.1"
   },

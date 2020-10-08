@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.9.0
+
+### Minor Changes
+
+- 9cd88e5: add `pid` field to the `Process` API
+- 12c97da: ChildProcess.spawn() and ChildProcess.fork() are now deprecated in
+  favor of `exec()` and `daemon()`
+- 1da1f8c: add `exec()` method for creating resource-oriented API for spawning
+  processes. e.g.
+
+  ```js
+  let { stdout, stderr } = yield exec("ls -al");
+  yield subcribe(stdout).forEach(function*(chunk) {
+    console.log(chunk);
+  });
+  ```
+
+  add `dameon()` method which fails if the called process ever quits.
+
+### Patch Changes
+
+- Updated dependencies [649ec8d]
+  - @effection/subscription@0.11.1
+
 ## 0.8.0
 
 ### Minor Changes

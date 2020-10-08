@@ -76,19 +76,19 @@ export class TestStream {
 
   constructor() {};
 
-  async detect(text: string) {
-    return converge(() => expect(this.output).toContain(text));
+  async detect(text: string, timeout = 5000) {
+    return converge(() => expect(this.output).toContain(text), timeout);
   }
 }
 
-export async function converge<T>(fn: () => T): Promise<T> {
+export async function converge<T>(fn: () => T, timeout = 2000): Promise<T> {
   let startTime = performance.now();
   while(true) {
     try {
       return fn();
     } catch(e) {
       let diff = performance.now() - startTime;
-      if(diff > 2000) {
+      if(diff > timeout) {
         throw e;
       } else {
         await new Promise((resolve) => setTimeout(resolve, 1));

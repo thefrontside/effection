@@ -168,4 +168,3 @@ $ yarn test
 
 
 ## License
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fthefrontside%2Feffection.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fthefrontside%2Feffection?ref=badge_large)

@@ -165,6 +165,3 @@ $ yarn test
 ```
 
 [1]: https://vorpus.org/blog/notes-on-structured-concurrency-or-go-statement-considered-harmful/
-
-
-## License

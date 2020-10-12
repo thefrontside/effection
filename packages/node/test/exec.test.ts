@@ -83,7 +83,7 @@ describe('exec()', () => {
       await converge(() => expect(output).toContain("listening"));
     });
 
-    it('has a pid', () => {
+    it('has a pid', async () => {
       expect(typeof proc.pid).toBe('number');
       expect(proc.pid).not.toBeNaN();
     });

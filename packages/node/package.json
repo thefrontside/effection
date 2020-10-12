@@ -20,6 +20,7 @@
   },
   "devDependencies": {
     "@frontside/tsconfig": "0.0.1",
+    "@types/cross-spawn": "^6.0.2",
     "@types/node": "^13.13.2",
     "@types/node-fetch": "^2.5.7",
     "expect": "^25.4.0",
@@ -33,6 +34,8 @@
     "@effection/channel": "^0.6.7",
     "@effection/events": "^0.7.8",
     "@effection/subscription": "^0.11.1",
+    "cross-spawn": "^7.0.3",
+    "ctrlc-windows": "^1.0.0",
     "effection": "^0.7.0",
     "shellwords": "^0.1.1"
   },

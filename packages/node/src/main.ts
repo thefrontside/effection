@@ -35,7 +35,7 @@ export function main<T>(operation: Operation<T>): Context<T> {
           process.exit(e.options.exitCode || -1);
         } else {
           console.error(e);
-          process.exit(-1);
+          process.exit(1);
         }
       } finally {
         process.off('SIGINT', interrupt);

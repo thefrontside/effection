@@ -36,7 +36,7 @@ export interface ExecOptions {
 
   /**
    * Create an intermediate shell process. Useful if you need to handle glob
-   * expantion;
+   * expansion;
    */
   shell?: boolean;
 

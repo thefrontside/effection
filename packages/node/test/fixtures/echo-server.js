@@ -27,3 +27,5 @@ function readCommand(request) {
     }
   });
 }
+
+process.on("exit", () => console.log("exiting..."));

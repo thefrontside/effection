@@ -7,16 +7,16 @@ import { TestProcess } from './helpers';
 describe('main', () => {
   let child: TestProcess;
 
-  describe('with sucessful process', () => {
+  describe('with successful process', () => {
     beforeEach(async () => {
-      child = await TestProcess.exec(`ts-node ${[path.join(__dirname, 'fixtures/text-writer.ts')]}`);
+      child = await TestProcess.exec(`ts-node ./fixtures/text-writer.ts`);
 
       await child.stdout.detect("started");
     });
 
     describe('interrupting the process', () => {
       beforeEach(async () => {
-        setTimeout(() => child.interrupt(), 10);
+        child.interrupt();
         await child.join();
       });
 
@@ -39,15 +39,15 @@ describe('main', () => {
 
   describe('with failing process', () => {
     it('sets exit code and prints error', async () => {
-      let child = await TestProcess.exec(`ts-node ${[path.join(__dirname, 'fixtures/main-failed.ts')]}`);
+      let child = await TestProcess.exec(`ts-node ./fixtures/main-failed.ts`);
       let status = await child.join();
 
       expect(child.stderr.output).toContain('Error: moo');
-      expect(status.code).toEqual(255);
+      expect(status.code).toEqual(1);
     });
 
     it('sets custom exit code and hides error', async () => {
-      let child = await TestProcess.exec(`ts-node ${[path.join(__dirname, 'fixtures/main-failed-custom.ts')]}`);
+      let child = await TestProcess.exec(`ts-node ./fixtures/main-failed-custom.ts`);
       let status = await child.join();
 
       expect(child.stderr.output).toContain('It all went horribly wrong');

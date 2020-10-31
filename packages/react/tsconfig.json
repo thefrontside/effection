@@ -1,0 +1,15 @@
+{
+  "include": ["src", "types"],
+  "compilerOptions": {
+    "target": "es2019",
+    "moduleResolution": "node",
+    "strict": true,
+    "module": "commonjs",
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "declaration": true,
+    "esModuleInterop": true,
+    "jsx": "react"
+  }
+}
+

@@ -13,6 +13,7 @@
       "packages/events",
       "packages/channel",
       "packages/node",
+      "packages/react",
       "packages/fetch"
     ]
   },

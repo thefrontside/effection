@@ -4,14 +4,14 @@
 
 import expect from 'expect';
 
-import { main, fork, spawn } from '../src/index';
+import { run, fork, spawn } from '../src/index';
 
 describe('Returning an execution context', () => {
   let execution, one, two, inner;
 
   describe('with a regular return', () => {
     beforeEach(() => {
-      execution = main(function* outer() {
+      execution = run(function* outer() {
         one = yield function*() {
           inner = yield spawn();
           return inner;
@@ -46,7 +46,7 @@ describe('Returning an execution context', () => {
 
   describe('with a top level return', () => {
     beforeEach(() => {
-      execution = main(function* outer() {
+      execution = run(function* outer() {
         inner = yield fork();
         return inner;
       });

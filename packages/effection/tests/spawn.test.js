@@ -1,11 +1,11 @@
 import expect from 'expect';
-import { main } from '../src/index';
+import { run } from '../src/index';
 
 describe('spawning operations', () => {
   describe('with default resume/fail', () => {
     let context, child, resolve, reject;
     beforeEach(() => {
-      context = main(({ spawn }) => {
+      context = run(({ spawn }) => {
         child = spawn(({ resume, fail }) => {
           resolve = resume;
           reject = fail;

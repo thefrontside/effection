@@ -4,7 +4,7 @@
 
 import expect from 'expect';
 
-import { main, fork } from '../src/index';
+import { run, fork } from '../src/index';
 
 /**
  * Tests are performed on a tree that looks like this:
@@ -35,7 +35,7 @@ describe('Order of Shutdown Operations', () => {
       };
     };
 
-    main(
+    run(
       Node('A', [
         Node('B', [
           Node('D'),

@@ -29,6 +29,8 @@ declare module "effection" {
     context: Context<T>;
   }
 
+  export function run<T>(operation: Operation<T>): Context<T>;
+
   export function main<T>(operation: Operation<T>): Context<T>;
 
   export function fork<T>(operation: Operation<T>): Operation<Context<T>>;

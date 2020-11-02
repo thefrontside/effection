@@ -4,14 +4,14 @@
 
 import expect from 'expect';
 
-import { main, fork, contextOf, resource } from '../src/index';
+import { run, fork, contextOf, resource } from '../src/index';
 
 describe('Returning resources', () => {
   let execution, one, two, object, value, resume;
 
   describe('with regular resource', () => {
     beforeEach(() => {
-      execution = main(function* outer() {
+      execution = run(function* outer() {
         one = yield function* one() {
           object = { hello: "world" };
           return yield resource(object, function* resource() {
@@ -60,7 +60,7 @@ describe('Returning resources', () => {
 
   describe('with context returning resource', () => {
     beforeEach(() => {
-      execution = main(function* outer() {
+      execution = run(function* outer() {
         one = yield function* one() {
           object = { hello: "world" };
           return yield resource(object, function* resource() {
@@ -110,7 +110,7 @@ describe('Returning resources', () => {
 
   describe('null operations', () => {
     beforeEach(() => {
-      return execution = main(function*() {
+      return execution = run(function*() {
         yield Promise.resolve(null);
       });
     });

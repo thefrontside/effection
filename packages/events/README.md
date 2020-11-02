@@ -9,10 +9,10 @@ Node.js style EventEmitters (`on`/`off`) and with browser style EventTarget
 The `once` operation can be used to wait for an event to occur exactly once.
 
 ``` typescript
-import { main } from '@effection/node';
+import { run } from '@effection/node';
 import { once } from '@effection/events';
 
-main(function* sayHello() {
+run(function* sayHello() {
   yield once(window, "DOMContentLoaded");
   console.log('Hello World!');
 });
@@ -21,10 +21,10 @@ main(function* sayHello() {
 The `on` operation returns a subscription which can be used to loop over events:
 
 ``` typescript
-import { main } from '@effection/node';
+import { run } from '@effection/node';
 import { on } from '@effection/events';
 
-main(function* sayHello() {
+run(function* sayHello() {
   let messages = yield on(window, "message");
 
   while(true) {
@@ -39,10 +39,10 @@ has an error as its first argument. `@effection/events` includes a helper to
 make handling this situation convenient:
 
 ``` typescript
-import { main } from '@effection/node';
+import { run } from '@effection/node';
 import { once, throwOnErrorEvent } from '@effection/events';
 
-main(function* sayHello() {
+run(function* sayHello() {
   let someSocket = createSocket();
 
   yield throwOnErrorEvent(someSocket);

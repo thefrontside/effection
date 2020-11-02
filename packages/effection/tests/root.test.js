@@ -4,13 +4,13 @@
 
 import expect from 'expect';
 
-import { main, fork } from '../src/index';
+import { run, fork } from '../src/index';
 
 describe('Root', () => {
   let execution, child, grandchild;
 
   beforeEach(() => {
-    execution = main(function* () {
+    execution = run(function* () {
       child = yield fork(function*() {
         grandchild = yield fork();
       });

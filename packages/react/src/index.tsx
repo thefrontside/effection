@@ -1,6 +1,6 @@
 import { main } from 'effection';
 
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState } from "react";
 
 type OperationResult = [(...args: any[]) => any, any];
 
@@ -19,10 +19,6 @@ export function useEffection<T extends AnyFunction>(task: T) : OperationResult {
     await context;
     setCurrentState(context)
   }, [])
-
-  useEffect(() => {
-    console.log(currentState)
-  }, [currentState, currentState.state])
 
   return [perform, currentState];
 }

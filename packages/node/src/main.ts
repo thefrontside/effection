@@ -14,7 +14,26 @@ export class MainError extends Error {
   }
 }
 
-export function main<T>(operation: Operation<T>): Context<T> {
+export function isMainError(error: Error): error is MainError {
+  return error.name === 'EffectionMainError';
+}
+
+export function exitOnError(e: Error) {
+  if(isMainError(e)) {
+    if(e.options.message) {
+      console.error(e.options.message);
+    }
+    if(e.options.verbose) {
+      console.error(e.stack);
+    }
+    process.exit(e.options.exitCode || -1);
+  } else {
+    console.error(e);
+    process.exit(-1);
+  }
+}
+
+export function main<T>(operation: Operation<T>, onError: (error: Error) => void = exitOnError): Context<T> {
   return effectionMain(({ context: mainContext, spawn }) => {
     spawn(function* main() {
       let interrupt = () => { mainContext.halt(); };
@@ -25,18 +44,7 @@ export function main<T>(operation: Operation<T>): Context<T> {
         process.on('SIGUSR1', debug);
         return yield operation;
       } catch(e) {
-        if(e.name === 'EffectionMainError') {
-          if(e.options.message) {
-            console.error(e.options.message);
-          }
-          if(e.options.verbose) {
-            console.error(e.stack);
-          }
-          process.exit(e.options.exitCode || -1);
-        } else {
-          console.error(e);
-          process.exit(-1);
-        }
+        onError(e);
       } finally {
         process.off('SIGINT', interrupt);
         process.off('SIGTERM', interrupt);

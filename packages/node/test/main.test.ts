@@ -54,5 +54,13 @@ describe('main', () => {
       expect(child.stderr.output).not.toContain('EffectionMainError');
       expect(status.code).toEqual(23);
     });
+
+    it('can override error handler', async () => {
+      let child = await TestProcess.exec(`ts-node ${[path.join(__dirname, 'fixtures/main-failed-on-error.ts')]}`);
+      let status = await child.join();
+
+      expect(child.stderr.output).toContain('GOT ERROR: moo');
+      expect(status.code).toEqual(47);
+    });
   });
 });

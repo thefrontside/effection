@@ -5,7 +5,7 @@ import { SubscriptionSource, rawSubscribe } from './subscription-source';
 
 const DUMMY = { next() { throw new Error('dummy') } };
 
-export class ChainableSubscription<T,TReturn> implements Subscription<T,TReturn> {
+export class ChainableSubscription<T,TReturn = undefined> implements Subscription<T,TReturn> {
   constructor(private subscription: Subscription<T, TReturn>) {}
 
   static *of<T, TReturn>(source: SubscriptionSource<T, TReturn>): Operation<ChainableSubscription<T, TReturn>> {

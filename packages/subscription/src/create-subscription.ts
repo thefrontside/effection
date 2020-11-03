@@ -6,7 +6,7 @@ import { Semaphore } from './semaphore';
 
 export type Subscriber<T,TReturn> = (publish: (value: T) => void) => Operation<TReturn>;
 
-export function createSubscription<T, TReturn>(subscribe: Subscriber<T,TReturn>): ChainableSubscribable<T,TReturn> {
+export function createSubscription<T, TReturn = undefined>(subscribe: Subscriber<T,TReturn>): ChainableSubscribable<T,TReturn> {
   return makeChainable(function*() {
     let results: IteratorResult<T,TReturn>[] = [];
 

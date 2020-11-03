@@ -1,7 +1,7 @@
 import { Operation } from 'effection';
 
-export type Subscriber<T,TReturn> = (publish: (value: T) => void) => Operation<TReturn>;
+export type Subscriber<T,TReturn = undefined> = (publish: (value: T) => void) => Operation<TReturn>;
 
-export interface Subscription<T,TReturn> {
+export interface Subscription<T,TReturn = undefined> {
   next(): Operation<IteratorResult<T,TReturn>>;
 }

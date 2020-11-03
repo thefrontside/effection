@@ -1,33 +1,18 @@
-import { Context, Operation, main } from 'effection';
 import { renderHook, act, cleanup } from '@testing-library/react-hooks'
 import { useEffection } from '../src'
 
 afterEach(cleanup);
 
-type World = Context & { spawn<T>(operation: Operation<T>): Promise<T> };
+test("it can perform some asynchronous work", async () => {
 
-let currentWorld: World;
+  const { result, waitForNextUpdate } = renderHook(() => useEffection(function * () {
+    return yield Promise.resolve('hello');
+  }));
 
-beforeEach(() => {
-  currentWorld = main(undefined) as World;
-});
+  result.current[0]();
 
-afterEach(() => {
-  currentWorld.halt();
-});
+  await waitForNextUpdate()
 
-test("it can perform some synchronous work", async () => {
-  const done = jest.fn();
-
-  const { result } = renderHook(() => useEffection(done));
-
-  act(() => {
-    const [perform] = result.current;
-    console.log(perform())
-  });
-
-  //await waitForNextUpdate();
-
-  expect(done).toBeCalled();
+  expect(result.current[1].isRunning).toBe(false);
 });
 

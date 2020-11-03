@@ -9,7 +9,9 @@
     "sourceMap": true,
     "declaration": true,
     "esModuleInterop": true,
-    "jsx": "react"
+    "jsx": "react",
+    "inlineSources": true,
+    "inlineSourceMap": true
   }
 }
 

@@ -31,6 +31,6 @@
     "abort-controller": "^3.0.0",
     "cross-fetch": "^3.0.4",
     "effection": "^0.7.0",
-    "node-fetch": "^2.6.0"
+    "node-fetch": "^2.6.1"
   }
 }

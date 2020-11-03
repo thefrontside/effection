@@ -46,4 +46,6 @@ declare module "effection" {
   export function timeout(durationMillis: number): Operation<void>;
 
   export function contextOf(object: Object): Context<any> | undefined;
+
+  export function deprecated<F extends Function>(message: string, fn: F): F;
 }

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.9.1
+
+### Patch Changes
+
+- c9b2558: windows support. fixes https://github.com/thefrontside/effection/issues/182
+
 ## 0.9.0
 
 ### Minor Changes

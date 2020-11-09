@@ -2,7 +2,7 @@ import { describe, it, beforeEach } from 'mocha';
 import * as expect from 'expect';
 import fetch from 'node-fetch';
 
-import { Context } from 'effection';
+import { Context, spawn } from 'effection';
 import { subscribe } from '@effection/subscription';
 
 import { World, converge } from './helpers';
@@ -12,6 +12,7 @@ import { daemon, StdIO } from '../src';
 describe('daemon()', () => {
   let io: StdIO;
   let output: string;
+  let errput: string;
   let context: Context;
   let error: Error;
 
@@ -26,9 +27,15 @@ describe('daemon()', () => {
             cwd: __dirname,
           });
 
-          yield subscribe(io.stdout).forEach(function*(chunk) {
+          yield spawn(subscribe(io.stdout).forEach(function*(chunk) {
             output += chunk;
-          })
+          }))
+
+          yield spawn(subscribe(io.stderr).forEach(function*(chunk) {
+            errput += chunk;
+          }));
+
+          yield;
         }
       } catch (e) {
         error = e;

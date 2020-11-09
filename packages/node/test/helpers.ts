@@ -4,7 +4,7 @@ import * as expect from 'expect';
 import { main, Context, Controls } from 'effection';
 import { Channel } from '@effection/channel';
 import { subscribe } from '@effection/subscription';
-
+import { ctrlc } from 'ctrlc-windows';
 import { exec, Process } from '../src/exec';
 
 export let World: Context & Controls;
@@ -21,12 +21,12 @@ afterEach(() => {
 })
 
 export class TestProcess {
-  private isWin32 = false;
+  isWin32 = global.process.platform === 'win32';
   stdout: TestStream;
   stderr: TestStream;
 
   static async exec(cmd: string) {
-    return new TestProcess(await World.spawn(exec(cmd)));
+    return new TestProcess(await World.spawn(exec(cmd, { cwd: __dirname })));
   }
 
   constructor(public process: Process) {
@@ -41,9 +41,11 @@ export class TestProcess {
   // cross platform graceful shutdown request. What would
   // be sent to the process by the Operating system when
   // a users requests a terminate.
-  terminate() {
+  async terminate() {
     if (this.isWin32) {
-      //TODO:
+      ctrlc(this.process.pid);
+      //Terminate batch process? (Y/N)
+      this.process.stdin.send("Y\n");
     } else {
       process.kill(this.process.pid, 'SIGTERM');
     }
@@ -52,9 +54,11 @@ export class TestProcess {
   // cross platform user initiated graceful shutdown request. What would
   // be sent to the process by the Operating system when
   // a users requests an interrupt via CTRL-C or equivalent.
-  interrupt() {
+  async interrupt() {
     if (this.isWin32) {
-      //TODO:
+      ctrlc(this.process.pid);
+      //Terminate batch process? (Y/N)
+      this.process.stdin.send("Y\n");
     } else {
       process.kill(this.process.pid, 'SIGINT');
     }

@@ -5,7 +5,7 @@ import { subscribe } from './subscribe';
 import { SubscriptionSource } from './subscription-source';
 import { deprecated } from './deprecated';
 
-export interface Subscribable<T,TReturn> {
+export interface Subscribable<T,TReturn = undefined> {
   [SymbolSubscribable](): Operation<Subscription<T,TReturn>>;
 }
 

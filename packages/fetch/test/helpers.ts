@@ -1,4 +1,4 @@
-import { Context, Operation, main } from 'effection';
+import { Context, Operation, run as effectionRun } from 'effection';
 import { performance } from 'perf_hooks';
 
 type World = Context & { spawn<T>(operation: Operation<T>): Promise<T> };
@@ -11,7 +11,7 @@ before(function() {
 });
 
 beforeEach(() => {
-  currentWorld = main(undefined) as World;
+  currentWorld = effectionRun(undefined) as World;
 });
 
 afterEach(() => {

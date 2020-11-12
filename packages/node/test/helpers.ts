@@ -1,7 +1,7 @@
 import { performance } from 'perf_hooks';
 import { beforeEach } from 'mocha';
 import * as expect from 'expect';
-import { main, Context, Controls } from 'effection';
+import { run, Context, Controls } from 'effection';
 import { Channel } from '@effection/channel';
 import { subscribe } from '@effection/subscription';
 import { ctrlc } from 'ctrlc-windows';
@@ -10,7 +10,7 @@ import { exec, Process } from '../src/exec';
 export let World: Context & Controls;
 
 beforeEach(() => {
-  World = main(undefined) as Context & Controls;
+  World = run(undefined) as Context & Controls;
 });
 
 afterEach(() => {

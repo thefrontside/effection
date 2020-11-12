@@ -1,16 +1,16 @@
-import { main } from 'effection';
+import { run } from 'effection';
 
 async function someAsyncFunction() {
-  await main(function*() {
+  await run(function*() {
     yield
   });
 
   await Promise.all([
-    main(function*() { yield }),
-    main(function*() { yield }),
+    run(function*() { yield }),
+    run(function*() { yield }),
   ]);
 
-  let someFork = main(function*() {
+  let someFork = run(function*() {
     yield
     return 123;
   });
@@ -21,7 +21,7 @@ async function someAsyncFunction() {
 
   // promise has type of the generator function
   // $ExpectError
-  let broken: string = await main(function*() {
+  let broken: string = await run(function*() {
     yield
     return 123;
   });

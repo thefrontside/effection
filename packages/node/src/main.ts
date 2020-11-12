@@ -1,4 +1,4 @@
-import { main as effectionMain, Context, Operation } from 'effection';
+import { run, Context, Operation } from 'effection';
 
 interface MainErrorOptions {
   exitCode?: number;
@@ -15,7 +15,7 @@ export class MainError extends Error {
 }
 
 export function main<T>(operation: Operation<T>): Context<T> {
-  return effectionMain(({ context: mainContext, spawn }) => {
+  return run(({ context: mainContext, spawn }) => {
     spawn(function* main() {
       let interrupt = () => { mainContext.halt(); };
       let debug = () => console.debug(mainContext.toString());

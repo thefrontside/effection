@@ -5,7 +5,7 @@
 import expect from 'expect';
 import mock from 'jest-mock';
 
-import { main } from '../src/index';
+import { run } from '../src/index';
 
 describe('Co-routine guarantees', () => {
   let top, inner, error;
@@ -15,7 +15,7 @@ describe('Co-routine guarantees', () => {
 
     finalizeTop = mock.fn();
     finalizeMiddle = mock.fn();
-    top = main(function* top() {
+    top = run(function* top() {
       try {
         return yield function* middle() {
           try {
@@ -132,7 +132,7 @@ describe('Co-routine guarantees', () => {
 describe('deeply nested task that throws an error', () => {
   let execution, error;
   beforeEach(() => {
-    execution = main(function*() {
+    execution = run(function*() {
       try {
         return yield function*() {
           return yield function*() {
@@ -162,7 +162,7 @@ describe('executing a generators', () => {
   describe('nested inside generator functions', () => {
     beforeEach(() => {
 
-      execution = main(function*() {
+      execution = run(function*() {
         let one = yield function*() { return 1; };
         let two = yield function*() { return 2; };
         return yield add(one, two);
@@ -177,7 +177,7 @@ describe('executing a generators', () => {
 
   describe('directly', () => {
     beforeEach(() => {
-      execution = main(add(1, 2));
+      execution = run(add(1, 2));
     });
     it('computes the result just fine', () => {
       expect(execution.isCompleted).toEqual(true);
@@ -189,7 +189,7 @@ describe('executing a generators', () => {
 describe('catching errors repeatedly', () => {
   let execution, body, error;
   beforeEach(() => {
-    execution = main(function*() {
+    execution = run(function*() {
       while (true) {
         try {
           return yield ctl => body = ctl;

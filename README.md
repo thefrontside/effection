@@ -65,14 +65,14 @@ siblings are immediately halted.
 ## Context
 
 Every operation takes place within an execution context. To create the
-very first context, use the `main` function and pass it a generator. This
+very first context, use the `run` function and pass it a generator. This
 example waits for 1 second, then prints out "hello world" to
 the console.
 
 ``` javascript
-import { main, timeout } from 'effection';
+import { run, timeout } from 'effection';
 
-let context = main(function*() {
+let context = run(function*() {
   yield timeout(1000);
   return 'hello world';
 });
@@ -87,7 +87,7 @@ Child processes can be composed freely. So instead of yielding for
 1000 ms, we could instead, yield 10 times for 100ms.
 
 ``` javascript
-main(function*() {
+run(function*() {
   yield function*() {
     for (let i = 0; i < 10; i++) {
       yield timeout(100);
@@ -100,7 +100,7 @@ main(function*() {
 And in fact, processes can be easily and arbitrarly deeply nested:
 
 ``` javascript
-let process = main(function*() {
+let process = run(function*() {
   return yield function*() {
     return yield function*() {
       return yield function*() {
@@ -118,13 +118,13 @@ You can pass arguments to an operation by invoking it.
 
 ``` javascript
 
-import { main, timeout } from 'effection';
+import { run, timeout } from 'effection';
 
 function* waitForSeconds(durationSeconds) {
   yield timeout(durationSeconds * 1000);
 }
 
-main(waitforseconds(10));
+run(waitforseconds(10));
 ```
 
 ### Asynchronous Execution
@@ -137,9 +137,9 @@ part of your main process. To do this, you would use the `fork` method
 on the execution:
 
 ``` javascript
-import { main, fork } from 'effection';
+import { run, fork } from 'effection';
 
-main(function*() {
+run(function*() {
   yield fork(createFileServer);
   yield fork(createHttpServer);
 });

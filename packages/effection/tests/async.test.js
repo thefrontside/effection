@@ -5,14 +5,14 @@
 import expect from 'expect';
 import * as capcon from 'capture-console';
 
-import { main, fork, join } from '../src/index';
+import { run, fork, join } from '../src/index';
 
 describe('Async executon', () => {
   describe('with asynchronously executing children', () => {
     let execution, one, two, three;
 
     beforeEach(() => {
-      execution = main(function* outer() {
+      execution = run(function* outer() {
         one = yield fork();
 
         two = yield fork();
@@ -148,7 +148,7 @@ describe('Async executon', () => {
     let execution, one, two, three, sync, boom;
     beforeEach(() => {
       boom = new Error('boom!');
-      execution = main(function*() {
+      execution = run(function*() {
         one = yield fork();
         two = yield fork();
         yield function*() {
@@ -276,7 +276,7 @@ describe('Async executon', () => {
   describe('A parent that block, but also has an async child', () => {
     let parent, child;
     beforeEach(() => {
-      parent = main(function*() {
+      parent = run(function*() {
         child = yield fork();
         yield x => x;
       });
@@ -312,7 +312,7 @@ describe('Async executon', () => {
   describe('joining a fork', () => {
     let root, child, getNumber;
     beforeEach(() => {
-      root = main(function*() {
+      root = run(function*() {
         child = yield fork(function*() {
           getNumber = yield fork();
           let number = yield join(getNumber);
@@ -360,7 +360,7 @@ describe('Async executon', () => {
     let root, wait;
 
     beforeEach(() => {
-      root = main(function* root() {
+      root = run(function* root() {
         let child = yield fork();
 
         try {

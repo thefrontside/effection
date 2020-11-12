@@ -2,7 +2,7 @@
 
 import expect from 'expect';
 
-import { main } from '../src/index';
+import { run } from '../src/index';
 
 import mock from 'jest-mock';
 
@@ -22,7 +22,7 @@ describe('Controlling execution', () => {
     beforeEach(() => {
       relinquish = mock.fn();
 
-      execution = main(function*() {
+      execution = run(function*() {
         yield control;
       });
 
@@ -70,7 +70,7 @@ describe('Controlling execution', () => {
   describe('from an intermediate step in an execution', () => {
     beforeEach(() => {
       relinquish = mock.fn();
-      main(function* () {
+      run(function* () {
         yield control;
         yield ctl => ctl.resume();
       });

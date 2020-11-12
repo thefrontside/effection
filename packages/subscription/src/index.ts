@@ -7,11 +7,9 @@ export { ChainableSubscription } from './chainable-subscription';
 export { ChainableSubscribable } from './chainable-subscribable';
 export { subscribe } from './subscribe';
 
-import { Operation } from 'effection';
+import { Operation, deprecated } from 'effection';
 import { SubscriptionSource } from './subscription-source';
 import { subscribe } from './subscribe';
-
-import { deprecated } from './deprecated';
 
 export const forEach = deprecated(
   '`forEach(source, ...)` is deprecated, use `subscribe(source).forEach(...)` instead',

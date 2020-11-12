@@ -1,20 +1,20 @@
-import { Context, Sequence, main, fork } from 'effection';
+import { Context, Sequence, run, fork } from 'effection';
 
 function* operation(): Sequence {}
 
 let execution: Context;
 
-execution = main(fork(operation));
+execution = run(fork(operation));
 
-execution = main(operation());
+execution = run(operation());
 
-execution = main(Promise.resolve("hello world"));
+execution = run(Promise.resolve("hello world"));
 
-execution = main(function*() {});
+execution = run(function*() {});
 
-execution = main(undefined);
+execution = run(undefined);
 
-execution = main(({ resume, fail, ensure, context }) => {
+execution = run(({ resume, fail, ensure, context }) => {
   context.id;
   resume(10);
   resume();

@@ -1,10 +1,9 @@
-import { Operation, resource } from 'effection';
+import { Operation, resource, deprecated } from 'effection';
 import { once, throwOnErrorEvent } from '@effection/events';
 
 import * as childProcess from 'child_process';
 import { SpawnOptions, ForkOptions, ChildProcess } from 'child_process';
 
-import { deprecated } from './deprecated';
 export { ChildProcess } from 'child_process';
 
 function *supervise(child: ChildProcess, command: string, args: readonly string[] = []) {

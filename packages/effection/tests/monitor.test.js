@@ -4,14 +4,14 @@
 
 import expect from 'expect';
 
-import { main, fork, monitor } from '../src/index';
+import { run, fork, monitor } from '../src/index';
 
 describe('monitor', () => {
   describe('creates a monitor which does not prevent execution from finishing', () => {
     let execution, one, two;
 
     beforeEach(() => {
-      execution = main(function*() {
+      execution = run(function*() {
         yield monitor(ctl => one = ctl);
 
         yield fork(ctl => two = ctl);

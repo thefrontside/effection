@@ -5,7 +5,7 @@ function *randomNumber(): Operation<number> {
   return 4;
 }
 
-function *main(): Operation<string> {
+function *run(): Operation<string> {
   let result = yield randomNumber();
 
   result += 1;

@@ -29,6 +29,8 @@ declare module "effection" {
     context: Context<T>;
   }
 
+  export function run<T>(operation: Operation<T>): Context<T>;
+
   export function main<T>(operation: Operation<T>): Context<T>;
 
   export function fork<T>(operation: Operation<T>): Operation<Context<T>>;
@@ -44,4 +46,6 @@ declare module "effection" {
   export function timeout(durationMillis: number): Operation<void>;
 
   export function contextOf(object: Object): Context<any> | undefined;
+
+  export function deprecated<F extends Function>(message: string, fn: F): F;
 }

@@ -9,3 +9,4 @@ package-lock.json
 /scratchpad
 yarn-error.log
 .cache
+**/yarn.lock

@@ -24,8 +24,8 @@
     "expect": "26.0.1",
     "mocha": "7.2.0",
     "ts-node": "8.10.2",
-    "tsdx": "0.13.2",
-    "typescript": "^3.9.5"
+    "tsdx": "0.14.1",
+    "typescript": "^4.0.5"
   },
   "dependencies": {
     "abort-controller": "^3.0.0",

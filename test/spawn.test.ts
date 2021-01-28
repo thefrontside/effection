@@ -1,23 +1,12 @@
 import { describe, beforeEach, it } from 'mocha';
 import * as expect from 'expect';
 
-import { run, Task } from '../src/index';
+import { run, sleep, Task } from '../src/index';
 import { Deferred } from '../src/deferred';
 
 process.on('unhandledRejection', (reason, promise) => {
   // silence warnings in tests
 });
-
-function* sleep(ms: number) {
-  let timeout;
-  let deferred = Deferred();
-  try {
-    timeout = setTimeout(deferred.resolve, ms);
-    yield deferred.promise;
-  } finally {
-    timeout && clearTimeout(timeout);
-  }
-};
 
 describe('spawn', () => {
   it('can spawn a new child task', async () => {
@@ -152,7 +141,7 @@ describe('spawn', () => {
   it('throws an error when called after controller finishes', async () => {
     let child;
     let root = run(function*(context: Task) {
-      child = context.spawn(function*() {
+      child = context.spawn(function*(task) {
         try {
           yield sleep(1);
         } finally {

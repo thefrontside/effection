@@ -1,7 +1,8 @@
+import './setup';
 import { describe, beforeEach, it } from 'mocha';
 import * as expect from 'expect';
 
-import { run, sleep, Operation, Task } from '../src/index';
+import { run, sleep, Operation, Effection, Task } from '../src/index';
 import { Deferred } from '../src/deferred';
 
 function createNumber(value: number) {
@@ -17,6 +18,11 @@ function *blowUp() {
 }
 
 describe('run', () => {
+  it('adds the new task to the global task', () => {
+    let task = run(Promise.resolve(123))
+    expect(Effection.root.children.has(task as Task)).toEqual(true);
+  });
+
   describe('with promise', () => {
     it('runs a promise to completion', async () => {
       let task = run(Promise.resolve(123))

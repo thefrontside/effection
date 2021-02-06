@@ -35,7 +35,7 @@
     "@effection/events": "^0.7.8",
     "@effection/subscription": "^0.11.1",
     "cross-spawn": "^7.0.3",
-    "ctrlc-windows": "^1.0.0",
+    "ctrlc-windows": "^1.0.2",
     "effection": "^0.7.0",
     "shellwords": "^0.1.1"
   },

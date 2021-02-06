@@ -3172,10 +3172,10 @@ csv@^5.3.1:
     csv-stringify "^5.3.6"
     stream-transform "^2.0.1"
 
-ctrlc-windows@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/ctrlc-windows/-/ctrlc-windows-1.0.0.tgz#dc9ba4b88609d383f09757cd6ab3a4a9e1c6794e"
-  integrity sha512-30qv4ANs1BhdrCAAVN3HhBl4Td7cyD4d8tp32e+Y3gc82wc6FZbEQh/8oRBxh2wCVZ4LofNUDARqZfi7nIhJ8g==
+ctrlc-windows@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/ctrlc-windows/-/ctrlc-windows-1.0.2.tgz#4fd723f3611bd0760277689f8daef9ceed73d92d"
+  integrity sha512-TbJhs5FhoJSMSP3V8MbV19L34/DX8GZAlKJ5ttgTi8PuycY+NAy+hc73QoqJSav3e1lE8SUggAS6q10J2M0DFA==
   dependencies:
     neon-cli "^0.5.0"
     node-pre-gyp "^0.16.0"

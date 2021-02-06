@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.9.2
+
+### Patch Changes
+
+- 9ce3ab7: Bump ctrlc-windows on node to skip building on non-windows
+- Updated dependencies [f851981]
+- Updated dependencies [d3d3b64]
+  - effection@0.8.0
+  - @effection/subscription@0.12.0
+  - @effection/channel@0.6.8
+  - @effection/events@0.7.9
+
 ## 0.9.1
 
 ### Patch Changes

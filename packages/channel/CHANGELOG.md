@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.6.8
+
+### Patch Changes
+
+- Updated dependencies [f851981]
+- Updated dependencies [d3d3b64]
+  - effection@0.8.0
+  - @effection/subscription@0.12.0
+  - @effection/events@0.7.9
+
 ## 0.6.7
 
 ### Patch Changes

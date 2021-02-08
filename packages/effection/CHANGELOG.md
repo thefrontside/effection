@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.8.0
+
+### Minor Changes
+
+- f851981: Rename `main` to `run` and deprecate `main`
+
 ## 0.7.0
 
 ### Minor Changes

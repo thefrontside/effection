@@ -1,5 +1,12 @@
 # @effection/fetch
 
+## 0.1.3
+
+### Patch Changes
+
+- Updated dependencies [f851981]
+  - effection@0.8.0
+
 ## 0.1.2
 
 ### Patch Changes

@@ -1,5 +1,16 @@
 # @effection/subscription
 
+## 0.12.0
+
+### Minor Changes
+
+- d3d3b64: Type of `TReturn` defaults to `undefined`.
+
+### Patch Changes
+
+- Updated dependencies [f851981]
+  - effection@0.8.0
+
 ## 0.11.1
 
 ### Patch Changes

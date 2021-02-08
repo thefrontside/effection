@@ -1,6 +1,6 @@
 {
   "name": "effection",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Effortlessly composable structured concurrency primitive for JavaScript",
   "repository": "http://github.com/thefrontside/effection",
   "author": "Charles Lowell <cowboyd@frontside.com>",

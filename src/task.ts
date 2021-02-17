@@ -125,6 +125,6 @@ export class Task<TOut = unknown> implements Promise<TOut> {
   }
 
   get [Symbol.toStringTag](): string {
-    return '[Task ${this.id]'
+    return `[Task ${this.id}]`
   }
 }

@@ -7,9 +7,11 @@ process.on('unhandledRejection', (reason, promise) => {
   // silence warnings in tests
 });
 
-function *createNumber(value: number) {
-  yield sleep(1);
-  return value;
+function createNumber(value: number) {
+  return function*() {
+    yield sleep(1);
+    return value;
+  }
 }
 
 function *blowUp() {
@@ -46,18 +48,6 @@ describe('run', () => {
     });
   });
 
-  describe('with generator', () => {
-    it('can compose multiple promises via generator', () => {
-      function* gen() {
-        let one: number = yield Promise.resolve(12);
-        let two: number = yield Promise.resolve(55);
-        return one + two;
-      };
-      let task = run(gen());
-      expect(task).resolves.toEqual(67);
-    });
-  });
-
   describe('with generator function', () => {
     it('can compose multiple promises via generator', () => {
       let task = run(function*() {
@@ -81,7 +71,7 @@ describe('run', () => {
       let error = new Error('boom');
       let task = run(function*() {
         let one: number = yield createNumber(12);
-        let two: number = yield blowUp();
+        let two: number = yield blowUp;
         return one + two;
       });
       expect(task).rejects.toEqual(error);
@@ -90,7 +80,7 @@ describe('run', () => {
     it('rejects generator if subtask operation fails', () => {
       let task = run(function*() {
         let one: number = yield createNumber(12);
-        let two: number = yield blowUp();
+        let two: number = yield blowUp;
         return one + two;
       });
       expect(task).rejects.toHaveProperty('message', 'boom');
@@ -119,7 +109,7 @@ describe('run', () => {
         let one: number = yield Promise.resolve(12);
         let two: number;
         try {
-          yield blowUp();
+          yield blowUp;
           two = 9;
         } catch(e) {
           // swallow error and yield in catch block

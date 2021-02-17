@@ -113,13 +113,18 @@ export class Task<TOut = unknown> implements Promise<TOut> {
       throw new Error('cannot spawn a child on a task which is not running');
     }
     let child = new Task(operation);
-    child.link(this as Task);
+    this.link(child as Task);
     return child;
   }
 
-  link(parent: Task) {
-    this.parent = parent;
-    parent.children.add(this as Task);
+  link(child: Task) {
+    child.parent = this as Task;
+    this.children.add(child);
+  }
+
+  unlink(child: Task) {
+    child.parent = undefined;
+    this.children.delete(child);
   }
 
   trapExit(child: Task) {
@@ -135,18 +140,18 @@ export class Task<TOut = unknown> implements Promise<TOut> {
   }
 
   trapComplete(child: Task) {
-    this.children.delete(child);
+    this.unlink(child);
   }
 
   trapError(child: Task) {
     if(child.error) {
       this.signal.reject(child.error);
     }
-    this.children.delete(child);
+    this.unlink(child);
   }
 
   trapHalt(child: Task) {
-    this.children.delete(child);
+    this.unlink(child);
   }
 
   get [Symbol.toStringTag](): string {

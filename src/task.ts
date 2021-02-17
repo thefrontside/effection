@@ -34,8 +34,6 @@ export class Task<TOut = unknown> implements Promise<TOut> {
       this.controller = new PromiseController(new Promise(() => {}));
     } else if(isPromise(operation)) {
       this.controller = new PromiseController(operation);
-    } else if(isGenerator(operation)) {
-      this.controller = new IteratorController(operation);
     } else if(typeof(operation) === 'function') {
       this.controller = new IteratorController(operation(this));
     } else {

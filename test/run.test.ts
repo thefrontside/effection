@@ -3,10 +3,6 @@ import * as expect from 'expect';
 
 import { run, sleep, Operation } from '../src/index';
 
-process.on('unhandledRejection', (reason, promise) => {
-  // silence warnings in tests
-});
-
 function createNumber(value: number) {
   return function*() {
     yield sleep(1);
@@ -21,15 +17,15 @@ function *blowUp() {
 
 describe('run', () => {
   describe('with promise', () => {
-    it('runs a promise to completion', () => {
+    it('runs a promise to completion', async () => {
       let task = run(Promise.resolve(123))
-      expect(task).resolves.toEqual(123);
+      await expect(task).resolves.toEqual(123);
     });
 
-    it('rejects a failed promise', () => {
+    it('rejects a failed promise', async () => {
       let error = new Error('boom');
       let task = run(Promise.reject(error))
-      expect(task).rejects.toEqual(error);
+      await expect(task).rejects.toEqual(error);
     });
 
     it('can halt a promise', async () => {
@@ -49,44 +45,44 @@ describe('run', () => {
   });
 
   describe('with generator function', () => {
-    it('can compose multiple promises via generator', () => {
+    it('can compose multiple promises via generator', async () => {
       let task = run(function*() {
         let one: number = yield Promise.resolve(12);
         let two: number = yield Promise.resolve(55);
         return one + two;
       });
-      expect(task).resolves.toEqual(67);
+      await expect(task).resolves.toEqual(67);
     });
 
-    it('can compose operations', () => {
+    it('can compose operations', async () => {
       let task = run(function*() {
         let one: number = yield createNumber(12);
         let two: number = yield createNumber(55);
         return one + two;
       });
-      expect(task).resolves.toEqual(67);
+      await expect(task).resolves.toEqual(67);
     });
 
-    it('rejects generator if subtask promise fails', () => {
+    it('rejects generator if subtask promise fails', async () => {
       let error = new Error('boom');
       let task = run(function*() {
         let one: number = yield createNumber(12);
         let two: number = yield blowUp;
         return one + two;
       });
-      expect(task).rejects.toEqual(error);
+      await expect(task).rejects.toEqual(error);
     });
 
-    it('rejects generator if subtask operation fails', () => {
+    it('rejects generator if subtask operation fails', async () => {
       let task = run(function*() {
         let one: number = yield createNumber(12);
         let two: number = yield blowUp;
         return one + two;
       });
-      expect(task).rejects.toHaveProperty('message', 'boom');
+      await expect(task).rejects.toHaveProperty('message', 'boom');
     });
 
-    it('can recover from errors in promise', () => {
+    it('can recover from errors in promise', async () => {
       let error = new Error('boom');
       let task = run(function*() {
         let one: number = yield Promise.resolve(12);
@@ -101,10 +97,10 @@ describe('run', () => {
         let three: number = yield Promise.resolve(55);
         return one + two + three;
       });
-      expect(task).resolves.toEqual(75);
+      await expect(task).resolves.toEqual(75);
     });
 
-    it('can recover from errors in operation', () => {
+    it('can recover from errors in operation', async () => {
       let task = run(function*() {
         let one: number = yield Promise.resolve(12);
         let two: number;
@@ -118,7 +114,7 @@ describe('run', () => {
         let three: number = yield Promise.resolve(55);
         return one + two + three;
       });
-      expect(task).resolves.toEqual(75);
+      await expect(task).resolves.toEqual(75);
     });
 
     it('can halt generator', async () => {

@@ -29,6 +29,9 @@ export class Task<TOut = unknown> implements Promise<TOut> {
 
   public state: TaskState = 'running';
 
+  public result?: TOut;
+  public error?: Error;
+
   constructor(private operation: Operation<TOut>) {
     if(!operation) {
       this.controller = new PromiseController(new Promise(() => {}));
@@ -57,6 +60,7 @@ export class Task<TOut = unknown> implements Promise<TOut> {
   private async run(): Promise<TOut> {
     try {
       let result = await Promise.race([this.signal.promise, this.controller]);
+      this.result = result;
       this.state = 'completing';
       await this.haltChildren();
       this.state = 'completed';
@@ -67,19 +71,22 @@ export class Task<TOut = unknown> implements Promise<TOut> {
         try {
           await this.haltChildren();
           this.state = 'halted';
-          this.parent && this.parent.trapHalt(this as Task);
         } catch(error) {
+          this.error = error;
           this.state = 'errored';
-          this.parent && this.parent.trapError(this as Task, error);
           throw(error);
         }
         throw(error);
       } else {
         this.state = 'erroring';
+        this.error = error;
         await this.haltChildren(true);
         this.state = 'errored';
-        this.parent && this.parent.trapError(this as Task, error);
         throw(error);
+      }
+    } finally {
+      if(this.parent) {
+        this.parent.trapExit(this as Task);
       }
     }
   }
@@ -115,8 +122,26 @@ export class Task<TOut = unknown> implements Promise<TOut> {
     parent.children.add(this as Task);
   }
 
-  trapError(child: Task, error: Error) {
-    this.signal.reject(error);
+  trapExit(child: Task) {
+    if(child.state === 'completed') {
+      this.trapComplete(child);
+    }
+    if(child.state === 'errored') {
+      this.trapError(child);
+    }
+    if(child.state === 'halted') {
+      this.trapHalt(child);
+    }
+  }
+
+  trapComplete(child: Task) {
+    this.children.delete(child);
+  }
+
+  trapError(child: Task) {
+    if(child.error) {
+      this.signal.reject(child.error);
+    }
     this.children.delete(child);
   }
 

@@ -20,12 +20,16 @@ describe('run', () => {
     it('runs a promise to completion', async () => {
       let task = run(Promise.resolve(123))
       await expect(task).resolves.toEqual(123);
+      expect(task.state).toEqual('completed');
+      expect(task.result).toEqual(123);
     });
 
     it('rejects a failed promise', async () => {
       let error = new Error('boom');
       let task = run(Promise.reject(error))
       await expect(task).rejects.toEqual(error);
+      expect(task.state).toEqual('errored');
+      expect(task.error).toEqual(error);
     });
 
     it('can halt a promise', async () => {
@@ -35,6 +39,8 @@ describe('run', () => {
       task.halt();
 
       await expect(task).rejects.toHaveProperty('message', 'halted')
+      expect(task.state).toEqual('halted');
+      expect(task.result).toEqual(undefined);
     });
   });
 
@@ -52,6 +58,8 @@ describe('run', () => {
         return one + two;
       });
       await expect(task).resolves.toEqual(67);
+      expect(task.state).toEqual('completed');
+      expect(task.result).toEqual(67);
     });
 
     it('can compose operations', async () => {
@@ -61,6 +69,8 @@ describe('run', () => {
         return one + two;
       });
       await expect(task).resolves.toEqual(67);
+      expect(task.state).toEqual('completed');
+      expect(task.result).toEqual(67);
     });
 
     it('rejects generator if subtask promise fails', async () => {
@@ -71,6 +81,8 @@ describe('run', () => {
         return one + two;
       });
       await expect(task).rejects.toEqual(error);
+      expect(task.state).toEqual('errored');
+      expect(task.error).toEqual(error);
     });
 
     it('rejects generator if subtask operation fails', async () => {
@@ -80,6 +92,8 @@ describe('run', () => {
         return one + two;
       });
       await expect(task).rejects.toHaveProperty('message', 'boom');
+      expect(task.state).toEqual('errored');
+      expect(task.error).toHaveProperty('message', 'boom');
     });
 
     it('can recover from errors in promise', async () => {
@@ -98,6 +112,8 @@ describe('run', () => {
         return one + two + three;
       });
       await expect(task).resolves.toEqual(75);
+      expect(task.state).toEqual('completed');
+      expect(task.result).toEqual(75);
     });
 
     it('can recover from errors in operation', async () => {
@@ -115,6 +131,8 @@ describe('run', () => {
         return one + two + three;
       });
       await expect(task).resolves.toEqual(75);
+      expect(task.state).toEqual('completed');
+      expect(task.result).toEqual(75);
     });
 
     it('can halt generator', async () => {
@@ -127,6 +145,8 @@ describe('run', () => {
       task.halt();
 
       await expect(task).rejects.toHaveProperty('message', 'halted')
+      expect(task.state).toEqual('halted');
+      expect(task.result).toEqual(undefined);
     });
 
     it('can suspend in finally block', async () => {
@@ -146,6 +166,7 @@ describe('run', () => {
       task.halt();
 
       await expect(eventually).resolves.toEqual("did run");
+      expect(task.state).toEqual('running');
     });
 
     it('can await halt', async () => {
@@ -163,6 +184,7 @@ describe('run', () => {
       await task.halt();
 
       expect(didRun).toEqual(true);
+      expect(task.state).toEqual('halted');
     });
   });
 });

@@ -24,14 +24,14 @@ export class IteratorController<TOut> implements Controller<TOut>, Trapper {
     try {
       next = iter();
     } catch(error) {
-      this.task.trapReject(error);
+      this.task.reject(error);
       return;
     }
     if(next.done) {
       if(this.didHalt) {
-        this.task.trapHalt();
+        this.task.resume();
       } else {
-        this.task.trapResolve(next.value);
+        this.task.resolve(next.value);
       }
     } else {
       let subTask = new Task(next.value);
@@ -40,7 +40,7 @@ export class IteratorController<TOut> implements Controller<TOut>, Trapper {
     }
   }
 
-  trapChildExit(child: Task) {
+  trap(child: Task) {
     if(child.state === 'completed') {
       this.resume(() => this.iterator.next(child.result!));
     }

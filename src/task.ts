@@ -49,11 +49,6 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
     this.controller.start();
   }
 
-  private haltChildren(silent = false) {
-    this.children.forEach((c) => c.halt());
-    this.resume();
-  }
-
   then<TResult1 = TOut, TResult2 = never>(onfulfilled?: ((value: TOut) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): Promise<TResult1 | TResult2> {
     return this.deferred.promise.then(onfulfilled, onrejected);
   }
@@ -88,26 +83,24 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
     this.emit('unlink', child);
   }
 
-  trapResolve(result: TOut) {
+  resolve(result: TOut) {
     this.result = result;
     this.stateMachine.resolve();
-    this.haltChildren();
+    this.children.forEach((c) => c.halt());
+    this.resume();
   }
 
-  trapReject(error: Error) {
+  reject(error: Error) {
     this.result = undefined; // clear result if it has previously been set
     this.error = error;
     this.stateMachine.reject();
-    this.haltChildren();
+    this.children.forEach((c) => c.halt());
+    this.resume();
   }
 
-  trapHalt() {
-    this.haltChildren();
-  }
-
-  trapChildExit(child: Task) {
+  trap(child: Task) {
     if(child.state === 'errored') {
-      this.trapReject(child.error!);
+      this.reject(child.error!);
     }
     this.unlink(child);
     this.resume();
@@ -118,7 +111,7 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
       this.stateMachine.finish();
 
       if(this.parent) {
-        this.parent.trapChildExit(this as Task);
+        this.parent.trap(this as Task);
       }
 
       if(this.state === 'completed') {
@@ -134,6 +127,7 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
   async halt() {
     this.stateMachine.halt();
     this.controller.halt();
+    this.children.forEach((c) => c.halt());
     await this.catch(swallowHalt);
   }
 

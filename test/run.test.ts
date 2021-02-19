@@ -85,6 +85,15 @@ describe('run', () => {
       expect(task.error).toEqual(error);
     });
 
+    it('rejects generator if generator creation fails', async () => {
+      let task = run(function(task) {
+        throw new Error('boom');
+      });
+      await expect(task).rejects.toHaveProperty('message', 'boom');
+      expect(task.state).toEqual('errored');
+      expect(task.error).toHaveProperty('message', 'boom');
+    });
+
     it('rejects generator if subtask operation fails', async () => {
       let task = run(function*() {
         let one: number = yield createNumber(12);

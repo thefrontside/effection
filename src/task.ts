@@ -1,17 +1,10 @@
 import { PromiseController } from './controller/promise-controller';
-import { IteratorController } from './controller/iterator-controller';
+import { FunctionContoller } from './controller/function-controller';
 import { Controller } from './controller/controller';
 import { Operation } from './operation';
 import { Deferred } from './deferred';
+import { isPromise } from './predicates';
 import { swallowHalt, isHaltError } from './halt-error';
-
-function isPromise(value: any): value is PromiseLike<unknown> {
-  return value && typeof(value.then) === 'function';
-}
-
-function isGenerator(value: any): value is Iterator<unknown> {
-  return value && typeof(value.next) === 'function';
-}
 
 type TaskState = 'running' | 'halting' | 'halted' | 'erroring' | 'errored' | 'completing' | 'completed';
 
@@ -38,7 +31,7 @@ export class Task<TOut = unknown> implements Promise<TOut> {
     } else if(isPromise(operation)) {
       this.controller = new PromiseController(operation);
     } else if(typeof(operation) === 'function') {
-      this.controller = new IteratorController(operation);
+      this.controller = new FunctionContoller(operation);
     } else {
       throw new Error(`unkown type of operation: ${operation}`);
     }

@@ -5,12 +5,13 @@ import { Operation } from './operation';
 import { Deferred } from './deferred';
 import { isPromise } from './predicates';
 import { swallowHalt, isHaltError } from './halt-error';
+import { EventEmitter } from 'events';
 
 type TaskState = 'running' | 'halting' | 'halted' | 'erroring' | 'errored' | 'completing' | 'completed';
 
 let COUNTER = 0;
 
-export class Task<TOut = unknown> implements Promise<TOut> {
+export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut> {
   public id = ++COUNTER;
 
   private children: Set<Task> = new Set();
@@ -26,6 +27,7 @@ export class Task<TOut = unknown> implements Promise<TOut> {
   public error?: Error;
 
   constructor(private operation: Operation<TOut>) {
+    super();
     if(!operation) {
       this.controller = new PromiseController(new Promise(() => {}));
     } else if(isPromise(operation)) {
@@ -55,27 +57,27 @@ export class Task<TOut = unknown> implements Promise<TOut> {
     try {
       let result = await Promise.race([this.signal.promise, this.controller]);
       this.result = result;
-      this.state = 'completing';
+      this.setState('completing');
       await this.haltChildren();
-      this.state = 'completed';
+      this.setState('completed');
       return result;
     } catch(error) {
       if(isHaltError(error)) {
-        this.state = 'halting';
+        this.setState('halting');
         try {
           await this.haltChildren();
-          this.state = 'halted';
+          this.setState('halted');
         } catch(error) {
           this.error = error;
-          this.state = 'errored';
+          this.setState('errored');
           throw(error);
         }
         throw(error);
       } else {
-        this.state = 'erroring';
+        this.setState('erroring');
         this.error = error;
         await this.haltChildren(true);
-        this.state = 'errored';
+        this.setState('errored');
         throw(error);
       }
     } finally {
@@ -114,11 +116,13 @@ export class Task<TOut = unknown> implements Promise<TOut> {
   link(child: Task) {
     child.parent = this as Task;
     this.children.add(child);
+    this.emit('link', child);
   }
 
   unlink(child: Task) {
     child.parent = undefined;
     this.children.delete(child);
+    this.emit('unlink', child);
   }
 
   trapExit(child: Task) {
@@ -126,6 +130,12 @@ export class Task<TOut = unknown> implements Promise<TOut> {
       this.signal.reject(child.error);
     }
     this.unlink(child);
+  }
+
+  setState(state: TaskState) {
+    let from = this.state;
+    this.state = state;
+    this.emit('state', { from, to: state });
   }
 
   get [Symbol.toStringTag](): string {

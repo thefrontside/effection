@@ -12,7 +12,13 @@ import { HaltError } from './halt-error';
 
 let COUNTER = 0;
 
-export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>, Trapper {
+export interface Controls<TOut> {
+  resume(): void;
+  resolve(value: TOut): void;
+  reject(error: Error): void;
+}
+
+export class Task<TOut = unknown> extends EventEmitter implements Controls<TOut>, Promise<TOut>, Trapper {
   public id = ++COUNTER;
 
   private children: Set<Task> = new Set();
@@ -38,7 +44,7 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
     } else if(isPromise(operation)) {
       this.controller = new PromiseController(this, operation);
     } else if(typeof(operation) === 'function') {
-      this.controller = new FunctionContoller(this, operation);
+      this.controller = new FunctionContoller(this, this, operation);
     } else {
       throw new Error(`unkown type of operation: ${operation}`);
     }
@@ -78,9 +84,21 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
   }
 
   unlink(child: Task) {
-    child.parent = undefined;
-    this.children.delete(child);
-    this.emit('unlink', child);
+    if(this.children.has(child)) {
+      child.parent = undefined;
+      this.children.delete(child);
+      this.emit('unlink', child);
+    }
+  }
+
+  trap(child: Task) {
+    if(this.children.has(child)) {
+      if(child.state === 'errored') {
+        this.reject(child.error!);
+      }
+      this.unlink(child);
+    }
+    this.resume();
   }
 
   resolve(result: TOut) {
@@ -98,13 +116,6 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
     this.resume();
   }
 
-  trap(child: Task) {
-    if(child.state === 'errored') {
-      this.reject(child.error!);
-    }
-    this.unlink(child);
-    this.resume();
-  }
 
   resume() {
     if(this.stateMachine.isFinishing && this.children.size === 0) {

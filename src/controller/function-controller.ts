@@ -1,6 +1,6 @@
 import { Controller } from './controller';
 import { OperationFunction } from '../operation';
-import { Task } from '../task';
+import { Task, Controls } from '../task';
 import { HaltError } from '../halt-error';
 import { Deferred } from '../deferred';
 import { isPromise } from '../predicates';
@@ -14,7 +14,7 @@ export class FunctionContoller<TOut> implements Controller<TOut> {
   private startSignal: Deferred<{ controller: Controller<TOut> }> = Deferred();
   private controller?: Controller<TOut>;
 
-  constructor(private task: Task<TOut>, private operation: OperationFunction<TOut>) {
+  constructor(private task: Task<TOut>, private controls: Controls<TOut>, private operation: OperationFunction<TOut>) {
   }
 
   start() {
@@ -27,9 +27,9 @@ export class FunctionContoller<TOut> implements Controller<TOut> {
     }
     let controller;
     if(isPromise(result)) {
-      controller = new PromiseController(this.task, result);
+      controller = new PromiseController(this.controls, result);
     } else {
-      controller = new IteratorController(this.task, result);
+      controller = new IteratorController(this.controls, result);
     }
     this.controller = controller;
     controller.start();

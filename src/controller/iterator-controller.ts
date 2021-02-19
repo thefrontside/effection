@@ -1,6 +1,6 @@
 import { Controller } from './controller';
 import { OperationIterator } from '../operation';
-import { Task } from '../task';
+import { Task, Controls } from '../task';
 import { HaltError, swallowHalt } from '../halt-error';
 import { Operation } from '../operation';
 import { Deferred } from '../deferred';
@@ -11,7 +11,7 @@ const HALT = Symbol("halt");
 export class IteratorController<TOut> implements Controller<TOut>, Trapper {
   private didHalt: boolean = false;
 
-  constructor(private task: Task<TOut>, private iterator: OperationIterator<TOut>) {
+  constructor(private controls: Controls<TOut>, private iterator: OperationIterator<TOut>) {
   }
 
   // make this an async function to delay the first iteration until the next event loop tick
@@ -24,14 +24,14 @@ export class IteratorController<TOut> implements Controller<TOut>, Trapper {
     try {
       next = iter();
     } catch(error) {
-      this.task.reject(error);
+      this.controls.reject(error);
       return;
     }
     if(next.done) {
       if(this.didHalt) {
-        this.task.resume();
+        this.controls.resume();
       } else {
-        this.task.resolve(next.value);
+        this.controls.resolve(next.value);
       }
     } else {
       let subTask = new Task(next.value);

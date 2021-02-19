@@ -1,5 +1,5 @@
 import { Controller } from './controller';
-import { Task } from '../task';
+import { Controls } from '../task';
 import { HaltError, isHaltError } from '../halt-error';
 import { Deferred } from '../deferred';
 
@@ -9,19 +9,19 @@ export class PromiseController<TOut> implements Controller<TOut> {
 
   private haltSignal = Deferred<never>();
 
-  constructor(private task: Task<TOut>, private promise: PromiseLike<TOut>) {
+  constructor(private controls: Controls<TOut>, private promise: PromiseLike<TOut>) {
   }
 
   start() {
     Promise.race([this.promise, this.haltSignal.promise]).then(
       (value) => {
-        this.task.resolve(value);
+        this.controls.resolve(value);
       },
       (error) => {
         if(isHaltError(error)) {
-          this.task.resume();
+          this.controls.resume();
         } else {
-          this.task.reject(error);
+          this.controls.reject(error);
         }
       }
     )

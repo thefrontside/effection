@@ -1,6 +1,6 @@
 import { Task } from '../task';
 
-export interface Controller<TOut> extends Promise<TOut> {
-  start(task: Task<TOut>): void;
+export interface Controller<TOut> {
+  start(): void;
   halt(): void;
 }

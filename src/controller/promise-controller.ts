@@ -1,36 +1,33 @@
 import { Controller } from './controller';
-import { HaltError, swallowHalt } from '../halt-error';
+import { Task } from '../task';
+import { HaltError, isHaltError } from '../halt-error';
 import { Deferred } from '../deferred';
 
 export class PromiseController<TOut> implements Controller<TOut> {
-  private deferred: Deferred<TOut>;
+  // TODO: to prevent memory leaks of tasks if a promise never resolves, but
+  // the task is halted, we should retain the task through a weak reference.
 
-  constructor(promise: PromiseLike<TOut>) {
-    this.deferred = Deferred();
-    promise.then(this.deferred.resolve, this.deferred.reject);
+  private haltSignal = Deferred<never>();
+
+  constructor(private task: Task<TOut>, private promise: PromiseLike<TOut>) {
   }
 
-  start() {}
-
-  async halt() {
-    this.deferred.reject(new HaltError());
-
-    await this.deferred.promise.catch(swallowHalt);
+  start() {
+    Promise.race([this.promise, this.haltSignal.promise]).then(
+      (value) => {
+        this.task.trapResolve(value);
+      },
+      (error) => {
+        if(isHaltError(error)) {
+          this.task.trapHalt();
+        } else {
+          this.task.trapReject(error);
+        }
+      }
+    )
   }
 
-  then<TResult1 = TOut, TResult2 = never>(onfulfilled?: ((value: TOut) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): Promise<TResult1 | TResult2> {
-    return this.deferred.promise.then(onfulfilled, onrejected);
-  }
-
-  catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): Promise<TOut | TResult> {
-    return this.deferred.promise.catch(onrejected);
-  }
-
-  finally(onfinally?: (() => void) | null | undefined): Promise<TOut> {
-    return this.deferred.promise.finally(onfinally);
-  }
-
-  get [Symbol.toStringTag](): string {
-    return '[PromiseController]'
+  halt() {
+    this.haltSignal.reject(new HaltError());
   }
 }

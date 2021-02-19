@@ -2,6 +2,7 @@ import { describe, beforeEach, it } from 'mocha';
 import * as expect from 'expect';
 
 import { run, sleep, Operation } from '../src/index';
+import { Deferred } from '../src/deferred';
 
 function createNumber(value: number) {
   return function*() {
@@ -159,23 +160,21 @@ describe('run', () => {
     });
 
     it('can suspend in finally block', async () => {
-      let callable: Operation<unknown>
-      let eventually = new Promise((resolve) => {
-        callable = function*() { resolve('did run'); }
-      });
+      let eventually = Deferred();
 
       let task = run(function*() {
         try {
           yield;
         } finally {
-          yield callable;
+          yield sleep(10);
+          eventually.resolve(123);
         }
       });
 
       task.halt();
 
-      await expect(eventually).resolves.toEqual("did run");
-      expect(task.state).toEqual('running');
+      await expect(eventually.promise).resolves.toEqual(123);
+      expect(task.state).toEqual('halted');
     });
 
     it('can await halt', async () => {

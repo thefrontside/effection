@@ -82,8 +82,8 @@ describe('spawn', () => {
       yield;
     });
 
-    await expect(child).rejects.toEqual(error);
     await expect(root).rejects.toEqual(error);
+    await expect(child).rejects.toEqual(error);
     expect(root.state).toEqual('errored');
   });
 
@@ -96,8 +96,8 @@ describe('spawn', () => {
       return "foo";
     });
 
-    await expect(child).rejects.toHaveProperty('message', 'halted');
     await expect(root).resolves.toEqual("foo");
+    await expect(child).rejects.toHaveProperty('message', 'halted');
     expect(root.state).toEqual('completed');
   });
 

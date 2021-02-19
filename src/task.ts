@@ -38,11 +38,12 @@ export class Task<TOut = unknown> implements Promise<TOut> {
     } else if(isPromise(operation)) {
       this.controller = new PromiseController(operation);
     } else if(typeof(operation) === 'function') {
-      this.controller = new IteratorController(operation(this));
+      this.controller = new IteratorController(operation);
     } else {
       throw new Error(`unkown type of operation: ${operation}`);
     }
     this.promise = this.run();
+    this.controller.start(this);
   }
 
   private async haltChildren(silent = false) {

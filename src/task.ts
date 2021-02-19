@@ -129,29 +129,9 @@ export class Task<TOut = unknown> implements Promise<TOut> {
   }
 
   trapExit(child: Task) {
-    if(child.state === 'completed') {
-      this.trapComplete(child);
-    }
-    if(child.state === 'errored') {
-      this.trapError(child);
-    }
-    if(child.state === 'halted') {
-      this.trapHalt(child);
-    }
-  }
-
-  trapComplete(child: Task) {
-    this.unlink(child);
-  }
-
-  trapError(child: Task) {
-    if(child.error) {
+    if(child.state === 'errored' && child.error) {
       this.signal.reject(child.error);
     }
-    this.unlink(child);
-  }
-
-  trapHalt(child: Task) {
     this.unlink(child);
   }
 

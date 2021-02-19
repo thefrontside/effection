@@ -10,6 +10,8 @@ export class PromiseController<TOut> implements Controller<TOut> {
     promise.then(this.deferred.resolve, this.deferred.reject);
   }
 
+  start() {}
+
   async halt() {
     this.deferred.reject(new HaltError());
 

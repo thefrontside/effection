@@ -15,13 +15,13 @@ export class PromiseController<TOut> implements Controller<TOut> {
   start() {
     Promise.race([this.promise, this.haltSignal.promise]).then(
       (value) => {
-        this.task.trapResolve(value);
+        this.task.resolve(value);
       },
       (error) => {
         if(isHaltError(error)) {
-          this.task.trapHalt();
+          this.task.resume();
         } else {
-          this.task.trapReject(error);
+          this.task.reject(error);
         }
       }
     )

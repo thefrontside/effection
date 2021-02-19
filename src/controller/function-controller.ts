@@ -3,7 +3,9 @@ import { OperationFunction } from '../operation';
 import { Task } from '../task';
 import { HaltError } from '../halt-error';
 import { Deferred } from '../deferred';
+import { isPromise } from '../predicates';
 import { IteratorController } from './iterator-controller';
+import { PromiseController } from './promise-controller';
 
 const HALT = Symbol("halt");
 
@@ -20,7 +22,11 @@ export class FunctionContoller<TOut> implements Controller<TOut> {
     try {
       let controller: Controller<TOut>;
       let result = this.operation(task);
-      controller = new IteratorController(result);
+      if(isPromise(result)) {
+        controller = new PromiseController(result);
+      } else {
+        controller = new IteratorController(result);
+      }
       controller.start(task);
       this.startSignal.resolve({ controller });
     } catch(e) {

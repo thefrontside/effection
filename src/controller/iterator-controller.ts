@@ -4,74 +4,58 @@ import { Task } from '../task';
 import { HaltError, swallowHalt } from '../halt-error';
 import { Operation } from '../operation';
 import { Deferred } from '../deferred';
+import { Trapper } from '../trapper';
 
 const HALT = Symbol("halt");
 
-export class IteratorController<TOut> implements Controller<TOut> {
-  private promise: Promise<TOut>;
-  private haltSignal: Deferred<Symbol> = Deferred();
-  private startSignal: Deferred<{ iterator: OperationIterator<TOut> }> = Deferred();
+export class IteratorController<TOut> implements Controller<TOut>, Trapper {
+  private didHalt: boolean = false;
 
-  constructor(private iterator: OperationIterator<TOut>) {
-    this.promise = this.run();
+  constructor(private task: Task<TOut>, private iterator: OperationIterator<TOut>) {
   }
 
-  start() {
+  // make this an async function to delay the first iteration until the next event loop tick
+  async start() {
+    this.resume(() => this.iterator.next());
   }
 
-  private async run(): Promise<TOut> {
-    let didHalt = false;
-    let getNext: () => IteratorResult<unknown> = () => this.iterator.next();
-
-    while(true) {
-      let next;
-      next = getNext();
-      if (next.done) {
-        if(didHalt) {
-          throw new HaltError()
-        } else {
-          return next.value;
-        }
+  resume(iter: () => IteratorResult<Operation<unknown>>) {
+    let next;
+    try {
+      next = iter();
+    } catch(error) {
+      this.task.trapReject(error);
+      return;
+    }
+    if(next.done) {
+      if(this.didHalt) {
+        this.task.trapHalt();
       } else {
-        let subTask = new Task(next.value);
-        let result: unknown | Symbol;
-
-        try {
-          result = await Promise.race([subTask, this.haltSignal.promise]);
-        } catch(error) {
-          getNext = () => this.iterator.throw(error);
-          continue;
-        }
-
-        if(!didHalt && result === HALT) {
-          didHalt = true;
-          getNext = () => this.iterator.return(undefined);
-          await subTask.halt().catch(swallowHalt);
-        } else {
-          getNext = () => this.iterator.next(result);
-        }
+        this.task.trapResolve(next.value);
       }
+    } else {
+      let subTask = new Task(next.value);
+      subTask.parent = this;
+      subTask.start();
     }
   }
 
-  async halt() {
-    this.haltSignal.resolve(HALT);
-    await this.promise.catch(swallowHalt);
+  trapChildExit(child: Task) {
+    if(child.state === 'completed') {
+      this.resume(() => this.iterator.next(child.result!));
+    }
+    if(child.state === 'errored') {
+      this.resume(() => this.iterator.throw(child.error!));
+    }
+    if(child.state === 'halted') {
+      this.resume(() => this.iterator.throw(new HaltError()));
+    }
   }
 
-  then<TResult1 = TOut, TResult2 = never>(onfulfilled?: ((value: TOut) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): Promise<TResult1 | TResult2> {
-    return this.promise.then(onfulfilled, onrejected);
-  }
-
-  catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): Promise<TOut | TResult> {
-    return this.promise.catch(onrejected);
-  }
-
-  finally(onfinally?: (() => void) | null | undefined): Promise<TOut> {
-    return this.promise.finally(onfinally);
-  }
-
-  get [Symbol.toStringTag](): string {
-    return '[IteratorController]'
+  halt() {
+    if(!this.didHalt) {
+      this.didHalt = true;
+      this.resume(() => this.iterator.return(undefined));
+    }
   }
 }

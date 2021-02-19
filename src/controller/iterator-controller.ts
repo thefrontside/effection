@@ -1,26 +1,35 @@
 import { Controller } from './controller';
+import { OperationFunction, OperationIterator } from '../operation';
 import { Task } from '../task';
 import { HaltError, swallowHalt } from '../halt-error';
 import { Operation } from '../operation';
+import { Deferred } from '../deferred';
 
 const HALT = Symbol("halt");
 
 export class IteratorController<TOut> implements Controller<TOut> {
   private promise: Promise<TOut>;
-  private haltPromise: Promise<Symbol>;
-  private resolveHaltPromise?: () => void;
+  private haltSignal: Deferred<Symbol> = Deferred();
+  private startSignal: Deferred<{ iterator: OperationIterator<TOut> }> = Deferred();
 
-  constructor(private iterator: Generator<Operation<unknown>, TOut | undefined>) {
-    this.haltPromise = new Promise((resolve) => {
-      this.resolveHaltPromise = () => { resolve(HALT) };
-    });
-
+  constructor(private operation: OperationFunction<TOut>) {
     this.promise = this.run();
   }
 
+  start(task: Task<TOut>) {
+    try {
+      let iterator = this.operation(task);
+      this.startSignal.resolve({ iterator });
+    } catch(e) {
+      this.startSignal.reject(e);
+    }
+  }
+
   private async run(): Promise<TOut> {
+    let { iterator } = await this.startSignal.promise;
+
     let didHalt = false;
-    let getNext: () => IteratorResult<unknown> = () => this.iterator.next();
+    let getNext: () => IteratorResult<unknown> = () => iterator.next();
 
     while(true) {
       let next;
@@ -36,25 +45,25 @@ export class IteratorController<TOut> implements Controller<TOut> {
         let result: unknown | Symbol;
 
         try {
-          result = await Promise.race([subTask, this.haltPromise]);
+          result = await Promise.race([subTask, this.haltSignal.promise]);
         } catch(error) {
-          getNext = () => this.iterator.throw(error);
+          getNext = () => iterator.throw(error);
           continue;
         }
 
         if(!didHalt && result === HALT) {
           didHalt = true;
-          getNext = () => this.iterator.return(undefined);
+          getNext = () => iterator.return(undefined);
           await subTask.halt().catch(swallowHalt);
         } else {
-          getNext = () => this.iterator.next(result);
+          getNext = () => iterator.next(result);
         }
       }
     }
   }
 
   async halt() {
-    this.resolveHaltPromise && this.resolveHaltPromise();
+    this.haltSignal.resolve(HALT);
     await this.promise.catch(swallowHalt);
   }
 

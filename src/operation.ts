@@ -1,6 +1,7 @@
 import { Task } from './task';
 
-export type Operation<TOut> =
-  ((task: Task<TOut>) => Generator<Operation<any>, TOut | undefined, any>) |
-  PromiseLike<TOut> |
-  undefined
+export type OperationIterator<TOut> = Generator<Operation<any>, TOut | undefined, any>;
+
+export type OperationFunction<TOut> = (task: Task<TOut>) => OperationIterator<TOut>;
+
+export type Operation<TOut> = OperationFunction<TOut> | PromiseLike<TOut> | undefined

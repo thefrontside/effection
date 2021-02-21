@@ -22,7 +22,7 @@ export class FunctionContoller<TOut> implements Controller<TOut> {
     try {
       result = this.operation(this.task);
     } catch(error) {
-      this.task.reject(error);
+      this.controls.reject(error);
       return;
     }
     let controller;

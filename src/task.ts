@@ -18,7 +18,7 @@ export interface Controls<TOut> {
   reject(error: Error): void;
 }
 
-export class Task<TOut = unknown> extends EventEmitter implements Controls<TOut>, Promise<TOut>, Trapper {
+export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>, Trapper {
   public id = ++COUNTER;
 
   private children: Set<Task> = new Set();
@@ -33,6 +33,41 @@ export class Task<TOut = unknown> extends EventEmitter implements Controls<TOut>
   public result?: TOut;
   public error?: Error;
 
+  private controls: Controls<TOut> = {
+    resolve: (result: TOut) => {
+      this.result = result;
+      this.stateMachine.resolve();
+      this.children.forEach((c) => c.halt());
+      this.controls.resume();
+    },
+
+    reject: (error: Error) => {
+      this.result = undefined; // clear result if it has previously been set
+      this.error = error;
+      this.stateMachine.reject();
+      this.children.forEach((c) => c.halt());
+      this.controls.resume();
+    },
+
+    resume: () => {
+      if(this.stateMachine.isFinishing && this.children.size === 0) {
+        this.stateMachine.finish();
+
+        if(this.parent) {
+          this.parent.trap(this as Task);
+        }
+
+        if(this.state === 'completed') {
+          this.deferred.resolve(this.result!);
+        } else if(this.state === 'halted') {
+          this.deferred.reject(new HaltError());
+        } else if(this.state === 'errored') {
+          this.deferred.reject(this.error!);
+        }
+      }
+    }
+  }
+
   get state(): State {
     return this.stateMachine.current;
   }
@@ -40,11 +75,11 @@ export class Task<TOut = unknown> extends EventEmitter implements Controls<TOut>
   constructor(private operation: Operation<TOut>) {
     super();
     if(!operation) {
-      this.controller = new PromiseController(this, new Promise(() => {}));
+      this.controller = new PromiseController(this.controls, new Promise(() => {}));
     } else if(isPromise(operation)) {
-      this.controller = new PromiseController(this, operation);
+      this.controller = new PromiseController(this.controls, operation);
     } else if(typeof(operation) === 'function') {
-      this.controller = new FunctionContoller(this, this, operation);
+      this.controller = new FunctionContoller(this, this.controls, operation);
     } else {
       throw new Error(`unkown type of operation: ${operation}`);
     }
@@ -94,45 +129,11 @@ export class Task<TOut = unknown> extends EventEmitter implements Controls<TOut>
   trap(child: Task) {
     if(this.children.has(child)) {
       if(child.state === 'errored') {
-        this.reject(child.error!);
+        this.controls.reject(child.error!);
       }
       this.unlink(child);
     }
-    this.resume();
-  }
-
-  resolve(result: TOut) {
-    this.result = result;
-    this.stateMachine.resolve();
-    this.children.forEach((c) => c.halt());
-    this.resume();
-  }
-
-  reject(error: Error) {
-    this.result = undefined; // clear result if it has previously been set
-    this.error = error;
-    this.stateMachine.reject();
-    this.children.forEach((c) => c.halt());
-    this.resume();
-  }
-
-
-  resume() {
-    if(this.stateMachine.isFinishing && this.children.size === 0) {
-      this.stateMachine.finish();
-
-      if(this.parent) {
-        this.parent.trap(this as Task);
-      }
-
-      if(this.state === 'completed') {
-        this.deferred.resolve(this.result!);
-      } else if(this.state === 'halted') {
-        this.deferred.reject(new HaltError());
-      } else if(this.state === 'errored') {
-        this.deferred.reject(this.error!);
-      }
-    }
+    this.controls.resume();
   }
 
   async halt() {

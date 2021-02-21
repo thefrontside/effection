@@ -22,11 +22,11 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
   public id = ++COUNTER;
 
   private children: Set<Task> = new Set();
+  private trappers: Set<Trapper> = new Set();
   private signal: Deferred<never> = Deferred();
 
   private controller: Controller<TOut>;
   private deferred = Deferred<TOut>();
-  public parent?: Trapper;
 
   private stateMachine = new StateMachine(this);
 
@@ -53,9 +53,7 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
       if(this.stateMachine.isFinishing && this.children.size === 0) {
         this.stateMachine.finish();
 
-        if(this.parent) {
-          this.parent.trap(this as Task);
-        }
+        this.trappers.forEach((trapper) => trapper.trap(this as Task));
 
         if(this.state === 'completed') {
           this.deferred.resolve(this.result!);
@@ -113,14 +111,16 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
   }
 
   link(child: Task) {
-    child.parent = this as Task;
-    this.children.add(child);
-    this.emit('link', child);
+    if(!this.children.has(child)) {
+      child.addTrapper(this);
+      this.children.add(child);
+      this.emit('link', child);
+    }
   }
 
   unlink(child: Task) {
     if(this.children.has(child)) {
-      child.parent = undefined;
+      child.removeTrapper(this);
       this.children.delete(child);
       this.emit('unlink', child);
     }
@@ -134,6 +134,14 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
       this.unlink(child);
     }
     this.controls.resume();
+  }
+
+  addTrapper(trapper: Trapper) {
+    this.trappers.add(trapper);
+  }
+
+  removeTrapper(trapper: Trapper) {
+    this.trappers.delete(trapper);
   }
 
   async halt() {

@@ -35,7 +35,7 @@ export class IteratorController<TOut> implements Controller<TOut>, Trapper {
       }
     } else {
       let subTask = new Task(next.value);
-      subTask.parent = this;
+      subTask.addTrapper(this);
       subTask.start();
     }
   }

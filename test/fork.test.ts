@@ -1,19 +1,8 @@
 import { describe, beforeEach, it } from 'mocha';
 import * as expect from 'expect';
 
-import { run, Task } from '../src/index';
+import { run, sleep, Task } from '../src/index';
 import { Deferred } from '../src/deferred';
-
-function* sleep(ms: number) {
-  let timeout;
-  let deferred = Deferred();
-  try {
-    timeout = setTimeout(deferred.resolve, ms);
-    yield deferred.promise;
-  } finally {
-    timeout && clearTimeout(timeout);
-  }
-};
 
 describe('fork', () => {
   it('can fork a new child task', async () => {

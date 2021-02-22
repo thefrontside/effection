@@ -28,8 +28,6 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
   private controller: Controller<TOut>;
   private deferred = Deferred<TOut>();
 
-  private controllerDidFinish = false;
-
   private stateMachine = new StateMachine(this);
 
   public result?: TOut;
@@ -37,7 +35,6 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
 
   private controls: Controls<TOut> = {
     resolve: (result: TOut) => {
-      this.controllerDidFinish = true;
       this.result = result;
       this.stateMachine.resolve();
       this.children.forEach((c) => c.halt());
@@ -45,7 +42,6 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
     },
 
     reject: (error: Error) => {
-      this.controllerDidFinish = true;
       this.result = undefined; // clear result if it has previously been set
       this.error = error;
       this.stateMachine.reject();
@@ -54,7 +50,8 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
     },
 
     halted: () => {
-      this.controllerDidFinish = true;
+      this.stateMachine.halt();
+      this.children.forEach((c) => c.halt());
       this.resume();
     },
   }
@@ -83,7 +80,7 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
   }
 
   private resume() {
-    if(this.stateMachine.isFinishing && this.controllerDidFinish && this.children.size === 0) {
+    if(this.stateMachine.isFinishing && this.children.size === 0) {
       this.stateMachine.finish();
 
       this.trappers.forEach((trapper) => trapper.trap(this as Task));
@@ -155,9 +152,7 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
   }
 
   async halt() {
-    this.stateMachine.halt();
     this.controller.halt();
-    this.children.forEach((c) => c.halt());
     await this.catch(() => {});
   }
 

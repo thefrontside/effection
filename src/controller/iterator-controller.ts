@@ -3,13 +3,11 @@ import { OperationIterator } from '../operation';
 import { Task, Controls } from '../task';
 import { HaltError, swallowHalt } from '../halt-error';
 import { Operation } from '../operation';
-import { Deferred } from '../deferred';
 import { Trapper } from '../trapper';
-
-const HALT = Symbol("halt");
 
 export class IteratorController<TOut> implements Controller<TOut>, Trapper {
   private didHalt: boolean = false;
+  private subTask?: Task;
 
   constructor(private controls: Controls<TOut>, private iterator: OperationIterator<TOut>) {
   }
@@ -34,9 +32,9 @@ export class IteratorController<TOut> implements Controller<TOut>, Trapper {
         this.controls.resolve(next.value);
       }
     } else {
-      let subTask = new Task(next.value);
-      subTask.addTrapper(this);
-      subTask.start();
+      this.subTask = new Task(next.value);
+      this.subTask.addTrapper(this);
+      this.subTask.start();
     }
   }
 
@@ -55,6 +53,10 @@ export class IteratorController<TOut> implements Controller<TOut>, Trapper {
   halt() {
     if(!this.didHalt) {
       this.didHalt = true;
+      if(this.subTask) {
+        this.subTask.removeTrapper(this);
+        this.subTask.halt();
+      }
       this.resume(() => this.iterator.return(undefined));
     }
   }

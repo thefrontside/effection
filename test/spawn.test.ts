@@ -4,10 +4,6 @@ import * as expect from 'expect';
 import { run, sleep, Task } from '../src/index';
 import { Deferred } from '../src/deferred';
 
-process.on('unhandledRejection', (reason, promise) => {
-  // silence warnings in tests
-});
-
 describe('spawn', () => {
   it('can spawn a new child task', async () => {
     let root = run(function*(context: Task) {
@@ -132,7 +128,7 @@ describe('spawn', () => {
       return "foo";
     });
 
-    root.halt();
+    await root.halt();
 
     await expect(root).rejects.toHaveProperty('message', 'moo');
     expect(root.state).toEqual('errored');

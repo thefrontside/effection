@@ -1,7 +1,7 @@
 import { describe, beforeEach, it } from 'mocha';
 import * as expect from 'expect';
 
-import { run, sleep, Operation } from '../src/index';
+import { run, sleep, Operation, Task } from '../src/index';
 import { Deferred } from '../src/deferred';
 
 function createNumber(value: number) {
@@ -157,6 +157,25 @@ describe('run', () => {
       await expect(task).rejects.toHaveProperty('message', 'halted')
       expect(task.state).toEqual('halted');
       expect(task.result).toEqual(undefined);
+    });
+
+    it('halts task when halted generator', async () => {
+      let child: Task | undefined;
+      let task = run(function*() {
+        yield function*(task) {
+          child = task;
+          yield sleep(100);
+        }
+      });
+
+      task.halt();
+
+      await expect(task).rejects.toHaveProperty('message', 'halted')
+      await expect(child).rejects.toHaveProperty('message', 'halted')
+      expect(task.state).toEqual('halted');
+      expect(task.result).toEqual(undefined);
+      expect(child && child.state).toEqual('halted');
+      expect(child && child.result).toEqual(undefined);
     });
 
     it('can suspend in finally block', async () => {

@@ -23,7 +23,6 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
 
   private children: Set<Task> = new Set();
   private trappers: Set<Trapper> = new Set();
-  private signal: Deferred<never> = Deferred();
 
   private controller: Controller<TOut>;
   private deferred = Deferred<TOut>();
@@ -81,6 +80,7 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
     } else {
       throw new Error(`unkown type of operation: ${operation}`);
     }
+    this.deferred.promise.catch(() => {}); // prevent uncaught promise warnings
   }
 
   start() {
@@ -148,7 +148,7 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
     this.stateMachine.halt();
     this.controller.halt();
     this.children.forEach((c) => c.halt());
-    await this.catch(swallowHalt);
+    await this.catch(() => {});
   }
 
   get [Symbol.toStringTag](): string {

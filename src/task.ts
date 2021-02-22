@@ -1,3 +1,4 @@
+import { SuspendController } from './controller/suspend-controller';
 import { PromiseController } from './controller/promise-controller';
 import { FunctionContoller } from './controller/function-controller';
 import { Controller } from './controller/controller';
@@ -72,7 +73,7 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
   constructor(private operation: Operation<TOut>) {
     super();
     if(!operation) {
-      this.controller = new PromiseController(this.controls, new Promise(() => {}));
+      this.controller = new SuspendController(this.controls);
     } else if(isPromise(operation)) {
       this.controller = new PromiseController(this.controls, operation);
     } else if(typeof(operation) === 'function') {

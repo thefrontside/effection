@@ -30,6 +30,8 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
 
   private stateMachine = new StateMachine(this);
 
+  protected isBlocking = false;
+
   public result?: TOut;
   public error?: Error;
 
@@ -37,7 +39,11 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
     resolve: (result: TOut) => {
       this.result = result;
       this.stateMachine.resolve();
-      this.children.forEach((c) => c.halt());
+      this.children.forEach((c) => {
+        if(!c.isBlocking) {
+          c.halt()
+        }
+      });
       this.resume();
     },
 
@@ -112,6 +118,17 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
       throw new Error('cannot spawn a child on a task which is not running');
     }
     let child = new Task(operation);
+    this.link(child as Task);
+    child.start();
+    return child;
+  }
+
+  fork<R>(operation?: Operation<R>): Task<R> {
+    if(this.state !== 'running') {
+      throw new Error('cannot fork a child on a task which is not running');
+    }
+    let child = new Task(operation);
+    child.isBlocking = true;
     this.link(child as Task);
     child.start();
     return child;

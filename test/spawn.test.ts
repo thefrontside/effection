@@ -152,4 +152,24 @@ describe('spawn', () => {
 
     expect(() => root.spawn()).toThrowError('cannot spawn a child on a task which is not running');
   });
+
+  it('halts when child finishes during asynchronous halt', async () => {
+    let child;
+    let didFinish = false;
+    let root = run(function*(context: Task) {
+      context.spawn(function*() {
+        yield sleep(5)
+      });
+      try {
+        yield;
+      } finally {
+        yield sleep(20);
+        didFinish = true;
+      }
+    });
+
+    await root.halt();
+
+    expect(didFinish).toEqual(true);
+  });
 });

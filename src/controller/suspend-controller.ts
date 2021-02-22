@@ -8,6 +8,6 @@ export class SuspendController<TOut> implements Controller<TOut> {
   start() {}
 
   halt() {
-    this.controls.resume();
+    this.controls.halted();
   }
 }

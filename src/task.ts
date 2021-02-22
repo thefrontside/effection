@@ -14,7 +14,7 @@ import { HaltError } from './halt-error';
 let COUNTER = 0;
 
 export interface Controls<TOut> {
-  resume(): void;
+  halted(): void;
   resolve(value: TOut): void;
   reject(error: Error): void;
 }
@@ -28,6 +28,8 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
   private controller: Controller<TOut>;
   private deferred = Deferred<TOut>();
 
+  private controllerDidFinish = false;
+
   private stateMachine = new StateMachine(this);
 
   public result?: TOut;
@@ -35,35 +37,26 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
 
   private controls: Controls<TOut> = {
     resolve: (result: TOut) => {
+      this.controllerDidFinish = true;
       this.result = result;
       this.stateMachine.resolve();
       this.children.forEach((c) => c.halt());
-      this.controls.resume();
+      this.resume();
     },
 
     reject: (error: Error) => {
+      this.controllerDidFinish = true;
       this.result = undefined; // clear result if it has previously been set
       this.error = error;
       this.stateMachine.reject();
       this.children.forEach((c) => c.halt());
-      this.controls.resume();
+      this.resume();
     },
 
-    resume: () => {
-      if(this.stateMachine.isFinishing && this.children.size === 0) {
-        this.stateMachine.finish();
-
-        this.trappers.forEach((trapper) => trapper.trap(this as Task));
-
-        if(this.state === 'completed') {
-          this.deferred.resolve(this.result!);
-        } else if(this.state === 'halted') {
-          this.deferred.reject(new HaltError());
-        } else if(this.state === 'errored') {
-          this.deferred.reject(this.error!);
-        }
-      }
-    }
+    halted: () => {
+      this.controllerDidFinish = true;
+      this.resume();
+    },
   }
 
   get state(): State {
@@ -87,6 +80,22 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
   start() {
     this.stateMachine.start();
     this.controller.start();
+  }
+
+  private resume() {
+    if(this.stateMachine.isFinishing && this.controllerDidFinish && this.children.size === 0) {
+      this.stateMachine.finish();
+
+      this.trappers.forEach((trapper) => trapper.trap(this as Task));
+
+      if(this.state === 'completed') {
+        this.deferred.resolve(this.result!);
+      } else if(this.state === 'halted') {
+        this.deferred.reject(new HaltError());
+      } else if(this.state === 'errored') {
+        this.deferred.reject(this.error!);
+      }
+    }
   }
 
   then<TResult1 = TOut, TResult2 = never>(onfulfilled?: ((value: TOut) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): Promise<TResult1 | TResult2> {
@@ -134,7 +143,7 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
       }
       this.unlink(child);
     }
-    this.controls.resume();
+    this.resume();
   }
 
   addTrapper(trapper: Trapper) {

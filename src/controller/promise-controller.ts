@@ -18,7 +18,7 @@ export class PromiseController<TOut> implements Controller<TOut> {
     Promise.race([this.promise, this.haltSignal.promise]).then(
       (value) => {
         if(value === HALT) {
-          this.controls.resume();
+          this.controls.halted();
         } else {
           this.controls.resolve(value);
         }

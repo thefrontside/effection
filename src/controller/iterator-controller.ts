@@ -27,7 +27,7 @@ export class IteratorController<TOut> implements Controller<TOut>, Trapper {
     }
     if(next.done) {
       if(this.didHalt) {
-        this.controls.resume();
+        this.controls.halted();
       } else {
         this.controls.resolve(next.value);
       }

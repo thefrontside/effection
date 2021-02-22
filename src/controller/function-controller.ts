@@ -4,6 +4,7 @@ import { Task, Controls } from '../task';
 import { HaltError } from '../halt-error';
 import { isPromise } from '../predicates';
 import { IteratorController } from './iterator-controller';
+import { ResolutionController } from './resolution-controller';
 import { PromiseController } from './promise-controller';
 
 const HALT = Symbol("halt");
@@ -25,6 +26,8 @@ export class FunctionContoller<TOut> implements Controller<TOut> {
     let controller;
     if(isPromise(result)) {
       controller = new PromiseController(this.controls, result);
+    } else if(typeof(result) === 'function') {
+      controller = new ResolutionController(this.controls, result);
     } else {
       controller = new IteratorController(this.controls, result);
     }

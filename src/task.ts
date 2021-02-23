@@ -21,12 +21,13 @@ export interface Controls<TOut> {
 
 export interface TaskOptions {
   blockParent?: boolean;
+  ignoreChildErrors?: boolean;
 }
 
 export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>, Trapper {
   public id = ++COUNTER;
 
-  private children: Set<Task> = new Set();
+  public readonly children: Set<Task> = new Set();
   private trappers: Set<Trapper> = new Set();
 
   private controller: Controller<TOut>;
@@ -147,7 +148,7 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
 
   trap(child: Task) {
     if(this.children.has(child)) {
-      if(child.state === 'errored') {
+      if(child.state === 'errored' && !this.options.ignoreChildErrors) {
         this.controls.reject(child.error!);
       }
       this.unlink(child);

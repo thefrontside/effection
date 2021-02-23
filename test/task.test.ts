@@ -4,6 +4,17 @@ import * as expect from 'expect';
 import { run, sleep, Operation, Task } from '../src/index';
 
 describe('Task', () => {
+  describe('catchHalt', () => {
+    it('catches halt errors and resolves to undefined', async () => {
+      let task = run();
+
+      await task.halt();
+
+      await expect(task).rejects.toHaveProperty('message', 'halted');
+      await expect(task.catchHalt()).resolves.toEqual(undefined);
+    });
+  });
+
   describe('event: state', () => {
     it('is triggered when a task changes state', async () => {
       let events: { to: string, from: string }[] = []

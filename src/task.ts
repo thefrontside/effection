@@ -115,21 +115,11 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
     return this.deferred.promise.finally(onfinally);
   }
 
-  spawn<R>(operation?: Operation<R>): Task<R> {
+  spawn<R>(operation?: Operation<R>, options?: TaskOptions): Task<R> {
     if(this.state !== 'running') {
       throw new Error('cannot spawn a child on a task which is not running');
     }
-    let child = new Task(operation);
-    this.link(child as Task);
-    child.start();
-    return child;
-  }
-
-  fork<R>(operation?: Operation<R>): Task<R> {
-    if(this.state !== 'running') {
-      throw new Error('cannot fork a child on a task which is not running');
-    }
-    let child = new Task(operation, { blockParent: true });
+    let child = new Task(operation, options);
     this.link(child as Task);
     child.start();
     return child;

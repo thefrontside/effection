@@ -15,5 +15,7 @@ export function isHaltError(value: any): value is HaltError {
 export function swallowHalt(error: Error) {
   if(!isHaltError(error)) {
     throw error;
+  } else {
+    return undefined;
   }
 }

@@ -37,8 +37,8 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
 
   private controls: Controls<TOut> = {
     resolve: (result: TOut) => {
-      this.result = result;
       this.stateMachine.resolve();
+      this.result = result;
       this.children.forEach((c) => {
         if(!c.isBlocking) {
           c.halt()
@@ -48,9 +48,9 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
     },
 
     reject: (error: Error) => {
+      this.stateMachine.reject();
       this.result = undefined; // clear result if it has previously been set
       this.error = error;
-      this.stateMachine.reject();
       this.children.forEach((c) => c.halt());
       this.resume();
     },

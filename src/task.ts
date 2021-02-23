@@ -76,7 +76,7 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
     } else if(isPromise(operation)) {
       this.controller = new PromiseController(this.controls, operation);
     } else if(typeof(operation) === 'function') {
-      this.controller = new FunctionContoller(this, this.controls, operation);
+      this.controller = new FunctionContoller(this.controls, operation);
     } else {
       throw new Error(`unkown type of operation: ${operation}`);
     }
@@ -85,7 +85,7 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
 
   start() {
     this.stateMachine.start();
-    this.controller.start();
+    this.controller.start(this);
   }
 
   private resume() {

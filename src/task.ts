@@ -19,6 +19,10 @@ export interface Controls<TOut> {
   reject(error: Error): void;
 }
 
+export interface TaskOptions {
+  blockParent?: boolean;
+}
+
 export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>, Trapper {
   public id = ++COUNTER;
 
@@ -30,17 +34,15 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
 
   private stateMachine = new StateMachine(this);
 
-  protected isBlocking = false;
-
   public result?: TOut;
   public error?: Error;
 
   private controls: Controls<TOut> = {
     resolve: (result: TOut) => {
-      this.result = result;
       this.stateMachine.resolve();
+      this.result = result;
       this.children.forEach((c) => {
-        if(!c.isBlocking) {
+        if(!c.options.blockParent) {
           c.halt()
         }
       });
@@ -48,9 +50,9 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
     },
 
     reject: (error: Error) => {
+      this.stateMachine.reject();
       this.result = undefined; // clear result if it has previously been set
       this.error = error;
-      this.stateMachine.reject();
       this.children.forEach((c) => c.halt());
       this.resume();
     },
@@ -66,7 +68,7 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
     return this.stateMachine.current;
   }
 
-  constructor(private operation: Operation<TOut>) {
+  constructor(private operation: Operation<TOut>, public options: TaskOptions = {}) {
     super();
     if(!operation) {
       this.controller = new SuspendController(this.controls);
@@ -113,22 +115,11 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
     return this.deferred.promise.finally(onfinally);
   }
 
-  spawn<R>(operation?: Operation<R>): Task<R> {
+  spawn<R>(operation?: Operation<R>, options?: TaskOptions): Task<R> {
     if(this.state !== 'running') {
       throw new Error('cannot spawn a child on a task which is not running');
     }
-    let child = new Task(operation);
-    this.link(child as Task);
-    child.start();
-    return child;
-  }
-
-  fork<R>(operation?: Operation<R>): Task<R> {
-    if(this.state !== 'running') {
-      throw new Error('cannot fork a child on a task which is not running');
-    }
-    let child = new Task(operation);
-    child.isBlocking = true;
+    let child = new Task(operation, options);
     this.link(child as Task);
     child.start();
     return child;

@@ -172,4 +172,23 @@ describe('spawn', () => {
 
     expect(didFinish).toEqual(true);
   });
+
+  describe('with blockParent: true', () => {
+    it('blocks on child when finishing normally', async () => {
+      let child: Task<string> | undefined;
+      let root = run(function*(context: Task) {
+        child = context.spawn(function*() {
+          yield sleep(5);
+          return 'foo';
+        }, { blockParent: true });
+
+        return 1;
+      });
+
+      await expect(root).resolves.toEqual(1);
+      await expect(child).resolves.toEqual('foo');
+      expect(root.state).toEqual('completed');
+      expect(child && child.state).toEqual('completed');
+    });
+  });
 });

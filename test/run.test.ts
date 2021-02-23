@@ -1,7 +1,8 @@
 import { describe, beforeEach, it } from 'mocha';
 import * as expect from 'expect';
 
-import { run, sleep, Operation } from '../src/index';
+import { run, sleep, Operation, Task } from '../src/index';
+import { Deferred } from '../src/deferred';
 
 function createNumber(value: number) {
   return function*() {
@@ -45,8 +46,98 @@ describe('run', () => {
   });
 
   describe('with undefined', () => {
-    it('suspends indefinitely', () => {
+    it('suspends indefinitely', async () => {
       let task = run();
+
+      await run(sleep(10));
+
+      expect(task.state).toEqual('running');
+    });
+
+    it('can be halted', async () => {
+      let task = run();
+
+      await task.halt();
+
+      await expect(task).rejects.toHaveProperty('message', 'halted')
+      expect(task.state).toEqual('halted');
+      expect(task.result).toEqual(undefined);
+    });
+  });
+
+  describe('with resolution function', () => {
+    it('resolves when resolve is called', async () => {
+      let task = run(() => {
+        return (resolve, reject) => {
+          setTimeout(() => resolve(123), 5)
+        }
+      });
+      await expect(task).resolves.toEqual(123);
+      expect(task.state).toEqual('completed');
+      expect(task.result).toEqual(123);
+    });
+
+    it('rejects when reject is called', async () => {
+      let task = run(() => {
+        return (resolve, reject) => {
+          setTimeout(() => reject(new Error('boom')), 5)
+        }
+      });
+      await expect(task).rejects.toHaveProperty('message', 'boom');
+      expect(task.state).toEqual('errored');
+      expect(task.error).toHaveProperty('message', 'boom');
+    });
+
+    it('rejects when error is thrown in function', async () => {
+      let task = run(() => {
+        return (resolve, reject) => {
+          throw new Error('boom');
+        }
+      });
+      await expect(task).rejects.toHaveProperty('message', 'boom');
+      expect(task.state).toEqual('errored');
+      expect(task.error).toHaveProperty('message', 'boom');
+    });
+
+    it('can be halted', async () => {
+      let task = run(() => {
+        return (resolve, reject) => {
+        }
+      });
+
+      await task.halt();
+
+      await expect(task).rejects.toHaveProperty('message', 'halted')
+      expect(task.state).toEqual('halted');
+      expect(task.result).toEqual(undefined);
+    });
+  });
+
+  describe('with promise function', () => {
+    it('runs a promise to completion', async () => {
+      let task = run((task) => Promise.resolve(123))
+      await expect(task).resolves.toEqual(123);
+      expect(task.state).toEqual('completed');
+      expect(task.result).toEqual(123);
+    });
+
+    it('rejects a failed promise', async () => {
+      let error = new Error('boom');
+      let task = run((task) => Promise.reject(error))
+      await expect(task).rejects.toEqual(error);
+      expect(task.state).toEqual('errored');
+      expect(task.error).toEqual(error);
+    });
+
+    it('can halt a promise', async () => {
+      let promise = new Promise(() => {});
+      let task = run((task) => promise);
+
+      task.halt();
+
+      await expect(task).rejects.toHaveProperty('message', 'halted')
+      expect(task.state).toEqual('halted');
+      expect(task.result).toEqual(undefined);
     });
   });
 
@@ -158,24 +249,41 @@ describe('run', () => {
       expect(task.result).toEqual(undefined);
     });
 
-    it('can suspend in finally block', async () => {
-      let callable: Operation<unknown>
-      let eventually = new Promise((resolve) => {
-        callable = function*() { resolve('did run'); }
-      });
-
+    it('halts task when halted generator', async () => {
+      let child: Task | undefined;
       let task = run(function*() {
-        try {
-          yield;
-        } finally {
-          yield callable;
+        yield function*(task) {
+          child = task;
+          yield sleep(100);
         }
       });
 
       task.halt();
 
-      await expect(eventually).resolves.toEqual("did run");
-      expect(task.state).toEqual('running');
+      await expect(task).rejects.toHaveProperty('message', 'halted')
+      await expect(child).rejects.toHaveProperty('message', 'halted')
+      expect(task.state).toEqual('halted');
+      expect(task.result).toEqual(undefined);
+      expect(child && child.state).toEqual('halted');
+      expect(child && child.result).toEqual(undefined);
+    });
+
+    it('can suspend in finally block', async () => {
+      let eventually = Deferred();
+
+      let task = run(function*() {
+        try {
+          yield;
+        } finally {
+          yield sleep(10);
+          eventually.resolve(123);
+        }
+      });
+
+      task.halt();
+
+      await expect(eventually.promise).resolves.toEqual(123);
+      expect(task.state).toEqual('halted');
     });
 
     it('can await halt', async () => {

@@ -4,10 +4,10 @@ import * as expect from 'expect';
 import { run, sleep, Task } from '../src/index';
 import { Deferred } from '../src/deferred';
 
-describe('spawn', () => {
-  it('can spawn a new child task', async () => {
+describe('fork', () => {
+  it('can fork a new child task', async () => {
     let root = run(function*(context: Task) {
-      let child = context.spawn(function*() {
+      let child = context.fork(function*() {
         let one: number = yield Promise.resolve(12);
         let two: number = yield Promise.resolve(55);
 
@@ -23,7 +23,7 @@ describe('spawn', () => {
   it('halts child when halted', async () => {
     let child: Task<void> | undefined;
     let root = run(function*(context: Task) {
-      child = context.spawn(function*() {
+      child = context.fork(function*() {
         yield;
       });
 
@@ -37,26 +37,27 @@ describe('spawn', () => {
     expect(child && child.state).toEqual('halted');
   });
 
-  it('halts child when finishing normally', async () => {
-    let child: Task<void> | undefined;
+  it('blocks on child when finishing normally', async () => {
+    let child: Task<string> | undefined;
     let root = run(function*(context: Task) {
-      child = context.spawn(function*() {
-        yield;
+      child = context.fork(function*() {
+        yield sleep(5);
+        return 'foo';
       });
 
       return 1;
     });
 
     await expect(root).resolves.toEqual(1);
-    await expect(child).rejects.toHaveProperty('message', 'halted')
+    await expect(child).resolves.toEqual('foo');
     expect(root.state).toEqual('completed');
-    expect(child && child.state).toEqual('halted');
+    expect(child && child.state).toEqual('completed');
   });
 
   it('halts child when errored', async () => {
     let child;
     let root = run(function*(context: Task) {
-      child = context.spawn(function*() {
+      child = context.fork(function*() {
         yield;
       });
 
@@ -71,38 +72,38 @@ describe('spawn', () => {
     let child;
     let error = new Error("moo");
     let root = run(function*(context: Task) {
-      child = context.spawn(function*() {
+      child = context.fork(function*() {
         throw error;
       });
 
       yield;
     });
 
-    await expect(root).rejects.toEqual(error);
     await expect(child).rejects.toEqual(error);
+    await expect(root).rejects.toEqual(error);
     expect(root.state).toEqual('errored');
   });
 
   it('finishes normally when child halts', async () => {
     let child;
     let root = run(function*(context: Task<string>) {
-      child = context.spawn();
+      child = context.fork();
       yield child.halt();
 
       return "foo";
     });
 
-    await expect(root).resolves.toEqual("foo");
     await expect(child).rejects.toHaveProperty('message', 'halted');
+    await expect(root).resolves.toEqual("foo");
     expect(root.state).toEqual('completed');
   });
 
   it('rejects when child errors during completing', async () => {
     let child;
     let root = run(function*(context: Task<string>) {
-      child = context.spawn(function*() {
+      child = context.fork(function*() {
         try {
-          yield
+          yield sleep(5);
         } finally {
           throw new Error("moo");
         }
@@ -117,7 +118,7 @@ describe('spawn', () => {
   it('rejects when child errors during halting', async () => {
     let child;
     let root = run(function*(context: Task<string>) {
-      child = context.spawn(function*(foo) {
+      child = context.fork(function*(foo) {
         try {
           yield
         } finally {
@@ -128,7 +129,7 @@ describe('spawn', () => {
       return "foo";
     });
 
-    await root.halt();
+    root.halt();
 
     await expect(root).rejects.toHaveProperty('message', 'moo');
     expect(root.state).toEqual('errored');
@@ -137,7 +138,7 @@ describe('spawn', () => {
   it('throws an error when called after controller finishes', async () => {
     let child;
     let root = run(function*(context: Task) {
-      child = context.spawn(function*(task) {
+      child = context.fork(function*() {
         try {
           yield sleep(1);
         } finally {
@@ -150,26 +151,6 @@ describe('spawn', () => {
 
     await run(sleep(20));
 
-    expect(() => root.spawn()).toThrowError('cannot spawn a child on a task which is not running');
-  });
-
-  it('halts when child finishes during asynchronous halt', async () => {
-    let child;
-    let didFinish = false;
-    let root = run(function*(context: Task) {
-      context.spawn(function*() {
-        yield sleep(5)
-      });
-      try {
-        yield;
-      } finally {
-        yield sleep(20);
-        didFinish = true;
-      }
-    });
-
-    await root.halt();
-
-    expect(didFinish).toEqual(true);
+    expect(() => root.fork()).toThrowError('cannot fork a child on a task which is not running');
   });
 });

@@ -1,107 +1,116 @@
+import { SuspendController } from './controller/suspend-controller';
 import { PromiseController } from './controller/promise-controller';
 import { FunctionContoller } from './controller/function-controller';
 import { Controller } from './controller/controller';
 import { Operation } from './operation';
 import { Deferred } from './deferred';
 import { isPromise } from './predicates';
+import { Trapper } from './trapper';
 import { swallowHalt, isHaltError } from './halt-error';
 import { EventEmitter } from 'events';
-
-type TaskState = 'running' | 'halting' | 'halted' | 'erroring' | 'errored' | 'completing' | 'completed';
+import { StateMachine, State } from './state-machine';
+import { HaltError } from './halt-error';
 
 let COUNTER = 0;
 
-export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut> {
+export interface Controls<TOut> {
+  halted(): void;
+  resolve(value: TOut): void;
+  reject(error: Error): void;
+}
+
+export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>, Trapper {
   public id = ++COUNTER;
 
   private children: Set<Task> = new Set();
-  private signal: Deferred<never> = Deferred();
+  private trappers: Set<Trapper> = new Set();
 
   private controller: Controller<TOut>;
-  private promise: Promise<TOut>;
-  private parent?: Task;
+  private deferred = Deferred<TOut>();
 
-  public state: TaskState = 'running';
+  private stateMachine = new StateMachine(this);
+
+  protected isBlocking = false;
 
   public result?: TOut;
   public error?: Error;
 
+  private controls: Controls<TOut> = {
+    resolve: (result: TOut) => {
+      this.result = result;
+      this.stateMachine.resolve();
+      this.children.forEach((c) => {
+        if(!c.isBlocking) {
+          c.halt()
+        }
+      });
+      this.resume();
+    },
+
+    reject: (error: Error) => {
+      this.result = undefined; // clear result if it has previously been set
+      this.error = error;
+      this.stateMachine.reject();
+      this.children.forEach((c) => c.halt());
+      this.resume();
+    },
+
+    halted: () => {
+      this.stateMachine.halt();
+      this.children.forEach((c) => c.halt());
+      this.resume();
+    },
+  }
+
+  get state(): State {
+    return this.stateMachine.current;
+  }
+
   constructor(private operation: Operation<TOut>) {
     super();
     if(!operation) {
-      this.controller = new PromiseController(new Promise(() => {}));
+      this.controller = new SuspendController(this.controls);
     } else if(isPromise(operation)) {
-      this.controller = new PromiseController(operation);
+      this.controller = new PromiseController(this.controls, operation);
     } else if(typeof(operation) === 'function') {
-      this.controller = new FunctionContoller(operation);
+      this.controller = new FunctionContoller(this, this.controls, operation);
     } else {
       throw new Error(`unkown type of operation: ${operation}`);
     }
-    this.promise = this.run();
-    this.controller.start(this);
+    this.deferred.promise.catch(() => {}); // prevent uncaught promise warnings
   }
 
-  private async haltChildren(silent = false) {
-    await Promise.all(Array.from(this.children).map(async (c) => {
-      try {
-        await c.halt();
-      } catch(error) {
-        if(!silent) {
-          throw error;
-        }
-      }
-    }));
+  start() {
+    this.stateMachine.start();
+    this.controller.start();
   }
 
-  private async run(): Promise<TOut> {
-    try {
-      let result = await Promise.race([this.signal.promise, this.controller]);
-      this.result = result;
-      this.setState('completing');
-      await this.haltChildren();
-      this.setState('completed');
-      return result;
-    } catch(error) {
-      if(isHaltError(error)) {
-        this.setState('halting');
-        try {
-          await this.haltChildren();
-          this.setState('halted');
-        } catch(error) {
-          this.error = error;
-          this.setState('errored');
-          throw(error);
-        }
-        throw(error);
-      } else {
-        this.setState('erroring');
-        this.error = error;
-        await this.haltChildren(true);
-        this.setState('errored');
-        throw(error);
-      }
-    } finally {
-      if(this.parent) {
-        this.parent.trapExit(this as Task);
+  private resume() {
+    if(this.stateMachine.isFinishing && this.children.size === 0) {
+      this.stateMachine.finish();
+
+      this.trappers.forEach((trapper) => trapper.trap(this as Task));
+
+      if(this.state === 'completed') {
+        this.deferred.resolve(this.result!);
+      } else if(this.state === 'halted') {
+        this.deferred.reject(new HaltError());
+      } else if(this.state === 'errored') {
+        this.deferred.reject(this.error!);
       }
     }
   }
 
-  async halt() {
-    await this.controller.halt();
-    await this.then(() => {}, swallowHalt);
-  }
-
   then<TResult1 = TOut, TResult2 = never>(onfulfilled?: ((value: TOut) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): Promise<TResult1 | TResult2> {
-    return this.promise.then(onfulfilled, onrejected);
+    return this.deferred.promise.then(onfulfilled, onrejected);
   }
 
   catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): Promise<TOut | TResult> {
-    return this.promise.catch(onrejected);
+    return this.deferred.promise.catch(onrejected);
   }
 
   finally(onfinally?: (() => void) | null | undefined): Promise<TOut> {
-    return this.promise.finally(onfinally);
+    return this.deferred.promise.finally(onfinally);
   }
 
   spawn<R>(operation?: Operation<R>): Task<R> {
@@ -110,32 +119,58 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut> 
     }
     let child = new Task(operation);
     this.link(child as Task);
+    child.start();
+    return child;
+  }
+
+  fork<R>(operation?: Operation<R>): Task<R> {
+    if(this.state !== 'running') {
+      throw new Error('cannot fork a child on a task which is not running');
+    }
+    let child = new Task(operation);
+    child.isBlocking = true;
+    this.link(child as Task);
+    child.start();
     return child;
   }
 
   link(child: Task) {
-    child.parent = this as Task;
-    this.children.add(child);
-    this.emit('link', child);
+    if(!this.children.has(child)) {
+      child.addTrapper(this);
+      this.children.add(child);
+      this.emit('link', child);
+    }
   }
 
   unlink(child: Task) {
-    child.parent = undefined;
-    this.children.delete(child);
-    this.emit('unlink', child);
-  }
-
-  trapExit(child: Task) {
-    if(child.state === 'errored' && child.error) {
-      this.signal.reject(child.error);
+    if(this.children.has(child)) {
+      child.removeTrapper(this);
+      this.children.delete(child);
+      this.emit('unlink', child);
     }
-    this.unlink(child);
   }
 
-  setState(state: TaskState) {
-    let from = this.state;
-    this.state = state;
-    this.emit('state', { from, to: state });
+  trap(child: Task) {
+    if(this.children.has(child)) {
+      if(child.state === 'errored') {
+        this.controls.reject(child.error!);
+      }
+      this.unlink(child);
+    }
+    this.resume();
+  }
+
+  addTrapper(trapper: Trapper) {
+    this.trappers.add(trapper);
+  }
+
+  removeTrapper(trapper: Trapper) {
+    this.trappers.delete(trapper);
+  }
+
+  async halt() {
+    this.controller.halt();
+    await this.catch(() => {});
   }
 
   get [Symbol.toStringTag](): string {

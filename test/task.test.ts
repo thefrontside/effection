@@ -7,13 +7,16 @@ describe('Task', () => {
   describe('event: state', () => {
     it('is triggered when a task changes state', async () => {
       let events: { to: string, from: string }[] = []
-      let task = run(function*() { sleep(5) });
+      let task = new Task(function*() { sleep(5) });
 
       task.on('state', (transition) => events.push(transition));
+
+      task.start();
 
       await task;
 
       expect(events).toEqual([
+        { from: 'pending', to: 'running' },
         { from: 'running', to: 'completing' },
         { from: 'completing', to: 'completed' },
       ]);
@@ -40,7 +43,7 @@ describe('Task', () => {
 
       task.on('unlink', (child) => events.push(child));
 
-      let child = task.spawn(function*() { sleep(5); return 1 });
+      let child = task.spawn(function*() { yield sleep(5); return 1 });
 
       expect(events).toEqual([]);
       await child;
@@ -53,7 +56,7 @@ describe('Task', () => {
 
       task.on('unlink', (child) => events.push(child));
 
-      let child = task.spawn(function*() { sleep(5); return 1 });
+      let child = task.spawn(function*() { yield sleep(5); return 1 });
 
       expect(events).toEqual([]);
       await child.halt();

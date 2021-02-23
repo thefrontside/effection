@@ -111,6 +111,10 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
     return this.deferred.promise.catch(onrejected);
   }
 
+  catchHalt(): Promise<TOut | undefined> {
+    return this.deferred.promise.catch(swallowHalt);
+  }
+
   finally(onfinally?: (() => void) | null | undefined): Promise<TOut> {
     return this.deferred.promise.finally(onfinally);
   }

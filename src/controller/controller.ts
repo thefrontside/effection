@@ -1,6 +1,6 @@
 import { Task } from '../task';
 
 export interface Controller<TOut> {
-  start(): void;
+  start(task: Task<TOut>): void;
   halt(): void;
 }

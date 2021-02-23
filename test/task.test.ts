@@ -1,3 +1,4 @@
+import './setup';
 import { describe, beforeEach, it } from 'mocha';
 import * as expect from 'expect';
 

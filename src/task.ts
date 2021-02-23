@@ -19,6 +19,10 @@ export interface Controls<TOut> {
   reject(error: Error): void;
 }
 
+export interface TaskOptions {
+  blockParent?: boolean;
+}
+
 export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>, Trapper {
   public id = ++COUNTER;
 
@@ -30,8 +34,6 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
 
   private stateMachine = new StateMachine(this);
 
-  protected isBlocking = false;
-
   public result?: TOut;
   public error?: Error;
 
@@ -40,7 +42,7 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
       this.stateMachine.resolve();
       this.result = result;
       this.children.forEach((c) => {
-        if(!c.isBlocking) {
+        if(!c.options.blockParent) {
           c.halt()
         }
       });
@@ -66,7 +68,7 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
     return this.stateMachine.current;
   }
 
-  constructor(private operation: Operation<TOut>) {
+  constructor(private operation: Operation<TOut>, public options: TaskOptions = {}) {
     super();
     if(!operation) {
       this.controller = new SuspendController(this.controls);
@@ -127,8 +129,7 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
     if(this.state !== 'running') {
       throw new Error('cannot fork a child on a task which is not running');
     }
-    let child = new Task(operation);
-    child.isBlocking = true;
+    let child = new Task(operation, { blockParent: true });
     this.link(child as Task);
     child.start();
     return child;

@@ -12,13 +12,13 @@ const HALT = Symbol("halt");
 export class FunctionContoller<TOut> implements Controller<TOut> {
   private controller?: Controller<TOut>;
 
-  constructor(private task: Task<TOut>, private controls: Controls<TOut>, private operation: OperationFunction<TOut>) {
+  constructor(private controls: Controls<TOut>, private operation: OperationFunction<TOut>) {
   }
 
-  start() {
+  start(task: Task<TOut>) {
     let result;
     try {
-      result = this.operation(this.task);
+      result = this.operation(task);
     } catch(error) {
       this.controls.reject(error);
       return;

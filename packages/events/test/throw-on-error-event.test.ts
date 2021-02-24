@@ -15,8 +15,8 @@ describe("throwOnErrorEvent", () => {
 
   beforeEach(async () => {
     emitter = new EventEmitter();
-    task = Effection.root.spawn(function*() {
-      yield throwOnErrorEvent(emitter);
+    task = Effection.root.spawn(function*(task) {
+      throwOnErrorEvent(task, emitter);
       yield;
     });
   });
@@ -24,7 +24,6 @@ describe("throwOnErrorEvent", () => {
   describe('throws an error when the event occurs', () => {
     beforeEach(() => {
       error = new Error("moo");
-      console.log("after creating error");
       emitter.emit("error", error);
     });
 

@@ -6,11 +6,11 @@ import { EventSource, addListener, removeListener } from './event-source';
  * operation which resumes when the event occurs.
  */
 export function once<TArgs extends unknown[] = unknown[]>(source: EventSource, eventName: string): Operation<TArgs> {
-  return () => (resolve) => {
+  return (task) => (resolve) => {
     let listener = (...args: unknown[]) => { resolve(args as TArgs) };
-    addListener(source, eventName, listener);
-    return () => {
+    task.ensure(() => {
       removeListener(source, eventName, listener);
-    }
+    });
+    addListener(source, eventName, listener);
   }
 }

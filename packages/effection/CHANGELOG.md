@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.0-preview.0
+
+### Major Changes
+
+- Version 2
+
 ## 1.0.0
 
 ### Major Changes

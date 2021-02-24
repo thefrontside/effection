@@ -1,6 +1,6 @@
 {
   "name": "@effection/subscription",
-  "version": "1.0.0",
+  "version": "2.0.0-preview.0",
   "description": "Effection Subscriptions",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -19,7 +19,7 @@
     "mocha": "mocha -r ts-node/register"
   },
   "dependencies": {
-    "effection": "^1.0.0"
+    "effection": "^2.0.0-preview.0"
   },
   "devDependencies": {
     "@frontside/tsconfig": "0.0.1",

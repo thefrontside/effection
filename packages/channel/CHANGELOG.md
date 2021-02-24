@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.0.0
+
+### Major Changes
+
+- b988025: Release effection 1.0.0
+
+### Patch Changes
+
+- Updated dependencies [b988025]
+  - effection@1.0.0
+  - @effection/events@1.0.0
+  - @effection/subscription@1.0.0
+
 ## 0.6.8
 
 ### Patch Changes

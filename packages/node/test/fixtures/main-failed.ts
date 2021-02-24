@@ -1,7 +1,7 @@
-import { Operation, timeout } from 'effection';
+import { Operation, sleep } from '@effection/core';
 import { main } from '../../src/main';
 
 main(function*(): Operation<void> {
-  yield timeout(10);
+  yield sleep(10);
   throw new Error('moo');
 })

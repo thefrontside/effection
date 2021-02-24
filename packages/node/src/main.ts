@@ -1,4 +1,4 @@
-import { run, Context, Operation } from 'effection';
+import { run, Context, Operation } from '@effection/core';
 
 interface MainErrorOptions {
   exitCode?: number;

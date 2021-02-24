@@ -1,5 +1,5 @@
 import * as expect from 'expect';
-import { timeout } from 'effection';
+import { sleep } from '@effection/core';
 import { spawn } from './helpers';
 
 import { subscribe, Subscription, createSubscription } from '../src/index';
@@ -95,7 +95,7 @@ describe('subscriptions', () => {
 
   describe('when used as direct return value', () => {
     it('dispatches results independently', async () => {
-      let doSubscribe = () => createSubscription<number,void>(function*(publish) { yield timeout(2); publish(1) })
+      let doSubscribe = () => createSubscription<number,void>(function*(publish) { yield sleep(2); publish(1) })
 
       let subscribable = subscribe(doSubscribe());
 
@@ -110,7 +110,7 @@ describe('subscriptions', () => {
   describe('when chaining on createSubscription', () => {
     it('handles the chain', async () => {
       let doSubscribe = createSubscription<number,void>(function*(publish) {
-        yield timeout(2);
+        yield sleep(2);
         publish(12)
       }).map((value) => value * 2);
 

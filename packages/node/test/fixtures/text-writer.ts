@@ -1,4 +1,4 @@
-import { Operation } from 'effection';
+import { Operation } from '@effection/core';
 import { main } from '../../src/main';
 
 import { createServer } from 'net';

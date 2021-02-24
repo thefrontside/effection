@@ -1,4 +1,4 @@
-import { Operation } from 'effection';
+import { Operation } from '@effection/core';
 import { Subscribable, Subscription, SymbolSubscribable, createSubscription } from '@effection/subscription';
 import { on } from '@effection/events';
 import { EventEmitter } from 'events';

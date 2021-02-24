@@ -3,7 +3,7 @@ import { describe, it, beforeEach } from 'mocha';
 import { spawn } from './helpers';
 
 import { EventEmitter } from 'events';
-import { Operation } from 'effection';
+import { Operation } from '@effection/core';
 import { on } from '@effection/events';
 
 import { subscribe, ChainableSubscription, Subscription, createSubscription, Subscribable, SymbolSubscribable, forEach } from '../src/index';

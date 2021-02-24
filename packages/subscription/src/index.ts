@@ -7,7 +7,7 @@ export { ChainableSubscription } from './chainable-subscription';
 export { ChainableSubscribable } from './chainable-subscribable';
 export { subscribe } from './subscribe';
 
-import { Operation, deprecated } from 'effection';
+import { Operation, deprecated } from '@effection/core';
 import { SubscriptionSource } from './subscription-source';
 import { subscribe } from './subscribe';
 

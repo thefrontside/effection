@@ -1,7 +1,7 @@
 import { describe, it, beforeEach } from 'mocha';
 import * as expect from 'expect'
 
-import { timeout, Context } from 'effection';
+import { sleep, Context } from '@effection/core';
 import { EventEmitter } from 'events';
 
 import { World } from './helpers';
@@ -36,7 +36,7 @@ describe("once()", () => {
   describe('emitting an event on which it is not waiting', () => {
     beforeEach(async () => {
       source.emit('non-event', 1, 2, 10);
-      await World.spawn(timeout(10));
+      await World.spawn(sleep(10));
     });
 
     it('remains paused', () => {

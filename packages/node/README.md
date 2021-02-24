@@ -5,12 +5,12 @@ Work in Node.js with Effection
 ## Synopsis
 
 ``` typescript
-import { timeout } from 'effection';
+import { sleep } from 'effection';
 import { main } from '@effection/node';
 
 main(function* sayHello() {
   console.log('Hello World!');
-  yield timeout(2000);
+  yield sleep(2000);
   console.log('Goodbye World!')
 });
 ```

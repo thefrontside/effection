@@ -1,4 +1,4 @@
-import { Context, Operation, run as effectionRun } from 'effection';
+import { Context, Operation, run as effectionRun } from '@effection/core';
 import { performance } from 'perf_hooks';
 
 type World = Context & { spawn<T>(operation: Operation<T>): Promise<T> };

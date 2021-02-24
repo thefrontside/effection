@@ -1,5 +1,5 @@
 import { EventSource } from './event-source';
-import { Operation, spawn } from 'effection';
+import { Operation, spawn } from '@effection/core';
 import { once } from './once';
 
 export function throwOnErrorEvent(source: EventSource) {

@@ -1,4 +1,4 @@
-import { Operation } from 'effection';
+import { Operation } from '@effection/core';
 import { ChainableSubscription } from './chainable-subscription';
 import { DeepPartial } from './match';
 import { Subscribable } from './subscribable';

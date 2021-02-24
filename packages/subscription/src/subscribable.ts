@@ -1,4 +1,4 @@
-import { Operation, deprecated } from 'effection';
+import { Operation, deprecated } from '@effection/core';
 import { Subscription } from './subscription';
 import { SymbolSubscribable } from './symbol-subscribable';
 import { subscribe } from './subscribe';

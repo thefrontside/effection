@@ -1,4 +1,4 @@
-import { Operation } from 'effection';
+import { Operation } from '@effection/core';
 import { EventSource, addListener, removeListener } from './event-source';
 
 /**

@@ -1,0 +1,15 @@
+{
+  "mode": "pre",
+  "tag": "preview",
+  "initialVersions": {
+    "@effection/channel": "1.0.0",
+    "effection": "1.0.0",
+    "@effection/events": "1.0.0",
+    "@effection/fetch": "1.0.0",
+    "@effection/node": "1.0.0",
+    "@effection/subscription": "1.0.0"
+  },
+  "changesets": [
+    "tasty-spoons-notice"
+  ]
+}

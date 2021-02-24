@@ -1,6 +1,6 @@
 {
   "name": "@effection/fetch",
-  "version": "1.0.0",
+  "version": "2.0.0-preview.0",
   "description": "Fetch operation for Effection",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -30,7 +30,7 @@
   "dependencies": {
     "abort-controller": "^3.0.0",
     "cross-fetch": "^3.0.4",
-    "effection": "^1.0.0",
+    "effection": "^2.0.0-preview.0",
     "node-fetch": "^2.6.1"
   }
 }

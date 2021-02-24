@@ -28,9 +28,9 @@
     "typescript": "^3.9.5"
   },
   "dependencies": {
+    "@effection/core": "^2.0.0-preview.0",
     "abort-controller": "^3.0.0",
     "cross-fetch": "^3.0.4",
-    "effection": "^2.0.0-preview.0",
     "node-fetch": "^2.6.1"
   }
 }

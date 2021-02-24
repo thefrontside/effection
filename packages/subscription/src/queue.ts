@@ -22,24 +22,17 @@ export function createQueue<T>(): Queue<T> {
     },
 
     pop(): Operation<T> {
-      return function*() {
+      return (task) => (resolve) => {
         if(values.length) {
-          return values.shift();
+          resolve(values.shift() as T);
         } else {
-          let res;
-          try {
-            return yield () => (resolve) => {
-              res = resolve;
-              waiters.push(resolve);
+          task.ensure(() => {
+            let index = waiters.indexOf(resolve);
+            if(index > -1) {
+              waiters.splice(index, 1);
             }
-          } finally {
-            if(res) {
-              let index = waiters.indexOf(res);
-              if (index > -1) {
-                waiters.splice(index, 1);
-              }
-            }
-          }
+          });
+          waiters.push(resolve);
         }
       }
     }

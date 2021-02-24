@@ -2,7 +2,7 @@ import './setup';
 import { describe, beforeEach, it } from 'mocha';
 import * as expect from 'expect';
 
-import { run, sleep, Operation, Task } from '../src/index';
+import { run, sleep, Task } from '../src/index';
 
 describe('Task', () => {
   describe('ensure', () => {

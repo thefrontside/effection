@@ -24,11 +24,14 @@ export interface TaskOptions {
   ignoreChildErrors?: boolean;
 }
 
+type EnsureHandler = () => void;
+
 export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>, Trapper {
   public id = ++COUNTER;
 
   public readonly children: Set<Task> = new Set();
   private trappers: Set<Trapper> = new Set();
+  private ensureHandlers: Set<EnsureHandler> = new Set();
 
   private controller: Controller<TOut>;
   private deferred = Deferred<TOut>();
@@ -92,6 +95,7 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
     if(this.stateMachine.isFinishing && this.children.size === 0) {
       this.stateMachine.finish();
 
+      this.ensureHandlers.forEach((handler) => handler());
       this.trappers.forEach((trapper) => trapper.trap(this as Task));
 
       if(this.state === 'completed') {
@@ -154,6 +158,10 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
       this.unlink(child);
     }
     this.resume();
+  }
+
+  ensure(fn: EnsureHandler) {
+    this.ensureHandlers.add(fn);
   }
 
   addTrapper(trapper: Trapper) {

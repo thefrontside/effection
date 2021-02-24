@@ -5,6 +5,49 @@ import * as expect from 'expect';
 import { run, sleep, Operation, Task } from '../src/index';
 
 describe('Task', () => {
+  describe('ensure', () => {
+    it('attaches a handler which runs when the task finishes normally', async () => {
+      let task = run(sleep(10));
+      let didRun = false;
+
+      task.ensure(() => {
+        didRun = true;
+      });
+
+      await expect(task).resolves.toEqual(undefined);
+      expect(didRun).toEqual(true);
+    });
+
+    it('attaches a handler which runs when the task finishes errors', async () => {
+      let task = run(function*() {
+        yield sleep(5)
+        throw new Error('boom');
+      });
+      let didRun = false;
+
+      task.ensure(() => {
+        didRun = true;
+      });
+
+      await expect(task).rejects.toHaveProperty('message', 'boom');
+      expect(didRun).toEqual(true);
+    });
+
+    it('attaches a handler which runs when the task halts', async () => {
+      let task = run();
+      let didRun = false;
+
+      task.ensure(() => {
+        didRun = true;
+      });
+
+      await task.halt();
+
+      await expect(task).rejects.toHaveProperty('message', 'halted');
+      expect(didRun).toEqual(true);
+    });
+  });
+
   describe('catchHalt', () => {
     it('catches halt errors and resolves to undefined', async () => {
       let task = run();

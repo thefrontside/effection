@@ -1,4 +1,4 @@
-import { timeout, Context } from 'effection';
+import { timeout, Context } from '@effection/core';
 import { describe, it, beforeEach } from 'mocha';
 import * as expect from 'expect';
 

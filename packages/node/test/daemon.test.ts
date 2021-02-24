@@ -2,7 +2,7 @@ import { describe, it, beforeEach } from 'mocha';
 import * as expect from 'expect';
 import fetch from 'node-fetch';
 
-import { Context, spawn } from 'effection';
+import { Context, spawn } from '@effection/core';
 import { subscribe } from '@effection/subscription';
 
 import { World, converge } from './helpers';

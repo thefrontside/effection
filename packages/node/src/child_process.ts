@@ -1,4 +1,4 @@
-import { Operation, resource, deprecated } from 'effection';
+import { Operation, resource, deprecated } from '@effection/core';
 import { once, throwOnErrorEvent } from '@effection/events';
 
 import * as childProcess from 'child_process';

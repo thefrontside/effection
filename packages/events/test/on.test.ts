@@ -1,7 +1,7 @@
 import { describe, it, beforeEach } from 'mocha';
 import * as expect from 'expect'
 
-import { timeout } from 'effection';
+import { sleep } from '@effection/core';
 import { Subscription } from '@effection/subscription';
 import { EventEmitter } from 'events';
 
@@ -34,7 +34,7 @@ describe("on", () => {
     describe('emitting an event efter subscribing', () => {
       beforeEach(() => {
         World.spawn(function*() {
-          yield timeout(5);
+          yield sleep(5);
           emitter.emit("thing", 123, true);
         });
       });
@@ -48,7 +48,7 @@ describe("on", () => {
     describe('emitting multiple events', () => {
       beforeEach(() => {
         World.spawn(function*() {
-          yield timeout(5);
+          yield sleep(5);
           emitter.emit("thing", "foo");
           emitter.emit("thing", "bar");
         });

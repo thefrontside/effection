@@ -19,14 +19,14 @@ A basic example:
 ``` typescript
 import { createChannel } from '@effection/channel';
 import { main } from '@effection/node';
-import { timeout } from 'effection';
+import { sleep } from 'effection';
 
 main(function*() {
   let channel = createChannel();
 
   spawn(function*() {
     while(true) {
-      yield timeout(1000);
+      yield sleep(1000);
       channel.send({ message: "ping" });
     }
   });

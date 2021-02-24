@@ -1,4 +1,4 @@
-import { Operation, resource } from 'effection';
+import { Operation, resource } from '@effection/core';
 
 import { ChainableSubscription } from './chainable-subscription';
 import { makeChainable, ChainableSubscribable } from './chainable-subscribable';

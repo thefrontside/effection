@@ -1,4 +1,4 @@
-import { run, Context, Controls, Operation } from 'effection';
+import { run, Context, Controls, Operation } from '@effection/core';
 
 export let World: Context & Controls;
 

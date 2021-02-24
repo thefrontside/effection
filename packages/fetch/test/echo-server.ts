@@ -1,4 +1,4 @@
-import { Operation, resource } from 'effection';
+import { Operation, resource } from '@effection/core';
 import { throwOnErrorEvent, once, on } from '@effection/events';
 import { AddressInfo } from 'net';
 import { createServer, IncomingMessage, ServerResponse } from 'http';

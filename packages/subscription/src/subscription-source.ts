@@ -1,4 +1,4 @@
-import { Operation } from 'effection';
+import { Operation } from '@effection/core';
 import { Subscribable } from './subscribable';
 import { Subscription } from './subscription';
 import { SymbolSubscribable } from './symbol-subscribable';

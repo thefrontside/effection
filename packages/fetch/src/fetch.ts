@@ -1,4 +1,4 @@
-import { Operation, resource } from 'effection';
+import { Operation, resource } from '@effection/core';
 import { fetch as nativeFetch } from 'cross-fetch';
 import { AbortController } from 'abort-controller';
 

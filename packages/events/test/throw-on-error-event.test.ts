@@ -1,7 +1,7 @@
 import { describe, it, beforeEach } from 'mocha';
 import * as expect from 'expect'
 
-import { Context } from 'effection';
+import { Context } from '@effection/core';
 import { EventEmitter } from 'events';
 
 import { World } from './helpers';

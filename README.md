@@ -70,10 +70,10 @@ example waits for 1 second, then prints out "hello world" to
 the console.
 
 ``` javascript
-import { run, timeout } from 'effection';
+import { run, sleep } from 'effection';
 
 let context = run(function*() {
-  yield timeout(1000);
+  yield sleep(1000);
   return 'hello world';
 });
 
@@ -90,7 +90,7 @@ Child processes can be composed freely. So instead of yielding for
 run(function*() {
   yield function*() {
     for (let i = 0; i < 10; i++) {
-      yield timeout(100);
+      yield sleep(100);
     }
   }
   return 'hello world';
@@ -118,10 +118,10 @@ You can pass arguments to an operation by invoking it.
 
 ``` javascript
 
-import { run, timeout } from 'effection';
+import { run, sleep } from 'effection';
 
 function* waitForSeconds(durationSeconds) {
-  yield timeout(durationSeconds * 1000);
+  yield sleep(durationSeconds * 1000);
 }
 
 run(waitforseconds(10));

@@ -1,4 +1,4 @@
-import { Operation, resource, spawn } from 'effection';
+import { Operation, resource, spawn } from '@effection/core';
 import { Channel } from '@effection/channel';
 import { subscribe } from '@effection/subscription';
 

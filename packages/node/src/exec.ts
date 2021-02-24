@@ -1,7 +1,7 @@
 /// <reference types="../types/shellwords" />
 import { split } from 'shellwords';
 
-import { Operation } from 'effection';
+import { Operation } from '@effection/core';
 import { ExecOptions, Process, } from './exec/api';
 import { createPosixProcess } from './exec/posix';
 import { createWin32Process, isWin32 } from './exec/win32';

@@ -1,4 +1,4 @@
-import { Operation } from 'effection';
+import { Operation } from '@effection/core';
 
 export type Subscriber<T,TReturn = undefined> = (publish: (value: T) => void) => Operation<TReturn>;
 

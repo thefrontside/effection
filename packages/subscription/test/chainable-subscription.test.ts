@@ -2,7 +2,7 @@ import * as expect from 'expect';
 import { describe, it, beforeEach } from 'mocha';
 import { spawn } from './helpers';
 
-import { Operation } from 'effection';
+import { Operation } from '@effection/core';
 import { createSubscription, ChainableSubscription, Subscribable, SymbolSubscribable, forEach } from '../src/index';
 
 interface Thing {

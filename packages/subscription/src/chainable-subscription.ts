@@ -1,4 +1,4 @@
-import { Operation, resource } from 'effection';
+import { Operation, resource } from '@effection/core';
 import { Subscription } from './subscription';
 import { DeepPartial, matcher } from './match';
 import { SubscriptionSource, rawSubscribe } from './subscription-source';

@@ -1,26 +1,20 @@
-import { Context, Operation, run as effectionRun } from '@effection/core';
 import { performance } from 'perf_hooks';
+import { Effection } from '@effection/core';
 
-type World = Context & { spawn<T>(operation: Operation<T>): Promise<T> };
-
-let currentWorld: World;
 let mochaTimeout: number;
 
 before(function() {
   mochaTimeout = this.timeout(50).timeout();
 });
 
-beforeEach(() => {
-  currentWorld = effectionRun(undefined) as World;
+beforeEach(async () => {
+  await Effection.reset();
 });
 
-afterEach(() => {
-  currentWorld.halt();
+afterEach(async () => {
+  await Effection.root.halt();
 });
 
-export function run<T>(operation: Operation<T>): Promise<T> {
-  return currentWorld.spawn(operation);
-}
 export async function when<T>(fn: () => T, timeout = mochaTimeout): Promise<T> {
   let startTime = performance.now();
 

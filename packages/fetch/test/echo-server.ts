@@ -1,12 +1,22 @@
-import { Operation, resource } from '@effection/core';
-import { throwOnErrorEvent, once, on } from '@effection/events';
+import { Operation, Task } from '@effection/core';
+import { throwOnErrorEvent, once } from '@effection/events';
 import { AddressInfo } from 'net';
-import { createServer, IncomingMessage, ServerResponse } from 'http';
+import { createServer, Server, IncomingMessage, ServerResponse } from 'http';
 
 export class EchoServer {
   requests: Array<[IncomingMessage, ServerResponse]> = [];
 
-  constructor(private addressInfo: AddressInfo) {}
+  private http: Server;
+
+  constructor(private scope: Task) {
+    this.http = createServer((req, res) => {
+      this.requests.push([req, res]);
+    });
+  }
+
+  get addressInfo(): AddressInfo {
+    return this.http.address() as AddressInfo;
+  }
 
   get last() {
     return this.requests[this.requests.length - 1];
@@ -32,30 +42,20 @@ export class EchoServer {
     }
   }
 
-  static *listen(): Operation<EchoServer>
-{
-    let http = createServer((req, res) => {
-      server.requests.push([req, res]);
-    });
-    http.listen();
-
-    try {
-      yield once(http, 'listening');
-    } catch (e) {
-      http.close();
-      throw e;
-    }
-
-    let server: EchoServer = yield resource(new EchoServer(http.address() as AddressInfo), function*() {
-      yield throwOnErrorEvent(http);
+  listen(): Operation<void> {
+    let { scope, http } = this;
+    return function*() {
+      http.listen();
 
       try {
-        yield;
-      } finally {
+        yield once(http, 'listening');
+      } catch (e) {
         http.close();
+        throw e;
       }
-    });
 
-    return server;
+      throwOnErrorEvent(scope, http);
+      scope.ensure(() => http.close());
+    }
   }
 }

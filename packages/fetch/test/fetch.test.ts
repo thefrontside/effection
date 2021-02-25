@@ -1,8 +1,10 @@
 import { IncomingMessage } from 'http';
 import { EchoServer } from "./echo-server";
-import { run, when, never } from "./helpers";
+import { when, never } from "./helpers";
 import { fetch } from "../src";
 import * as expect from 'expect';
+
+import { run, Effection } from '@effection/core';
 
 describe("fetch in node", () => {
   let app: EchoServer;
@@ -10,12 +12,13 @@ describe("fetch in node", () => {
   let body: string;
 
   beforeEach(async () => {
-    app = await run(EchoServer.listen());
+    app = new EchoServer(Effection.root);
+    await run(app.listen());
   });
 
   describe('calling the server and posting a body', () => {
     beforeEach(async () => {
-      response = run(fetch(`${app.address}`, {
+      response = run(fetch(Effection.root, `${app.address}`, {
         method: 'POST',
         body: JSON.stringify({
           hello: 'world'

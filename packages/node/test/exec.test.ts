@@ -2,9 +2,10 @@ import { describe, it, beforeEach } from 'mocha';
 import * as expect from 'expect';
 import fetch from 'node-fetch';
 
+import { run, Effection } from '@effection/core';
 import { subscribe } from '@effection/subscription';
 
-import { World, converge } from './helpers';
+import { converge } from './helpers';
 
 import { exec, Process } from '../src';
 
@@ -13,13 +14,13 @@ describe('exec()', () => {
 
   describe('a process that fails to start', () => {
     let error: unknown;
-    beforeEach(async () => {
-      proc = await World.spawn(exec("argle", { arguments: ['bargle'] }));
+    beforeEach(() => {
+      proc = exec(Effection.root, "argle", { arguments: ['bargle'] });
     });
 
     describe('calling join()', () => {
       beforeEach(async () => {
-        await World.spawn(function*() {
+        await run(function*() {
           try {
             yield proc.join();
           } catch(e) {
@@ -36,7 +37,7 @@ describe('exec()', () => {
     describe('calling expect()', () => {
       let error: unknown;
       beforeEach(async () => {
-        await World.spawn(function* () {
+        await run(function* () {
           try {
             yield proc.expect()
           } catch (e) { error = e; }
@@ -61,20 +62,20 @@ describe('exec()', () => {
       errput = '';
       didClose = { stdout: false, stderr: false };
 
-      proc = await World.spawn(exec("node './fixtures/echo-server.js'", {
+      proc = exec(Effection.root, "node './fixtures/echo-server.js'", {
         env: { PORT: '29000', PATH: process.env.PATH as string },
         cwd: __dirname,
-      }));
+      });
 
-      World.spawn(function*() {
-        yield subscribe(proc.stdout).forEach(function*(chunk) {
+      run(function*() {
+        yield subscribe(Effection.root, proc.stdout).forEach((chunk) => function*() {
           output += chunk;
         });
         didClose.stdout = true;
       });
 
-      World.spawn(function*() {
-        yield subscribe(proc.stderr).forEach(function*(chunk) {
+      run(function*() {
+        yield subscribe(Effection.root, proc.stderr).forEach((chunk) => function*() {
           errput += chunk;
         });
         didClose.stderr = true;
@@ -94,18 +95,18 @@ describe('exec()', () => {
       });
 
       it('joins successfully', async () => {
-        let status = await World.spawn(proc.join());
+        let status = await run(proc.join());
         expect(status.code).toEqual(0);
       });
 
       it('expects successfully', async () => {
-        let status = await World.spawn(proc.expect());
+        let status = await run(proc.expect());
         expect(status.code).toEqual(0);
       });
 
 
       it('closes stdout and stderr', async () => {
-        await World.spawn(proc.expect());
+        await run(proc.expect());
         expect(output).toContain('exit(0)');
         expect(errput).toContain('got request');
         await converge(() => expect(didClose).toEqual({ stdout: true, stderr: true }));
@@ -119,12 +120,12 @@ describe('exec()', () => {
       });
 
       it('joins successfully', async () => {
-        let status = await World.spawn(proc.join());
+        let status = await run(proc.join());
         expect(status.code).not.toEqual(0);
       });
 
       it('expects unsuccessfully', async () => {
-        await World.spawn(function* () {
+        await run(function* () {
           try {
             yield proc.expect();
           } catch (e) {

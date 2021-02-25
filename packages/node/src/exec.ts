@@ -1,7 +1,7 @@
 /// <reference types="../types/shellwords" />
 import { split } from 'shellwords';
 
-import { Operation } from '@effection/core';
+import { Task } from '@effection/core';
 import { ExecOptions, Process, } from './exec/api';
 import { createPosixProcess } from './exec/posix';
 import { createWin32Process, isWin32 } from './exec/win32';
@@ -14,13 +14,13 @@ export * from './exec/api';
  * exit status. If you want to start a process like a server that spins up and runs
  * forever, consider using `daemon()`
  */
-export function exec(command: string, options: ExecOptions = {}): Operation<Process> {
+export function exec(scope: Task, command: string, options: ExecOptions = {}): Process {
   let [cmd, ...args] = split(command);
   let opts = { ...options, arguments: args.concat(options.arguments || []) }
 
   if (isWin32()) {
-    return createWin32Process(cmd, opts);
+    return createWin32Process(scope, cmd, opts);
   } else {
-    return createPosixProcess(cmd, opts);
+    return createPosixProcess(scope, cmd, opts);
   }
 }

@@ -1,32 +1,23 @@
 import { performance } from 'perf_hooks';
 import { beforeEach } from 'mocha';
 import * as expect from 'expect';
-import { run, Context, Controls } from '@effection/core';
+import { run, Effection, Task } from '@effection/core';
 import { Channel } from '@effection/channel';
 import { subscribe } from '@effection/subscription';
 import { ctrlc } from 'ctrlc-windows';
 import { exec, Process } from '../src/exec';
 
-export let World: Context & Controls;
-
-beforeEach(() => {
-  World = run(undefined) as Context & Controls;
+beforeEach(async () => {
+  await Effection.reset();
 });
-
-afterEach(() => {
-  if(World.state === "errored") {
-    console.error(World.result);
-  }
-  World.halt();
-})
 
 export class TestProcess {
   isWin32 = global.process.platform === 'win32';
   stdout: TestStream;
   stderr: TestStream;
 
-  static async exec(cmd: string) {
-    return new TestProcess(await World.spawn(exec(cmd, { cwd: __dirname })));
+  static exec(task: Task, cmd: string) {
+    return new TestProcess(exec(task, cmd, { cwd: __dirname }));
   }
 
   constructor(public process: Process) {
@@ -35,7 +26,7 @@ export class TestProcess {
   }
 
   async join() {
-    return await World.spawn(this.process.join());
+    return await run(this.process.join());
   }
 
   // cross platform graceful shutdown request. What would
@@ -70,8 +61,8 @@ export class TestStream {
 
   static of(channel: Channel<string>) {
     let testStream = new TestStream();
-    World.spawn(function*() {
-      yield subscribe(channel).forEach(function*(chunk) {
+    run(function*(task) {
+      yield subscribe(task, channel).forEach((chunk) => function*() {
         testStream.output += chunk.toString();
       });
     });

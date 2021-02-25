@@ -2,6 +2,7 @@ import * as path from 'path';
 import * as expect from 'expect';
 import { describe, it, beforeEach } from 'mocha';
 
+import { Effection } from '@effection/core';
 import { TestProcess } from './helpers';
 
 describe('main', () => {
@@ -9,7 +10,7 @@ describe('main', () => {
 
   describe('with successful process', () => {
     beforeEach(async () => {
-      child = await TestProcess.exec(`ts-node ./fixtures/text-writer.ts`);
+      child = TestProcess.exec(Effection.root, `ts-node ./fixtures/text-writer.ts`);
 
       await child.stdout.detect("started");
     });
@@ -39,7 +40,7 @@ describe('main', () => {
 
   describe('with failing process', () => {
     it('sets exit code and prints error', async () => {
-      let child = await TestProcess.exec(`ts-node ./fixtures/main-failed.ts`);
+      let child = TestProcess.exec(Effection.root, `ts-node ./fixtures/main-failed.ts`);
       let status = await child.join();
 
       expect(child.stderr.output).toContain('Error: moo');
@@ -47,7 +48,7 @@ describe('main', () => {
     });
 
     it('sets custom exit code and hides error', async () => {
-      let child = await TestProcess.exec(`ts-node ./fixtures/main-failed-custom.ts`);
+      let child = TestProcess.exec(Effection.root, `ts-node ./fixtures/main-failed-custom.ts`);
       let status = await child.join();
 
       expect(child.stderr.output).toContain('It all went horribly wrong');

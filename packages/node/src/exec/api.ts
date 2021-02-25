@@ -1,4 +1,4 @@
-import { Operation } from 'effection';
+import { Task, Operation } from '@effection/core';
 import { Channel } from '@effection/channel';
 
 /**
@@ -84,7 +84,7 @@ export interface ExitStatus {
 
 
 export interface CreateOSProcess {
-  (command: string, options: ExecOptions): Operation<Process>;
+  (scope: Task, command: string, options: ExecOptions): Process;
 }
 
 

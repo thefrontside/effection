@@ -1,9 +1,8 @@
-import { Operation } from '@effection/core';
 import { main } from '../../src/main';
 
 import { createServer } from 'net';
 
-main(function*(): Operation<void> {
+main(function*() {
   console.log(`started [${process.pid}]`);
   let server = createServer();
   try {

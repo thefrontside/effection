@@ -1,4 +1,4 @@
-import { Operation, resource, spawn } from '@effection/core';
+import { Operation, Task } from '@effection/core';
 import { Channel } from '@effection/channel';
 import { subscribe } from '@effection/subscription';
 
@@ -10,23 +10,23 @@ import { exec, Process, ExecOptions, StdIO, ExitStatus, stringifyExitStatus  } f
  * before the operation containing them passes out of scope it raises an error.
  */
 
-export function* daemon(command: string, options: ExecOptions = {}): Operation<StdIO> {
+export function daemon(scope: Task, command: string, options: ExecOptions = {}): StdIO {
   let stdin = new Channel<string>();
   let stdout = new Channel<string>();
   let stderr = new Channel<string>();
 
-  return yield resource({ stdin, stdout, stderr }, function*() {
-    let process: Process = yield exec(command, options);
+  scope.spawn(function*(task) {
+    let process: Process = exec(task, command, options);
 
-    yield spawn(subscribe(process.stdout).forEach(function*(chunk) {
+    task.spawn(subscribe(task, process.stdout).forEach((chunk) => function*() {
       stdout.send(chunk);
     }));
 
-    yield spawn(subscribe(process.stderr).forEach(function*(chunk) {
+    task.spawn(subscribe(task, process.stderr).forEach((chunk) => function*() {
       stderr.send(chunk);
     }));
 
-    yield spawn(subscribe(stdin).forEach(function*(chunk) {
+    task.spawn(subscribe(task, stdin).forEach((chunk) => function*() {
       process.stdin.send(chunk);
     }));
 
@@ -38,4 +38,6 @@ export function* daemon(command: string, options: ExecOptions = {}): Operation<S
 
     throw error;
   });
+
+  return { stdin, stdout, stderr };
 }

@@ -1,5 +1,5 @@
 import { platform } from "os";
-import { Operation, resource, spawn } from "@effection/core";
+import { Operation } from "@effection/core";
 import { Channel } from "@effection/channel";
 import { on, once } from "@effection/events";
 import { spawn as spawnProcess } from "cross-spawn";
@@ -12,7 +12,7 @@ type Result =
   | { type: "error"; value: unknown }
   | { type: "status"; value: [number?, string?] };
 
-export const createWin32Process: CreateOSProcess = function*(command, options) {
+export const createWin32Process: CreateOSProcess = (scope, command, options) => {
   let stdin = new Channel<string>();
   let stdout = new Channel<string>();
   let stderr = new Channel<string>();
@@ -26,7 +26,7 @@ export const createWin32Process: CreateOSProcess = function*(command, options) {
     }
   }
 
-  function* join(): Operation<ExitStatus> {
+  let join = (): Operation<ExitStatus> => function*() {
     let result: Result = yield getResult.promise;
     if (result.type === "status") {
       let [code, signal] = result.value;
@@ -36,7 +36,7 @@ export const createWin32Process: CreateOSProcess = function*(command, options) {
     }
   }
 
-  function* expect(): Operation<ExitStatus> {
+  let expect = (): Operation<ExitStatus> => function*() {
     let status: ExitStatus = yield join();
     if (status.code != 0) {
       let error = new Error(stringifyExitStatus(status));
@@ -69,54 +69,53 @@ export const createWin32Process: CreateOSProcess = function*(command, options) {
 
   let { pid } = childProcess;
 
-  return yield resource(
-    { pid, stdin, stdout, stderr, join, expect },
-    function*() {
-      let onError = (value: unknown) =>
-        getResult.resolve({ type: "error", value });
+  scope.spawn(function*(task) {
+    let onError = (value: unknown) =>
+      getResult.resolve({ type: "error", value });
 
-      try {
-        childProcess.on("error", onError);
+    try {
+      childProcess.on("error", onError);
 
-        yield spawn(
-          on<[string]>(childProcess.stdout, "data").forEach(function*([data]) {
-            addToTail(data);
-            stdout.send(data);
-          })
-        );
+      task.spawn(
+        on<[string]>(task, childProcess.stdout, "data").forEach(([data]) => function*() {
+          addToTail(data);
+          stdout.send(data);
+        })
+      );
 
-        yield spawn(
-          on<[string]>(childProcess.stderr, "data").forEach(function*([data]) {
-            addToTail(data);
-            stderr.send(data);
-          })
-        );
+      task.spawn(
+        on<[string]>(task, childProcess.stderr, "data").forEach(([data]) => function*() {
+          addToTail(data);
+          stderr.send(data);
+        })
+      );
 
-        yield spawn(
-          subscribe(stdin).forEach(function*(data) {
-            childProcess.stdin.write(data);
-          })
-        );
+      task.spawn(
+        subscribe(task, stdin).forEach((data) => function*() {
+          childProcess.stdin.write(data);
+        })
+      );
 
-        let value = yield once(childProcess, "exit");
-        getResult.resolve({ type: "status", value });
-      } finally {
-        stdout.close();
-        stderr.close();
-        if (pid) {
-          ctrlc(pid);
-          let stdin = childProcess.stdin;
-          if (stdin.writable) {
-            try {
-              //Terminate batch process (Y/N)
-              stdin.write("Y\n");
-            } catch (_err) { /* not much we can do here */}
-          }
-          stdin.end();
+      let value = yield once(childProcess, "exit");
+      getResult.resolve({ type: "status", value });
+    } finally {
+      stdout.close();
+      stderr.close();
+      if (pid) {
+        ctrlc(pid);
+        let stdin = childProcess.stdin;
+        if (stdin.writable) {
+          try {
+            //Terminate batch process (Y/N)
+            stdin.write("Y\n");
+          } catch (_err) { /* not much we can do here */}
         }
+        stdin.end();
       }
     }
-  );
+  });
+
+  return { pid, stdin, stdout, stderr, join, expect };
 };
 
 export const isWin32 = () => platform() === "win32";

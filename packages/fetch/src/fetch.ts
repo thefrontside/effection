@@ -1,23 +1,15 @@
-import { Operation, resource } from '@effection/core';
+import { Task, Operation } from '@effection/core';
 import { fetch as nativeFetch } from 'cross-fetch';
 import { AbortController } from 'abort-controller';
 
-export function* fetch(info: RequestInfo, init: RequestInit = {}): Operation<Response> {
-  let controller = new AbortController();
-  init.signal = controller.signal;
-  let response: Response | undefined;
-  try {
-    response = yield nativeFetch(info, init);
-    return yield resource(response as Response, function*() {
-      try {
-        yield;
-      } finally {
-        controller.abort();
-      }
-    });
-  } finally {
-    if (!response) {
-      controller.abort();
-    }
+export function fetch(scope: Task, info: RequestInfo, init: RequestInit = {}): Operation<Response> {
+  return function*() {
+    let controller = new AbortController();
+
+    scope.ensure(() => controller.abort());
+
+    init.signal = controller.signal;
+
+    return yield nativeFetch(info, init);
   }
-}
+};

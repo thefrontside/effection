@@ -1,0 +1,5 @@
+---
+"effection": minor
+---
+
+Fix packaging

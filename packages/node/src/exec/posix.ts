@@ -1,10 +1,9 @@
-import { Operation } from '@effection/core';
+import { Operation, Deferred } from '@effection/core';
 import { Channel } from '@effection/channel';
 import { on, once } from '@effection/events';
 import { spawn as spawnProcess } from 'child_process';
 import { subscribe } from '@effection/subscription';
 import { ExitStatus, CreateOSProcess, stringifyExitStatus } from './api';
-import { Deferred } from './deferred';
 
 type Result = { type: 'error'; value: unknown } | { type: 'status'; value: [number?, string?] };
 

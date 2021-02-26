@@ -1,6 +1,6 @@
 {
   "name": "@effection/node",
-  "version": "2.0.0-preview.0",
+  "version": "2.0.0-preview.1",
   "description": "Work in Node.js with Effection",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -31,10 +31,10 @@
     "typescript": "^3.7.0"
   },
   "dependencies": {
-    "@effection/channel": "^2.0.0-preview.0",
-    "@effection/core": "^2.0.0-preview.0",
-    "@effection/events": "^2.0.0-preview.0",
-    "@effection/subscription": "^2.0.0-preview.0",
+    "@effection/channel": "^2.0.0-preview.1",
+    "@effection/core": "^2.0.0-preview.1",
+    "@effection/events": "^2.0.0-preview.1",
+    "@effection/subscription": "^2.0.0-preview.1",
     "cross-spawn": "^7.0.3",
     "ctrlc-windows": "^1.0.2",
     "shellwords": "^0.1.1"

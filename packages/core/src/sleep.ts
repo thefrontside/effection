@@ -1,16 +1,12 @@
 import { Operation } from './operation';
 
 export function sleep(duration: number): Operation<void> {
-  return function*() {
-    let timeoutId;
-    try {
-      yield new Promise((resolve) => {
-        setTimeout(resolve, duration);
-      });
-    } finally {
+  return (task) => (resolve) => {
+    let timeoutId = setTimeout(resolve, duration);
+    task.ensure(() => {
       if(timeoutId) {
         clearTimeout(timeoutId);
       }
-    }
+    });
   }
 }

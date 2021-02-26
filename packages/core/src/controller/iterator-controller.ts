@@ -1,12 +1,12 @@
 import { Controller } from './controller';
 import { OperationIterator } from '../operation';
 import { Task, Controls } from '../task';
-import { HaltError, swallowHalt } from '../halt-error';
+import { HaltError } from '../halt-error';
 import { Operation } from '../operation';
 import { Trapper } from '../trapper';
 
 export class IteratorController<TOut> implements Controller<TOut>, Trapper {
-  private didHalt: boolean = false;
+  private didHalt = false;
   private subTask?: Task;
 
   constructor(private controls: Controls<TOut>, private iterator: OperationIterator<TOut>) {
@@ -40,9 +40,11 @@ export class IteratorController<TOut> implements Controller<TOut>, Trapper {
 
   trap(child: Task) {
     if(child.state === 'completed') {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       this.resume(() => this.iterator.next(child.result!));
     }
     if(child.state === 'errored') {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       this.resume(() => this.iterator.throw(child.error!));
     }
     if(child.state === 'halted') {

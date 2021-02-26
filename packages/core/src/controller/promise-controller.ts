@@ -1,6 +1,5 @@
 import { Controller } from './controller';
 import { Controls } from '../task';
-import { HaltError, isHaltError } from '../halt-error';
 import { Deferred } from '../deferred';
 
 const HALT = Symbol("halt");

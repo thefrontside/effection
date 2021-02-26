@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 export function isPromise(value: any): value is PromiseLike<unknown> {
   return value && typeof(value.then) === 'function';
 }

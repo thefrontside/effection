@@ -8,6 +8,7 @@ export class HaltError extends Error {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function isHaltError(value: any): value is HaltError {
   return !!(value && value.__isEffectionHaltError);
 }

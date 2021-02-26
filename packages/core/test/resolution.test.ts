@@ -1,5 +1,5 @@
 import './setup';
-import { describe, beforeEach, it } from 'mocha';
+import { describe, it } from 'mocha';
 import * as expect from 'expect';
 
 import { run } from '../src/index';
@@ -7,7 +7,7 @@ import { run } from '../src/index';
 describe('resolution function', () => {
   it('resolves when resolve is called', async () => {
     let task = run(() => {
-      return (resolve, reject) => {
+      return (resolve) => {
         setTimeout(() => resolve(123), 5)
       }
     });
@@ -29,7 +29,7 @@ describe('resolution function', () => {
 
   it('rejects when error is thrown in function', async () => {
     let task = run(() => {
-      return (resolve, reject) => {
+      return () => {
         throw new Error('boom');
       }
     });
@@ -40,7 +40,8 @@ describe('resolution function', () => {
 
   it('can be halted', async () => {
     let task = run(() => {
-      return (resolve, reject) => {
+      return () => {
+        // never resolves
       }
     });
 

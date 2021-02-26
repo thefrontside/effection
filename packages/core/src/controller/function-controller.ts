@@ -1,13 +1,10 @@
 import { Controller } from './controller';
 import { OperationFunction } from '../operation';
 import { Task, Controls } from '../task';
-import { HaltError } from '../halt-error';
 import { isPromise } from '../predicates';
 import { IteratorController } from './iterator-controller';
 import { ResolutionController } from './resolution-controller';
 import { PromiseController } from './promise-controller';
-
-const HALT = Symbol("halt");
 
 export class FunctionContoller<TOut> implements Controller<TOut> {
   private controller?: Controller<TOut>;

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Task } from './task';
 
 export type OperationIterator<TOut> = Generator<Operation<any>, TOut | undefined, any>;

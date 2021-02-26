@@ -1,4 +1,4 @@
-import { Operation, Task } from '@effection/core';
+import { Task } from '@effection/core';
 import { Channel } from '@effection/channel';
 import { subscribe } from '@effection/subscription';
 

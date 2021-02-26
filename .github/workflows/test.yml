@@ -32,5 +32,3 @@ jobs:
       - run: yarn prepack
       - name: test
         run: yarn test
-      - name: test types in effection
-        run: yarn workspace effection test:types

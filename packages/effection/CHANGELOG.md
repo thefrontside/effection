@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.0-preview.1
+
+### Minor Changes
+
+- f6f223c: Fix packaging
+
 ## 2.0.0-preview.0
 
 ### Major Changes

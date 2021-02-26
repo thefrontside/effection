@@ -7,9 +7,11 @@
     "@effection/events": "1.0.0",
     "@effection/fetch": "1.0.0",
     "@effection/node": "1.0.0",
-    "@effection/subscription": "1.0.0"
+    "@effection/subscription": "1.0.0",
+    "@effection/core": "2.0.0-preview.0"
   },
   "changesets": [
+    "silver-pans-impress",
     "tasty-spoons-notice"
   ]
 }

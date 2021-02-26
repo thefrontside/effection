@@ -1,9 +1,8 @@
 import './setup';
-import { describe, beforeEach, it } from 'mocha';
+import { describe, it } from 'mocha';
 import * as expect from 'expect';
 
 import { run, sleep, Task } from '../src/index';
-import { Deferred } from '../src/deferred';
 
 describe('spawn', () => {
   it('can spawn a new child task', async () => {
@@ -112,13 +111,14 @@ describe('spawn', () => {
     });
 
     await expect(root).rejects.toHaveProperty('message', 'moo');
+    await expect(child).rejects.toHaveProperty('message', 'moo');
     expect(root.state).toEqual('errored');
   });
 
   it('rejects when child errors during halting', async () => {
     let child;
     let root = run(function*(context: Task<string>) {
-      child = context.spawn(function*(foo) {
+      child = context.spawn(function*() {
         try {
           yield
         } finally {
@@ -132,19 +132,13 @@ describe('spawn', () => {
     await root.halt();
 
     await expect(root).rejects.toHaveProperty('message', 'moo');
+    await expect(child).rejects.toHaveProperty('message', 'moo');
     expect(root.state).toEqual('errored');
   });
 
   it('throws an error when called after controller finishes', async () => {
-    let child;
     let root = run(function*(context: Task) {
-      child = context.spawn(function*(task) {
-        try {
-          yield sleep(1);
-        } finally {
-          yield sleep(100);
-        }
-      });
+      context.spawn(sleep(100), { blockParent: true });
 
       yield sleep(10);
     });
@@ -155,7 +149,6 @@ describe('spawn', () => {
   });
 
   it('halts when child finishes during asynchronous halt', async () => {
-    let child;
     let didFinish = false;
     let root = run(function*(context: Task) {
       context.spawn(function*() {

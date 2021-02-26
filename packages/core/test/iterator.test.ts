@@ -1,5 +1,5 @@
 import { createNumber, blowUp } from './setup';
-import { describe, beforeEach, it } from 'mocha';
+import { describe, it } from 'mocha';
 import * as expect from 'expect';
 
 import { run, sleep, Task } from '../src/index';
@@ -41,7 +41,7 @@ describe('generator function', () => {
   });
 
   it('rejects generator if generator creation fails', async () => {
-    let task = run(function(task) {
+    let task = run(function() {
       throw new Error('boom');
     });
     await expect(task).rejects.toHaveProperty('message', 'boom');

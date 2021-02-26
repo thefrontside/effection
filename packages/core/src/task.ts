@@ -6,7 +6,7 @@ import { Operation } from './operation';
 import { Deferred } from './deferred';
 import { isPromise } from './predicates';
 import { Trapper } from './trapper';
-import { swallowHalt, isHaltError } from './halt-error';
+import { swallowHalt } from './halt-error';
 import { EventEmitter } from 'events';
 import { StateMachine, State } from './state-machine';
 import { HaltError } from './halt-error';
@@ -83,7 +83,9 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
     } else {
       throw new Error(`unkown type of operation: ${operation}`);
     }
-    this.deferred.promise.catch(() => {}); // prevent uncaught promise warnings
+    this.deferred.promise.catch(() => {
+      // prevent uncaught promise warnings
+    });
   }
 
   start() {
@@ -99,19 +101,24 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
       this.trappers.forEach((trapper) => trapper.trap(this as Task));
 
       if(this.state === 'completed') {
+        // TODO: model state as a union so we do not need this non-null assertion
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         this.deferred.resolve(this.result!);
       } else if(this.state === 'halted') {
         this.deferred.reject(new HaltError());
       } else if(this.state === 'errored') {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         this.deferred.reject(this.error!);
       }
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   then<TResult1 = TOut, TResult2 = never>(onfulfilled?: ((value: TOut) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): Promise<TResult1 | TResult2> {
     return this.deferred.promise.then(onfulfilled, onrejected);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): Promise<TOut | TResult> {
     return this.deferred.promise.catch(onrejected);
   }
@@ -153,6 +160,7 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
   trap(child: Task) {
     if(this.children.has(child)) {
       if(child.state === 'errored' && !this.options.ignoreChildErrors) {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         this.controls.reject(child.error!);
       }
       this.unlink(child);
@@ -174,7 +182,10 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
 
   async halt() {
     this.controller.halt();
-    await this.catch(() => {});
+    await this.catch(() => {
+      // TODO: should this catch all errors, or only halt errors?
+      // see https://github.com/jnicklas/mini-effection/issues/23
+    });
   }
 
   get [Symbol.toStringTag](): string {

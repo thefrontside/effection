@@ -1,5 +1,5 @@
 import './setup';
-import { describe, beforeEach, it } from 'mocha';
+import { describe, it } from 'mocha';
 import * as expect from 'expect';
 
 import { run, sleep, Task } from '../src/index';
@@ -61,7 +61,7 @@ describe('Task', () => {
 
   describe('event: state', () => {
     it('is triggered when a task changes state', async () => {
-      let events: { to: string, from: string }[] = []
+      let events: { to: string; from: string }[] = []
       let task = new Task(function*() { sleep(5) });
 
       task.on('state', (transition) => events.push(transition));

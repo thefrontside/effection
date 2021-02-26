@@ -1,6 +1,5 @@
 import { Operation } from './operation';
 import { Task, TaskOptions } from './task';
-import { HaltError } from './halt-error';
 import { Effection } from './effection';
 
 export { Task, TaskOptions } from './task';

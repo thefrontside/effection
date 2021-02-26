@@ -1,5 +1,5 @@
 import './setup';
-import { describe, beforeEach, it } from 'mocha';
+import { describe, it } from 'mocha';
 import * as expect from 'expect';
 
 import { run, Effection, Task } from '../src/index';

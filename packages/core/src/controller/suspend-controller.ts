@@ -5,7 +5,9 @@ export class SuspendController<TOut> implements Controller<TOut> {
   constructor(private controls: Controls<TOut>) {
   }
 
-  start() {}
+  start() {
+    // no op
+  }
 
   halt() {
     this.controls.halted();

@@ -5,7 +5,7 @@ export function sleep(duration: number): Operation<void> {
     let timeoutId;
     try {
       yield new Promise((resolve) => {
-        setTimeout(resolve, duration);
+        timeoutId = setTimeout(resolve, duration);
       });
     } finally {
       if(timeoutId) {

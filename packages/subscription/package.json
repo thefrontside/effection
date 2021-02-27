@@ -9,6 +9,7 @@
   "license": "MIT",
   "files": [
     "README.md",
+    "CHANGELOG.md",
     "dist/**/*",
     "src/**/*"
   ],

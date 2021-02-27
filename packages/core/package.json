@@ -10,6 +10,11 @@
     "mocha": "mocha -r ts-node/register",
     "prepack": "tsdx build --tsconfig tsconfig.dist.json"
   },
+  "files": [
+    "CHANGELOG.md",
+    "dist/**/*",
+    "src/**/*"
+  ],
   "devDependencies": {
     "@types/mocha": "^7.0.2",
     "@types/node": "^13.13.5",

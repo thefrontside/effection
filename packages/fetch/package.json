@@ -8,9 +8,10 @@
   "author": "Frontside Engineering <engineering@frontside.com>",
   "license": "MIT",
   "files": [
-    "dist/*",
     "README.md",
-    "src"
+    "CHANGELOG.md",
+    "dist/**/*",
+    "src/**/*"
   ],
   "scripts": {
     "lint": "eslint '{src,tests}/**/*.ts'",

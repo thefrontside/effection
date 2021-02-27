@@ -11,6 +11,7 @@
     "@effection/core": "2.0.0-preview.0"
   },
   "changesets": [
+    "brave-dots-listen",
     "mean-files-know",
     "silver-pans-impress",
     "tasty-spoons-notice"

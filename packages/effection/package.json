@@ -10,7 +10,7 @@
   "main": "dist/index.js",
   "module": "dist/effection.esm.js",
   "files": [
-    "README.md",
+    "CHANGELOG.md",
     "dist/**/*",
     "src/**/*"
   ],

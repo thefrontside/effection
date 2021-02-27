@@ -1,5 +1,13 @@
 # @effection/fetch
 
+## 2.0.0-preview.1
+
+### Patch Changes
+
+- 80143d5: Fix packaging
+- Updated dependencies [80143d5]
+  - @effection/core@2.0.0-preview.1
+
 ## 2.0.0-preview.0
 
 ### Major Changes

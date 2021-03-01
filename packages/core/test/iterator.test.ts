@@ -167,4 +167,28 @@ describe('generator function', () => {
     expect(didRun).toEqual(true);
     expect(task.state).toEqual('halted');
   });
+
+  it('can be halted while in the generator', async () => {
+    let task = run(function*(inner) {
+      let reject: (error: Error) => void;
+      inner.spawn(function*() {
+        yield sleep(2);
+        reject && reject(new Error('boom'));
+      });
+      yield () => (res, rej) => { reject = rej };
+    });
+
+    await expect(task).rejects.toHaveProperty('message', 'boom');
+    expect(task.state).toEqual('errored');
+    expect(task.error).toHaveProperty('message', 'boom');
+  });
+
+  it('can halt itself', async () => {
+    let task = run(function*(inner) {
+      inner.halt();
+    });
+
+    await expect(task).rejects.toHaveProperty('message', 'halted');
+    expect(task.state).toEqual('halted');
+  });
 });

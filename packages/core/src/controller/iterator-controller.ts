@@ -5,9 +5,14 @@ import { HaltError } from '../halt-error';
 import { Operation } from '../operation';
 import { Trapper } from '../trapper';
 
+type Continuation = () => IteratorResult<Operation<unknown>>;
+
 export class IteratorController<TOut> implements Controller<TOut>, Trapper {
   private didHalt = false;
+  private didEnter = false;
   private subTask?: Task;
+
+  private continuations: Continuation[] = [];
 
   constructor(private controls: Controls<TOut>, private iterator: OperationIterator<TOut>) {
   }
@@ -17,7 +22,30 @@ export class IteratorController<TOut> implements Controller<TOut>, Trapper {
     this.resume(() => this.iterator.next());
   }
 
-  resume(iter: () => IteratorResult<Operation<unknown>>) {
+  // the purpose of this method is solely to make `step` reentrant, that is we
+  // should be able to handle a `halt` which occurs while we are already in a
+  // generator. This is a rare case and should only happen under some edge
+  // cases, for example a task halting itself, or a task causing one of its
+  // siblings to fail.
+  resume(iter: Continuation) {
+    if(this.didEnter) {
+      // if we're already in a `step`, store the continuation for later instead
+      // of running it immediately.
+      this.continuations.push(iter);
+    } else {
+      this.didEnter = true; // acquire lock
+      this.step(iter);
+      this.didEnter = false; // release lock
+
+      // resume with stored continuation it happened while we were in the step
+      let continuation = this.continuations.shift();
+      if(continuation) {
+        this.resume(continuation)
+      }
+    }
+  }
+
+  step(iter: Continuation) {
     let next;
     try {
       next = iter();

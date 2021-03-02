@@ -1,39 +1,42 @@
-import { Operation, Task } from '@effection/core';
-import { Subscription, SymbolOperationIterable, OperationIterator, OperationIterable } from '@effection/subscription';
+import { createSubscribable, Subscribable } from '@effection/subscription';
 import { on } from '@effection/events';
 import { EventEmitter } from 'events';
 
-export class Channel<T, TClose = undefined> implements OperationIterable<T, TClose> {
-  private bus = new EventEmitter();
+export type ChannelOptions = {
+  maxSubscribers?: number;
+}
 
-  [SymbolOperationIterable](task: Task): OperationIterator<T, TClose> {
-    return this.subscribe(task);
+export interface Channel<T, TClose = undefined> extends Subscribable<T, TClose> {
+  send(message: T): void;
+  close(...args: TClose extends undefined ? [] : [TClose]): void;
+}
+
+export function createChannel<T, TClose = undefined>(options: ChannelOptions = {}): Channel<T, TClose> {
+  let bus = new EventEmitter();
+
+  if(options.maxSubscribers) {
+    bus.setMaxListeners(options.maxSubscribers);
   }
 
-  setMaxListeners(value: number) {
-    this.bus.setMaxListeners(value);
-  }
-
-  send(message: T) {
-    this.bus.emit('event', { done: false, value: message });
-  }
-
-  subscribe(task: Task): Subscription<T, TClose> {
-    let { bus } = this;
-    return Subscription.create(task, (publish): Operation<TClose> => function*() {
-      let subscription = on(task, bus, 'event');
-      while(true) {
-        let [event] = yield subscription.expect();
-        if(event.done) {
-          return event.value;
-        } else {
-          publish(event.value);
-        }
+  let subscribable = createSubscribable<T, TClose>((publish) => function*(task) {
+    let subscription = on(bus, 'event').subscribe(task);
+    while(true) {
+      let { value: [next] } = yield subscription.next();
+      if(next.done) {
+        return next.value;
+      } else {
+        publish(next.value);
       }
-    });
-  }
+    }
+  });
 
-  close(...args: TClose extends undefined ? [] : [TClose]) {
-    this.bus.emit('event', { done: true, value: args[0] });
-  }
+  return Object.assign(subscribable, {
+    send(message: T) {
+      bus.emit('event', { done: false, value: message });
+    },
+
+    close(...args: TClose extends undefined ? [] : [TClose]) {
+      bus.emit('event', { done: true, value: args[0] });
+    }
+  });
 }

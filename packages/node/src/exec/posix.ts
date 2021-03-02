@@ -65,17 +65,17 @@ export const createPosixProcess: CreateOSProcess = (scope, command, options) => 
     try {
       childProcess.on('error', onError);
 
-      task.spawn(on<[string]>(childProcess.stdout, 'data').forEach(([data]) => function*() {
+      task.spawn(on<[string]>(childProcess.stdout, 'data').forEach(([data]) => {
         addToTail(data);
         stdout.send(data);
       }));
 
-      task.spawn(on<[string]>(childProcess.stderr, 'data').forEach(([data]) => function*() {
+      task.spawn(on<[string]>(childProcess.stderr, 'data').forEach(([data]) => {
         addToTail(data);
         stderr.send(data);
       }));
 
-      task.spawn(stdin.forEach((data) => function*() {
+      task.spawn(stdin.forEach((data) => {
         childProcess.stdin.write(data);
       }))
 

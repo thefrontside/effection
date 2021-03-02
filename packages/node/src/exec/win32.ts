@@ -75,21 +75,21 @@ export const createWin32Process: CreateOSProcess = (scope, command, options) => 
       childProcess.on("error", onError);
 
       task.spawn(
-        on<[string]>(childProcess.stdout, "data").forEach(([data]) => function*() {
+        on<[string]>(childProcess.stdout, "data").forEach(([data]) => {
           addToTail(data);
           stdout.send(data);
         })
       );
 
       task.spawn(
-        on<[string]>(childProcess.stderr, "data").forEach(([data]) => function*() {
+        on<[string]>(childProcess.stderr, "data").forEach(([data]) => {
           addToTail(data);
           stderr.send(data);
         })
       );
 
       task.spawn(
-        stdin.forEach((data) => function*() {
+        stdin.forEach((data) => {
           childProcess.stdin.write(data);
         })
       );

@@ -12,7 +12,7 @@ export interface Subscribable<T, TReturn = undefined> extends OperationIterable<
 
   first(): Operation<T | undefined>;
   expect(): Operation<T>;
-  forEach(visit: (value: T) => Operation<void>): Operation<TReturn>;
+  forEach(visit: (value: T) => (Operation<void> | void)): Operation<TReturn>;
   collect(): Operation<Iterator<T, TReturn>>;
   toArray(): Operation<T[]>;
   subscribe(task: Task): OperationIterator<T, TReturn>;
@@ -68,7 +68,7 @@ export function createSubscribable<T, TReturn = undefined>(callback: Callback<T,
       }
     },
 
-    forEach(visit: (value: T) => Operation<void>): Operation<TReturn> {
+    forEach(visit: (value: T) => (Operation<void> | void)): Operation<TReturn> {
       return function*(task) {
         let iterator = iterable(task);
         while (true) {
@@ -76,7 +76,10 @@ export function createSubscribable<T, TReturn = undefined>(callback: Callback<T,
           if(result.done) {
             return result.value;
           } else {
-            yield visit(result.value);
+            let operation = visit(result.value);
+            if(operation) {
+              yield operation;
+            }
           }
         }
       }

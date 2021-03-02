@@ -61,11 +61,9 @@ export class TestStream {
 
   static of(channel: Channel<string>) {
     let testStream = new TestStream();
-    run(function*(task) {
-      yield subscribe(task, channel).forEach((chunk) => function*() {
-        testStream.output += chunk.toString();
-      });
-    });
+    run(channel.forEach((chunk) => function*() {
+      testStream.output += chunk.toString();
+    }));
     return testStream;
   }
 

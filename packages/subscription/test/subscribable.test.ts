@@ -23,14 +23,9 @@ const emptySubscribable: Subscribable<Thing, number> = createSubscribable(() => 
 
 describe('chaining subscribable', () => {
   describe('forEach', () => {
-    let values: Thing[];
-    let result: number;
-    beforeEach(async () => {
-      values = [];
-      result = await run(stuff.forEach((item) => function*() { values.push(item); }));
-    });
-
-    it('iterates through all members of the subscribable', () => {
+    it('iterates through all members of the subscribable', async () => {
+      let values: Thing[] = [];
+      await run(stuff.forEach((item) => function*() { values.push(item); }));
       expect(values).toEqual([
         {name: 'bob', type: 'person' },
         {name: 'alice', type: 'person' },
@@ -38,7 +33,18 @@ describe('chaining subscribable', () => {
       ])
     });
 
-    it('returns the original result', () => {
+    it('can iterate with regular function', async () => {
+      let values: Thing[] = [];
+      await run(stuff.forEach((item) => { values.push(item); }));
+      expect(values).toEqual([
+        {name: 'bob', type: 'person' },
+        {name: 'alice', type: 'person' },
+        {name: 'world', type: 'planet' },
+      ])
+    });
+
+    it('returns the original result', async () => {
+      let result = await run(stuff.forEach(() => function*() { /* no op */ }));
       expect(result).toEqual(3);
     });
   });

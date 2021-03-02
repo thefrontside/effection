@@ -28,20 +28,16 @@ export class IteratorController<TOut> implements Controller<TOut>, Trapper {
   // cases, for example a task halting itself, or a task causing one of its
   // siblings to fail.
   resume(iter: Continuation) {
-    if(this.didEnter) {
-      // if we're already in a `step`, store the continuation for later instead
-      // of running it immediately.
-      this.continuations.push(iter);
-    } else {
+    this.continuations.push(iter);
+    // only enter this loop if we aren't already running it
+    if(!this.didEnter) {
       this.didEnter = true; // acquire lock
-      this.step(iter);
-      this.didEnter = false; // release lock
-
-      // resume with stored continuation it happened while we were in the step
-      let continuation = this.continuations.shift();
-      if(continuation) {
-        this.resume(continuation)
+      // use while loop since collection can be modified during iteration
+      let continuation;
+      while(continuation = this.continuations.shift()) {
+        this.step(continuation);
       }
+      this.didEnter = false; // release lock
     }
   }
 

@@ -1,5 +1,16 @@
 # @effection/subscription
 
+## 1.0.0
+
+### Major Changes
+
+- b988025: Release effection 1.0.0
+
+### Patch Changes
+
+- Updated dependencies [b988025]
+  - effection@1.0.0
+
 ## 0.12.0
 
 ### Minor Changes

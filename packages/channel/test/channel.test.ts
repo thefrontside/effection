@@ -45,6 +45,18 @@ describe('Channel', () => {
     });
   });
 
+  describe('with split ends', () => {
+    it('receives message on subscribable end', function*(task) {
+      let { send, stream } = createChannel();
+
+      let subscription = stream.subscribe(task);
+
+      send('hello');
+
+      expect(yield subscription.next()).toEqual({ done: false, value: 'hello' });
+    });
+  });
+
   describe('close', () => {
     describe('without argument', () => {
       it('closes subscriptions', function*(task) {

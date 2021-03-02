@@ -21,7 +21,10 @@
     "prepack": "tsdx build --tsconfig tsconfig.dist.json"
   },
   "dependencies": {
-    "@effection/core": "2.0.0-preview.3"
+    "@effection/core": "2.0.0-preview.3",
+    "@effection/channel": "2.0.0-preview.3",
+    "@effection/events": "2.0.0-preview.3",
+    "@effection/subscription": "2.0.0-preview.3"
   },
   "devDependencies": {
     "@types/mocha": "^7.0.2",

@@ -1,7 +1,7 @@
 import { Operation, Task } from '@effection/core';
 import { DeepPartial, matcher } from './match';
 import { OperationIterator } from './operation-iterator';
-import { OperationIterable, ToOperationIterator } from './operation-iterable';
+import { OperationIterable } from './operation-iterable';
 import { SymbolOperationIterable } from './symbol-operation-iterable';
 import { Callback, createOperationIterator } from './create-operation-iterator';
 
@@ -19,7 +19,7 @@ export interface Subscribable<T, TReturn = undefined> extends OperationIterable<
 }
 
 export function createSubscribable<T, TReturn = undefined>(callback: Callback<T, TReturn>): Subscribable<T, TReturn> {
-  let iterable: ToOperationIterator<T, TReturn> = (task) => createOperationIterator(task, callback);
+  let subscribe = (task: Task) => createOperationIterator(task, callback);
 
   let subscribable = {
     filter(predicate: (value: T) => boolean): Subscribable<T, TReturn> {
@@ -46,7 +46,7 @@ export function createSubscribable<T, TReturn = undefined>(callback: Callback<T,
 
     first(): Operation<T | undefined> {
       return function*(task) {
-        let iterator = iterable(task);
+        let iterator = subscribe(task);
         let result: IteratorResult<T,TReturn> = yield iterator.next();
         if(result.done) {
           return undefined;
@@ -58,7 +58,7 @@ export function createSubscribable<T, TReturn = undefined>(callback: Callback<T,
 
     expect(): Operation<T> {
       return function*(task) {
-        let iterator = iterable(task);
+        let iterator = subscribe(task);
         let result: IteratorResult<T,TReturn> = yield iterator.next();
         if(result.done) {
           throw new Error('expected subscription to contain a value');
@@ -70,7 +70,7 @@ export function createSubscribable<T, TReturn = undefined>(callback: Callback<T,
 
     forEach(visit: (value: T) => Operation<void>): Operation<TReturn> {
       return function*(task) {
-        let iterator = iterable(task);
+        let iterator = subscribe(task);
         while (true) {
           let result: IteratorResult<T,TReturn> = yield iterator.next();
           if(result.done) {
@@ -99,13 +99,9 @@ export function createSubscribable<T, TReturn = undefined>(callback: Callback<T,
       }
     },
 
-    subscribe(task: Task): OperationIterator<T, TReturn> {
-      return iterable(task);
-    },
+    subscribe,
 
-    get [SymbolOperationIterable](): ToOperationIterator<T, TReturn> {
-      return iterable;
-    },
+    [SymbolOperationIterable]: subscribe,
   };
 
   return subscribable;

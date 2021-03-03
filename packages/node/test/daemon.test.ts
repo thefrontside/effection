@@ -25,11 +25,11 @@ describe('daemon()', () => {
         cwd: __dirname,
       });
 
-      task.spawn(subscribe(task, io.stdout).forEach((chunk) => function*() {
+      task.spawn(io.stdout.forEach((chunk) => {
         output += chunk;
       }))
 
-      task.spawn(subscribe(task, io.stderr).forEach((chunk) => function*() {
+      task.spawn(io.stderr.forEach((chunk) => {
         errput += chunk;
       }));
 

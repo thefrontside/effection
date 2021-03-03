@@ -1,16 +1,15 @@
 import { Operation, Deferred } from '@effection/core';
-import { Channel } from '@effection/channel';
+import { createChannel } from '@effection/channel';
 import { on, once } from '@effection/events';
 import { spawn as spawnProcess } from 'child_process';
-import { subscribe } from '@effection/subscription';
 import { ExitStatus, CreateOSProcess, stringifyExitStatus } from './api';
 
 type Result = { type: 'error'; value: unknown } | { type: 'status'; value: [number?, string?] };
 
 export const createPosixProcess: CreateOSProcess = (scope, command, options) => {
-  let stdin = new Channel<string>();
-  let stdout = new Channel<string>();
-  let stderr = new Channel<string>();
+  let stdin = createChannel<string>();
+  let stdout = createChannel<string>();
+  let stderr = createChannel<string>();
   let tail: string[] = [];
 
   let getResult = Deferred<Result>();
@@ -66,17 +65,17 @@ export const createPosixProcess: CreateOSProcess = (scope, command, options) => 
     try {
       childProcess.on('error', onError);
 
-      task.spawn(on<[string]>(task, childProcess.stdout, 'data').forEach(([data]) => function*() {
+      task.spawn(on<[string]>(childProcess.stdout, 'data').forEach(([data]) => {
         addToTail(data);
         stdout.send(data);
       }));
 
-      task.spawn(on<[string]>(task, childProcess.stderr, 'data').forEach(([data]) => function*() {
+      task.spawn(on<[string]>(childProcess.stderr, 'data').forEach(([data]) => {
         addToTail(data);
         stderr.send(data);
       }));
 
-      task.spawn(subscribe(task, stdin).forEach((data) => function*() {
+      task.spawn(stdin.forEach((data) => {
         childProcess.stdin.write(data);
       }))
 

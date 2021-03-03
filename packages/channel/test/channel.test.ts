@@ -2,9 +2,9 @@ import { describe, it, beforeEach } from 'mocha';
 import * as expect from 'expect';
 
 import { sleep, run, Task, Effection } from '@effection/core';
-import { Subscription, subscribe } from '@effection/subscription';
+import { OperationIterator, subscribe } from '@effection/subscription';
 
-import { Channel } from '../src/index';
+import { createChannel, Channel } from '../src/index';
 
 describe('Channel', () => {
   beforeEach(async () => {
@@ -13,10 +13,10 @@ describe('Channel', () => {
 
   describe('subscribe', () => {
     let channel: Channel<string>;
-    let subscription: Subscription<string, undefined>;
+    let subscription: OperationIterator<string, undefined>;
 
     beforeEach(async () => {
-      channel = new Channel();
+      channel = createChannel();
       subscription = channel.subscribe(Effection.root);
     });
 
@@ -63,10 +63,10 @@ describe('Channel', () => {
 
   describe('subscribe free function', () => {
     let channel: Channel<string>;
-    let subscription: Subscription<string, undefined>;
+    let subscription: OperationIterator<string, undefined>;
 
     beforeEach(async () => {
-      channel = new Channel();
+      channel = createChannel();
       subscription = subscribe(Effection.root, channel);
     });
 
@@ -86,10 +86,10 @@ describe('Channel', () => {
   describe('close', () => {
     describe('without argument', () => {
       let channel: Channel<string>;
-      let subscription: Subscription<string, undefined>;
+      let subscription: OperationIterator<string, undefined>;
 
       beforeEach(async () => {
-        channel = new Channel();
+        channel = createChannel();
         subscription = subscribe(Effection.root, channel);
         channel.send('foo');
         channel.close();
@@ -103,10 +103,10 @@ describe('Channel', () => {
 
     describe('with close argument', () => {
       let channel: Channel<string, number>;
-      let subscription: Subscription<string, number>;
+      let subscription: OperationIterator<string, number>;
 
       beforeEach(async () => {
-        channel = new Channel();
+        channel = createChannel();
         subscription = subscribe(Effection.root, channel);
         channel.send('foo');
         channel.close(12);

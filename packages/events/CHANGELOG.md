@@ -1,5 +1,21 @@
 # Changelog
 
+## 2.0.0-preview.3
+
+### Minor Changes
+
+- 3ca4cd4: Change `on` to return subscribable, rather than taking scope
+
+### Patch Changes
+
+- Updated dependencies [3ca4cd4]
+- Updated dependencies [3ca4cd4]
+- Updated dependencies [3ca4cd4]
+- Updated dependencies [2bf5ef4]
+- Updated dependencies [3ca4cd4]
+  - effection@2.0.0-preview.4
+  - @effection/subscription@2.0.0-preview.3
+
 ## 2.0.0-preview.2
 
 ### Patch Changes

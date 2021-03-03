@@ -1,5 +1,17 @@
 # @effection/subscription
 
+## 2.0.0-preview.3
+
+### Minor Changes
+
+- 3ca4cd4: Add `createSubscribable` and `Subscribable` interface
+
+### Patch Changes
+
+- Updated dependencies [bdedf68]
+- Updated dependencies [2bf5ef4]
+  - @effection/core@2.0.0-preview.3
+
 ## 2.0.0-preview.2
 
 ### Patch Changes

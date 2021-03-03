@@ -1,0 +1,131 @@
+version: 2.1
+orbs:
+  win: circleci/windows@2.2.0
+executors:
+  linux:
+    docker:
+      - image: circleci/node:15-browsers
+  macos:
+    macos:
+      xcode: "12.4.0"
+commands:
+  yarn_install:
+    steps:
+      - restore_cache:
+          name: Restoring dependency cache
+          key: yarn-v1-{{arch}}-{{ checksum "yarn.lock" }}
+      - run:
+          name: Installing dependencies
+          command: yarn install --frozen-lockfile
+      - save_cache:
+          name: Saving dependency cache
+          key: yarn-v1-{{arch}}-{{ checksum "yarn.lock" }}
+          paths:
+            - ~/.cache/yarn
+            - ~/AppData/Local/Yarn/Cache
+            - ~/Library/Caches/Yarn
+  prepack:
+    steps:
+      - run:
+          name: Prepack
+          command: yarn prepack
+
+jobs:
+  prepack:
+    executor: <<parameters.executor>>
+    parameters:
+      executor:
+        type: executor
+        default: "linux"
+    steps:
+      - checkout
+      - yarn_install
+      - prepack
+      - persist_to_workspace:
+          root: .
+          paths:
+            - "packages/*/dist"
+  test:
+    executor: <<parameters.executor>>
+    parameters:
+      package:
+        type: string
+        default: ""
+      executor:
+        type: executor
+        default: "linux"
+      prepack:
+        type: boolean
+        default: true
+    steps:
+      - checkout
+      - yarn_install
+      - when:
+          condition: <<parameters.prepack>>
+          steps:
+            - prepack
+      - attach_workspace:
+          at: .
+      - when:
+          condition: <<parameters.package>>
+          steps:
+            - run:
+                name: Running tests
+                command: yarn workspace @effection/<<parameters.package>> test
+      - unless:
+          condition: <<parameters.package>>
+          steps:
+            - run:
+                name: Running tests
+                command: yarn test
+  lint:
+    executor: <<parameters.executor>>
+    parameters:
+      executor:
+        type: executor
+        default: "linux"
+      prepack:
+        type: boolean
+        default: true
+    steps:
+      - checkout
+      - yarn_install
+      - when:
+          condition: <<parameters.prepack>>
+          steps:
+            - prepack
+      - attach_workspace:
+          at: .
+      - run:
+          name: Running lint
+          command: yarn lint
+workflows:
+  test:
+    jobs:
+      - prepack
+      - test:
+          name: "test-<<matrix.package>>"
+          prepack: false
+          matrix:
+            parameters:
+              package:
+                - core
+                - subscription
+                - events
+                - channel
+                - fetch
+                - node
+          requires:
+            - prepack
+      - lint:
+          prepack: false
+          requires:
+            - prepack
+      - test:
+          executor:
+            name: "win/default"
+            size: "medium"
+          name: "test-windows"
+      - test:
+          name: "test-macos"
+          executor: macos

@@ -1,6 +1,4 @@
 import { Task } from '@effection/core';
-import { Channel } from '@effection/channel';
-import { subscribe } from '@effection/subscription';
 
 import { exec, Process, ExecOptions, StdIO, ExitStatus, stringifyExitStatus  } from './exec';
 
@@ -11,25 +9,9 @@ import { exec, Process, ExecOptions, StdIO, ExitStatus, stringifyExitStatus  } f
  */
 
 export function daemon(scope: Task, command: string, options: ExecOptions = {}): StdIO {
-  let stdin = new Channel<string>();
-  let stdout = new Channel<string>();
-  let stderr = new Channel<string>();
+  let process: Process = exec(scope, command, options);
 
-  scope.spawn(function*(task) {
-    let process: Process = exec(task, command, options);
-
-    task.spawn(subscribe(task, process.stdout).forEach((chunk) => function*() {
-      stdout.send(chunk);
-    }));
-
-    task.spawn(subscribe(task, process.stderr).forEach((chunk) => function*() {
-      stderr.send(chunk);
-    }));
-
-    task.spawn(subscribe(task, stdin).forEach((chunk) => function*() {
-      process.stdin.send(chunk);
-    }));
-
+  scope.spawn(function*() {
     let status: ExitStatus = yield process.join();
 
     let error = new Error(`daemon process quit unexpectedly\n${stringifyExitStatus(status)}`);
@@ -39,5 +21,5 @@ export function daemon(scope: Task, command: string, options: ExecOptions = {}):
     throw error;
   });
 
-  return { stdin, stdout, stderr };
+  return process;
 }

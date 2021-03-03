@@ -4,7 +4,7 @@ import { describe, it, beforeEach } from 'mocha';
 import * as expect from 'expect'
 
 import { Effection, run, sleep } from '@effection/core';
-import { Subscription } from '@effection/subscription';
+import { OperationIterator } from '@effection/subscription';
 import { EventEmitter } from 'events';
 
 import { on } from '../src/index';
@@ -13,11 +13,11 @@ import { FakeEventEmitter, FakeEvent } from './fake-event-target';
 describe("on", () => {
   describe('subscribe to an EventEmitter', () => {
     let emitter: EventEmitter;
-    let subscription: Subscription<[string], void>;
+    let iterator: OperationIterator<[string], void>;
 
     beforeEach(async () => {
       emitter = new EventEmitter();
-      subscription = on(Effection.root, emitter, "thing");
+      iterator = on<[string]>(emitter, "thing").subscribe(Effection.root);
     });
 
     describe('emitting an event', () => {
@@ -26,7 +26,7 @@ describe("on", () => {
       });
 
       it('receives event', async () => {
-        let { value } = await run(subscription.next());
+        let { value } = await run(iterator.next());
         expect(value).toEqual([123, true]);
       });
     });
@@ -40,7 +40,7 @@ describe("on", () => {
       });
 
       it('receives event', async () => {
-        let { value } = await run(subscription.next());
+        let { value } = await run(iterator.next());
         expect(value).toEqual([123, true]);
       });
     });
@@ -55,20 +55,20 @@ describe("on", () => {
       });
 
       it('receives all of them', async () => {
-        expect(await run(subscription.next())).toEqual({ done: false, value: ["foo"]});
-        expect(await run(subscription.next())).toEqual({done: false, value: ["bar"] });
+        expect(await run(iterator.next())).toEqual({ done: false, value: ["foo"]});
+        expect(await run(iterator.next())).toEqual({done: false, value: ["bar"] });
       });
     });
   });
 
   describe('subscribing to an EventTarget', () => {
     let target: FakeEventEmitter;
-    let subscription: Subscription<[string], void>;
+    let iterator: OperationIterator<[string], void>;
     let thingEvent: FakeEvent;
 
     beforeEach(async () => {
       target = new FakeEventEmitter();
-      subscription = on(Effection.root, target, "thing");
+      iterator = on<[string]>(target, "thing").subscribe(Effection.root);
     });
 
     describe('emitting an event', () => {
@@ -78,7 +78,7 @@ describe("on", () => {
       });
 
       it('receives event', async () => {
-        let { value } = await run(subscription.next());
+        let { value } = await run(iterator.next());
         expect(value).toEqual([thingEvent]);
       });
     });
@@ -86,11 +86,11 @@ describe("on", () => {
 
   describe('chaining', () => {
     let emitter: EventEmitter;
-    let subscription: Subscription<number, void>;
+    let iterator: OperationIterator<number, void>;
 
     beforeEach(async () => {
       emitter = new EventEmitter();
-      subscription = on(Effection.root, emitter, "thing").map(([value]) => (value as number) * 2);
+      iterator = on<[number]>(emitter, "thing").map(([value]) => value * 2).subscribe(Effection.root);
     });
 
     describe('emitting an event', () => {
@@ -99,7 +99,7 @@ describe("on", () => {
       });
 
       it('receives event', async () => {
-        let { value } = await run(subscription.next());
+        let { value } = await run(iterator.next());
         expect(value).toEqual(24);
       });
     });

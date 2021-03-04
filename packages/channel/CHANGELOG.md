@@ -1,5 +1,23 @@
 # Changelog
 
+## 2.0.0-preview.3
+
+### Minor Changes
+
+- 3ca4cd4: Make Channel subscribable and add all subscribable methods
+- 3ca4cd4: Change channel interface from `new Channel()` to `createChannel()`
+
+### Patch Changes
+
+- 3ca4cd4: Use new channel and subscription interfaces internally
+- Updated dependencies [3ca4cd4]
+- Updated dependencies [3ca4cd4]
+- Updated dependencies [bdedf68]
+- Updated dependencies [2bf5ef4]
+  - @effection/events@2.0.0-preview.3
+  - @effection/subscription@2.0.0-preview.3
+  - @effection/core@2.0.0-preview.3
+
 ## 2.0.0-preview.2
 
 ### Patch Changes

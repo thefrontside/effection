@@ -1,5 +1,21 @@
 # Changelog
 
+## 2.0.0-preview.4
+
+### Minor Changes
+
+- 3ca4cd4: Change `on` to return subscribable, rather than taking scope
+- 3ca4cd4: Add `createSubscribable` and `Subscribable` interface
+- 3ca4cd4: Make Channel subscribable and add all subscribable methods
+- 3ca4cd4: Change channel interface from `new Channel()` to `createChannel()`
+
+### Patch Changes
+
+- 2bf5ef4: Make iterator controllers reentrant so they can e.g. halt themselves
+- Updated dependencies [bdedf68]
+- Updated dependencies [2bf5ef4]
+  - @effection/core@2.0.0-preview.3
+
 ## 2.0.0-preview.3
 
 ### Patch Changes

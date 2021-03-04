@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.1
+
+### Patch Changes
+
+- 4b029c6: Bump ctrlc-windows to 1.0.3 to include not-windows.js
+
 ## 1.0.0
 
 ### Major Changes

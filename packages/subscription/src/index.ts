@@ -3,5 +3,5 @@ export { SymbolOperationIterable } from './symbol-operation-iterable';
 export { OperationIterable } from './operation-iterable';
 export { OperationIterator } from './operation-iterator';
 export { Subscription } from './subscription';
-export { createSubscribable, Subscribable } from './subscribable';
+export { createStream, Stream } from './stream';
 export { subscribe } from './subscribe';

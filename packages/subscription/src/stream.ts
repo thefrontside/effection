@@ -5,10 +5,10 @@ import { OperationIterable, ToOperationIterator } from './operation-iterable';
 import { SymbolOperationIterable } from './symbol-operation-iterable';
 import { Callback, createOperationIterator } from './create-operation-iterator';
 
-export interface Subscribable<T, TReturn = undefined> extends OperationIterable<T, TReturn> {
-  filter(predicate: (value: T) => boolean): Subscribable<T, TReturn>;
-  match(reference: DeepPartial<T>): Subscribable<T,TReturn>;
-  map<R>(mapper: (value: T) => R): Subscribable<R, TReturn>;
+export interface Stream<T, TReturn = undefined> extends OperationIterable<T, TReturn> {
+  filter(predicate: (value: T) => boolean): Stream<T, TReturn>;
+  match(reference: DeepPartial<T>): Stream<T,TReturn>;
+  map<R>(mapper: (value: T) => R): Stream<R, TReturn>;
 
   first(): Operation<T | undefined>;
   expect(): Operation<T>;
@@ -18,12 +18,12 @@ export interface Subscribable<T, TReturn = undefined> extends OperationIterable<
   subscribe(task: Task): OperationIterator<T, TReturn>;
 }
 
-export function createSubscribable<T, TReturn = undefined>(callback: Callback<T, TReturn>): Subscribable<T, TReturn> {
+export function createStream<T, TReturn = undefined>(callback: Callback<T, TReturn>): Stream<T, TReturn> {
   let iterable: ToOperationIterator<T, TReturn> = (task) => createOperationIterator(task, callback);
 
   let subscribable = {
-    filter(predicate: (value: T) => boolean): Subscribable<T, TReturn> {
-      return createSubscribable((publish) => {
+    filter(predicate: (value: T) => boolean): Stream<T, TReturn> {
+      return createStream((publish) => {
         return subscribable.forEach((value) => function*() {
           if(predicate(value)) {
             publish(value);
@@ -32,12 +32,12 @@ export function createSubscribable<T, TReturn = undefined>(callback: Callback<T,
       });
     },
 
-    match(reference: DeepPartial<T>): Subscribable<T,TReturn> {
+    match(reference: DeepPartial<T>): Stream<T,TReturn> {
       return subscribable.filter(matcher(reference));
     },
 
-    map<R>(mapper: (value: T) => R): Subscribable<R, TReturn> {
-      return createSubscribable((publish) => {
+    map<R>(mapper: (value: T) => R): Stream<R, TReturn> {
+      return createStream((publish) => {
         return subscribable.forEach((value: T) => function*() {
           publish(mapper(value));
         });

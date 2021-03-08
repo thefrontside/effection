@@ -9,6 +9,7 @@
   "workspaces": {
     "packages": [
       "packages/core",
+      "packages/mocha",
       "packages/subscription",
       "packages/events",
       "packages/channel",

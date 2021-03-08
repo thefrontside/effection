@@ -4,21 +4,21 @@ import { when, never } from "./helpers";
 import { fetch } from "../src";
 import * as expect from 'expect';
 
-import { run, Effection } from '@effection/core';
+import { describe, it, beforeEach } from '@effection/mocha';
 
 describe("fetch in node", () => {
   let app: EchoServer;
   let response: Promise<Response>;
   let body: string;
 
-  beforeEach(async () => {
-    app = new EchoServer(Effection.root);
-    await run(app.listen());
+  beforeEach(function*(task) {
+    app = new EchoServer(task);
+    yield app.listen();
   });
 
   describe('calling the server and posting a body', () => {
-    beforeEach(async () => {
-      response = run(fetch(Effection.root, `${app.address}`, {
+    beforeEach(function*(task) {
+      response = task.spawn(fetch(task, `${app.address}`, {
         method: 'POST',
         body: JSON.stringify({
           hello: 'world'
@@ -29,18 +29,18 @@ describe("fetch in node", () => {
         }
       }));
 
-      await when(() => expect(app.lastRequest).toBeDefined());
-      body = JSON.parse(await read(app.lastRequest));
+      yield when(() => expect(app.lastRequest).toBeDefined());
+      body = JSON.parse(yield read(app.lastRequest));
     });
-    it("recieves the request", () => {
+    it("recieves the request", function*() {
       expect(app.lastRequest).toBeDefined();
     });
 
-    it("has body with hello: world", () => {
+    it("has body with hello: world", function*() {
       expect(body).toEqual({hello: "world"});
     });
 
-    it('has headers', () => {
+    it('has headers', function*() {
       expect(app.lastRequest.headers).toMatchObject({
         'x-header': 'SOME_HEADER'
       })
@@ -50,7 +50,7 @@ describe("fetch in node", () => {
       let error: Error;
       let body: Promise<string>;
 
-      beforeEach(async () => {
+      beforeEach(function*() {
         let serverResponse = app.lastResponse;
         serverResponse.writeHead(200, 'ok', {
           'Content-Type': 'text/plain',
@@ -58,22 +58,22 @@ describe("fetch in node", () => {
         });
         serverResponse.write("echo");
 
-        let res = await response;
+        let res = yield response;
 
         body = res.text()
           .catch((e: Error) => {error = e; return ''});
       });
 
-      it('returns the response, but does not resolve the response text', async () => {
-        await never(() => expect(error).toBeDefined());
+      it('returns the response, but does not resolve the response text', function*() {
+        yield never(() => expect(error).toBeDefined());
       });
 
       describe('completing the response body', () => {
-        beforeEach(async () => {
+        beforeEach(function*() {
           app.lastResponse.end();
         });
-        it('resolves the reponse', async () => {
-          expect(await body).toEqual('echo');
+        it('resolves the reponse', function*() {
+          expect(yield body).toEqual('echo');
         });
       });
 

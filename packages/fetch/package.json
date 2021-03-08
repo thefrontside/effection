@@ -20,6 +20,7 @@
     "mocha": "mocha -r ts-node/register"
   },
   "devDependencies": {
+    "@effection/mocha": "2.0.0-preview.2",
     "@frontside/tsconfig": "^0.0.1",
     "@types/node": "^13.13.4",
     "expect": "26.0.1",

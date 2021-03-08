@@ -1,69 +1,66 @@
-import { describe, it, beforeEach } from 'mocha';
+import { describe, it, beforeEach, afterEach } from '@effection/mocha';
 import * as expect from 'expect';
 import fetch from 'node-fetch';
 
-import { Task, run } from '@effection/core';
-import { subscribe } from '@effection/subscription';
+import '@effection/mocha';
+import { run, Task } from '@effection/core';
 
 import { converge } from './helpers';
 
 import { daemon, StdIO } from '../src';
 
 describe('daemon()', () => {
-  let io: StdIO;
   let output: string;
-  let errput: string;
   let task: Task;
   let error: Error;
 
-  beforeEach(async () => {
+  beforeEach(function*(t) {
     output = '';
-    task = run(function*(task) {
-      io = daemon(task, 'node', {
+
+    task = run(function*(inner) {
+      let io = daemon(inner, 'node', {
         arguments: ['./fixtures/echo-server.js'],
         env: { PORT: '29000', PATH: process.env.PATH as string },
         cwd: __dirname,
       });
 
-      task.spawn(io.stdout.forEach((chunk) => {
-        output += chunk;
-      }))
+      inner.spawn(io.stdout.forEach((chunk) => { output += chunk; }));
 
-      task.spawn(io.stderr.forEach((chunk) => {
-        errput += chunk;
-      }));
-
-      yield;
+      yield
     });
 
-    await converge(() => expect(output).toContain("listening"));
+    yield converge(() => expect(output).toContain("listening"));
   });
 
-  it('starts the given child', async () => {
-    let result = await fetch('http://localhost:29000', { method: "POST", body: "hello" });
-    let text = await result.text();
+  afterEach(function*() {
+    yield task.halt();
+  });
+
+  it('starts the given child', function*() {
+    let result = yield fetch('http://localhost:29000', { method: "POST", body: "hello" });
+    let text = yield result.text();
 
     expect(result.status).toEqual(200);
     expect(text).toEqual("hello");
   });
 
   describe('halting the daemon task', () => {
-    beforeEach(() => {
+    beforeEach(function*() {
       task.halt();
     });
 
-    it('kills the process', async () => {
-      await expect(fetch(`http://localhost:29000`, { method: "POST", body: "hello" })).rejects.toHaveProperty('name', 'FetchError');
+    it('kills the process', function*() {
+      yield expect(fetch(`http://localhost:29000`, { method: "POST", body: "hello" })).rejects.toHaveProperty('name', 'FetchError');
     });
   });
 
   describe('shutting down the daemon process prematurely', () => {
-    beforeEach(async () => {
-      await fetch('http://localhost:29000', { method: "POST", body: "exit" });
+    beforeEach(function*() {
+      yield fetch('http://localhost:29000', { method: "POST", body: "exit" });
     });
 
-    it('throw an error because it was not expected to close', async () => {
-      await expect(task).rejects.toHaveProperty('name', 'DaemonExitError');
+    it('throw an error because it was not expected to close', function*() {
+      yield expect(task).rejects.toHaveProperty('name', 'DaemonExitError');
     });
   });
 });

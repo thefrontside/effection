@@ -1,8 +1,7 @@
-import './helpers';
 import * as expect from 'expect';
-import { describe, it, beforeEach } from 'mocha';
+import { describe, it, beforeEach, captureError } from '@effection/mocha';
 
-import { run, Task, Effection } from '@effection/core';
+import { Task, sleep } from '@effection/core';
 import { createOperationIterator, Subscription, OperationIterator } from '../src/index';
 
 interface Thing {
@@ -28,19 +27,18 @@ function emptySubscription(task: Task<unknown>): OperationIterator<Thing, number
 describe('chaining subscriptions', () => {
   let subscription: Subscription<Thing, number>;
 
-  beforeEach(() => {
-    subscription = new Subscription(stuff(Effection.root));
+  beforeEach(function*(task) {
+    subscription = new Subscription(stuff(task));
   });
 
   describe('forEach', () => {
-    let values: Thing[];
-    let result: number;
-    beforeEach(async () => {
+    let values: Thing[];    let result: number;
+    beforeEach(function*() {
       values = [];
-      result = await run(subscription.forEach((item) => function*() { values.push(item); }));
+      result = yield subscription.forEach((item) => function*() { values.push(item); });
     });
 
-    it('iterates through all members of the subscribable', () => {
+    it('iterates through all members of the subscribable', function*() {
       expect(values).toEqual([
         {name: 'bob', type: 'person' },
         {name: 'alice', type: 'person' },
@@ -48,65 +46,65 @@ describe('chaining subscriptions', () => {
       ])
     });
 
-    it('returns the original result', () => {
+    it('returns the original result', function*() {
       expect(result).toEqual(3);
     });
   });
 
   describe('map', () => {
-    it('maps over the values', async () => {
+    it('maps over the values', function*() {
       let mapped = subscription.map(item => `hello ${item.name}`);
-      await expect(run(mapped.next())).resolves.toEqual({ done: false, value: 'hello bob' });
-      await expect(run(mapped.next())).resolves.toEqual({ done: false, value: 'hello alice' });
-      await expect(run(mapped.next())).resolves.toEqual({ done: false, value: 'hello world' });
-      await expect(run(mapped.next())).resolves.toEqual({ done: true, value: 3 });
+      expect(yield mapped.next()).toEqual({ done: false, value: 'hello bob' });
+      expect(yield mapped.next()).toEqual({ done: false, value: 'hello alice' });
+      expect(yield mapped.next()).toEqual({ done: false, value: 'hello world' });
+      expect(yield mapped.next()).toEqual({ done: true, value: 3 });
     });
   });
 
   describe('filter', () => {
-    it('filters the values', async () => {
+    it('filters the values', function*() {
       let filtered = subscription.filter(item => item.type === 'person');
-      await expect(run(filtered.next())).resolves.toEqual({ done: false, value: { name: 'bob', type: 'person' } });
-      await expect(run(filtered.next())).resolves.toEqual({ done: false, value: { name: 'alice', type: 'person' } });
-      await expect(run(filtered.next())).resolves.toEqual({ done: true, value: 3 });
+      expect(yield filtered.next()).toEqual({ done: false, value: { name: 'bob', type: 'person' } });
+      expect(yield filtered.next()).toEqual({ done: false, value: { name: 'alice', type: 'person' } });
+      expect(yield filtered.next()).toEqual({ done: true, value: 3 });
     });
   });
 
   describe('match', () => {
-    it('filters the values based on the given pattern', async () => {
+    it('filters the values based on the given pattern', function*() {
       let matched = subscription.match({ type: 'person' });
-      await expect(run(matched.next())).resolves.toEqual({ done: false, value: { name: 'bob', type: 'person' } });
-      await expect(run(matched.next())).resolves.toEqual({ done: false, value: { name: 'alice', type: 'person' } });
-      await expect(run(matched.next())).resolves.toEqual({ done: true, value: 3 });
+      expect(yield matched.next()).toEqual({ done: false, value: { name: 'bob', type: 'person' } });
+      expect(yield matched.next()).toEqual({ done: false, value: { name: 'alice', type: 'person' } });
+      expect(yield matched.next()).toEqual({ done: true, value: 3 });
     });
 
-    it('can work on nested items', async () => {
+    it('can work on nested items', function*() {
       let matched = subscription.map(item => ({ thing: item })).match({ thing: { type: 'person' } });
-      await expect(run(matched.next())).resolves.toEqual({ done: false, value: { thing: { name: 'bob', type: 'person' } } });
-      await expect(run(matched.next())).resolves.toEqual({ done: false, value: { thing: { name: 'alice', type: 'person' } } });
-      await expect(run(matched.next())).resolves.toEqual({ done: true, value: 3 });
+      expect(yield matched.next()).toEqual({ done: false, value: { thing: { name: 'bob', type: 'person' } } });
+      expect(yield matched.next()).toEqual({ done: false, value: { thing: { name: 'alice', type: 'person' } } });
+      expect(yield matched.next()).toEqual({ done: true, value: 3 });
     });
   });
 
   describe('first', () => {
-    it('returns the first item in the subscription', async () => {
-      await expect(run(subscription.first())).resolves.toEqual({ name: 'bob', type: 'person' });
+    it('returns the first item in the subscription', function*() {
+      expect(yield subscription.first()).toEqual({ name: 'bob', type: 'person' });
     });
 
-    it('returns undefined if the subscription is empty', async () => {
-      let subscription = new Subscription(emptySubscription(Effection.root));
-      await expect(run(subscription.first())).resolves.toEqual(undefined);
+    it('returns undefined if the subscription is empty', function*(task) {
+      let subscription = new Subscription(emptySubscription(task));
+      expect(yield subscription.first()).toEqual(undefined);
     });
   });
 
   describe('expect', () => {
-    it('returns the first item in the subscription', async () => {
-      await expect(run(subscription.expect())).resolves.toEqual({ name: 'bob', type: 'person' });
+    it('returns the first item in the subscription', function*() {
+      expect(yield subscription.expect()).toEqual({ name: 'bob', type: 'person' });
     });
 
-    it('throws an error if the subscription is empty', async () => {
-      let subscription = new Subscription(emptySubscription(Effection.root));
-      await expect(run(subscription.expect())).rejects.toHaveProperty('message', 'expected subscription to contain a value');
+    it('throws an error if the subscription is empty', function*(task) {
+      let subscription = new Subscription(emptySubscription(task));
+      expect(yield captureError(subscription.expect())).toHaveProperty('message', 'expected subscription to contain a value');
     });
   });
 });

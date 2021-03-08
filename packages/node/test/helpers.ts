@@ -1,15 +1,10 @@
 import { performance } from 'perf_hooks';
 import { beforeEach } from 'mocha';
 import * as expect from 'expect';
-import { run, Effection, Task } from '@effection/core';
+import { run, Task } from '@effection/core';
 import { Channel } from '@effection/channel';
-import { subscribe } from '@effection/subscription';
 import { ctrlc } from 'ctrlc-windows';
 import { exec, Process } from '../src/exec';
-
-beforeEach(async () => {
-  await Effection.reset();
-});
 
 export class TestProcess {
   isWin32 = global.process.platform === 'win32';

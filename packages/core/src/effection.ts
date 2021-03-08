@@ -12,5 +12,9 @@ export const Effection = {
   async reset() {
     await Effection.root.halt();
     Effection.root = createRootTask();
+  },
+
+  async halt() {
+    await Effection.root.halt();
   }
 }

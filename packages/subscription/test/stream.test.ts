@@ -3,21 +3,21 @@ import * as expect from 'expect';
 import { describe, it, beforeEach } from 'mocha';
 
 import { run, Task, Effection } from '@effection/core';
-import { createSubscribable, Subscribable, OperationIterator } from '../src/index';
+import { createStream, Stream, OperationIterator } from '../src/index';
 
 interface Thing {
   name: string;
   type: string;
 }
 
-const stuff: Subscribable<Thing, number> = createSubscribable((publish) => function*() {
+const stuff: Stream<Thing, number> = createStream((publish) => function*() {
   publish({name: 'bob', type: 'person' });
   publish({name: 'alice', type: 'person' });
   publish({name: 'world', type: 'planet' });
   return 3;
 });
 
-const emptySubscribable: Subscribable<Thing, number> = createSubscribable(() => function*() {
+const emptyStream: Stream<Thing, number> = createStream(() => function*() {
   return 12;
 });
 
@@ -111,7 +111,7 @@ describe('chaining subscribable', () => {
     });
 
     it('returns undefined if the subscription is empty', async () => {
-      await expect(run(emptySubscribable.first())).resolves.toEqual(undefined);
+      await expect(run(emptyStream.first())).resolves.toEqual(undefined);
     });
   });
 
@@ -121,7 +121,7 @@ describe('chaining subscribable', () => {
     });
 
     it('throws an error if the subscription is empty', async () => {
-      await expect(run(emptySubscribable.expect())).rejects.toHaveProperty('message', 'expected subscription to contain a value');
+      await expect(run(emptyStream.expect())).rejects.toHaveProperty('message', 'expected subscription to contain a value');
     });
   });
 });

@@ -1,4 +1,4 @@
-import { createSubscribable, Subscribable } from '@effection/subscription';
+import { createStream, Stream } from '@effection/subscription';
 import { on } from '@effection/events';
 import { EventEmitter } from 'events';
 
@@ -6,7 +6,7 @@ export type ChannelOptions = {
   maxSubscribers?: number;
 }
 
-export interface Channel<T, TClose = undefined> extends Subscribable<T, TClose> {
+export interface Channel<T, TClose = undefined> extends Stream<T, TClose> {
   send(message: T): void;
   close(...args: TClose extends undefined ? [] : [TClose]): void;
 }
@@ -18,7 +18,7 @@ export function createChannel<T, TClose = undefined>(options: ChannelOptions = {
     bus.setMaxListeners(options.maxSubscribers);
   }
 
-  let subscribable = createSubscribable<T, TClose>((publish) => function*(task) {
+  let subscribable = createStream<T, TClose>((publish) => function*(task) {
     let subscription = on(bus, 'event').subscribe(task);
     while(true) {
       let { value: [next] } = yield subscription.next();

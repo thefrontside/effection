@@ -2,8 +2,6 @@ import { describe, it, beforeEach } from '@effection/mocha';
 import * as expect from 'expect';
 import fetch from 'node-fetch';
 
-import { subscribe } from '@effection/subscription';
-
 import { converge } from './helpers';
 
 import { exec, Process } from '../src';

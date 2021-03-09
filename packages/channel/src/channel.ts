@@ -9,6 +9,7 @@ export type ChannelOptions = {
 export interface Channel<T, TClose = undefined> extends Stream<T, TClose> {
   send(message: T): void;
   close(...args: TClose extends undefined ? [] : [TClose]): void;
+  stream: Stream<T, TClose>;
 }
 
 export function createChannel<T, TClose = undefined>(options: ChannelOptions = {}): Channel<T, TClose> {
@@ -30,7 +31,9 @@ export function createChannel<T, TClose = undefined>(options: ChannelOptions = {
     }
   });
 
-  return Object.assign(subscribable, {
+  return Object.assign({
+    stream: subscribable,
+
     send(message: T) {
       bus.emit('event', { done: false, value: message });
     },
@@ -38,5 +41,5 @@ export function createChannel<T, TClose = undefined>(options: ChannelOptions = {
     close(...args: TClose extends undefined ? [] : [TClose]) {
       bus.emit('event', { done: true, value: args[0] });
     }
-  });
+  }, subscribable);
 }

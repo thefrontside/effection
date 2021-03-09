@@ -160,4 +160,33 @@ describe('Stream', () => {
       expect(yield iterator.next()).toEqual({ done: false, value: 'blah' });
     });
   });
+
+  describe('stringBuffer', () => {
+    it('concatenates previous messages with each other', function*(world) {
+      let emitter = new EventEmitter();
+      let stream = createStream<string>((publish) => function*() {
+        try {
+          emitter.on('message', publish);
+          yield;
+        } finally {
+          emitter.off('message', publish);
+        }
+        return undefined;
+      });
+
+      emitter.emit('message', 'ignored');
+
+      let bufferedStream = stream.stringBuffer(world);
+
+      emitter.emit('message', 'hello');
+      emitter.emit('message', 'world');
+
+      let iterator = bufferedStream.subscribe(world);
+
+      emitter.emit('message', 'blah');
+
+      expect(yield iterator.next()).toEqual({ done: false, value: 'helloworld' });
+      expect(yield iterator.next()).toEqual({ done: false, value: 'helloworldblah' });
+    });
+  });
 });

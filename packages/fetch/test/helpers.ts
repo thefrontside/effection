@@ -1,18 +1,9 @@
 import { performance } from 'perf_hooks';
-import { Effection } from '@effection/core';
 
 let mochaTimeout: number;
 
 before(function() {
   mochaTimeout = this.timeout(50).timeout();
-});
-
-beforeEach(async () => {
-  await Effection.reset();
-});
-
-afterEach(async () => {
-  await Effection.root.halt();
 });
 
 export async function when<T>(fn: () => T, timeout = mochaTimeout): Promise<T> {

@@ -1,9 +1,7 @@
-import './helpers';
-
-import { describe, it, beforeEach } from 'mocha';
+import { describe, it, beforeEach, captureError } from '@effection/mocha';
 import * as expect from 'expect'
 
-import { Effection, Task } from '@effection/core';
+import { Task } from '@effection/core';
 import { EventEmitter } from 'events';
 
 import { throwOnErrorEvent } from '../src/index';
@@ -13,22 +11,22 @@ describe("throwOnErrorEvent", () => {
   let task: Task;
   let error: Error;
 
-  beforeEach(async () => {
+  beforeEach(function*(t) {
     emitter = new EventEmitter();
-    task = Effection.root.spawn(function*(task) {
-      throwOnErrorEvent(task, emitter);
+    task = t.spawn(captureError(function*(inner) {
+      throwOnErrorEvent(inner, emitter);
       yield;
-    });
+    }));
   });
 
   describe('throws an error when the event occurs', () => {
-    beforeEach(() => {
+    beforeEach(function*() {
       error = new Error("moo");
       emitter.emit("error", error);
     });
 
-    it('throws error', async () => {
-      await expect(task).rejects.toEqual(error);
+    it('throws error', function*() {
+      expect(yield task).toEqual(error);
     });
   });
 });

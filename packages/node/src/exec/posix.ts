@@ -1,6 +1,6 @@
 import { Operation, Deferred } from '@effection/core';
 import { createChannel } from '@effection/channel';
-import { on, once } from '@effection/events';
+import { on, onceEmit } from '@effection/events';
 import { spawn as spawnProcess } from 'child_process';
 import { ExitStatus, CreateOSProcess, stringifyExitStatus } from './api';
 
@@ -65,12 +65,12 @@ export const createPosixProcess: CreateOSProcess = (scope, command, options) => 
     try {
       childProcess.on('error', onError);
 
-      task.spawn(on<[string]>(childProcess.stdout, 'data').forEach(([data]) => {
+      task.spawn(on<string>(childProcess.stdout, 'data').forEach((data) => {
         addToTail(data);
         stdout.send(data);
       }));
 
-      task.spawn(on<[string]>(childProcess.stderr, 'data').forEach(([data]) => {
+      task.spawn(on<string>(childProcess.stderr, 'data').forEach((data) => {
         addToTail(data);
         stderr.send(data);
       }));
@@ -79,7 +79,7 @@ export const createPosixProcess: CreateOSProcess = (scope, command, options) => 
         childProcess.stdin.write(data);
       }))
 
-      let value = yield once(childProcess, 'exit')
+      let value = yield onceEmit(childProcess, 'exit')
       getResult.resolve({ type: 'status', value });
 
     } finally {

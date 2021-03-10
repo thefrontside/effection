@@ -22,7 +22,7 @@ export function createChannel<T, TClose = undefined>(options: ChannelOptions = {
   let subscribable = createStream<T, TClose>((publish) => function*(task) {
     let subscription = on(bus, 'event').subscribe(task);
     while(true) {
-      let { value: [next] } = yield subscription.next();
+      let { value: next } = yield subscription.next();
       if(next.done) {
         return next.value;
       } else {

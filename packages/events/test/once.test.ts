@@ -4,7 +4,7 @@ import * as expect from 'expect'
 import { sleep, Task } from '@effection/core';
 import { EventEmitter } from 'events';
 
-import { once } from '../src/index';
+import { once, onceEmit } from '../src/index';
 
 describe("once()", () => {
   let task: Task;
@@ -21,17 +21,17 @@ describe("once()", () => {
 
   describe('emitting the event on which it is waiting', () => {
     beforeEach(function*() {
-      source.emit('event', 1,2,10);
+      source.emit('event', 1);
     });
 
-    it('returs the parameters of the event', function*() {
-      expect(yield task).toEqual([1,2,10]);
+    it('returns the first parameter of the event', function*() {
+      expect(yield task).toEqual(1);
     });
   });
 
   describe('emitting an event on which it is not waiting', () => {
     beforeEach(function*() {
-      source.emit('non-event', 1, 2, 10);
+      source.emit('non-event', 1);
       yield sleep(10);
     });
 
@@ -43,11 +43,26 @@ describe("once()", () => {
   describe('shutting down the task and then emitting the event on which it is waiting', () => {
     beforeEach(function*() {
       yield task.halt();
-      source.emit('event', 1, 2, 10);
+      source.emit('event', 1);
     });
 
     it('never returns', function*() {
       expect(task.result).toBeUndefined();
     });
+  });
+});
+
+describe('onceEmit()', () => {
+  let task: Task;
+  let source: EventEmitter;
+
+  beforeEach(function*(t) {
+    source = new EventEmitter();
+    task = t.spawn(onceEmit(source, 'event'))
+    source.emit('event', 1,2,3);
+  });
+
+  it('returns all parameters of the event as an array', function*() {
+    expect(yield task).toEqual([1,2,3]);
   });
 });

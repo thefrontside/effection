@@ -1,0 +1,46 @@
+{
+  "name": "@effection/atom",
+  "version": "2.0.0-preview.3",
+  "description": "State atom implementation for effection",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.js",
+  "repository": "https://github.com/thefrontside/bigtest.git",
+  "author": "Frontside Engineering <engineering@frontside.io>",
+  "license": "MIT",
+  "files": [
+    "README.md",
+    "CHANGELOG.md",
+    "dist/**/*",
+    "src/**/*"
+  ],
+  "scripts": {
+    "lint": "eslint '{src,tests}/**/*.ts'",
+    "test:unit": "mocha -r ts-node/register test/**/*.test.ts",
+    "test:types": "dtslint test-dts --localTs ../../node_modules/typescript/lib --expectOnly",
+    "prepack": "tsdx build --tsconfig tsconfig.dist.json",
+    "test": "yarn test:unit && yarn test:types",
+    "mocha": "mocha -r ts-node/register"
+  },
+  "devDependencies": {
+    "@effection/mocha": "2.0.0-preview.2",
+    "@frontside/tsconfig": "^0.0.1",
+    "@types/node": "^12.7.11",
+    "dtslint": "^4.0.7",
+    "expect": "^25.4.0",
+    "mocha": "^7.2.0",
+    "ts-node": "^8.9.0",
+    "tsdx": "0.13.2",
+    "typescript": "^3.7.0"
+  },
+  "volta": {
+    "node": "12.16.0",
+    "yarn": "1.19.1"
+  },
+  "dependencies": {
+    "@effection/core": "^2.0.0-preview.3",
+    "@effection/subscription": "^2.0.0-preview.3",
+    "assert-ts": "^0.2.2",
+    "fp-ts": "^2.8.2",
+    "monocle-ts": "^2.3.3"
+  }
+}

@@ -24,7 +24,8 @@
     "@effection/channel": "2.0.0-preview.4",
     "@effection/core": "2.0.0-preview.4",
     "@effection/events": "2.0.0-preview.4",
-    "@effection/subscription": "2.0.0-preview.4"
+    "@effection/subscription": "2.0.0-preview.4",
+    "@effection/atom": "2.0.0-preview.3"
   },
   "devDependencies": {
     "@types/mocha": "^7.0.2",

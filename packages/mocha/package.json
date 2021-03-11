@@ -19,10 +19,8 @@
     "prepack": "tsdx build --tsconfig tsconfig.dist.json",
     "mocha": "mocha -r ts-node/register"
   },
-  "dependencies": {
-    "@effection/core": "^2.0.0-preview.2"
-  },
   "peerDependencies": {
+    "@effection/core": "^2.0.0-preview.2",
     "mocha": "^8.0.0"
   },
   "devDependencies": {

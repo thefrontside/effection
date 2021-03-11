@@ -1,122 +1,98 @@
-import * as O from "fp-ts/Option";
-import * as Op from "monocle-ts/lib/Optional"
-import { pipe } from 'fp-ts/function'
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Operation } from '@effection/core';
 import { createChannel, ChannelOptions } from '@effection/channel';
-import { MakeSlice, Slice } from './types';
+import { MakeSlice, Container, Slice } from './types';
 import { unique } from './unique';
 
-export function createAtom<S>(initialState: S, options: ChannelOptions = {}): Slice<S> {
-  let lens = pipe(Op.id<O.Option<S>>(), Op.some);
-  let state: O.Option<S> = O.fromNullable(initialState);
-  let states = createChannel(options);
-
-  function getState(): O.Option<S> {
-    return state;
-  }
-
-  function setState(value: S) {
-    let next = O.fromNullable(value);
-
-    if (next === getState()) {
-      return;
-    }
-
-    state = next;
-
-    states.send(O.toUndefined(state) as S);
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let sliceMaker = <A>(parentOptional: Op.Optional<O.Option<S>, A> = lens as unknown as Op.Optional<O.Option<S>, A>): MakeSlice<any> =>
-    <P extends keyof A>(...path: P[]): Slice<A[P]> => {
-      // The [any, any] cast is needed as `pipe` expects more than 2 arguments
-      // typescript cannot work out if the `getters` array has 0 or more elements
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let getters = (path || []).map(p => (typeof p === 'number') ? Op.index(p) : Op.prop<A, P>(p)) as [any, any];
-
-      let sliceOptional = pipe(
-         parentOptional,
-         Op.fromNullable,
-         ...getters
-      ) as Op.Optional<O.Option<S>, A[P]>;
-
-      let stream = states.map(
-        (s) => pipe(s as S, O.fromNullable, sliceOptional.getOption, O.toUndefined) as A[P]
-      ).filter(unique(get()));
-
-      function getOption(): O.Option<A[P]> {
-        let current = pipe(
-          getState(),
-          sliceOptional.getOption,
-        );
-
-        return current;
-      }
-
-      function get(): A[P] {
-        return pipe(
-          getOption(),
-          O.toUndefined
-        ) as A[P];
-      }
-
-      function set(value: A[P]): void {
-        if(value === get()) {
-          return;
-        }
-
-        let next = pipe(
-          getState(),
-          sliceOptional.set(value),
-          O.toUndefined
-        );
-
-        setState(next as S);
-      }
-
-      function update(fn: (s: A[P]) => A[P]) {
-        let next = pipe(
-          sliceOptional,
-          Op.modify(fn),
-        )(getState());
-
-        setState(O.toUndefined(next) as S);
-      }
-
-      function once(predicate: (state: A[P]) => boolean): Operation<A[P]> {
-        return function*() {
-          let currentState = get();
-          if(predicate(currentState)) {
-            return currentState;
-          } else {
-            return yield stream.filter(predicate).expect();
-          }
+function sliceFromContainer<T>(container: Container<T>): Slice<T> {
+  return {
+    ...container,
+    ...container.stream,
+    once(predicate: (state: T) => boolean): Operation<T> {
+      return function*() {
+        let currentState = container.get();
+        if(predicate(currentState)) {
+          return currentState;
+        } else {
+          return yield container.stream.filter(predicate).expect();
         }
       }
-
-      function remove() {
-        let next = pipe(
-          sliceOptional,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          Op.modify(() => undefined as any),
-        )(getState());
-
-        setState(O.toUndefined(next) as S);
-      }
-
-      return Object.assign({
-        get,
-        set,
-        update,
-        stream,
-        once,
-        slice: sliceMaker(sliceOptional),
-        remove,
-      }, stream);
+    },
+    update(fn: (state: T) => T): void {
+      container.set(fn(container.get()));
+    },
+    slice: ((...path: (string | number)[]) => {
+      return sliceFromContainer(path.reduce((container, property) => {
+        if(typeof(property) === 'number') {
+          return makeArrayContainer(container, property);
+        } else {
+          return makeRecordContainer(container, property);
+        }
+      }, container as Container<any>));
+    }) as MakeSlice<T>
   }
+};
+
+function makeRecordContainer(parent: Container<any>, property: string): Container<any> {
+  let get = (parentValue: any) => parentValue && parentValue[property];
 
   return {
-    ...sliceMaker()(),
-  };
+    get() {
+      return get(parent.get());
+    },
+    set(value): void {
+      if(!parent.get()) {
+        parent.set({});
+      }
+      parent.set({ ...parent.get(), [property]: value });
+    },
+    remove(): void {
+      parent.set({ ...parent.get(), [property]: undefined });
+    },
+    stream: parent.stream.map(get).filter(unique(get(parent.get()))),
+  }
+}
+
+function makeArrayContainer(parent: Container<any>, property: number): Container<any> {
+  let get = (parentValue: any) => parentValue && parentValue[property];
+
+  return {
+    get() {
+      return get(parent.get())
+    },
+    set(value): void {
+      if(!parent.get()) {
+        parent.set([]);
+      }
+      let copy = parent.get().slice();
+      copy[property] = value;
+      parent.set(copy);
+    },
+    remove(): void {
+      let copy = parent.get().slice();
+      copy.splice(property, 1);
+      parent.set(copy);
+    },
+    stream: parent.stream.map(get).filter(unique(get(parent.get()))),
+  }
+}
+
+export function createAtom<S>(state: S, options: ChannelOptions = {}): Slice<S> {
+  let states = createChannel<S>(options);
+
+  let container: Container<S> = {
+    get() {
+      return state;
+    },
+    set(value): void {
+      state = value;
+      states.send(state);
+    },
+    remove(): void {
+      // no op?!?!
+    },
+    stream: states.filter(unique(state)),
+  }
+
+  return sliceFromContainer(container);
 }

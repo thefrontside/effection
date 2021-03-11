@@ -1923,11 +1923,6 @@ assert-plus@1.0.0, assert-plus@^1.0.0:
   resolved "https://registry.yarnpkg.com/assert-plus/-/assert-plus-1.0.0.tgz#f12e0f3c5d77b0b1cdd9146942e4e96c1e4dd525"
   integrity sha1-8S4PPF13sLHN2RRpQuTpbB5N1SU=
 
-assert-ts@^0.2.2:
-  version "0.2.2"
-  resolved "https://registry.yarnpkg.com/assert-ts/-/assert-ts-0.2.2.tgz#afaa987cce8ef8c653d07032f562f8350ec9723f"
-  integrity sha512-aoktTqvPejI9G0+wNOomh44acAJ/KMp4YAw5yW3tM1MESxEBuAlWdBG3Q9QGV6YMv7pEfzor8822B5WinXcmPg==
-
 assign-symbols@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/assign-symbols/-/assign-symbols-1.0.0.tgz#59667f41fadd4f20ccbc2bb96b8d4f7f78ec0367"
@@ -3781,11 +3776,6 @@ form-data@~2.3.2:
     asynckit "^0.4.0"
     combined-stream "^1.0.6"
     mime-types "^2.1.12"
-
-fp-ts@^2.8.2:
-  version "2.9.5"
-  resolved "https://registry.yarnpkg.com/fp-ts/-/fp-ts-2.9.5.tgz#6690cd8b76b84214a38fc77cbbbd04a38f86ea90"
-  integrity sha512-MiHrA5teO6t8zKArE3DdMPT/Db6v2GUt5yfWnhBTrrsVfeCJUUnV6sgFvjGNBKDmEMqVwRFkEePL7wPwqrLKKA==
 
 fragment-cache@^0.2.1:
   version "0.2.1"
@@ -5716,11 +5706,6 @@ mocha@^7.1.1, mocha@^7.2.0:
     yargs "13.3.2"
     yargs-parser "13.1.2"
     yargs-unparser "1.6.0"
-
-monocle-ts@^2.3.3:
-  version "2.3.8"
-  resolved "https://registry.yarnpkg.com/monocle-ts/-/monocle-ts-2.3.8.tgz#f11831df5a0c450f754b87da174480e35987b441"
-  integrity sha512-77DZ+9FaDNk43AOYEMVdwC8yHsle1OL0IcgaBv+tCS/HnY6mV2kRMsxxgqnj1uL7/LrR1eCpyrRlpquq8bQQoQ==
 
 mri@^1.1.0:
   version "1.1.6"

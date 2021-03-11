@@ -1,4 +1,3 @@
-import { ReadonlyRecord } from "fp-ts/ReadonlyRecord";
 import { Slice } from "../src";
 
 type AA = {
@@ -6,7 +5,7 @@ type AA = {
   v: number;
 };
 
-type AB = ReadonlyRecord<string, string>;
+type AB = Readonly<Record<string, string>>;
 
 type A = {
   a: AA;

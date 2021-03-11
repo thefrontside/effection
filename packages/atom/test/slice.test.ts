@@ -24,7 +24,7 @@ describe('@bigtest/atom Slice', () => {
     it('should not blow up with no state and set', function*() {
       slice.set('houston we have a problem');
 
-      expect(slice.get()).toBeUndefined();
+      expect(slice.get()).toEqual('houston we have a problem');
     });
   });
 
@@ -216,7 +216,7 @@ describe('@bigtest/atom Slice', () => {
 
       expect(atom.get()).toEqual(['foo', 'bar']);
       slice.remove();
-      expect(atom.get()).toEqual([undefined, 'bar']); // TODO: shouldn't this remove the item entirely?!
+      expect(atom.get()).toEqual(['bar']);
     })
   });
 });

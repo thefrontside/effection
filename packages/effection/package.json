@@ -21,8 +21,8 @@
     "prepack": "tsdx build --tsconfig tsconfig.dist.json"
   },
   "dependencies": {
-    "@effection/core": "2.0.0-preview.3",
     "@effection/channel": "2.0.0-preview.3",
+    "@effection/core": "2.0.0-preview.3",
     "@effection/events": "2.0.0-preview.3",
     "@effection/subscription": "2.0.0-preview.3"
   },
@@ -31,7 +31,7 @@
     "@types/node": "^13.13.5",
     "eslint": "^6.8.0",
     "expect": "^25.3.0",
-    "mocha": "^7.1.1",
+    "mocha": "^8.3.1",
     "ts-node": "^8.8.2",
     "tsdx": "0.13.2",
     "typescript": "^3.8.3"

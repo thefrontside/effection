@@ -1,5 +1,11 @@
 # @effection/core
 
+## 2.0.0-preview.4
+
+### Minor Changes
+
+- 72f743c: Add `halt` method on `Effection` to halt root task
+
 ## 2.0.0-preview.3
 
 ### Patch Changes

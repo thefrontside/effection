@@ -1,5 +1,16 @@
 # @effection/subscription
 
+## 2.0.0-preview.4
+
+### Minor Changes
+
+- ab41f6a: Rename `Subscribable` to `Stream`
+
+### Patch Changes
+
+- Updated dependencies [72f743c]
+  - @effection/core@2.0.0-preview.4
+
 ## 2.0.0-preview.3
 
 ### Minor Changes

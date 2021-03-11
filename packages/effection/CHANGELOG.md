@@ -1,5 +1,33 @@
 # Changelog
 
+## 2.0.0-preview.5
+
+### Minor Changes
+
+- ab41f6a: Rename `Subscribable` to `Stream`
+- ce76f15: Make channel splittable into send and stream ends
+- 72f743c: Add `halt` method on `Effection` to halt root task
+- 53661b7: Reexport blessed packages from `effection` package
+
+### Patch Changes
+
+- 7b6ba05: `once()` only yields the first argument passed to `emit()` which
+  accounts for 99.9% of the use cases. For the cases where all the
+  arguments are required, use `onceEmit()`
+
+  `on()` produces a stream of the first arguments passed to `emit()`
+  which accounts for 99.9% of the use cases. For the cases where all the
+  arguments are required, use `onEmit()`.
+
+- Updated dependencies [7b6ba05]
+- Updated dependencies [ab41f6a]
+- Updated dependencies [ce76f15]
+- Updated dependencies [72f743c]
+  - @effection/events@2.0.0-preview.4
+  - @effection/subscription@2.0.0-preview.4
+  - @effection/channel@2.0.0-preview.4
+  - @effection/core@2.0.0-preview.4
+
 ## 2.0.0-preview.4
 
 ### Minor Changes

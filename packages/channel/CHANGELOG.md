@@ -1,5 +1,20 @@
 # Changelog
 
+## 2.0.0-preview.4
+
+### Minor Changes
+
+- ce76f15: Make channel splittable into send and stream ends
+
+### Patch Changes
+
+- Updated dependencies [7b6ba05]
+- Updated dependencies [ab41f6a]
+- Updated dependencies [72f743c]
+  - @effection/events@2.0.0-preview.4
+  - @effection/subscription@2.0.0-preview.4
+  - @effection/core@2.0.0-preview.4
+
 ## 2.0.0-preview.3
 
 ### Minor Changes

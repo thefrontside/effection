@@ -1,5 +1,25 @@
 # Changelog
 
+## 2.0.0-preview.4
+
+### Patch Changes
+
+- 7b6ba05: `once()` only yields the first argument passed to `emit()` which
+  accounts for 99.9% of the use cases. For the cases where all the
+  arguments are required, use `onceEmit()`
+
+  `on()` produces a stream of the first arguments passed to `emit()`
+  which accounts for 99.9% of the use cases. For the cases where all the
+  arguments are required, use `onEmit()`.
+
+- Updated dependencies [7b6ba05]
+- Updated dependencies [ab41f6a]
+- Updated dependencies [ce76f15]
+- Updated dependencies [72f743c]
+- Updated dependencies [53661b7]
+  - effection@2.0.0-preview.5
+  - @effection/subscription@2.0.0-preview.4
+
 ## 2.0.0-preview.3
 
 ### Minor Changes

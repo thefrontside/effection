@@ -1,5 +1,11 @@
 # @effection/fetch
 
+## 2.0.0-preview.4
+
+### Patch Changes
+
+- cb25211: reset these pre-release versions to 2.0.0 series
+
 ## 2.0.0-preview.2
 
 ### Patch Changes

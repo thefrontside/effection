@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.0-preview.5
+
+### Patch Changes
+
+- cb25211: reset these pre-release versions to 2.0.0 series
+
 ## 2.0.0-preview.3
 
 ### Patch Changes

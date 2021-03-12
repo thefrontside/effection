@@ -13,6 +13,7 @@
       "packages/subscription",
       "packages/events",
       "packages/channel",
+      "packages/atom",
       "packages/node",
       "packages/fetch",
       "packages/effection"

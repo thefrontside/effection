@@ -1,5 +1,6 @@
 import * as expect from 'expect';
-import { describe, it, captureError } from '@effection/mocha';
+import { describe, it, beforeEach, captureError } from '@effection/mocha';
+import { EventEmitter } from 'events';
 
 import { createStream, Stream } from '../src/index';
 
@@ -120,6 +121,36 @@ describe('chaining subscribable', () => {
 
     it('throws an error if the subscription is empty', function*() {
       expect(yield captureError(emptyStream.expect())).toHaveProperty('message', 'expected subscription to contain a value');
+    });
+  });
+
+  describe('buffer', () => {
+    it('replays previously sent messages', function*(world) {
+      let emitter = new EventEmitter();
+      let stream = createStream<string>((publish) => function*() {
+        try {
+          emitter.on('message', publish);
+          yield;
+        } finally {
+          emitter.off('message', publish);
+        }
+        return undefined;
+      });
+
+      emitter.emit('message', 'ignored');
+
+      let bufferedStream = stream.buffer(world);
+
+      emitter.emit('message', 'hello');
+      emitter.emit('message', 'world');
+
+      let iterator = bufferedStream.subscribe(world);
+
+      emitter.emit('message', 'blah');
+
+      expect(yield iterator.next()).toEqual({ done: false, value: 'hello' });
+      expect(yield iterator.next()).toEqual({ done: false, value: 'world' });
+      expect(yield iterator.next()).toEqual({ done: false, value: 'blah' });
     });
   });
 });

@@ -15,7 +15,8 @@ export interface Stream<T, TReturn = undefined> extends OperationIterable<T, TRe
   forEach(visit: (value: T) => (Operation<void> | void)): Operation<TReturn>;
   collect(): Operation<Iterator<T, TReturn>>;
   toArray(): Operation<T[]>;
-  subscribe(task: Task): OperationIterator<T, TReturn>;
+  subscribe(scope: Task): OperationIterator<T, TReturn>;
+  buffer(scope: Task): Stream<T, TReturn>;
 }
 
 export function createStream<T, TReturn = undefined>(callback: Callback<T, TReturn>): Stream<T, TReturn> {
@@ -102,8 +103,19 @@ export function createStream<T, TReturn = undefined>(callback: Callback<T, TRetu
       }
     },
 
-    subscribe(task: Task): OperationIterator<T, TReturn> {
-      return iterable(task);
+    buffer(scope: Task): Stream<T, TReturn> {
+      let buffer: T[] = [];
+
+      scope.spawn(subscribable.forEach((m) => { buffer.push(m) }));
+
+      return createStream((publish) => function*() {
+        buffer.forEach(publish);
+        return yield subscribable.forEach(publish);
+      });
+    },
+
+    subscribe(scope: Task): OperationIterator<T, TReturn> {
+      return iterable(scope);
     },
 
     get [SymbolOperationIterable](): ToOperationIterator<T, TReturn> {

@@ -45,6 +45,7 @@ describe('exec()', () => {
       proc = exec(task, "node './fixtures/echo-server.js'", {
         env: { PORT: '29000', PATH: process.env.PATH as string },
         cwd: __dirname,
+        buffered: true,
       });
 
       task.spawn(function*() {

@@ -2,7 +2,7 @@ import * as expect from 'expect';
 import { describe, it, beforeEach, captureError } from '@effection/mocha';
 import { EventEmitter } from 'events';
 
-import { createStream, Stream } from '../src/index';
+import { createStream, Stream, StringBufferStream } from '../src/index';
 
 interface Thing {
   name: string;
@@ -162,9 +162,13 @@ describe('Stream', () => {
   });
 
   describe('stringBuffer', () => {
-    it('concatenates previous messages with each other', function*(world) {
-      let emitter = new EventEmitter();
-      let stream = createStream<string>((publish) => function*() {
+    let bufferedStream: StringBufferStream;
+    let emitter: EventEmitter;
+    let stream: Stream<string>;
+
+    beforeEach(function*(world) {
+      emitter = new EventEmitter();
+      stream = createStream<string>((publish) => function*() {
         try {
           emitter.on('message', publish);
           yield;
@@ -176,8 +180,10 @@ describe('Stream', () => {
 
       emitter.emit('message', 'ignored');
 
-      let bufferedStream = stream.stringBuffer(world);
+      bufferedStream = stream.stringBuffer(world);
+    });
 
+    it('concatenates previous messages with each other', function*(world) {
       emitter.emit('message', 'hello');
       emitter.emit('message', 'world');
 
@@ -187,6 +193,17 @@ describe('Stream', () => {
 
       expect(yield iterator.next()).toEqual({ done: false, value: 'helloworld' });
       expect(yield iterator.next()).toEqual({ done: false, value: 'helloworldblah' });
+    });
+
+    it('returns current buffer value', function*(world) {
+      emitter.emit('message', 'hello');
+      emitter.emit('message', 'world');
+
+      expect(bufferedStream.value).toEqual('helloworld');
+
+      emitter.emit('message', 'blah');
+
+      expect(bufferedStream.value).toEqual('helloworldblah');
     });
   });
 });

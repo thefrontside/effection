@@ -53,7 +53,7 @@ export interface ExecOptions {
   /**
    * Skip buffering of output streams
    */
-  unbuffered?: boolean
+  buffered?: boolean;
 }
 
 export interface StdIO {

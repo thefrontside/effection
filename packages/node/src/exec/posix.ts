@@ -1,5 +1,4 @@
 import { Operation, Deferred } from '@effection/core';
-import { Stream } from '@effection/subscription';
 import { createChannel } from '@effection/channel';
 import { on, once, onceEmit } from '@effection/events';
 import { spawn as spawnProcess } from 'child_process';
@@ -84,7 +83,7 @@ export const createPosixProcess: CreateOSProcess = (scope, command, options) => 
   let { stream: stdout } = stdoutChannel;
   let { stream: stderr } = stderrChannel;
 
-  if(!options.unbuffered) {
+  if(options.buffered) {
     stdout = stdout.stringBuffer(scope);
     stderr = stderr.stringBuffer(scope);
   }

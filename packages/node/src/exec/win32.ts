@@ -96,7 +96,7 @@ export const createWin32Process: CreateOSProcess = (scope, command, options) => 
   let { stream: stdout } = stdoutChannel;
   let { stream: stderr } = stderrChannel;
 
-  if(!options.unbuffered) {
+  if(options.buffered) {
     stdout = stdout.stringBuffer(scope);
     stderr = stderr.stringBuffer(scope);
   }

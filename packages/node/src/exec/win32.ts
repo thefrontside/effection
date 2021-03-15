@@ -1,7 +1,7 @@
 import { platform } from "os";
 import { Operation, Deferred } from "@effection/core";
-import { createChannel } from "@effection/channel";
-import { on, onceEmit } from "@effection/events";
+import { createChannel } from '@effection/channel';
+import { on, once, onceEmit } from "@effection/events";
 import { spawn as spawnProcess } from "cross-spawn";
 import { ctrlc } from "ctrlc-windows";
 import { ExitStatus, CreateOSProcess, stringifyExitStatus } from "./api";
@@ -11,24 +11,13 @@ type Result =
   | { type: "status"; value: [number?, string?] };
 
 export const createWin32Process: CreateOSProcess = (scope, command, options) => {
-  let stdin = createChannel<string>();
-  let stdout = createChannel<string>();
-  let stderr = createChannel<string>();
-  let tail: string[] = [];
-
   let getResult = Deferred<Result>();
-
-  function addToTail(chunk: string) {
-    if (tail.length < 100) {
-      tail.push(chunk);
-    }
-  }
 
   let join = (): Operation<ExitStatus> => function*() {
     let result: Result = yield getResult.promise;
     if (result.type === "status") {
       let [code, signal] = result.value;
-      return { command, options, code, signal, tail };
+      return { command, options, code, signal };
     } else {
       throw result.value;
     }
@@ -67,38 +56,29 @@ export const createWin32Process: CreateOSProcess = (scope, command, options) => 
 
   let { pid } = childProcess;
 
+  let stdoutChannel = createChannel<string>();
+  let stderrChannel = createChannel<string>();
+  let stdin = {
+    send(data: string) {
+      childProcess.stdin.write(data);
+    }
+  };
+
   scope.spawn(function*(task) {
-    let onError = (value: unknown) =>
-      getResult.resolve({ type: "error", value });
+    task.spawn(function*() {
+      let value: Error = yield once(childProcess, 'error');
+      getResult.resolve({ type: 'error', value });
+    });
+
+    task.spawn(on<Buffer>(childProcess.stdout, 'data').map((c) => c.toString()).forEach(stdoutChannel.send));
+    task.spawn(on<Buffer>(childProcess.stderr, 'data').map((c) => c.toString()).forEach(stderrChannel.send));
 
     try {
-      childProcess.on("error", onError);
-
-      task.spawn(
-        on<string>(childProcess.stdout, "data").forEach((data) => {
-          addToTail(data);
-          stdout.send(data);
-        })
-      );
-
-      task.spawn(
-        on<string>(childProcess.stderr, "data").forEach((data) => {
-          addToTail(data);
-          stderr.send(data);
-        })
-      );
-
-      task.spawn(
-        stdin.forEach((data) => {
-          childProcess.stdin.write(data);
-        })
-      );
-
       let value = yield onceEmit(childProcess, "exit");
       getResult.resolve({ type: "status", value });
     } finally {
-      stdout.close();
-      stderr.close();
+      stdoutChannel.close();
+      stderrChannel.close();
       if (pid) {
         ctrlc(pid);
         let stdin = childProcess.stdin;
@@ -112,6 +92,14 @@ export const createWin32Process: CreateOSProcess = (scope, command, options) => 
       }
     }
   });
+
+  let { stream: stdout } = stdoutChannel;
+  let { stream: stderr } = stderrChannel;
+
+  if(!options.unbuffered) {
+    stdout = stdout.stringBuffer(scope);
+    stderr = stderr.stringBuffer(scope);
+  }
 
   return { pid, stdin, stdout, stderr, join, expect };
 };

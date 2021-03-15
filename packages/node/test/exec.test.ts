@@ -1,8 +1,7 @@
+import { Deferred } from '@effection/core';
 import { describe, it, beforeEach } from '@effection/mocha';
 import * as expect from 'expect';
 import fetch from 'node-fetch';
-
-import { converge } from './helpers';
 
 import { exec, Process } from '../src';
 
@@ -36,14 +35,12 @@ describe('exec()', () => {
 
   describe('a process that starts successfully', () => {
     let proc: Process;
-    let output: string;
-    let errput: string;
-    let didClose: {stdout: boolean; stderr: boolean };
+    let didCloseStdout: Deferred<boolean>;
+    let didCloseStderr: Deferred<boolean>;
 
     beforeEach(function*(task) {
-      output = '';
-      errput = '';
-      didClose = { stdout: false, stderr: false };
+      didCloseStdout = Deferred<boolean>();
+      didCloseStderr = Deferred<boolean>();
 
       proc = exec(task, "node './fixtures/echo-server.js'", {
         env: { PORT: '29000', PATH: process.env.PATH as string },
@@ -51,20 +48,16 @@ describe('exec()', () => {
       });
 
       task.spawn(function*() {
-        yield proc.stdout.forEach((chunk) => function*() {
-          output += chunk;
-        });
-        didClose.stdout = true;
+        yield proc.stdout.join();
+        didCloseStdout.resolve(true);
       });
 
       task.spawn(function*() {
-        yield proc.stderr.forEach((chunk) => function*() {
-          errput += chunk;
-        });
-        didClose.stderr = true;
+        yield proc.stderr.join();
+        didCloseStderr.resolve(true);
       });
 
-      yield converge(() => expect(output).toContain("listening"));
+      yield proc.stdout.filter((v) => v.includes('listening')).expect();
     });
 
     it('has a pid', function*() {
@@ -87,12 +80,14 @@ describe('exec()', () => {
         expect(status.code).toEqual(0);
       });
 
-
       it('closes stdout and stderr', function*() {
         yield proc.expect();
+        let output = yield proc.stdout.expect();
+        let errput = yield proc.stderr.expect();
         expect(output).toContain('exit(0)');
         expect(errput).toContain('got request');
-        yield converge(() => expect(didClose).toEqual({ stdout: true, stderr: true }));
+        expect(yield didCloseStdout.promise).toEqual(true);
+        expect(yield didCloseStderr.promise).toEqual(true);
       });
     });
 
@@ -119,7 +114,8 @@ describe('exec()', () => {
       });
 
       it('closes stdout and stderr', function*() {
-        yield converge(() => expect(didClose).toEqual({ stdout: true, stderr: true }));
+        expect(yield didCloseStdout.promise).toEqual(true);
+        expect(yield didCloseStderr.promise).toEqual(true);
       });
     });
   });

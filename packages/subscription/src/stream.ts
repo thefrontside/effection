@@ -20,6 +20,10 @@ export interface Stream<T, TReturn = undefined> extends OperationIterable<T, TRe
   stringBuffer(scope: Task): Stream<string, TReturn>;
 }
 
+export interface StringBufferStream<T, TReturn = undefined> extends Stream<T, TReturn> {
+  value: string;
+}
+
 export function createStream<T, TReturn = undefined>(callback: Callback<T, TReturn>): Stream<T, TReturn> {
   let iterable: ToOperationIterator<T, TReturn> = (task) => createOperationIterator(task, callback);
 
@@ -115,12 +119,12 @@ export function createStream<T, TReturn = undefined>(callback: Callback<T, TRetu
       });
     },
 
-    stringBuffer(scope: Task): Stream<string, TReturn> {
+    stringBuffer(scope: Task): StringBufferStream<string, TReturn> {
       let buffer = "";
 
       scope.spawn(subscribable.forEach((m) => { buffer += `${m}` }));
 
-      return createStream((publish) => function*() {
+      let stream = createStream<string, TReturn>((publish) => function*() {
         let internalBuffer = buffer;
         publish(internalBuffer);
         return yield subscribable.forEach((m: T) => {
@@ -128,6 +132,13 @@ export function createStream<T, TReturn = undefined>(callback: Callback<T, TRetu
           publish(internalBuffer);
         });
       });
+
+      return {
+        ...stream,
+        get value(): string {
+          return buffer;
+        }
+      }
     },
 
     subscribe(scope: Task): OperationIterator<T, TReturn> {

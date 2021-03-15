@@ -6,6 +6,12 @@ let world: Task | undefined;
 
 type TestFunction = (this: mocha.Context, world: Task, scope: Task) => Generator<Operation<any>, any, any>;
 
+interface ItFunction {
+  (title: string, fn: TestFunction): void;
+  only(title: string, fn: TestFunction): void;
+  skip(title: string, fn: TestFunction): void;
+}
+
 mocha.beforeEach(async function() {
   await Effection.reset();
   world = run();
@@ -18,25 +24,24 @@ mocha.afterEach(async function() {
   await Effection.halt();
 });
 
+function runInWorld(fn: TestFunction) {
+  return async function(this: mocha.Context) {
+    await run((task) => fn.call(this, world!, task));
+  }
+}
+
 export const describe = mocha.describe;
 
-export function it(title: string, fn: TestFunction) {
-  return mocha.it(title, async function() {
-    await run((task) => fn.call(this, world!, task))
-  });
-}
+export const beforeEach = (fn: TestFunction) => mocha.beforeEach(runInWorld(fn));
+export const afterEach = (fn: TestFunction) => mocha.afterEach(runInWorld(fn));
 
-export function beforeEach(fn: TestFunction) {
-  return mocha.beforeEach(async function() {
-    await run((task) => fn.call(this, world!, task))
-  });
-}
-
-export function afterEach(fn: TestFunction) {
-  return mocha.afterEach(async function() {
-    await run((task) => fn.call(this, world!, task))
-  });
-}
+export const it: ItFunction = Object.assign(
+  (title: string, fn: TestFunction) => mocha.it(title, runInWorld(fn)),
+  {
+    only: (title: string, fn: TestFunction) => mocha.it.only(title, runInWorld(fn)),
+    skip: (title: string, fn: TestFunction) => mocha.it.skip(title, runInWorld(fn)),
+  }
+);
 
 export function captureError(op: Operation<any>): Operation<Error> {
   return function*() {

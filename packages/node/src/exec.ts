@@ -7,6 +7,7 @@ import { createPosixProcess } from './exec/posix';
 import { createWin32Process, isWin32 } from './exec/win32';
 
 export * from './exec/api';
+export * from './exec/error';
 
 /**
  * Execute `command` with `options`. You should use this operation for processes

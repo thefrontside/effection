@@ -74,38 +74,9 @@ export interface ExitStatus {
    * is recorded here.
    */
   signal?: string;
-
-  /**
-   * The original command used to create the process
-   */
-  command: string;
-
-  /**
-   * The original options used to create the process.
-   */
-  options: ExecOptions;
 }
 
 
 export interface CreateOSProcess {
   (scope: Task, command: string, options: ExecOptions): Process;
-}
-
-
-export function stringifyExitStatus(status: ExitStatus) {
-  let { options } = status;
-
-  let code = status.code ? `code: ${status.code}`: null;
-
-  let signal = status.signal ? `signal: ${status.signal}` : null;
-
-  let env = `env: ${JSON.stringify(options.env || {})}`;
-
-  let shell = options.shell ? `shell: ${options.shell}` : null;
-
-  let cwd = options.cwd ? `cwd: ${options.cwd}` : null;
-
-  let command = `$ ${status.command} ${options.arguments?.join(" ")}`.trim()
-
-  return [code, signal, env, shell, cwd, command].filter(item => !!item).join("\n");
 }

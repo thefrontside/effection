@@ -2,7 +2,8 @@ import { Operation, Deferred } from '@effection/core';
 import { createChannel } from '@effection/channel';
 import { on, once, onceEmit } from '@effection/events';
 import { spawn as spawnProcess } from 'child_process';
-import { Writable, ExitStatus, CreateOSProcess, stringifyExitStatus } from './api';
+import { Writable, ExitStatus, CreateOSProcess } from './api';
+import { ExecError } from './error';
 
 type Result = { type: 'error'; value: unknown } | { type: 'status'; value: [number?, string?] };
 
@@ -22,9 +23,7 @@ export const createPosixProcess: CreateOSProcess = (scope, command, options) => 
   let expect = (): Operation<ExitStatus> => function*() {
     let status: ExitStatus = yield join();
     if (status.code != 0) {
-      let error = new Error(stringifyExitStatus(status))
-      error.name = `ExecError`;
-      throw error;
+      throw new ExecError(status, command, options)
     } else {
       return status;
     }

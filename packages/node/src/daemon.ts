@@ -1,6 +1,6 @@
 import { Task } from '@effection/core';
 
-import { exec, Process, ExecOptions, StdIO, ExitStatus, stringifyExitStatus  } from './exec';
+import { exec, Process, ExecOptions, StdIO, ExitStatus, DaemonExitError } from './exec';
 
 /**
  * Start a long-running process, like a web server that run perpetually.
@@ -14,11 +14,7 @@ export function daemon(scope: Task, command: string, options: ExecOptions = {}):
   scope.spawn(function*() {
     let status: ExitStatus = yield process.join();
 
-    let error = new Error(`daemon process quit unexpectedly\n${stringifyExitStatus(status)}`);
-
-    error.name = 'DaemonExitError';
-
-    throw error;
+    throw new DaemonExitError(status, command, options);
   });
 
   return process;

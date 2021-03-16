@@ -30,7 +30,7 @@ const createProcess: CreateOSProcess = (cmd, opts) => {
  * forever, consider using `daemon()`
  */
 export function exec(command: string, options: ExecOptions = {}): Exec {
-  let [cmd, ...args] = split(command);
+  let [cmd, ...args] = options.shell ? [command]: split(command);
   let opts = { ...options, arguments: args.concat(options.arguments || []) }
 
   return {

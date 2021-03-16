@@ -156,4 +156,32 @@ describe('exec', () => {
       });
     });
   });
+
+  // running shell scripts in windows is not well supported, our windows
+  // process stuff sets shell to `false` and so you probably shouldn't do this
+  // in windows at all.
+  if (process.platform !== 'win32') {
+    describe('when the `shell` option is true', () => {
+      it('lets the shell do all of the shellword parsing', function*() {
+        let proc = exec('echo "first" | echo "second"', {
+          shell: true
+        });
+        let { stdout }: ProcessResult = yield proc.expect();
+
+        expect(stdout).toEqual("second\n");
+      })
+    });
+  }
+
+  describe('when the `shell` option is `false`', () => {
+    it('automatically parses the command argumens using shellwords', function*() {
+      let proc = exec('echo "first" | echo "second"', {
+        shell: false
+      });
+      let { stdout }: ProcessResult = yield proc.expect();
+
+      expect(stdout).toEqual("first | echo second\n");
+    })
+  });
+
 });

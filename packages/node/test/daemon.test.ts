@@ -5,23 +5,23 @@ import fetch from 'node-fetch';
 import '@effection/mocha';
 import { run, Task } from '@effection/core';
 
-import { daemon, StdIO } from '../src';
+import { daemon, Process } from '../src';
 
-describe('daemon()', () => {
+describe('daemon', () => {
   let task: Task;
-  let io: StdIO;
+  let proc: Process;
 
   beforeEach(function*() {
     task = run(function*(inner) {
-      io = daemon(inner, 'node', {
+      proc = daemon('node', {
         arguments: ['./fixtures/echo-server.js'],
         env: { PORT: '29000', PATH: process.env.PATH as string },
         cwd: __dirname,
-      });
+      }).run(inner);
       yield
     });
 
-    yield io.stdout.filter((v) => v.includes('listening')).expect();
+    yield proc.stdout.filter((v) => v.includes('listening')).expect();
   });
 
   afterEach(function*() {

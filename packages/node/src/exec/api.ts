@@ -76,6 +76,10 @@ export interface ExitStatus {
   signal?: string;
 }
 
+export interface ProcessResult extends ExitStatus {
+  stdout: string;
+  stderr: string;
+}
 
 export interface CreateOSProcess {
   (scope: Task, command: string, options: ExecOptions): Process;

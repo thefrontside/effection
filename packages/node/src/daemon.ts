@@ -1,6 +1,6 @@
 import { Task } from '@effection/core';
 
-import { exec, Process, ExecOptions, StdIO, ExitStatus, DaemonExitError } from './exec';
+import { exec, Process, ExecOptions, ExitStatus, DaemonExitError } from './exec';
 
 /**
  * Start a long-running process, like a web server that run perpetually.
@@ -8,14 +8,21 @@ import { exec, Process, ExecOptions, StdIO, ExitStatus, DaemonExitError } from '
  * before the operation containing them passes out of scope it raises an error.
  */
 
-export function daemon(scope: Task, command: string, options: ExecOptions = {}): StdIO {
-  let process: Process = exec(scope, command, options);
+export interface Daemon {
+  run(scope: Task): Process;
+}
 
-  scope.spawn(function*() {
-    let status: ExitStatus = yield process.join();
+export function daemon(command: string, options: ExecOptions = {}): Daemon {
+  return {
+    run(scope) {
+      let process = exec(command, options).run(scope);
 
-    throw new DaemonExitError(status, command, options);
-  });
+      scope.spawn(function*() {
+        let status: ExitStatus = yield process.join();
+        throw new DaemonExitError(status, command, options);
+      });
 
-  return process;
+      return process;
+    }
+  }
 }

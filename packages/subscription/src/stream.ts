@@ -13,6 +13,7 @@ export interface Stream<T, TReturn = undefined> extends OperationIterable<T, TRe
   first(): Operation<T | undefined>;
   expect(): Operation<T>;
   forEach(visit: (value: T) => (Operation<void> | void)): Operation<TReturn>;
+  join(): Operation<TReturn>;
   collect(): Operation<Iterator<T, TReturn>>;
   toArray(): Operation<T[]>;
   subscribe(scope: Task): OperationIterator<T, TReturn>;
@@ -84,6 +85,10 @@ export function createStream<T, TReturn = undefined>(callback: Callback<T, TRetu
           }
         }
       }
+    },
+
+    join(): Operation<TReturn> {
+      return subscribable.forEach(() => { /* no op */ });
     },
 
     collect(): Operation<Iterator<T, TReturn>> {

@@ -20,7 +20,14 @@ const emptyStream: Stream<Thing, number> = createStream(() => function*() {
   return 12;
 });
 
-describe('chaining subscribable', () => {
+describe('Stream', () => {
+  describe('join', () => {
+    it('returns the result of the stream', function*() {
+      let result = yield stuff.join();
+      expect(result).toEqual(3);
+    });
+  });
+
   describe('forEach', () => {
     it('iterates through all members of the subscribable', function*() {
       let values: Thing[] = [];

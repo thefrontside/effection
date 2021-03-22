@@ -116,6 +116,10 @@ describe('Stream', () => {
       expect(yield stuff.first()).toEqual({ name: 'bob', type: 'person' });
     });
 
+    it('accepts a predicate that defines what first is', function*() {
+      expect(yield stuff.first(thing => thing.type === 'planet')).toMatchObject({ name: 'world' });
+    });
+
     it('returns undefined if the subscription is empty', function*() {
       expect(yield emptyStream.first()).toEqual(undefined);
     });
@@ -124,6 +128,10 @@ describe('Stream', () => {
   describe('expect', () => {
     it('returns the first item in the subscription', function*() {
       expect(yield stuff.expect()).toEqual({ name: 'bob', type: 'person' });
+    });
+
+    it('accepts a predicate that defines what first is', function*() {
+      expect(yield stuff.first(thing => thing.type === 'planet')).toMatchObject({ name: 'world' });
     });
 
     it('throws an error if the subscription is empty', function*() {

@@ -5,13 +5,17 @@ import { OperationIterable, ToOperationIterator } from './operation-iterable';
 import { SymbolOperationIterable } from './symbol-operation-iterable';
 import { Callback, createOperationIterator } from './create-operation-iterator';
 
+export interface Predicate<T> {
+  (value: T): boolean;
+}
+
 export interface Stream<T, TReturn = undefined> extends OperationIterable<T, TReturn> {
   filter(predicate: (value: T) => boolean): Stream<T, TReturn>;
   match(reference: DeepPartial<T>): Stream<T,TReturn>;
   map<R>(mapper: (value: T) => R): Stream<R, TReturn>;
 
-  first(): Operation<T | undefined>;
-  expect(): Operation<T>;
+  first(predicate?: Predicate<T>): Operation<T | undefined>;
+  expect(predicate?: Predicate<T>): Operation<T>;
   forEach(visit: (value: T) => (Operation<void> | void)): Operation<TReturn>;
   join(): Operation<TReturn>;
   collect(): Operation<Iterator<T, TReturn>>;
@@ -46,26 +50,32 @@ export function createStream<T, TReturn = undefined>(callback: Callback<T, TRetu
       });
     },
 
-    first(): Operation<T | undefined> {
+    first(match: Predicate<T> = () => true): Operation<T | undefined> {
       return function*(task) {
         let iterator = iterable(task);
-        let result: IteratorResult<T,TReturn> = yield iterator.next();
-        if(result.done) {
-          return undefined;
-        } else {
-          return result.value;
+
+        while (true) {
+          let result: IteratorResult<T,TReturn> = yield iterator.next();
+          if(result.done) {
+            return undefined;
+          } else if (match(result.value)) {
+            return result.value;
+          }
         }
       }
     },
 
-    expect(): Operation<T> {
+    expect(match: Predicate<T> = () => true): Operation<T> {
       return function*(task) {
         let iterator = iterable(task);
-        let result: IteratorResult<T,TReturn> = yield iterator.next();
-        if(result.done) {
-          throw new Error('expected subscription to contain a value');
-        } else {
-          return result.value;
+
+        while (true) {
+          let result: IteratorResult<T,TReturn> = yield iterator.next();
+          if (result.done) {
+            throw new Error('expected stream to contain a matching value');
+          } else if (match(result.value)) {
+            return result.value;
+          }
         }
       }
     },

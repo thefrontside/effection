@@ -19,7 +19,8 @@ module.exports = {
       title: 'Effection',
       items: [
         {
-          to: '/docs/use-cases/autocomplete',
+          to: '/docs/use-cases/typeahead',
+          activeBaseRegex: '(use-cases)|(docs\/use-cases)',
           label: 'Use Cases',
           position: 'left'
         },

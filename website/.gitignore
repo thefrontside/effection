@@ -1,0 +1,13 @@
+# Misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Generated files
+.docusaurus
+build
+docs/**/api
+sidebars
+public

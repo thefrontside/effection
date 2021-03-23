@@ -17,6 +17,8 @@ export function createChannel<T, TClose = undefined>(options: ChannelOptions = {
 
   if(options.maxSubscribers) {
     bus.setMaxListeners(options.maxSubscribers);
+  } else {
+    bus.setMaxListeners(100000);
   }
 
   let subscribable = createStream<T, TClose>((publish) => function*(task) {

@@ -18,6 +18,11 @@ export interface Stream<T, TReturn = undefined> extends OperationIterable<T, TRe
   toArray(): Operation<T[]>;
   subscribe(scope: Task): OperationIterator<T, TReturn>;
   buffer(scope: Task): Stream<T, TReturn>;
+  stringBuffer(scope: Task): StringBufferStream<TReturn>;
+}
+
+export interface StringBufferStream<TReturn = undefined> extends Stream<string, TReturn> {
+  value: string;
 }
 
 export function createStream<T, TReturn = undefined>(callback: Callback<T, TReturn>): Stream<T, TReturn> {
@@ -117,6 +122,28 @@ export function createStream<T, TReturn = undefined>(callback: Callback<T, TRetu
         buffer.forEach(publish);
         return yield subscribable.forEach(publish);
       });
+    },
+
+    stringBuffer(scope: Task): StringBufferStream<TReturn> {
+      let buffer = "";
+
+      scope.spawn(subscribable.forEach((m) => { buffer += `${m}` }));
+
+      let stream = createStream<string, TReturn>((publish) => function*() {
+        let internalBuffer = buffer;
+        publish(internalBuffer);
+        return yield subscribable.forEach((m: T) => {
+          internalBuffer += `${m}`;
+          publish(internalBuffer);
+        });
+      });
+
+      return {
+        ...stream,
+        get value(): string {
+          return buffer;
+        }
+      }
     },
 
     subscribe(scope: Task): OperationIterator<T, TReturn> {

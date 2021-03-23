@@ -6,7 +6,7 @@ module.exports = {
   onBrokenLinks: 'throw',
   favicon: 'images/favicon.png',
   organizationName: 'thefrontside',
-  projectName: 'bigtest',
+  projectName: 'effection',
   themeConfig: {
     colorMode: {
       disableSwitch: true,
@@ -16,7 +16,11 @@ module.exports = {
       theme: require('prism-react-renderer/themes/nightOwl'),
     },
     navbar: {
-      title: 'Effection',
+      title: 'effection',
+      logo: {
+        alt: '',
+        src: 'images/effection-icon.png'
+      },
       items: [
         {
           to: '/docs/use-cases/typeahead',

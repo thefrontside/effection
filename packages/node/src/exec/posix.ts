@@ -7,85 +7,89 @@ import { ExecError } from './error';
 
 type Result = { type: 'error'; value: unknown } | { type: 'status'; value: [number?, string?] };
 
-export const createPosixProcess: CreateOSProcess = (scope, command, options) => {
-  let getResult = Deferred<Result>();
+export const createPosixProcess: CreateOSProcess = (command, options) => {
+  return {
+    run(scope) {
+      let getResult = Deferred<Result>();
 
-  let join = (): Operation<ExitStatus> => function*() {
-    let result: Result = yield getResult.promise;
-    if (result.type === 'status') {
-      let [code, signal] = result.value;
-      return { command, options, code, signal };
-    } else {
-      throw result.value;
-    }
-  }
-
-  let expect = (): Operation<ExitStatus> => function*() {
-    let status: ExitStatus = yield join();
-    if (status.code != 0) {
-      throw new ExecError(status, command, options)
-    } else {
-      return status;
-    }
-  }
-  // Killing all child processes started by this command is surprisingly
-  // tricky. If a process spawns another processes and we kill the parent,
-  // then the child process is NOT automatically killed. Instead we're using
-  // the `detached` option to force the child into its own process group,
-  // which all of its children in turn will inherit. By sending the signal to
-  // `-pid` rather than `pid`, we are sending it to the entire process group
-  // instead. This will send the signal to all processes started by the child
-  // process.
-  //
-  // More information here: https://unix.stackexchange.com/questions/14815/process-descendants
-  let childProcess = spawnProcess(command, options.arguments || [], {
-    detached: true,
-    shell: options.shell,
-    env: options.env,
-    cwd: options.cwd
-  });
-
-  let { pid } = childProcess;
-
-  let stdoutChannel = createChannel<string>();
-  let stderrChannel = createChannel<string>();
-
-  let stdin: Writable<string> = {
-    send(data: string) {
-      childProcess.stdin.write(data);
-    }
-  };
-
-  scope.spawn(function*(task) {
-    task.spawn(function*() {
-      let value: Error = yield once(childProcess, 'error');
-      getResult.resolve({ type: 'error', value });
-    });
-
-    task.spawn(on<Buffer>(childProcess.stdout, 'data').map((c) => c.toString()).forEach(stdoutChannel.send));
-    task.spawn(on<Buffer>(childProcess.stderr, 'data').map((c) => c.toString()).forEach(stderrChannel.send));
-
-    try {
-      let value = yield onceEmit(childProcess, 'exit');
-      getResult.resolve({ type: 'status', value });
-    } finally {
-      stdoutChannel.close();
-      stderrChannel.close();
-      try {
-        process.kill(-childProcess.pid, "SIGTERM")
-      } catch(e) {
-        // do nothing, process is probably already dead
+      let join = (): Operation<ExitStatus> => function*() {
+        let result: Result = yield getResult.promise;
+        if (result.type === 'status') {
+          let [code, signal] = result.value;
+          return { command, options, code, signal };
+        } else {
+          throw result.value;
+        }
       }
+
+      let expect = (): Operation<ExitStatus> => function*() {
+        let status: ExitStatus = yield join();
+        if (status.code != 0) {
+          throw new ExecError(status, command, options)
+        } else {
+          return status;
+        }
+      }
+      // Killing all child processes started by this command is surprisingly
+      // tricky. If a process spawns another processes and we kill the parent,
+      // then the child process is NOT automatically killed. Instead we're using
+      // the `detached` option to force the child into its own process group,
+      // which all of its children in turn will inherit. By sending the signal to
+      // `-pid` rather than `pid`, we are sending it to the entire process group
+      // instead. This will send the signal to all processes started by the child
+      // process.
+      //
+      // More information here: https://unix.stackexchange.com/questions/14815/process-descendants
+      let childProcess = spawnProcess(command, options.arguments || [], {
+        detached: true,
+        shell: options.shell,
+        env: options.env,
+        cwd: options.cwd
+      });
+
+      let { pid } = childProcess;
+
+      let stdoutChannel = createChannel<string>();
+      let stderrChannel = createChannel<string>();
+
+      let stdin: Writable<string> = {
+        send(data: string) {
+          childProcess.stdin.write(data);
+        }
+      };
+
+      scope.spawn(function*(task) {
+        task.spawn(function*() {
+          let value: Error = yield once(childProcess, 'error');
+          getResult.resolve({ type: 'error', value });
+        });
+
+        task.spawn(on<Buffer>(childProcess.stdout, 'data').map((c) => c.toString()).forEach(stdoutChannel.send));
+        task.spawn(on<Buffer>(childProcess.stderr, 'data').map((c) => c.toString()).forEach(stderrChannel.send));
+
+        try {
+          let value = yield onceEmit(childProcess, 'exit');
+          getResult.resolve({ type: 'status', value });
+        } finally {
+          stdoutChannel.close();
+          stderrChannel.close();
+          try {
+            process.kill(-childProcess.pid, "SIGTERM")
+          } catch(e) {
+            // do nothing, process is probably already dead
+          }
+        }
+      });
+
+      let { stream: stdout } = stdoutChannel;
+      let { stream: stderr } = stderrChannel;
+
+      if(options.buffered) {
+        stdout = stdout.stringBuffer(scope);
+        stderr = stderr.stringBuffer(scope);
+      }
+
+      return { pid, stdin, stdout, stderr, join, expect }
     }
-  });
-
-  let { stream: stdout } = stdoutChannel;
-  let { stream: stderr } = stderrChannel;
-
-  if(options.buffered) {
-    stdout = stdout.stringBuffer(scope);
-    stderr = stderr.stringBuffer(scope);
   }
-
-  return { pid, stdin, stdout, stderr, join, expect }
 }

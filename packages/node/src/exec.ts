@@ -15,11 +15,11 @@ export interface Exec {
   expect(): Operation<ProcessResult>;
 }
 
-const createProcess: CreateOSProcess = (scope, cmd, opts) => {
+const createProcess: CreateOSProcess = (cmd, opts) => {
   if (isWin32()) {
-    return createWin32Process(scope, cmd, opts);
+    return createWin32Process(cmd, opts);
   } else {
-    return createPosixProcess(scope, cmd, opts);
+    return createPosixProcess(cmd, opts);
   }
 };
 
@@ -35,11 +35,11 @@ export function exec(command: string, options: ExecOptions = {}): Exec {
 
   return {
     run(scope: Task) {
-      return createProcess(scope, cmd, opts);
+      return createProcess(cmd, opts).run(scope);
     },
     join() {
       return function*(scope: Task) {
-        let process = createProcess(scope, cmd, { ...opts, buffered: true });
+        let process = createProcess(cmd, { ...opts, buffered: true }).run(scope);
 
         let status = yield process.join();
         let stdout = yield process.stdout.expect();
@@ -50,7 +50,7 @@ export function exec(command: string, options: ExecOptions = {}): Exec {
     },
     expect() {
       return function*(scope: Task) {
-        let process = createProcess(scope, cmd, { ...opts, buffered: true });
+        let process = createProcess(cmd, { ...opts, buffered: true }).run(scope);
 
         let status = yield process.expect();
         let stdout = yield process.stdout.expect();

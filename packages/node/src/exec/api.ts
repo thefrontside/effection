@@ -81,6 +81,10 @@ export interface ProcessResult extends ExitStatus {
   stderr: string;
 }
 
+export interface OSProcess {
+  run(scope: Task): Process;
+}
+
 export interface CreateOSProcess {
-  (scope: Task, command: string, options: ExecOptions): Process;
+  (command: string, options: ExecOptions): OSProcess;
 }

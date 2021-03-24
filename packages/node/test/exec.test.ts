@@ -1,125 +1,158 @@
-import { describe, it, beforeEach } from '@effection/mocha';
+import { describe, it, beforeEach, captureError } from '@effection/mocha';
 import * as expect from 'expect';
+
+import { Deferred } from '@effection/core';
+import { exec, Process, ProcessResult } from '../src';
 import fetch from 'node-fetch';
 
-import { converge } from './helpers';
+describe('exec', () => {
+  describe('.join', () => {
+    it('runs successfully to completion', function*() {
+      let result: ProcessResult = yield exec("node './test/fixtures/hello-world.js'").join();
 
-import { exec, Process } from '../src';
-
-describe('exec()', () => {
-  describe('a process that fails to start', () => {
-    describe('calling join()', () => {
-      it('reports the failed status', function*(task) {
-        let error: unknown;
-        let proc = exec(task, "argle", { arguments: ['bargle'] });
-        try {
-          yield proc.join();
-        } catch(e) {
-          error = e;
-        }
-        expect(error).toBeInstanceOf(Error);
-      });
+      expect(result.code).toEqual(0);
+      expect(result.stdout).toEqual('hello\nworld\n');
+      expect(result.stderr).toEqual('boom\n');
     });
 
-    describe('calling expect()', () => {
-      it('fails', function*(task) {
-        let error: unknown;
-        let proc = exec(task, "argle", { arguments: ['bargle'] });
-        try {
-          yield proc.expect()
-        } catch (e) { error = e; }
+    it('runs failed process to completion', function*() {
+      let result: ProcessResult = yield exec("node './test/fixtures/hello-world-failed.js'").join();
 
-        expect(error).toBeDefined();
-      });
+      expect(result.code).toEqual(37);
+      expect(result.stdout).toEqual('hello world\n');
+      expect(result.stderr).toEqual('boom\n');
     });
   });
 
-  describe('a process that starts successfully', () => {
-    let proc: Process;
-    let output: string;
-    let errput: string;
-    let didClose: {stdout: boolean; stderr: boolean };
+  describe('.expect', () => {
+    it('runs successfully to completion', function*() {
+      let result: ProcessResult = yield exec("node './test/fixtures/hello-world.js'").expect();
 
-    beforeEach(function*(task) {
-      output = '';
-      errput = '';
-      didClose = { stdout: false, stderr: false };
-
-      proc = exec(task, "node './fixtures/echo-server.js'", {
-        env: { PORT: '29000', PATH: process.env.PATH as string },
-        cwd: __dirname,
-      });
-
-      task.spawn(function*() {
-        yield proc.stdout.forEach((chunk) => function*() {
-          output += chunk;
-        });
-        didClose.stdout = true;
-      });
-
-      task.spawn(function*() {
-        yield proc.stderr.forEach((chunk) => function*() {
-          errput += chunk;
-        });
-        didClose.stderr = true;
-      });
-
-      yield converge(() => expect(output).toContain("listening"));
+      expect(result.code).toEqual(0);
+      expect(result.stdout).toEqual('hello\nworld\n');
+      expect(result.stderr).toEqual('boom\n');
     });
 
-    it('has a pid', function*() {
-      expect(typeof proc.pid).toBe('number');
-      expect(proc.pid).not.toBeNaN();
+    it('throws an error if process fails', function*() {
+      let error: Error = yield captureError(exec("node './test/fixtures/hello-world-failed.js'").expect());
+
+      expect(error.name).toEqual('ExecError');
     });
+  });
 
-    describe('when it succeeds', () => {
-      beforeEach(function*() {
-        yield fetch('http://localhost:29000', { method: "POST", body: "exit" });
-      });
-
-      it('joins successfully', function*() {
-        let status = yield proc.join();
-        expect(status.code).toEqual(0);
-      });
-
-      it('expects successfully', function*() {
-        let status = yield proc.expect();
-        expect(status.code).toEqual(0);
-      });
-
-
-      it('closes stdout and stderr', function*() {
-        yield proc.expect();
-        expect(output).toContain('exit(0)');
-        expect(errput).toContain('got request');
-        yield converge(() => expect(didClose).toEqual({ stdout: true, stderr: true }));
-      });
-    });
-
-    describe('when it fails', () => {
-      let error: Error
-      beforeEach(function*() {
-        yield fetch('http://localhost:29000', { method: "POST", body: "fail" });
-      });
-
-      it('joins successfully', function*() {
-        let status = yield proc.join();
-        expect(status.code).not.toEqual(0);
-      });
-
-      it('expects unsuccessfully', function*() {
-        yield function* () {
+  describe('.run', () => {
+    describe('a process that fails to start', () => {
+      describe('calling join()', () => {
+        it('reports the failed status', function*(task) {
+          let error: unknown;
+          let proc = exec("argle", { arguments: ['bargle'] }).run(task);
           try {
-            yield proc.expect();
-          } catch (e) {
+            yield proc.join();
+          } catch(e) {
             error = e;
           }
-        };
-        expect(error).toBeDefined()
+          expect(error).toBeInstanceOf(Error);
+        });
       });
 
-      it('closes stdout and stderr', function*() {
-        yield converge(() => expect(didClose).toEqual({ stdout: true, stderr: true }));
+      describe('calling expect()', () => {
+        it('fails', function*(task) {
+          let error: unknown;
+          let proc = exec("argle", { arguments: ['bargle'] }).run(task);
+          try {
+            yield proc.expect()
+          } catch (e) { error = e; }
+
+          expect(error).toBeDefined();
+        });
+      });
+    });
+
+    describe('a process that starts successfully', () => {
+      let proc: Process;
+      let didCloseStdout: Deferred<boolean>;
+      let didCloseStderr: Deferred<boolean>;
+
+      beforeEach(function*(task) {
+        didCloseStdout = Deferred<boolean>();
+        didCloseStderr = Deferred<boolean>();
+
+        proc = exec("node './fixtures/echo-server.js'", {
+          env: { PORT: '29000', PATH: process.env.PATH as string },
+          cwd: __dirname,
+          buffered: true,
+        }).run(task);
+
+        task.spawn(function*() {
+          yield proc.stdout.join();
+          didCloseStdout.resolve(true);
+        });
+
+        task.spawn(function*() {
+          yield proc.stderr.join();
+          didCloseStderr.resolve(true);
+        });
+
+        yield proc.stdout.filter((v) => v.includes('listening')).expect();
+      });
+
+      it('has a pid', function*() {
+        expect(typeof proc.pid).toBe('number');
+        expect(proc.pid).not.toBeNaN();
+      });
+
+      describe('when it succeeds', () => {
+        beforeEach(function*() {
+          yield fetch('http://localhost:29000', { method: "POST", body: "exit" });
+        });
+
+        it('joins successfully', function*() {
+          let status = yield proc.join();
+          expect(status.code).toEqual(0);
+        });
+
+        it('expects successfully', function*() {
+          let status = yield proc.expect();
+          expect(status.code).toEqual(0);
+        });
+
+        it('closes stdout and stderr', function*() {
+          yield proc.expect();
+          let output = yield proc.stdout.expect();
+          let errput = yield proc.stderr.expect();
+          expect(output).toContain('exit(0)');
+          expect(errput).toContain('got request');
+          expect(yield didCloseStdout.promise).toEqual(true);
+          expect(yield didCloseStderr.promise).toEqual(true);
+        });
+      });
+
+      describe('when it fails', () => {
+        let error: Error
+        beforeEach(function*() {
+          yield fetch('http://localhost:29000', { method: "POST", body: "fail" });
+        });
+
+        it('joins successfully', function*() {
+          let status = yield proc.join();
+          expect(status.code).not.toEqual(0);
+        });
+
+        it('expects unsuccessfully', function*() {
+          yield function* () {
+            try {
+              yield proc.expect();
+            } catch (e) {
+              error = e;
+            }
+          };
+          expect(error).toBeDefined()
+        });
+
+        it('closes stdout and stderr', function*() {
+          expect(yield didCloseStdout.promise).toEqual(true);
+          expect(yield didCloseStderr.promise).toEqual(true);
+        });
       });
     });
   });

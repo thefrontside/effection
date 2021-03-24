@@ -1,5 +1,10 @@
 import { Task, Operation } from '@effection/core';
-import { Channel } from '@effection/channel';
+import { Stream } from '@effection/subscription';
+
+// TODO: import from subscription package once #236 is merged
+export interface Writable<T> {
+  send(message: T): void;
+}
 
 /**
  * The process type is what is returned by the `exec` operation. It has all of
@@ -44,12 +49,17 @@ export interface ExecOptions {
    * Sets the working directory of the process
    */
   cwd?: string;
+
+  /**
+   * Skip buffering of output streams
+   */
+  buffered?: boolean;
 }
 
 export interface StdIO {
-  stdout: Channel<string>;
-  stderr: Channel<string>;
-  stdin: Channel<string>;
+  stdout: Stream<string>;
+  stderr: Stream<string>;
+  stdin: Writable<string>;
 }
 
 export interface ExitStatus {
@@ -64,46 +74,17 @@ export interface ExitStatus {
    * is recorded here.
    */
   signal?: string;
-
-  /**
-   * A buffer of the recent output from both `stdout` and `stderr` that can
-   * be helpful for debugging
-   */
-  tail: string[];
-
-  /**
-   * The original command used to create the process
-   */
-  command: string;
-
-  /**
-   * The original options used to create the process.
-   */
-  options: ExecOptions;
 }
 
+export interface ProcessResult extends ExitStatus {
+  stdout: string;
+  stderr: string;
+}
+
+export interface OSProcess {
+  run(scope: Task): Process;
+}
 
 export interface CreateOSProcess {
-  (scope: Task, command: string, options: ExecOptions): Process;
-}
-
-
-export function stringifyExitStatus(status: ExitStatus) {
-  let { options } = status;
-
-  let code = status.code ? `code: ${status.code}`: null;
-
-  let signal = status.signal ? `signal: ${status.signal}` : null;
-
-  let env = `env: ${JSON.stringify(options.env || {})}`;
-
-  let shell = options.shell ? `shell: ${options.shell}` : null;
-
-  let cwd = options.cwd ? `cwd: ${options.cwd}` : null;
-
-  let command = `$ ${status.command} ${options.arguments?.join(" ")}`.trim()
-
-  let tail = status.tail.join("");
-
-  return [code, signal, env, shell, cwd, command, tail].filter(item => !!item).join("\n");
+  (command: string, options: ExecOptions): OSProcess;
 }

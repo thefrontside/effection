@@ -5,31 +5,23 @@ import fetch from 'node-fetch';
 import '@effection/mocha';
 import { run, Task } from '@effection/core';
 
-import { converge } from './helpers';
+import { daemon, Process } from '../src';
 
-import { daemon, StdIO } from '../src';
-
-describe('daemon()', () => {
-  let output: string;
+describe('daemon', () => {
   let task: Task;
-  let error: Error;
+  let proc: Process;
 
-  beforeEach(function*(t) {
-    output = '';
-
+  beforeEach(function*() {
     task = run(function*(inner) {
-      let io = daemon(inner, 'node', {
+      proc = daemon('node', {
         arguments: ['./fixtures/echo-server.js'],
         env: { PORT: '29000', PATH: process.env.PATH as string },
         cwd: __dirname,
-      });
-
-      inner.spawn(io.stdout.forEach((chunk) => { output += chunk; }));
-
+      }).run(inner);
       yield
     });
 
-    yield converge(() => expect(output).toContain("listening"));
+    yield proc.stdout.filter((v) => v.includes('listening')).expect();
   });
 
   afterEach(function*() {

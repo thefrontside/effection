@@ -1,14 +1,17 @@
-import { createStream, Stream } from '@effection/subscription';
+import { createStream, WritableStream, Writable, Stream } from '@effection/subscription';
 import { on } from '@effection/events';
 import { EventEmitter } from 'events';
+
+export type Close<T> = (...args: T extends undefined ? [] : [T]) => void;
+
+export type Send<T> = Writable<T>['send'];
 
 export type ChannelOptions = {
   maxSubscribers?: number;
 }
 
-export interface Channel<T, TClose = undefined> extends Stream<T, TClose> {
-  send(message: T): void;
-  close(...args: TClose extends undefined ? [] : [TClose]): void;
+export interface Channel<T, TClose = undefined> extends WritableStream<T, T, TClose> {
+  close: Close<TClose>;
   stream: Stream<T, TClose>;
 }
 
@@ -21,7 +24,7 @@ export function createChannel<T, TClose = undefined>(options: ChannelOptions = {
     bus.setMaxListeners(100000);
   }
 
-  let subscribable = createStream<T, TClose>((publish) => function*(task) {
+  let stream = createStream<T, TClose>((publish) => function*(task) {
     let subscription = on(bus, 'event').subscribe(task);
     while(true) {
       let { value: next } = yield subscription.next();
@@ -33,15 +36,13 @@ export function createChannel<T, TClose = undefined>(options: ChannelOptions = {
     }
   });
 
-  return Object.assign({
-    stream: subscribable,
+  let send: Send<T> = (message: T) => {
+    bus.emit('event', { done: false, value: message });
+  };
 
-    send(message: T) {
-      bus.emit('event', { done: false, value: message });
-    },
+  let close: Close<TClose> = (...args) => {
+    bus.emit('event', { done: true, value: args[0] });
+  };
 
-    close(...args: TClose extends undefined ? [] : [TClose]) {
-      bus.emit('event', { done: true, value: args[0] });
-    }
-  }, subscribable);
+  return Object.assign({ send, close, stream }, stream);
 }

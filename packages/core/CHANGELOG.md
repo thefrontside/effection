@@ -1,5 +1,11 @@
 # @effection/core
 
+## 2.0.0-preview.5
+
+### Minor Changes
+
+- 70c358f: Store root in a global variable
+
 ## 2.0.0-preview.4
 
 ### Minor Changes

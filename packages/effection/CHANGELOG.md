@@ -1,5 +1,29 @@
 # Changelog
 
+## 2.0.0-preview.6
+
+### Minor Changes
+
+- 9cf6053: Increase default value of max subscribers on channel
+- 0b24415: Add WritableStream interface and implement it for channels
+- 442f220: New API for exec and daemon which does not take scope directly
+- 22e5230: Add `join` method on stream to return stream result
+- 70c358f: Store root in a global variable
+- 3983202: Add `stringBuffer` method to stream which buffers stream to a string
+- 2c2749d: Add a `buffer` method on Stream to buffer stream contents for later replay
+
+### Patch Changes
+
+- Updated dependencies [9cf6053]
+- Updated dependencies [0b24415]
+- Updated dependencies [22e5230]
+- Updated dependencies [70c358f]
+- Updated dependencies [3983202]
+- Updated dependencies [2c2749d]
+  - @effection/channel@2.0.0-preview.5
+  - @effection/subscription@2.0.0-preview.5
+  - @effection/core@2.0.0-preview.5
+
 ## 2.0.0-preview.5
 
 ### Minor Changes

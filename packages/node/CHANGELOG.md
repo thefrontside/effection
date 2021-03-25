@@ -1,5 +1,23 @@
 # Changelog
 
+## 2.0.0-preview.6
+
+### Minor Changes
+
+- 442f220: New API for exec and daemon which does not take scope directly
+
+### Patch Changes
+
+- Updated dependencies [9cf6053]
+- Updated dependencies [0b24415]
+- Updated dependencies [22e5230]
+- Updated dependencies [70c358f]
+- Updated dependencies [3983202]
+- Updated dependencies [2c2749d]
+  - @effection/channel@2.0.0-preview.5
+  - @effection/subscription@2.0.0-preview.5
+  - @effection/core@2.0.0-preview.5
+
 ## 2.0.0-preview.5
 
 ### Patch Changes

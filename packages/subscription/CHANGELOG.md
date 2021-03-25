@@ -1,5 +1,19 @@
 # @effection/subscription
 
+## 2.0.0-preview.5
+
+### Minor Changes
+
+- 0b24415: Add WritableStream interface and implement it for channels
+- 22e5230: Add `join` method on stream to return stream result
+- 3983202: Add `stringBuffer` method to stream which buffers stream to a string
+- 2c2749d: Add a `buffer` method on Stream to buffer stream contents for later replay
+
+### Patch Changes
+
+- Updated dependencies [70c358f]
+  - @effection/core@2.0.0-preview.5
+
 ## 2.0.0-preview.4
 
 ### Minor Changes

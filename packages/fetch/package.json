@@ -20,7 +20,7 @@
     "mocha": "mocha -r ts-node/register"
   },
   "devDependencies": {
-    "@effection/mocha": "2.0.0-preview.3",
+    "@effection/mocha": "2.0.0-preview.4",
     "@frontside/tsconfig": "^0.0.1",
     "@types/node": "^13.13.4",
     "expect": "26.0.1",
@@ -30,7 +30,7 @@
     "typescript": "^3.9.5"
   },
   "dependencies": {
-    "@effection/core": "^2.0.0-preview.4",
+    "@effection/core": "^2.0.0-preview.5",
     "abort-controller": "^3.0.0",
     "cross-fetch": "^3.0.4",
     "node-fetch": "^2.6.1"

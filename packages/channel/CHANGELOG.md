@@ -1,5 +1,22 @@
 # Changelog
 
+## 2.0.0-preview.5
+
+### Minor Changes
+
+- 9cf6053: Increase default value of max subscribers on channel
+- 0b24415: Add WritableStream interface and implement it for channels
+
+### Patch Changes
+
+- Updated dependencies [0b24415]
+- Updated dependencies [22e5230]
+- Updated dependencies [70c358f]
+- Updated dependencies [3983202]
+- Updated dependencies [2c2749d]
+  - @effection/subscription@2.0.0-preview.5
+  - @effection/core@2.0.0-preview.5
+
 ## 2.0.0-preview.4
 
 ### Minor Changes

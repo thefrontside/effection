@@ -6,6 +6,8 @@ import { SymbolOperationIterable } from './symbol-operation-iterable';
 import { Callback, createOperationIterator } from './create-operation-iterator';
 
 export interface Stream<T, TReturn = undefined> extends OperationIterable<T, TReturn> {
+  filter<R extends T>(predicate: (value: T) => value is R): Stream<R, TReturn>;
+  filter(predicate: (value: T) => boolean): Stream<T, TReturn>;
   filter(predicate: (value: T) => boolean): Stream<T, TReturn>;
   match(reference: DeepPartial<T>): Stream<T,TReturn>;
   map<R>(mapper: (value: T) => R): Stream<R, TReturn>;
@@ -28,16 +30,20 @@ export interface StringBufferStream<TReturn = undefined> extends Stream<string, 
 export function createStream<T, TReturn = undefined>(callback: Callback<T, TReturn>): Stream<T, TReturn> {
   let iterable: ToOperationIterator<T, TReturn> = (task) => createOperationIterator(task, callback);
 
-  let subscribable = {
-    filter(predicate: (value: T) => boolean): Stream<T, TReturn> {
-      return createStream((publish) => {
-        return subscribable.forEach((value) => function*() {
-          if(predicate(value)) {
-            publish(value);
-          }
-        });
+  function filter<R extends T>(predicate: (value: T) => value is R): Stream<T, TReturn>
+  function filter(predicate: (value: T) => boolean): Stream<T, TReturn>
+  function filter(predicate: (value: T) => boolean): Stream<T, TReturn> {
+    return createStream((publish) => {
+      return subscribable.forEach((value) => function*() {
+        if(predicate(value)) {
+          publish(value);
+        }
       });
-    },
+    });
+  };
+
+  let subscribable = {
+    filter,
 
     match(reference: DeepPartial<T>): Stream<T,TReturn> {
       return subscribable.filter(matcher(reference));

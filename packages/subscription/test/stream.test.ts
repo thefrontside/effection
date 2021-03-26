@@ -4,15 +4,17 @@ import { EventEmitter } from 'events';
 
 import { createStream, Stream, StringBufferStream } from '../src/index';
 
-interface Thing {
-  name: string;
-  type: string;
-}
+type Person = { name: string; type: 'person'; };
+type Planet = { name: string; type: 'planet'; moon: string };
+
+type Thing = Person | Planet;
+
+function isPlanet(thing: Thing): thing is Planet { return thing.type === 'planet' }
 
 const stuff: Stream<Thing, number> = createStream((publish) => function*() {
   publish({name: 'bob', type: 'person' });
   publish({name: 'alice', type: 'person' });
-  publish({name: 'world', type: 'planet' });
+  publish({name: 'world', type: 'planet', moon: 'Luna' });
   return 3;
 });
 
@@ -35,7 +37,7 @@ describe('Stream', () => {
       expect(values).toEqual([
         {name: 'bob', type: 'person' },
         {name: 'alice', type: 'person' },
-        {name: 'world', type: 'planet' },
+        {name: 'world', type: 'planet', moon: 'Luna' },
       ])
     });
 
@@ -45,7 +47,7 @@ describe('Stream', () => {
       expect(values).toEqual([
         {name: 'bob', type: 'person' },
         {name: 'alice', type: 'person' },
-        {name: 'world', type: 'planet' },
+        {name: 'world', type: 'planet', moon: 'Luna' },
       ])
     });
 
@@ -60,7 +62,7 @@ describe('Stream', () => {
       let iterator: Iterator<Thing, number> = yield stuff.collect();
       expect(iterator.next()).toEqual({ done: false, value: { name: 'bob', type: 'person' } });
       expect(iterator.next()).toEqual({ done: false, value: { name: 'alice', type: 'person' } });
-      expect(iterator.next()).toEqual({ done: false, value: { name: 'world', type: 'planet' } });
+      expect(iterator.next()).toEqual({ done: false, value: { name: 'world', type: 'planet', moon: 'Luna' } });
       expect(iterator.next()).toEqual({ done: true, value: 3 });
     });
   });
@@ -71,7 +73,7 @@ describe('Stream', () => {
       expect(result).toEqual([
         { name: 'bob', type: 'person' },
         { name: 'alice', type: 'person' },
-        { name: 'world', type: 'planet' },
+        { name: 'world', type: 'planet', moon: 'Luna' },
       ]);
     });
   });
@@ -92,6 +94,11 @@ describe('Stream', () => {
       expect(filtered.next()).toEqual({ done: false, value: { name: 'bob', type: 'person' } });
       expect(filtered.next()).toEqual({ done: false, value: { name: 'alice', type: 'person' } });
       expect(filtered.next()).toEqual({ done: true, value: 3 });
+    });
+
+    it('can downcast filtered values', function*() {
+      let filtered = yield stuff.filter(isPlanet).map((p) => p.moon).collect();
+      expect(filtered.next()).toEqual({ done: false, value: 'Luna' });
     });
   });
 
@@ -195,7 +202,7 @@ describe('Stream', () => {
       expect(yield iterator.next()).toEqual({ done: false, value: 'helloworldblah' });
     });
 
-    it('returns current buffer value', function*(world) {
+    it('returns current buffer value', function*() {
       emitter.emit('message', 'hello');
       emitter.emit('message', 'world');
 

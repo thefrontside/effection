@@ -21,8 +21,8 @@
     "mocha": "mocha -r ts-node/register"
   },
   "dependencies": {
-    "@effection/subscription": "^2.0.0-preview.5",
-    "effection": "^2.0.0-preview.6"
+    "@effection/subscription": "2.0.0-preview.5",
+    "@effection/core": "2.0.0-preview.5"
   },
   "devDependencies": {
     "@effection/mocha": "2.0.0-preview.4",

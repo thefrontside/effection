@@ -1,5 +1,13 @@
 # @effection/mocha
 
+## 2.0.0-preview.5
+
+### Patch Changes
+
+- 1222756: Use strict dependency requirements for internal dependencies while in prerelease mode
+- Updated dependencies [1222756]
+  - @effection/core@2.0.0-preview.6
+
 ## 2.0.0-preview.4
 
 ### Minor Changes

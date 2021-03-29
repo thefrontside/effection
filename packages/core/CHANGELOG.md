@@ -1,5 +1,11 @@
 # @effection/core
 
+## 2.0.0-preview.6
+
+### Patch Changes
+
+- 1222756: Use strict dependency requirements for internal dependencies while in prerelease mode
+
 ## 2.0.0-preview.5
 
 ### Minor Changes

@@ -1,6 +1,6 @@
 {
   "name": "@effection/subscription",
-  "version": "2.0.0-preview.5",
+  "version": "2.0.0-preview.6",
   "description": "Effection Subscriptions",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -20,10 +20,10 @@
     "mocha": "mocha -r ts-node/register"
   },
   "dependencies": {
-    "@effection/core": "2.0.0-preview.5"
+    "@effection/core": "2.0.0-preview.6"
   },
   "devDependencies": {
-    "@effection/mocha": "2.0.0-preview.4",
+    "@effection/mocha": "2.0.0-preview.5",
     "@frontside/tsconfig": "0.0.1",
     "@types/mocha": "^8.0.3",
     "expect": "^25.4.0",

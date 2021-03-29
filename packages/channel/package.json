@@ -34,8 +34,8 @@
     "yarn": "1.19.1"
   },
   "dependencies": {
-    "@effection/core": "^2.0.0-preview.5",
-    "@effection/events": "^2.0.0-preview.4",
-    "@effection/subscription": "^2.0.0-preview.5"
+    "@effection/core": "2.0.0-preview.5",
+    "@effection/events": "2.0.0-preview.4",
+    "@effection/subscription": "2.0.0-preview.5"
   }
 }

@@ -30,7 +30,7 @@
     "typescript": "^3.9.5"
   },
   "dependencies": {
-    "@effection/core": "^2.0.0-preview.5",
+    "@effection/core": "2.0.0-preview.5",
     "abort-controller": "^3.0.0",
     "cross-fetch": "^3.0.4",
     "node-fetch": "^2.6.1"

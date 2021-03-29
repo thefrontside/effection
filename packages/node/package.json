@@ -33,10 +33,10 @@
     "typescript": "^3.7.0"
   },
   "dependencies": {
-    "@effection/channel": "^2.0.0-preview.5",
-    "@effection/core": "^2.0.0-preview.5",
-    "@effection/events": "^2.0.0-preview.4",
-    "@effection/subscription": "^2.0.0-preview.5",
+    "@effection/channel": "2.0.0-preview.5",
+    "@effection/core": "2.0.0-preview.5",
+    "@effection/events": "2.0.0-preview.4",
+    "@effection/subscription": "2.0.0-preview.5",
     "cross-spawn": "^7.0.3",
     "ctrlc-windows": "^1.0.3",
     "shellwords": "^0.1.1"

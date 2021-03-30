@@ -1,5 +1,13 @@
 # @effection/atom
 
+## 2.0.0-preview.5
+
+### Patch Changes
+
+- 6a0f093: subscribing to an atom now always includes its current state as the
+  first item in the stream. Depreacet the `once()` method as it is now
+  redundant with `filter().expect()`
+
 ## 2.0.0-preview.4
 
 ### Patch Changes

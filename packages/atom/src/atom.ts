@@ -2,6 +2,7 @@ import * as O from "fp-ts/Option";
 import * as Op from "monocle-ts/lib/Optional"
 import { pipe } from 'fp-ts/function'
 import { Operation } from '@effection/core';
+import { createStream } from '@effection/subscription';
 import { createChannel, ChannelOptions } from '@effection/channel';
 import { MakeSlice, Slice } from './types';
 import { unique } from './unique';
@@ -41,9 +42,12 @@ export function createAtom<S>(initialState: S, options: ChannelOptions = {}): Sl
          ...getters
       ) as Op.Optional<O.Option<S>, A[P]>;
 
-      let stream = states.map(
-        (s) => pipe(s as S, O.fromNullable, sliceOptional.getOption, O.toUndefined) as A[P]
-      ).filter(unique(get()));
+      let stream = createStream<A[P]>(publish => {
+        publish(get());
+        return states.map(
+          (s) => pipe(s as S, O.fromNullable, sliceOptional.getOption, O.toUndefined) as A[P]
+        ).filter(unique(get())).forEach(publish);
+      })
 
       function getOption(): O.Option<A[P]> {
         let current = pipe(
@@ -84,15 +88,10 @@ export function createAtom<S>(initialState: S, options: ChannelOptions = {}): Sl
         setState(O.toUndefined(next) as S);
       }
 
-      function once(predicate: (state: A[P]) => boolean): Operation<A[P]> {
-        return function*() {
-          let currentState = get();
-          if(predicate(currentState)) {
-            return currentState;
-          } else {
-            return yield stream.filter(predicate).expect();
-          }
-        }
+      let once = function onceWithWarning(predicate: (state: A[P]) => boolean): Operation<A[P]> {
+        console.warn('DEPRECATION: every slice of an atom is now an instance of Stream, and so calls to  once() can be converted to `filter(predicate).expect()`');
+        once = (predicate) => stream.filter(predicate).expect();
+        return once(predicate);
       }
 
       function remove() {

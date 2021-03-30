@@ -1,7 +1,7 @@
 import { describe, beforeEach, it } from '@effection/mocha';
 import * as expect from 'expect';
 import { createAtom } from '../src/atom';
-import { Stream, OperationIterator } from '@effection/subscription';
+import { OperationIterator } from '@effection/subscription';
 import { Slice } from '../src/types';
 
 type TestRunAgentState = {
@@ -141,6 +141,7 @@ describe('@bigtest/atom createAtom', () => {
 
     it('iterates over emitted states', function*() {
       expect(yield iterator.next()).toEqual({ done: false, value: { foo: 'bar' } });
+      expect(yield iterator.next()).toEqual({ done: false, value: { foo: 'bar' } });
       expect(yield iterator.next()).toEqual({ done: false, value: { foo: 'baz' } });
       expect(yield iterator.next()).toEqual({ done: false, value: { foo: 'quox' } });
     });
@@ -203,7 +204,8 @@ describe('@bigtest/atom createAtom', () => {
       subject.update(() => bar);
     });
 
-    it('should only publish unique state changes', function*() {
+    it('publishes the initial state and subsequent  unique state changes', function*() {
+      expect(yield iterator.next()).toEqual({ done: false, value: { foo: 'bar' } });
       expect(yield iterator.next()).toEqual({ done: false, value: { foo: 'baz' } });
       expect(yield iterator.next()).toEqual({ done: false, value: { foo: 'qux' } });
       expect(yield iterator.next()).toEqual({ done: false, value: { foo: 'bar' } });

@@ -1,6 +1,6 @@
 {
   "name": "@effection/atom",
-  "version": "2.0.0-preview.4",
+  "version": "2.0.0-preview.5",
   "description": "State atom implementation for effection",
   "main": "dist/index.js",
   "typings": "dist/index.d.js",

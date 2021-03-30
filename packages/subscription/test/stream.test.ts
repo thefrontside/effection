@@ -134,7 +134,7 @@ describe('Stream', () => {
     });
 
     it('throws an error if the subscription is empty', function*() {
-      expect(yield captureError(emptyStream.expect())).toHaveProperty('message', 'expected subscription to contain a value');
+      expect(yield captureError(emptyStream.expect())).toHaveProperty('message', 'expected to contain a value');
     });
   });
 

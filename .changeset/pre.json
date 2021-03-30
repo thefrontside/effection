@@ -13,6 +13,7 @@
     "@effection/mocha": "2.0.0-preview.2"
   },
   "changesets": [
+    "atom-stream-initial-state",
     "brave-dots-listen",
     "bright-nails-buy",
     "bright-terms-rescue",

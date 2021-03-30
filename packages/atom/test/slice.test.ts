@@ -1,7 +1,7 @@
 import { describe, it, beforeEach } from '@effection/mocha';
 import * as expect from 'expect';
 import { createAtom } from '../src/atom';
-import { Stream, OperationIterator } from '@effection/subscription';
+import { OperationIterator } from '@effection/subscription';
 import { Slice } from '../src/types';
 
 type Data = { data: string };
@@ -147,7 +147,8 @@ describe('@bigtest/atom Slice', () => {
       slice.update(() => 'quox');
     });
 
-    it('iterates over emitted states', function*() {
+    it('iterates over initial and emitted states', function*() {
+      expect(yield subscription.next()).toEqual({ done: false, value: 'foo' });
       expect(yield subscription.next()).toEqual({ done: false, value: 'bar' });
       expect(yield subscription.next()).toEqual({ done: false, value: 'baz' });
       expect(yield subscription.next()).toEqual({ done: false, value: 'quox' });
@@ -165,8 +166,8 @@ describe('@bigtest/atom Slice', () => {
 
       iterator = slice.subscribe(world);
 
-      // foo is the initial value
-      // should not appear as element 1 in the result
+      // foo is the initial value, it should only appear once
+      // as the first result
       slice.update(() => 'foo');
       slice.update(() => 'bar');
       slice.update(() => 'bar');
@@ -176,7 +177,8 @@ describe('@bigtest/atom Slice', () => {
       slice.update(() => 'foo');
     });
 
-    it('should only publish unique state changes', function*() {
+    it('should only publish the initial state and unique state changes', function*() {
+      expect(yield iterator.next()).toEqual({ done: false, value: 'foo' });
       expect(yield iterator.next()).toEqual({ done: false, value: 'bar' });
       expect(yield iterator.next()).toEqual({ done: false, value: 'baz' });
       expect(yield iterator.next()).toEqual({ done: false, value: 'foo' });

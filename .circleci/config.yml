@@ -115,6 +115,8 @@ workflows:
                 - channel
                 - fetch
                 - node
+                - atom
+                - mocha
           requires:
             - prepack
       - lint:

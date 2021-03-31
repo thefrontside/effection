@@ -77,6 +77,26 @@ describe('@bigtest/atom createAtom', () => {
     it('updates the current state', function*() {
       expect(subject.get()?.status).toEqual("off");
     });
+
+    describe('with listener which modifies atom', () => {
+      it('shoule be reentrant', function*(world) {
+        let atom = createAtom({ status: 'idle' });
+        world.spawn(atom.forEach(({ status }) => {
+          if(status === 'pending') {
+            atom.set({ status: 'active' });
+          }
+        }));
+
+        let subscription = atom.slice('status').subscribe(world);
+
+        atom.set({ status: 'pending' });
+
+        expect(yield subscription.next()).toEqual({ done: false, value: 'idle' });
+        expect(yield subscription.next()).toEqual({ done: false, value: 'pending' });
+        expect(yield subscription.next()).toEqual({ done: false, value: 'active' });
+        expect(atom.get()).toEqual({ status: 'active' });
+      });
+    });
   });
 
   describe('.update()', () => {

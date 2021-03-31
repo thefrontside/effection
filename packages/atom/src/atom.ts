@@ -11,6 +11,8 @@ export function createAtom<S>(initialState: S, options: ChannelOptions = {}): Sl
   let lens = pipe(Op.id<O.Option<S>>(), Op.some);
   let state: O.Option<S> = O.fromNullable(initialState);
   let states = createChannel(options);
+  let valueQueue: S[] = [];
+  let didEnter = false;
 
   function getState(): O.Option<S> {
     return state;
@@ -23,9 +25,26 @@ export function createAtom<S>(initialState: S, options: ChannelOptions = {}): Sl
       return;
     }
 
+    // there is a compromise here in when we set this value, either the
+    // listener itself, or downstream listeners might see an incorrect value
+    // after setting. If we don't set the value immediately then we risk that a
+    // downstream update will set the state to an old version of itself.
     state = next;
 
-    states.send(O.toUndefined(state) as S);
+    valueQueue.push(O.toUndefined(next) as S);
+
+    if(!didEnter) {
+      try {
+        didEnter = true;
+
+        let nextValue;
+        while(nextValue = valueQueue.shift()) {
+          states.send(nextValue);
+        }
+      } finally {
+        didEnter = false;
+      }
+    }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

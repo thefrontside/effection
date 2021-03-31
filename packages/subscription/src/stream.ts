@@ -3,7 +3,8 @@ import { DeepPartial, matcher } from './match';
 import { Subscription, createSubscription } from './subscription';
 import { OperationIterable, ToOperationIterator } from './operation-iterable';
 import { SymbolOperationIterable } from './symbol-operation-iterable';
-import { Callback } from './create-operation-iterator';
+
+type Callback<T,TReturn> = (publish: (value: T) => void) => Operation<TReturn>;
 
 export interface Stream<T, TReturn = undefined> extends OperationIterable<T, TReturn> {
   filter<R extends T>(predicate: (value: T) => value is R): Stream<R, TReturn>;

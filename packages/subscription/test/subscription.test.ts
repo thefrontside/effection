@@ -8,7 +8,7 @@ interface Thing {
   type: string;
 }
 
-describe('chaining subscriptions', () => {
+describe('Subscription', () => {
   let subscription: Subscription<Thing, number>;
   let emptySubscription: Subscription<Thing, number>;
 

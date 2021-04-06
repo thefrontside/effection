@@ -1,6 +1,7 @@
 import { Operation, Task } from '@effection/core';
 import { DeepPartial, matcher } from './match';
-import { Subscription, createSubscription } from './subscription';
+import { createQueue } from './queue';
+import { Subscription } from './subscription';
 import { OperationIterable, ToOperationIterator } from './operation-iterable';
 import { SymbolOperationIterable } from './symbol-operation-iterable';
 
@@ -29,7 +30,14 @@ export interface StringBufferStream<TReturn = undefined> extends Stream<string, 
 }
 
 export function createStream<T, TReturn = undefined>(callback: Callback<T, TReturn>): Stream<T, TReturn> {
-  let subscribable = (task: Task) => createSubscription(task, callback);
+  let subscribe = (task: Task) => {
+    let queue = createQueue<T, TReturn>();
+    task.spawn(function*() {
+      let result = yield callback(queue.send);
+      queue.closeWith(result);
+    });
+    return queue.subscription;
+  }
 
   function filter<R extends T>(predicate: (value: T) => value is R): Stream<T, TReturn>
   function filter(predicate: (value: T) => boolean): Stream<T, TReturn>
@@ -44,6 +52,8 @@ export function createStream<T, TReturn = undefined>(callback: Callback<T, TRetu
   };
 
   let stream = {
+    subscribe,
+
     filter,
 
     match(reference: DeepPartial<T>): Stream<T,TReturn> {
@@ -60,37 +70,37 @@ export function createStream<T, TReturn = undefined>(callback: Callback<T, TRetu
 
     first(): Operation<T | undefined> {
       return function*(task) {
-        return yield subscribable(task).first();
+        return yield subscribe(task).first();
       };
     },
 
     expect(): Operation<T> {
       return function*(task) {
-        return yield subscribable(task).expect();
+        return yield subscribe(task).expect();
       }
     },
 
     forEach(visit: (value: T) => (Operation<void> | void)): Operation<TReturn> {
       return function*(task) {
-        return yield subscribable(task).forEach(visit);
+        return yield subscribe(task).forEach(visit);
       }
     },
 
     join(): Operation<TReturn> {
       return function*(task) {
-        return yield subscribable(task).join();
+        return yield subscribe(task).join();
       }
     },
 
     collect(): Operation<Iterator<T, TReturn>> {
       return function*(task) {
-        return yield subscribable(task).collect();
+        return yield subscribe(task).collect();
       }
     },
 
     toArray(): Operation<T[]> {
       return function*(task) {
-        return yield subscribable(task).toArray();
+        return yield subscribe(task).toArray();
       }
     },
 
@@ -127,12 +137,8 @@ export function createStream<T, TReturn = undefined>(callback: Callback<T, TRetu
       }
     },
 
-    subscribe(scope: Task): Subscription<T, TReturn> {
-      return subscribable(scope);
-    },
-
     get [SymbolOperationIterable](): ToOperationIterator<T, TReturn> {
-      return subscribable;
+      return subscribe;
     },
   };
 

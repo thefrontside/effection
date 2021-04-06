@@ -1,9 +1,11 @@
 import { Operation, Task } from '@effection/core';
 import { DeepPartial, matcher } from './match';
-import { OperationIterator } from './operation-iterator';
+import { createQueue } from './queue';
+import { Subscription } from './subscription';
 import { OperationIterable, ToOperationIterator } from './operation-iterable';
 import { SymbolOperationIterable } from './symbol-operation-iterable';
-import { Callback, createOperationIterator } from './create-operation-iterator';
+
+type Callback<T,TReturn> = (publish: (value: T) => void) => Operation<TReturn>;
 
 export interface Stream<T, TReturn = undefined> extends OperationIterable<T, TReturn> {
   filter<R extends T>(predicate: (value: T) => value is R): Stream<R, TReturn>;
@@ -18,7 +20,7 @@ export interface Stream<T, TReturn = undefined> extends OperationIterable<T, TRe
   join(): Operation<TReturn>;
   collect(): Operation<Iterator<T, TReturn>>;
   toArray(): Operation<T[]>;
-  subscribe(scope: Task): OperationIterator<T, TReturn>;
+  subscribe(scope: Task): Subscription<T, TReturn>;
   buffer(scope: Task): Stream<T, TReturn>;
   stringBuffer(scope: Task): StringBufferStream<TReturn>;
 }
@@ -28,13 +30,20 @@ export interface StringBufferStream<TReturn = undefined> extends Stream<string, 
 }
 
 export function createStream<T, TReturn = undefined>(callback: Callback<T, TReturn>): Stream<T, TReturn> {
-  let iterable: ToOperationIterator<T, TReturn> = (task) => createOperationIterator(task, callback);
+  let subscribe = (task: Task) => {
+    let queue = createQueue<T, TReturn>();
+    task.spawn(function*() {
+      let result = yield callback(queue.send);
+      queue.closeWith(result);
+    });
+    return queue.subscription;
+  }
 
   function filter<R extends T>(predicate: (value: T) => value is R): Stream<T, TReturn>
   function filter(predicate: (value: T) => boolean): Stream<T, TReturn>
   function filter(predicate: (value: T) => boolean): Stream<T, TReturn> {
     return createStream((publish) => {
-      return subscribable.forEach((value) => function*() {
+      return stream.forEach((value) => function*() {
         if(predicate(value)) {
           publish(value);
         }
@@ -42,16 +51,18 @@ export function createStream<T, TReturn = undefined>(callback: Callback<T, TRetu
     });
   };
 
-  let subscribable = {
+  let stream = {
+    subscribe,
+
     filter,
 
     match(reference: DeepPartial<T>): Stream<T,TReturn> {
-      return subscribable.filter(matcher(reference));
+      return stream.filter(matcher(reference));
     },
 
     map<R>(mapper: (value: T) => R): Stream<R, TReturn> {
       return createStream((publish) => {
-        return subscribable.forEach((value: T) => function*() {
+        return stream.forEach((value: T) => function*() {
           publish(mapper(value));
         });
       });
@@ -59,107 +70,77 @@ export function createStream<T, TReturn = undefined>(callback: Callback<T, TRetu
 
     first(): Operation<T | undefined> {
       return function*(task) {
-        let iterator = iterable(task);
-        let result: IteratorResult<T,TReturn> = yield iterator.next();
-        if(result.done) {
-          return undefined;
-        } else {
-          return result.value;
-        }
-      }
+        return yield subscribe(task).first();
+      };
     },
 
     expect(): Operation<T> {
       return function*(task) {
-        let iterator = iterable(task);
-        let result: IteratorResult<T,TReturn> = yield iterator.next();
-        if(result.done) {
-          throw new Error('expected subscription to contain a value');
-        } else {
-          return result.value;
-        }
+        return yield subscribe(task).expect();
       }
     },
 
     forEach(visit: (value: T) => (Operation<void> | void)): Operation<TReturn> {
       return function*(task) {
-        let iterator = iterable(task);
-        while (true) {
-          let result: IteratorResult<T,TReturn> = yield iterator.next();
-          if(result.done) {
-            return result.value;
-          } else {
-            let operation = visit(result.value);
-            if(operation) {
-              yield operation;
-            }
-          }
-        }
+        return yield subscribe(task).forEach(visit);
       }
     },
 
     join(): Operation<TReturn> {
-      return subscribable.forEach(() => { /* no op */ });
+      return function*(task) {
+        return yield subscribe(task).join();
+      }
     },
 
     collect(): Operation<Iterator<T, TReturn>> {
-      return function*() {
-        let items: T[] = [];
-        let result = yield subscribable.forEach((item) => function*() { items.push(item); });
-        return (function*() {
-          yield *items;
-          return result;
-        })();
+      return function*(task) {
+        return yield subscribe(task).collect();
       }
     },
 
     toArray(): Operation<T[]> {
-      return function*() {
-        return Array.from<T>(yield subscribable.collect());
+      return function*(task) {
+        return yield subscribe(task).toArray();
       }
     },
 
     buffer(scope: Task): Stream<T, TReturn> {
       let buffer: T[] = [];
 
-      scope.spawn(subscribable.forEach((m) => { buffer.push(m) }));
+      scope.spawn(stream.forEach((m) => { buffer.push(m) }));
 
       return createStream((publish) => function*() {
         buffer.forEach(publish);
-        return yield subscribable.forEach(publish);
+        return yield stream.forEach(publish);
       });
     },
 
     stringBuffer(scope: Task): StringBufferStream<TReturn> {
       let buffer = "";
 
-      scope.spawn(subscribable.forEach((m) => { buffer += `${m}` }));
+      scope.spawn(stream.forEach((m) => { buffer += `${m}` }));
 
-      let stream = createStream<string, TReturn>((publish) => function*() {
+      let result = createStream<string, TReturn>((publish) => function*() {
         let internalBuffer = buffer;
         publish(internalBuffer);
-        return yield subscribable.forEach((m: T) => {
+        return yield stream.forEach((m: T) => {
           internalBuffer += `${m}`;
           publish(internalBuffer);
         });
       });
 
       return {
-        ...stream,
+        ...result,
         get value(): string {
           return buffer;
         }
       }
     },
 
-    subscribe(scope: Task): OperationIterator<T, TReturn> {
-      return iterable(scope);
-    },
-
     get [SymbolOperationIterable](): ToOperationIterator<T, TReturn> {
-      return iterable;
+      return subscribe;
     },
   };
 
-  return subscribable;
+  return stream;
 }

@@ -1,6 +1,5 @@
-import { Operation, Task } from '@effection/core';
+import { Operation } from '@effection/core';
 import { OperationIterator } from './operation-iterator';
-import { createQueue } from './index';
 
 type Callback<T,TReturn> = (publish: (value: T) => void) => Operation<TReturn>;
 
@@ -11,13 +10,4 @@ export interface Subscription<T, TReturn = undefined> extends OperationIterator<
   join(): Operation<TReturn>;
   collect(): Operation<Iterator<T, TReturn>>;
   toArray(): Operation<T[]>;
-}
-
-export function createSubscription<T, TReturn = undefined>(task: Task<unknown>, callback: Callback<T, TReturn>): Subscription<T, TReturn> {
-  let queue = createQueue<T, TReturn>();
-  task.spawn(function*() {
-    let result = yield callback(queue.send);
-    queue.closeWith(result);
-  });
-  return queue.subscription;
 }

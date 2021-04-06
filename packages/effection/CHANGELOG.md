@@ -1,5 +1,19 @@
 # Changelog
 
+## 2.0.0-preview.8
+
+### Minor Changes
+
+- 3db7270: Make Queue a first class citizen
+
+### Patch Changes
+
+- 9a6a6e3: Make atom more reentrant
+- Updated dependencies [3db7270]
+  - @effection/subscription@2.0.0-preview.7
+  - @effection/channel@2.0.0-preview.7
+  - @effection/events@2.0.0-preview.6
+
 ## 2.0.0-preview.7
 
 ### Minor Changes

@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.0.0-preview.6
+
+### Patch Changes
+
+- Updated dependencies [3db7270]
+  - @effection/subscription@2.0.0-preview.7
+
 ## 2.0.0-preview.5
 
 ### Patch Changes

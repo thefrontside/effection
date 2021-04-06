@@ -1,6 +1,6 @@
 {
   "name": "@effection/atom",
-  "version": "2.0.0-preview.5",
+  "version": "2.0.0-preview.6",
   "description": "State atom implementation for effection",
   "main": "dist/index.js",
   "typings": "dist/index.d.js",
@@ -38,7 +38,7 @@
   },
   "dependencies": {
     "@effection/core": "2.0.0-preview.6",
-    "@effection/subscription": "2.0.0-preview.6",
+    "@effection/subscription": "2.0.0-preview.7",
     "assert-ts": "^0.2.2",
     "fp-ts": "^2.8.2",
     "monocle-ts": "^2.3.3"

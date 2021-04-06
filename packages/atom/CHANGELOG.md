@@ -1,5 +1,13 @@
 # @effection/atom
 
+## 2.0.0-preview.6
+
+### Patch Changes
+
+- 9a6a6e3: Make atom more reentrant
+- Updated dependencies [3db7270]
+  - @effection/subscription@2.0.0-preview.7
+
 ## 2.0.0-preview.5
 
 ### Patch Changes

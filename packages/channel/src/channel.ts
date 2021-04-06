@@ -44,5 +44,5 @@ export function createChannel<T, TClose = undefined>(options: ChannelOptions = {
     bus.emit('event', { done: true, value: args[0] });
   };
 
-  return Object.assign({ send, close, stream }, stream);
+  return { send, close, stream , ...stream };
 }

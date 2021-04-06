@@ -44,6 +44,13 @@ describe('Queue', () => {
       anotherQueue.send('hello');
       expect(yield anotherQueue.expect()).toEqual('hello');
     });
+
+    it('can be destructured', function*(world) {
+      let { send, subscription } = createQueue<string>();
+      let listener = world.spawn(subscription.expect());
+      send('hello');
+      expect(yield listener).toEqual('hello');
+    });
   });
 
 

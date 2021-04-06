@@ -1,5 +1,11 @@
 # @effection/subscription
 
+## 2.0.0-preview.7
+
+### Minor Changes
+
+- 3db7270: Make Queue a first class citizen
+
 ## 2.0.0-preview.6
 
 ### Minor Changes

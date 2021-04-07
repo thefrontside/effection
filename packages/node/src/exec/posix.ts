@@ -1,4 +1,4 @@
-import { Operation, Deferred } from '@effection/core';
+import { Task, Operation, Deferred } from '@effection/core';
 import { createChannel } from '@effection/channel';
 import { on, once, onceEmit } from '@effection/events';
 import { spawn as spawnProcess } from 'child_process';
@@ -9,7 +9,7 @@ type Result = { type: 'error'; value: unknown } | { type: 'status'; value: [numb
 
 export const createPosixProcess: CreateOSProcess = (command, options) => {
   return {
-    run(scope) {
+    use: (scope: Task) => function*() {
       let getResult = Deferred<Result>();
 
       let join = (): Operation<ExitStatus> => function*() {

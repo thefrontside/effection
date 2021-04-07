@@ -1,7 +1,7 @@
 /// <reference types="../types/shellwords" />
 import { split } from 'shellwords';
 
-import { Task, Operation } from '@effection/core';
+import { Task, Operation, Resource } from '@effection/core';
 import { ExecOptions, Process, ProcessResult, CreateOSProcess } from './exec/api';
 import { createPosixProcess } from './exec/posix';
 import { createWin32Process, isWin32 } from './exec/win32';
@@ -9,8 +9,7 @@ import { createWin32Process, isWin32 } from './exec/win32';
 export * from './exec/api';
 export * from './exec/error';
 
-export interface Exec {
-  run(scope: Task): Process;
+export interface Exec extends Resource<Process> {
   join(): Operation<ProcessResult>;
   expect(): Operation<ProcessResult>;
 }
@@ -34,12 +33,12 @@ export function exec(command: string, options: ExecOptions = {}): Exec {
   let opts = { ...options, arguments: args.concat(options.arguments || []) }
 
   return {
-    run(scope: Task) {
-      return createProcess(cmd, opts).run(scope);
+    use(scope: Task) {
+      return createProcess(cmd, opts).use(scope);
     },
     join() {
       return function*(scope: Task) {
-        let process = createProcess(cmd, { ...opts, buffered: true }).run(scope);
+        let process = yield scope.spawn(createProcess(cmd, { ...opts, buffered: true }));
 
         let status = yield process.join();
         let stdout = yield process.stdout.expect();
@@ -50,7 +49,7 @@ export function exec(command: string, options: ExecOptions = {}): Exec {
     },
     expect() {
       return function*(scope: Task) {
-        let process = createProcess(cmd, { ...opts, buffered: true }).run(scope);
+        let process = yield scope.spawn(createProcess(cmd, { ...opts, buffered: true }));
 
         let status = yield process.expect();
         let stdout = yield process.stdout.expect();

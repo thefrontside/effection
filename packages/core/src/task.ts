@@ -2,7 +2,7 @@ import { SuspendController } from './controller/suspend-controller';
 import { PromiseController } from './controller/promise-controller';
 import { FunctionContoller } from './controller/function-controller';
 import { Controller } from './controller/controller';
-import { Operation } from './operation';
+import { Operation, Spawnable, isResource } from './operation';
 import { Deferred } from './deferred';
 import { isPromise } from './predicates';
 import { Trapper } from './trapper';
@@ -142,10 +142,11 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
     return this.deferred.promise.finally(onfinally);
   }
 
-  spawn<R>(operation?: Operation<R>, options?: TaskOptions): Task<R> {
+  spawn<R>(spawnable?: Spawnable<R>, options?: TaskOptions): Task<R> {
     if(this.state !== 'running') {
       throw new Error('cannot spawn a child on a task which is not running');
     }
+    let operation: Operation<R> = isResource<R>(spawnable) ? spawnable.use(this as Task) : spawnable;
     let child = new Task(operation, options);
     this.link(child as Task);
     child.start();

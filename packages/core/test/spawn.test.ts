@@ -2,7 +2,21 @@ import './setup';
 import { describe, it } from 'mocha';
 import * as expect from 'expect';
 
-import { run, sleep, Task } from '../src/index';
+import { run, sleep, Task, Resource } from '../src/index';
+
+const myResource: Resource<{ status: string }> = {
+  use(scope: Task) {
+    return function*() {
+      let container = { status: 'pending' }
+      scope.spawn(function*() {
+        yield sleep(5);
+        container.status = 'active';
+      });
+      yield sleep(2)
+      return container;
+    }
+  }
+}
 
 describe('spawn', () => {
   it('can spawn a new child task', async () => {
@@ -211,6 +225,26 @@ describe('spawn', () => {
       await expect(child).resolves.toEqual('foo');
       expect(root.state).toEqual('completed');
       expect(child && child.state).toEqual('completed');
+    });
+  });
+
+  describe('with resource', () => {
+    it('runs resource in task scope', async () => {
+      await run(function*(task) {
+        let result = yield task.spawn(myResource);
+        expect(result.status).toEqual('pending');
+        yield sleep(10);
+        expect(result.status).toEqual('active');
+      });
+    });
+
+    it('terminates resource when task completes', async () => {
+      let result: { status: string } = await run(function*(task) {
+        return yield task.spawn(myResource);
+      });
+      expect(result.status).toEqual('pending');
+      await run(sleep(10));
+      expect(result.status).toEqual('pending'); // is finished, should not switch to active
     });
   });
 });

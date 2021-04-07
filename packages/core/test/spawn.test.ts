@@ -167,6 +167,34 @@ describe('spawn', () => {
     expect(didFinish).toEqual(true);
   });
 
+  it('runs destructors in reverse order and in series', async () => {
+    let result: string[] = [];
+    let root = run(function*(context: Task) {
+      context.spawn(function*() {
+        try {
+          yield
+        } finally {
+          result.push('first start');
+          yield sleep(5);
+          result.push('first done');
+        }
+      });
+      context.spawn(function*() {
+        try {
+          yield
+        } finally {
+          result.push('second start');
+          yield sleep(10);
+          result.push('second done');
+        }
+      });
+    });
+
+    await root;
+
+    expect(result).toEqual(['second start', 'second done', 'first start', 'first done']);
+  });
+
   describe('with blockParent: true', () => {
     it('blocks on child when finishing normally', async () => {
       let child: Task<string> | undefined;

@@ -1,5 +1,12 @@
 # @effection/subscription
 
+## 2.0.0-preview.8
+
+### Patch Changes
+
+- Updated dependencies [2bad074]
+  - @effection/core@2.0.0-preview.7
+
 ## 2.0.0-preview.7
 
 ### Minor Changes

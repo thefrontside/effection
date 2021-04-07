@@ -1,5 +1,11 @@
 # @effection/core
 
+## 2.0.0-preview.7
+
+### Minor Changes
+
+- 2bad074: Run destructors in reverse order and in series
+
 ## 2.0.0-preview.6
 
 ### Patch Changes

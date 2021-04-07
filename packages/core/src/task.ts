@@ -45,11 +45,7 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
     resolve: (result: TOut) => {
       this.stateMachine.resolve();
       this.result = result;
-      this.children.forEach((c) => {
-        if(!c.options.blockParent) {
-          c.halt()
-        }
-      });
+      this.haltChildren(false);
       this.resume();
     },
 
@@ -57,15 +53,27 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
       this.stateMachine.reject();
       this.result = undefined; // clear result if it has previously been set
       this.error = error;
-      this.children.forEach((c) => c.halt());
+      this.haltChildren(true);
       this.resume();
     },
 
     halted: () => {
       this.stateMachine.halt();
-      this.children.forEach((c) => c.halt());
+      this.haltChildren(true);
       this.resume();
     },
+  }
+
+  private haltChildren(force: boolean) {
+    for(let child of Array.from(this.children).reverse()) {
+      if(force || !child.options.blockParent) {
+        // Continue halting once the first found child has been fully halted.
+        // The child will always have been removed from the Set when this runs.
+        child.addTrapper({ trap: () => this.haltChildren(force) });
+        child.halt()
+        return;
+      }
+    }
   }
 
   get state(): State {
@@ -99,6 +107,9 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
 
       this.ensureHandlers.forEach((handler) => handler());
       this.trappers.forEach((trapper) => trapper.trap(this as Task));
+
+      this.ensureHandlers.clear();
+      this.trappers.clear();
 
       if(this.state === 'completed') {
         // TODO: model state as a union so we do not need this non-null assertion

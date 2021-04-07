@@ -1,5 +1,13 @@
 # @effection/atom
 
+## 2.0.0-preview.7
+
+### Patch Changes
+
+- Updated dependencies [2bad074]
+  - @effection/core@2.0.0-preview.7
+  - @effection/subscription@2.0.0-preview.8
+
 ## 2.0.0-preview.6
 
 ### Patch Changes

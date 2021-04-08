@@ -1,5 +1,13 @@
 # @effection/atom
 
+## 2.0.0-preview.8
+
+### Patch Changes
+
+- 91ade6c: Add missing dependency on @effection/channel which could cause incorrect module resolution
+- Updated dependencies [91ade6c]
+  - @effection/channel@2.0.0-preview.9
+
 ## 2.0.0-preview.7
 
 ### Patch Changes

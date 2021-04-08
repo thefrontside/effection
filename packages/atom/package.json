@@ -3,7 +3,7 @@
   "version": "2.0.0-preview.7",
   "description": "State atom implementation for effection",
   "main": "dist/index.js",
-  "typings": "dist/index.d.js",
+  "typings": "dist/index.d.ts",
   "repository": "https://github.com/thefrontside/bigtest.git",
   "author": "Frontside Engineering <engineering@frontside.io>",
   "license": "MIT",

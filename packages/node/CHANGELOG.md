@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.0.0-preview.10
+
+### Patch Changes
+
+- Updated dependencies [91ade6c]
+  - @effection/channel@2.0.0-preview.9
+
 ## 2.0.0-preview.9
 
 ### Patch Changes

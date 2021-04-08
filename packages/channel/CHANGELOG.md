@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.0-preview.9
+
+### Patch Changes
+
+- 91ade6c: Add missing dependency on @effection/channel which could cause incorrect module resolution
+
 ## 2.0.0-preview.8
 
 ### Patch Changes

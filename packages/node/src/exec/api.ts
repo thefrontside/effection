@@ -1,4 +1,4 @@
-import { Task, Operation } from '@effection/core';
+import { Task, Operation, Resource } from '@effection/core';
 import { Stream } from '@effection/subscription';
 
 // TODO: import from subscription package once #236 is merged
@@ -81,10 +81,6 @@ export interface ProcessResult extends ExitStatus {
   stderr: string;
 }
 
-export interface OSProcess {
-  run(scope: Task): Process;
-}
-
 export interface CreateOSProcess {
-  (command: string, options: ExecOptions): OSProcess;
+  (command: string, options: ExecOptions): Resource<Process>;
 }

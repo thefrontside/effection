@@ -4,6 +4,7 @@ import { Effection } from './effection';
 
 export { Task, TaskOptions } from './task';
 export { Operation } from './operation';
+export { Resource, ResourceTask } from './resource';
 export { sleep } from './sleep';
 export { Effection } from './effection';
 export { deprecated } from './deprecated';

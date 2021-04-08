@@ -10,6 +10,7 @@ import { swallowHalt } from './halt-error';
 import { EventEmitter } from 'events';
 import { StateMachine, State } from './state-machine';
 import { HaltError } from './halt-error';
+import { Resource, ResourceTask } from './resource';
 
 let COUNTER = 0;
 
@@ -150,6 +151,20 @@ export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>,
     this.link(child as Task);
     child.start();
     return child;
+  }
+
+  use<R>(resource: Resource<R>): ResourceTask<R> {
+    let task = this.spawn();
+    let initTask = task.spawn(resource.use(task));
+    return {
+      task,
+      initTask,
+      halt: () => task.halt(),
+      then: (onfulfilled, onrejected) => initTask.then(onfulfilled, onrejected),
+      catch: (onrejected) => initTask.catch(onrejected),
+      finally: (onfinally) => initTask.finally(onfinally),
+      [Symbol.toStringTag]: `[Resource ${task.id}]`,
+    }
   }
 
   link(child: Task) {

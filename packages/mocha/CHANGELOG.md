@@ -1,5 +1,11 @@
 # @effection/mocha
 
+## 2.0.0-preview.7
+
+### Patch Changes
+
+- 81a2101: Add `it.only()` and `it.skip()` methods
+
 ## 2.0.0-preview.6
 
 ### Patch Changes

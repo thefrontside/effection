@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { SuspendController } from './controller/suspend-controller';
 import { PromiseController } from './controller/promise-controller';
+import { IteratorController } from './controller/iterator-controller';
 import { FunctionContoller } from './controller/function-controller';
 import { Controller } from './controller/controller';
 import { Operation } from './operation';
 import { Deferred } from './deferred';
-import { isPromise } from './predicates';
+import { isPromise, isGenerator } from './predicates';
 import { Trapper } from './trapper';
 import { swallowHalt } from './halt-error';
 import { EventEmitter } from 'events';
@@ -13,7 +14,20 @@ import { StateMachine, State, StateTransition } from './state-machine';
 import { HaltError } from './halt-error';
 
 let COUNTER = 0;
+
 const CONTROLS = Symbol.for('effection/v2/controls');
+
+const PromiseHolder = Symbol.for('@effection/core/v2/promise-holder');
+
+interface PromiseHolder {
+  [PromiseHolder]: Promise<unknown>;
+}
+
+export interface Controls<TOut> {
+  halted(): void;
+  resolve(value: TOut): void;
+  reject(error: Error): void;
+}
 
 export interface TaskOptions {
   blockParent?: boolean;
@@ -235,4 +249,8 @@ export function getControls<TOut>(task: Task<TOut>): Controls<TOut> {
     throw new Error(`EFFECTION INTERNAL ERROR unable to retrieve controls for task ${task}`);
   }
   return controls;
+}
+
+function isPromiseHolder(value: unknown): value is PromiseHolder {
+  return value && !!(value as PromiseHolder)[PromiseHolder];
 }

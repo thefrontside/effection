@@ -55,11 +55,11 @@ export function once<T = unknown>(source: EventSource, eventName: string): Opera
  * ```
  */
 export function onceEmit<TArgs extends unknown[] = unknown[]>(source: EventSource, eventName: string): Operation<TArgs> {
-  return (_task) => ({
-    perform: (resolve) => {
+  return {
+    perform(resolve) {
       let listener = (...args: unknown[]) => { resolve(args as TArgs) };
       addListener(source, eventName, listener);
       return () => removeListener(source, eventName, listener)
     }
-  })
+  }
 }

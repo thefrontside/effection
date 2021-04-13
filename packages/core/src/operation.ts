@@ -9,4 +9,4 @@ export interface OperationResolution<TOut> {
 
 export type OperationFunction<TOut> = (task: Task<TOut>) => PromiseLike<TOut> | OperationIterator<TOut> | OperationResolution<TOut>;
 
-export type Operation<TOut> = OperationFunction<TOut> | PromiseLike<TOut> | OperationIterator<TOut> | undefined
+export type Operation<TOut> = OperationFunction<TOut> | PromiseLike<TOut> | OperationIterator<TOut> | OperationResolution<TOut> | undefined

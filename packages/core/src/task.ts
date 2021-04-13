@@ -27,6 +27,7 @@ export interface Controls<TOut> {
   halted(): void;
   resolve(value: TOut): void;
   reject(error: Error): void;
+  ensure(handler: EnsureHandler): void;
 }
 
 export interface TaskOptions {

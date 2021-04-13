@@ -6,12 +6,13 @@ import { FunctionContoller } from './controller/function-controller';
 import { Controller } from './controller/controller';
 import { Operation } from './operation';
 import { Deferred } from './deferred';
-import { isPromise, isGenerator } from './predicates';
+import { isPromise, isGenerator, isResolution } from './predicates';
 import { Trapper } from './trapper';
 import { swallowHalt } from './halt-error';
 import { EventEmitter } from 'events';
 import { StateMachine, State, StateTransition } from './state-machine';
 import { HaltError } from './halt-error';
+import { ResolutionController } from './controller/resolution-controller';
 
 let COUNTER = 0;
 

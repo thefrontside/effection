@@ -1,5 +1,5 @@
 import { Controller } from './controller';
-import { OperationFunction } from '../operation';
+import { OperationFunction, OperationResolution } from '../operation';
 import { Task, Controls } from '../task';
 import { isPromise } from '../predicates';
 import { IteratorController } from './iterator-controller';
@@ -23,7 +23,7 @@ export class FunctionContoller<TOut> implements Controller<TOut> {
     let controller;
     if(isPromise(result)) {
       controller = new PromiseController(this.controls, result);
-    } else if(typeof(result) === 'function') {
+    } else if (isRunnable(result)) {
       controller = new ResolutionController(this.controls, result);
     } else {
       controller = new IteratorController(this.controls, result);
@@ -39,4 +39,8 @@ export class FunctionContoller<TOut> implements Controller<TOut> {
       throw new Error('INTERNAL ERROR: halt called before start, this should never happen');
     }
   }
+}
+
+function isRunnable<T>(value: unknown): value is OperationResolution<T> {
+  return !!(value as OperationResolution<T>).perform;
 }

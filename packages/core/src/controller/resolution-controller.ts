@@ -8,7 +8,7 @@ export class ResolutionController<TOut> implements Controller<TOut> {
 
   start() {
     try {
-      this.resolution(this.controls.resolve, this.controls.reject);
+      this.resolution.perform(this.controls.resolve, this.controls.reject);
     } catch(error) {
       this.controls.reject(error);
     }

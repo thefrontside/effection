@@ -280,13 +280,8 @@ function createController<T>(task: Task<T>, controls: Controls<T>, operation: Op
   throw new Error(`unkown type of operation: ${operation}`);
 }
 
-
 class FailController<T> implements Controller<T> {
   constructor(public controls: Controls<T>, public error: Error) {}
-
-  start() {
-    this.controls.reject(this.error);
-  }
-
-  async halt() {}
+  halt = () => Promise.resolve()
+  start = () => this.controls.reject(this.error);
 }

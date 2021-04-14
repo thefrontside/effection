@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Task } from './task';
+import { Task, createTask, getControls } from './task';
 import { version } from '../package.json';
 
 const MAJOR_VERSION = version.split('.')[0];
 const GLOBAL_PROPERTY = `__effectionV${MAJOR_VERSION}`;
 
 function createRootTask() {
-  let task = new Task(undefined, { ignoreChildErrors: true });
-  task.start();
+  let task = createTask(undefined, { ignoreChildErrors: true });
+  getControls(task).start();
   return task;
 }
 

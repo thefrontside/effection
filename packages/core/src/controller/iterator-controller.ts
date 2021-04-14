@@ -1,6 +1,6 @@
 import { Controller } from './controller';
 import { OperationIterator } from '../operation';
-import { Task, Controls } from '../task';
+import { createTask, Task, Controls, getControls } from '../task';
 import { HaltError } from '../halt-error';
 import { Operation } from '../operation';
 import { Trapper } from '../trapper';
@@ -56,9 +56,9 @@ export class IteratorController<TOut> implements Controller<TOut>, Trapper {
         this.controls.resolve(next.value);
       }
     } else {
-      this.subTask = new Task(next.value);
-      this.subTask.addTrapper(this);
-      this.subTask.start();
+      this.subTask = createTask(next.value);
+      getControls(this.subTask).addTrapper(this);
+      getControls(this.subTask).start();
     }
   }
 
@@ -80,7 +80,7 @@ export class IteratorController<TOut> implements Controller<TOut>, Trapper {
     if(!this.didHalt) {
       this.didHalt = true;
       if(this.subTask) {
-        this.subTask.removeTrapper(this);
+        getControls(this.subTask).removeTrapper(this);
         this.subTask.halt();
       }
       this.resume(() => this.iterator.return(undefined));

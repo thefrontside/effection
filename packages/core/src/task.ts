@@ -2,11 +2,10 @@
 import { SuspendController } from './controller/suspend-controller';
 import { PromiseController } from './controller/promise-controller';
 import { IteratorController } from './controller/iterator-controller';
-import { FunctionContoller } from './controller/function-controller';
 import { Controller } from './controller/controller';
 import { Operation } from './operation';
 import { Deferred } from './deferred';
-import { isPromise, isGenerator, isResolution } from './predicates';
+import { isPromise, isResolution, isGenerator } from './predicates';
 import { Trapper } from './trapper';
 import { swallowHalt } from './halt-error';
 import { EventEmitter } from 'events';
@@ -255,4 +254,39 @@ export function getControls<TOut>(task: Task<TOut>): Controls<TOut> {
 
 function isPromiseHolder(value: unknown): value is PromiseHolder {
   return value && !!(value as PromiseHolder)[PromiseHolder];
+}
+
+
+function createController<T>(task: Task<T>, controls: Controls<T>, operation: Operation<T>): Controller<T> {
+  try {
+    if (typeof(operation) === 'function') {
+      return createController(task, controls, operation(task));
+    } else if(!operation) {
+      return new SuspendController(controls);
+    } else if (isResolution(operation)) {
+      return new ResolutionController(controls, operation);
+    } else if (isPromiseHolder(operation)) {
+      return new PromiseController(controls, operation[PromiseHolder]);
+    } else if(isPromise(operation)) {
+      return new PromiseController(controls, operation);
+    } else if (isGenerator(operation)) {
+      (operation as unknown as PromiseHolder)[PromiseHolder] = task;
+      return new IteratorController(controls, operation);
+    }
+  } catch (error) {
+    return new FailController(controls, error);
+  }
+
+  throw new Error(`unkown type of operation: ${operation}`);
+}
+
+
+class FailController<T> implements Controller<T> {
+  constructor(public controls: Controls<T>, public error: Error) {}
+
+  start() {
+    this.controls.reject(this.error);
+  }
+
+  async halt() {}
 }

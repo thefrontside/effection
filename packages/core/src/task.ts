@@ -15,14 +15,6 @@ import { ResolutionController } from './controller/resolution-controller';
 
 let COUNTER = 0;
 
-const CONTROLS = Symbol.for('effection/v2/controls');
-
-const PromiseHolder = Symbol.for('@effection/core/v2/promise-holder');
-
-interface PromiseHolder {
-  [PromiseHolder]: Promise<unknown>;
-}
-
 export interface Controls<TOut> {
   halted(): void;
   resolve(value: TOut): void;
@@ -252,11 +244,6 @@ export function getControls<TOut>(task: Task<TOut>): Controls<TOut> {
   return controls;
 }
 
-function isPromiseHolder(value: unknown): value is PromiseHolder {
-  return value && !!(value as PromiseHolder)[PromiseHolder];
-}
-
-
 function createController<T>(task: Task<T>, controls: Controls<T>, operation: Operation<T>): Controller<T> {
   try {
     if (typeof(operation) === 'function') {
@@ -265,12 +252,9 @@ function createController<T>(task: Task<T>, controls: Controls<T>, operation: Op
       return new SuspendController(controls);
     } else if (isResolution(operation)) {
       return new ResolutionController(controls, operation);
-    } else if (isPromiseHolder(operation)) {
-      return new PromiseController(controls, operation[PromiseHolder]);
     } else if(isPromise(operation)) {
       return new PromiseController(controls, operation);
     } else if (isGenerator(operation)) {
-      (operation as unknown as PromiseHolder)[PromiseHolder] = task;
       return new IteratorController(controls, operation);
     }
   } catch (error) {

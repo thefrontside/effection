@@ -7,6 +7,12 @@ import { Trapper } from '../trapper';
 
 type Continuation = () => IteratorResult<Operation<unknown>>;
 
+const claimed = Symbol.for('effection/v2/iterator-controller/claimed');
+
+interface Claimable {
+  [claimed]?: boolean;
+}
+
 export class IteratorController<TOut> implements Controller<TOut>, Trapper {
   private didHalt = false;
   private didEnter = false;
@@ -14,7 +20,13 @@ export class IteratorController<TOut> implements Controller<TOut>, Trapper {
 
   private continuations: Continuation[] = [];
 
-  constructor(private controls: Controls<TOut>, private iterator: OperationIterator<TOut>) {
+  constructor(private controls: Controls<TOut>, private iterator: OperationIterator<TOut> & Claimable) {
+    if (iterator[claimed]) {
+      let error = new Error(`An operation iterator can only be run once in a single task, but it looks like has been either yielded to, or run multiple times`)
+      error.name = 'DoubleEvalError';
+      throw error;
+    }
+    iterator[claimed] = true;
   }
 
   // make this an async function to delay the first iteration until the next event loop tick

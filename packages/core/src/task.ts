@@ -2,6 +2,7 @@
 import { SuspendController } from './controller/suspend-controller';
 import { PromiseController } from './controller/promise-controller';
 import { IteratorController } from './controller/iterator-controller';
+import { ResolutionController } from './controller/resolution-controller';
 import { Controller } from './controller/controller';
 import { Operation } from './operation';
 import { Deferred } from './deferred';
@@ -11,7 +12,6 @@ import { swallowHalt } from './halt-error';
 import { EventEmitter } from 'events';
 import { StateMachine, State, StateTransition } from './state-machine';
 import { HaltError } from './halt-error';
-import { ResolutionController } from './controller/resolution-controller';
 
 let COUNTER = 0;
 

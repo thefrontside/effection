@@ -7,7 +7,7 @@ let world: Task | undefined;
 type TestFunction = (this: mocha.Context, world: Task, scope: Task) => Generator<Operation<any>, any, any>;
 
 interface ItFunction {
-  (title: string, fn: TestFunction): void;
+  (title: string, fn?: TestFunction): void;
   only(title: string, fn: TestFunction): void;
   skip(title: string, fn: TestFunction): void;
 }
@@ -36,7 +36,7 @@ export const beforeEach = (fn: TestFunction) => mocha.beforeEach(runInWorld(fn))
 export const afterEach = (fn: TestFunction) => mocha.afterEach(runInWorld(fn));
 
 export const it: ItFunction = Object.assign(
-  (title: string, fn: TestFunction) => mocha.it(title, runInWorld(fn)),
+  (title: string, fn?: TestFunction) => mocha.it(title, fn ? runInWorld(fn): fn),
   {
     only: (title: string, fn: TestFunction) => mocha.it.only(title, runInWorld(fn)),
     skip: (title: string, fn: TestFunction) => mocha.it.skip(title, runInWorld(fn)),

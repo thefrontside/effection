@@ -27,8 +27,6 @@ type WithControls<TOut> = { [CONTROLS]?: Controls<TOut> }
 export interface Task<TOut = unknown> extends Promise<TOut> {
   readonly id: number;
   readonly state: State;
-  readonly result?: TOut;
-  readonly error?: Error;
   catchHalt(): Promise<TOut | undefined>;
   spawn<R>(operation?: Operation<R>, options?: TaskOptions): Task<R>;
   ensure(fn: EnsureHandler): void;
@@ -36,8 +34,10 @@ export interface Task<TOut = unknown> extends Promise<TOut> {
 }
 
 export interface Controls<TOut = unknown> extends Trapper {
-  readonly options: TaskOptions;
-  readonly children: Set<Task>;
+  options: TaskOptions;
+  children: Set<Task>;
+  result?: TOut;
+  error?: Error;
   start(): void;
   halted(): void;
   resolve(value: TOut): void;
@@ -63,8 +63,6 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
   let trappers = new Set<Trapper>();
   let ensureHandlers = new Set<EnsureHandler>();
   let emitter = new EventEmitter();
-  let _result: TOut | undefined;
-  let _error: Error | undefined;
 
   let stateMachine = new StateMachine(emitter);
 
@@ -86,12 +84,12 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
       if(stateMachine.current === 'completed') {
         // TODO: model state as a union so we do not need this non-null assertion
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        deferred.resolve(_result!);
+        deferred.resolve(controls.result!);
       } else if(stateMachine.current === 'halted') {
         deferred.reject(new HaltError());
       } else if(stateMachine.current === 'errored') {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        deferred.reject(_error!);
+        deferred.reject(controls.error!);
       }
     }
   }
@@ -121,15 +119,15 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
 
     resolve: (result: TOut) => {
       stateMachine.resolve();
-      _result = result;
+      controls.result = result;
       haltChildren(false);
       resume();
     },
 
     reject: (error: Error) => {
       stateMachine.reject();
-      _result = undefined; // clear result if it has previously been set
-      _error = error;
+      controls.result = undefined; // clear result if it has previously been set
+      controls.error = error;
       haltChildren(true);
       resume();
     },
@@ -160,7 +158,7 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
       if(children.has(child)) {
         if(child.state === 'errored' && !options.ignoreChildErrors) {
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          controls.reject(child.error!);
+          controls.reject(getControls(child).error!);
         }
         controls.unlink(child);
       }
@@ -195,8 +193,6 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
     id,
 
     get state() { return stateMachine.current; },
-    get result() { return _result },
-    get error() { return _error },
 
     catchHalt() {
       return deferred.promise.catch(swallowHalt);

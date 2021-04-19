@@ -13,7 +13,6 @@ describe('resolution function', () => {
     });
     await expect(task).resolves.toEqual(123);
     expect(task.state).toEqual('completed');
-    expect(task.result).toEqual(123);
   });
 
   it('rejects when reject is called', async () => {
@@ -24,7 +23,6 @@ describe('resolution function', () => {
     });
     await expect(task).rejects.toHaveProperty('message', 'boom');
     expect(task.state).toEqual('errored');
-    expect(task.error).toHaveProperty('message', 'boom');
   });
 
   it('rejects when error is thrown in function', async () => {
@@ -35,7 +33,6 @@ describe('resolution function', () => {
     });
     await expect(task).rejects.toHaveProperty('message', 'boom');
     expect(task.state).toEqual('errored');
-    expect(task.error).toHaveProperty('message', 'boom');
   });
 
   it('can be halted', async () => {
@@ -49,6 +46,5 @@ describe('resolution function', () => {
 
     await expect(task).rejects.toHaveProperty('message', 'halted')
     expect(task.state).toEqual('halted');
-    expect(task.result).toEqual(undefined);
   });
 });

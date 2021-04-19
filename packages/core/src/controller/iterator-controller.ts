@@ -65,11 +65,11 @@ export class IteratorController<TOut> implements Controller<TOut>, Trapper {
   trap(child: Task) {
     if(child.state === 'completed') {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      this.resume(() => this.iterator.next(child.result!));
+      this.resume(() => this.iterator.next(getControls(child).result!));
     }
     if(child.state === 'errored') {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      this.resume(() => this.iterator.throw(child.error!));
+      this.resume(() => this.iterator.throw(getControls(child).error!));
     }
     if(child.state === 'halted') {
       this.resume(() => this.iterator.throw(new HaltError()));

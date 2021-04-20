@@ -6,15 +6,14 @@ export function race<T>(...ops: Operation<T>[]): Operation<T> {
     return {
       perform: (resolve, reject) => {
         for(let op of ops) {
-          let task = scope.spawn(op);
-          task.ensure(() => {
-            if(task.state === 'completed') {
-              resolve(getControls(task).result as T);
+          scope.spawn(function*() {
+            try {
+              let result = yield op;
+              resolve(result);
+            } catch (error) {
+              reject(error);
             }
-            if(task.state === 'errored') {
-              reject(getControls(task).error as Error);
-            }
-          })
+          });
         }
       }
     }

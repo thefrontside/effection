@@ -8,8 +8,7 @@ export function race<T>(...ops: Operation<T>[]): Operation<T> {
         for(let op of ops) {
           scope.spawn(function*() {
             try {
-              let result = yield op;
-              resolve(result);
+              resolve(yield op);
             } catch (error) {
               reject(error);
             }

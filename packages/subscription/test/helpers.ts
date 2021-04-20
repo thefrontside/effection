@@ -1,4 +1,4 @@
-import { Operation, sleep, getControls } from '@effection/core';
+import { Operation, sleep } from '@effection/core';
 
 // TODO: move this to core?
 export function race<T>(...ops: Operation<T>[]): Operation<T> {

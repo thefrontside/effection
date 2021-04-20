@@ -4,6 +4,11 @@ export type State = 'pending' | 'running' | 'halting' | 'halted' | 'erroring' | 
 
 function f(value: string) { return JSON.stringify(value) };
 
+export type StateTransition = {
+  from: State;
+  to: State;
+};
+
 export class StateMachine {
   current: State = 'pending';
 

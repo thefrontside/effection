@@ -39,17 +39,6 @@ describe("once()", () => {
       expect(task.state).toEqual('running');
     });
   });
-
-  describe('shutting down the task and then emitting the event on which it is waiting', () => {
-    beforeEach(function*() {
-      yield task.halt();
-      source.emit('event', 1);
-    });
-
-    it('never returns', function*() {
-      expect(task.result).toBeUndefined();
-    });
-  });
 });
 
 describe('onceEmit()', () => {

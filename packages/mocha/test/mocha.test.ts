@@ -22,6 +22,8 @@ describe('@effection/mocha', () => {
   //   yield sleep(10);
   // });
 
+  it('can have pending tasks (note: this is not actually pending)');
+
   describe('accessing mocha API', () => {
     it('works', function*() {
       this.timeout(100);

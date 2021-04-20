@@ -16,28 +16,19 @@ import { HaltError } from './halt-error';
 let COUNTER = 0;
 const CONTROLS = Symbol.for('effection/v2/controls');
 
-export interface Controls<TOut> {
-  halted(): void;
-  resolve(value: TOut): void;
-  reject(error: Error): void;
-  ensure(handler: EnsureHandler): void;
-}
-
 export interface TaskOptions {
   blockParent?: boolean;
   ignoreChildErrors?: boolean;
 }
 
-type EnsureHandler = () => void;
-
 type WithControls<TOut> = { [CONTROLS]?: Controls<TOut> }
+type EnsureHandler = () => void;
 
 export interface Task<TOut = unknown> extends Promise<TOut> {
   readonly id: number;
   readonly state: State;
   catchHalt(): Promise<TOut | undefined>;
   spawn<R>(operation?: Operation<R>, options?: TaskOptions): Task<R>;
-  ensure(fn: EnsureHandler): void;
   halt(): Promise<void>;
 }
 
@@ -50,6 +41,7 @@ export interface Controls<TOut = unknown> extends Trapper {
   halted(): void;
   resolve(value: TOut): void;
   reject(error: Error): void;
+  ensure(fn: EnsureHandler): void;
   link(child: Task): void;
   unlink(child: Task): void;
   addTrapper(trapper: Trapper): void;
@@ -208,10 +200,6 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
       controls.link(child as Task);
       getControls(child).start();
       return child;
-    },
-
-    ensure(fn) {
-      ensureHandlers.add(fn);
     },
 
     async halt() {

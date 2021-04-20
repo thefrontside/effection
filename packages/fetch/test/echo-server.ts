@@ -55,7 +55,13 @@ export class EchoServer {
       }
 
       throwOnErrorEvent(scope, http);
-      scope.ensure(() => http.close());
+      scope.spawn(function*() {
+        try {
+          yield;
+        } finally {
+          http.close();
+        }
+      });
     }
   }
 }

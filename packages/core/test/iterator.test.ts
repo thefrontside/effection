@@ -14,7 +14,6 @@ describe('generator function', () => {
     });
     await expect(task).resolves.toEqual(67);
     expect(task.state).toEqual('completed');
-    expect(task.result).toEqual(67);
   });
 
   it('can compose operations', async () => {
@@ -25,7 +24,6 @@ describe('generator function', () => {
     });
     await expect(task).resolves.toEqual(67);
     expect(task.state).toEqual('completed');
-    expect(task.result).toEqual(67);
   });
 
   it('rejects generator if subtask promise fails', async () => {
@@ -37,7 +35,6 @@ describe('generator function', () => {
     });
     await expect(task).rejects.toEqual(error);
     expect(task.state).toEqual('errored');
-    expect(task.error).toEqual(error);
   });
 
   it('rejects generator if generator creation fails', async () => {
@@ -46,7 +43,6 @@ describe('generator function', () => {
     });
     await expect(task).rejects.toHaveProperty('message', 'boom');
     expect(task.state).toEqual('errored');
-    expect(task.error).toHaveProperty('message', 'boom');
   });
 
   it('rejects generator if subtask operation fails', async () => {
@@ -57,7 +53,6 @@ describe('generator function', () => {
     });
     await expect(task).rejects.toHaveProperty('message', 'boom');
     expect(task.state).toEqual('errored');
-    expect(task.error).toHaveProperty('message', 'boom');
   });
 
   it('can recover from errors in promise', async () => {
@@ -77,7 +72,6 @@ describe('generator function', () => {
     });
     await expect(task).resolves.toEqual(75);
     expect(task.state).toEqual('completed');
-    expect(task.result).toEqual(75);
   });
 
   it('can recover from errors in operation', async () => {
@@ -96,7 +90,6 @@ describe('generator function', () => {
     });
     await expect(task).resolves.toEqual(75);
     expect(task.state).toEqual('completed');
-    expect(task.result).toEqual(75);
   });
 
   it('can halt generator', async () => {
@@ -110,7 +103,6 @@ describe('generator function', () => {
 
     await expect(task).rejects.toHaveProperty('message', 'halted')
     expect(task.state).toEqual('halted');
-    expect(task.result).toEqual(undefined);
   });
 
   it('halts task when halted generator', async () => {
@@ -127,9 +119,7 @@ describe('generator function', () => {
     await expect(task).rejects.toHaveProperty('message', 'halted')
     await expect(child).rejects.toHaveProperty('message', 'halted')
     expect(task.state).toEqual('halted');
-    expect(task.result).toEqual(undefined);
     expect(child && child.state).toEqual('halted');
-    expect(child && child.result).toEqual(undefined);
   });
 
   it('can suspend in finally block', async () => {
@@ -180,7 +170,6 @@ describe('generator function', () => {
 
     await expect(task).rejects.toHaveProperty('message', 'boom');
     expect(task.state).toEqual('errored');
-    expect(task.error).toHaveProperty('message', 'boom');
   });
 
   it('can halt itself', async () => {

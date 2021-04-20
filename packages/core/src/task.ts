@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { SuspendController } from './controller/suspend-controller';
 import { PromiseController } from './controller/promise-controller';
 import { FunctionContoller } from './controller/function-controller';
@@ -8,16 +9,11 @@ import { isPromise } from './predicates';
 import { Trapper } from './trapper';
 import { swallowHalt } from './halt-error';
 import { EventEmitter } from 'events';
-import { StateMachine, State } from './state-machine';
+import { StateMachine, State, StateTransition } from './state-machine';
 import { HaltError } from './halt-error';
 
 let COUNTER = 0;
-
-export interface Controls<TOut> {
-  halted(): void;
-  resolve(value: TOut): void;
-  reject(error: Error): void;
-}
+const CONTROLS = Symbol.for('effection/v2/controls');
 
 export interface TaskOptions {
   blockParent?: boolean;
@@ -26,180 +22,217 @@ export interface TaskOptions {
 
 type EnsureHandler = () => void;
 
-export class Task<TOut = unknown> extends EventEmitter implements Promise<TOut>, Trapper {
-  public id = ++COUNTER;
+type WithControls<TOut> = { [CONTROLS]?: Controls<TOut> }
 
-  public readonly children: Set<Task> = new Set();
-  private trappers: Set<Trapper> = new Set();
-  private ensureHandlers: Set<EnsureHandler> = new Set();
+export interface Task<TOut = unknown> extends Promise<TOut> {
+  readonly id: number;
+  readonly state: State;
+  catchHalt(): Promise<TOut | undefined>;
+  spawn<R>(operation?: Operation<R>, options?: TaskOptions): Task<R>;
+  ensure(fn: EnsureHandler): void;
+  halt(): Promise<void>;
+}
 
-  private controller: Controller<TOut>;
-  private deferred = Deferred<TOut>();
+export interface Controls<TOut = unknown> extends Trapper {
+  options: TaskOptions;
+  children: Set<Task>;
+  result?: TOut;
+  error?: Error;
+  start(): void;
+  halted(): void;
+  resolve(value: TOut): void;
+  reject(error: Error): void;
+  link(child: Task): void;
+  unlink(child: Task): void;
+  addTrapper(trapper: Trapper): void;
+  removeTrapper(trapper: Trapper): void;
+  on(name: 'state', listener: (transition: StateTransition) => void): void;
+  on(name: 'link', listener: (child: Task) => void): void;
+  on(name: 'unlink', listener: (child: Task) => void): void;
+  on(name: string, listener: (...args: any[]) => void): void;
+  off(name: 'state', listener: (transition: StateTransition) => void): void;
+  off(name: 'link', listener: (child: Task) => void): void;
+  off(name: 'unlink', listener: (child: Task) => void): void;
+  off(name: string, listener: (...args: any[]) => void): void;
+}
 
-  private stateMachine = new StateMachine(this);
+export function createTask<TOut = unknown>(operation: Operation<TOut>, options: TaskOptions = {}): Task<TOut> {
+  let id = ++COUNTER;
 
-  public result?: TOut;
-  public error?: Error;
+  let children = new Set<Task>();
+  let trappers = new Set<Trapper>();
+  let ensureHandlers = new Set<EnsureHandler>();
+  let emitter = new EventEmitter();
 
-  private controls: Controls<TOut> = {
-    resolve: (result: TOut) => {
-      this.stateMachine.resolve();
-      this.result = result;
-      this.haltChildren(false);
-      this.resume();
-    },
+  let stateMachine = new StateMachine(emitter);
 
-    reject: (error: Error) => {
-      this.stateMachine.reject();
-      this.result = undefined; // clear result if it has previously been set
-      this.error = error;
-      this.haltChildren(true);
-      this.resume();
-    },
+  let deferred = Deferred<TOut>();
+  deferred.promise.catch(() => {
+    // prevent uncaught promise warnings
+  });
 
-    halted: () => {
-      this.stateMachine.halt();
-      this.haltChildren(true);
-      this.resume();
-    },
+  function resume() {
+    if(stateMachine.isFinishing && children.size === 0) {
+      stateMachine.finish();
+
+      ensureHandlers.forEach((handler) => handler());
+      trappers.forEach((trapper) => trapper.trap(task as Task));
+
+      ensureHandlers.clear();
+      trappers.clear();
+
+      if(stateMachine.current === 'completed') {
+        // TODO: model state as a union so we do not need this non-null assertion
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        deferred.resolve(controls.result!);
+      } else if(stateMachine.current === 'halted') {
+        deferred.reject(new HaltError());
+      } else if(stateMachine.current === 'errored') {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        deferred.reject(controls.error!);
+      }
+    }
   }
 
-  private haltChildren(force: boolean) {
-    for(let child of Array.from(this.children).reverse()) {
-      if(force || !child.options.blockParent) {
+  function haltChildren(force: boolean) {
+    for(let child of Array.from(children).reverse()) {
+      let controls = getControls(child);
+      if(force || !controls.options.blockParent) {
         // Continue halting once the first found child has been fully halted.
         // The child will always have been removed from the Set when this runs.
-        child.addTrapper({ trap: () => this.haltChildren(force) });
+        controls.addTrapper({ trap: () => haltChildren(force) });
         child.halt()
         return;
       }
     }
   }
 
-  get state(): State {
-    return this.stateMachine.current;
-  }
+  let controls: Controls<TOut> = {
+    options,
 
-  constructor(private operation: Operation<TOut>, public options: TaskOptions = {}) {
-    super();
-    if(!operation) {
-      this.controller = new SuspendController(this.controls);
-    } else if(isPromise(operation)) {
-      this.controller = new PromiseController(this.controls, operation);
-    } else if(typeof(operation) === 'function') {
-      this.controller = new FunctionContoller(this.controls, operation);
-    } else {
-      throw new Error(`unkown type of operation: ${operation}`);
-    }
-    this.deferred.promise.catch(() => {
-      // prevent uncaught promise warnings
-    });
-  }
+    children,
 
-  start() {
-    this.stateMachine.start();
-    this.controller.start(this);
-  }
+    start() {
+      stateMachine.start();
+      controller.start(task);
+    },
 
-  private resume() {
-    if(this.stateMachine.isFinishing && this.children.size === 0) {
-      this.stateMachine.finish();
+    resolve: (result: TOut) => {
+      stateMachine.resolve();
+      controls.result = result;
+      haltChildren(false);
+      resume();
+    },
 
-      this.ensureHandlers.forEach((handler) => handler());
-      this.trappers.forEach((trapper) => trapper.trap(this as Task));
+    reject: (error: Error) => {
+      stateMachine.reject();
+      controls.result = undefined; // clear result if it has previously been set
+      controls.error = error;
+      haltChildren(true);
+      resume();
+    },
 
-      this.ensureHandlers.clear();
-      this.trappers.clear();
+    halted: () => {
+      stateMachine.halt();
+      haltChildren(true);
+      resume();
+    },
 
-      if(this.state === 'completed') {
-        // TODO: model state as a union so we do not need this non-null assertion
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        this.deferred.resolve(this.result!);
-      } else if(this.state === 'halted') {
-        this.deferred.reject(new HaltError());
-      } else if(this.state === 'errored') {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        this.deferred.reject(this.error!);
+    link(child) {
+      if(!children.has(child)) {
+        getControls(child).addTrapper(controls);
+        children.add(child);
+        emitter.emit('link', child);
       }
-    }
-  }
+    },
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  then<TResult1 = TOut, TResult2 = never>(onfulfilled?: ((value: TOut) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): Promise<TResult1 | TResult2> {
-    return this.deferred.promise.then(onfulfilled, onrejected);
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): Promise<TOut | TResult> {
-    return this.deferred.promise.catch(onrejected);
-  }
-
-  catchHalt(): Promise<TOut | undefined> {
-    return this.deferred.promise.catch(swallowHalt);
-  }
-
-  finally(onfinally?: (() => void) | null | undefined): Promise<TOut> {
-    return this.deferred.promise.finally(onfinally);
-  }
-
-  spawn<R>(operation?: Operation<R>, options?: TaskOptions): Task<R> {
-    if(this.state !== 'running') {
-      throw new Error('cannot spawn a child on a task which is not running');
-    }
-    let child = new Task(operation, options);
-    this.link(child as Task);
-    child.start();
-    return child;
-  }
-
-  link(child: Task) {
-    if(!this.children.has(child)) {
-      child.addTrapper(this);
-      this.children.add(child);
-      this.emit('link', child);
-    }
-  }
-
-  unlink(child: Task) {
-    if(this.children.has(child)) {
-      child.removeTrapper(this);
-      this.children.delete(child);
-      this.emit('unlink', child);
-    }
-  }
-
-  trap(child: Task) {
-    if(this.children.has(child)) {
-      if(child.state === 'errored' && !this.options.ignoreChildErrors) {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        this.controls.reject(child.error!);
+    unlink(child) {
+      if(children.has(child)) {
+        getControls(child).removeTrapper(controls);
+        children.delete(child);
+        emitter.emit('unlink', child);
       }
-      this.unlink(child);
-    }
-    this.resume();
+    },
+
+    trap(child) {
+      if(children.has(child)) {
+        if(child.state === 'errored' && !options.ignoreChildErrors) {
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          controls.reject(getControls(child).error!);
+        }
+        controls.unlink(child);
+      }
+      resume();
+    },
+
+    addTrapper(trapper) {
+      trappers.add(trapper);
+    },
+
+    removeTrapper(trapper) {
+      trappers.delete(trapper);
+    },
+
+    on: (name: string, listener: (...args: any[]) => void) => { emitter.on(name, listener) },
+    off: (name: string, listener: (...args: any[]) => void) => { emitter.off(name, listener) },
+  };
+
+  let controller: Controller<TOut>;
+
+  if(!operation) {
+    controller = new SuspendController(controls);
+  } else if(isPromise(operation)) {
+    controller = new PromiseController(controls, operation);
+  } else if(typeof(operation) === 'function') {
+    controller = new FunctionContoller(controls, operation);
+  } else {
+    throw new Error(`unkown type of operation: ${operation}`);
   }
 
-  ensure(fn: EnsureHandler) {
-    this.ensureHandlers.add(fn);
+  let task: Task<TOut> & WithControls<TOut> = {
+    id,
+
+    get state() { return stateMachine.current; },
+
+    catchHalt() {
+      return deferred.promise.catch(swallowHalt);
+    },
+
+    spawn(operation?, options?) {
+      if(stateMachine.current !== 'running') {
+        throw new Error('cannot spawn a child on a task which is not running');
+      }
+      let child = createTask(operation, options);
+      controls.link(child as Task);
+      getControls(child).start();
+      return child;
+    },
+
+    ensure(fn) {
+      ensureHandlers.add(fn);
+    },
+
+    async halt() {
+      controller.halt();
+      await deferred.promise.catch(() => {
+        // TODO: should this catch all errors, or only halt errors?
+        // see https://github.com/jnicklas/mini-effection/issues/23
+      });
+    },
+    then: (...args) => deferred.promise.then(...args),
+    catch: (...args) => deferred.promise.catch(...args),
+    finally: (...args) => deferred.promise.finally(...args),
+    [Symbol.toStringTag]: `[Task ${id}]`,
+    [CONTROLS]: controls,
   }
 
-  addTrapper(trapper: Trapper) {
-    this.trappers.add(trapper);
-  }
+  return task;
+};
 
-  removeTrapper(trapper: Trapper) {
-    this.trappers.delete(trapper);
+export function getControls<TOut>(task: Task<TOut>): Controls<TOut> {
+  let controls = (task as WithControls<TOut>)[CONTROLS];
+  if(!controls) {
+    throw new Error(`EFFECTION INTERNAL ERROR unable to retrieve controls for task ${task}`);
   }
-
-  async halt() {
-    this.controller.halt();
-    await this.catch(() => {
-      // TODO: should this catch all errors, or only halt errors?
-      // see https://github.com/jnicklas/mini-effection/issues/23
-    });
-  }
-
-  get [Symbol.toStringTag](): string {
-    return `[Task ${this.id}]`
-  }
+  return controls;
 }

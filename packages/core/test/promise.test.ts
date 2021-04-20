@@ -9,7 +9,6 @@ describe('promise', () => {
     let task = run(Promise.resolve(123))
     await expect(task).resolves.toEqual(123);
     expect(task.state).toEqual('completed');
-    expect(task.result).toEqual(123);
   });
 
   it('rejects a failed promise', async () => {
@@ -17,7 +16,6 @@ describe('promise', () => {
     let task = run(Promise.reject(error))
     await expect(task).rejects.toEqual(error);
     expect(task.state).toEqual('errored');
-    expect(task.error).toEqual(error);
   });
 
   it('can halt a promise', async () => {
@@ -28,7 +26,6 @@ describe('promise', () => {
 
     await expect(task).rejects.toHaveProperty('message', 'halted')
     expect(task.state).toEqual('halted');
-    expect(task.result).toEqual(undefined);
   });
 
   describe('function', () => {
@@ -36,7 +33,6 @@ describe('promise', () => {
       let task = run(() => Promise.resolve(123))
       await expect(task).resolves.toEqual(123);
       expect(task.state).toEqual('completed');
-      expect(task.result).toEqual(123);
     });
 
     it('rejects a failed promise', async () => {
@@ -44,7 +40,6 @@ describe('promise', () => {
       let task = run(() => Promise.reject(error))
       await expect(task).rejects.toEqual(error);
       expect(task.state).toEqual('errored');
-      expect(task.error).toEqual(error);
     });
 
     it('can halt a promise', async () => {
@@ -55,7 +50,6 @@ describe('promise', () => {
 
       await expect(task).rejects.toHaveProperty('message', 'halted')
       expect(task.state).toEqual('halted');
-      expect(task.result).toEqual(undefined);
     });
   });
 });

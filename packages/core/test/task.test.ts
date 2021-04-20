@@ -2,7 +2,7 @@ import './setup';
 import { describe, it } from 'mocha';
 import * as expect from 'expect';
 
-import { run, sleep, Task } from '../src/index';
+import { run, sleep, createTask, Task, getControls } from '../src/index';
 
 describe('Task', () => {
   describe('ensure', () => {
@@ -62,11 +62,10 @@ describe('Task', () => {
   describe('event: state', () => {
     it('is triggered when a task changes state', async () => {
       let events: { to: string; from: string }[] = []
-      let task = new Task(function*() { sleep(5) });
+      let task = createTask(function*() { sleep(5) });
 
-      task.on('state', (transition) => events.push(transition));
-
-      task.start();
+      getControls(task).on('state', (transition) => events.push(transition));
+      getControls(task).start();
 
       await task;
 
@@ -83,7 +82,7 @@ describe('Task', () => {
       let events: Task[] = []
       let task = run();
 
-      task.on('link', (child) => events.push(child));
+      getControls(task).on('link', (child) => events.push(child));
 
       let child = task.spawn();
 
@@ -96,7 +95,7 @@ describe('Task', () => {
       let events: Task[] = []
       let task = run();
 
-      task.on('unlink', (child) => events.push(child));
+      getControls(task).on('unlink', (child) => events.push(child));
 
       let child = task.spawn(function*() { yield sleep(5); return 1 });
 
@@ -109,7 +108,7 @@ describe('Task', () => {
       let events: Task[] = []
       let task = run();
 
-      task.on('unlink', (child) => events.push(child));
+      getControls(task).on('unlink', (child) => events.push(child));
 
       let child = task.spawn(function*() { yield sleep(5); return 1 });
 

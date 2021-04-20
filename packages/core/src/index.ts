@@ -2,7 +2,8 @@ import { Operation } from './operation';
 import { Task, TaskOptions } from './task';
 import { Effection } from './effection';
 
-export { Task, TaskOptions } from './task';
+export { State, StateTransition } from './state-machine';
+export { createTask, Task, TaskOptions, Controls, getControls } from './task';
 export { Operation } from './operation';
 export { sleep } from './sleep';
 export { Effection } from './effection';

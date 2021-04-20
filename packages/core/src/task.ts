@@ -14,6 +14,7 @@ import { StateMachine, State, StateTransition } from './state-machine';
 import { HaltError } from './halt-error';
 
 let COUNTER = 0;
+const CONTROLS = Symbol.for('effection/v2/controls');
 
 export interface Controls<TOut> {
   halted(): void;
@@ -139,6 +140,10 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
       resume();
     },
 
+    ensure(fn) {
+      ensureHandlers.add(fn)
+    },
+
     halted: () => {
       stateMachine.halt();
       haltChildren(true);
@@ -186,16 +191,6 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
 
   let controller: Controller<TOut>;
 
-  if(!operation) {
-    controller = new SuspendController(controls);
-  } else if(isPromise(operation)) {
-    controller = new PromiseController(controls, operation);
-  } else if(typeof(operation) === 'function') {
-    controller = new FunctionContoller(controls, operation);
-  } else {
-    throw new Error(`unkown type of operation: ${operation}`);
-  }
-
   let task: Task<TOut> & WithControls<TOut> = {
     id,
 
@@ -232,6 +227,8 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
     [Symbol.toStringTag]: `[Task ${id}]`,
     [CONTROLS]: controls,
   }
+
+  controller = createController(task, controls, operation);
 
   return task;
 };

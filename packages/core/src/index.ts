@@ -9,6 +9,7 @@ export { sleep } from './sleep';
 export { Effection } from './effection';
 export { deprecated } from './deprecated';
 export { Deferred } from './deferred';
+export { race } from './race';
 
 export function run<TOut>(operation?: Operation<TOut>, options?: TaskOptions): Task<TOut> {
   return Effection.root.spawn(operation, options);

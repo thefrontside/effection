@@ -8,6 +8,7 @@ export { Operation, Resource } from './operation';
 export { Effection } from './effection';
 export { deprecated } from './deprecated';
 export { Deferred } from './deferred';
+export { race } from './race';
 
 export { sleep } from './operations/sleep';
 export { ensure } from './operations/ensure';

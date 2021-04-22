@@ -6,8 +6,8 @@ import { run } from '../src/index';
 
 describe('resolution function', () => {
   it('resolves when resolve is called', async () => {
-    let task = run(() => {
-      return (resolve) => {
+    let task = run({
+      perform(resolve) {
         setTimeout(() => resolve(123), 5)
       }
     });
@@ -16,8 +16,8 @@ describe('resolution function', () => {
   });
 
   it('rejects when reject is called', async () => {
-    let task = run(() => {
-      return (resolve, reject) => {
+    let task = run({
+      perform(_resolve, reject) {
         setTimeout(() => reject(new Error('boom')), 5)
       }
     });
@@ -26,18 +26,16 @@ describe('resolution function', () => {
   });
 
   it('rejects when error is thrown in function', async () => {
-    let task = run(() => {
-      return () => {
-        throw new Error('boom');
-      }
+    let task = run({
+      perform() { throw new Error('boom'); }
     });
     await expect(task).rejects.toHaveProperty('message', 'boom');
     expect(task.state).toEqual('errored');
   });
 
   it('can be halted', async () => {
-    let task = run(() => {
-      return () => {
+    let task = run({
+      perform() {
         // never resolves
       }
     });

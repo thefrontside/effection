@@ -1,11 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { SuspendController } from './controller/suspend-controller';
-import { PromiseController } from './controller/promise-controller';
-import { FunctionContoller } from './controller/function-controller';
-import { Controller } from './controller/controller';
+import { Controller, createController } from './controller/controller';
 import { Operation } from './operation';
 import { Deferred } from './deferred';
-import { isPromise } from './predicates';
 import { Trapper } from './trapper';
 import { swallowHalt } from './halt-error';
 import { EventEmitter } from 'events';
@@ -20,16 +16,14 @@ export interface TaskOptions {
   ignoreChildErrors?: boolean;
 }
 
-type EnsureHandler = () => void;
-
 type WithControls<TOut> = { [CONTROLS]?: Controls<TOut> }
+type EnsureHandler = () => void;
 
 export interface Task<TOut = unknown> extends Promise<TOut> {
   readonly id: number;
   readonly state: State;
   catchHalt(): Promise<TOut | undefined>;
   spawn<R>(operation?: Operation<R>, options?: TaskOptions): Task<R>;
-  ensure(fn: EnsureHandler): void;
   halt(): Promise<void>;
 }
 
@@ -42,6 +36,7 @@ export interface Controls<TOut = unknown> extends Trapper {
   halted(): void;
   resolve(value: TOut): void;
   reject(error: Error): void;
+  ensure(fn: EnsureHandler): void;
   link(child: Task): void;
   unlink(child: Task): void;
   addTrapper(trapper: Trapper): void;
@@ -132,6 +127,10 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
       resume();
     },
 
+    ensure(fn) {
+      ensureHandlers.add(fn)
+    },
+
     halted: () => {
       stateMachine.halt();
       haltChildren(true);
@@ -179,16 +178,6 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
 
   let controller: Controller<TOut>;
 
-  if(!operation) {
-    controller = new SuspendController(controls);
-  } else if(isPromise(operation)) {
-    controller = new PromiseController(controls, operation);
-  } else if(typeof(operation) === 'function') {
-    controller = new FunctionContoller(controls, operation);
-  } else {
-    throw new Error(`unkown type of operation: ${operation}`);
-  }
-
   let task: Task<TOut> & WithControls<TOut> = {
     id,
 
@@ -208,10 +197,6 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
       return child;
     },
 
-    ensure(fn) {
-      ensureHandlers.add(fn);
-    },
-
     async halt() {
       controller.halt();
       await deferred.promise.catch(() => {
@@ -225,6 +210,8 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
     [Symbol.toStringTag]: `[Task ${id}]`,
     [CONTROLS]: controls,
   }
+
+  controller = createController(task, controls, operation);
 
   return task;
 };

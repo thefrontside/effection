@@ -7,6 +7,12 @@ import { Trapper } from '../trapper';
 
 type Continuation = () => IteratorResult<Operation<unknown>>;
 
+const claimed = Symbol.for('effection/v2/iterator-controller/claimed');
+
+interface Claimable {
+  [claimed]?: boolean;
+}
+
 export class IteratorController<TOut> implements Controller<TOut>, Trapper {
   private didHalt = false;
   private didEnter = false;
@@ -14,12 +20,18 @@ export class IteratorController<TOut> implements Controller<TOut>, Trapper {
 
   private continuations: Continuation[] = [];
 
-  constructor(private controls: Controls<TOut>, private iterator: OperationIterator<TOut>) {
-  }
+  constructor(private controls: Controls<TOut>, private iterator: OperationIterator<TOut> & Claimable) {}
 
   // make this an async function to delay the first iteration until the next event loop tick
   async start() {
-    this.resume(() => this.iterator.next());
+    if (this.iterator[claimed]) {
+      let error = new Error(`An operation iterator can only be run once in a single task, but it looks like has been either yielded to, or run multiple times`)
+      error.name = 'DoubleEvalError';
+      this.controls.reject(error);
+    } else {
+      this.iterator[claimed] = true;
+      this.resume(() => this.iterator.next());
+    }
   }
 
   // the purpose of this method is solely to make `step` reentrant, that is we

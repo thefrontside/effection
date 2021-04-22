@@ -6,7 +6,13 @@ export function fetch(scope: Task, info: RequestInfo, init: RequestInit = {}): O
   return function*() {
     let controller = new AbortController();
 
-    scope.ensure(() => controller.abort());
+    scope.spawn(function*() {
+      try {
+        yield;
+      } finally {
+        controller.abort();
+      }
+    });
 
     init.signal = controller.signal;
 

@@ -7,8 +7,13 @@ export class ResolutionController<TOut> implements Controller<TOut> {
   }
 
   start() {
+    let { controls } = this;
+
     try {
-      this.resolution(this.controls.resolve, this.controls.reject);
+      let atExit = this.resolution.perform(this.controls.resolve, this.controls.reject);
+      if (atExit) {
+        controls.ensure(atExit);
+      }
     } catch(error) {
       this.controls.reject(error);
     }

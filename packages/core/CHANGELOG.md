@@ -1,5 +1,12 @@
 # @effection/core
 
+## 2.0.0-preview.8
+
+### Minor Changes
+
+- a13987f: make operation resolution an interface. Make operation iterators
+  an operation.
+
 ## 2.0.0-preview.7
 
 ### Minor Changes

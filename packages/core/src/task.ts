@@ -1,12 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { SuspendController } from './controller/suspend-controller';
-import { PromiseController } from './controller/promise-controller';
-import { IteratorController } from './controller/iterator-controller';
-import { ResolutionController } from './controller/resolution-controller';
-import { Controller } from './controller/controller';
+import { Controller, createController } from './controller/controller';
 import { Operation } from './operation';
 import { Deferred } from './deferred';
-import { isPromise, isResolution, isGenerator } from './predicates';
 import { Trapper } from './trapper';
 import { swallowHalt } from './halt-error';
 import { EventEmitter } from 'events';
@@ -227,30 +222,4 @@ export function getControls<TOut>(task: Task<TOut>): Controls<TOut> {
     throw new Error(`EFFECTION INTERNAL ERROR unable to retrieve controls for task ${task}`);
   }
   return controls;
-}
-
-function createController<T>(task: Task<T>, controls: Controls<T>, operation: Operation<T>): Controller<T> {
-  try {
-    if (typeof(operation) === 'function') {
-      return createController(task, controls, operation(task));
-    } else if(!operation) {
-      return new SuspendController(controls);
-    } else if (isResolution(operation)) {
-      return new ResolutionController(controls, operation);
-    } else if(isPromise(operation)) {
-      return new PromiseController(controls, operation);
-    } else if (isGenerator(operation)) {
-      return new IteratorController(controls, operation);
-    }
-  } catch (error) {
-    return new FailController(controls, error);
-  }
-
-  throw new Error(`unkown type of operation: ${operation}`);
-}
-
-class FailController<T> implements Controller<T> {
-  constructor(public controls: Controls<T>, public error: Error) {}
-  halt = () => Promise.resolve()
-  start = () => this.controls.reject(this.error);
 }

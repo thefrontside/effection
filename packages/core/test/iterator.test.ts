@@ -165,7 +165,7 @@ describe('generator function', () => {
         yield sleep(2);
         reject && reject(new Error('boom'));
       });
-      yield () => (res, rej) => { reject = rej };
+      yield { perform: (_res, rej) => { reject = rej } };
     });
 
     await expect(task).rejects.toHaveProperty('message', 'boom');

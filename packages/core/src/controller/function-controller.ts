@@ -1,42 +1,25 @@
+import { Controls, Task } from '../task';
 import { Controller } from './controller';
-import { OperationFunction } from '../operation';
-import { Task, Controls } from '../task';
-import { isPromise } from '../predicates';
-import { IteratorController } from './iterator-controller';
-import { ResolutionController } from './resolution-controller';
-import { PromiseController } from './promise-controller';
 
-export class FunctionContoller<TOut> implements Controller<TOut> {
-  private controller?: Controller<TOut>;
+export class FunctionController<T> implements Controller<T> {
+  delegate?: Controller<T>;
 
-  constructor(private controls: Controls<TOut>, private operation: OperationFunction<TOut>) {
-  }
+  constructor(public controls: Controls<T>, public createController: () => Controller<T>) {}
 
-  start(task: Task<TOut>) {
-    let result;
+  start(task: Task<T>) {
     try {
-      result = this.operation(task);
-    } catch(error) {
+      this.delegate = this.createController();
+    } catch (error) {
       this.controls.reject(error);
       return;
     }
-    let controller;
-    if(isPromise(result)) {
-      controller = new PromiseController(this.controls, result);
-    } else if(typeof(result) === 'function') {
-      controller = new ResolutionController(this.controls, result);
-    } else {
-      controller = new IteratorController(this.controls, result);
-    }
-    this.controller = controller;
-    controller.start();
+    this.delegate.start(task);
   }
 
-  async halt() {
-    if(this.controller) {
-      this.controller.halt();
-    } else {
-      throw new Error('INTERNAL ERROR: halt called before start, this should never happen');
+  halt() {
+    if (!this.delegate) {
+      throw new Error(`EFFECTION INTERNAL ERROR halt() called before start()`);
     }
+    this.delegate.halt();
   }
 }

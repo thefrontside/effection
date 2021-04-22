@@ -44,17 +44,19 @@ export function createQueue<T, TReturn = undefined>(): Queue<T, TReturn> {
   }
 
   let next = (): Operation<IteratorResult<T, TReturn>> => {
-    return (task) => (resolve) => {
-      if(values.length) {
-        resolve(values.shift() as IteratorResult<T, TReturn>);
-      } else {
-        task.ensure(() => {
-          let index = waiters.indexOf(resolve);
-          if(index > -1) {
-            waiters.splice(index, 1);
-          }
-        });
-        waiters.push(resolve);
+    return {
+      perform(resolve) {
+        if(values.length) {
+          resolve(values.shift() as IteratorResult<T, TReturn>);
+        } else {
+          waiters.push(resolve);
+          return () => {
+            let index = waiters.indexOf(resolve);
+            if(index > -1) {
+              waiters.splice(index, 1);
+            }
+          };
+        }
       }
     }
   };

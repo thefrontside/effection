@@ -1,19 +1,19 @@
-import { Operation, sleep, getControls } from '@effection/core';
+import { Operation, sleep } from '@effection/core';
 
 // TODO: move this to core?
 export function race<T>(...ops: Operation<T>[]): Operation<T> {
   return function(scope) {
-    return (resolve, reject) => {
-      for(let op of ops) {
-        let task = scope.spawn(op);
-        task.ensure(() => {
-          if(task.state === 'completed') {
-            resolve(getControls(task).result as T);
-          }
-          if(task.state === 'errored') {
-            reject(getControls(task).error as Error);
-          }
-        })
+    return {
+      perform: (resolve, reject) => {
+        for(let op of ops) {
+          scope.spawn(function*() {
+            try {
+              resolve(yield op);
+            } catch (error) {
+              reject(error);
+            }
+          });
+        }
       }
     }
   }

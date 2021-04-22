@@ -11,8 +11,9 @@ export class FunctionController<T> implements Controller<T> {
       this.delegate = this.createController();
     } catch (error) {
       this.controls.reject(error);
+      return;
     }
-    this.delegate?.start(task);
+    this.delegate.start(task);
   }
 
   halt() {

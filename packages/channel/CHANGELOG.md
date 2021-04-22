@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.0.0-preview.10
+
+### Patch Changes
+
+- Updated dependencies [a13987f]
+  - @effection/core@2.0.0-preview.8
+  - @effection/subscription@2.0.0-preview.9
+  - @effection/events@2.0.0-preview.8
+
 ## 2.0.0-preview.9
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # @effection/subscription
 
+## 2.0.0-preview.9
+
+### Patch Changes
+
+- a13987f: make operation resolution an interface. Make operation iterators
+  an operation.
+- Updated dependencies [a13987f]
+  - @effection/core@2.0.0-preview.8
+
 ## 2.0.0-preview.8
 
 ### Patch Changes

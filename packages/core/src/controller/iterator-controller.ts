@@ -22,8 +22,7 @@ export class IteratorController<TOut> implements Controller<TOut>, Trapper {
 
   constructor(private controls: Controls<TOut>, private iterator: OperationIterator<TOut> & Claimable) {}
 
-  // make this an async function to delay the first iteration until the next event loop tick
-  async start() {
+  start() {
     if (this.iterator[claimed]) {
       let error = new Error(`An operation iterator can only be run once in a single task, but it looks like has been either yielded to, or run multiple times`)
       error.name = 'DoubleEvalError';

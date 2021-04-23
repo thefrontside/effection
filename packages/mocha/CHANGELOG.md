@@ -1,5 +1,14 @@
 # @effection/mocha
 
+## 2.0.0-preview.8
+
+### Patch Changes
+
+- 91f7f6b: Allow "pending" it blocks that don't yet have a body. E.g.
+  `it('will do this')`;
+- Updated dependencies [a13987f]
+  - @effection/core@2.0.0-preview.8
+
 ## 2.0.0-preview.7
 
 ### Patch Changes

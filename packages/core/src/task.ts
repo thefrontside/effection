@@ -27,7 +27,7 @@ export interface Task<TOut = unknown> extends Promise<TOut> {
   halt(): Promise<void>;
 }
 
-export interface Controls<TOut = unknown> extends Trapper {
+export interface Controls<TOut = unknown> {
   options: TaskOptions;
   children: Set<Task>;
   result?: TOut;
@@ -41,6 +41,7 @@ export interface Controls<TOut = unknown> extends Trapper {
   unlink(child: Task): void;
   addTrapper(trapper: Trapper): void;
   removeTrapper(trapper: Trapper): void;
+  trap: Trapper;
   on(name: 'state', listener: (transition: StateTransition) => void): void;
   on(name: 'link', listener: (child: Task) => void): void;
   on(name: 'unlink', listener: (child: Task) => void): void;
@@ -71,7 +72,7 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
       stateMachine.finish();
 
       ensureHandlers.forEach((handler) => handler());
-      trappers.forEach((trapper) => trapper.trap(task as Task));
+      trappers.forEach((trapper) => trapper(task as Task));
 
       ensureHandlers.clear();
       trappers.clear();
@@ -95,7 +96,7 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
       if(force || !controls.options.blockParent) {
         // Continue halting once the first found child has been fully halted.
         // The child will always have been removed from the Set when this runs.
-        controls.addTrapper({ trap: () => haltChildren(force) });
+        controls.addTrapper(() => haltChildren(force));
         child.halt()
         return;
       }
@@ -139,7 +140,7 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
 
     link(child) {
       if(!children.has(child)) {
-        getControls(child).addTrapper(controls);
+        getControls(child).addTrapper(controls.trap);
         children.add(child);
         emitter.emit('link', child);
       }
@@ -147,7 +148,7 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
 
     unlink(child) {
       if(children.has(child)) {
-        getControls(child).removeTrapper(controls);
+        getControls(child).removeTrapper(controls.trap);
         children.delete(child);
         emitter.emit('unlink', child);
       }
@@ -211,7 +212,7 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
     [CONTROLS]: controls,
   }
 
-  controller = createController(task, controls, operation);
+  controller = createController(task, operation);
 
   return task;
 };

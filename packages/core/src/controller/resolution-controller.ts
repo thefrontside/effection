@@ -1,25 +1,24 @@
 import { Controller } from './controller';
 import { OperationResolution } from '../operation';
-import { Controls } from '../task';
+import { Task, getControls } from '../task';
 
-export class ResolutionController<TOut> implements Controller<TOut> {
-  constructor(private controls: Controls<TOut>, private resolution: OperationResolution<TOut>) {
-  }
+export function createResolutionController<TOut>(task: Task<TOut>, resolution: OperationResolution<TOut>): Controller<TOut> {
+  let controls = getControls(task);
 
-  start() {
-    let { controls } = this;
-
+  function start() {
     try {
-      let atExit = this.resolution.perform(this.controls.resolve, this.controls.reject);
+      let atExit = resolution.perform(controls.resolve, controls.reject);
       if (atExit) {
         controls.ensure(atExit);
       }
     } catch(error) {
-      this.controls.reject(error);
+      controls.reject(error);
     }
   }
 
-  halt() {
-    this.controls.halted();
+  function halt() {
+    controls.halted();
   }
+
+  return { start, halt };
 }

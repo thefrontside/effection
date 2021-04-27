@@ -14,6 +14,7 @@ const CONTROLS = Symbol.for('effection/v2/controls');
 export interface TaskOptions {
   blockParent?: boolean;
   ignoreChildErrors?: boolean;
+  ignoreError?: boolean;
 }
 
 type WithControls<TOut> = { [CONTROLS]?: Controls<TOut> }
@@ -156,7 +157,7 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
 
     trap(child) {
       if(children.has(child)) {
-        if(child.state === 'errored' && !options.ignoreChildErrors) {
+        if(child.state === 'errored' && !getControls(child).options.ignoreError && !options.ignoreChildErrors) {
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           controls.reject(getControls(child).error!);
         }

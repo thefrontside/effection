@@ -65,7 +65,8 @@ export function createIteratorController<TOut>(task: Task<TOut>, iterator: Opera
         controls.resolve(next.value);
       }
     } else {
-      subTask = createTask(next.value);
+      subTask = createTask(next.value, { ignoreError: true });
+      getControls(task).link(subTask);
       getControls(subTask).addTrapper(trap);
       getControls(subTask).start();
     }
@@ -81,7 +82,11 @@ export function createIteratorController<TOut>(task: Task<TOut>, iterator: Opera
       resume(() => iterator.throw(getControls(child).error!));
     }
     if(child.state === 'halted') {
-      resume(() => iterator.throw(new HaltError()));
+      if(didHalt) {
+        resume(() => iterator.return(undefined));
+      } else {
+        resume(() => iterator.throw(new HaltError()));
+      }
     }
   }
 
@@ -89,10 +94,8 @@ export function createIteratorController<TOut>(task: Task<TOut>, iterator: Opera
     if(!didHalt) {
       didHalt = true;
       if(subTask) {
-        getControls(subTask).removeTrapper(trap);
         subTask.halt();
       }
-      resume(() => iterator.return(undefined));
     }
   }
 

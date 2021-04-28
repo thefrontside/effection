@@ -5,163 +5,175 @@
 [![Created by Frontside](https://img.shields.io/badge/created%20by-frontside-26abe8.svg)](https://frontside.com)
 [![Chat on Discord](https://img.shields.io/discord/700803887132704931?Label=Discord)](https://discord.gg/Ug5nWH8)
 
-# effection
+# Effection
 
-Effortlessly composable structured concurrency primitive for
-JavaScript
+A framework for building concurrent systems in JavaScript and TypeScript.
 
-See [examples](examples/)
+JavaScript has gone through multiple evolutionary steps in how to deal with
+concurrency. From callbacks and events, to promises and finally to async/await.
+However, while dealing with concurrency certainly has become easier, many challenges
+remain, and it can be difficult to write concurrent code which is both correct
+and composable. Unless great care is taken, it can be very easy to leak resources.
+Most JavaScript code written to do does not handle cancellation very well, and failure
+conditions can easily lead to dangling promises and other unexpected behaviour.
 
-To run an example with NAME:
+Effection leverages the idea of [structured concurrency][], to ensure that you
+don't leak any resources, and that cancellation is properly handled. Effection
+helps you build concurrent code which feels rock solid and behaves well under
+all failure conditions. Effection allows you to compose concurrent code so that
+you can reason about its behaviour.
 
-``` text
-$ node -r ./tests/setup examples/NAME
-```
+## What is Effection?
 
-## Structured Concurrency and Effects
+Effection consists of a small core and an expanding set of libraries built on top
+of this core which provide various concurrency primitives.
 
-> Note: For an general introduction to the concept of structured
-> concurrency, and why it is so important, see [this excellent primer
-> on the subject][1] by Nathaniel Smith.
+The following packages are considered production ready and re-exported by the `effection`
+package:
 
-There's an entire hive of bugs that occur when asynchronous processes
-outlive their welcome. The concept of structured concurrency eliminates
-these altogether by providing the following guarantees:
+- `@effection/main`: A main entry point for Effection applications for node and browser
+- `@effection/subscription`: Subscription and stream processing for reactive style coding
+- `@effection/channel`: Broadcast channels for communication via a message bus
+- `@effection/events`: Integrate with evented code both in node and in the browser
 
-1. A process is considered pending (unfinished) while it is either
-   running or when it has _any_ child process that is pending.
-2. If an error occurs in a process that is not caught, then that error
-   propagates to the parent process.
-3. If a process finishes in error or by halting, then all of its child
-   process are immediately halted.
+Additionally the following packages are cosidered production ready:
 
-For example, if you have the following processes:
+- `@effection/process`: Process spawning and management
+- `@effection/fetch`: Wrapper around `fetch` to fetch remote resources
+- `@effection/mocha`: Mocha integration to simplify testing of Effection-based code
 
-``` text
-+ - parent
-  |
-  + --- child A
-  |
-  + --- child B
-```
+The following packages are considered beta level:
 
-We can make the following assertions based on these guarantees :
+- `@effection/atom`: A state store
+- `@effection/react`: Integration with React
+- `@effection/websocket-client`: A client for communication across websockets
+- `@effection/websocket-server`: A server for communication across websockets
 
-a. If the code associated with `parent` finishes running, but _either_ `A`
-_or_ `B` are pending, then `parent` is still considered pending.
+## Why use Effection?
 
-b. If `parent` is halted, then _both_ `A` and `B` are halted.
+Using Effection provides many benefits over using plain Promises and async/await code:
 
-c. If an error is raised in `parent`, then _both_ `A` and `B` are
-halted.
+- **Cleanup:** Effection code cleans up after itself, and that means never having
+  to remember to manually close a resource or detach a listener.
+- **Cancellation:** Any Effection task can be cancelled, which will completely
+  stop that task, as well as stopping any other tasks this operation itself has
+  started.
+- **Synchronicity:** Unlike Promises and async/await, Effection is fundamentally
+  synchronous in nature, this means you have full control over the event loop
+  and operations requiring synchronous setup remain race condition free.
+- **Composition:** Since all Effection code is well behaved, it composes easily, and there
+  are no nasty surprises when trying to fit different pieces together.
 
-d. if an error is raised in `A`, then that error is also raised in
-`parent`, _and_ child `B` is halted.
+## Replacing async/await
 
-scenario `d` is of particular importance. It means that if a child
-throws an error and its parent doesn't catch it, then all of its
-siblings are immediately halted.
+At its most elementary level, Effection uses JavaScript generators to drive
+your concurrent code. Generators are similar to async/await and have a similar
+syntax.
 
-## Context
-
-Every operation takes place within an execution context. To create the
-very first context, use the `run` function and pass it a generator. This
-example waits for 1 second, then prints out "hello world" to
-the console.
+With `async`/`await`:
 
 ``` javascript
-import { run, sleep } from 'effection';
+async function printDay() {
+  let response = await fetch("http://worldclockapi.com/api/json/est/now");
+  let time = await resonse.json();
 
-let context = run(function*() {
+  console.log(`It is ${time.dayOfTheWeek}, my friends!`);
+}
+```
+
+With Effection:
+
+``` javascript
+function *printDay() {
+  let response = yield fetch("http://worldclockapi.com/api/json/est/now");
+  let time = yield response.json();
+
+  console.log(`It is ${time.dayOfTheWeek}, my friends!`);
+}
+```
+
+As you can see, we have replaced the `async` function with a generator function
+using the `*` annotation on the function. We have replaced `await` with
+`yield`.
+
+## Getting started
+
+Let's write a simple program using Effection!
+
+```
+npm init my-effection-example
+cd ./my-effection-example
+npm install effection
+```
+
+Let's add an `index.mjs` file like this:
+
+``` javascript
+import { main, sleep } from 'effection';
+
+main(function*() {
+  console.log('hello from effection!');
   yield sleep(1000);
-  return 'hello world';
+  console.log('hello again!');
 });
-
-context.isRunning //=> true
-// 1000ms passes
-// context.isRunning //=> false
-// context.result //=> 'hello world'
 ```
 
-Child processes can be composed freely. So instead of yielding for
-1000 ms, we could instead, yield 10 times for 100ms.
+Let's go through what's going on here:
 
-``` javascript
-run(function*() {
-  yield function*() {
-    for (let i = 0; i < 10; i++) {
-      yield sleep(100);
-    }
-  }
-  return 'hello world';
-})
+- `main` is the main entry point when you're writing Effection programs.
+- The argument to `main` is an [Operation][].
+- One example of an operation is a generator function.
+- Promises are also operations
+- Inside the generator function we can `yield` to other operations.
+- `sleep` is an operation provided by effection. When yielded to, it suspeds
+  the operation for the given number of milliseconds.
+- When the operation passed to `main` completes, the program exits.
+
+Let's use our newfound knowledge to write a program to fetch the current weekday.
+
+We will need to install the `@effection/fetch` package:
+
+```
+yarn add @effection/fetch
 ```
 
-And in fact, processes can be easily and arbitrarly deeply nested:
+Now we can modify our program:
 
 ``` javascript
-let process = run(function*() {
-  return yield function*() {
-    return yield function*() {
-      return yield function*() {
-        return 'hello world';
-      }
-    };
-  };
-});
+import { main, sleep } from 'effection';
+import { fetch } from '@effection/fetch';
 
-process.isCompleted //=> true
-process.result //=> "hello world"
-```
+function *printDay() {
+  let response = yield fetch("http://worldclockapi.com/api/json/est/now");
+  let time = yield response.json();
 
-You can pass arguments to an operation by invoking it.
-
-``` javascript
-
-import { run, sleep } from 'effection';
-
-function* waitForSeconds(durationSeconds) {
-  yield sleep(durationSeconds * 1000);
+  console.log(`It is ${time.dayOfTheWeek}, my friends!`);
 }
 
-run(waitforseconds(10));
+main(printDay);
 ```
 
-### Asynchronous Execution
-
-Sometimes you want to fork some processes in parallel and not
-necessarily block further execution on them. You still want the
-guarantees associated with structured concurrency however. For
-example, you might want to create a couple of different servers as
-part of your main process. To do this, you would use the `fork` method
-on the execution:
+Instead of having a `printDay` function, let's make this more composable by
+making a `fetchWeekDay` function which returns the current weekday:
 
 ``` javascript
-import { run, fork } from 'effection';
+import { main, sleep } from 'effection';
+import { fetch } from '@effection/fetch';
 
-run(function*() {
-  yield fork(createFileServer);
-  yield fork(createHttpServer);
+function *fetchWeekDay() {
+  let response = yield fetch("http://worldclockapi.com/api/json/est/now");
+  let time = yield response.json();
+  return time.dayOfTheWeek;
+}
+
+main(function*() {
+  let weekDay = yield fetchWeekDay();
+  console.log(`It is ${weekDay}, my friends!`);
 });
 ```
 
-Even though it exits almost immediately, the main process is not
-considered completed until _both_ servers shutdown. More importantly
-though, if we shutdown the main process, then both servers will be
-halted.
+If you've used `async`/`await before, this should feel fairly familiar! However,
+Effection has a lot of tricks up its sleeve.
 
-## Development
-
-yarn install
-
-``` text
-$ yarn
-```
-
-run tests:
-
-``` text
-$ yarn test
-```
-
-[1]: https://vorpus.org/blog/notes-on-structured-concurrency-or-go-statement-considered-harmful/
+[structured concurrency]: https://vorpus.org/blog/notes-on-structured-concurrency-or-go-statement-considered-harmful/
+[operation]: http://example.com

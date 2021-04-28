@@ -206,4 +206,19 @@ describe('generator function', () => {
     await expect(task).rejects.toHaveProperty('message', 'halted');
     expect(task.state).toEqual('halted');
   });
+
+  it('can halt itself between yield points', async () => {
+    let task = run(function*(inner) {
+      yield sleep(1);
+
+      inner.spawn(function*() {
+        inner.halt();
+      });
+
+      yield
+    });
+
+    await expect(task).rejects.toHaveProperty('message', 'halted');
+    expect(task.state).toEqual('halted');
+  });
 });

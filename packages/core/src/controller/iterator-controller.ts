@@ -1,7 +1,6 @@
 import { Controller } from './controller';
 import { OperationIterator } from '../operation';
 import { createTask, Task, getControls } from '../task';
-import { HaltError } from '../halt-error';
 import { Operation } from '../operation';
 
 type Continuation = () => IteratorResult<Operation<unknown>>;
@@ -15,7 +14,7 @@ interface Claimable {
 export function createIteratorController<TOut>(task: Task<TOut>, iterator: OperationIterator<TOut> & Claimable): Controller<TOut> {
   let didHalt = false;
   let didEnter = false;
-  let subTask: Task;
+  let subTask: Task | undefined;
   let controls = getControls(task);
 
   let continuations: Continuation[] = [];
@@ -73,6 +72,7 @@ export function createIteratorController<TOut>(task: Task<TOut>, iterator: Opera
   }
 
   function trap(child: Task) {
+    subTask = undefined;
     if(child.state === 'completed') {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       resume(() => iterator.next(getControls(child).result!));
@@ -82,11 +82,7 @@ export function createIteratorController<TOut>(task: Task<TOut>, iterator: Opera
       resume(() => iterator.throw(getControls(child).error!));
     }
     if(child.state === 'halted') {
-      if(didHalt) {
-        resume(() => iterator.return(undefined));
-      } else {
-        resume(() => iterator.throw(new HaltError()));
-      }
+      resume(() => iterator.return(undefined));
     }
   }
 
@@ -95,6 +91,8 @@ export function createIteratorController<TOut>(task: Task<TOut>, iterator: Opera
       didHalt = true;
       if(subTask) {
         subTask.halt();
+      } else {
+        resume(() => iterator.return(undefined));
       }
     }
   }

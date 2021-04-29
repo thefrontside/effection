@@ -1,25 +1,26 @@
-import { Controls, Task } from '../task';
+import { Task, getControls } from '../task';
 import { Controller } from './controller';
 
-export class FunctionController<T> implements Controller<T> {
-  delegate?: Controller<T>;
+export function createFunctionController<TOut>(task: Task<TOut>, createController: () => Controller<TOut>) {
+  let delegate: Controller<TOut>;
+  let controls = getControls(task);
 
-  constructor(public controls: Controls<T>, public createController: () => Controller<T>) {}
-
-  start(task: Task<T>) {
+  function start(task: Task<TOut>) {
     try {
-      this.delegate = this.createController();
+      delegate = createController();
     } catch (error) {
-      this.controls.reject(error);
+      controls.reject(error);
       return;
     }
-    this.delegate.start(task);
+    delegate.start(task);
   }
 
-  halt() {
-    if (!this.delegate) {
+  function halt() {
+    if (!delegate) {
       throw new Error(`EFFECTION INTERNAL ERROR halt() called before start()`);
     }
-    this.delegate.halt();
+    delegate.halt();
   }
+
+  return { start, halt };
 }

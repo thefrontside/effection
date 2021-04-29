@@ -1,28 +1,28 @@
-import type { Controls, Task } from '../task';
+import type { Task } from '../task';
 import type { Operation } from '../operation';
 import { isResolution, isPromise, isGenerator } from '../predicates';
-import { FunctionController } from './function-controller';
-import { SuspendController } from './suspend-controller';
-import { PromiseController } from './promise-controller';
-import { IteratorController } from './iterator-controller';
-import { ResolutionController } from './resolution-controller';
+import { createFunctionController } from './function-controller';
+import { createSuspendController } from './suspend-controller';
+import { createPromiseController } from './promise-controller';
+import { createIteratorController } from './iterator-controller';
+import { createResolutionController } from './resolution-controller';
 
 export interface Controller<TOut> {
   start(task: Task<TOut>): void;
   halt(): void;
 }
 
-export function createController<T>(task: Task<T>, controls: Controls<T>, operation: Operation<T>): Controller<T> {
+export function createController<T>(task: Task<T>, operation: Operation<T>): Controller<T> {
   if (typeof(operation) === 'function') {
-    return new FunctionController(controls, () => createController(task, controls, operation(task)));
+    return createFunctionController(task, () => createController(task, operation(task)));
   } else if(!operation) {
-    return new SuspendController(controls);
+    return createSuspendController(task);
   } else if (isResolution(operation)) {
-    return new ResolutionController(controls, operation);
+    return createResolutionController(task, operation);
   } else if(isPromise(operation)) {
-    return new PromiseController(controls, operation);
+    return createPromiseController(task, operation);
   } else if (isGenerator(operation)) {
-    return new IteratorController(controls, operation);
+    return createIteratorController(task, operation);
   }
 
   throw new Error(`unkown type of operation: ${operation}`);

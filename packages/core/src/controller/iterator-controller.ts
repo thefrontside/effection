@@ -1,9 +1,8 @@
 import { Controller } from './controller';
 import { OperationIterator } from '../operation';
-import { createTask, Task, Controls, getControls } from '../task';
+import { createTask, Task, getControls } from '../task';
 import { HaltError } from '../halt-error';
 import { Operation } from '../operation';
-import { Trapper } from '../trapper';
 
 type Continuation = () => IteratorResult<Operation<unknown>>;
 
@@ -13,23 +12,22 @@ interface Claimable {
   [claimed]?: boolean;
 }
 
-export class IteratorController<TOut> implements Controller<TOut>, Trapper {
-  private didHalt = false;
-  private didEnter = false;
-  private subTask?: Task;
+export function createIteratorController<TOut>(task: Task<TOut>, iterator: OperationIterator<TOut> & Claimable): Controller<TOut> {
+  let didHalt = false;
+  let didEnter = false;
+  let subTask: Task;
+  let controls = getControls(task);
 
-  private continuations: Continuation[] = [];
+  let continuations: Continuation[] = [];
 
-  constructor(private controls: Controls<TOut>, private iterator: OperationIterator<TOut> & Claimable) {}
-
-  start() {
-    if (this.iterator[claimed]) {
+  function start() {
+    if (iterator[claimed]) {
       let error = new Error(`An operation iterator can only be run once in a single task, but it looks like has been either yielded to, or run multiple times`)
       error.name = 'DoubleEvalError';
-      this.controls.reject(error);
+      controls.reject(error);
     } else {
-      this.iterator[claimed] = true;
-      this.resume(() => this.iterator.next());
+      iterator[claimed] = true;
+      resume(() => iterator.next());
     }
   }
 
@@ -38,63 +36,65 @@ export class IteratorController<TOut> implements Controller<TOut>, Trapper {
   // generator. This is a rare case and should only happen under some edge
   // cases, for example a task halting itself, or a task causing one of its
   // siblings to fail.
-  resume(iter: Continuation) {
-    this.continuations.push(iter);
+  function resume(iter: Continuation) {
+    continuations.push(iter);
     // only enter this loop if we aren't already running it
-    if(!this.didEnter) {
-      this.didEnter = true; // acquire lock
+    if(!didEnter) {
+      didEnter = true; // acquire lock
       // use while loop since collection can be modified during iteration
       let continuation;
-      while(continuation = this.continuations.shift()) {
-        this.step(continuation);
+      while(continuation = continuations.shift()) {
+        step(continuation);
       }
-      this.didEnter = false; // release lock
+      didEnter = false; // release lock
     }
   }
 
-  step(iter: Continuation) {
+  function step(iter: Continuation) {
     let next;
     try {
       next = iter();
     } catch(error) {
-      this.controls.reject(error);
+      controls.reject(error);
       return;
     }
     if(next.done) {
-      if(this.didHalt) {
-        this.controls.halted();
+      if(didHalt) {
+        controls.halted();
       } else {
-        this.controls.resolve(next.value);
+        controls.resolve(next.value);
       }
     } else {
-      this.subTask = createTask(next.value);
-      getControls(this.subTask).addTrapper(this);
-      getControls(this.subTask).start();
+      subTask = createTask(next.value);
+      getControls(subTask).addTrapper(trap);
+      getControls(subTask).start();
     }
   }
 
-  trap(child: Task) {
+  function trap(child: Task) {
     if(child.state === 'completed') {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      this.resume(() => this.iterator.next(getControls(child).result!));
+      resume(() => iterator.next(getControls(child).result!));
     }
     if(child.state === 'errored') {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      this.resume(() => this.iterator.throw(getControls(child).error!));
+      resume(() => iterator.throw(getControls(child).error!));
     }
     if(child.state === 'halted') {
-      this.resume(() => this.iterator.throw(new HaltError()));
+      resume(() => iterator.throw(new HaltError()));
     }
   }
 
-  halt() {
-    if(!this.didHalt) {
-      this.didHalt = true;
-      if(this.subTask) {
-        getControls(this.subTask).removeTrapper(this);
-        this.subTask.halt();
+  function halt() {
+    if(!didHalt) {
+      didHalt = true;
+      if(subTask) {
+        getControls(subTask).removeTrapper(trap);
+        subTask.halt();
       }
-      this.resume(() => this.iterator.return(undefined));
+      resume(() => iterator.return(undefined));
     }
   }
+
+  return { start, halt };
 }

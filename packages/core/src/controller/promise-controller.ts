@@ -11,9 +11,7 @@ export function createPromiseController<TOut>(task: Task<TOut>, promise: Promise
   function start() {
     Promise.race([promise, haltSignal.promise]).then(
       (value) => {
-        if(value === HALT) {
-          controls.halted();
-        } else {
+        if(value !== HALT) {
           controls.resolve(value);
         }
       },
@@ -25,6 +23,7 @@ export function createPromiseController<TOut>(task: Task<TOut>, promise: Promise
 
   function halt() {
     haltSignal.resolve(HALT);
+    controls.halted();
   }
 
   return { start, halt };

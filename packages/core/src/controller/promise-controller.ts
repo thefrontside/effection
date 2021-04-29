@@ -1,34 +1,31 @@
 import { Controller } from './controller';
-import { Controls } from '../task';
+import { Task, getControls } from '../task';
 import { Deferred } from '../deferred';
 
 const HALT = Symbol("halt");
 
-export class PromiseController<TOut> implements Controller<TOut> {
-  // TODO: to prevent memory leaks of tasks if a promise never resolves, but
-  // the task is halted, we should retain the task through a weak reference.
+export function createPromiseController<TOut>(task: Task<TOut>, promise: PromiseLike<TOut>): Controller<TOut> {
+  let controls = getControls(task);
+  let haltSignal = Deferred<typeof HALT>();
 
-  private haltSignal = Deferred<typeof HALT>();
-
-  constructor(private controls: Controls<TOut>, private promise: PromiseLike<TOut>) {
-  }
-
-  start() {
-    Promise.race([this.promise, this.haltSignal.promise]).then(
+  function start() {
+    Promise.race([promise, haltSignal.promise]).then(
       (value) => {
         if(value === HALT) {
-          this.controls.halted();
+          controls.halted();
         } else {
-          this.controls.resolve(value);
+          controls.resolve(value);
         }
       },
       (error) => {
-        this.controls.reject(error);
+        controls.reject(error);
       }
     )
   }
 
-  halt() {
-    this.haltSignal.resolve(HALT);
+  function halt() {
+    haltSignal.resolve(HALT);
   }
+
+  return { start, halt };
 }

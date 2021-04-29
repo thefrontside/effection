@@ -1,15 +1,16 @@
 import { Controller } from './controller';
-import { Controls } from '../task';
+import { getControls, Task } from '../task';
 
-export class SuspendController<TOut> implements Controller<TOut> {
-  constructor(private controls: Controls<TOut>) {
-  }
+export function createSuspendController<TOut>(task: Task<TOut>): Controller<TOut> {
+  let controls = getControls(task);
 
-  start() {
+  function start() {
     // no op
   }
 
-  halt() {
-    this.controls.halted();
+  function halt() {
+    controls.halted();
   }
+
+  return { start, halt };
 }

@@ -28,6 +28,26 @@ describe('promise', () => {
     expect(task.state).toEqual('halted');
   });
 
+  it('can halt a pending promise which will resolve in the next event loop tick', async () => {
+    let promise = Promise.resolve("foo");
+    let task = run(promise);
+
+    task.halt();
+
+    await expect(task).rejects.toHaveProperty('message', 'halted')
+    expect(task.state).toEqual('halted');
+  });
+
+  it('can halt a pending promise which will reject in the next event loop tick', async () => {
+    let promise = Promise.reject(new Error('moo'));
+    let task = run(promise);
+
+    task.halt();
+
+    await expect(task).rejects.toHaveProperty('message', 'halted')
+    expect(task.state).toEqual('halted');
+  });
+
   describe('function', () => {
     it('runs a promise to completion', async () => {
       let task = run(() => Promise.resolve(123))

@@ -11,4 +11,8 @@ export type Continuation<TOut> = PromiseLike<TOut> | OperationIterator<TOut> | O
 
 export type ContinuationFunction<TOut> = (task: Task<TOut>) => Continuation<TOut>;
 
-export type Operation<TOut> = Continuation<TOut> | ContinuationFunction<TOut>;
+export type Operation<TOut> = Continuation<TOut> | ContinuationFunction<TOut> | Resource<TOut>;
+
+export interface Resource<TOut> {
+  init(scope: Task): OperationIterator<TOut>;
+}

@@ -5,14 +5,14 @@ export function createFunctionController<TOut>(task: Task<TOut>, createControlle
   let delegate: Controller<TOut>;
   let controls = getControls(task);
 
-  function start(task: Task<TOut>) {
+  function start() {
     try {
       delegate = createController();
     } catch (error) {
       controls.reject(error);
       return;
     }
-    delegate.start(task);
+    delegate.start();
   }
 
   function halt() {

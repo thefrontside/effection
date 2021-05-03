@@ -14,7 +14,7 @@ export function createResourceController<TOut>(task: Task<TOut>, resource: Resou
     }
     let init;
     try {
-      init = resource.init(resourceScope);
+      init = resource.init(resourceScope, task);
     } catch(error) {
       controls.reject(error);
       return;

@@ -27,6 +27,10 @@ describe('@effection/mocha', () => {
   //   });
   //   yield sleep(10);
   // });
+  //
+  // it('throws error directly', function*(task) {
+  //   throw new Error('boom');
+  // });
 
   it('can have pending tasks (note: this is not actually pending)');
 

@@ -54,7 +54,7 @@ export class EchoServer {
         throw e;
       }
 
-      throwOnErrorEvent(scope, http);
+      scope.spawn(throwOnErrorEvent(http));
       scope.spawn(function*() {
         try {
           yield;

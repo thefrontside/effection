@@ -14,7 +14,7 @@ describe("throwOnErrorEvent", () => {
   beforeEach(function*(t) {
     emitter = new EventEmitter();
     task = t.spawn(captureError(function*(inner) {
-      throwOnErrorEvent(inner, emitter);
+      inner.spawn(throwOnErrorEvent(emitter));
       yield;
     }));
   });

@@ -1,4 +1,4 @@
-import { Task, Operation, Resource } from '@effection/core';
+import { Operation, Resource } from '@effection/core';
 import { Stream } from '@effection/subscription';
 
 // TODO: import from subscription package once #236 is merged

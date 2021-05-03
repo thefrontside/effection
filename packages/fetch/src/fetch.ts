@@ -3,11 +3,11 @@ import { fetch as nativeFetch } from 'cross-fetch';
 import { AbortController } from 'abort-controller';
 
 export interface Fetch extends Resource<Response> {
-  arrayBuffer(): Operation<ArrayBuffer>,
-  blob(): Operation<Blob>,
-  formData(): Operation<FormData>,
-  json(): Operation<unknown>,
-  text(): Operation<string>,
+  arrayBuffer(): Operation<ArrayBuffer>;
+  blob(): Operation<Blob>;
+  formData(): Operation<FormData>;
+  json(): Operation<unknown>;
+  text(): Operation<string>;
 }
 
 export function fetch(info: RequestInfo, requestInit: RequestInit = {}): Fetch {

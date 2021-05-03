@@ -12,7 +12,7 @@ let COUNTER = 0;
 const CONTROLS = Symbol.for('effection/v2/controls');
 
 export interface TaskOptions {
-  parent?: Task;
+  resourceScope?: Task;
   blockParent?: boolean;
   ignoreChildErrors?: boolean;
   ignoreError?: boolean;
@@ -194,7 +194,9 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
       if(stateMachine.current !== 'running') {
         throw new Error('cannot spawn a child on a task which is not running');
       }
-      options.parent = task;
+      if(!options.resourceScope) {
+        options.resourceScope = task;
+      }
       let child = createTask(operation, options);
       controls.link(child as Task);
       getControls(child).start();

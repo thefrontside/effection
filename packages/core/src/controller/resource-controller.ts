@@ -6,20 +6,20 @@ import { Task, getControls } from '../task';
 export function createResourceController<TOut>(task: Task<TOut>, resource: Resource<TOut>): Controller<TOut> {
   let controls = getControls(task);
   let delegate: Controller<TOut>;
-  let { parent } = controls.options;
+  let { resourceScope } = controls.options;
 
   function start() {
-    if(!parent) {
-      throw new Error('cannot spawn resource in task which has no parent')
+    if(!resourceScope) {
+      throw new Error('cannot spawn resource in task which has no resource scope')
     }
     let init;
     try {
-      init = resource.init(parent);
+      init = resource.init(resourceScope);
     } catch(error) {
       controls.reject(error);
       return;
     }
-    delegate = createIteratorController(task, init, { resourceTask: parent });
+    delegate = createIteratorController(task, init, { resourceScope });
     delegate.start();
   }
 

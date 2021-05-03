@@ -1,4 +1,4 @@
-import { Operation, Task } from '@effection/core';
+import { Operation, Task, Resource } from '@effection/core';
 import { DeepPartial, matcher } from './match';
 import { createQueue } from './queue';
 import { Subscription } from './subscription';
@@ -7,7 +7,7 @@ import { SymbolOperationIterable } from './symbol-operation-iterable';
 
 type Callback<T,TReturn> = (publish: (value: T) => void) => Operation<TReturn>;
 
-export interface Stream<T, TReturn = undefined> extends OperationIterable<T, TReturn> {
+export interface Stream<T, TReturn = undefined> extends OperationIterable<T, TReturn>, Resource<Subscription<T, TReturn>> {
   filter<R extends T>(predicate: (value: T) => value is R): Stream<R, TReturn>;
   filter(predicate: (value: T) => boolean): Stream<T, TReturn>;
   filter(predicate: (value: T) => boolean): Stream<T, TReturn>;
@@ -55,6 +55,10 @@ export function createStream<T, TReturn = undefined>(callback: Callback<T, TRetu
     subscribe,
 
     filter,
+
+    init: function*(task: Task) {
+      return subscribe(task);
+    },
 
     match(reference: DeepPartial<T>): Stream<T,TReturn> {
       return stream.filter(matcher(reference));

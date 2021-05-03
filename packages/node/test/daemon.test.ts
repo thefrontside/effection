@@ -3,7 +3,7 @@ import * as expect from 'expect';
 import fetch from 'node-fetch';
 
 import '@effection/mocha';
-import { run, Task } from '@effection/core';
+import { run, Task, Deferred } from '@effection/core';
 
 import { daemon, Process } from '../src';
 
@@ -12,14 +12,16 @@ describe('daemon', () => {
   let proc: Process;
 
   beforeEach(function*() {
-    task = run(function*(inner) {
-      proc = daemon('node', {
+    let deferred = Deferred<Process>();
+    task = run(function*() {
+      deferred.resolve(yield daemon('node', {
         arguments: ['./fixtures/echo-server.js'],
         env: { PORT: '29000', PATH: process.env.PATH as string },
         cwd: __dirname,
-      }).run(inner);
+      }));
       yield
     });
+    proc = yield deferred.promise;
 
     yield proc.stdout.filter((v) => v.includes('listening')).expect();
   });

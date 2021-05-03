@@ -1,5 +1,5 @@
 import { platform } from "os";
-import { Operation, Deferred } from "@effection/core";
+import { Task, Operation, Deferred } from "@effection/core";
 import { createChannel } from '@effection/channel';
 import { on, once, onceEmit } from "@effection/events";
 import { spawn as spawnProcess } from "cross-spawn";
@@ -13,7 +13,7 @@ type Result =
 
 export const createWin32Process: CreateOSProcess = (command, options) => {
   return {
-    run(scope) {
+    *init(scope: Task) {
       let getResult = Deferred<Result>();
 
       let join = (): Operation<ExitStatus> => function*() {

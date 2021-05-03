@@ -1,12 +1,18 @@
 import { describe, it, beforeEach, captureError } from '../src/index';
 import * as expect from 'expect';
 
-import { Task, sleep } from '@effection/core';
+import { Task, Resource, sleep } from '@effection/core';
 
 let captured: Task;
 
 function* boom() {
   throw new Error('boom');
+}
+
+const myResource: Resource<Task> = {
+  *init(scope) {
+    return scope.spawn();
+  }
 }
 
 describe('@effection/mocha', () => {
@@ -67,6 +73,16 @@ describe('@effection/mocha', () => {
 
     it('halts the spawned task before it block', function*() {
       expect(captured.state).toEqual('halted');
+    });
+  });
+
+  describe('spawning resource in world', () => {
+    beforeEach(function*() {
+      captured = yield myResource;
+    });
+
+    it('keeps running beyond the before each block', function*() {
+      expect(captured.state).toEqual('running');
     });
   });
 });

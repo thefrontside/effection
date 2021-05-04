@@ -1,4 +1,4 @@
-import type { Operation } from './operation';
+import type { Operation } from '../operation';
 
 export function race<T>(operations: Operation<T>[]): Operation<T> {
   return (scope) => ({

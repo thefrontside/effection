@@ -5,7 +5,7 @@ class TimeoutError extends Error {
   name = "TimeoutError"
 }
 
-export function *timeout(duration: number): Operation<void> {
+export function *timeout(duration: number): Operation<never> {
   yield sleep(duration)
   throw new TimeoutError(`timed out after ${duration}ms`);
 }

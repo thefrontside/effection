@@ -1,4 +1,4 @@
-import { Operation } from './operation';
+import { Operation } from '../operation';
 
 export function sleep(duration: number): Operation<void> {
   return {

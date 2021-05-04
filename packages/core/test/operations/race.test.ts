@@ -1,7 +1,7 @@
 import { describe, it, beforeEach } from 'mocha';
 import * as expect from 'expect';
 
-import { Deferred, Task, race, run } from '../src/index';
+import { Deferred, Task, race, run } from '../../src/index';
 
 describe('race()', () => {
   let contestants: Deferred<number>[];
@@ -36,5 +36,4 @@ describe('race()', () => {
       await expect(task).rejects.toMatchObject({ message: 'kaboom!' });
     });
   });
-
 });

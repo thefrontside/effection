@@ -10,6 +10,7 @@ export { deprecated } from './deprecated';
 export { Deferred } from './deferred';
 
 export { sleep } from './operations/sleep';
+export { ensure } from './operations/ensure';
 
 export function run<TOut>(operation?: Operation<TOut>, options?: TaskOptions): Task<TOut> {
   return Effection.root.spawn(operation, options);

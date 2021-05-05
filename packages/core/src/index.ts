@@ -15,6 +15,7 @@ export { timeout } from './operations/timeout';
 export { withTimeout } from './operations/with-timeout';
 export { spawn } from './operations/spawn';
 export { race } from './operations/race';
+export { all } from './operations/all';
 
 export function run<TOut>(operation?: Operation<TOut>, options?: TaskOptions): Task<TOut> {
   return Effection.root.spawn(operation, options);

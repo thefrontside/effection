@@ -1,39 +1,64 @@
 import { describe, it, beforeEach } from 'mocha';
 import * as expect from 'expect';
 
-import { Deferred, Task, race, run } from '../../src/index';
+import { Operation, Deferred, Task, race, run, sleep } from '../../src/index';
+
+function *asyncResolve(duration: number, value: string): Operation<string> {
+  yield sleep(duration);
+  return value;
+}
+
+function *asyncReject(duration: number, value: string): Operation<string> {
+  yield sleep(duration);
+  throw new Error(`boom: ${value}`);
+}
+
+function *syncResolve(value: string): Operation<string> {
+  return value;
+}
+
+function *syncReject(value: string): Operation<string> {
+  throw new Error(`boom: ${value}`);
+}
 
 describe('race()', () => {
-  let contestants: Deferred<number>[];
-  let task: Task<number>;
-  let draw = () => contestants[Math.floor(Math.random() * contestants.length)];
+  it('resolves when one of the given operations resolves asynchronously first', async () => {
+    let result = run(race([
+      asyncResolve(10, "foo"),
+      asyncResolve(5, "bar"),
+      asyncReject(15, "baz"),
+    ]));
 
-
-  beforeEach(() => {
-    contestants = Array.from(Array(100)).map(() => Deferred<number>());
-
-    task = run(race(contestants.map(op => op.promise)));
+    await expect(result).resolves.toEqual('bar');
   });
 
-  describe('when a winner emerges', () => {
-    beforeEach(() => {
-      let winner = draw();
-      winner.resolve(42);
-    });
+  it('rejects when one of the given operations rejects asynchronously first', async () => {
+    let result = run(race([
+      asyncResolve(10, "foo"),
+      asyncReject(5, "bar"),
+      asyncReject(15, "baz"),
+    ]));
 
-    it('assumes that result as the race result', async () => {
-      await expect(task).resolves.toBe(42);
-    });
+    await expect(result).rejects.toHaveProperty('message', 'boom: bar');
   });
 
-  describe('when any of the contestants fails', () => {
-    beforeEach(() => {
-      let failer = draw();
-      failer.reject(new Error('kaboom!'));
-    });
+  it('resolves synchronously when one of the given operations resolves synchronously first', async () => {
+    let result = run(race([
+      syncResolve("foo"),
+      syncResolve("bar"),
+      syncReject("baz"),
+    ]));
 
-    it('rejects the task with the same error', async () => {
-      await expect(task).rejects.toMatchObject({ message: 'kaboom!' });
-    });
+    expect(result).resolves.toEqual('foo');
+  });
+
+  it('rejects synchronously when one of the given operations rejects synchronously first', async () => {
+    let result = run(race([
+      syncReject("foo"),
+      syncResolve("bar"),
+      syncReject("baz"),
+    ]));
+
+    expect(result).rejects.toHaveProperty('message', 'boom: foo');
   });
 });

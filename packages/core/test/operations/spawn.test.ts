@@ -2,7 +2,7 @@ import '../setup';
 import { describe, it } from 'mocha';
 import * as expect from 'expect';
 
-import { run, Task, spawn, sleep } from '../../src/index';
+import { run, spawn, sleep } from '../../src/index';
 
 describe('spawn', () => {
   it('can spawn a new child task', async () => {

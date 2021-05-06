@@ -11,7 +11,11 @@ interface Claimable {
   [claimed]?: boolean;
 }
 
-export function createIteratorController<TOut>(task: Task<TOut>, iterator: OperationIterator<TOut> & Claimable): Controller<TOut> {
+type Options = {
+  resourceTask?: Task;
+}
+
+export function createIteratorController<TOut>(task: Task<TOut>, iterator: OperationIterator<TOut> & Claimable, options: Options = {}): Controller<TOut> {
   let didHalt = false;
   let didEnter = false;
   let subTask: Task | undefined;
@@ -64,7 +68,7 @@ export function createIteratorController<TOut>(task: Task<TOut>, iterator: Opera
         controls.resolve(next.value);
       }
     } else {
-      subTask = createTask(next.value, { ignoreError: true });
+      subTask = createTask(next.value, { parent: options.resourceTask || task, ignoreError: true });
       getControls(task).link(subTask);
       getControls(subTask).addTrapper(trap);
       getControls(subTask).start();

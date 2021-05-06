@@ -1,14 +1,15 @@
 import type { Task } from '../task';
 import type { Operation } from '../operation';
-import { isResolution, isPromise, isGenerator } from '../predicates';
+import { isResource, isResolution, isPromise, isGenerator } from '../predicates';
 import { createFunctionController } from './function-controller';
 import { createSuspendController } from './suspend-controller';
 import { createPromiseController } from './promise-controller';
 import { createIteratorController } from './iterator-controller';
 import { createResolutionController } from './resolution-controller';
+import { createResourceController } from './resource-controller';
 
 export interface Controller<TOut> {
-  start(task: Task<TOut>): void;
+  start(): void;
   halt(): void;
 }
 
@@ -17,6 +18,8 @@ export function createController<T>(task: Task<T>, operation: Operation<T>): Con
     return createFunctionController(task, () => createController(task, operation(task)));
   } else if(!operation) {
     return createSuspendController(task);
+  } else if (isResource(operation)) {
+    return createResourceController(task, operation);
   } else if (isResolution(operation)) {
     return createResolutionController(task, operation);
   } else if(isPromise(operation)) {

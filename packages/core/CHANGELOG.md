@@ -1,5 +1,18 @@
 # @effection/core
 
+## 2.0.0-preview.9
+
+### Minor Changes
+
+- 110a2cd: Add ignoreError option to prevent a task from propagating its errors to the parent
+- e2545b2: Remove delay on starting iterator/generator
+- 2b92370: Prevent race condition in promise controller if promise resolves in the same tick as halt signal
+- 00562fd: Fix race condition when halting a task while in between yield points
+- 110a2cd: When yielded to an asynchronously halting task, wait for the task to be fully halted before proceeding
+- 110a2cd: The sub task created by iterators is now linked to the parent task
+- 02446ad: Add Resource to create an option for spawning tasks in the background in an operation
+- da86a9c: Convert controllers into functions
+
 ## 2.0.0-preview.8
 
 ### Minor Changes

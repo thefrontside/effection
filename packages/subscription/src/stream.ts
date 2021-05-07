@@ -56,7 +56,7 @@ export function createStream<T, TReturn = undefined>(callback: Callback<T, TRetu
 
     filter,
 
-    init: function*(task: Task) {
+    *init(task: Task) {
       return subscribe(task);
     },
 

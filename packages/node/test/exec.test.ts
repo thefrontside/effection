@@ -40,12 +40,12 @@ describe('exec', () => {
     });
   });
 
-  describe('.run', () => {
+  describe('spawning', () => {
     describe('a process that fails to start', () => {
       describe('calling join()', () => {
-        it('reports the failed status', function*(task) {
+        it('reports the failed status', function*() {
           let error: unknown;
-          let proc = exec("argle", { arguments: ['bargle'] }).run(task);
+          let proc = yield exec("argle", { arguments: ['bargle'] });
           try {
             yield proc.join();
           } catch(e) {
@@ -56,9 +56,9 @@ describe('exec', () => {
       });
 
       describe('calling expect()', () => {
-        it('fails', function*(task) {
+        it('fails', function*() {
           let error: unknown;
-          let proc = exec("argle", { arguments: ['bargle'] }).run(task);
+          let proc = yield exec("argle", { arguments: ['bargle'] });
           try {
             yield proc.expect()
           } catch (e) { error = e; }
@@ -77,11 +77,11 @@ describe('exec', () => {
         didCloseStdout = Deferred<boolean>();
         didCloseStderr = Deferred<boolean>();
 
-        proc = exec("node './fixtures/echo-server.js'", {
+        proc = yield exec("node './fixtures/echo-server.js'", {
           env: { PORT: '29000', PATH: process.env.PATH as string },
           cwd: __dirname,
           buffered: true,
-        }).run(task);
+        });
 
         task.spawn(function*() {
           yield proc.stdout.join();

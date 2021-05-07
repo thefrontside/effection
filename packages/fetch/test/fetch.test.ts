@@ -18,7 +18,7 @@ describe("fetch in node", () => {
 
   describe('calling the server and posting a body', () => {
     beforeEach(function*(task) {
-      response = task.spawn(fetch(task, `${app.address}`, {
+      response = task.spawn(fetch(`${app.address}`, {
         method: 'POST',
         body: JSON.stringify({
           hello: 'world'
@@ -79,6 +79,34 @@ describe("fetch in node", () => {
 
     });
   })
+
+  describe('.text', () => {
+    it('returns text response', function*(task) {
+      let response = task.spawn(fetch(`${app.address}`).text());
+
+      yield when(() => expect(app.lastResponse).toBeDefined());
+      app.lastResponse.writeHead(200, 'ok', { 'Content-Type': 'text/plain' });
+      app.lastResponse.write("foobar");
+      app.lastResponse.end();
+
+      let result = yield response;
+      expect(result).toEqual('foobar');
+    });
+  });
+
+  describe('.json', () => {
+    it('returns json response', function*(task) {
+      let response = task.spawn(fetch(`${app.address}`).json());
+
+      yield when(() => expect(app.lastResponse).toBeDefined());
+      app.lastResponse.writeHead(200, 'ok', { 'Content-Type': 'application/json' });
+      app.lastResponse.write(JSON.stringify({ foo: "bar" }));
+      app.lastResponse.end();
+
+      let result = yield response;
+      expect(result.foo).toEqual('bar');
+    });
+  });
 });
 
 async function read(request: IncomingMessage): Promise<string> {

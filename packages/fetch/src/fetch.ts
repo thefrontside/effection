@@ -11,7 +11,7 @@ export interface Fetch extends Resource<Response> {
 }
 
 export function fetch(info: RequestInfo, requestInit: RequestInit = {}): Fetch {
-  let init = function*(scope: Task) {
+  function* init(scope: Task) {
     let controller = new AbortController();
 
     scope.spawn(function*() {
@@ -30,23 +30,23 @@ export function fetch(info: RequestInfo, requestInit: RequestInit = {}): Fetch {
 
   return {
     init,
-    arrayBuffer: function*() {
+    *arrayBuffer() {
       let response = yield { init };
       return yield response.arrayBuffer();
     },
-    blob: function*() {
+    *blob() {
       let response = yield { init };
       return yield response.blob();
     },
-    formData: function*() {
+    *formData() {
       let response = yield { init };
       return yield response.formData();
     },
-    json: function*() {
+    *json() {
       let response = yield { init };
       return yield response.json();
     },
-    text: function*() {
+    *text() {
       let response = yield { init };
       return yield response.text();
     },

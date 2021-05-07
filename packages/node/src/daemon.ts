@@ -1,4 +1,4 @@
-import { Task } from '@effection/core';
+import { Task, Resource } from '@effection/core';
 
 import { exec, Process, ExecOptions, ExitStatus, DaemonExitError } from './exec';
 
@@ -8,14 +8,13 @@ import { exec, Process, ExecOptions, ExitStatus, DaemonExitError } from './exec'
  * before the operation containing them passes out of scope it raises an error.
  */
 
-export interface Daemon {
-  run(scope: Task): Process;
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface Daemon extends Resource<Process> {}
 
 export function daemon(command: string, options: ExecOptions = {}): Daemon {
   return {
-    run(scope) {
-      let process = exec(command, options).run(scope);
+    *init(scope: Task) {
+      let process = yield exec(command, options);
 
       scope.spawn(function*() {
         let status: ExitStatus = yield process.join();

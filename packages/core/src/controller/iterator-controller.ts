@@ -12,7 +12,7 @@ interface Claimable {
 }
 
 type Options = {
-  resourceTask?: Task;
+  resourceScope?: Task;
 }
 
 export function createIteratorController<TOut>(task: Task<TOut>, iterator: OperationIterator<TOut> & Claimable, options: Options = {}): Controller<TOut> {
@@ -68,7 +68,7 @@ export function createIteratorController<TOut>(task: Task<TOut>, iterator: Opera
         controls.resolve(next.value);
       }
     } else {
-      subTask = createTask(next.value, { parent: options.resourceTask || task, ignoreError: true });
+      subTask = createTask(next.value, { resourceScope: options.resourceScope || task, ignoreError: true });
       getControls(task).link(subTask);
       getControls(subTask).addTrapper(trap);
       getControls(subTask).start();

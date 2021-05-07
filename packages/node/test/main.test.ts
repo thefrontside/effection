@@ -9,8 +9,8 @@ describe('main', () => {
   let child: Process;
 
   describe('with successful process', () => {
-    beforeEach(function*(world) {
-      child = exec(`ts-node ./test/fixtures/text-writer.ts`, { buffered: true }).run(world);
+    beforeEach(function*() {
+      child = yield exec(`ts-node ./test/fixtures/text-writer.ts`, { buffered: true });
 
       yield child.stdout.filter((s) => s.includes("started")).expect();
     });
@@ -39,8 +39,8 @@ describe('main', () => {
   });
 
   describe('with failing process', () => {
-    it('sets exit code and prints error', function*(world) {
-      let child = exec(`ts-node ./test/fixtures/main-failed.ts`, { buffered: true }).run(world);
+    it('sets exit code and prints error', function*() {
+      let child: Process = yield exec(`ts-node ./test/fixtures/main-failed.ts`, { buffered: true });
       let status = yield child.join();
       let stderr = yield child.stderr.expect();
 
@@ -48,8 +48,8 @@ describe('main', () => {
       expect(status.code).toEqual(1);
     });
 
-    it('sets custom exit code and hides error', function*(world) {
-      let child = exec(`ts-node ./test/fixtures/main-failed-custom.ts`, { buffered: true }).run(world);
+    it('sets custom exit code and hides error', function*() {
+      let child: Process = yield exec(`ts-node ./test/fixtures/main-failed-custom.ts`, { buffered: true });
       let status = yield child.join();
       let stderr = yield child.stderr.expect();
 

@@ -14,5 +14,5 @@ export type ContinuationFunction<TOut> = (task: Task<TOut>) => Continuation<TOut
 export type Operation<TOut> = Continuation<TOut> | ContinuationFunction<TOut> | Resource<TOut>;
 
 export interface Resource<TOut> {
-  init(scope: Task): OperationIterator<TOut>;
+  init(scope: Task, local: Task): OperationIterator<TOut>;
 }

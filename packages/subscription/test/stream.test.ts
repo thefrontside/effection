@@ -213,4 +213,12 @@ describe('Stream', () => {
       expect(bufferedStream.value).toEqual('helloworldblah');
     });
   });
+
+  describe('as resource', () => {
+    it('returns a subscription', function*() {
+      let result = yield stuff;
+      expect(yield result.next()).toEqual({ done: false, value: { name: "bob", type: "person" } });
+      expect(yield result.next()).toEqual({ done: false, value: { name: "alice", type: "person" } });
+    });
+  });
 });

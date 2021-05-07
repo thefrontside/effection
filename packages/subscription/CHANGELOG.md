@@ -1,5 +1,11 @@
 # @effection/subscription
 
+## 2.0.0-preview.11
+
+### Minor Changes
+
+- 92f921e: Turn streams into resources which return a subscription
+
 ## 2.0.0-preview.10
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "effection",
-  "version": "2.0.0-preview.12",
+  "version": "2.0.0-preview.13",
   "description": "Effortlessly composable structured concurrency primitive for JavaScript",
   "repository": "http://github.com/thefrontside/effection",
   "author": "Charles Lowell <cowboyd@frontside.com>",
@@ -21,10 +21,10 @@
     "prepack": "tsdx build --tsconfig tsconfig.dist.json"
   },
   "dependencies": {
-    "@effection/channel": "2.0.0-preview.11",
+    "@effection/channel": "2.0.0-preview.12",
     "@effection/core": "2.0.0-preview.9",
-    "@effection/events": "2.0.0-preview.9",
-    "@effection/subscription": "2.0.0-preview.10"
+    "@effection/events": "2.0.0-preview.10",
+    "@effection/subscription": "2.0.0-preview.11"
   },
   "devDependencies": {
     "@types/mocha": "^7.0.2",

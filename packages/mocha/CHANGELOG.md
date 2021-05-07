@@ -1,5 +1,11 @@
 # @effection/mocha
 
+## 2.0.0-preview.10
+
+### Minor Changes
+
+- be759c1: Add support for resources
+
 ## 2.0.0-preview.9
 
 ### Patch Changes

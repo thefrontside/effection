@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.0.0-preview.13
+
+### Minor Changes
+
+- 0bc2f38: Convert to usign resources
+
+### Patch Changes
+
+- Updated dependencies [92f921e]
+  - @effection/subscription@2.0.0-preview.11
+  - @effection/channel@2.0.0-preview.12
+  - @effection/events@2.0.0-preview.10
+
 ## 2.0.0-preview.12
 
 ### Patch Changes

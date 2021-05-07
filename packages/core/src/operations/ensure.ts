@@ -1,9 +1,19 @@
-import { Operation } from '../operation';
+import { Operation, Resource } from '../operation';
 
-export function *ensure<T>(operation?: Operation<T>): Operation<void> {
-  try {
-    yield
-  } finally {
-    yield operation;
-  }
+export function ensure<T>(fn: () => Operation<T> | void): Resource<undefined> {
+  return {
+    *init(scope) {
+      scope.spawn(function*() {
+        try {
+          yield
+        } finally {
+          let result = fn();
+          if(result) {
+            yield result;
+          }
+        }
+      });
+      return undefined;
+    }
+  };
 }

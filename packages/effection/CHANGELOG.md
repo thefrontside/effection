@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.0.0-preview.13
+
+### Minor Changes
+
+- 92f921e: Turn streams into resources which return a subscription
+
+### Patch Changes
+
+- Updated dependencies [92f921e]
+  - @effection/subscription@2.0.0-preview.11
+  - @effection/channel@2.0.0-preview.12
+  - @effection/events@2.0.0-preview.10
+
 ## 2.0.0-preview.12
 
 ### Minor Changes

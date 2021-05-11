@@ -1,5 +1,11 @@
 # @effection/atom
 
+## 2.0.0-preview.13
+
+### Patch Changes
+
+- a7d24eb: Lock dependency versions
+
 ## 2.0.0-preview.12
 
 ### Patch Changes

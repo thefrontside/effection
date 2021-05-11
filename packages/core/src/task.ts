@@ -12,10 +12,10 @@ let COUNTER = 0;
 const CONTROLS = Symbol.for('effection/v2/controls');
 
 export interface TaskOptions {
-  resourceScope?: Task;
-  blockParent?: boolean;
-  ignoreChildErrors?: boolean;
-  ignoreError?: boolean;
+  readonly resourceScope?: Task;
+  readonly blockParent?: boolean;
+  readonly ignoreChildErrors?: boolean;
+  readonly ignoreError?: boolean;
 }
 
 type WithControls<TOut> = { [CONTROLS]?: Controls<TOut> }
@@ -24,13 +24,13 @@ type EnsureHandler = () => void;
 export interface Task<TOut = unknown> extends Promise<TOut> {
   readonly id: number;
   readonly state: State;
+  readonly options: TaskOptions;
   catchHalt(): Promise<TOut | undefined>;
   spawn<R>(operation?: Operation<R>, options?: TaskOptions): Task<R>;
   halt(): Promise<void>;
 }
 
 export interface Controls<TOut = unknown> {
-  options: TaskOptions;
   children: Set<Task>;
   result?: TOut;
   error?: Error;
@@ -94,11 +94,10 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
 
   function haltChildren(force: boolean) {
     for(let child of Array.from(children).reverse()) {
-      let controls = getControls(child);
-      if(force || !controls.options.blockParent) {
+      if(force || !child.options.blockParent) {
         // Continue halting once the first found child has been fully halted.
         // The child will always have been removed from the Set when this runs.
-        controls.addTrapper(() => haltChildren(force));
+        getControls(child).addTrapper(() => haltChildren(force));
         child.halt()
         return;
       }
@@ -106,8 +105,6 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
   }
 
   let controls: Controls<TOut> = {
-    options,
-
     children,
 
     start() {
@@ -158,7 +155,7 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
 
     trap(child) {
       if(children.has(child)) {
-        if(child.state === 'errored' && !getControls(child).options.ignoreError && !options.ignoreChildErrors) {
+        if(child.state === 'errored' && !child.options.ignoreError && !options.ignoreChildErrors) {
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           controls.reject(getControls(child).error!);
         }
@@ -184,6 +181,8 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
   let task: Task<TOut> & WithControls<TOut> = {
     id,
 
+    options,
+
     get state() { return stateMachine.current; },
 
     catchHalt() {
@@ -194,10 +193,7 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
       if(stateMachine.current !== 'running') {
         throw new Error('cannot spawn a child on a task which is not running');
       }
-      if(!options.resourceScope) {
-        options.resourceScope = task;
-      }
-      let child = createTask(operation, options);
+      let child = createTask(operation, { resourceScope: task, ...options });
       controls.link(child as Task);
       getControls(child).start();
       return child;

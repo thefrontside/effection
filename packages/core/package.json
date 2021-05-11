@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "lint": "eslint '{src,bin,test}/**/*.ts'",
-    "test": "mocha -r ts-node/register test/**/*.test.ts",
+    "test": "mocha -r ts-node/register 'test/**/*.test.ts'",
     "mocha": "mocha -r ts-node/register",
     "prepack": "tsdx build --tsconfig tsconfig.dist.json"
   },

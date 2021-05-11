@@ -1,5 +1,14 @@
 # @effection/core
 
+## 2.0.0-preview.10
+
+### Minor Changes
+
+- 625b521: Sleep operation can suspend indefinitely when called without duration
+- a06c679: Add spawn as an operation via resources
+- 4d04159: add race() combinator
+- 625b521: Add ensure, timeout and withTimeout combinators
+
 ## 2.0.0-preview.9
 
 ### Minor Changes

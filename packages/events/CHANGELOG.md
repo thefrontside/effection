@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.0.0-preview.11
+
+### Patch Changes
+
+- Updated dependencies [625b521]
+- Updated dependencies [a06c679]
+- Updated dependencies [4d04159]
+- Updated dependencies [625b521]
+  - @effection/core@2.0.0-preview.10
+  - @effection/subscription@2.0.0-preview.12
+
 ## 2.0.0-preview.10
 
 ### Patch Changes

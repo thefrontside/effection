@@ -16,6 +16,15 @@ describe('sleep', () => {
     expect(root.state).toEqual('completed');
   });
 
+  it('suspends for zero seconds', async () => {
+    let root = run(function*() {
+      yield sleep(0);
+    });
+
+    await new Promise((resolve) => setTimeout(resolve, 5));
+    expect(root.state).toEqual('completed');
+  });
+
   it('suspends indefinitely', async () => {
     let root = run(function*() {
       yield sleep();

@@ -1,5 +1,5 @@
-import * as O from "fp-ts/Option";
-import * as Op from "monocle-ts/lib/Optional"
+import * as O from 'fp-ts/Option';
+import * as Op from 'monocle-ts/Optional'
 import { pipe } from 'fp-ts/function'
 import { Operation } from '@effection/core';
 import { createStream } from '@effection/subscription';

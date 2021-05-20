@@ -1,13 +1,6 @@
 {
+  "extends": "@frontside/tsconfig",
   "compilerOptions": {
-    "target": "esnext",
-    "moduleResolution": "node",
-    "strict": true,
-    "typeRoots": [
-      "./node_modules/@types",
-      "./typings"
-    ],
-    "baseUrl": ".",
     "resolveJsonModule": true
   },
   "include": [

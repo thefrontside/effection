@@ -24,7 +24,7 @@
   "devDependencies": {
     "@effection/mocha": "2.0.0-preview.11",
     "@frontside/tsconfig": "^0.0.1",
-    "@types/node": "^12.7.11",
+    "@types/node": "^13.13.5",
     "dtslint": "^4.0.7",
     "expect": "^25.4.0",
     "mocha": "^8.3.1",

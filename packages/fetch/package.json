@@ -22,7 +22,7 @@
   "devDependencies": {
     "@effection/mocha": "2.0.0-preview.11",
     "@frontside/tsconfig": "^0.0.1",
-    "@types/node": "^13.13.4",
+    "@types/node": "^13.13.5",
     "expect": "26.0.1",
     "mocha": "8.3.1",
     "ts-node": "8.10.2",

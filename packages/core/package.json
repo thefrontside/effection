@@ -16,6 +16,7 @@
     "src/**/*"
   ],
   "devDependencies": {
+    "@frontside/tsconfig": "^0.0.1",
     "@types/mocha": "^7.0.2",
     "@types/node": "^13.13.5",
     "eslint": "^6.8.0",

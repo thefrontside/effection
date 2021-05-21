@@ -6,7 +6,7 @@ import { Task, getControls } from '../task';
 export function createResourceController<TOut>(task: Task<TOut>, resource: Resource<TOut>): Controller<TOut> {
   let controls = getControls(task);
   let delegate: Controller<TOut>;
-  let { resourceScope } = controls.options;
+  let { resourceScope } = task.options;
 
   function start() {
     if(!resourceScope) {

@@ -4,6 +4,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "license": "MIT",
+  "author": "Frontside Engineering <engineering@frontside.com>",
   "scripts": {
     "lint": "eslint '{src,bin,test}/**/*.ts'",
     "test": "mocha -r ts-node/register 'test/**/*.test.ts'",

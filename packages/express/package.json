@@ -1,0 +1,42 @@
+{
+  "name": "@effection/express",
+  "version": "2.0.0-preview.1",
+  "description": "Makes it easy to use Express from Effection",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "repository": "https://github.com/thefrontside/effection.git",
+  "author": "Frontside Engineering <engineering@frontside.com>",
+  "license": "MIT",
+  "files": [
+    "dist/*",
+    "README.md"
+  ],
+  "scripts": {
+    "clean": "rm -rf dist *.tsbuildinfo",
+    "lint": "eslint \"{src,test}/**/*.ts\"",
+    "test": "mocha -r ts-node/register test/**/*.test.ts",
+    "mocha": "mocha -r ts-node/register",
+    "prepack": "tsdx build --tsconfig tsconfig.dist.json"
+  },
+  "devDependencies": {
+    "@effection/mocha": "2.0.0-preview.11",
+    "@frontside/eslint-config": "^2.0.0",
+    "@frontside/tsconfig": "^1.2.0",
+    "@frontside/typescript": "^1.1.1",
+    "@types/express-ws": "^3.0.0",
+    "@types/node": "^13.13.5",
+    "expect": "^25.3.0",
+    "ts-node": "^9.1.1",
+    "tsdx": "0.13.2"
+  },
+  "dependencies": {
+    "@effection/core": "2.0.0-preview.10",
+    "@effection/subscription": "2.0.0-preview.12",
+    "express": "^4.17.1",
+    "express-ws": "^4.0.0"
+  },
+  "volta": {
+    "node": "12.16.0",
+    "yarn": "1.19.1"
+  }
+}

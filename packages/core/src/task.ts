@@ -17,6 +17,7 @@ export interface TaskOptions {
   readonly blockParent?: boolean;
   readonly ignoreChildErrors?: boolean;
   readonly ignoreError?: boolean;
+  readonly labels?: Labels;
 }
 
 type WithControls<TOut> = { [CONTROLS]?: Controls<TOut> }
@@ -186,7 +187,7 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
 
   let controller: Controller<TOut>;
 
-  let labels = operation?.labels || {};
+  let labels: Labels = { ...operation?.labels, ...options.labels }
 
   if(!labels.name && operation?.name) {
     labels.name = operation?.name;

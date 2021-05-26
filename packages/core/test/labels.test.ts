@@ -23,13 +23,19 @@ describe('labels', () => {
 
       await expect(someOperation?.labels).toEqual({ foo: "quox", bar: "bar", blah: "blah" });
     });
+
+    it('applies labels on task', async () => {
+      let task = run(withLabels(
+        function*() { yield },
+        { foo: "bar" }
+      ));
+
+      await expect(task.labels).toEqual({ foo: "bar" });
+    });
   });
 
-  it('applies labels on task', async () => {
-    let task = run(withLabels(
-      function*() { yield },
-      { foo: "bar" }
-    ));
+  it('can apply labels when spawning', async () => {
+    let task = run(function*() { yield }, { labels: { foo: "bar" } });
 
     await expect(task.labels).toEqual({ foo: "bar" });
   });

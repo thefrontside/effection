@@ -17,6 +17,7 @@
       "packages/node",
       "packages/fetch",
       "packages/websocket-client",
+      "packages/websocket-server",
       "packages/effection"
     ]
   },

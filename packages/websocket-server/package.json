@@ -1,0 +1,44 @@
+{
+  "name": "@effection/websocket-server",
+  "version": "2.0.0-preview.1",
+  "description": "A simple websocket server for Effection",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "module": "dist/events.esm.js",
+  "repository": "https://github.com/thefrontside/bigtest.git",
+  "author": "Frontside Engineering <engineering@frontside.com>",
+  "license": "MIT",
+  "files": [
+    "README.md",
+    "CHANGELOG.md",
+    "dist/**/*",
+    "src/**/*"
+  ],
+  "scripts": {
+    "lint": "eslint '{src,tests}/**/*.ts'",
+    "test": "mocha -r ts-node/register test/**/*.test.ts",
+    "prepack": "tsdx build --tsconfig tsconfig.dist.json",
+    "mocha": "mocha -r ts-node/register"
+  },
+  "dependencies": {
+    "@effection/core": "2.0.0-preview.10",
+    "@effection/subscription": "2.0.0-preview.12",
+    "@effection/events": "2.0.0-preview.11",
+    "ws": "^7.4.6"
+  },
+  "devDependencies": {
+    "@effection/mocha": "2.0.0-preview.11",
+    "@frontside/tsconfig": "0.0.1",
+    "@types/node": "^13.13.5",
+    "@types/ws": "^7.4.4",
+    "expect": "^25.4.0",
+    "mocha": "^8.3.1",
+    "ts-node": "^8.9.0",
+    "tsdx": "0.13.2",
+    "typescript": "^3.7.0"
+  },
+  "volta": {
+    "node": "12.16.0",
+    "yarn": "1.19.1"
+  }
+}

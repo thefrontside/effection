@@ -5,6 +5,18 @@ import * as expect from 'expect';
 import { run, sleep, createTask, Task, getControls } from '../src/index';
 
 describe('Task', () => {
+  describe('type', () => {
+    it('returns the type of the task', async () => {
+      expect(run(Promise.resolve(123)).type).toEqual('promise');
+      expect(run(() => Promise.resolve(123)).type).toEqual('async function');
+      expect(run(function*() { /* no op */ }).type).toEqual('generator function');
+      expect(run((function*() { /* no op */ })()).type).toEqual('generator');
+      expect(run().type).toEqual('suspend');
+      expect(run({ perform() { /* no op */ } }).type).toEqual('resolution');
+      expect(run({ *init() { /* no op */ } }).type).toEqual('resource');
+    });
+  });
+
   describe('ensure', () => {
     it('attaches a handler which runs when the task finishes normally', async () => {
       let task = run(sleep(10));

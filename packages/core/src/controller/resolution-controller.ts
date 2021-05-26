@@ -20,5 +20,5 @@ export function createResolutionController<TOut>(task: Task<TOut>, resolution: O
     controls.halted();
   }
 
-  return { start, halt };
+  return { start, halt, type: 'resolution' };
 }

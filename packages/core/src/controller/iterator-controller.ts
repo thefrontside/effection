@@ -101,5 +101,5 @@ export function createIteratorController<TOut>(task: Task<TOut>, iterator: Opera
     }
   }
 
-  return { start, halt };
+  return { start, halt, type: 'generator' };
 }

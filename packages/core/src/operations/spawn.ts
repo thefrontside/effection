@@ -16,5 +16,5 @@ export function spawn<T>(operation?: Operation<T>): Spawn<T> {
     }
   }
 
-  return { init, within };
+  return { init, within, name: 'spawn' };
 }

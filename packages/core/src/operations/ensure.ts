@@ -2,6 +2,7 @@ import { Operation, Resource } from '../operation';
 
 export function ensure<T>(fn: () => Operation<T> | void): Resource<undefined> {
   return {
+    name: 'ensure',
     *init(scope) {
       scope.spawn(function*() {
         try {
@@ -12,7 +13,7 @@ export function ensure<T>(fn: () => Operation<T> | void): Resource<undefined> {
             yield result;
           }
         }
-      });
+      }, { labels: { name: 'ensureHandler' } });
       return undefined;
     }
   };

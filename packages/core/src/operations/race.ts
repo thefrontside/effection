@@ -1,7 +1,8 @@
 import type { Operation } from '../operation';
+import { withLabels } from '../labels';
 
 export function race<T>(operations: Operation<T>[]): Operation<T> {
-  return (scope) => ({
+  return withLabels((scope) => ({
     perform: (resolve, reject) => {
       for (let operation of operations) {
         if(scope.state === 'running') {
@@ -15,5 +16,5 @@ export function race<T>(operations: Operation<T>[]): Operation<T> {
         }
       }
     }
-  });
+  }), { name: 'race', count: operations.length });
 }

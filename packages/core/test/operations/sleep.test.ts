@@ -33,4 +33,10 @@ describe('sleep', () => {
     await new Promise((resolve) => setTimeout(resolve, 5));
     expect(root.state).toEqual('running');
   });
+
+  it('applies labels', () => {
+    expect(run(sleep()).labels).toEqual({ name: 'sleep', duration: 'forever' });
+    expect(run(sleep(0)).labels).toEqual({ name: 'sleep', duration: 0 });
+    expect(run(sleep(100)).labels).toEqual({ name: 'sleep', duration: 100 });
+  });
 });

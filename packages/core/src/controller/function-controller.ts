@@ -22,5 +22,11 @@ export function createFunctionController<TOut>(task: Task<TOut>, createControlle
     delegate.halt();
   }
 
-  return { start, halt };
+  return {
+    get type() {
+      return delegate.type === 'promise' ? 'async function' : `${delegate.type} function`;
+    },
+    start,
+    halt,
+  }
 }

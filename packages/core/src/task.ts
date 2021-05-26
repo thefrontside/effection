@@ -23,6 +23,7 @@ type EnsureHandler = () => void;
 
 export interface Task<TOut = unknown> extends Promise<TOut> {
   readonly id: number;
+  readonly type: string;
   readonly state: State;
   readonly options: TaskOptions;
   catchHalt(): Promise<TOut | undefined>;
@@ -184,6 +185,8 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
     options,
 
     get state() { return stateMachine.current; },
+
+    get type() { return controller.type },
 
     catchHalt() {
       return deferred.promise.catch(swallowHalt);

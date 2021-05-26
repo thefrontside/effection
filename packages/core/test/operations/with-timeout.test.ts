@@ -22,4 +22,8 @@ describe('withTimeout', () => {
 
     await expect(root).rejects.toHaveProperty('message', 'timed out after 5ms');
   });
+
+  it('applies labels', () => {
+    expect(run(withTimeout(200, function*() { /* no op */ })).labels).toEqual({ name: 'withTimeout', duration: 200 });
+  });
 });

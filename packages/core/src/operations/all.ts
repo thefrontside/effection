@@ -1,13 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { Operation } from '../operation';
 import type { Task } from '../task';
+import { withLabels } from '../labels';
 
 type All<T extends Operation<any>[]> = {
   [P in keyof T]: T[P] extends Operation<infer TArg> ? TArg : never;
 }
 
 export function all<T extends Operation<any>[]>(operations: T): Operation<All<T>> {
-  return function*(scope) {
+  return withLabels(function*(scope) {
     let tasks: Task<unknown>[] = [];
     let results: unknown[] = [];
     for (let operation of operations) {
@@ -19,5 +20,5 @@ export function all<T extends Operation<any>[]>(operations: T): Operation<All<T>
       results.push(yield task);
     }
     return results as All<T>;
-  };
+  }, { name: 'all', count: operations.length });
 }

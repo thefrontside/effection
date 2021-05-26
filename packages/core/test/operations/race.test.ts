@@ -44,4 +44,8 @@ describe('race()', () => {
 
     await expect(result).rejects.toHaveProperty('message', 'boom: foo');
   });
+
+  it('applies labels', () => {
+    expect(run(race([syncResolve("foo")])).labels).toEqual({ name: 'race', count: 1 });
+  });
 });

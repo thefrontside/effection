@@ -2,7 +2,7 @@ import './setup';
 import { describe, it } from 'mocha';
 import * as expect from 'expect';
 
-import { withLabels, run, getControls, sleep, setLabels, Labels } from '../src/index';
+import { withLabels, run, getControls, sleep, label, Labels } from '../src/index';
 
 describe('labels', () => {
   describe('withLabels', () => {
@@ -55,9 +55,9 @@ describe('labels', () => {
   it('can change labels dynamically', async () => {
     let task = run(function*() {
       yield sleep(5);
-      yield setLabels({ foo: "bar" });
+      yield label({ foo: "bar" });
       yield sleep(10);
-      yield setLabels({ quox: "quox" });
+      yield label({ quox: "quox" });
     });
 
     let events: Labels[] = []

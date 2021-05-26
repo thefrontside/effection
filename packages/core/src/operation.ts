@@ -1,18 +1,30 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Task } from './task';
+import { Labels } from './labels';
 
-export type OperationIterator<TOut> = Generator<Operation<any>, TOut | undefined, any>;
+export interface Labelled {
+  name?: string;
+  labels?: Labels;
+}
 
-export interface OperationResolution<TOut> {
+export interface OperationIterator<TOut> extends Generator<Operation<any>, TOut | undefined, any>, Labelled {
+};
+
+export interface OperationPromise<TOut> extends PromiseLike<TOut>, Labelled {
+};
+
+export interface OperationResolution<TOut> extends Labelled {
   perform(resolve: (value: TOut) => void, reject: (err: Error) => void): void | (() => void);
 };
 
-export type Continuation<TOut> = PromiseLike<TOut> | OperationIterator<TOut> | OperationResolution<TOut> | undefined;
-
-export type ContinuationFunction<TOut> = (task: Task<TOut>) => Continuation<TOut>;
-
-export type Operation<TOut> = Continuation<TOut> | ContinuationFunction<TOut> | Resource<TOut>;
-
-export interface Resource<TOut> {
+export interface Resource<TOut> extends Labelled {
   init(scope: Task, local: Task): OperationIterator<TOut>;
 }
+
+export type OperationValue<TOut> = OperationPromise<TOut> | OperationIterator<TOut> | OperationResolution<TOut> | undefined;
+
+export interface OperationFunction<TOut> extends Labelled {
+  (task: Task<TOut>): OperationValue<TOut>;
+}
+
+export type Operation<TOut> = OperationValue<TOut> | OperationFunction<TOut> | Resource<TOut>;

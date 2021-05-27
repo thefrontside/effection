@@ -12,5 +12,5 @@ export function createSuspendController<TOut>(task: Task<TOut>): Controller<TOut
     controls.halted();
   }
 
-  return { start, halt };
+  return { start, halt, type: 'suspend' };
 }

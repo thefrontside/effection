@@ -9,6 +9,7 @@ import { createResolutionController } from './resolution-controller';
 import { createResourceController } from './resource-controller';
 
 export interface Controller<TOut> {
+  type: string;
   start(): void;
   halt(): void;
 }

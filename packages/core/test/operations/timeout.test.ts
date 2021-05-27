@@ -14,4 +14,8 @@ describe('timeout', () => {
     expect(root.state).toEqual('errored');
     await expect(root).rejects.toHaveProperty('message', 'timed out after 10ms');
   });
+
+  it('applies labels', () => {
+    expect(run(timeout(200)).labels).toEqual({ name: 'timeout', duration: 200 });
+  });
 });

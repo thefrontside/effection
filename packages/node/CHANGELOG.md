@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.2
+
+### Patch Changes
+
+- 7e48b52: Upgrade ctrlc-windows to 2.0.0
+
 ## 1.0.1
 
 ### Patch Changes

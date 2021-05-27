@@ -21,7 +21,7 @@ export function main<T>(operation: Operation<T>): Task<T> {
         throw e;
       }
     } finally {
-      window.removeEventListener('beforeunload', interrupt);
+      window.removeEventListener('unload', interrupt);
     }
   }, { labels: { name: "main", platform: "browser" } });
 }

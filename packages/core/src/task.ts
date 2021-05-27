@@ -7,6 +7,7 @@ import { swallowHalt } from './halt-error';
 import { EventEmitter } from 'events';
 import { StateMachine, State, StateTransition } from './state-machine';
 import { HaltError } from './halt-error';
+import { Labels } from './labels';
 
 let COUNTER = 0;
 const CONTROLS = Symbol.for('effection/v2/controls');
@@ -16,6 +17,7 @@ export interface TaskOptions {
   readonly blockParent?: boolean;
   readonly ignoreChildErrors?: boolean;
   readonly ignoreError?: boolean;
+  readonly labels?: Labels;
 }
 
 type WithControls<TOut> = { [CONTROLS]?: Controls<TOut> }
@@ -25,6 +27,7 @@ export interface Task<TOut = unknown> extends Promise<TOut> {
   readonly id: number;
   readonly state: State;
   readonly options: TaskOptions;
+  readonly labels: Labels;
   catchHalt(): Promise<TOut | undefined>;
   spawn<R>(operation?: Operation<R>, options?: TaskOptions): Task<R>;
   halt(): Promise<void>;
@@ -44,6 +47,7 @@ export interface Controls<TOut = unknown> {
   addTrapper(trapper: Trapper): void;
   removeTrapper(trapper: Trapper): void;
   trap: Trapper;
+  setLabels(labels: Labels): void;
   on(name: 'state', listener: (transition: StateTransition) => void): void;
   on(name: 'link', listener: (child: Task) => void): void;
   on(name: 'unlink', listener: (child: Task) => void): void;
@@ -172,16 +176,29 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
       trappers.delete(trapper);
     },
 
+    setLabels(newLabels) {
+      labels = { ...labels, ...newLabels };
+      emitter.emit('labels', labels);
+    },
+
     on: (name: string, listener: (...args: any[]) => void) => { emitter.on(name, listener) },
     off: (name: string, listener: (...args: any[]) => void) => { emitter.off(name, listener) },
   };
 
   let controller: Controller<TOut>;
 
+  let labels: Labels = { ...operation?.labels, ...options.labels }
+
+  if(!labels.name && operation?.name) {
+    labels.name = operation?.name;
+  }
+
   let task: Task<TOut> & WithControls<TOut> = {
     id,
 
     options,
+
+    get labels() { return labels },
 
     get state() { return stateMachine.current; },
 

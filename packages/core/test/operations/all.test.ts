@@ -60,4 +60,8 @@ describe('all()', () => {
 
     await expect(result).rejects.toHaveProperty('message', 'boom: bar');
   });
+
+  it('applies labels', () => {
+    expect(run(all([syncResolve("foo")])).labels).toEqual({ name: 'all', count: 1 });
+  });
 });

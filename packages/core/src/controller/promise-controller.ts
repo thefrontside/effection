@@ -26,5 +26,5 @@ export function createPromiseController<TOut>(task: Task<TOut>, promise: Promise
     controls.halted();
   }
 
-  return { start, halt };
+  return { start, halt, type: 'promise' };
 }

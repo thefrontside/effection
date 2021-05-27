@@ -15,7 +15,7 @@
   ],
   "scripts": {
     "lint": "eslint '{src,tests}/**/*.ts'",
-    "test": "mocha -r ts-node/register test/**/*.test.ts",
+    "test": "mocha -r ts-node/register --timeout 10000 test/**/*.test.ts",
     "prepack": "tsc --project tsconfig.dist.json",
     "mocha": "mocha -r ts-node/register"
   },

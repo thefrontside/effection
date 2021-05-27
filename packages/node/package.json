@@ -38,7 +38,7 @@
     "@effection/events": "2.0.0-preview.11",
     "@effection/subscription": "2.0.0-preview.12",
     "cross-spawn": "^7.0.3",
-    "ctrlc-windows": "^1.0.3",
+    "ctrlc-windows": "^2.0.0",
     "shellwords": "^0.1.1"
   },
   "volta": {

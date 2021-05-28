@@ -1,6 +1,6 @@
 {
   "name": "@effection/main",
-  "version": "2.0.0-preview.1",
+  "version": "2.0.0-preview.2",
   "description": "Main entry point for Effection applications",
   "main": "dist/node.js",
   "browser": "dist/browser.js",
@@ -20,11 +20,11 @@
     "mocha": "mocha -r ts-node/register"
   },
   "dependencies": {
-    "@effection/core": "2.0.0-preview.10"
+    "@effection/core": "2.0.0-preview.11"
   },
   "devDependencies": {
-    "@effection/node": "2.0.0-preview.14",
-    "@effection/mocha": "2.0.0-preview.11",
+    "@effection/node": "2.0.0-preview.15",
+    "@effection/mocha": "2.0.0-preview.12",
     "@frontside/tsconfig": "0.0.1",
     "@types/node": "^13.13.5",
     "expect": "^25.4.0",

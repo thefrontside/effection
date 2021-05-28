@@ -24,6 +24,7 @@
     "@effection/channel": "2.0.0-preview.13",
     "@effection/core": "2.0.0-preview.10",
     "@effection/events": "2.0.0-preview.11",
+    "@effection/main": "2.0.0-preview.1",
     "@effection/subscription": "2.0.0-preview.12"
   },
   "devDependencies": {

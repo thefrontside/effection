@@ -17,7 +17,7 @@ describe('generators', () => {
       let result = add(2, 2);
       yield result;
       yield result;
-    })).rejects.toMatchObject({ name: 'DoubleEvalError' });
+    })).rejects.toMatchObject({ source: { name: 'DoubleEvalError' } });
   });
 
   it('is an error to run the same iterator more than once', async () => {

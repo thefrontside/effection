@@ -1,6 +1,6 @@
 {
   "name": "@effection/core",
-  "version": "2.0.0-preview.10",
+  "version": "2.0.0-preview.11",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "license": "MIT",

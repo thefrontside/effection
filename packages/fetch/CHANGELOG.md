@@ -1,5 +1,15 @@
 # @effection/fetch
 
+## 2.0.0-preview.10
+
+### Patch Changes
+
+- Updated dependencies [88eca21]
+- Updated dependencies [ae8d090]
+- Updated dependencies [8bb4514]
+- Updated dependencies [44c354d]
+  - @effection/core@2.0.0-preview.11
+
 ## 2.0.0-preview.9
 
 ### Patch Changes

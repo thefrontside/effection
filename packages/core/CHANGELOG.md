@@ -1,5 +1,17 @@
 # @effection/core
 
+## 2.0.0-preview.11
+
+### Minor Changes
+
+- 88eca21: Add type to task
+- 8bb4514: Add support for labels
+- 44c354d: Make task options public
+
+### Patch Changes
+
+- ae8d090: Sleeping for zero milliseconds should not suspend indefinitely
+
 ## 2.0.0-preview.10
 
 ### Minor Changes

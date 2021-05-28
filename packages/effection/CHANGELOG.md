@@ -1,5 +1,27 @@
 # Changelog
 
+## 2.0.0-preview.15
+
+### Minor Changes
+
+- 88eca21: Add type to task
+- 8bb4514: Add support for labels
+- 44c354d: Make task options public
+- ef1f164: Reexport main package
+
+### Patch Changes
+
+- ae8d090: Sleeping for zero milliseconds should not suspend indefinitely
+- Updated dependencies [88eca21]
+- Updated dependencies [ae8d090]
+- Updated dependencies [8bb4514]
+- Updated dependencies [44c354d]
+  - @effection/core@2.0.0-preview.11
+  - @effection/channel@2.0.0-preview.14
+  - @effection/events@2.0.0-preview.12
+  - @effection/main@2.0.0-preview.2
+  - @effection/subscription@2.0.0-preview.13
+
 ## 2.0.0-preview.14
 
 ### Minor Changes

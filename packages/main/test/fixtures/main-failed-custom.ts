@@ -1,5 +1,5 @@
 import { sleep } from '@effection/core';
-import { main, MainError } from '../../src/main';
+import { main, MainError } from '../../src/node';
 
 main(function*() {
   yield sleep(10);

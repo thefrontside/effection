@@ -1,5 +1,23 @@
 # Changelog
 
+## 2.0.0-preview.15
+
+### Minor Changes
+
+- c095142: Remove main from @effection/node, it has its own package @effection/main now
+
+### Patch Changes
+
+- 9cfb809: Upgrade ctrlc-windows to 2.0.0
+- Updated dependencies [88eca21]
+- Updated dependencies [ae8d090]
+- Updated dependencies [8bb4514]
+- Updated dependencies [44c354d]
+  - @effection/core@2.0.0-preview.11
+  - @effection/channel@2.0.0-preview.14
+  - @effection/events@2.0.0-preview.12
+  - @effection/subscription@2.0.0-preview.13
+
 ## 2.0.0-preview.14
 
 ### Patch Changes

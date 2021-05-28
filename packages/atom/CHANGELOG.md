@@ -1,5 +1,18 @@
 # @effection/atom
 
+## 2.0.0-preview.14
+
+### Patch Changes
+
+- b46434a: Use the generic monocle-ts import and not the commonjs import
+- Updated dependencies [88eca21]
+- Updated dependencies [ae8d090]
+- Updated dependencies [8bb4514]
+- Updated dependencies [44c354d]
+  - @effection/core@2.0.0-preview.11
+  - @effection/channel@2.0.0-preview.14
+  - @effection/subscription@2.0.0-preview.13
+
 ## 2.0.0-preview.13
 
 ### Patch Changes

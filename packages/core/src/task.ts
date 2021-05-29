@@ -5,7 +5,7 @@ import { Deferred } from './deferred';
 import { Trapper } from './trapper';
 import { swallowHalt } from './halt-error';
 import { EventEmitter } from 'events';
-import { StateMachine, State, StateTransition } from './state-machine';
+import { StateMachine, State } from './state-machine';
 import { HaltError } from './halt-error';
 import { Labels } from './labels';
 
@@ -49,14 +49,8 @@ export interface Controls<TOut = unknown> {
   removeTrapper(trapper: Trapper): void;
   trap: Trapper;
   setLabels(labels: Labels): void;
-  on(name: 'state', listener: (transition: StateTransition) => void): void;
-  on(name: 'link', listener: (child: Task) => void): void;
-  on(name: 'unlink', listener: (child: Task) => void): void;
-  on(name: string, listener: (...args: any[]) => void): void;
-  off(name: 'state', listener: (transition: StateTransition) => void): void;
-  off(name: 'link', listener: (child: Task) => void): void;
-  off(name: 'unlink', listener: (child: Task) => void): void;
-  off(name: string, listener: (...args: any[]) => void): void;
+  on: EventEmitter['on'];
+  off: EventEmitter['off'];
 }
 
 export function createTask<TOut = unknown>(operation: Operation<TOut>, options: TaskOptions = {}): Task<TOut> {
@@ -182,8 +176,8 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
       emitter.emit('labels', labels);
     },
 
-    on: (name: string, listener: (...args: any[]) => void) => { emitter.on(name, listener) },
-    off: (name: string, listener: (...args: any[]) => void) => { emitter.off(name, listener) },
+    on: (...args) => emitter.on(...args),
+    off: (...args) => emitter.off(...args),
   };
 
   let controller: Controller<TOut>;

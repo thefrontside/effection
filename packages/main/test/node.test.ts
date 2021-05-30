@@ -2,7 +2,7 @@ import * as path from 'path';
 import * as expect from 'expect';
 import { describe, it, beforeEach } from '@effection/mocha';
 
-import { exec, Process } from '@effection/node';
+import { exec, Process, ProcessResult } from '@effection/node';
 import { terminate, interrupt } from './helpers';
 
 describe('main', () => {
@@ -40,22 +40,19 @@ describe('main', () => {
 
   describe('with failing process', () => {
     it('sets exit code and prints error', function*() {
-      let child: Process = yield exec(`ts-node ./test/fixtures/main-failed.ts`, { buffered: true });
-      let status = yield child.join();
-      let stderr = yield child.stderr.expect();
+      let result: ProcessResult = yield exec(`ts-node ./test/fixtures/main-failed.ts`).join();
 
-      expect(stderr).toContain('Error: moo');
-      expect(status.code).toEqual(1);
+      expect(result.stderr).toContain('Error');
+      expect(result.stderr).toContain('moo');
+      expect(result.code).toEqual(1);
     });
 
     it('sets custom exit code and hides error', function*() {
-      let child: Process = yield exec(`ts-node ./test/fixtures/main-failed-custom.ts`, { buffered: true });
-      let status = yield child.join();
-      let stderr = yield child.stderr.expect();
+      let result: ProcessResult = yield exec(`ts-node ./test/fixtures/main-failed-custom.ts`).join();
 
-      expect(stderr).toContain('It all went horribly wrong');
-      expect(stderr).not.toContain('EffectionMainError');
-      expect(status.code).toEqual(23);
+      expect(result.stderr).toContain('It all went horribly wrong');
+      expect(result.stderr).not.toContain('EffectionMainError');
+      expect(result.code).toEqual(23);
     });
   });
 });

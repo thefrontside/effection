@@ -20,11 +20,13 @@
     "mocha": "mocha -r ts-node/register"
   },
   "dependencies": {
-    "@effection/core": "2.0.0-preview.11"
+    "@effection/core": "2.0.0-preview.11",
+    "chalk": "^4.1.1",
+    "stacktrace-parser": "^0.1.10"
   },
   "devDependencies": {
-    "@effection/node": "2.0.0-preview.15",
     "@effection/mocha": "2.0.0-preview.12",
+    "@effection/node": "2.0.0-preview.15",
     "@frontside/tsconfig": "0.0.1",
     "@types/node": "^13.13.5",
     "expect": "^25.4.0",

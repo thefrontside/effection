@@ -1,4 +1,6 @@
 import { run, Task, Operation } from '@effection/core';
+import { formatError } from './format-error-node';
+import { isMainError } from './error';
 
 export * from './error';
 
@@ -9,17 +11,11 @@ export function main<T>(operation: Operation<T>): Task<T> {
       process.on('SIGINT', interrupt);
       process.on('SIGTERM', interrupt);
       return yield operation;
-    } catch(e) {
-      if(e.name === 'EffectionMainError') {
-        if(e.options.message) {
-          console.error(e.options.message);
-        }
-        if(e.options.verbose) {
-          console.error(e.stack);
-        }
-        process.exit(e.options.exitCode || -1);
+    } catch(error) {
+      console.error(formatError(error));
+      if(isMainError(error)) {
+        process.exit(error.exitCode || -1);
       } else {
-        console.error(e);
         process.exit(1);
       }
     } finally {

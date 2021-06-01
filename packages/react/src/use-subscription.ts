@@ -9,7 +9,7 @@ export function useSubscription<T>(subscription: Subscription<T>): T | undefined
   useEffect(() => {
     let task = scope.spawn(subscription.forEach((value) => { setState(value) }));
     return () => { task.halt() };
-  });
+  }, [subscription, scope]);
 
   return state;
 }

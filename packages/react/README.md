@@ -1,1 +1,1 @@
-# @effection/debug-ui
+# @effection/react

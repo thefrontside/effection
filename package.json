@@ -17,6 +17,7 @@
       "packages/atom",
       "packages/node",
       "packages/fetch",
+      "packages/react",
       "packages/websocket-client",
       "packages/websocket-server",
       "packages/effection"

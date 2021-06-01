@@ -30,6 +30,8 @@
     "@frontside/tsconfig": "0.0.1",
     "@types/node": "^13.13.5",
     "@types/react": "^17.0.8",
+    "@types/react-test-renderer": "^17.0.1",
+    "eslint-plugin-react-hooks": "^4.2.0",
     "expect": "^25.4.0",
     "mocha": "^8.3.1",
     "react-test-renderer": "^17.0.2",

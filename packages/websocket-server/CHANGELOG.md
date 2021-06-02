@@ -1,6 +1,20 @@
 # @effection/websocket-server
 
+## 2.0.0-preview.3
+
+### Patch Changes
+
+- Updated dependencies [9998088]
+- Updated dependencies [d7c0eb1]
+- Updated dependencies [2bce454]
+- Updated dependencies [1981b35]
+- Updated dependencies [88dc59a]
+  - @effection/core@2.0.0-preview.12
+  - @effection/events@2.0.0-preview.13
+  - @effection/subscription@2.0.0-preview.14
+
 ## 2.0.0-preview.2
+
 ### Patch Changes
 
 - Updated dependencies [88eca21]

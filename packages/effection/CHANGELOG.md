@@ -1,5 +1,30 @@
 # Changelog
 
+## 2.0.0-preview.16
+
+### Minor Changes
+
+- 9998088: Spawn operation can accept task options
+- d7c0eb1: Do not require implementation of full EventEmitter interface
+- 2bce454: Simplify EventEmitter types on Controls.
+- 1981b35: Collect trace of effection operations and propagate them along with the raised error
+- 88dc59a: Remove `verbose` option from MainError
+- 88dc59a: Improve error output by including an Effection trace
+
+### Patch Changes
+
+- Updated dependencies [9998088]
+- Updated dependencies [d7c0eb1]
+- Updated dependencies [2bce454]
+- Updated dependencies [1981b35]
+- Updated dependencies [88dc59a]
+- Updated dependencies [88dc59a]
+  - @effection/core@2.0.0-preview.12
+  - @effection/events@2.0.0-preview.13
+  - @effection/main@2.0.0-preview.3
+  - @effection/channel@2.0.0-preview.15
+  - @effection/subscription@2.0.0-preview.14
+
 ## 2.0.0-preview.15
 
 ### Minor Changes

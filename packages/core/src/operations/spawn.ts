@@ -1,13 +1,13 @@
 import { Operation, Resource } from '../operation';
-import { Task } from '../task';
+import type { Task, TaskOptions } from '../task';
 
 interface Spawn<T> extends Resource<Task<T>> {
   within(scope: Task): Resource<Task<T>>;
 }
 
-export function spawn<T>(operation?: Operation<T>): Spawn<T> {
+export function spawn<T>(operation?: Operation<T>, options?: TaskOptions): Spawn<T> {
   function* init(scope: Task) {
-    return scope.spawn(operation);
+    return scope.spawn(operation, options);
   }
 
   function within(scope: Task) {

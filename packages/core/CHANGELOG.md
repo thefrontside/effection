@@ -1,5 +1,14 @@
 # @effection/core
 
+## 2.0.0-preview.12
+
+### Minor Changes
+
+- 9998088: Spawn operation can accept task options
+- 2bce454: Simplify EventEmitter types on Controls.
+- 1981b35: Collect trace of effection operations and propagate them along with the raised error
+- 88dc59a: Improve error output by including an Effection trace
+
 ## 2.0.0-preview.11
 
 ### Minor Changes

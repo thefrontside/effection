@@ -13,10 +13,12 @@
     "@effection/mocha": "2.0.0-preview.2",
     "@effection/main": "2.0.0-preview.1",
     "@effection/websocket-client": "2.0.0-preview.1",
-    "@effection/websocket-server": "2.0.0-preview.1"
+    "@effection/websocket-server": "2.0.0-preview.1",
+    "@effection/react": "2.0.0-preview.1"
   },
   "changesets": [
     "atom-stream-initial-state",
+    "blue-plants-lie",
     "brave-dots-listen",
     "brave-tools-hear",
     "bright-nails-buy",
@@ -28,12 +30,14 @@
     "emmitter-stream",
     "empty-sheep-buy",
     "fix-atom-deps",
+    "four-hornets-lay",
     "good-parents-itch",
     "gorgeous-months-shop",
     "hip-files-work",
     "iterator-as-operation",
     "kind-cars-wash",
     "late-eagles-brush",
+    "lemon-plums-sparkle",
     "light-trainers-grab",
     "little-pets-smell",
     "long-shrimps-look",
@@ -55,6 +59,7 @@
     "real-doors-train",
     "rude-cooks-shave",
     "serious-shrimps-rescue",
+    "seven-ducks-attend",
     "sharp-lobsters-work",
     "sharp-penguins-check",
     "shiny-terms-talk",
@@ -78,6 +83,8 @@
     "wet-roses-notice",
     "wicked-melons-bake",
     "wicked-phones-behave",
-    "wild-seas-roll"
+    "wild-seas-roll",
+    "wild-spoons-kick",
+    "wise-pots-laugh"
   ]
 }

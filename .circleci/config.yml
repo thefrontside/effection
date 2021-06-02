@@ -117,6 +117,10 @@ workflows:
                 - node
                 - atom
                 - mocha
+                - main
+                - react
+                - websocket-client
+                - websocket-server
           requires:
             - prepack
       - lint:

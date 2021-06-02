@@ -17,12 +17,12 @@ describe('generators', () => {
       let result = add(2, 2);
       yield result;
       yield result;
-    })).rejects.toMatchObject({ name: 'DoubleEvalError' });
+    })).rejects.toHaveProperty('name', 'DoubleEvalError');
   });
 
   it('is an error to run the same iterator more than once', async () => {
     let addition = add(2,2);
     await run(addition);
-    expect(run(addition)).rejects.toMatchObject({ name: 'DoubleEvalError' });
+    expect(run(addition)).rejects.toHaveProperty('name', 'DoubleEvalError');
   });
 })

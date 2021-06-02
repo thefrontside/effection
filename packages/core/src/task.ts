@@ -8,6 +8,7 @@ import { EventEmitter } from 'events';
 import { StateMachine, State } from './state-machine';
 import { HaltError } from './halt-error';
 import { Labels } from './labels';
+import { addTrace } from './error';
 
 let COUNTER = 0;
 const CONTROLS = Symbol.for('effection/v2/controls');
@@ -121,7 +122,7 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
     reject: (error: Error) => {
       stateMachine.reject();
       controls.result = undefined; // clear result if it has previously been set
-      controls.error = error;
+      controls.error = addTrace(error, task);
       haltChildren(true);
       resume();
     },

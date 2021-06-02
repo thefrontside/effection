@@ -1,4 +1,5 @@
 import { run, Task, Operation } from '@effection/core';
+import { isMainError } from './error';
 
 export * from './error';
 
@@ -8,17 +9,14 @@ export function main<T>(operation: Operation<T>): Task<T> {
     try {
       window.addEventListener('unload', interrupt);
       return yield operation;
-    } catch(e) {
-      if(e.name === 'EffectionMainError') {
-        if(e.options.message) {
-          console.error(e.options.message);
-        }
-        if(e.options.verbose) {
-          console.error(e.stack);
+    } catch(error) {
+      if(isMainError(error)) {
+        if(error.message) {
+          console.error(error.message);
         }
       } else {
-        console.error(e);
-        throw e;
+        console.error(error);
+        throw error;
       }
     } finally {
       window.removeEventListener('unload', interrupt);

@@ -1,6 +1,6 @@
 {
   "name": "@effection/node",
-  "version": "2.0.0-preview.15",
+  "version": "2.0.0-preview.16",
   "description": "Work in Node.js with Effection",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -20,7 +20,7 @@
     "mocha": "mocha -r ts-node/register"
   },
   "devDependencies": {
-    "@effection/mocha": "2.0.0-preview.12",
+    "@effection/mocha": "2.0.0-preview.13",
     "@frontside/tsconfig": "0.0.1",
     "@types/cross-spawn": "^6.0.2",
     "@types/node": "^13.13.5",
@@ -33,10 +33,10 @@
     "typescript": "^3.7.0"
   },
   "dependencies": {
-    "@effection/channel": "2.0.0-preview.14",
-    "@effection/core": "2.0.0-preview.11",
-    "@effection/events": "2.0.0-preview.12",
-    "@effection/subscription": "2.0.0-preview.13",
+    "@effection/channel": "2.0.0-preview.15",
+    "@effection/core": "2.0.0-preview.12",
+    "@effection/events": "2.0.0-preview.13",
+    "@effection/subscription": "2.0.0-preview.14",
     "cross-spawn": "^7.0.3",
     "ctrlc-windows": "^2.0.0",
     "shellwords": "^0.1.1"

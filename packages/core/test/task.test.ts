@@ -2,7 +2,7 @@ import './setup';
 import { describe, it } from 'mocha';
 import * as expect from 'expect';
 
-import { run, sleep, createTask, Task, createFuture } from '../src/index';
+import { run, sleep, createTask, Task, createFuture, withLabels } from '../src/index';
 
 describe('Task', () => {
   describe('consume', () => {
@@ -13,6 +13,13 @@ describe('Task', () => {
       let result;
       task.consume(value => result = value);
       expect(result).toEqual({ state: 'completed', value: 123 });
+    });
+  });
+
+  describe('yieldingTo', () => {
+    it('returns the current sub task', async () => {
+      let task = run(function*() { yield });
+      expect(task.yieldingTo).toHaveProperty('type', 'suspend');
     });
   });
 
@@ -97,7 +104,7 @@ describe('Task', () => {
   describe('event: state', () => {
     it('is triggered when a task changes state', async () => {
       let events: { to: string; from: string }[] = []
-      let task = createTask(function*() { sleep(5) });
+      let task = createTask(function*() { yield sleep(5) });
 
       task.on('state', (transition) => events.push(transition));
       task.start();
@@ -109,6 +116,27 @@ describe('Task', () => {
         { from: 'running', to: 'completing' },
         { from: 'completing', to: 'completed' },
       ]);
+    });
+  });
+
+  describe('event: yieldingTo', () => {
+    it('is triggered when a task changes sub task', async () => {
+      let events: Task[] = [];
+      let task = createTask(function*() {
+        yield withLabels(sleep(5), { name: 'sleep-one' });
+        yield withLabels(sleep(5), { name: 'sleep-two' });
+      });
+
+      task.on('yieldingTo', (transition) => events.push(transition));
+      task.start();
+
+      await task;
+
+      expect(events.length).toEqual(4);
+      expect(events[0].labels.name).toEqual('sleep-one');
+      expect(events[1]).toEqual(undefined);
+      expect(events[2].labels.name).toEqual('sleep-two');
+      expect(events[3]).toEqual(undefined);
     });
   });
 

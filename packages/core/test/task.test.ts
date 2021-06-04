@@ -2,9 +2,28 @@ import './setup';
 import { describe, it } from 'mocha';
 import * as expect from 'expect';
 
-import { run, sleep, createTask, Task, getControls } from '../src/index';
+import { run, sleep, createTask, Task } from '../src/index';
 
 describe('Task', () => {
+  describe('children', () => {
+    it('returns the tasks children', async () => {
+      let task = run();
+      let child1 = task.spawn();
+      let child2 = task.spawn();
+      expect(task.children).toEqual([child1, child2]);
+    });
+  });
+
+  describe('start', () => {
+    it('is idempotent', async () => {
+      let task = run();
+      await task.start();
+      await task.start();
+      await task.start();
+      expect(task.state).toEqual('running');
+    });
+  });
+
   describe('halt', () => {
     it('is idempotent', async () => {
       let task = run();
@@ -68,8 +87,8 @@ describe('Task', () => {
       let events: { to: string; from: string }[] = []
       let task = createTask(function*() { sleep(5) });
 
-      getControls(task).on('state', (transition) => events.push(transition));
-      getControls(task).start();
+      task.on('state', (transition) => events.push(transition));
+      task.start();
 
       await task;
 
@@ -86,7 +105,7 @@ describe('Task', () => {
       let events: Task[] = []
       let task = run();
 
-      getControls(task).on('link', (child) => events.push(child));
+      task.on('link', (child) => events.push(child));
 
       let child = task.spawn();
 
@@ -99,7 +118,7 @@ describe('Task', () => {
       let events: Task[] = []
       let task = run();
 
-      getControls(task).on('unlink', (child) => events.push(child));
+      task.on('unlink', (child) => events.push(child));
 
       let child = task.spawn(function*() { yield sleep(5); return 1 });
 
@@ -112,7 +131,7 @@ describe('Task', () => {
       let events: Task[] = []
       let task = run();
 
-      getControls(task).on('unlink', (child) => events.push(child));
+      task.on('unlink', (child) => events.push(child));
 
       let child = task.spawn(function*() { yield sleep(5); return 1 });
 

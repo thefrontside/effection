@@ -3,12 +3,12 @@ import { Task, TaskOptions } from './task';
 import { Effection } from './effection';
 
 export { State, StateTransition } from './state-machine';
-export { createTask, Task, TaskOptions } from './task';
+export { createTask, Task, TaskOptions, TaskInfo, TaskTree } from './task';
 export { Operation, Resource } from './operation';
 export { Effection } from './effection';
 export { deprecated } from './deprecated';
 export { Labels, withLabels } from './labels';
-export { HasEffectionTrace, TaskInfo } from './error';
+export { HasEffectionTrace } from './error';
 export { createFuture, Future, FutureLike } from './future';
 
 export { sleep } from './operations/sleep';

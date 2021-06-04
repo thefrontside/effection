@@ -65,6 +65,38 @@ describe('Task', () => {
     });
   });
 
+  describe('toJSON', () => {
+    it('returns the full task information', async () => {
+      let task = run(function* theTask(inner) {
+        inner.spawn(undefined, { labels: { name: 'some-thing' } });
+        yield;
+      });
+
+      expect(task.toJSON()).toEqual({
+        id: task.id,
+        type: 'generator function',
+        labels: { name: 'theTask' },
+        state: 'running',
+        yieldingTo: {
+          id: task.yieldingTo?.id,
+          type: 'suspend',
+          labels: {},
+          yieldingTo: undefined,
+          state: 'running',
+          children: [],
+        },
+        children: [{
+          id: task.children[0]?.id,
+          type: 'suspend',
+          labels: { name: 'some-thing' },
+          yieldingTo: undefined,
+          state: 'running',
+          children: [],
+        }]
+      });
+    });
+  });
+
   describe('ensure', () => {
     it('attaches a handler which runs when the task finishes normally', async () => {
       let task = run(sleep(10));

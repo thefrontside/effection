@@ -1,30 +1,24 @@
 import { Controller } from './controller';
-import { Task, getControls } from '../task';
-import { Deferred } from '../deferred';
-
-const HALT = Symbol("halt");
+import { Task } from '../task';
+import { createFuture } from '../future';
 
 export function createPromiseController<TOut>(task: Task<TOut>, promise: PromiseLike<TOut>): Controller<TOut> {
-  let controls = getControls(task);
-  let haltSignal = Deferred<typeof HALT>();
+  let { resolve, future } = createFuture<TOut>();
 
   function start() {
-    Promise.race([promise, haltSignal.promise]).then(
+    Promise.race([promise, future]).then(
       (value) => {
-        if(value !== HALT) {
-          controls.resolve(value);
-        }
+        resolve({ state: 'completed', value });
       },
       (error) => {
-        controls.reject(error);
+        resolve({ state: 'errored', error });
       }
     )
   }
 
   function halt() {
-    haltSignal.resolve(HALT);
-    controls.halted();
+    resolve({ state: 'halted' });
   }
 
-  return { start, halt, type: 'promise' };
+  return { start, halt, future, type: 'promise' };
 }

@@ -1,24 +1,30 @@
 import { Controller } from './controller';
 import { OperationResolution } from '../operation';
 import { Task, getControls } from '../task';
+import { createFuture } from '../future';
 
 export function createResolutionController<TOut>(task: Task<TOut>, resolution: OperationResolution<TOut>): Controller<TOut> {
+  let { future, resolve } = createFuture<TOut>();
   let controls = getControls(task);
 
   function start() {
     try {
-      let atExit = resolution.perform(controls.resolve, controls.reject);
+      let atExit = resolution.perform(
+        (value) => resolve({ state: 'completed', value }),
+        (error) => resolve({ state: 'errored', error }),
+      );
+
       if (atExit) {
-        controls.ensure(atExit);
+        controls.future.consume(atExit);
       }
     } catch(error) {
-      controls.reject(error);
+      resolve({ state: 'errored', error });
     }
   }
 
   function halt() {
-    controls.halted();
+    resolve({ state: 'halted' });
   }
 
-  return { start, halt, type: 'resolution' };
+  return { start, halt, future, type: 'resolution' };
 }

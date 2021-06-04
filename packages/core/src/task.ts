@@ -1,14 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Controller, createController } from './controller/controller';
 import { Operation } from './operation';
-import { Deferred } from './deferred';
-import { Trapper } from './trapper';
 import { swallowHalt } from './halt-error';
 import { EventEmitter } from 'events';
 import { StateMachine, State } from './state-machine';
-import { HaltError } from './halt-error';
 import { Labels } from './labels';
 import { addTrace } from './error';
+import { createFuture, Future, Value } from './future';
+import { createRunLoop } from './run-loop';
 
 let COUNTER = 0;
 const CONTROLS = Symbol.for('effection/v2/controls');
@@ -36,19 +35,9 @@ export interface Task<TOut = unknown> extends Promise<TOut> {
 }
 
 export interface Controls<TOut = unknown> {
+  future: Future<TOut>;
   children: Set<Task>;
-  result?: TOut;
-  error?: Error;
   start(): void;
-  halted(): void;
-  resolve(value: TOut): void;
-  reject(error: Error): void;
-  ensure(fn: EnsureHandler): void;
-  link(child: Task): void;
-  unlink(child: Task): void;
-  addTrapper(trapper: Trapper): void;
-  removeTrapper(trapper: Trapper): void;
-  trap: Trapper;
   setLabels(labels: Labels): void;
   on: EventEmitter['on'];
   off: EventEmitter['off'];
@@ -58,118 +47,22 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
   let id = ++COUNTER;
 
   let children = new Set<Task>();
-  let trappers = new Set<Trapper>();
-  let ensureHandlers = new Set<EnsureHandler>();
   let emitter = new EventEmitter();
 
   let stateMachine = new StateMachine(emitter);
 
-  let deferred = Deferred<TOut>();
-  deferred.promise.catch(() => {
-    // prevent uncaught promise warnings
-  });
-
-  function resume() {
-    if(stateMachine.isFinishing && children.size === 0) {
-      stateMachine.finish();
-
-      ensureHandlers.forEach((handler) => handler());
-      trappers.forEach((trapper) => trapper(task as Task));
-
-      ensureHandlers.clear();
-      trappers.clear();
-
-      if(stateMachine.current === 'completed') {
-        // TODO: model state as a union so we do not need this non-null assertion
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        deferred.resolve(controls.result!);
-      } else if(stateMachine.current === 'halted') {
-        deferred.reject(new HaltError());
-      } else if(stateMachine.current === 'errored') {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        deferred.reject(controls.error!);
-      }
-    }
-  }
-
-  function haltChildren(force: boolean) {
-    for(let child of Array.from(children).reverse()) {
-      if(force || !child.options.blockParent) {
-        // Continue halting once the first found child has been fully halted.
-        // The child will always have been removed from the Set when this runs.
-        getControls(child).addTrapper(() => haltChildren(force));
-        child.halt()
-        return;
-      }
-    }
-  }
+  let { resolve, future } = createFuture<TOut>();
+  let result: Value<TOut>;
+  let runLoop = createRunLoop();
 
   let controls: Controls<TOut> = {
     children,
 
+    future,
+
     start() {
       stateMachine.start();
       controller.start();
-    },
-
-    resolve: (result: TOut) => {
-      stateMachine.resolve();
-      controls.result = result;
-      haltChildren(false);
-      resume();
-    },
-
-    reject: (error: Error) => {
-      stateMachine.reject();
-      controls.result = undefined; // clear result if it has previously been set
-      controls.error = addTrace(error, task);
-      haltChildren(true);
-      resume();
-    },
-
-    ensure(fn) {
-      ensureHandlers.add(fn)
-    },
-
-    halted: () => {
-      stateMachine.halt();
-      haltChildren(true);
-      resume();
-    },
-
-    link(child) {
-      if(!children.has(child)) {
-        getControls(child).addTrapper(controls.trap);
-        children.add(child);
-        emitter.emit('link', child);
-      }
-    },
-
-    unlink(child) {
-      if(children.has(child)) {
-        getControls(child).removeTrapper(controls.trap);
-        children.delete(child);
-        emitter.emit('unlink', child);
-      }
-    },
-
-    trap(child) {
-      if(children.has(child)) {
-        if(child.state === 'errored' && !child.options.ignoreError && !options.ignoreChildErrors) {
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          controls.reject(getControls(child).error!);
-        }
-        controls.unlink(child);
-      }
-      resume();
-    },
-
-    addTrapper(trapper) {
-      trappers.add(trapper);
-    },
-
-    removeTrapper(trapper) {
-      trappers.delete(trapper);
     },
 
     setLabels(newLabels) {
@@ -201,7 +94,7 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
     get type() { return controller.type },
 
     catchHalt() {
-      return deferred.promise.catch(swallowHalt);
+      return future.catch(swallowHalt);
     },
 
     spawn(operation?, options = {}) {
@@ -209,26 +102,96 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
         throw new Error('cannot spawn a child on a task which is not running');
       }
       let child = createTask(operation, { resourceScope: task, ...options });
-      controls.link(child as Task);
+      link(child as Task);
       getControls(child).start();
       return child;
     },
 
     async halt() {
-      controller.halt();
-      await deferred.promise.catch(() => {
+      if(stateMachine.current === 'running' || stateMachine.current === 'completing') {
+        stateMachine.halting();
+        result = { state: 'halted' };
+        shutdown(true);
+      }
+      await future.catch(() => {
         // TODO: should this catch all errors, or only halt errors?
         // see https://github.com/jnicklas/mini-effection/issues/23
       });
     },
-    then: (...args) => deferred.promise.then(...args),
-    catch: (...args) => deferred.promise.catch(...args),
-    finally: (...args) => deferred.promise.finally(...args),
+    then: (...args) => future.then(...args),
+    catch: (...args) => future.catch(...args),
+    finally: (...args) => future.finally(...args),
     [Symbol.toStringTag]: `[Task ${id}]`,
     [CONTROLS]: controls,
   }
 
   controller = createController(task, operation);
+
+  controller.future.consume((value) => {
+    if(value.state === 'completed') {
+      stateMachine.completing();
+      if(!result) {
+        result = { state: 'completed', value: value.value };
+      }
+      shutdown(false);
+    } else if(value.state === 'errored') {
+      stateMachine.erroring();
+      result = { state: 'errored', error: addTrace(value.error, task) };
+      shutdown(true);
+    }
+    finalize();
+  });
+
+  function link(child: Task) {
+    if(!children.has(child)) {
+      getControls(child).future.consume((value) => {
+        if(value.state === 'errored' && !child.options.ignoreError && !options.ignoreChildErrors) {
+          stateMachine.erroring();
+          result = { state: 'errored', error: addTrace(value.error, task) };
+
+          shutdown(true);
+        }
+        if(children.has(child)) {
+          children.delete(child);
+          emitter.emit('unlink', child);
+        }
+        finalize();
+      });
+      children.add(child);
+      emitter.emit('link', child);
+    }
+  }
+
+  function shutdown(force: boolean) {
+    controller.halt();
+    controller.future.consume(() => {
+      let nextChild: Task | undefined;
+      function haltNextChild() {
+        runLoop.run(() => {
+          nextChild = Array.from(children)
+            .reverse()
+            .find((c) => (c !== nextChild) && (force || !c.options.blockParent))
+
+          if(nextChild) {
+            getControls(nextChild).future.consume(haltNextChild);
+            nextChild.halt()
+          }
+        });
+      }
+      haltNextChild();
+    });
+  }
+
+  function finalize() {
+    runLoop.run(() => {
+      if(Array.from(children).length !== 0) return;
+      if(controller.future.state === 'pending') return;
+      if(future.state !== 'pending') return;
+
+      stateMachine.finish();
+      resolve(result);
+    });
+  }
 
   return task;
 };

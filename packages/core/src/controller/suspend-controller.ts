@@ -1,16 +1,16 @@
 import { Controller } from './controller';
-import { getControls, Task } from '../task';
+import { createFuture } from '../future';
 
-export function createSuspendController<TOut>(task: Task<TOut>): Controller<TOut> {
-  let controls = getControls(task);
+export function createSuspendController<TOut>(): Controller<TOut> {
+  let { resolve, future } = createFuture<TOut>();
 
   function start() {
     // no op
   }
 
   function halt() {
-    controls.halted();
+    resolve({ state: 'halted' });
   }
 
-  return { start, halt, type: 'suspend' };
+  return { start, halt, future, type: 'suspend' };
 }

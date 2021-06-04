@@ -221,4 +221,43 @@ describe('generator function', () => {
     await expect(task).rejects.toHaveProperty('message', 'halted');
     expect(task.state).toEqual('halted');
   });
+
+  it('can delay halt if child fails', async () => {
+    let didRun = false;
+    let task = run(function*(inner) {
+      inner.spawn(function* willBoom() {
+        yield sleep(5);
+        throw new Error('boom');
+      });
+      try {
+        yield
+      } finally {
+        yield sleep(20);
+        didRun = true;
+      }
+    });
+
+    await run(sleep(10))
+
+    expect(task.state).toEqual('erroring');
+
+    await expect(task).rejects.toHaveProperty('message', 'boom');
+    expect(didRun).toEqual(true);
+  });
+
+  it('can throw error when child blows up', async () => {
+    let task = run(function*(inner) {
+      inner.spawn(function* willBoom() {
+        yield sleep(5);
+        throw new Error('boom');
+      });
+      try {
+        yield
+      } finally {
+        throw new Error('bang');
+      }
+    });
+
+    await expect(task).rejects.toHaveProperty('message', 'bang');
+  });
 });

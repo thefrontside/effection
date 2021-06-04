@@ -12,10 +12,6 @@ export type StateTransition = {
 export class StateMachine {
   current: State = 'pending';
 
-  get isFinishing(): boolean {
-    return ['completing', 'halting', 'erroring'].includes(this.current);
-  }
-
   constructor(private emitter: EventEmitter) {}
 
   private transition(event: string, validTransitions: Partial<Record<State, State>>) {
@@ -37,17 +33,14 @@ export class StateMachine {
     });
   }
 
-  resolve() {
-    this.transition('resolve', {
+  completing() {
+    this.transition('completing', {
       'running': 'completing',
-      'completing': 'completing',
-      'erroring': 'erroring',
-      'halting': 'halting',
     });
   }
 
-  reject() {
-    this.transition('reject', {
+  erroring() {
+    this.transition('erroring', {
       'running': 'erroring',
       'completing': 'erroring',
       'halting': 'erroring',
@@ -55,15 +48,11 @@ export class StateMachine {
     });
   }
 
-  halt() {
-    this.transition('halt', {
+  halting() {
+    this.transition('halting', {
       'running': 'halting',
       'completing': 'halting',
       'halting': 'halting',
-      'erroring': 'erroring',
-      'halted': 'halted',
-      'completed': 'completed',
-      'errored': 'errored',
     });
   }
 

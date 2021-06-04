@@ -5,6 +5,16 @@ import * as expect from 'expect';
 import { run, sleep, createTask, Task, getControls } from '../src/index';
 
 describe('Task', () => {
+  describe('halt', () => {
+    it('is idempotent', async () => {
+      let task = run();
+      await task.halt();
+      await task.halt();
+      await task.halt();
+      expect(task.state).toEqual('halted');
+    });
+  });
+
   describe('type', () => {
     it('returns the type of the task', async () => {
       expect(run(Promise.resolve(123)).type).toEqual('promise');

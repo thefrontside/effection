@@ -42,6 +42,8 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
   let children = new Set<Task>();
   let emitter = new EventEmitter();
 
+  emitter.setMaxListeners(100000);
+
   let stateMachine = new StateMachine(emitter);
 
   let { resolve, future } = createFuture<TOut>();

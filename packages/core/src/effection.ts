@@ -6,7 +6,7 @@ const MAJOR_VERSION = version.split('.')[0];
 const GLOBAL_PROPERTY = `__effectionV${MAJOR_VERSION}`;
 
 function createRootTask() {
-  let task = createTask(undefined, { ignoreChildErrors: true });
+  let task = createTask(undefined, { ignoreChildErrors: true, labels: { name: 'root' } });
   task.start();
   return task;
 }

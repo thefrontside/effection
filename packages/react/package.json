@@ -4,7 +4,7 @@
   "description": "Hooks for integrating effection into react applications",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "module": "dist/debug.esm.js",
+  "module": "dist/react.esm.js",
   "repository": "https://github.com/thefrontside/effection.git",
   "author": "Frontside Engineering <engineering@frontside.com>",
   "license": "MIT",

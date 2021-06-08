@@ -2,7 +2,7 @@ import './setup';
 import { describe, it } from 'mocha';
 import * as expect from 'expect';
 
-import { withLabels, run, getControls, sleep, label, Labels } from '../src/index';
+import { withLabels, run, sleep, label, Labels } from '../src/index';
 
 describe('labels', () => {
   describe('withLabels', () => {
@@ -62,7 +62,7 @@ describe('labels', () => {
 
     let events: Labels[] = []
 
-    getControls(task).on('labels', (labels) => events.push(labels));
+    task.on('labels', (labels) => events.push(labels));
 
     expect(task.labels).toEqual({});
 

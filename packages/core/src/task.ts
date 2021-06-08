@@ -10,7 +10,6 @@ import { createFuture, Future, Value } from './future';
 import { createRunLoop } from './run-loop';
 
 let COUNTER = 0;
-const CONTROLS = Symbol.for('effection/v2/controls');
 
 export interface TaskOptions {
   readonly resourceScope?: Task;
@@ -20,25 +19,19 @@ export interface TaskOptions {
   readonly labels?: Labels;
 }
 
-type WithControls<TOut> = { [CONTROLS]?: Controls<TOut> }
-type EnsureHandler = () => void;
-
 export interface Task<TOut = unknown> extends Promise<TOut> {
   readonly id: number;
   readonly type: string;
   readonly state: State;
   readonly options: TaskOptions;
   readonly labels: Labels;
+  readonly children: Task[];
+  readonly future: Future<TOut>;
   catchHalt(): Promise<TOut | undefined>;
+  setLabels(labels: Labels): void;
   spawn<R>(operation?: Operation<R>, options?: TaskOptions): Task<R>;
   halt(): Promise<void>;
-}
-
-export interface Controls<TOut = unknown> {
-  future: Future<TOut>;
-  children: Set<Task>;
   start(): void;
-  setLabels(labels: Labels): void;
   on: EventEmitter['on'];
   off: EventEmitter['off'];
 }
@@ -55,25 +48,6 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
   let result: Value<TOut>;
   let runLoop = createRunLoop();
 
-  let controls: Controls<TOut> = {
-    children,
-
-    future,
-
-    start() {
-      stateMachine.start();
-      controller.start();
-    },
-
-    setLabels(newLabels) {
-      labels = { ...labels, ...newLabels };
-      emitter.emit('labels', labels);
-    },
-
-    on: (...args) => emitter.on(...args),
-    off: (...args) => emitter.off(...args),
-  };
-
   let controller: Controller<TOut>;
 
   let labels: Labels = { ...operation?.labels, ...options.labels }
@@ -82,10 +56,12 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
     labels.name = operation?.name;
   }
 
-  let task: Task<TOut> & WithControls<TOut> = {
+  let task: Task<TOut> = {
     id,
 
     options,
+
+    future,
 
     get labels() { return labels },
 
@@ -93,8 +69,15 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
 
     get type() { return controller.type },
 
+    get children() { return Array.from(children); },
+
     catchHalt() {
       return future.catch(swallowHalt);
+    },
+
+    setLabels(newLabels) {
+      labels = { ...labels, ...newLabels };
+      emitter.emit('labels', labels);
     },
 
     spawn(operation?, options = {}) {
@@ -103,8 +86,15 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
       }
       let child = createTask(operation, { resourceScope: task, ...options });
       link(child as Task);
-      getControls(child).start();
+      child.start();
       return child;
+    },
+
+    start() {
+      if(stateMachine.current === 'pending') {
+        stateMachine.start();
+        controller.start();
+      }
     },
 
     async halt() {
@@ -118,11 +108,12 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
         // see https://github.com/jnicklas/mini-effection/issues/23
       });
     },
+    on: (...args) => emitter.on(...args),
+    off: (...args) => emitter.off(...args),
     then: (...args) => future.then(...args),
     catch: (...args) => future.catch(...args),
     finally: (...args) => future.finally(...args),
     [Symbol.toStringTag]: `[Task ${id}]`,
-    [CONTROLS]: controls,
   }
 
   controller = createController(task, operation);
@@ -144,7 +135,7 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
 
   function link(child: Task) {
     if(!children.has(child)) {
-      getControls(child).future.consume((value) => {
+      child.future.consume((value) => {
         if(value.state === 'errored' && !child.options.ignoreError && !options.ignoreChildErrors) {
           stateMachine.erroring();
           result = { state: 'errored', error: addTrace(value.error, task) };
@@ -173,7 +164,7 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
             .find((c) => (c !== nextChild) && (force || !c.options.blockParent))
 
           if(nextChild) {
-            getControls(nextChild).future.consume(haltNextChild);
+            nextChild.future.consume(haltNextChild);
             nextChild.halt()
           }
         });
@@ -195,11 +186,3 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
 
   return task;
 };
-
-export function getControls<TOut>(task: Task<TOut>): Controls<TOut> {
-  let controls = (task as WithControls<TOut>)[CONTROLS];
-  if(!controls) {
-    throw new Error(`EFFECTION INTERNAL ERROR unable to retrieve controls for task ${task}`);
-  }
-  return controls;
-}

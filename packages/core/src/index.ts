@@ -3,7 +3,7 @@ import { Task, TaskOptions } from './task';
 import { Effection } from './effection';
 
 export { State, StateTransition } from './state-machine';
-export { createTask, Task, TaskOptions, Controls, getControls } from './task';
+export { createTask, Task, TaskOptions } from './task';
 export { Operation, Resource } from './operation';
 export { Effection } from './effection';
 export { deprecated } from './deprecated';

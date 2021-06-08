@@ -1,6 +1,6 @@
 import { Controller } from './controller';
 import { OperationIterator } from '../operation';
-import { createTask, Task, getControls } from '../task';
+import { createTask, Task } from '../task';
 import { Operation } from '../operation';
 import { createFuture, Value } from '../future';
 import { createRunLoop } from '../run-loop';
@@ -52,8 +52,8 @@ export function createIteratorController<TOut>(task: Task<TOut>, iterator: Opera
         }
       } else {
         subTask = createTask(next.value, { resourceScope: options.resourceScope || task, ignoreError: true });
-        getControls(subTask).future.consume(trap);
-        getControls(subTask).start();
+        subTask.future.consume(trap);
+        subTask.start();
       }
     });
   }

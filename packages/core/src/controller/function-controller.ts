@@ -1,25 +1,26 @@
-import { Task, getControls } from '../task';
+import { Task } from '../task';
 import { Controller } from './controller';
+import { createFuture } from '../future';
 
 export function createFunctionController<TOut>(task: Task<TOut>, createController: () => Controller<TOut>) {
   let delegate: Controller<TOut>;
-  let controls = getControls(task);
+  let { resolve, future } = createFuture<TOut>();
 
   function start() {
     try {
       delegate = createController();
     } catch (error) {
-      controls.reject(error);
+      resolve({ state: 'errored', error });
       return;
     }
+    delegate.future.consume((value) => {
+      resolve(value);
+    });
     delegate.start();
   }
 
   function halt() {
-    if (!delegate) {
-      throw new Error(`EFFECTION INTERNAL ERROR halt() called before start()`);
-    }
-    delegate.halt();
+    delegate?.halt();
   }
 
   return {
@@ -30,6 +31,7 @@ export function createFunctionController<TOut>(task: Task<TOut>, createControlle
         return 'function';
       }
     },
+    future,
     start,
     halt,
   }

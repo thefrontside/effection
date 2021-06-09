@@ -1,5 +1,5 @@
 import { platform } from "os";
-import { Task, Operation, Deferred } from "@effection/core";
+import { Task, Operation, createFuture } from "@effection/core";
 import { createChannel } from '@effection/channel';
 import { on, once, onceEmit } from "@effection/events";
 import { spawn as spawnProcess } from "cross-spawn";
@@ -14,10 +14,10 @@ type Result =
 export const createWin32Process: CreateOSProcess = (command, options) => {
   return {
     *init(scope: Task) {
-      let getResult = Deferred<Result>();
+      let { future, resolve } = createFuture<Result>();
 
       let join = (): Operation<ExitStatus> => function*() {
-        let result: Result = yield getResult.promise;
+        let result: Result = yield future;
         if (result.type === "status") {
           let [code, signal] = result.value;
           return { command, options, code, signal };
@@ -68,7 +68,7 @@ export const createWin32Process: CreateOSProcess = (command, options) => {
       scope.spawn(function*(task) {
         task.spawn(function*() {
           let value: Error = yield once(childProcess, 'error');
-          getResult.resolve({ type: 'error', value });
+          resolve({ state: 'completed', value: { type: 'error', value } });
         });
 
         task.spawn(on<Buffer>(childProcess.stdout, 'data').map((c) => c.toString()).forEach(stdoutChannel.send));
@@ -76,7 +76,7 @@ export const createWin32Process: CreateOSProcess = (command, options) => {
 
         try {
           let value = yield onceEmit(childProcess, "exit");
-          getResult.resolve({ type: "status", value });
+          resolve({ state: 'completed', value: { type: "status", value } });
         } finally {
           stdoutChannel.close();
           stderrChannel.close();

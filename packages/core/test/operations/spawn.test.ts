@@ -2,7 +2,7 @@ import '../setup';
 import { describe, it } from 'mocha';
 import * as expect from 'expect';
 
-import { run, spawn, sleep, Deferred } from '../../src/index';
+import { run, spawn, sleep, createFuture } from '../../src/index';
 
 describe('spawn', () => {
   it('can spawn a new child task', async () => {
@@ -19,16 +19,16 @@ describe('spawn', () => {
   });
 
   it('can spawn a new child task in the given scope', async () => {
-    let deferred = Deferred<string>();
+    let { future, resolve } = createFuture<string>();
     run(function*(scope) {
       yield function*() {
         yield spawn(function*() {
           yield sleep(5);
-          deferred.resolve('foo');
+          resolve({ state: 'completed', value: 'foo' });
         }).within(scope);
       };
       yield;
     });
-    await expect(deferred.promise).resolves.toEqual('foo');
+    await expect(future).resolves.toEqual('foo');
   });
 });

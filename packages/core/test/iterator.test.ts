@@ -2,8 +2,7 @@ import { createNumber, blowUp } from './setup';
 import { describe, it } from 'mocha';
 import * as expect from 'expect';
 
-import { run, sleep, Task } from '../src/index';
-import { Deferred } from '../src/deferred';
+import { run, sleep, createFuture, Task } from '../src/index';
 
 describe('generator function', () => {
   it('can compose multiple promises via generator', async () => {
@@ -123,20 +122,20 @@ describe('generator function', () => {
   });
 
   it('can suspend in finally block', async () => {
-    let eventually = Deferred();
+    let { future, resolve } = createFuture();
 
     let task = run(function*() {
       try {
         yield;
       } finally {
         yield sleep(10);
-        eventually.resolve(123);
+        resolve({ state: 'completed', value: 123 });
       }
     });
 
     task.halt();
 
-    await expect(eventually.promise).resolves.toEqual(123);
+    await expect(future).resolves.toEqual(123);
     expect(task.state).toEqual('halted');
   });
 

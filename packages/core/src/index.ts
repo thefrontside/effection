@@ -7,9 +7,9 @@ export { createTask, Task, TaskOptions } from './task';
 export { Operation, Resource } from './operation';
 export { Effection } from './effection';
 export { deprecated } from './deprecated';
-export { Deferred } from './deferred';
 export { Labels, withLabels } from './labels';
 export { HasEffectionTrace, TaskInfo } from './error';
+export { createFuture, Future } from './future';
 
 export { sleep } from './operations/sleep';
 export { ensure } from './operations/ensure';

@@ -14,7 +14,7 @@ export function createResolutionController<TOut>(task: Task<TOut>, resolution: O
       );
 
       if (atExit) {
-        task.future.consume(atExit);
+        task.consume(atExit);
       }
     } catch(error) {
       resolve({ state: 'errored', error });

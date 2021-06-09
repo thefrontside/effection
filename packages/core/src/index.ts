@@ -9,7 +9,7 @@ export { Effection } from './effection';
 export { deprecated } from './deprecated';
 export { Labels, withLabels } from './labels';
 export { HasEffectionTrace, TaskInfo } from './error';
-export { createFuture, Future } from './future';
+export { createFuture, Future, FutureLike } from './future';
 
 export { sleep } from './operations/sleep';
 export { ensure } from './operations/ensure';

@@ -52,7 +52,7 @@ export function createIteratorController<TOut>(task: Task<TOut>, iterator: Opera
         }
       } else {
         subTask = createTask(next.value, { resourceScope: options.resourceScope || task, ignoreError: true });
-        subTask.future.consume(trap);
+        subTask.consume(trap);
         subTask.start();
       }
     });

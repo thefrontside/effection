@@ -5,6 +5,15 @@ import * as expect from 'expect';
 import { run, sleep, createTask, Task } from '../src/index';
 
 describe('Task', () => {
+  describe('consume', () => {
+    it('can be consumed as future', async () => {
+      let task = run({ perform: (resolve) => resolve(123) });
+      let result;
+      task.consume(value => result = value);
+      expect(result).toEqual({ state: 'completed', value: 123 });
+    });
+  });
+
   describe('children', () => {
     it('returns the tasks children', async () => {
       let task = run();

@@ -114,7 +114,7 @@ workflows:
                 - events
                 - channel
                 - fetch
-                - node
+                - process
                 - atom
                 - mocha
                 - main

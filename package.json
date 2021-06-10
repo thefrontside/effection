@@ -15,6 +15,7 @@
       "packages/events",
       "packages/channel",
       "packages/atom",
+      "packages/process",
       "packages/node",
       "packages/fetch",
       "packages/react",

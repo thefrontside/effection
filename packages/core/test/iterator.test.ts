@@ -2,7 +2,7 @@ import { createNumber, blowUp } from './setup';
 import { describe, it } from 'mocha';
 import * as expect from 'expect';
 
-import { run, sleep, createFuture, Task } from '../src/index';
+import { run, sleep, Task, createFuture } from '../src/index';
 
 describe('generator function', () => {
   it('can compose multiple promises via generator', async () => {
@@ -184,13 +184,13 @@ describe('generator function', () => {
   });
 
   it('can be halted while in the generator', async () => {
+    let { future, resolve } = createFuture();
     let task = run(function*(inner) {
-      let reject: (error: Error) => void;
       inner.spawn(function*() {
         yield sleep(2);
-        reject && reject(new Error('boom'));
+        resolve({ state: 'errored', error: new Error('boom') });
       });
-      yield { perform: (_res, rej) => { reject = rej } };
+      yield future;
     });
 
     await expect(task).rejects.toHaveProperty('message', 'boom');

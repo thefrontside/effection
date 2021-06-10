@@ -2,12 +2,14 @@ import './setup';
 import { describe, it } from 'mocha';
 import * as expect from 'expect';
 
-import { run, sleep, createTask, Task } from '../src/index';
+import { run, sleep, createTask, Task, createFuture } from '../src/index';
 
 describe('Task', () => {
   describe('consume', () => {
     it('can be consumed as future', async () => {
-      let task = run({ perform: (resolve) => resolve(123) });
+      let { future, resolve } = createFuture();
+      resolve({ state: 'completed', value: 123 });
+      let task = run(future);
       let result;
       task.consume(value => result = value);
       expect(result).toEqual({ state: 'completed', value: 123 });
@@ -51,6 +53,7 @@ describe('Task', () => {
       expect(run((function*() { /* no op */ })()).type).toEqual('generator');
       expect(run().type).toEqual('suspend');
       expect(run({ perform() { /* no op */ } }).type).toEqual('resolution');
+      expect(run(createFuture().future).type).toEqual('future');
       expect(run({ *init() { /* no op */ } }).type).toEqual('resource');
     });
   });

@@ -46,12 +46,6 @@ describe('labels', () => {
     await expect(task.labels).toEqual({ name: "blahBlah" });
   });
 
-  it('applies name label from other name', async () => {
-    let task = run({ perform: () => { /* no op */ }, name: "doSomething" });
-
-    await expect(task.labels).toEqual({ name: "doSomething" });
-  });
-
   it('can change labels dynamically', async () => {
     let task = run(function*() {
       yield sleep(5);

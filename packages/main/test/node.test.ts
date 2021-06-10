@@ -2,7 +2,7 @@ import * as path from 'path';
 import * as expect from 'expect';
 import { describe, it, beforeEach } from '@effection/mocha';
 
-import { exec, Process, ProcessResult } from '@effection/node';
+import { exec, Process, ProcessResult } from '@effection/process';
 import { terminate, interrupt } from './helpers';
 
 describe('main', () => {

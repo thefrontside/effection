@@ -8,7 +8,7 @@ in that it assumes that the messages are serialized as JSON.
 
 ``` typescript
 import { createWebSocketClient, WebSocketClient } from '@effection/websocket-client';
-import { main } from '@effection/node';
+import { main } from '@effection/main';
 
 type Request = { value: string };
 type Response = { value: number };

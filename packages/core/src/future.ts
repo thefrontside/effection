@@ -12,9 +12,12 @@ export interface Consumer<T> {
   (value: Value<T>): void;
 }
 
-export interface Future<T> extends Promise<T> {
-  state: State;
+export interface FutureLike<T> {
   consume<R>(consumer: Consumer<T>): void;
+}
+
+export interface Future<T> extends Promise<T>, FutureLike<T> {
+  state: State;
 }
 
 export interface NewFuture<T> {

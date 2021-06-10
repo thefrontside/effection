@@ -6,7 +6,7 @@ import { EventEmitter } from 'events';
 import { StateMachine, State } from './state-machine';
 import { Labels } from './labels';
 import { addTrace } from './error';
-import { createFuture, Future, Value } from './future';
+import { createFuture, Future, FutureLike, Value } from './future';
 import { createRunLoop } from './run-loop';
 
 let COUNTER = 0;
@@ -19,7 +19,7 @@ export interface TaskOptions {
   readonly labels?: Labels;
 }
 
-export interface Task<TOut = unknown> extends Promise<TOut> {
+export interface Task<TOut = unknown> extends Promise<TOut>, FutureLike<TOut> {
   readonly id: number;
   readonly type: string;
   readonly state: State;
@@ -113,6 +113,7 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
     then: (...args) => future.then(...args),
     catch: (...args) => future.catch(...args),
     finally: (...args) => future.finally(...args),
+    consume: (...args) => future.consume(...args),
     [Symbol.toStringTag]: `[Task ${id}]`,
   }
 
@@ -135,7 +136,7 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
 
   function link(child: Task) {
     if(!children.has(child)) {
-      child.future.consume((value) => {
+      child.consume((value) => {
         if(value.state === 'errored' && !child.options.ignoreError && !options.ignoreChildErrors) {
           stateMachine.erroring();
           result = { state: 'errored', error: addTrace(value.error, task) };
@@ -164,7 +165,7 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
             .find((c) => (c !== nextChild) && (force || !c.options.blockParent))
 
           if(nextChild) {
-            nextChild.future.consume(haltNextChild);
+            nextChild.consume(haltNextChild);
             nextChild.halt()
           }
         });

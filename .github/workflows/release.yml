@@ -15,7 +15,7 @@ jobs:
       uses: thefrontside/actions/synchronize-with-npm@v1.7
       with:
         before_all: yarn prepack
-        npm_publish: yarn publish
+        npm_publish: yarn publish --tag r0
       env:
         GITHUB_TOKEN: ${{ secrets.FRONTSIDEJACK_GITHUB_TOKEN }}
         NPM_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}

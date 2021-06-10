@@ -1,21 +1,7 @@
 {
   "mode": "pre",
-  "tag": "preview",
-  "initialVersions": {
-    "@effection/channel": "1.0.0",
-    "effection": "1.0.0",
-    "@effection/events": "1.0.0",
-    "@effection/fetch": "1.0.0",
-    "@effection/node": "1.0.0",
-    "@effection/subscription": "1.0.0",
-    "@effection/core": "2.0.0-preview.0",
-    "@effection/atom": "2.0.0-preview.3",
-    "@effection/mocha": "2.0.0-preview.2",
-    "@effection/main": "2.0.0-preview.1",
-    "@effection/websocket-client": "2.0.0-preview.1",
-    "@effection/websocket-server": "2.0.0-preview.1",
-    "@effection/react": "2.0.0-preview.1"
-  },
+  "tag": "beta",
+  "initialVersions": {},
   "changesets": [
     "atom-stream-initial-state",
     "blue-plants-lie",

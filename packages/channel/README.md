@@ -18,8 +18,8 @@ A basic example:
 
 ``` typescript
 import { createChannel } from '@effection/channel';
-import { main } from '@effection/node';
-import { sleep } from 'effection';
+import { main } from '@effection/main';
+import { sleep } from '@effection/core';
 
 main(function*() {
   let channel = createChannel();

@@ -1,5 +1,5 @@
 import { ctrlc } from 'ctrlc-windows';
-import { Process } from '@effection/node';
+import { Process } from '@effection/process';
 
 const isWin32 = global.process.platform === 'win32';
 

@@ -8,7 +8,7 @@ messages are serialized as JSON.
 
 ``` typescript
 import { createWebSocketServer, WebSocketServer } from '@effection/websocket-server';
-import { main } from '@effection/node';
+import { main } from '@effection/main';
 
 type Message = { value: string };
 

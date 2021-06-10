@@ -4,7 +4,7 @@ version: 2.1
 jobs:
   empty:
     docker:
-      image: alpine:latest
+      - image: alpine:latest
     steps:
       - run: echo "we believe in nothing Lebowski... Nothing!"
 

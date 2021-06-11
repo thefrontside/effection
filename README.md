@@ -5,163 +5,153 @@
 [![Created by Frontside](https://img.shields.io/badge/created%20by-frontside-26abe8.svg)](https://frontside.com)
 [![Chat on Discord](https://img.shields.io/discord/700803887132704931?Label=Discord)](https://discord.gg/Ug5nWH8)
 
-# effection
+# Effection
 
-Effortlessly composable structured concurrency primitive for
-JavaScript
+A framework for Node and the browser that makes building concurrent
+systems easy to get right.
 
-See [examples](examples/)
+## Why use Effection?
 
-To run an example with NAME:
+Using Effection provides many benefits over using plain Promises and
+`async/await` code:
 
-``` text
-$ node -r ./tests/setup examples/NAME
-```
+- **Cleanup:** Effection code cleans up after itself, and that means never having
+  to remember to manually close a resource or detach a listener.
+- **Cancellation:** Any Effection task can be cancelled, which will completely
+  stop that task, as well as stopping any other tasks this operation itself has
+  started.
+- **Synchronicity:** Unlike Promises and `async/await`, Effection is fundamentally
+  synchronous in nature, this means you have full control over the event loop
+  and operations requiring synchronous setup remain race condition free.
+- **Composition:** Since all Effection code is well behaved, it
+  composes easily, and there  are no nasty surprises when trying to
+  fit different pieces together.
 
-## Structured Concurrency and Effects
+JavaScript has gone through multiple evolutionary steps in how to deal
+with concurrency: from callbacks and events, to promises, and then
+finally to `async/await`. Yet it can still be difficult to write
+concurrent code which is both correct and composable, and unless
+you're very careful, it is still easy to leak resources. Also, most
+JavaScript code and libraries do not handle cancellation very well,
+and failure conditions can easily lead to dangling promises and other
+unexpected behavior.
 
-> Note: For an general introduction to the concept of structured
-> concurrency, and why it is so important, see [this excellent primer
-> on the subject][1] by Nathaniel Smith.
+Effection leverages the idea of [structured concurrency][structured concurrency]
+to ensure that you don't leak any resources, and that cancellation is
+properly handled. It helps you build concurrent code that feels rock
+solid and behaves well under all failure conditions. In essence,
+Effection allows you to compose concurrent code so that you can reason
+about its behavior.
 
-There's an entire hive of bugs that occur when asynchronous processes
-outlive their welcome. The concept of structured concurrency eliminates
-these altogether by providing the following guarantees:
 
-1. A process is considered pending (unfinished) while it is either
-   running or when it has _any_ child process that is pending.
-2. If an error occurs in a process that is not caught, then that error
-   propagates to the parent process.
-3. If a process finishes in error or by halting, then all of its child
-   process are immediately halted.
+## Replacing async/await
 
-For example, if you have the following processes:
+If you know how to use `async/await`, then you're already familiar with most of
+what you need to know to use Effection. The only difference is that instead
+of [async functions][async functions], you use
+[generators][generators] and replace:
 
-``` text
-+ - parent
-  |
-  + --- child A
-  |
-  + --- child B
-```
+1. `await` with `yield`
+1. `async function()` with `function*()`
 
-We can make the following assertions based on these guarantees :
 
-a. If the code associated with `parent` finishes running, but _either_ `A`
-_or_ `B` are pending, then `parent` is still considered pending.
-
-b. If `parent` is halted, then _both_ `A` and `B` are halted.
-
-c. If an error is raised in `parent`, then _both_ `A` and `B` are
-halted.
-
-d. if an error is raised in `A`, then that error is also raised in
-`parent`, _and_ child `B` is halted.
-
-scenario `d` is of particular importance. It means that if a child
-throws an error and its parent doesn't catch it, then all of its
-siblings are immediately halted.
-
-## Context
-
-Every operation takes place within an execution context. To create the
-very first context, use the `run` function and pass it a generator. This
-example waits for 1 second, then prints out "hello world" to
-the console.
+For example, with `async`/`await`:
 
 ``` javascript
-import { run, sleep } from 'effection';
+import { fetch } from 'isomorphic-fetch';
 
-let context = run(function*() {
-  yield sleep(1000);
-  return 'hello world';
-});
-
-context.isRunning //=> true
-// 1000ms passes
-// context.isRunning //=> false
-// context.result //=> 'hello world'
-```
-
-Child processes can be composed freely. So instead of yielding for
-1000 ms, we could instead, yield 10 times for 100ms.
-
-``` javascript
-run(function*() {
-  yield function*() {
-    for (let i = 0; i < 10; i++) {
-      yield sleep(100);
-    }
-  }
-  return 'hello world';
-})
-```
-
-And in fact, processes can be easily and arbitrarly deeply nested:
-
-``` javascript
-let process = run(function*() {
-  return yield function*() {
-    return yield function*() {
-      return yield function*() {
-        return 'hello world';
-      }
-    };
-  };
-});
-
-process.isCompleted //=> true
-process.result //=> "hello world"
-```
-
-You can pass arguments to an operation by invoking it.
-
-``` javascript
-
-import { run, sleep } from 'effection';
-
-function* waitForSeconds(durationSeconds) {
-  yield sleep(durationSeconds * 1000);
+export async function fetchWeekDay() {
+  let response = await fetch("http://worldclockapi.com/api/json/est/now");
+  let time = await response.json();
+  return time.dayOfTheWeek;
 }
-
-run(waitforseconds(10));
 ```
 
-### Asynchronous Execution
-
-Sometimes you want to fork some processes in parallel and not
-necessarily block further execution on them. You still want the
-guarantees associated with structured concurrency however. For
-example, you might want to create a couple of different servers as
-part of your main process. To do this, you would use the `fork` method
-on the execution:
+With Effection:
 
 ``` javascript
-import { run, fork } from 'effection';
+import { fetch } from '@effection/fetch';
 
-run(function*() {
-  yield fork(createFileServer);
-  yield fork(createHttpServer);
+export function *fetchWeekDay() {
+  let response = yield fetch("http://worldclockapi.com/api/json/est/now");
+  let time = yield response.json();
+  return time.dayOfTheWeek;
+}
+```
+
+## Getting started.
+
+To start using Effection, use the `main` function as an entry
+point. In this example, we'll use the previously defined
+`getWeekDay`.
+
+``` javascript
+import { main } from 'effection';
+import { getWeekDay } from './get-week-day';
+
+main(function*() {
+  let dayOfTheWeek = yield fetchWeekDay();
+  console.log(`It is ${dayOfTheWeek}, my friends!`);
 });
 ```
 
-Even though it exits almost immediately, the main process is not
-considered completed until _both_ servers shutdown. More importantly
-though, if we shutdown the main process, then both servers will be
-halted.
+Let's go through what's going on here:
 
-## Development
+* The argument to `main` is what's called an `Operation`.
+* One example of an operation is a generator function.
+* Promises are also operations.
+* Inside the generator function we can `yield` to other operations.
+* In this case, we yield to the `fetchWeekDay()` operation, which
+  itself yields to the `fetch()` operation and the `response.json()`
+  operation.
+* When the operation passed to `main` completes, the program exits.
 
-yarn install
+Even with such a simple program, Effection is still providing critical
+power-ups to you behind the scenes that you don't get with callbacks,
+promises, or `async/await`. For example, if you run the above in
+NodeJS and hit `CTRL-C` while the request to `http://worldclockapi.com` is
+still in progress, it will properly cancel the in-flight request
+as a well-behaved HTTP client should. All without you ever having to
+think about it. This is because every Effection operation contains
+the information on how to dispose of itself, and so the actual act of
+cancellation can be automated.
 
-``` text
-$ yarn
+This has powerful consequences when it comes to composing new
+operations out of existing ones. For example, we can add a time out of
+1000 milliseconds to our `fetchWeekDay` operation (or any operation
+for that matter) by wrapping it with the `withTimeout` operation from
+the standard `effection` module.
+
+``` javascript
+import { main, withTimeout } from 'effection';
+import { getWeekDay } from './get-week-day';
+
+main(function*() {
+  let dayOfTheWeek = yield withTimeout(fetchWeekDay(), 1000);
+  console.log(`It is ${dayOfTheWeek}, my friends!`);
+});
 ```
 
-run tests:
+If more than 1000 milliseconds passes before the `fetchWeekDay()`
+operation completes, then an error will be raised.
 
-``` text
-$ yarn test
-```
+What's important to note however, is that when we actually defined our
+`fetchWeekDay()` operation, we never once had to worry about timeouts,
+or request cancellation. And in order to achieve both we didn't have
+to gum up our API by passing around cancellation tokens or [abort
+controllers][abort controller]. We just got it all for free.
 
-[1]: https://vorpus.org/blog/notes-on-structured-concurrency-or-go-statement-considered-harmful/
+## Discover more
+
+This is just the tip of the iceberg when it comes to the seemingly complex
+things that can Effection make simple. To find out more, jump
+into the conversation [in our discord server][discord]. We're really
+excited about the things that Effection has enabled us to accomplish,
+and we'd love to hear your thoughts on it, and how you might see
+it working for you.
+
+[structured concurrency]: https://vorpus.org/blog/notes-on-structured-concurrency-or-go-statement-considered-harmful/
+[generators]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Generator
+[async functions]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function
+[abort controller]: https://developer.mozilla.org/en-US/docs/Web/API/AbortController
+[discord]: https://discord.gg/Ug5nWH8

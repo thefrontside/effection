@@ -1,5 +1,11 @@
 # @effection/core
 
+## 2.0.0-beta.1
+
+### Patch Changes
+
+- 0c6e263: release 2.0.0-beta
+
 ## 2.0.0-preview.12
 
 ### Minor Changes

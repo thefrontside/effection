@@ -1,6 +1,23 @@
 {
   "mode": "pre",
   "tag": "beta",
-  "changesets": [],
-  "initialVersions": {}
+  "changesets": [
+    "beta-max"
+  ],
+  "initialVersions": {
+    "@effection/atom": "2.0.0-beta.0",
+    "@effection/channel": "2.0.0-beta.0",
+    "@effection/core": "2.0.0-beta.0",
+    "effection": "2.0.0-beta.0",
+    "@effection/events": "2.0.0-beta.0",
+    "@effection/fetch": "2.0.0-beta.0",
+    "@effection/main": "2.0.0-beta.0",
+    "@effection/mocha": "2.0.0-beta.0",
+    "@effection/node": "2.0.0-beta.0",
+    "@effection/process": "2.0.0-beta.0",
+    "@effection/react": "2.0.0-beta.0",
+    "@effection/subscription": "2.0.0-beta.0",
+    "@effection/websocket-client": "2.0.0-beta.0",
+    "@effection/websocket-server": "2.0.0-beta.0"
+  }
 }

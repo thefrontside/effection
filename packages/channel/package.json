@@ -1,6 +1,6 @@
 {
   "name": "@effection/channel",
-  "version": "2.0.0-preview.15",
+  "version": "2.0.0-beta.0",
   "description": "MPMC Channel implementation for effection",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -20,7 +20,7 @@
     "mocha": "mocha -r ts-node/register"
   },
   "devDependencies": {
-    "@effection/mocha": "2.0.0-preview.13",
+    "@effection/mocha": "2.0.0-beta.0",
     "@frontside/tsconfig": "^0.0.1",
     "@types/node": "^13.13.5",
     "expect": "^25.4.0",
@@ -34,8 +34,8 @@
     "yarn": "1.19.1"
   },
   "dependencies": {
-    "@effection/core": "2.0.0-preview.12",
-    "@effection/events": "2.0.0-preview.13",
-    "@effection/subscription": "2.0.0-preview.14"
+    "@effection/core": "2.0.0-beta.0",
+    "@effection/events": "2.0.0-beta.0",
+    "@effection/subscription": "2.0.0-beta.0"
   }
 }

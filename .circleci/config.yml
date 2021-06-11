@@ -1,0 +1,15 @@
+version: 2.1
+
+# Define the jobs we want to run for this project
+jobs:
+  empty:
+    docker:
+      - image: alpine:latest
+    steps:
+      - run: echo "we believe in nothing Lebowski... Nothing!"
+
+# Orchestrate our job to absolutely nothing
+workflows:
+  default:
+    jobs:
+      - empty

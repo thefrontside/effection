@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.0.0-beta.1
+
+### Patch Changes
+
+- 0c6e263: release 2.0.0-beta
+- Updated dependencies [0c6e263]
+  - @effection/main@2.0.0-beta.1
+  - @effection/process@2.0.0-beta.1
+
 ## 2.0.0-preview.16
 
 ### Patch Changes

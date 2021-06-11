@@ -1,6 +1,16 @@
 # @effection/react
 
+## 2.0.0-beta.1
+
+### Patch Changes
+
+- 0c6e263: release 2.0.0-beta
+- Updated dependencies [0c6e263]
+  - @effection/core@2.0.0-beta.1
+  - @effection/subscription@2.0.0-beta.1
+
 ## 2.0.0-preview.2
+
 ### Patch Changes
 
 - Updated dependencies [9998088]

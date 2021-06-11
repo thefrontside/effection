@@ -1,6 +1,6 @@
 {
   "name": "@effection/mocha",
-  "version": "2.0.0-beta.0",
+  "version": "2.0.0-beta.1",
   "description": "Effection Subscriptions",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -20,7 +20,7 @@
     "mocha": "mocha -r ts-node/register"
   },
   "peerDependencies": {
-    "@effection/core": "2.0.0-beta.0",
+    "@effection/core": "2.0.0-beta.1",
     "mocha": "^8.0.0"
   },
   "devDependencies": {

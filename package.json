@@ -29,7 +29,8 @@
     "postinstall": "patch-package",
     "prepack": "yarn workspaces run prepack",
     "test": "yarn workspaces run test",
-    "lint": "yarn workspaces run lint"
+    "lint": "yarn workspaces run lint",
+    "docs": "yarn workspaces run docs"
   },
   "volta": {
     "node": "12.11.1",

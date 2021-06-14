@@ -1,6 +1,6 @@
 {
   "name": "@effection/websocket-client",
-  "version": "2.0.0-beta.1",
+  "version": "2.0.0-beta.2",
   "description": "A websocket client for Effection in node and browser",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

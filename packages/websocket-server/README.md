@@ -1,7 +1,7 @@
 # @effection/websocket-server
 
 A basic websocket server which binds to a local port and enables communication
-over websockets. The server is oppinionated in that it assumes that the
+over websockets. The server is opinionated in that it assumes that the
 messages are serialized as JSON.
 
 ## Usage

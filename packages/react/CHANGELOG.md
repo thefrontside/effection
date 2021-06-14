@@ -1,5 +1,11 @@
 # @effection/react
 
+## 2.0.0-beta.2
+
+### Minor Changes
+
+- e621736: Fix esm module declarations in package.json
+
 ## 2.0.0-beta.1
 
 ### Patch Changes

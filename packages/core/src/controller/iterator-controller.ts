@@ -1,4 +1,4 @@
-import { Controller } from './controller';
+import { Controller, Options } from './controller';
 import { OperationIterator } from '../operation';
 import { createTask, Task } from '../task';
 import { Operation } from '../operation';
@@ -13,13 +13,9 @@ interface Claimable {
   [claimed]?: boolean;
 }
 
-type Options = {
-  resourceScope?: Task;
-}
-
 export function createIteratorController<TOut>(task: Task<TOut>, iterator: OperationIterator<TOut> & Claimable, options: Options = {}): Controller<TOut> {
   let didHalt = false;
-  let subTask: Task | undefined;
+  let yieldingTo: Task | undefined;
 
   let { resolve, future } = createFuture<TOut>();
   let runLoop = createRunLoop();
@@ -51,15 +47,17 @@ export function createIteratorController<TOut>(task: Task<TOut>, iterator: Opera
           resolve({ state: 'completed', value: next.value });
         }
       } else {
-        subTask = createTask(next.value, { resourceScope: options.resourceScope || task, ignoreError: true });
-        subTask.consume(trap);
-        subTask.start();
+        yieldingTo = createTask(next.value, { resourceScope: options.resourceScope || task, ignoreError: true });
+        yieldingTo.consume(trap);
+        yieldingTo.start();
+        options.onYieldingToChange && options.onYieldingToChange(yieldingTo);
       }
     });
   }
 
   function trap(value: Value<unknown>) {
-    subTask = undefined;
+    yieldingTo = undefined;
+    options.onYieldingToChange && options.onYieldingToChange(undefined);
     if(value.state === 'completed') {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       resume(() => iterator.next(value.value));
@@ -76,8 +74,8 @@ export function createIteratorController<TOut>(task: Task<TOut>, iterator: Opera
   function halt() {
     if(!didHalt) {
       didHalt = true;
-      if(subTask) {
-        subTask.halt();
+      if(yieldingTo) {
+        yieldingTo.halt();
       } else {
         resume(() => iterator.return(undefined));
       }

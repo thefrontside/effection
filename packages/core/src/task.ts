@@ -27,6 +27,7 @@ export interface Task<TOut = unknown> extends Promise<TOut>, FutureLike<TOut> {
   readonly labels: Labels;
   readonly children: Task[];
   readonly future: Future<TOut>;
+  readonly yieldingTo: Task | undefined;
   catchHalt(): Promise<TOut | undefined>;
   setLabels(labels: Labels): void;
   spawn<R>(operation?: Operation<R>, options?: TaskOptions): Task<R>;
@@ -53,6 +54,7 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
   let controller: Controller<TOut>;
 
   let labels: Labels = { ...operation?.labels, ...options.labels }
+  let yieldingTo: Task | undefined;
 
   if(!labels.name && operation?.name) {
     labels.name = operation?.name;
@@ -72,6 +74,8 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
     get type() { return controller.type },
 
     get children() { return Array.from(children); },
+
+    get yieldingTo() { return yieldingTo },
 
     catchHalt() {
       return future.catch(swallowHalt);
@@ -119,7 +123,12 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
     [Symbol.toStringTag]: `[Task ${id}]`,
   }
 
-  controller = createController(task, operation);
+  controller = createController(task, operation, {
+    onYieldingToChange(value) {
+      yieldingTo = value;
+      emitter.emit('yieldingTo', value);
+    }
+  });
 
   controller.future.consume((value) => {
     if(value.state === 'completed') {

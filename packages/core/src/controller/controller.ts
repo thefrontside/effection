@@ -17,9 +17,14 @@ export interface Controller<TOut> {
   future: Future<TOut>;
 }
 
-export function createController<T>(task: Task<T>, operation: Operation<T>): Controller<T> {
+export type Options = {
+  resourceScope?: Task;
+  onYieldingToChange?: (task: Task | undefined) => void;
+}
+
+export function createController<T>(task: Task<T>, operation: Operation<T>, options: Options = {}): Controller<T> {
   if (typeof(operation) === 'function') {
-    return createFunctionController(task, () => createController(task, operation(task)));
+    return createFunctionController(task, () => createController(task, operation(task), options));
   } else if(!operation) {
     return createSuspendController();
   } else if (isResource(operation)) {
@@ -31,7 +36,7 @@ export function createController<T>(task: Task<T>, operation: Operation<T>): Con
   } else if(isPromise(operation)) {
     return createPromiseController(task, operation);
   } else if (isGenerator(operation)) {
-    return createIteratorController(task, operation);
+    return createIteratorController(task, operation, options);
   }
 
   throw new Error(`unkown type of operation: ${operation}`);

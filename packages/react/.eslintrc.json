@@ -1,8 +1,13 @@
 {
-  "extends": "../../.eslintrc.json",
-  "plugins": ["react-hooks"],
+  "extends": ["../../.eslintrc.json", "plugin:react/recommended"],
+  "plugins": ["react", "react-hooks"],
   "rules": {
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "error"
+  },
+  "settings": {
+    "react": {
+      "version": "17.0.2"
+    }
   }
 }

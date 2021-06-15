@@ -15,7 +15,7 @@
     "src/**/*"
   ],
   "scripts": {
-    "lint": "eslint '{src,tests}/**/*.ts'",
+    "lint": "eslint '{src,tests}/**/*.{ts,tsx}'",
     "test": "mocha -r ts-node/register 'test/**/*.test.{ts,tsx}'",
     "prepack": "tsdx build --tsconfig tsconfig.dist.json",
     "mocha": "mocha -r ts-node/register"
@@ -31,6 +31,7 @@
     "@types/node": "^13.13.5",
     "@types/react": "^17.0.8",
     "@types/react-test-renderer": "^17.0.1",
+    "eslint-plugin-react": "^7.24.0",
     "eslint-plugin-react-hooks": "^4.2.0",
     "expect": "^25.4.0",
     "mocha": "^8.3.1",

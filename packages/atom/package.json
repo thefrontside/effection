@@ -19,6 +19,7 @@
     "test:types": "dtslint test-dts --localTs ../../node_modules/typescript/lib --expectOnly",
     "prepack": "tsdx build --tsconfig tsconfig.dist.json",
     "test": "yarn test:unit && yarn test:types",
+    "docs": "yarn typedoc src/index.ts",
     "mocha": "mocha -r ts-node/register"
   },
   "devDependencies": {
@@ -30,6 +31,7 @@
     "mocha": "^8.3.1",
     "ts-node": "^8.9.0",
     "tsdx": "0.13.2",
+    "typedoc": "^0.20.36",
     "typescript": "^3.7.0"
   },
   "volta": {
@@ -37,9 +39,9 @@
     "yarn": "1.19.1"
   },
   "dependencies": {
+    "@effection/channel": "2.0.0-beta.1",
     "@effection/core": "2.0.0-beta.1",
     "@effection/subscription": "2.0.0-beta.1",
-    "@effection/channel": "2.0.0-beta.1",
     "assert-ts": "^0.2.2",
     "fp-ts": "^2.8.2",
     "monocle-ts": "^2.3.3"

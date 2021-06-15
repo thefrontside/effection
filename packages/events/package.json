@@ -18,11 +18,12 @@
     "lint": "eslint '{src,tests}/**/*.ts'",
     "test": "mocha -r ts-node/register test/**/*.test.ts",
     "prepack": "tsdx build --tsconfig tsconfig.dist.json",
+    "docs": "yarn typedoc src/index.ts",
     "mocha": "mocha -r ts-node/register"
   },
   "dependencies": {
-    "@effection/subscription": "2.0.0-beta.1",
-    "@effection/core": "2.0.0-beta.1"
+    "@effection/core": "2.0.0-beta.1",
+    "@effection/subscription": "2.0.0-beta.1"
   },
   "devDependencies": {
     "@effection/mocha": "2.0.0-beta.1",
@@ -32,6 +33,7 @@
     "mocha": "^8.3.1",
     "ts-node": "^8.9.0",
     "tsdx": "0.13.2",
+    "typedoc": "^0.20.36",
     "typescript": "^3.7.0"
   },
   "volta": {

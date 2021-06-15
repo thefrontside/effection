@@ -1,11 +1,4 @@
-import type { Task } from './task';
-import type { Labels } from './labels';
-
-export interface TaskInfo {
-  id: number;
-  type: string;
-  labels: Labels;
-}
+import type { Task, TaskInfo } from './task';
 
 export interface HasEffectionTrace {
   effectionTrace: TaskInfo[];
@@ -16,6 +9,7 @@ export function addTrace(error: Error & Partial<HasEffectionTrace>, task: Task):
     id: task.id,
     type: task.type,
     labels: task.labels,
+    state: task.state,
   };
 
   let properties = Object.getOwnPropertyDescriptors(error);

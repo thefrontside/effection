@@ -1,0 +1,121 @@
+.subscribe-form {
+  width: 100%;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+  --link-color: var(--fs-skyblue);
+  padding: 0;
+  margin: 33px 0;
+}
+
+.subscribe-form--title {
+  font-family: var(--font-family);
+  font-weight: bold;
+  font-size: var(--size-med-sm);
+  color: var(--ifm-color-primary);
+  margin: 0;
+  line-height: 1;
+  padding: 70px 40px 80px 40px;
+  text-align: right;
+}
+
+.subscribe-form--title__highlight {
+  background-image: url(/bigtest/images/decor-sphere-all-focused2x.png), url(/bigtest/images/decor-sphere-all-focused2x.png), url(/bigtest/images/decor-shadow-duo2x.png);
+  background-position: 0% 65%, 100% 0%, 50% 90%;
+  background-size: 24px, 43px, 100%;
+  background-repeat: no-repeat, no-repeat, no-repeat;
+  padding: 70px 40px 80px 40px;
+}
+
+.subscribe-form--inputs {
+  padding-left: 20px;
+  max-width: 720px;
+}
+
+.subscribe-form--inputs > p {
+  font-family: var(--font-family);
+  font-size: 20px;
+  line-height: 1.2;
+  color: var(--ifm-color-primary);
+  margin-left: 10px;
+}
+
+.subscribe-form--inputs > p + div, .subscribe-form--inputs > input {
+  margin-right: 10px;
+  min-width: 400px;
+  max-width: 100%;
+}
+
+.subscribe-form--intro {
+  transition: opacity 100ms ease-out;
+}
+
+.subscribe-form--inputs__sent > .subscribe-form--intro {
+  opacity: 0;
+}
+.subscribe-form--thanks > strong {
+  color: var(--fs-pink);
+  text-transform: uppercase;
+}
+
+.subscribe-form--thanks > a {
+  text-decoration: none;
+  border-bottom: 1px solid var(--link-color);
+  font-weight: bold;
+}
+
+.subscribe-form--inputs > .subscribe-form--error {
+  font-style: italic;
+  margin-top: 10px;
+  color: #8a674f;
+}
+
+.subscribe-form__embedded {
+  width: 100%;
+  max-width: 800px;
+  display: block;
+  padding: 0;
+  margin: 20px 0;
+}
+.subscribe-form__embedded  > .subscribe-form--inputs {
+  padding-left: 0;
+}
+
+.subscribe-form__embedded > .subscribe-form--title {
+  text-align: left;
+  padding: 30px 10px;
+}
+.subscribe-form__embedded > .subscribe-form--title__highlight {
+  padding: 50px 50px 50px 89px;
+  background-position: 0% 65%, 200px 0%, 40px 90%;
+  background-size: 24px, 43px, 200px;
+}
+
+@media screen and (max-width: 1000px) {
+  .subscribe-form {
+    width: 100%;
+    max-width: 800px;
+    display: block;
+    margin-bottom: 40px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .subscribe-form--title {
+    text-align: left;
+    padding: 30px 10px;
+  }
+  .subscribe-form--title__highlight {
+    padding: 50px 50px 50px 89px;
+    background-position: 0% 65%, 200px 0%, 40px 90%;
+    background-size: 24px, 43px, 200px;
+  }
+  .subscribe-form--inputs {
+    padding-left: 0;
+  }
+  .subscribe-form--inputs > p + div, .subscribe-form--inputs > input {
+    min-width: 100%;
+  }
+  .subscribe-form--inputs button {
+    margin-top: 20px;
+  }
+}

@@ -13,6 +13,7 @@ package-lock.json
 yarn-error.log
 .cache
 */**/yarn.lock
+!recipes/yarn.lock
 !website/yarn.lock
 .DS_Store
 .parcel-cache

@@ -16,21 +16,20 @@ module.exports = {
       theme: require('prism-react-renderer/themes/nightOwl'),
     },
     navbar: {
-      title: 'effection',
+      title: 'Effection',
       logo: {
         alt: '',
         src: 'images/effection-icon.png'
       },
       items: [
         {
-          to: '/docs/use-cases/typeahead',
-          activeBaseRegex: '(use-cases)|(docs\/use-cases)',
-          label: 'Use Cases',
+          to: '/docs',
+          label: 'Guides',
           position: 'left'
         },
         {
-          to: '/about',
-          label: 'About',
+          to: '/api',
+          label: 'API Reference',
           position: 'left'
         }, {
           href: 'https://github.com/thefrontside/effection',

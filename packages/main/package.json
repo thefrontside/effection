@@ -17,6 +17,7 @@
     "lint": "eslint '{src,tests}/**/*.ts'",
     "test": "mocha -r ts-node/register --timeout 10000 test/**/*.test.ts",
     "prepack": "tsc --project tsconfig.dist.json",
+    "docs": "yarn typedoc src/node.ts",
     "mocha": "mocha -r ts-node/register"
   },
   "dependencies": {
@@ -33,6 +34,7 @@
     "mocha": "^8.3.1",
     "ts-node": "^8.9.0",
     "tsdx": "0.13.2",
+    "typedoc": "^0.20.36",
     "typescript": "^3.7.0"
   },
   "volta": {

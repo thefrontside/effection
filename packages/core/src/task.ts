@@ -11,6 +11,18 @@ import { createRunLoop } from './run-loop';
 
 let COUNTER = 0;
 
+export interface TaskInfo {
+  id: number;
+  type: string;
+  labels: Labels;
+  state: State;
+}
+
+export interface TaskTree extends TaskInfo {
+  subTask?: TaskTree;
+  children: TaskTree[];
+}
+
 export interface TaskOptions {
   readonly resourceScope?: Task;
   readonly blockParent?: boolean;
@@ -33,6 +45,7 @@ export interface Task<TOut = unknown> extends Promise<TOut>, FutureLike<TOut> {
   spawn<R>(operation?: Operation<R>, options?: TaskOptions): Task<R>;
   halt(): Promise<void>;
   start(): void;
+  toJSON(): TaskTree;
   on: EventEmitter['on'];
   off: EventEmitter['off'];
 }
@@ -114,6 +127,18 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
         // see https://github.com/jnicklas/mini-effection/issues/23
       });
     },
+
+    toJSON() {
+      return {
+        id: id,
+        type: controller.type,
+        labels: labels,
+        state: stateMachine.current,
+        yieldingTo: yieldingTo?.toJSON(),
+        children: Array.from(children).map((c) => c.toJSON()),
+      }
+    },
+
     on: (...args) => emitter.on(...args),
     off: (...args) => emitter.off(...args),
     then: (...args) => future.then(...args),

@@ -1,0 +1,23 @@
+.fs-button {
+  font-family: var(--font-serif);
+  background-color: var(--ifm-color-primary);
+  cursor: pointer;
+  color: var(--color-over-primary);
+  padding: 6px 15px;
+  font-size: var(--size-med-sm);
+  outline: none;
+  border: none;
+  border-radius: 30px;
+  font-weight: bold;
+}
+
+.fs-button__highlight {
+  background-image: -webkit-gradient(linear, left top, right top, from(#26abe8), to(#f74d7b));
+  background-image: linear-gradient(90deg, #26abe8, #f74d7b);
+  color: #fff;
+}
+
+.fs-button__large {
+  font-size: 20px;
+  padding: 10px 25px;
+}

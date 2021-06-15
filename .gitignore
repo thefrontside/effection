@@ -10,3 +10,8 @@ package-lock.json
 yarn-error.log
 .cache
 */**/yarn.lock
+!website/yarn.lock
+.DS_Store
+
+# Local Netlify folder
+.netlify

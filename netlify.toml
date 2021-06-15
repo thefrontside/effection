@@ -1,0 +1,14 @@
+[build]
+  base = "website/"
+  command = "yarn build"
+  publish = "public/"
+
+[dev]
+  command = "yarn start"
+  publish = "public/"
+  targetPort = 3000
+  framework = "#custom"
+
+[[redirects]]
+  from = "/*"
+  to = "/effection/:splat"

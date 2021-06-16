@@ -2,6 +2,7 @@ node_modules
 docs
 .esm-cache
 .node-version
+.parcel-cache
 dist/
 pkg/
 .nyc_output/

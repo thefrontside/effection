@@ -15,7 +15,6 @@ main(function*(scope) {
     yield spawn(function* () {
       try {
         yield connection.forEach(function* (value) {
-          // connection.send({ value: value.toUpperCase() });
           messages.push(value);
           for(let client of clients) {
             if(client !== connection) {

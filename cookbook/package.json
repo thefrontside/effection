@@ -5,7 +5,7 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "websocket": "node ./websocket/websocket.mjs",
+    "websocket": "node ./websocket/websocket-with-on.mjs",
     "chat:client": "parcel ./websocket-chat/index.html",
     "chat:server": "ts-node ./websocket-chat/server.ts"
   },

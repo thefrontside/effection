@@ -19,7 +19,7 @@ export interface TaskInfo {
 }
 
 export interface TaskTree extends TaskInfo {
-  subTask?: TaskTree;
+  yieldingTo?: TaskTree;
   children: TaskTree[];
 }
 

@@ -1,0 +1,134 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 12px;
+}
+
+body {
+  margin: 0;
+  padding: 1rem;
+  font-family: sans-serif;
+}
+
+h1 {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+  text-transform: uppercase;
+  color: #444;
+}
+
+.task {
+  border: 1px solid #ccc;
+  background: #fafafa;
+  padding: 0.4rem 0.8rem 0.4rem 1.6rem;
+  border-radius: 0.3rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.task.running {
+  border-color: rgb(61, 210, 255);
+}
+
+.task.errored, .task.erroring {
+  border-color: rgb(189, 0, 0);
+}
+
+.task.completing, .task.completed {
+  border-color: rgb(33, 186, 79);
+}
+
+.task--state {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 1rem;
+  line-height: 100%;
+  padding: 0.4rem 0 0 0.3rem;
+  color: white;
+  font-weight: bold;
+  background: #ccc;
+}
+
+.task--state.running {
+  background: rgb(61, 210, 255);
+}
+
+.task--state.errored, .task--state.erroring {
+  background: rgb(189, 0, 0);
+}
+
+.task--state.completing, .task--state.completed {
+  background: rgb(33, 186, 79);
+}
+
+
+.task--title {
+  font-size: 1rem;
+  margin: 0 -0.2rem;
+  padding: 0;
+  display: flex;
+  color: #444;
+}
+
+.task--title > * {
+  margin: 0 0.2rem;
+}
+
+.task--yielding-to {
+  margin: 0.4rem 0 0;
+}
+
+.task--title--name {
+}
+
+.task--title--type {
+  font-weight: normal;
+  color: #aaa;
+  margin-left: auto;
+}
+
+.task--title--id {
+  font-weight: normal;
+  color: #aaa;
+}
+
+.task--section-header {
+  font-weight: bold;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  color: #aaa;
+  margin: 0.4rem 0;
+}
+
+.task--list {
+  list-style: none;
+}
+
+.task--list--element {
+  margin: 0.4rem 0 0;
+}
+
+.task--label {
+  display: inline-block;
+  margin-right: 0.2rem;
+  background: rgb(31, 124, 143);
+  color: white;
+  padding: 0.1rem 0.4rem 0.2rem;
+  border-radius: 0.3rem;
+  font-size: 0.8rem;
+}
+
+.task--label--title {
+  color: rgb(167, 224, 236);
+  display: inline-block;
+  margin-right: 0.3rem;
+}
+
+.task--label--value {
+  display: inline-block;
+}

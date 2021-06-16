@@ -121,6 +121,10 @@ workflows:
                 - react
                 - websocket-client
                 - websocket-server
+                - debug-utils
+                - debug-ui
+                - debug-server
+                - debug
           requires:
             - prepack
       - lint:

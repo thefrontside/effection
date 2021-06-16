@@ -1,6 +1,6 @@
 import { Task } from '@effection/core';
 import { describe, it, beforeEach, captureError } from '@effection/mocha';
-import * as expect from 'expect';
+import expect from 'expect';
 
 import { exec, Process, ProcessResult } from '../src';
 import fetch from 'node-fetch';

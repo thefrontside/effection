@@ -1,5 +1,5 @@
 import { describe, it, beforeEach } from '@effection/mocha';
-import * as expect from 'expect';
+import expect from 'expect';
 
 import { sleep } from '@effection/core';
 import { createChannel, Channel } from '../src/index';

@@ -1,6 +1,6 @@
 import '../setup';
 import { describe, it } from 'mocha';
-import * as expect from 'expect';
+import expect from 'expect';
 
 import { run, sleep, timeout } from '../../src/index';
 

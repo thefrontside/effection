@@ -1,6 +1,6 @@
 import { createNumber, blowUp } from './setup';
 import { describe, it } from 'mocha';
-import * as expect from 'expect';
+import expect from 'expect';
 
 import { run, sleep, Task, createFuture } from '../src/index';
 

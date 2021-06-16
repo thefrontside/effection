@@ -1,7 +1,7 @@
 import { HasEffectionTrace } from '@effection/core';
 import { isMainError } from './error';
-import * as chalk from 'chalk';
-import * as stackTraceParser from 'stacktrace-parser';
+import chalk from 'chalk';
+import { parse as parseStackTrace } from 'stacktrace-parser';
 
 export function formatName(error: Error): string {
   return chalk.bgRed.white.bold(error.name);
@@ -32,7 +32,7 @@ export function formatEffection(error: Error & Partial<HasEffectionTrace>): stri
 
 export function formatStack(error: Error): string | undefined {
   if(error.stack) {
-    let stack = stackTraceParser.parse(error.stack).map((item) => {
+    let stack = parseStackTrace(error.stack).map((item) => {
       return [
         chalk.grey('  -'),
         item.methodName && chalk.cyan(item.methodName),

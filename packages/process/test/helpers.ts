@@ -1,6 +1,6 @@
 import { performance } from 'perf_hooks';
 import { beforeEach } from 'mocha';
-import * as expect from 'expect';
+import expect from 'expect';
 import { run, Task } from '@effection/core';
 import { Channel } from '@effection/channel';
 import { ctrlc } from 'ctrlc-windows';

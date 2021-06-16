@@ -1,5 +1,5 @@
 import { describe, it, beforeEach, captureError } from '@effection/mocha';
-import * as expect from 'expect'
+import expect from 'expect'
 
 import { Task } from '@effection/core';
 import { EventEmitter } from 'events';

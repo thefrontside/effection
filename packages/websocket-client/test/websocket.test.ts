@@ -1,11 +1,11 @@
 import { describe, it, beforeEach } from '@effection/mocha';
-import * as expect from 'expect'
-import * as http from 'http'
+import expect from 'expect'
+import http from 'http'
 import type { AddressInfo } from 'net'
 import { spawn, ensure } from '@effection/core';
 import { on, once } from '@effection/events';
 
-import * as WebSocket from 'ws';
+import WebSocket from 'ws';
 import { Server as WebSocketServer } from 'ws';
 
 import { createWebSocketClient, WebSocketClient } from '../src/index';

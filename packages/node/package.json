@@ -20,7 +20,7 @@
     "prepack": "tsdx build --target node --format cjs --tsconfig tsconfig.dist.json"
   },
   "devDependencies": {
-    "@frontside/tsconfig": "0.0.1",
+    "@frontside/tsconfig": "^1.2.0",
     "ts-node": "^8.9.0",
     "tsdx": "0.13.2",
     "typedoc": "^0.20.36",

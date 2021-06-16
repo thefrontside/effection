@@ -3,7 +3,7 @@ import { Server } from 'ws';
 import { spawn, ensure, Resource, Operation } from '@effection/core'
 import { createQueue, Subscription } from '@effection/subscription';
 import { on, once } from '@effection/events';
-import * as http from 'http'
+import http from 'http'
 import { AddressInfo } from 'net'
 
 export interface WebSocketConnection<TIncoming = unknown, TOutgoing = TIncoming> extends Subscription<TIncoming> {

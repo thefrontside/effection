@@ -68,13 +68,42 @@ let task = main(function*() {
 task.halt();
 ```
 
+### Cleaning up
+
+We can use this mechanism to run code as a Task is shutting down, whether it
+happens because the Task completes successfully, it becomes halted, or it is
+cancelled due to an error.
+
+Imagine that we're doing something with an HTTP server, and we're using node's
+`createServer` function. In order to properly clean up afer ourselves, we
+should call `close()` on the server when we're done.
+
+Using Effection and `try/finally`, we could do something like this:
+
+``` javascript
+import { main } from 'effection';
+import { createServer } from 'http';
+
+let task = main(function*() {
+  let server = createServer();
+  try {
+    // in real code we would do something more interesting here
+    yield
+  } finally {
+    server.close();
+  }
+});
+
+task.halt();
+```
+
 ### Asynchronous halt
 
 You might be wondering what happens when we `yield` in a finally block. In
 fact, Effection handles this case for you:
 
 ``` javascript
-import { main } from 'effection';
+import { main, sleep } from 'effection';
 
 let task = main(function*() {
   try {
@@ -93,30 +122,6 @@ While performing asynchronous operations while halting is sometimes necessary,
 it is good practice to keep halting speedy and simple. We recommend avoiding
 expensive operations during halt where possible, and avoiding throwing any
 errors during halting.
-
-### Cleaning up
-
-Imagine that we're doing something with an HTTP server, and we're using node's
-`createServer` function. In order to properly clean up afer ourselves, we
-should call `close()` on the server when we're done. We could do something like
-this:
-
-``` javascript
-import { main } from 'effection';
-import { createServer } from 'http';
-
-let task = main(function*() {
-  let server = createServer();
-  try {
-    // in real code we would do something more interesting here
-    yield
-  } finally {
-    server.close();
-  }
-});
-
-task.halt();
-```
 
 ### Ensure
 

@@ -35,7 +35,7 @@ Or use a combinator such as `Promise.all`:
 ``` javascript
 async function() {
   let [dayUS, daySweden] = await Promise.all([fetchWeekDay('est'), fetchWeekDay('cet')]);
-  console.log(`It is ${await dayUS}, in the US and ${await daySweden} in Sweden!`);
+  console.log(`It is ${dayUS}, in the US and ${daySweden} in Sweden!`);
 }
 ```
 
@@ -143,3 +143,17 @@ Idiomatic Effection code creates tasks that are tied to the lifetime of their
 parent, and it becomes impossible to create a task whose lifetime is undefined.
 This idea is called structured concurrency, and it has profound effects on the
 composability of concurrent code.
+
+### Using combinators
+
+We preivously showed how we can use the `Promise.all` combinator to implement the concurrent
+fetch. Effection also ships with some combinators, for example we can use the `all` combinator:
+
+``` javascript
+import { all, main } from 'effection';
+
+main(function *() {
+  let [dayUS, daySweden] = await all([fetchWeekDay('est'), fetchWeekDay('cet')]);
+  console.log(`It is ${dayUS}, in the US and ${daySweden} in Sweden!`);
+});
+```

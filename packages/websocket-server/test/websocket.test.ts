@@ -1,5 +1,5 @@
 import { describe, it, beforeEach } from '@effection/mocha';
-import * as expect from 'expect'
+import expect from 'expect'
 import { createServer } from 'http'
 import { AddressInfo } from 'net'
 import { spawn, ensure } from '@effection/core';

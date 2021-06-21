@@ -1,6 +1,6 @@
 import { asyncResolve, asyncReject, syncResolve, syncReject } from '../setup';
 import { describe, it } from 'mocha';
-import * as expect from 'expect';
+import expect from 'expect';
 
 import { race, run } from '../../src/index';
 

@@ -1,5 +1,5 @@
 import { describe, beforeEach, it } from '@effection/mocha';
-import * as expect from 'expect';
+import expect from 'expect';
 import { createAtom } from '../src/atom';
 import { OperationIterator } from '@effection/subscription';
 import { Slice } from '../src/types';

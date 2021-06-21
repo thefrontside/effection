@@ -25,7 +25,7 @@
     "mocha": "^8.0.0"
   },
   "devDependencies": {
-    "@frontside/tsconfig": "0.0.1",
+    "@frontside/tsconfig": "^1.2.0",
     "@types/mocha": "^8.0.3",
     "expect": "^25.4.0",
     "mocha": "^8.0.0",

@@ -2,7 +2,7 @@ import { IncomingMessage } from 'http';
 import { EchoServer } from "./echo-server";
 import { when, never } from "./helpers";
 import { fetch } from "../src";
-import * as expect from 'expect';
+import expect from 'expect';
 
 import { describe, it, beforeEach } from '@effection/mocha';
 

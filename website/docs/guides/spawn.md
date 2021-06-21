@@ -16,11 +16,13 @@ main(function*() {
 });
 ```
 
-This works, but it slightly inefficient. How can we run both `fetch` operations concurrently?
+This works, but it slightly inefficient because we are running the fetches one
+after the other. How can we run both `fetch` operations at the same time?
 
 ### Using `async/await`
 
-If we were using `async/await` we might do something like this:
+If we were just using `async/await` and not using Effection, we might do
+something like this to fetch the dates at the same time:
 
 ``` javascript
 async function() {
@@ -30,7 +32,7 @@ async function() {
 }
 ```
 
-Or use a combinator such as `Promise.all`:
+Or we could use a combinator such as `Promise.all`:
 
 ``` javascript
 async function() {
@@ -57,8 +59,9 @@ not handle cancellation very well when running multiple operations concurrently.
 
 ### Effection
 
-How does Effection deal with this situation? If we translate this directly into
-Effection code, it does not behave like we expect:
+How does Effection deal with this situation? If we wrote the example using
+Effection in the exact same way as the `async/await` example, then we will find
+that it doesn't behave the same:
 
 ``` javascript
 import { main } from 'effection';
@@ -71,13 +74,16 @@ main(function*() {
 });
 ```
 
-This is still serial, and does not run both `fetch` operations concurrently! To
-understand why, remember that calling a generator function does not do
-anything, only by passing the generator to `yield` or `run` do we actually run
-the generator.
+This is still running one fetch after the other, and is not fetching both at
+the same time!
 
-We could use `run` here to run our operations, and then wait for them, but this is not
-the idiomatic way:
+To understand why, remember that calling a generator function does not do
+anything by itself, only by passing the generator to `yield` or `run` do we
+actually run the generator. So only when we `yield` to we actually start
+fetching the dates.
+
+We could use `run` here to run our operations, and then wait for them, but this
+is not the correct way:
 
 ``` javascript
 // THIS IS NOT THE CORRECT WAY!
@@ -91,7 +97,8 @@ main(function*() {
 });
 ```
 
-But this has the same problem as our `async/await` example!
+This has the same problem as our `async/await` example: a failure in one fetch
+has no effect on the other!
 
 ### Introducing `spawn`
 
@@ -118,9 +125,9 @@ You can think of this as creating a hierarchy like this:
 ```
 +-- main
   |
-  + -- fetchWeekDay('est')
+  +-- fetchWeekDay('est')
   |
-  + -- fetchWeekDay('cet')
+  +-- fetchWeekDay('cet')
 ```
 
 When `fetchWeekDay('cet')` fails, it will also cause `main` to fail, and when `main` fails
@@ -130,23 +137,19 @@ children. We end up with a situation like this:
 ```
 +-- main [FAILED]
   |
-  + -- fetchWeekDay('est') [HALTED]
+  +-- fetchWeekDay('est') [HALTED]
   |
-  + -- fetchWeekDay('cet') [FAILED]
+  +-- fetchWeekDay('cet') [FAILED]
 ```
 
-Since `fetchWeekDay` was implemented using the `@effection/fetch` package, and
-that package knows how to clean up after itself, the `fetchWeekDay('est')`
-request will be cancelled for you.
-
-Idiomatic Effection code creates tasks that are tied to the lifetime of their
-parent, and it becomes impossible to create a task whose lifetime is undefined.
-This idea is called structured concurrency, and it has profound effects on the
-composability of concurrent code.
+Effection tasks are tied to the lifetime of their parent, and it becomes
+impossible to create a task whose lifetime is undefined. This idea is called
+[structured concurrency], and it has profound effects on the composability of
+concurrent code.
 
 ### Using combinators
 
-We preivously showed how we can use the `Promise.all` combinator to implement the concurrent
+We previously showed how we can use the `Promise.all` combinator to implement the concurrent
 fetch. Effection also ships with some combinators, for example we can use the `all` combinator:
 
 ``` javascript
@@ -157,3 +160,5 @@ main(function *() {
   console.log(`It is ${dayUS}, in the US and ${daySweden} in Sweden!`);
 });
 ```
+
+[structured concurrency]: https://vorpus.org/blog/notes-on-structured-concurrency-or-go-statement-considered-harmful/

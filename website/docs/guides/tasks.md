@@ -57,6 +57,16 @@ writing a program with Effection from scratch, you should normally use `main`
 as the entry point for your program. `run` is a bit more low-level and can be
 useful when you're integrating Effection into an existing codebase.
 
+Using `main` our example looks like this:
+
+```javascript
+import { main } from 'effection';
+
+main(function*() {
+  console.log("Hello World!");
+});
+```
+
 ### Operations
 
 As we saw, we can pass a generator function as an argument to `run` and `main`, but these
@@ -81,9 +91,9 @@ functions. In fact, we can use `yield` to call any other operation!
 For example we can use `yield` to wait for a Promise to resolve:
 
 ```javascript
-import { run } from 'effection';
+import { main } from 'effection';
 
-run(function*() {
+main(function*() {
   let text = yield Promise.resolve("Hello World!");
   console.log(text);
 });
@@ -92,9 +102,9 @@ run(function*() {
 We can also use `yield` with another generator function:
 
 ```javascript
-import { run, sleep } from 'effection';
+import { main, sleep } from 'effection';
 
-run(function*() {
+main(function*() {
   let text = yield function*() {
     yield sleep(1000);
     return "Hello World!";
@@ -106,14 +116,14 @@ run(function*() {
 Or with a generator:
 
 ```javascript
-import { run, sleep } from 'effection';
+import { main, sleep } from 'effection';
 
 function* makeSlow(value) {
   yield sleep(1000);
   return value;
 }
 
-run(function*() {
+main(function*() {
   let text = yield makeSlow('Hello World!');
   console.log(text);
 });
@@ -122,9 +132,9 @@ run(function*() {
 Finally, if we use `yield` without an argument, it will suspend indefinitely:
 
 ```javascript
-import { run } from 'effection';
+import { main } from 'effection';
 
-run(function*() {
+main(function*() {
   yield;
   console.log('We will never get here!');
 });

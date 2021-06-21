@@ -1,5 +1,5 @@
 import { describe, it, beforeEach, afterEach } from '@effection/mocha';
-import * as expect from 'expect';
+import expect from 'expect';
 import fetch from 'node-fetch';
 
 import '@effection/mocha';

@@ -1,5 +1,5 @@
 import { describe, it, beforeEach, captureError } from '../src/index';
-import * as expect from 'expect';
+import expect from 'expect';
 
 import { Task, Resource, sleep } from '@effection/core';
 

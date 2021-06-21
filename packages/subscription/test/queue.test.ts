@@ -1,4 +1,4 @@
-import * as expect from 'expect';
+import expect from 'expect';
 import { describe, it, beforeEach, captureError } from '@effection/mocha';
 
 import { createQueue, Queue } from '../src/index';

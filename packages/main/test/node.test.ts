@@ -1,5 +1,5 @@
-import * as path from 'path';
-import * as expect from 'expect';
+import path from 'path';
+import expect from 'expect';
 import { describe, it, beforeEach } from '@effection/mocha';
 
 import { exec, Process, ProcessResult } from '@effection/process';

@@ -1,7 +1,7 @@
-import * as TestRenderer from 'react-test-renderer';
+import TestRenderer from 'react-test-renderer';
 import { ensure, Effection, Resource } from '@effection/core';
 import { EffectionContext } from '../src/index';
-import * as React from 'react';
+import React from 'react';
 
 export function render(element: JSX.Element): Resource<TestRenderer.ReactTestRenderer> {
   return {

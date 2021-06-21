@@ -28,7 +28,7 @@
   },
   "devDependencies": {
     "@effection/mocha": "2.0.0-beta.1",
-    "@frontside/tsconfig": "0.0.1",
+    "@frontside/tsconfig": "^1.2.0",
     "@types/node": "^13.13.5",
     "@types/react": "^17.0.8",
     "@types/react-test-renderer": "^17.0.1",

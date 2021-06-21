@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion,@typescript-eslint/no-explicit-any */
-import * as mocha from 'mocha';
+import mocha from 'mocha';
 import { run, Task, Effection, Operation } from '@effection/core';
 
 let world: Task | undefined;

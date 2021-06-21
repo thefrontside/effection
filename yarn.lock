@@ -1079,10 +1079,10 @@
     "@typescript-eslint/parser" "^3.5.0"
     eslint-plugin-prefer-let "^1.0.2"
 
-"@frontside/tsconfig@0.0.1", "@frontside/tsconfig@^0.0.1":
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/@frontside/tsconfig/-/tsconfig-0.0.1.tgz#f7481d8681fed3d2274991271e6f36fa5e3ed32f"
-  integrity sha512-BQyLcpBIV9WQsBFQQqK/SIoEeKImWYMmu7kqLYpE3SCbCjY6ZN/yBpY63AMCCrv7V70Z5itATHTWvMAlkzkJPQ==
+"@frontside/tsconfig@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@frontside/tsconfig/-/tsconfig-1.2.0.tgz#4faf77841e9a3ff9159cd9e0ff8f10d336a84cfe"
+  integrity sha512-Ua/q/M99ohPLdNtMNuJ1EToTjVkuiUECqQTZB7jsKLpGIn0dazon1KyqNtWYfMExMYXdk4uZimxljoVtFxM/OQ==
 
 "@jest/console@^24.7.1", "@jest/console@^24.9.0":
   version "24.9.0"

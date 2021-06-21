@@ -50,6 +50,25 @@ run(function*() {
 
 You should see this print `Hello World!` to the console, as you'd expect.
 
+The return value we get from `run` is a `Task`. A `Task` can act like a `Promise`, so
+we can use it with `await`, to integrate Effection into existing `async/await` code,
+and we can also use `catch` to catch any errors the occurred in the task. There are
+also some other things that tasks can do, for example they can spawn other tasks.
+
+```javascript
+import { run } from 'effection';
+
+let task = run(function*() {
+  throw new Error('oh no!');
+});
+
+task.catch((error) => {
+  console.error(error);
+});
+
+console.log('running task', task.id) // tasks have a unique ID
+```
+
 We have already met the function `main`, which is very similar to `run`. `main`
 takes care of a few things for you, like cleaning up when the process shuts
 down, and printing errors to the console in case anything goes wrong. If you're
@@ -63,9 +82,11 @@ Using `main` our example looks like this:
 import { main } from 'effection';
 
 main(function*() {
-  console.log("Hello World!");
+  throw new Error('oh no!');
 });
 ```
+
+You should see this print an error with nice formatting.
 
 ### Operations
 

@@ -43,14 +43,17 @@ about its behavior.
 
 If you know how to use `async/await`, then you're already familiar with most of
 what you need to know to use Effection. The only difference is that instead
-of [async functions][async functions], you use
-[generators][generators] and replace:
+of [async functions][], you use [generator functions][]. Generator functions are
+similar to async functions but they allow Effection to take greater control over
+the execution of your code.
+
+To switch from async functions to generator functions, you can replace:
 
 1. `await` with `yield`
 1. `async function()` with `function*()`
 
 
-For example, with `async`/`await`:
+For example, using `async/await` we could write something like this:
 
 ``` javascript
 import { fetch } from 'isomorphic-fetch';
@@ -62,7 +65,7 @@ export async function fetchWeekDay(timezone) {
 }
 ```
 
-With Effection:
+The same code using Effection looks like this:
 
 ``` javascript
 import { fetch } from '@effection/fetch';
@@ -135,6 +138,7 @@ and we'd love to hear your thoughts on it, and how you might see
 it working for you.
 
 [structured concurrency]: https://vorpus.org/blog/notes-on-structured-concurrency-or-go-statement-considered-harmful/
+[generator functions]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function*
 [generators]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Generator
 [async functions]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function
 [abort controller]: https://developer.mozilla.org/en-US/docs/Web/API/AbortController

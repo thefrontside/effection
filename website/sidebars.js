@@ -26,16 +26,16 @@ module.exports = {
         'guides/websockets',
       ]
     },
-    {
-      type: 'category',
-      label: 'Cookbook',
-      items: [
-        'guides/filewatcher',
-        'guides/closing-sockets',
-        'guides/cli-etiquette',
-        'guides/interprocess-communication',
-        'guides/typeahead',
-      ]
-    },
+    // {
+    //   type: 'category',
+    //   label: 'Cookbook',
+    //   items: [
+    //     'guides/filewatcher',
+    //     'guides/closing-sockets',
+    //     'guides/cli-etiquette',
+    //     'guides/interprocess-communication',
+    //     'guides/typeahead',
+    //   ]
+    // },
   ]
 };

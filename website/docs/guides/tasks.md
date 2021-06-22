@@ -100,6 +100,7 @@ argument an `Operation`. An `Operation` can be any of:
 - A [Promise][]
 - Another [`Task`][task]
 - A [`Future`][future] – a sort of synchronous Promise, we will cover this in a later guide
+- A [`Resource`][resource] – an advanced concept that enables interaction with long-running processes
 
 Additionally you can also call `run` and `main` without any argument, this will
 suspend indefinitely.
@@ -169,3 +170,4 @@ main(function*() {
 [run]: /api
 [spawn]: /docs/guides/spawn
 [future]: /docs/guides/futures
+[resource]: /docs/guides/resources

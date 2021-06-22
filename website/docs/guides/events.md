@@ -8,7 +8,7 @@ quite challenging. Evented code often needs to be synchronous, because the timin
 subscribe and unsubscribe is very critical, otherwise race conditions can occur where events
 get missed. Effection has powerful tools for working with Events.
 
-## Once
+## Single events
 
 The simplest operation for working with events that Effection provides is the
 `once` operation.  This operation blocks and waits for the event to occur. For
@@ -50,7 +50,7 @@ main(function*() {
 });
 ```
 
-## OnceEmit
+## Events with multiple arguments
 
 In very rare cases, some event emitters pass multiple arguments to their event
 handlers. For example the [ChildProcess][] in NodeJS emits both a status
@@ -61,7 +61,7 @@ For cases like these, the `onceEmit` function exists, which works the same as
 `once`, except it returns an array of all arguments passed to the event
 handler.
 
-## On
+## Recurring events
 
 If you've been following the chapter on streams and subscriptions, you may
 already have a feeling that it is not a good idea to repeatedly call

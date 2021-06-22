@@ -211,5 +211,5 @@ export function *createJSONSocket(port, host) {
 ```
 
 [tasks]: /docs/guides/tasks
-[operation]: /api/operation
-[resource]: /api/resource
+[operation]: /api
+[resource]: /api

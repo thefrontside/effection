@@ -36,20 +36,39 @@ main(function*() {
 Halting a Task means that the task itself is cancelled, it also causes any Task
 that has been spawned from the Task to be halted.
 
+We have previsouly mentioned that when an error occurs in a Task, the task
+becomes errored, and also causes its parent to become errored. However, if a
+Task is halted, the parent task is unaffected.
+
 ### Return
 
-If a Task is driving a generator, we call `return()` on the generator. This behaves
-somewhat similarly to if you would put a `return` statement at the current yield point.
+If a Task is driving a generator, we call `return()` on the generator. This
+behaves somewhat similarly to if you would replace the `yield` statement with a
+`return` statement.
+
+Let's look at an example where a task is suspended using `yield` with no
+arguments and what happens when we call `halt` on it:
 
 ``` javascript
 import { main } from 'effection';
 
 let task = main(function*() {
-  yield // we will `return` from here
+  yield; // we will "return" from here
   console.log('we will never get here');
 });
 
 task.halt();
+```
+
+This would behave somewhat similarly to the following:
+
+``` javascript
+import { main } from 'effection';
+
+main(function*() {
+  return;
+  console.log('we will never get here');
+});
 ```
 
 Crucially, when this happens, just like with a regular `return`, we can use `try/finally`:
@@ -59,7 +78,7 @@ import { main, sleep } from 'effection';
 
 let task = main(function*() {
   try {
-    yield // we will `return` from here
+    yield // we will "return" from here
   } finally {
     console.log('yes, this will be printed!');
   }
@@ -72,7 +91,7 @@ task.halt();
 
 We can use this mechanism to run code as a Task is shutting down, whether it
 happens because the Task completes successfully, it becomes halted, or it is
-cancelled due to an error.
+rejected due to an error.
 
 Imagine that we're doing something with an HTTP server, and we're using node's
 `createServer` function. In order to properly clean up afer ourselves, we
@@ -88,7 +107,7 @@ let task = main(function*() {
   let server = createServer();
   try {
     // in real code we would do something more interesting here
-    yield
+    yield;
   } finally {
     server.close();
   }
@@ -107,7 +126,7 @@ import { main, sleep } from 'effection';
 
 let task = main(function*() {
   try {
-    yield
+    yield;
   } finally {
     console.log('this task is slow to halt');
     yield sleep(2000);
@@ -139,7 +158,7 @@ let task = main(function*() {
   yield ensure(() => server.close());
 
   // in real code we would do something more interesting here
-  yield
+  yield;
 });
 
 task.halt();

@@ -82,8 +82,9 @@ Remember our criteria from before:
 1. We want to interact with the socket while it is running by sending messages to it
 
 This is a good use-case for using a Resource. Let's look at how we can rewrite
-`createSocket` using resources, an implementation might look something like
-this:
+`createSocket` using resources. Effection considers any object which has an
+`init` function a Resource. The `init` function initializes the Resource, and
+an implementation of `createSocket` could look like this:
 
 ``` javascript
 import { once, spawn } from 'effection';
@@ -126,14 +127,10 @@ main(function*() {
 
 ## How resources work
 
-Let's take a look at the implementation of `createSocket`. Effection considers
-any object which has an `init` function a Resource, and so the object returned
-from `createSocket` is a Resource.
-
 The `init` function is used to *initialize* the resource. Once the `init`
 function is done, we can proceed past the `yield` point where we called
-`createSocket` in `main`. You can see why we call `once` here, so we wait for
-the socket to open before proceeding.
+`createSocket` in `main`. You can see why we call `once` from `init`, so we
+wait for the socket to open before proceeding.
 
 But what about the call to `spawn`? We have previously established that a
 spawned Task cannot outlive its parent, and so the Task that we spawned really
@@ -161,9 +158,9 @@ being a child of `init`.
 
 ## Nested resources
 
-Resource created within `init` behave the same way and are created as siblings.
-We can use this to make a socket which serializes anything written to it as
-JSON:
+Other resources created within `init` behave the same way and are created as
+siblings. We can use this to make a socket which serializes anything written
+to it as JSON:
 
 ``` javascript
 import { main, once, spawn } from 'effection';

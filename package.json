@@ -36,7 +36,8 @@
     "lint": "yarn workspaces run lint",
     "build:tsc": "tsc -b ./tsconfig.packages.json",
     "watch:tsc": "yarn build && \"$(npm bin)/tsc\" -b ./tsconfig.packages.json --watch",
-    "docs": "yarn typedoc --packages ./packages/atom --out whaa"
+    "docs": "yarn typedoc --packages . --out docs/api/v2 --name effection --hideGenerator",
+    "docs:preview": "yarn parcel docs/api/v2/index.html"
   },
   "volta": {
     "node": "12.20.0",

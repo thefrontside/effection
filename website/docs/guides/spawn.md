@@ -130,9 +130,10 @@ You can think of this as creating a hierarchy like this:
   +-- fetchWeekDay('cet')
 ```
 
-When `fetchWeekDay('cet')` fails, it will also cause `main` to fail, and when `main` fails
-it will make sure that none of its children outlive it, and it will `halt` all of its remaining
-children. We end up with a situation like this:
+When `fetchWeekDay('cet')` fails, since it was spawned by `main`, it will also
+cause `main` to fail. When `main` fails it will make sure that none of its
+children outlive it, and it will `halt` all of its remaining children. We end
+up with a situation like this:
 
 ```
 +-- main [FAILED]
@@ -143,22 +144,51 @@ children. We end up with a situation like this:
 ```
 
 Effection tasks are tied to the lifetime of their parent, and it becomes
-impossible to create a task whose lifetime is undefined. This idea is called
-[structured concurrency], and it has profound effects on the composability of
-concurrent code.
+impossible to create a task whose lifetime is undefined. Additionally, the
+behaviour of errors is very clearly defined. An error in a child will also
+cause the parent to error, which in turn halts any siblings.
+
+This idea is called [structured concurrency], and it has profound effects on
+the composability of concurrent code.
 
 ### Using combinators
 
-We previously showed how we can use the `Promise.all` combinator to implement the concurrent
-fetch. Effection also ships with some combinators, for example we can use the `all` combinator:
+We previously showed how we can use the `Promise.all` combinator to implement
+the concurrent fetch. Effection also ships with some combinators, for example
+we can use the `all` combinator:
 
 ``` javascript
 import { all, main } from 'effection';
 
 main(function *() {
-  let [dayUS, daySweden] = await all([fetchWeekDay('est'), fetchWeekDay('cet')]);
+  let [dayUS, daySweden] = yield all([fetchWeekDay('est'), fetchWeekDay('cet')]);
   console.log(`It is ${dayUS}, in the US and ${daySweden} in Sweden!`);
 });
 ```
+
+### Direct spawning
+
+Another way of spawning tasks is to call the `spawn` method on a task:
+
+``` javascript
+let task = run();
+task.spawn(fetchWeekDay('est'));
+task.spawn(fetchWeekDay('cet'));
+```
+
+This is often useful when integrating Effection into existing promise or
+callback based frameworks.
+
+When an Operation is a generator function, the first argument to the generator
+function is the current task. We can use this to spawn tasks:
+
+``` javascript
+run(function*(task) {
+  task.spawn(fetchWeekDay('est'));
+  task.spawn(fetchWeekDay('cet'));
+});
+```
+
+This is basically the same as the previous example.
 
 [structured concurrency]: https://vorpus.org/blog/notes-on-structured-concurrency-or-go-statement-considered-harmful/

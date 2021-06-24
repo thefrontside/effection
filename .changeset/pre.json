@@ -3,7 +3,13 @@
   "tag": "beta",
   "changesets": [
     "beta-max",
-    "fair-avocados-explain"
+    "fair-avocados-explain",
+    "flat-gorillas-itch",
+    "heavy-shoes-brake",
+    "heavy-walls-stare",
+    "nasty-forks-raise",
+    "orange-suns-thank",
+    "shiny-mails-complain"
   ],
   "initialVersions": {
     "@effection/atom": "2.0.0-beta.0",
@@ -19,6 +25,10 @@
     "@effection/react": "2.0.0-beta.0",
     "@effection/subscription": "2.0.0-beta.0",
     "@effection/websocket-client": "2.0.0-beta.0",
-    "@effection/websocket-server": "2.0.0-beta.0"
+    "@effection/websocket-server": "2.0.0-beta.0",
+    "@effection/inspect": "2.0.0-beta.1",
+    "@effection/inspect-server": "2.0.0-beta.1",
+    "@effection/inspect-ui": "2.0.0-beta.1",
+    "@effection/inspect-utils": "2.0.0-beta.1"
   }
 }

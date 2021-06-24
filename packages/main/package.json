@@ -1,6 +1,6 @@
 {
   "name": "@effection/main",
-  "version": "2.0.0-beta.1",
+  "version": "2.0.0-beta.2",
   "description": "Main entry point for Effection applications",
   "main": "dist/node.js",
   "browser": "dist/browser.js",
@@ -21,13 +21,13 @@
     "mocha": "mocha -r ts-node/register"
   },
   "dependencies": {
-    "@effection/core": "2.0.0-beta.1",
+    "@effection/core": "2.0.0-beta.2",
     "chalk": "^4.1.1",
     "stacktrace-parser": "^0.1.10"
   },
   "devDependencies": {
-    "@effection/mocha": "2.0.0-beta.1",
-    "@effection/process": "2.0.0-beta.1",
+    "@effection/mocha": "2.0.0-beta.2",
+    "@effection/process": "2.0.0-beta.2",
     "@frontside/tsconfig": "^1.2.0",
     "@types/node": "^13.13.5",
     "expect": "^25.4.0",

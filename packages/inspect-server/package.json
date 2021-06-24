@@ -1,6 +1,6 @@
 {
   "name": "@effection/inspect-server",
-  "version": "2.0.0-beta.1",
+  "version": "2.0.0-beta.2",
   "description": "Inspect server for inspecting effection processes",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -23,17 +23,17 @@
     "examples:basic": "ts-node ./examples/basic.ts"
   },
   "dependencies": {
-    "@effection/atom": "2.0.0-beta.1",
-    "@effection/channel": "2.0.0-beta.1",
-    "@effection/core": "2.0.0-beta.1",
-    "@effection/inspect-utils": "2.0.0-beta.1",
-    "@effection/events": "2.0.0-beta.1",
-    "@effection/subscription": "2.0.0-beta.1",
+    "@effection/atom": "2.0.0-beta.2",
+    "@effection/channel": "2.0.0-beta.2",
+    "@effection/core": "2.0.0-beta.2",
+    "@effection/inspect-utils": "2.0.0-beta.2",
+    "@effection/events": "2.0.0-beta.2",
+    "@effection/subscription": "2.0.0-beta.2",
     "node-static": "^0.7.11",
     "websocket": "^1.0.34"
   },
   "devDependencies": {
-    "@effection/mocha": "2.0.0-beta.1",
+    "@effection/mocha": "2.0.0-beta.2",
     "@frontside/tsconfig": "^1.2.0",
     "@types/node": "^13.13.5",
     "@types/node-static": "^0.7.6",

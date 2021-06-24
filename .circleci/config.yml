@@ -121,10 +121,10 @@ workflows:
                 - react
                 - websocket-client
                 - websocket-server
-                - debug-utils
-                - debug-ui
-                - debug-server
-                - debug
+                - inspect-utils
+                - inspect-ui
+                - inspect-server
+                - inspect
           requires:
             - prepack
       - lint:

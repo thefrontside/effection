@@ -1,0 +1,28 @@
+{
+  "name": "@effection/inspect",
+  "version": "2.0.0-beta.1",
+  "description": "Injects an inspector into an Effection application",
+  "main": "index.js",
+  "repository": "https://github.com/thefrontside/bigtest.git",
+  "author": "Frontside Engineering <engineering@frontside.com>",
+  "license": "MIT",
+  "files": [
+    "README.md",
+    "CHANGELOG.md",
+    "dist/**/*",
+    "src/**/*"
+  ],
+  "scripts": {
+    "lint": "echo noop",
+    "prepack": "echo noop",
+    "test": "echo noop",
+    "docs": "echo noop"
+  },
+  "dependencies": {
+    "@effection/inspect-server": "2.0.0-beta.1"
+  },
+  "volta": {
+    "node": "12.16.0",
+    "yarn": "1.19.1"
+  }
+}

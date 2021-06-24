@@ -144,16 +144,6 @@ describe('exec', () => {
           expect(yield joinStderr).toEqual(undefined);
         });
       });
-
-      describe('when it fails', () => {
-        let error: Error
-        beforeEach(function*() {
-          yield fetch('http://localhost:29000', { method: "POST", body: "fail" });
-        });
-
-        it('joins successfully', function*() {
-        });
-      });
     });
   });
 

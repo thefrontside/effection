@@ -21,6 +21,10 @@
       "packages/react",
       "packages/websocket-client",
       "packages/websocket-server",
+      "packages/inspect-utils",
+      "packages/inspect-ui",
+      "packages/inspect-server",
+      "packages/inspect",
       "packages/effection"
     ]
   },

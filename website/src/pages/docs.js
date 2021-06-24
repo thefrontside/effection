@@ -3,7 +3,7 @@ import { Redirect } from '@docusaurus/router';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
 function DocsRedirect() {
-  return <Redirect to={useBaseUrl('/docs/use-cases/typeahead')} />;
+  return <Redirect to={useBaseUrl('/docs/guides/introduction')} />;
 }
 
 export default DocsRedirect;

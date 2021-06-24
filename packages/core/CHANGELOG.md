@@ -1,5 +1,18 @@
 # @effection/core
 
+## 2.0.0-beta.2
+
+### Minor Changes
+
+- 19414f0: Add label to root task
+- 26a86cb: Increase max listeners on task
+- 9c76cc5: Add `yieldingTo` property to task
+- ac7c1ce: Add toJSON method to Task
+
+### Patch Changes
+
+- f7e3344: Name in interface should be yieldingTo and not subTask
+
 ## 2.0.0-beta.1
 
 ### Patch Changes

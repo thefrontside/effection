@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  win: circleci/windows@2.2.0
+  win: circleci/windows@2.4.0
 executors:
   linux:
     docker:
@@ -121,6 +121,10 @@ workflows:
                 - react
                 - websocket-client
                 - websocket-server
+                - inspect-utils
+                - inspect-ui
+                - inspect-server
+                - inspect
           requires:
             - prepack
       - lint:
@@ -132,6 +136,19 @@ workflows:
             name: "win/default"
             size: "medium"
           name: "test-windows"
+          pre-steps:
+            - run:
+                name: "Install NVM"
+                command: choco install nvm
+            - run:
+                name: "Install Node"
+                command: nvm install 16.4.0
+            - run:
+                name: "Use Node version"
+                command: nvm use 16.4.0
+            - run:
+                name: "Install yarn"
+                command: npm install --global yarn
       - test:
           name: "test-macos"
           executor: macos

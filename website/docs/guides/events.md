@@ -69,7 +69,8 @@ already have a feeling that it is not a good idea to repeatedly call
 here is that we miss messages if we're not very careful.
 
 Instead we can use `on`. `on` is a very convenient function which takes an
-event emitter and the name of an event, and returns a Stream of values.
+event emitter or event target and the name of an event, and returns a Stream of
+values.
 
 ``` javascript
 import { main, once } from 'effection';

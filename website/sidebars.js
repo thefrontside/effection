@@ -18,7 +18,8 @@ module.exports = {
       items: [
         'guides/resources',
         'guides/testing',
-        'guides/debugging',
+        'guides/inspector',
+        'guides/labels',
         'guides/futures',
         'guides/processes',
         'guides/react',

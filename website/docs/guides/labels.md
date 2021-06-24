@@ -1,84 +1,17 @@
 ---
-id: debugging
-title: Debugging
+id: labels
+title: Labels
 ---
 
-> COMING SOON! The debugger is a work in progress, and this guides describes
-> how the debugger will work eventually.
-
-We have created a powerful visual debugger which is available both as a browser
-extension for web applications which use Effection, and as a standalone
-debugger for node applications.
-
-## Using the browser extension
-
-The browser extension is unfortunately not yet available from the chrome
-and firefox extension stores. To build it manually, see the [devtools][]
-package in the Effection repo on GitHub.
-
-Once you have the browser extension installed, you will need to install the
-`@effection/debug` package.
-
-```
-npm install @effection/debug
-```
-
-We recommend importing this package in the entry point of your application
-(for example `src/index.js` or similar):
-
-```
-import '@effection/debug'
-```
-
-Just importing the package is enough.
-
-If you start your application and open up the web inspector in your browser you
-should now see a new "Effection" panel. Here you can see a tree view of all
-currently running Effection tasks.
-
-## Using the node debugger
-
-Install the `@effection/debug` package:
-
-```
-npm install @effection/debug
-```
-
-You will need to import this package, and there are two main options that we
-recommend for doing so.
-
-The first option is to import it from the entry point of your application (for
-example `src/index.js` or similar):
-
-```
-import '@effection/debug'
-```
-
-The second option is to run your `node` command with `-r @effection/debug`:
-
-```
-node -r @effection/debug src/index.js
-```
-
-Once your application starts, you should see Effection print a message like this:
-
-```
-[effection] debugger available on http://localhost:34556
-```
-
-Open the URL in a browser and you should see the visual debugger.
-
-## Using labels
-
-When using the visual debugger, we would like to be able to distinguish tasks
-from each other, as well as seeing metadata about the tasks. We can do this
-by applying labels.
+When using the [visual inspector][inspector], we would like to be able to
+distinguish tasks from each other, as well as seeing metadata about the tasks.
+We can do this by applying labels.
 
 Labels are key/value pairs, the key must be a string and the value must be a
 string, number or boolean.
 
 Labels also improve the "Effection trace" shown when an error occurs if you are
-using `main`, so even if you aren't using the visual debugger, adding some labels
+using `main`, so even if you aren't using the visual inspector, adding some labels
 can make Effection code easier to debug.
 
 We can apply labels when spawning a task:
@@ -138,7 +71,7 @@ export function fetchWeekDay(timezone) {
 ```
 
 This way, wherever we use `fetchWeekDay` it would be nicely labeled and easily
-identifiable in the visual debugger.
+identifiable in the visual inspector.
 
 ## Dynamic labels
 
@@ -200,4 +133,8 @@ export function *fetchWeekDay(timezone) {
 }
 ```
 
-[devtools]: https://github.com/thefrontside/effection/tree/v2/packages/devtools
+We do our best to infer the name, but as you can see it is not always possible
+for this reason it can be better to set the name label explicitly so there is
+no question as to whether it will show up.
+
+[inspector]: /docs/guides/inspector

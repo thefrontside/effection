@@ -12,13 +12,13 @@ This is different from Promises and `async/await`. The Promise specification
 requires that promises *always* complete asynchronously. And while they might
 complete *very quickly*, they always have to release the event loop to do so.
 
-There are good reasons for this behvaiour in promises, mostly related to error
+There are good reasons for this behavior in promises, mostly related to error
 handling, but requiring the event loop to be released also has downsides.
 
 Let's look at an example of where releasing the event loop might be an issue.
 Imagine you are writing an application for the browser and you want to handle
 `click` events. We would like to intercept the click event and prevent the
-default behaviour. We could write our code like this:
+default behavior. We could write our code like this:
 
 ``` javascript
 import { main, once } from 'effection';

@@ -1,6 +1,14 @@
 # @effection/inspect-server
 
+## 2.0.0-beta.3
+
+### Patch Changes
+
+- 41aa4a2: inspect server depended on inspect-ui and websocket-server, and now
+  includes them in its dependencies
+
 ## 2.0.0-beta.2
+
 ### Patch Changes
 
 - Updated dependencies [19414f0]

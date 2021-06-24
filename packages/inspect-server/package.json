@@ -26,9 +26,11 @@
     "@effection/atom": "2.0.0-beta.2",
     "@effection/channel": "2.0.0-beta.2",
     "@effection/core": "2.0.0-beta.2",
+    "@effection/inspect-ui": "2.0.0-beta.2",
     "@effection/inspect-utils": "2.0.0-beta.2",
     "@effection/events": "2.0.0-beta.2",
     "@effection/subscription": "2.0.0-beta.2",
+    "@effection/websocket-server": "2.0.0-beta.3",
     "node-static": "^0.7.11",
     "websocket": "^1.0.34"
   },

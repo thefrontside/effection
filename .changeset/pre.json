@@ -4,6 +4,7 @@
   "changesets": [
     "beta-max",
     "fair-avocados-explain",
+    "fix-inspect-deps",
     "flat-gorillas-itch",
     "heavy-shoes-brake",
     "heavy-walls-stare",

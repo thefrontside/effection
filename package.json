@@ -21,10 +21,10 @@
       "packages/react",
       "packages/websocket-client",
       "packages/websocket-server",
-      "packages/debug-utils",
-      "packages/debug-ui",
-      "packages/debug-server",
-      "packages/debug",
+      "packages/inspect-utils",
+      "packages/inspect-ui",
+      "packages/inspect-server",
+      "packages/inspect",
       "packages/effection"
     ]
   },

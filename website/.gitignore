@@ -8,6 +8,5 @@
 # Generated files
 .docusaurus
 build
-docs/**/api
 sidebars
 public

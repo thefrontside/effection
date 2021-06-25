@@ -15,5 +15,5 @@
 [[redirects]]
   force = true
   from = "/effection/api/*"
-  status = 301
+  status = 200
   to = "https://frontside.com/tools/:splat"

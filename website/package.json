@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "docusaurus start",
-    "build": "docusaurus build && mkdir -p ./public/effection && rsync -a ./build/* ./public/effection && rm -rf ./build",
+    "build": "docusaurus build --out-dir public/effection",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
     "serve": "docusaurus serve"

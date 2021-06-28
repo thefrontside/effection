@@ -25,10 +25,15 @@ export interface Resource<TOut> extends Labelled {
   init(scope: Task, local: Task): OperationIterator<TOut>;
 }
 
-export type OperationValue<TOut> = OperationPromise<TOut> | OperationIterator<TOut> | OperationResolution<TOut> | OperationFuture<TOut> | undefined;
-
 export interface OperationFunction<TOut> extends Labelled {
-  (task: Task<TOut>): OperationValue<TOut>;
+  (task: Task<TOut>): Operation<TOut>;
 }
 
-export type Operation<TOut> = OperationValue<TOut> | OperationFunction<TOut> | Resource<TOut>;
+export type Operation<TOut> =
+  OperationPromise<TOut> |
+  OperationIterator<TOut> |
+  OperationResolution<TOut> |
+  OperationFuture<TOut> |
+  OperationFunction<TOut> |
+  Resource<TOut> |
+  undefined;

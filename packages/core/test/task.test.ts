@@ -80,7 +80,7 @@ describe('Task', () => {
         yieldingTo: {
           id: task.yieldingTo?.id,
           type: 'suspend',
-          labels: {},
+          labels: { name: 'suspend' },
           yieldingTo: undefined,
           state: 'running',
           children: [],

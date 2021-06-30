@@ -73,39 +73,27 @@ export function createStream<T, TReturn = undefined>(callback: Callback<T, TRetu
     },
 
     first(): Operation<T | undefined> {
-      return function*(task) {
-        return yield subscribe(task).first();
-      };
+      return task => subscribe(task).first();
     },
 
     expect(): Operation<T> {
-      return function*(task) {
-        return yield subscribe(task).expect();
-      }
+      return task => subscribe(task).expect();
     },
 
     forEach(visit: (value: T) => (Operation<void> | void)): Operation<TReturn> {
-      return function*(task) {
-        return yield subscribe(task).forEach(visit);
-      }
+      return task => subscribe(task).forEach(visit);
     },
 
     join(): Operation<TReturn> {
-      return function*(task) {
-        return yield subscribe(task).join();
-      }
+      return task => subscribe(task).join();
     },
 
     collect(): Operation<Iterator<T, TReturn>> {
-      return function*(task) {
-        return yield subscribe(task).collect();
-      }
+      return task => subscribe(task).collect();
     },
 
     toArray(): Operation<T[]> {
-      return function*(task) {
-        return yield subscribe(task).toArray();
-      }
+      return task => subscribe(task).toArray();
     },
 
     buffer(scope: Task): Stream<T, TReturn> {

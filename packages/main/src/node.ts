@@ -1,4 +1,4 @@
-import { run, Task, Operation } from '@effection/core';
+import { run, withLabels, Task, Operation } from '@effection/core';
 import { formatError } from './format-error-node';
 import { isMainError } from './error';
 
@@ -10,7 +10,9 @@ export function main<T>(operation: Operation<T>): Task<T> {
     try {
       process.on('SIGINT', interrupt);
       process.on('SIGTERM', interrupt);
-      return yield operation;
+      return yield withLabels(operation, {
+        name: operation?.name || 'entry point'
+      });
     } catch(error) {
       console.error(formatError(error));
       if(isMainError(error)) {

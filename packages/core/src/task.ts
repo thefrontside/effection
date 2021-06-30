@@ -69,8 +69,13 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
   let labels: Labels = { ...operation?.labels, ...options.labels }
   let yieldingTo: Task | undefined;
 
-  if(!labels.name && operation?.name) {
-    labels.name = operation?.name;
+
+  if (!labels.name) {
+    if (operation?.name) {
+      labels.name = operation?.name;
+    } else if (!operation) {
+      labels.name = 'suspend';
+    }
   }
 
   let task: Task<TOut> = {

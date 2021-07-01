@@ -1,4 +1,4 @@
-import { Operation } from '@effection/core';
+import { Operation, withLabels } from '@effection/core';
 import { Subscription } from './index';
 
 type Close<T> = (...args: T extends undefined ? [] : [T]) => void;
@@ -12,7 +12,7 @@ export interface Queue<T, TReturn = undefined> extends Subscription<T, TReturn> 
   subscription: Subscription<T, TReturn>;
 }
 
-export function createQueue<T, TReturn = undefined>(): Queue<T, TReturn> {
+export function createQueue<T, TReturn = undefined>(name: string = 'queue'): Queue<T, TReturn> {
   let waiters: Waiter<T, TReturn>[] = [];
   let values: IteratorResult<T, TReturn>[] = [];
   let didClose = false;
@@ -45,6 +45,7 @@ export function createQueue<T, TReturn = undefined>(): Queue<T, TReturn> {
 
   let next = (): Operation<IteratorResult<T, TReturn>> => {
     return {
+      name: `${name}.next()`,
       perform(resolve) {
         if(values.length) {
           resolve(values.shift() as IteratorResult<T, TReturn>);
@@ -61,34 +62,38 @@ export function createQueue<T, TReturn = undefined>(): Queue<T, TReturn> {
     }
   };
 
+  function withName<T>(operationName: string, operation: Operation<T>): Operation<T> {
+    return withLabels(operation, { name: `${name}.${operationName}()`});
+  }
+
   let subscription = {
     next,
     close: ((...args) => close(args[0] as TReturn)) as Close<TReturn>,
     closeWith: close,
     first(): Operation<T | undefined> {
-      return function*() {
+      return withName<T | undefined>(`first`, function*() {
         let result: IteratorResult<T, TReturn> = yield next();
         if(result.done) {
           return undefined;
         } else {
           return result.value;
         }
-      }
+      });
     },
 
     expect(): Operation<T> {
-      return function*() {
+      return withName('expect', function*() {
         let result: IteratorResult<T, TReturn> = yield next();
         if(result.done) {
           throw new Error('expected to contain a value');
         } else {
           return result.value;
         }
-      }
+      });
     },
 
     forEach(visit: (value: T) => (Operation<void> | void)): Operation<TReturn> {
-      return function*() {
+      return withName('forEach', function* forEach() {
         while (true) {
           let result: IteratorResult<T,TReturn> = yield next();
           if(result.done) {
@@ -100,28 +105,28 @@ export function createQueue<T, TReturn = undefined>(): Queue<T, TReturn> {
             }
           }
         }
-      }
+      });
     },
 
     join(): Operation<TReturn> {
-      return subscription.forEach(() => { /* no op */ });
+      return withName('join', subscription.forEach(() => { /* no op */ }));
     },
 
     collect(): Operation<Iterator<T, TReturn>> {
-      return function*() {
+      return withName<Iterator<T, TReturn>>('collect', function*() {
         let items: T[] = [];
         let result = yield subscription.forEach((item) => function*() { items.push(item); });
         return (function*() {
           yield *items;
           return result;
         })();
-      }
+      });
     },
 
     toArray(): Operation<T[]> {
-      return function*() {
+      return withName('toArray', function*() {
         return Array.from<T>(yield subscription.collect());
-      }
+      });
     },
   }
 

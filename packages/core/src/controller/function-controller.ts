@@ -9,6 +9,10 @@ export function createFunctionController<TOut>(task: Task<TOut>, createControlle
   function start() {
     try {
       delegate = createController();
+      task.setLabels({
+        ...task.labels,
+        ...delegate.operation?.labels
+      });
     } catch (error) {
       resolve({ state: 'errored', error });
       return;
@@ -30,6 +34,9 @@ export function createFunctionController<TOut>(task: Task<TOut>, createControlle
       } else {
         return 'function';
       }
+    },
+    get operation() {
+      return delegate?.operation;
     },
     future,
     start,

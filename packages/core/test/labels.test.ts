@@ -2,7 +2,7 @@ import './setup';
 import { describe, it } from 'mocha';
 import expect from 'expect';
 
-import { withLabels, run, sleep, label, Labels } from '../src/index';
+import { withLabels, run, sleep, label, Labels, Operation } from '../src/index';
 
 describe('labels', () => {
   describe('withLabels', () => {
@@ -70,4 +70,25 @@ describe('labels', () => {
     expect(task.labels).toEqual({ foo: "bar", quox: "quox" });
     expect(events).toEqual([{ foo: "bar" }, { foo: "bar", quox: "quox" }]);
   });
+
+  it('applies labels of the resolved operation to a function operation', async () => {
+    let task = run((() => () => () => withLabels(sleep(), { one: 1 })) as Operation<void>);
+
+    task.consume(value => console.log({ value }));
+
+    expect(task.labels).toMatchObject({
+      name: 'sleep',
+      one: 1
+    });
+  });
+
+  it('can change labels of a resolved function operation dynamically', async () => {
+    let task = run(() => function*() {
+      yield label({ foo: 'bar' });
+    });
+
+    await task;
+
+    expect(task.labels).toMatchObject({ foo: 'bar' });
+  })
 });

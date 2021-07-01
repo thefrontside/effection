@@ -12,6 +12,7 @@ import { Future } from '../future';
 
 export interface Controller<TOut> {
   type: string;
+  operation: Operation<TOut>;
   start(): void;
   halt(): void;
   future: Future<TOut>;

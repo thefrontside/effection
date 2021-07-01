@@ -44,8 +44,5 @@
     "@frontside/eslint-config": "1.1.1",
     "covector": "^0.7.0",
     "patch-package": "6.2.2"
-  },
-  "dependencies": {
-    "@changesets/cli": "^2.14.1"
   }
 }

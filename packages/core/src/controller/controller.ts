@@ -25,7 +25,7 @@ export type Options = {
 
 export function createController<T>(task: Task<T>, operation: Operation<T>, options: Options = {}): Controller<T> {
   if (typeof(operation) === 'function') {
-    return createFunctionController(task, () => createController(task, operation(task), options));
+    return createFunctionController(task, operation, () => createController(task, operation(task), options));
   } else if(!operation) {
     return createSuspendController();
   } else if (isResource(operation)) {

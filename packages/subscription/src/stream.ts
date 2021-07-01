@@ -29,13 +29,13 @@ export interface StringBufferStream<TReturn = undefined> extends Stream<string, 
   value: string;
 }
 
-export function createStream<T, TReturn = undefined>(callback: Callback<T, TReturn>): Stream<T, TReturn> {
+export function createStream<T, TReturn = undefined>(callback: Callback<T, TReturn>, name: string = 'stream'): Stream<T, TReturn> {
   let subscribe = (task: Task) => {
-    let queue = createQueue<T, TReturn>();
+    let queue = createQueue<T, TReturn>(name);
     task.spawn(function*() {
       let result = yield callback(queue.send);
       queue.closeWith(result);
-    });
+    }, { labels: { name: `publisher`}});
     return queue.subscription;
   }
 
@@ -48,7 +48,7 @@ export function createStream<T, TReturn = undefined>(callback: Callback<T, TRetu
           publish(value);
         }
       });
-    });
+    }, `${name}.filter()`);
   };
 
   let stream = {
@@ -69,7 +69,7 @@ export function createStream<T, TReturn = undefined>(callback: Callback<T, TRetu
         return stream.forEach((value: T) => function*() {
           publish(mapper(value));
         });
-      });
+      }, `${name}.map()`);
     },
 
     first(): Operation<T | undefined> {

@@ -1,4 +1,3 @@
-import { label } from '@effection/core';
 import { createStream, Stream } from '@effection/subscription';
 import { EventSource, addListener, removeListener } from './event-source';
 

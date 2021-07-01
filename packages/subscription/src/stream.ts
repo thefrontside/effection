@@ -29,7 +29,7 @@ export interface StringBufferStream<TReturn = undefined> extends Stream<string, 
   value: string;
 }
 
-export function createStream<T, TReturn = undefined>(callback: Callback<T, TReturn>, name: string = 'stream'): Stream<T, TReturn> {
+export function createStream<T, TReturn = undefined>(callback: Callback<T, TReturn>, name = 'stream'): Stream<T, TReturn> {
   let subscribe = (task: Task) => {
     let queue = createQueue<T, TReturn>(name);
     task.spawn(function*() {

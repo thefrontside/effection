@@ -12,7 +12,7 @@ export interface Queue<T, TReturn = undefined> extends Subscription<T, TReturn> 
   subscription: Subscription<T, TReturn>;
 }
 
-export function createQueue<T, TReturn = undefined>(name: string = 'queue'): Queue<T, TReturn> {
+export function createQueue<T, TReturn = undefined>(name = 'queue'): Queue<T, TReturn> {
   let waiters: Waiter<T, TReturn>[] = [];
   let values: IteratorResult<T, TReturn>[] = [];
   let didClose = false;

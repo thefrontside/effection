@@ -2,7 +2,7 @@ import './setup';
 import { describe, it } from 'mocha';
 import expect from 'expect';
 
-import { withLabels, run, sleep, label, Labels, createFuture, Operation } from '../src/index';
+import { withLabels, run, sleep, label, Labels, Operation } from '../src/index';
 
 describe('labels', () => {
   describe('withLabels', () => {

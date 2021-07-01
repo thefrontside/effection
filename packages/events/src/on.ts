@@ -39,7 +39,7 @@ export function on<T = unknown>(source: EventSource, name: string): Stream<T, vo
       addListener(source, name, listener);
       return () => removeListener(source, name, listener);
     }
-  }), `on('${name})`);
+  }), `on('${name}')`);
 }
 
 /**
@@ -78,5 +78,5 @@ export function onEmit<T extends Array<unknown> = unknown[]>(source: EventSource
       addListener(source, name, listener);
       return () => removeListener(source, name, listener);
     }
-  }), `onEmit('${name})`);
+  }), `onEmit('${name}')`);
 }

@@ -25,5 +25,5 @@ export function createResolutionController<TOut>(task: Task<TOut>, resolution: O
     resolve({ state: 'halted' });
   }
 
-  return { start, halt, future, type: 'resolution' };
+  return { start, halt, future, type: 'resolution', operation: resolution };
 }

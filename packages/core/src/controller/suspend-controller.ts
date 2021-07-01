@@ -12,5 +12,5 @@ export function createSuspendController<TOut>(): Controller<TOut> {
     resolve({ state: 'halted' });
   }
 
-  return { start, halt, future, type: 'suspend' };
+  return { start, halt, future, type: 'suspend', operation: undefined };
 }

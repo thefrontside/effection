@@ -13,5 +13,5 @@ export function createFutureController<TOut>(task: Task<TOut>, future: FutureLik
     resolve({ state: 'halted' });
   }
 
-  return { start, halt, future: inner, type: 'future' };
+  return { start, halt, future: inner, type: 'future', operation: future };
 }

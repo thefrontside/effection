@@ -8,9 +8,14 @@
     "flat-gorillas-itch",
     "heavy-shoes-brake",
     "heavy-walls-stare",
+    "label-main-entry-point",
+    "label-streams",
+    "label-suspend",
     "nasty-forks-raise",
     "orange-suns-thank",
-    "shiny-mails-complain"
+    "recursive-higher-order-operations",
+    "shiny-mails-complain",
+    "toll-free-streams"
   ],
   "initialVersions": {
     "@effection/atom": "2.0.0-beta.0",

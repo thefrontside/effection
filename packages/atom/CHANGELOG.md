@@ -1,5 +1,17 @@
 # @effection/atom
 
+## 2.0.0-beta.3
+
+### Patch Changes
+
+- Updated dependencies [3e77f29]
+- Updated dependencies [5d95e6d]
+- Updated dependencies [9700b45]
+- Updated dependencies [9700b45]
+  - @effection/subscription@2.0.0-beta.3
+  - @effection/core@2.0.0-beta.3
+  - @effection/channel@2.0.0-beta.3
+
 ## 2.0.0-beta.2
 
 ### Patch Changes

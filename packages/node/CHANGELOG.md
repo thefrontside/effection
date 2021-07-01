@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.0.0-beta.3
+
+### Patch Changes
+
+- Updated dependencies [248b0a6]
+  - @effection/main@2.0.0-beta.3
+  - @effection/process@2.0.0-beta.3
+
 ## 2.0.0-beta.2
 
 ### Patch Changes

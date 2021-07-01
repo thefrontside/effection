@@ -1,8 +1,9 @@
 import { Task } from '../task';
 import { Controller } from './controller';
 import { createFuture } from '../future';
+import { OperationFunction } from '../operation';
 
-export function createFunctionController<TOut>(task: Task<TOut>, createController: () => Controller<TOut>) {
+export function createFunctionController<TOut>(task: Task<TOut>, fn: OperationFunction<TOut>, createController: () => Controller<TOut>) {
   let delegate: Controller<TOut>;
   let { resolve, future } = createFuture<TOut>();
 
@@ -11,7 +12,8 @@ export function createFunctionController<TOut>(task: Task<TOut>, createControlle
       delegate = createController();
       task.setLabels({
         ...task.labels,
-        ...delegate.operation?.labels
+        ...delegate.operation?.labels,
+        ...fn.labels
       });
     } catch (error) {
       resolve({ state: 'errored', error });

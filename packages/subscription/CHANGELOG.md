@@ -1,5 +1,17 @@
 # @effection/subscription
 
+## 2.0.0-beta.3
+
+### Patch Changes
+
+- 3e77f29: - label events for visual inspection
+  - label stream and queue operations
+- 9700b45: stream operations like `forEach` and `expect` no longer create
+  intermediate delegation tasks
+- Updated dependencies [5d95e6d]
+- Updated dependencies [9700b45]
+  - @effection/core@2.0.0-beta.3
+
 ## 2.0.0-beta.2
 
 ### Patch Changes

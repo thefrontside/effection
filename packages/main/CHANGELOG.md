@@ -1,5 +1,14 @@
 # @effection/main
 
+## 2.0.0-beta.3
+
+### Patch Changes
+
+- 248b0a6: label the main entry point for use in the debugger
+- Updated dependencies [5d95e6d]
+- Updated dependencies [9700b45]
+  - @effection/core@2.0.0-beta.3
+
 ## 2.0.0-beta.2
 
 ### Patch Changes

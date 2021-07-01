@@ -1,5 +1,13 @@
 # @effection/core
 
+## 2.0.0-beta.3
+
+### Patch Changes
+
+- 5d95e6d: label the "suspend" operation that is created with a bare `yield` statement;
+- 9700b45: function operations can now also return function operations, and not
+  just value operations
+
 ## 2.0.0-beta.2
 
 ### Minor Changes

@@ -1,5 +1,23 @@
 # Changelog
 
+## 2.0.0-beta.3
+
+### Patch Changes
+
+- 3e77f29: - label events for visual inspection
+  - label stream and queue operations
+- 5d95e6d: label the "suspend" operation that is created with a bare `yield` statement;
+- Updated dependencies [248b0a6]
+- Updated dependencies [3e77f29]
+- Updated dependencies [5d95e6d]
+- Updated dependencies [9700b45]
+- Updated dependencies [9700b45]
+  - @effection/main@2.0.0-beta.3
+  - @effection/subscription@2.0.0-beta.3
+  - @effection/events@2.0.0-beta.3
+  - @effection/core@2.0.0-beta.3
+  - @effection/channel@2.0.0-beta.3
+
 ## 2.0.0-beta.2
 
 ### Minor Changes

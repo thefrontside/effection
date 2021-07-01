@@ -1,5 +1,4 @@
 import { createStream, Stream } from '@effection/subscription';
-
 import { EventSource, addListener, removeListener } from './event-source';
 
 
@@ -32,7 +31,15 @@ import { EventSource, addListener, removeListener } from './event-source';
  * }));
  */
 export function on<T = unknown>(source: EventSource, name: string): Stream<T, void> {
-  return onEmit<[T]>(source, name).map(([event]) => event)
+  return createStream((publish) => ({
+    name: 'listen',
+    labels: { eventName: name, source: source.toString() },
+    perform() {
+      let listener = (...args: T[]) => publish(args[0]);
+      addListener(source, name, listener);
+      return () => removeListener(source, name, listener);
+    }
+  }), `on('${name}')`);
 }
 
 /**
@@ -63,13 +70,13 @@ export function on<T = unknown>(source: EventSource, name: string): Stream<T, vo
  *
  */
 export function onEmit<T extends Array<unknown> = unknown[]>(source: EventSource, name: string): Stream<T, void> {
-  return createStream((publish) => function*() {
-    let listener = (...args: T) => publish(args);
-    try {
+    return createStream((publish) => ({
+    name: 'listen',
+    labels: { eventName: name, source: source.toString() },
+    perform() {
+      let listener = (...args: T) => publish(args);
       addListener(source, name, listener);
-      yield;
-    } finally {
-      removeListener(source, name, listener);
+      return () => removeListener(source, name, listener);
     }
-  });
+  }), `onEmit('${name}')`);
 }

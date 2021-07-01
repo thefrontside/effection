@@ -20,5 +20,5 @@ export function createPromiseController<TOut>(task: Task<TOut>, promise: Promise
     resolve({ state: 'halted' });
   }
 
-  return { start, halt, future, type: 'promise' };
+  return { start, halt, future, type: 'promise', operation: promise };
 }

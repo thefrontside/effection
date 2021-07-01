@@ -31,5 +31,5 @@ export function createResourceController<TOut>(task: Task<TOut>, resource: Resou
     delegate.halt();
   }
 
-  return { start, halt, future, type: 'resource' };
+  return { start, halt, future, type: 'resource', operation: resource };
 }

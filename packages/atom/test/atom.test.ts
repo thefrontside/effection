@@ -1,6 +1,7 @@
 import { describe, beforeEach, it } from '@effection/mocha';
 import expect from 'expect';
 import { createAtom } from '../src/atom';
+import { spawn } from '@effection/core';
 import { OperationIterator } from '@effection/subscription';
 import { Slice } from '../src/types';
 
@@ -81,7 +82,7 @@ describe('@bigtest/atom createAtom', () => {
     describe('with listener which modifies atom', () => {
       it('shoule be reentrant', function*(world) {
         let atom = createAtom({ status: 'idle' });
-        world.spawn(atom.forEach(({ status }) => {
+        yield spawn(atom.forEach(({ status }) => {
           if(status === 'pending') {
             atom.set({ status: 'active' });
           }
@@ -174,7 +175,7 @@ describe('@bigtest/atom createAtom', () => {
     describe('when initial state matches', () => {
       beforeEach(function*(world) {
         subject = createAtom({foo: 'bar'});
-        result = world.spawn(subject.once((state) => state.foo === 'bar'));
+        result = world.run(subject.once((state) => state.foo === 'bar'));
 
         subject.update(() => ({ foo: 'baz' }));
       });
@@ -187,7 +188,7 @@ describe('@bigtest/atom createAtom', () => {
 
     describe('when initial state does not match', () => {
       beforeEach(function*(world) {
-        result = world.spawn(subject.once((state) => state.foo === 'baz'));
+        result = world.run(subject.once((state) => state.foo === 'baz'));
 
         subject.update(() => ({ foo: 'bar' }));
         subject.update(() => ({ foo: 'baz' }));

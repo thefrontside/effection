@@ -42,7 +42,7 @@ export interface Task<TOut = unknown> extends Promise<TOut>, FutureLike<TOut> {
   readonly yieldingTo: Task | undefined;
   catchHalt(): Promise<TOut | undefined>;
   setLabels(labels: Labels): void;
-  spawn<R>(operation?: Operation<R>, options?: TaskOptions): Task<R>;
+  run<R>(operation?: Operation<R>, options?: TaskOptions): Task<R>;
   halt(): Promise<void>;
   start(): void;
   toJSON(): TaskTree;
@@ -104,7 +104,7 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
       emitter.emit('labels', labels);
     },
 
-    spawn(operation?, options = {}) {
+    run(operation?, options = {}) {
       if(stateMachine.current !== 'running') {
         throw new Error('cannot spawn a child on a task which is not running');
       }

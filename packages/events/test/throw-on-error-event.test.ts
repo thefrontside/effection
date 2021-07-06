@@ -1,7 +1,7 @@
 import { describe, it, beforeEach, captureError } from '@effection/mocha';
 import expect from 'expect'
 
-import { Task } from '@effection/core';
+import { Task, spawn } from '@effection/core';
 import { EventEmitter } from 'events';
 
 import { throwOnErrorEvent } from '../src/index';
@@ -11,10 +11,10 @@ describe("throwOnErrorEvent", () => {
   let task: Task;
   let error: Error;
 
-  beforeEach(function*(t) {
+  beforeEach(function*() {
     emitter = new EventEmitter();
-    task = t.spawn(captureError(function*(inner) {
-      inner.spawn(throwOnErrorEvent(emitter));
+    task = yield spawn(captureError(function*(inner) {
+      yield spawn(throwOnErrorEvent(emitter));
       yield;
     }));
   });
@@ -30,4 +30,3 @@ describe("throwOnErrorEvent", () => {
     });
   });
 });
-

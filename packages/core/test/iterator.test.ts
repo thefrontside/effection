@@ -186,7 +186,7 @@ describe('generator function', () => {
   it('can be halted while in the generator', async () => {
     let { future, resolve } = createFuture();
     let task = run(function*(inner) {
-      inner.spawn(function*() {
+      inner.run(function*() {
         yield sleep(2);
         resolve({ state: 'errored', error: new Error('boom') });
       });
@@ -210,7 +210,7 @@ describe('generator function', () => {
     let task = run(function*(inner) {
       yield sleep(1);
 
-      inner.spawn(function*() {
+      inner.run(function*() {
         inner.halt();
       });
 
@@ -224,7 +224,7 @@ describe('generator function', () => {
   it('can delay halt if child fails', async () => {
     let didRun = false;
     let task = run(function*(inner) {
-      inner.spawn(function* willBoom() {
+      inner.run(function* willBoom() {
         yield sleep(5);
         throw new Error('boom');
       });
@@ -246,7 +246,7 @@ describe('generator function', () => {
 
   it('can throw error when child blows up', async () => {
     let task = run(function*(inner) {
-      inner.spawn(function* willBoom() {
+      inner.run(function* willBoom() {
         yield sleep(5);
         throw new Error('boom');
       });

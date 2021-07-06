@@ -1,4 +1,4 @@
-import { Task } from '@effection/core';
+import { Task, spawn } from '@effection/core';
 import { describe, it, beforeEach, captureError } from '@effection/mocha';
 import expect from 'expect';
 
@@ -73,15 +73,15 @@ describe('exec', () => {
       let joinStdout: Task;
       let joinStderr: Task;
 
-      beforeEach(function*(task) {
+      beforeEach(function*() {
         proc = yield exec("node './fixtures/echo-server.js'", {
           env: { PORT: '29000', PATH: process.env.PATH as string },
           cwd: __dirname,
           buffered: true,
         });
 
-        joinStdout = task.spawn(proc.stdout.join());
-        joinStderr = task.spawn(proc.stderr.join());
+        joinStdout = yield spawn(proc.stdout.join());
+        joinStderr = yield spawn(proc.stderr.join());
 
         yield proc.stdout.filter((v) => v.includes('listening')).expect();
       });

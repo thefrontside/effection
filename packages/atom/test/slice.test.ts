@@ -1,6 +1,7 @@
 import { describe, it, beforeEach } from '@effection/mocha';
 import expect from 'expect';
 import { createAtom } from '../src/atom';
+import { spawn } from '@effection/core';
 import { OperationIterator } from '@effection/subscription';
 import { Slice } from '../src/types';
 
@@ -103,8 +104,8 @@ describe('@bigtest/atom Slice', () => {
     });
 
     describe('when initial state matches', () => {
-      beforeEach(function*(world) {
-        result = world.spawn(slice.once((state) => state === 'foo'));
+      beforeEach(function*() {
+        result = yield spawn(slice.once((state) => state === 'foo'));
 
         slice.update(() => 'bar');
       });
@@ -116,8 +117,8 @@ describe('@bigtest/atom Slice', () => {
     });
 
     describe('when initial state does not match', () => {
-      beforeEach(function*(world) {
-        result = world.spawn(slice.once((state) => state === 'baz'));
+      beforeEach(function*() {
+        result = yield spawn(slice.once((state) => state === 'baz'));
 
         slice.update(() => 'bar');
         slice.update(() => 'baz');

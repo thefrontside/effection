@@ -1,7 +1,7 @@
 import { describe, it, beforeEach, captureError } from '../src/index';
 import expect from 'expect';
 
-import { Task, Resource, sleep } from '@effection/core';
+import { Task, Resource, spawn } from '@effection/core';
 
 let captured: Task;
 
@@ -10,8 +10,8 @@ function* boom() {
 }
 
 const myResource: Resource<Task> = {
-  *init(scope) {
-    return scope.spawn();
+  *init() {
+    return yield spawn();
   }
 }
 
@@ -42,7 +42,7 @@ describe('@effection/mocha', () => {
 
   describe('cleaning up tasks', () => {
     it('sets up task', function*(task) {
-      captured = task.spawn();
+      captured = yield spawn().within(task);
     });
 
     it('and cleans it up', function*() {
@@ -62,7 +62,7 @@ describe('@effection/mocha', () => {
 
   describe('spawning in world', () => {
     beforeEach(function*(world) {
-      captured = world.spawn();
+      captured = yield spawn().within(world);
     });
 
     it('does not halt the spawned task before it block', function*() {
@@ -71,8 +71,8 @@ describe('@effection/mocha', () => {
   });
 
   describe('spawning in scope', () => {
-    beforeEach(function*(world, scope) {
-      captured = scope.spawn();
+    beforeEach(function*(_world, scope) {
+      captured = yield spawn().within(scope);
     });
 
     it('halts the spawned task before it block', function*() {

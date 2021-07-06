@@ -1,4 +1,6 @@
 import { IncomingMessage } from 'http';
+import { spawn } from '@effection/core';
+
 import { EchoServer } from "./echo-server";
 import { when, never } from "./helpers";
 import { fetch } from "../src";
@@ -17,8 +19,8 @@ describe("fetch in node", () => {
   });
 
   describe('calling the server and posting a body', () => {
-    beforeEach(function*(task) {
-      response = task.spawn(fetch(`${app.address}`, {
+    beforeEach(function*() {
+      response = yield spawn(fetch(`${app.address}`, {
         method: 'POST',
         body: JSON.stringify({
           hello: 'world'
@@ -81,8 +83,8 @@ describe("fetch in node", () => {
   })
 
   describe('.text', () => {
-    it('returns text response', function*(task) {
-      let response = task.spawn(fetch(`${app.address}`).text());
+    it('returns text response', function*() {
+      let response = yield spawn(fetch(`${app.address}`).text());
 
       yield when(() => expect(app.lastResponse).toBeDefined());
       app.lastResponse.writeHead(200, 'ok', { 'Content-Type': 'text/plain' });
@@ -95,8 +97,8 @@ describe("fetch in node", () => {
   });
 
   describe('.json', () => {
-    it('returns json response', function*(task) {
-      let response = task.spawn(fetch(`${app.address}`).json());
+    it('returns json response', function*() {
+      let response = yield spawn(fetch(`${app.address}`).json());
 
       yield when(() => expect(app.lastResponse).toBeDefined());
       app.lastResponse.writeHead(200, 'ok', { 'Content-Type': 'application/json' });

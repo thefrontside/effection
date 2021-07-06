@@ -31,8 +31,8 @@ export function createWebSocketSubscription<TIncoming = unknown, TOutgoing = TIn
 
       let queue = createQueue<WebSocketConnection<TIncoming, TOutgoing>>();
 
-      yield spawn(on<WebSocket>(wss, 'connection').forEach((raw) => {
-        scope.spawn(function*() {
+      yield spawn(on<WebSocket>(wss, 'connection').forEach(function* (raw) {
+        yield spawn(function*() {
           let messageQueue = createQueue<TIncoming>();
 
           queue.send({
@@ -45,7 +45,7 @@ export function createWebSocketSubscription<TIncoming = unknown, TOutgoing = TIn
           yield on<{ data: string }>(raw, 'message').forEach((message) => {
             messageQueue.send(JSON.parse(message.data));
           });
-        });
+        }).within(scope);
       }));
 
       yield ensure(() => { wss.close(); });

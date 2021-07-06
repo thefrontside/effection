@@ -1,5 +1,5 @@
 import { platform } from "os";
-import { Task, Operation, createFuture } from "@effection/core";
+import { spawn, Task, Operation, createFuture } from "@effection/core";
 import { createChannel } from '@effection/channel';
 import { on, once, onceEmit } from "@effection/events";
 import { spawn as spawnProcess } from "cross-spawn";
@@ -65,14 +65,14 @@ export const createWin32Process: CreateOSProcess = (command, options) => {
         }
       };
 
-      scope.spawn(function*(task) {
-        task.spawn(function*() {
+      yield spawn(function*(task) {
+        yield spawn(function*() {
           let value: Error = yield once(childProcess, 'error');
           resolve({ state: 'completed', value: { type: 'error', value } });
-        });
+        }).within(task);
 
-        task.spawn(on<Buffer>(childProcess.stdout, 'data').map((c) => c.toString()).forEach(stdoutChannel.send));
-        task.spawn(on<Buffer>(childProcess.stderr, 'data').map((c) => c.toString()).forEach(stderrChannel.send));
+        yield spawn(on<Buffer>(childProcess.stdout, 'data').map((c) => c.toString()).forEach(stdoutChannel.send)).within(task);
+        yield spawn(on<Buffer>(childProcess.stderr, 'data').map((c) => c.toString()).forEach(stderrChannel.send)).within(task);
 
         try {
           let value = yield onceEmit(childProcess, "exit");

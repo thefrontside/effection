@@ -3,7 +3,12 @@
   "version": "2.0.0-beta.4",
   "description": "Injects an inspector into an Effection application",
   "main": "index.js",
-  "repository": "https://github.com/thefrontside/bigtest.git",
+  "homepage": "https://github.com/thefrontside/effection",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thefrontside/effection.git",
+    "directory": "packages/inspect"
+  },
   "author": "Frontside Engineering <engineering@frontside.com>",
   "license": "MIT",
   "files": [

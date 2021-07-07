@@ -5,7 +5,12 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "module": "dist/inspect-utils.esm.js",
-  "repository": "https://github.com/thefrontside/bigtest.git",
+  "homepage": "https://github.com/thefrontside/effection",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thefrontside/effection.git",
+    "directory": "packages/inspect-utils"
+  },
   "author": "Frontside Engineering <engineering@frontside.com>",
   "license": "MIT",
   "files": [

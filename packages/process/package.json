@@ -4,7 +4,12 @@
   "description": "Spawn and manage external processes with Effection",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "repository": "https://github.com/thefrontside/bigtest.git",
+  "homepage": "https://github.com/thefrontside/effection",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thefrontside/effection.git",
+    "directory": "packages/process"
+  },
   "author": "Frontside Engineering <engineering@frontside.com>",
   "license": "MIT",
   "files": [

@@ -4,7 +4,12 @@
   "description": "Fetch operation for Effection",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
-  "repository": "https://github.com/thefrontside/effection.git",
+  "homepage": "https://github.com/thefrontside/effection",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thefrontside/effection.git",
+    "directory": "packages/fetch"
+  },
   "author": "Frontside Engineering <engineering@frontside.com>",
   "license": "MIT",
   "files": [

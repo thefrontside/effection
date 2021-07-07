@@ -2,7 +2,12 @@
   "name": "effection",
   "version": "2.0.0-beta.3",
   "description": "Effortlessly composable structured concurrency primitive for JavaScript",
-  "repository": "http://github.com/thefrontside/effection",
+  "homepage": "https://github.com/thefrontside/effection",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thefrontside/effection.git",
+    "directory": "packages/effection"
+  },
   "author": "Charles Lowell <cowboyd@frontside.com>",
   "license": "MIT",
   "private": false,

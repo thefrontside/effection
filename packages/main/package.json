@@ -4,7 +4,12 @@
   "description": "Main entry point for Effection applications",
   "main": "dist/node.js",
   "browser": "dist/browser.js",
-  "repository": "https://github.com/thefrontside/bigtest.git",
+  "homepage": "https://github.com/thefrontside/effection",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thefrontside/effection.git",
+    "directory": "packages/main"
+  },
   "author": "Frontside Engineering <engineering@frontside.com>",
   "license": "MIT",
   "files": [

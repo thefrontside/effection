@@ -43,6 +43,7 @@ export interface Task<TOut = unknown> extends Promise<TOut>, FutureLike<TOut> {
   catchHalt(): Promise<TOut | undefined>;
   setLabels(labels: Labels): void;
   run<R>(operation?: Operation<R>, options?: TaskOptions): Task<R>;
+  spawn<R>(operation?: Operation<R>, options?: TaskOptions): Task<R>;
   halt(): Promise<void>;
   start(): void;
   toJSON(): TaskTree;
@@ -112,6 +113,11 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
       link(child as Task);
       child.start();
       return child;
+    },
+
+    spawn(operation?, options = {}) {
+      console.warn(`DEPRECATED: task.spawn() is deprecated and will be changed or removed prior to the release of effection 2.0\nuse task.run() instead`);
+      return task.run(operation, options);
     },
 
     start() {

@@ -43,6 +43,7 @@ export interface Task<TOut = unknown> extends Promise<TOut>, FutureLike<TOut> {
   catchHalt(): Promise<TOut | undefined>;
   setLabels(labels: Labels): void;
   run<R>(operation?: Operation<R>, options?: TaskOptions): Task<R>;
+  /** @deprecated Use run() instead */
   spawn<R>(operation?: Operation<R>, options?: TaskOptions): Task<R>;
   halt(): Promise<void>;
   start(): void;

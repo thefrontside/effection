@@ -6,7 +6,7 @@
       "getPublishedVersion": "npm view ${ pkgFile.pkg.name } version",
       "prepublish": "yarn prepack",
       "publish": [
-        "npm publish --access public"
+        "npm publish --access public ${ pkg.tag ? '--tag ' + pkg.tag : '' }"
       ]
     }
   },

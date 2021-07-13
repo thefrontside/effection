@@ -111,7 +111,7 @@ import { main, createChannel } from 'effection';
 main(function*() {
   let channel = createChannel();
   let textStream = channel.map((value) => value.text);
-  let uppercaseStream = channel.map((value) => value.toUpperCase());
+  let uppercaseStream = textStream.map((value) => value.toUpperCase());
 
   let subscription = yield uppercaseStream.subscribe();
 
@@ -124,7 +124,7 @@ main(function*() {
 ```
 
 If we unpack this a bit, we can see that we're creating a new `Stream` called
-`textStream` using the method `map` on the stream. This stream gets the `text`
+`channel` using the method `map` on the stream. This stream gets the `text`
 property from each value in the stream.
 
 We then use `map` again on `textStream` to create `uppercaseStream`, which

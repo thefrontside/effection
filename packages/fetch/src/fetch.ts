@@ -1,4 +1,4 @@
-import { Task, Operation, Resource } from '@effection/core';
+import { spawn, Operation, Resource } from '@effection/core';
 import { fetch as nativeFetch } from 'cross-fetch';
 import { AbortController } from 'abort-controller';
 
@@ -11,10 +11,10 @@ export interface Fetch extends Resource<Response> {
 }
 
 export function fetch(info: RequestInfo, requestInit: RequestInit = {}): Fetch {
-  function* init(scope: Task) {
+  function* init() {
     let controller = new AbortController();
 
-    scope.spawn(function*() {
+    yield spawn(function*() {
       try {
         yield;
       } finally {

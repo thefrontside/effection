@@ -1,5 +1,6 @@
 import expect from 'expect';
 import { describe, it, beforeEach, captureError } from '@effection/mocha';
+import { spawn } from '@effection/core';
 
 import { createQueue, Queue } from '../src/index';
 import { abortAfter } from './helpers';
@@ -24,17 +25,17 @@ describe('Queue', () => {
   });
 
   describe('send', () => {
-    it('sends value to an already waiting listener', function*(world) {
+    it('sends value to an already waiting listener', function*() {
       let anotherQueue = createQueue<string>();
-      let listener = world.spawn(anotherQueue.expect());
+      let listener = yield spawn(anotherQueue.expect());
       anotherQueue.send('hello');
       expect(yield listener).toEqual('hello');
     });
 
-    it('only sends value to one listener if there are multiple', function*(world) {
+    it('only sends value to one listener if there are multiple', function*() {
       let anotherQueue = createQueue<string>();
-      let listener1 = world.spawn(abortAfter(anotherQueue.expect(), 10));
-      let listener2 = world.spawn(abortAfter(anotherQueue.expect(), 10));
+      let listener1 = yield spawn(abortAfter(anotherQueue.expect(), 10));
+      let listener2 = yield spawn(abortAfter(anotherQueue.expect(), 10));
       anotherQueue.send('hello');
       expect([yield listener1, yield listener2].filter(Boolean)).toEqual(['hello']);
     });
@@ -45,9 +46,9 @@ describe('Queue', () => {
       expect(yield anotherQueue.expect()).toEqual('hello');
     });
 
-    it('can be destructured', function*(world) {
+    it('can be destructured', function*() {
       let { send, subscription } = createQueue<string>();
-      let listener = world.spawn(subscription.expect());
+      let listener = yield spawn(subscription.expect());
       send('hello');
       expect(yield listener).toEqual('hello');
     });

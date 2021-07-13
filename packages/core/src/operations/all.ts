@@ -13,7 +13,7 @@ export function all<T extends Operation<any>[]>(operations: T): Operation<All<T>
     let results: unknown[] = [];
     for (let operation of operations) {
       if(scope.state === 'running') {
-        tasks.push(scope.spawn(operation));
+        tasks.push(scope.run(operation));
       }
     }
     for (let task of tasks) {

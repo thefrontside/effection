@@ -21,5 +21,5 @@ export { all } from './operations/all';
 export { label } from './operations/label';
 
 export function run<TOut>(operation?: Operation<TOut>, options?: TaskOptions): Task<TOut> {
-  return Effection.root.spawn(operation, options);
+  return Effection.root.run(operation, options);
 }

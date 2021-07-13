@@ -42,6 +42,8 @@ export interface Task<TOut = unknown> extends Promise<TOut>, FutureLike<TOut> {
   readonly yieldingTo: Task | undefined;
   catchHalt(): Promise<TOut | undefined>;
   setLabels(labels: Labels): void;
+  run<R>(operation?: Operation<R>, options?: TaskOptions): Task<R>;
+  /** @deprecated Use run() instead */
   spawn<R>(operation?: Operation<R>, options?: TaskOptions): Task<R>;
   halt(): Promise<void>;
   start(): void;
@@ -104,7 +106,7 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
       emitter.emit('labels', labels);
     },
 
-    spawn(operation?, options = {}) {
+    run(operation?, options = {}) {
       if(stateMachine.current !== 'running') {
         throw new Error('cannot spawn a child on a task which is not running');
       }
@@ -112,6 +114,11 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
       link(child as Task);
       child.start();
       return child;
+    },
+
+    spawn(operation?, options = {}) {
+      console.warn(`DEPRECATED: task.spawn() is deprecated and will be changed or removed prior to the release of effection 2.0\nuse task.run() instead`);
+      return task.run(operation, options);
     },
 
     start() {

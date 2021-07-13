@@ -6,7 +6,7 @@ export function race<T>(operations: Operation<T>[]): Operation<T> {
     perform: (resolve, reject) => {
       for (let operation of operations) {
         if(scope.state === 'running') {
-          scope.spawn(function*() {
+          scope.run(function*() {
             try {
               resolve(yield operation);
             } catch (e) {

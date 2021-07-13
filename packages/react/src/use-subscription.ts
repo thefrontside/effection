@@ -7,7 +7,7 @@ export function useSubscription<T>(subscription: Subscription<T>): T | undefined
   let [state, setState] = useState<T>();
 
   useEffect(() => {
-    let task = scope.spawn(subscription.forEach((value) => { setState(value) }));
+    let task = scope.run(subscription.forEach((value) => { setState(value) }));
     return () => { task.halt() };
   }, [subscription, scope]);
 

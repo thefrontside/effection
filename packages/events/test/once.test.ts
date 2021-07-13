@@ -1,7 +1,7 @@
 import { describe, it, beforeEach } from '@effection/mocha';
 import expect from 'expect'
 
-import { sleep, Task } from '@effection/core';
+import { sleep, spawn, Task } from '@effection/core';
 import { EventEmitter } from 'events';
 
 import { once, onceEmit } from '../src/index';
@@ -10,9 +10,9 @@ describe("once()", () => {
   let task: Task;
   let source: EventEmitter;
 
-  beforeEach(function*(t) {
+  beforeEach(function*() {
     source = new EventEmitter();
-    task = t.spawn(once(source, 'event'));
+    task = yield spawn(once(source, 'event'));
   });
 
   it('pauses before the event is received', function*() {
@@ -45,9 +45,9 @@ describe('onceEmit()', () => {
   let task: Task;
   let source: EventEmitter;
 
-  beforeEach(function*(t) {
+  beforeEach(function*() {
     source = new EventEmitter();
-    task = t.spawn(onceEmit(source, 'event'))
+    task = yield spawn(onceEmit(source, 'event'))
     source.emit('event', 1,2,3);
   });
 

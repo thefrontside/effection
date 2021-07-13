@@ -35,8 +35,8 @@ export function inspect(rootTask: Task): Resource<Slice<InspectTree>> {
       yield spawn(linkChild(child));
     }
 
-    yield spawn(on<Task>(task, 'link').forEach((child) => {
-      scope.spawn(linkChild(child));
+    yield spawn(on<Task>(task, 'link').forEach(child => {
+      return spawn(linkChild(child)).within(scope) as Operation<void>;
     }));
 
     yield spawn(on<StateTransition>(task, 'state').forEach((transition) => {

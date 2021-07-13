@@ -7,7 +7,7 @@ import { Task, Resource, run, sleep } from '../src/index';
 export const myResource: Resource<{ status: string }> = {
   *init(scope: Task) {
     let container = { status: 'pending' }
-    scope.spawn(function*() {
+    scope.run(function*() {
       yield sleep(5);
       container.status = 'active';
     });
@@ -18,7 +18,7 @@ export const myResource: Resource<{ status: string }> = {
 
 export const metaResource: Resource<{ status: string }> = {
   *init(scope: Task) {
-    return yield scope.spawn(myResource);
+    return yield scope.run(myResource);
   }
 }
 
@@ -32,7 +32,7 @@ describe('resource', () => {
   describe('with spawned resource', () => {
     it('runs resource in task scope', async () => {
       await run(function*(task) {
-        let result = yield task.spawn(myResource);
+        let result = yield task.run(myResource);
         expect(result.status).toEqual('pending');
         yield sleep(10);
         expect(result.status).toEqual('active');
@@ -41,7 +41,7 @@ describe('resource', () => {
 
     it('terminates resource when task completes', async () => {
       let result: { status: string } = await run(function*(task) {
-        return yield task.spawn(myResource);
+        return yield task.run(myResource);
       });
       expect(result.status).toEqual('pending');
       await run(sleep(10));

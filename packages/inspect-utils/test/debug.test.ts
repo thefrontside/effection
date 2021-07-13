@@ -1,21 +1,23 @@
-import { describe, it, beforeEach } from '@effection/mocha';
+import { describe, it } from '@effection/mocha';
 import expect from 'expect'
 
-import { sleep } from '@effection/core';
+import { Task, sleep, spawn } from '@effection/core';
 import { Slice } from '@effection/atom';
 import { inspect, InspectTree } from '../src/index';
 
 describe("inspect()", () => {
-  it('returns a slice of the task tree', function*(world) {
-    let task = world.spawn();
+  it('returns a slice of the task tree', function*() {
+    let task: Task<void> = yield spawn();
+
 
     let tree: Slice<InspectTree> = yield inspect(task);
 
-    let child = task.spawn(function*(scope) {
-      scope.spawn();
-      scope.spawn(function*() { /* no op */});
+    let child = yield spawn(function*() {
+      yield spawn()
+      yield spawn(function*() { /* no op */});
       yield sleep();
-    }, { labels: { name: 'root' } });
+    }, { labels: { name: 'root' } })
+      .within(task);
 
     yield sleep(10);
 

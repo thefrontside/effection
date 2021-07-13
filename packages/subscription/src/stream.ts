@@ -32,7 +32,7 @@ export interface StringBufferStream<TReturn = undefined> extends Stream<string, 
 export function createStream<T, TReturn = undefined>(callback: Callback<T, TReturn>, name = 'stream'): Stream<T, TReturn> {
   let subscribe = (task: Task) => {
     let queue = createQueue<T, TReturn>(name);
-    task.spawn(function*() {
+    task.run(function*() {
       let result = yield callback(queue.send);
       queue.closeWith(result);
     }, { labels: { name: `publisher`}});
@@ -99,7 +99,7 @@ export function createStream<T, TReturn = undefined>(callback: Callback<T, TRetu
     buffer(scope: Task): Stream<T, TReturn> {
       let buffer: T[] = [];
 
-      scope.spawn(stream.forEach((m) => { buffer.push(m) }));
+      scope.run(stream.forEach((m) => { buffer.push(m) }));
 
       return createStream((publish) => function*() {
         buffer.forEach(publish);
@@ -110,7 +110,7 @@ export function createStream<T, TReturn = undefined>(callback: Callback<T, TRetu
     stringBuffer(scope: Task): StringBufferStream<TReturn> {
       let buffer = "";
 
-      scope.spawn(stream.forEach((m) => { buffer += `${m}` }));
+      scope.run(stream.forEach((m) => { buffer += `${m}` }));
 
       let result = createStream<string, TReturn>((publish) => function*() {
         let internalBuffer = buffer;

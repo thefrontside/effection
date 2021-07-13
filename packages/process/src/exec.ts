@@ -37,8 +37,8 @@ export function exec(command: string, options: ExecOptions = {}): Exec {
       return createProcess(cmd, opts).init(scope, local);
     },
     join() {
-      return function*(scope: Task) {
-        let process = yield scope.spawn(createProcess(cmd, { ...opts, buffered: true }));
+      return function*() {
+        let process = yield createProcess(cmd, { ...opts, buffered: true });
 
         let status = yield process.join();
         let stdout = yield process.stdout.expect();
@@ -48,8 +48,8 @@ export function exec(command: string, options: ExecOptions = {}): Exec {
       };
     },
     expect() {
-      return function*(scope: Task) {
-        let process = yield scope.spawn(createProcess(cmd, { ...opts, buffered: true }));
+      return function*() {
+        let process = yield createProcess(cmd, { ...opts, buffered: true });
 
         let status = yield process.expect();
         let stdout = yield process.stdout.expect();

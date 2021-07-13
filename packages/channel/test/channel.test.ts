@@ -1,7 +1,7 @@
 import { describe, it, beforeEach } from '@effection/mocha';
 import expect from 'expect';
 
-import { sleep } from '@effection/core';
+import { sleep, spawn } from '@effection/core';
 import { createChannel, Channel } from '../src/index';
 
 describe('Channel', () => {
@@ -25,7 +25,7 @@ describe('Channel', () => {
     describe('blocking on next', () => {
       it('receives message on subscription done', function*(task) {
         let subscription = channel.subscribe(task);
-        let result = task.spawn(subscription.next());
+        let result = yield spawn(subscription.next());
         yield sleep(10);
         channel.send('hello');
         expect(yield result).toHaveProperty('value', 'hello');

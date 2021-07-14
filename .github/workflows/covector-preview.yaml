@@ -1,0 +1,25 @@
+name: covector preview
+on: pull_request
+
+jobs:
+  covector:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v2
+        with:
+          registry-url: "https://registry.npmjs.org"
+      - uses: volta-cli/action@v1
+      - run: yarn install --immutable
+      - run: yarn prepack
+      - name: covector preview
+        uses: jbolda/covector/packages/action@main
+        id: covector
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+        with:
+          token: ${{ secrets.FRONTSIDEJACK_GITHUB_TOKEN }}
+          command: preview

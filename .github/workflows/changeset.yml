@@ -13,6 +13,8 @@ jobs:
     - uses: actions/checkout@v1
     - name: Install Dependencies
       run: yarn
+    - name: Install Changesets
+      run: yarn add @changesets/cli -W
     - name: Create Release Pull Request
       uses: changesets/action@master
       env:

@@ -1,4 +1,4 @@
-import { spawn, Task, Operation, createFuture } from '@effection/core';
+import { spawn, Task, Operation, createFuture, label, withLabels } from '@effection/core';
 import { createChannel } from '@effection/channel';
 import { on, once, onceEmit } from '@effection/events';
 import { spawn as spawnProcess } from 'child_process';
@@ -58,17 +58,25 @@ export const createPosixProcess: CreateOSProcess = (command, options) => {
         }
       };
 
-      yield spawn(function*(task) {
-        yield task.spawn(function*() {
-          let value: Error = yield once(childProcess, 'error');
+      yield spawn(function*() {
+        yield label({ name: 'exec', state: 'running' });
+        yield spawn(function*() {
+          yield label({ name: 'listen for error' });
+          let value: Error = yield withLabels(once(childProcess, 'error'), {
+            name: 'untilFirst(error)',
+            source: 'ChildProcess',
+          });
           produce({ state: 'completed', value: { type: 'error', value } });
         });
 
-        yield task.spawn(on<Buffer>(childProcess.stdout, 'data').map((c) => c.toString()).forEach(stdoutChannel.send));
-        yield task.spawn(on<Buffer>(childProcess.stderr, 'data').map((c) => c.toString()).forEach(stderrChannel.send));
+        yield spawn(on<Buffer>(childProcess.stdout, 'data').map((c) => c.toString()).forEach(stdoutChannel.send));
+        yield spawn(on<Buffer>(childProcess.stderr, 'data').map((c) => c.toString()).forEach(stderrChannel.send));
 
         try {
-          let value = yield onceEmit(childProcess, 'exit');
+          let value = yield withLabels(onceEmit(childProcess, 'exit'), {
+            name: 'on(exit)',
+            source: 'ChildProcess',
+          });
           produce({ state: 'completed', value: { type: 'status', value } });
         } finally {
           stdoutChannel.close();

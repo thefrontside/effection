@@ -1,10 +1,16 @@
 # @effection/subscription
 
+## \[2.0.0-beta.5]
+
+- Deprecate Future#resolve in favour of Future#produce.
+  - Bumped due to a bump in @effection/core.
+  - [7b8ce8e](https://github.com/thefrontside/effection/commit/7b8ce8ef1d46ddf10806d51b3f0ed1ef14e8f9cd) Depreacte Future#resolve in favour of Future#produce ([#437](https://github.com/thefrontside/effection/pull/437)) on 2021-07-22
+
 ## 2.0.0-beta.4
 
 ### Patch Changes
 
-- Updated dependencies [e297c86]
+- Updated dependencies \[e297c86]
   - @effection/core@2.0.0-beta.4
 
 ## 2.0.0-beta.3
@@ -15,19 +21,19 @@
   - label stream and queue operations
 - 9700b45: stream operations like `forEach` and `expect` no longer create
   intermediate delegation tasks
-- Updated dependencies [5d95e6d]
-- Updated dependencies [9700b45]
+- Updated dependencies \[5d95e6d]
+- Updated dependencies \[9700b45]
   - @effection/core@2.0.0-beta.3
 
 ## 2.0.0-beta.2
 
 ### Patch Changes
 
-- Updated dependencies [19414f0]
-- Updated dependencies [26a86cb]
-- Updated dependencies [9c76cc5]
-- Updated dependencies [f7e3344]
-- Updated dependencies [ac7c1ce]
+- Updated dependencies \[19414f0]
+- Updated dependencies \[26a86cb]
+- Updated dependencies \[9c76cc5]
+- Updated dependencies \[f7e3344]
+- Updated dependencies \[ac7c1ce]
   - @effection/core@2.0.0-beta.2
 
 ## 2.0.0-beta.1
@@ -35,37 +41,37 @@
 ### Patch Changes
 
 - 0c6e263: release 2.0.0-beta
-- Updated dependencies [0c6e263]
+- Updated dependencies \[0c6e263]
   - @effection/core@2.0.0-beta.1
 
 ## 2.0.0-preview.14
 
 ### Patch Changes
 
-- Updated dependencies [9998088]
-- Updated dependencies [2bce454]
-- Updated dependencies [1981b35]
-- Updated dependencies [88dc59a]
+- Updated dependencies \[9998088]
+- Updated dependencies \[2bce454]
+- Updated dependencies \[1981b35]
+- Updated dependencies \[88dc59a]
   - @effection/core@2.0.0-preview.12
 
 ## 2.0.0-preview.13
 
 ### Patch Changes
 
-- Updated dependencies [88eca21]
-- Updated dependencies [ae8d090]
-- Updated dependencies [8bb4514]
-- Updated dependencies [44c354d]
+- Updated dependencies \[88eca21]
+- Updated dependencies \[ae8d090]
+- Updated dependencies \[8bb4514]
+- Updated dependencies \[44c354d]
   - @effection/core@2.0.0-preview.11
 
 ## 2.0.0-preview.12
 
 ### Patch Changes
 
-- Updated dependencies [625b521]
-- Updated dependencies [a06c679]
-- Updated dependencies [4d04159]
-- Updated dependencies [625b521]
+- Updated dependencies \[625b521]
+- Updated dependencies \[a06c679]
+- Updated dependencies \[4d04159]
+- Updated dependencies \[625b521]
   - @effection/core@2.0.0-preview.10
 
 ## 2.0.0-preview.11
@@ -78,14 +84,14 @@
 
 ### Patch Changes
 
-- Updated dependencies [110a2cd]
-- Updated dependencies [e2545b2]
-- Updated dependencies [2b92370]
-- Updated dependencies [00562fd]
-- Updated dependencies [110a2cd]
-- Updated dependencies [110a2cd]
-- Updated dependencies [02446ad]
-- Updated dependencies [da86a9c]
+- Updated dependencies \[110a2cd]
+- Updated dependencies \[e2545b2]
+- Updated dependencies \[2b92370]
+- Updated dependencies \[00562fd]
+- Updated dependencies \[110a2cd]
+- Updated dependencies \[110a2cd]
+- Updated dependencies \[02446ad]
+- Updated dependencies \[da86a9c]
   - @effection/core@2.0.0-preview.9
 
 ## 2.0.0-preview.9
@@ -94,14 +100,14 @@
 
 - a13987f: make operation resolution an interface. Make operation iterators
   an operation.
-- Updated dependencies [a13987f]
+- Updated dependencies \[a13987f]
   - @effection/core@2.0.0-preview.8
 
 ## 2.0.0-preview.8
 
 ### Patch Changes
 
-- Updated dependencies [2bad074]
+- Updated dependencies \[2bad074]
   - @effection/core@2.0.0-preview.7
 
 ## 2.0.0-preview.7
@@ -119,7 +125,7 @@
 ### Patch Changes
 
 - 1222756: Use strict dependency requirements for internal dependencies while in prerelease mode
-- Updated dependencies [1222756]
+- Updated dependencies \[1222756]
   - @effection/core@2.0.0-preview.6
 
 ## 2.0.0-preview.5
@@ -133,7 +139,7 @@
 
 ### Patch Changes
 
-- Updated dependencies [70c358f]
+- Updated dependencies \[70c358f]
   - @effection/core@2.0.0-preview.5
 
 ## 2.0.0-preview.4
@@ -144,7 +150,7 @@
 
 ### Patch Changes
 
-- Updated dependencies [72f743c]
+- Updated dependencies \[72f743c]
   - @effection/core@2.0.0-preview.4
 
 ## 2.0.0-preview.3
@@ -155,8 +161,8 @@
 
 ### Patch Changes
 
-- Updated dependencies [bdedf68]
-- Updated dependencies [2bf5ef4]
+- Updated dependencies \[bdedf68]
+- Updated dependencies \[2bf5ef4]
   - @effection/core@2.0.0-preview.3
 
 ## 2.0.0-preview.2
@@ -164,7 +170,7 @@
 ### Patch Changes
 
 - 93ec0d6: Include CHANGELOGS and src with all packages
-- Updated dependencies [93ec0d6]
+- Updated dependencies \[93ec0d6]
   - @effection/core@2.0.0-preview.2
 
 ## 2.0.0-preview.1
@@ -172,7 +178,7 @@
 ### Patch Changes
 
 - 80143d5: Fix packaging
-- Updated dependencies [80143d5]
+- Updated dependencies \[80143d5]
   - @effection/core@2.0.0-preview.1
 
 ## 2.0.0-preview.0
@@ -183,7 +189,7 @@
 
 ### Patch Changes
 
-- Updated dependencies [undefined]
+- Updated dependencies \[undefined]
   - effection@2.0.0-preview.0
 
 ## 1.0.0
@@ -194,7 +200,7 @@
 
 ### Patch Changes
 
-- Updated dependencies [b988025]
+- Updated dependencies \[b988025]
   - effection@1.0.0
 
 ## 0.12.0
@@ -205,7 +211,7 @@
 
 ### Patch Changes
 
-- Updated dependencies [f851981]
+- Updated dependencies \[f851981]
   - effection@0.8.0
 
 ## 0.11.1
@@ -256,7 +262,7 @@
 ### Patch Changes
 
 - db11b3f: convert `effection` dependency into normal, non-peer dependency
-- Updated dependencies [0e8951f]
+- Updated dependencies \[0e8951f]
   - effection@0.7.0
 
 ## 0.7.1
@@ -264,7 +270,7 @@
 ### Patch Changes
 
 - 68c4dab: include typescript sources with package in order for sourcemaps to work.
-- Updated dependencies [68c4dab]
+- Updated dependencies \[68c4dab]
   - effection@0.6.4
 
 ## 0.7.0
@@ -284,5 +290,5 @@
   Refactor `on()` operation from `@effection/events` to use
   createSubscription()
 
-- Updated dependencies [60ed704]
+- Updated dependencies \[60ed704]
   - effection@0.6.3

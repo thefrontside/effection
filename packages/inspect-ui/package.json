@@ -1,6 +1,6 @@
 {
   "name": "@effection/inspect-ui",
-  "version": "2.0.0-beta.4",
+  "version": "2.0.0-beta.5",
   "description": "Web interface for inspecting effection applications",
   "main": "index.js",
   "types": "index.d.ts",
@@ -30,11 +30,11 @@
     "mocha": "mocha -r ts-node/register --timeout 5000"
   },
   "dependencies": {
-    "@effection/core": "2.0.0-beta.4",
-    "@effection/inspect-utils": "2.0.0-beta.4",
-    "@effection/events": "2.0.0-beta.4",
-    "@effection/main": "2.0.0-beta.4",
-    "@effection/subscription": "2.0.0-beta.4",
+    "@effection/core": "2.1.0-beta.0",
+    "@effection/inspect-utils": "2.0.0-beta.5",
+    "@effection/events": "2.0.0-beta.5",
+    "@effection/main": "2.0.0-beta.5",
+    "@effection/subscription": "2.0.0-beta.5",
     "@types/react": "^17.0.9",
     "@types/react-dom": "^17.0.6",
     "react": "^17.0.2",

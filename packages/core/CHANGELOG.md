@@ -1,5 +1,10 @@
 # @effection/core
 
+## \[2.1.0-beta.0]
+
+- Deprecate Future#resolve in favour of Future#produce.
+  - [7b8ce8e](https://github.com/thefrontside/effection/commit/7b8ce8ef1d46ddf10806d51b3f0ed1ef14e8f9cd) Depreacte Future#resolve in favour of Future#produce ([#437](https://github.com/thefrontside/effection/pull/437)) on 2021-07-22
+
 ## 2.0.0-beta.4
 
 ### Patch Changes

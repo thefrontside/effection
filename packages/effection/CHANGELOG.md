@@ -1,11 +1,17 @@
 # Changelog
 
+## \[2.0.0-beta.5]
+
+- Deprecate Future#resolve in favour of Future#produce.
+  - Bumped due to a bump in @effection/core.
+  - [7b8ce8e](https://github.com/thefrontside/effection/commit/7b8ce8ef1d46ddf10806d51b3f0ed1ef14e8f9cd) Depreacte Future#resolve in favour of Future#produce ([#437](https://github.com/thefrontside/effection/pull/437)) on 2021-07-22
+
 ## 2.0.0-beta.4
 
 ### Patch Changes
 
 - e297c86: rename Task.spawn() -> Task.run()
-- Updated dependencies [e297c86]
+- Updated dependencies \[e297c86]
   - @effection/core@2.0.0-beta.4
   - @effection/channel@2.0.0-beta.4
   - @effection/events@2.0.0-beta.4
@@ -19,11 +25,11 @@
 - 3e77f29: - label events for visual inspection
   - label stream and queue operations
 - 5d95e6d: label the "suspend" operation that is created with a bare `yield` statement;
-- Updated dependencies [248b0a6]
-- Updated dependencies [3e77f29]
-- Updated dependencies [5d95e6d]
-- Updated dependencies [9700b45]
-- Updated dependencies [9700b45]
+- Updated dependencies \[248b0a6]
+- Updated dependencies \[3e77f29]
+- Updated dependencies \[5d95e6d]
+- Updated dependencies \[9700b45]
+- Updated dependencies \[9700b45]
   - @effection/main@2.0.0-beta.3
   - @effection/subscription@2.0.0-beta.3
   - @effection/events@2.0.0-beta.3
@@ -42,11 +48,11 @@
 ### Patch Changes
 
 - f7e3344: Name in interface should be yieldingTo and not subTask
-- Updated dependencies [19414f0]
-- Updated dependencies [26a86cb]
-- Updated dependencies [9c76cc5]
-- Updated dependencies [f7e3344]
-- Updated dependencies [ac7c1ce]
+- Updated dependencies \[19414f0]
+- Updated dependencies \[26a86cb]
+- Updated dependencies \[9c76cc5]
+- Updated dependencies \[f7e3344]
+- Updated dependencies \[ac7c1ce]
   - @effection/core@2.0.0-beta.2
   - @effection/channel@2.0.0-beta.2
   - @effection/events@2.0.0-beta.2
@@ -58,7 +64,7 @@
 ### Patch Changes
 
 - 0c6e263: release 2.0.0-beta
-- Updated dependencies [0c6e263]
+- Updated dependencies \[0c6e263]
   - @effection/channel@2.0.0-beta.1
   - @effection/core@2.0.0-beta.1
   - @effection/events@2.0.0-beta.1
@@ -78,12 +84,12 @@
 
 ### Patch Changes
 
-- Updated dependencies [9998088]
-- Updated dependencies [d7c0eb1]
-- Updated dependencies [2bce454]
-- Updated dependencies [1981b35]
-- Updated dependencies [88dc59a]
-- Updated dependencies [88dc59a]
+- Updated dependencies \[9998088]
+- Updated dependencies \[d7c0eb1]
+- Updated dependencies \[2bce454]
+- Updated dependencies \[1981b35]
+- Updated dependencies \[88dc59a]
+- Updated dependencies \[88dc59a]
   - @effection/core@2.0.0-preview.12
   - @effection/events@2.0.0-preview.13
   - @effection/main@2.0.0-preview.3
@@ -102,10 +108,10 @@
 ### Patch Changes
 
 - ae8d090: Sleeping for zero milliseconds should not suspend indefinitely
-- Updated dependencies [88eca21]
-- Updated dependencies [ae8d090]
-- Updated dependencies [8bb4514]
-- Updated dependencies [44c354d]
+- Updated dependencies \[88eca21]
+- Updated dependencies \[ae8d090]
+- Updated dependencies \[8bb4514]
+- Updated dependencies \[44c354d]
   - @effection/core@2.0.0-preview.11
   - @effection/channel@2.0.0-preview.14
   - @effection/events@2.0.0-preview.12
@@ -122,10 +128,10 @@
 
 ### Patch Changes
 
-- Updated dependencies [625b521]
-- Updated dependencies [a06c679]
-- Updated dependencies [4d04159]
-- Updated dependencies [625b521]
+- Updated dependencies \[625b521]
+- Updated dependencies \[a06c679]
+- Updated dependencies \[4d04159]
+- Updated dependencies \[625b521]
   - @effection/core@2.0.0-preview.10
   - @effection/channel@2.0.0-preview.13
   - @effection/events@2.0.0-preview.11
@@ -139,7 +145,7 @@
 
 ### Patch Changes
 
-- Updated dependencies [92f921e]
+- Updated dependencies \[92f921e]
   - @effection/subscription@2.0.0-preview.11
   - @effection/channel@2.0.0-preview.12
   - @effection/events@2.0.0-preview.10
@@ -159,15 +165,15 @@
 
 ### Patch Changes
 
-- Updated dependencies [110a2cd]
-- Updated dependencies [7216a21]
-- Updated dependencies [e2545b2]
-- Updated dependencies [2b92370]
-- Updated dependencies [00562fd]
-- Updated dependencies [110a2cd]
-- Updated dependencies [110a2cd]
-- Updated dependencies [02446ad]
-- Updated dependencies [da86a9c]
+- Updated dependencies \[110a2cd]
+- Updated dependencies \[7216a21]
+- Updated dependencies \[e2545b2]
+- Updated dependencies \[2b92370]
+- Updated dependencies \[00562fd]
+- Updated dependencies \[110a2cd]
+- Updated dependencies \[110a2cd]
+- Updated dependencies \[02446ad]
+- Updated dependencies \[da86a9c]
   - @effection/core@2.0.0-preview.9
   - @effection/events@2.0.0-preview.9
   - @effection/channel@2.0.0-preview.11
@@ -177,7 +183,7 @@
 
 ### Patch Changes
 
-- Updated dependencies [a13987f]
+- Updated dependencies \[a13987f]
   - @effection/core@2.0.0-preview.8
   - @effection/subscription@2.0.0-preview.9
   - @effection/events@2.0.0-preview.8
@@ -187,7 +193,7 @@
 
 ### Patch Changes
 
-- Updated dependencies [91ade6c]
+- Updated dependencies \[91ade6c]
   - @effection/channel@2.0.0-preview.9
 
 ## 2.0.0-preview.9
@@ -198,7 +204,7 @@
 
 ### Patch Changes
 
-- Updated dependencies [2bad074]
+- Updated dependencies \[2bad074]
   - @effection/core@2.0.0-preview.7
   - @effection/channel@2.0.0-preview.8
   - @effection/events@2.0.0-preview.7
@@ -213,7 +219,7 @@
 ### Patch Changes
 
 - 9a6a6e3: Make atom more reentrant
-- Updated dependencies [3db7270]
+- Updated dependencies \[3db7270]
   - @effection/subscription@2.0.0-preview.7
   - @effection/channel@2.0.0-preview.7
   - @effection/events@2.0.0-preview.6
@@ -227,8 +233,8 @@
 ### Patch Changes
 
 - 1222756: Use strict dependency requirements for internal dependencies while in prerelease mode
-- Updated dependencies [0dca571]
-- Updated dependencies [1222756]
+- Updated dependencies \[0dca571]
+- Updated dependencies \[1222756]
   - @effection/subscription@2.0.0-preview.6
   - @effection/channel@2.0.0-preview.6
   - @effection/events@2.0.0-preview.5
@@ -248,12 +254,12 @@
 
 ### Patch Changes
 
-- Updated dependencies [9cf6053]
-- Updated dependencies [0b24415]
-- Updated dependencies [22e5230]
-- Updated dependencies [70c358f]
-- Updated dependencies [3983202]
-- Updated dependencies [2c2749d]
+- Updated dependencies \[9cf6053]
+- Updated dependencies \[0b24415]
+- Updated dependencies \[22e5230]
+- Updated dependencies \[70c358f]
+- Updated dependencies \[3983202]
+- Updated dependencies \[2c2749d]
   - @effection/channel@2.0.0-preview.5
   - @effection/subscription@2.0.0-preview.5
   - @effection/core@2.0.0-preview.5
@@ -277,10 +283,13 @@
   which accounts for 99.9% of the use cases. For the cases where all the
   arguments are required, use `onEmit()`.
 
-- Updated dependencies [7b6ba05]
-- Updated dependencies [ab41f6a]
-- Updated dependencies [ce76f15]
-- Updated dependencies [72f743c]
+- Updated dependencies \[7b6ba05]
+
+- Updated dependencies \[ab41f6a]
+
+- Updated dependencies \[ce76f15]
+
+- Updated dependencies \[72f743c]
   - @effection/events@2.0.0-preview.4
   - @effection/subscription@2.0.0-preview.4
   - @effection/channel@2.0.0-preview.4
@@ -298,8 +307,8 @@
 ### Patch Changes
 
 - 2bf5ef4: Make iterator controllers reentrant so they can e.g. halt themselves
-- Updated dependencies [bdedf68]
-- Updated dependencies [2bf5ef4]
+- Updated dependencies \[bdedf68]
+- Updated dependencies \[2bf5ef4]
   - @effection/core@2.0.0-preview.3
 
 ## 2.0.0-preview.3
@@ -307,7 +316,7 @@
 ### Patch Changes
 
 - 93ec0d6: Include CHANGELOGS and src with all packages
-- Updated dependencies [93ec0d6]
+- Updated dependencies \[93ec0d6]
   - @effection/core@2.0.0-preview.2
 
 ## 2.0.0-preview.2
@@ -315,7 +324,7 @@
 ### Patch Changes
 
 - 80143d5: Fix packaging
-- Updated dependencies [80143d5]
+- Updated dependencies \[80143d5]
   - @effection/core@2.0.0-preview.1
 
 ## 2.0.0-preview.1
@@ -369,9 +378,9 @@
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## \[Unreleased]
 
-## [0.6.2] - 2020-04-24
+## \[0.6.2] - 2020-04-24
 
 ## Changed
 
@@ -379,7 +388,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   properly as part of the migration to
   `microbundle`. https://github.com/thefrontside/effection.js/pull/107
 
-## [0.6.1] - 2020-04-24
+## \[0.6.1] - 2020-04-24
 
 ### Changed
 
@@ -389,7 +398,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   pika. https://github.com/thefrontside/effection.js/pull/100
 - removed custom publish scripts in order to fix releases 🙏
 
-## [0.6.0] - 2020-04-15
+## \[0.6.0] - 2020-04-15
 
 ### Changed
 
@@ -403,7 +412,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   to any JavaScript object.
   https://github.com/thefrontside/effection.js/pull/89
 
-## [0.5.2] - 2020-03-09
+## \[0.5.2] - 2020-03-09
 
 ### Added
 
@@ -416,7 +425,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Catch errors raised in ensure blocks and print nasty warning
   https://github.com/thefrontside/effection.js/pull/80
 
-## [0.5.1] - 2020-02-24
+## \[0.5.1] - 2020-02-24
 
 ### Changed
 
@@ -425,7 +434,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   from working in those environments. This was addressed with
   https://github.com/thefrontside/effection.js/pull/77
 
-## [0.5.0] - 2020-02-10
+## \[0.5.0] - 2020-02-10
 
 ### Added
 
@@ -440,7 +449,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 - Introduced a `main` function to enter a brand new context
 
-## [0.4.0] - 2019-11-20
+## \[0.4.0] - 2019-11-20
 
 ### Added
 
@@ -456,7 +465,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   API. E.g. `fork(operation).then()`
   https://github.com/thefrontside/effection.js/pull/38
 
-## [0.3.3] - 2019-11-04
+## \[0.3.3] - 2019-11-04
 
 ### Added
 
@@ -464,7 +473,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   construction of non-trivial async processes like servers.
   https://github.com/thefrontside/effection.js/pull/24
 
-## [0.3.2] - 2019-10-30
+## \[0.3.2] - 2019-10-30
 
 ### Changed
 
@@ -475,7 +484,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   and while not running will cause memory leaks long-term
   https://github.com/thefrontside/effection.js/pull/22
 
-## [0.3.1] - 2019-10-23
+## \[0.3.1] - 2019-10-23
 
 ### Changed
 
@@ -485,7 +494,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - remove some dead files that were not contributing to the API
   https://github.com/thefrontside/effection.js/pull/18
 
-## [0.3.0] - 2019-10-18
+## \[0.3.0] - 2019-10-18
 
 ### Changed
 
@@ -507,7 +516,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   simplifying code greatly.
   https://github.com/thefrontside/effection.js/pull/13
 
-## [0.2.0] - 2019-10-17
+## \[0.2.0] - 2019-10-17
 
 ### Added
 
@@ -516,7 +525,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   up-to-date typing information for its entire public API
   https://github.com/thefrontside/effection.js/pull/8
 
-## [0.1.0] - 2019-10-05
+## \[0.1.0] - 2019-10-05
 
 ### Added
 

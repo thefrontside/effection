@@ -19,12 +19,12 @@ describe('spawn', () => {
   });
 
   it('can spawn a new child task in the given scope', async () => {
-    let { future, resolve } = createFuture<string>();
+    let { future, produce } = createFuture<string>();
     run(function*(scope) {
       yield function*() {
         yield spawn(function*() {
           yield sleep(5);
-          resolve({ state: 'completed', value: 'foo' });
+          produce({ state: 'completed', value: 'foo' });
         }).within(scope);
       };
       yield;

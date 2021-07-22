@@ -7,8 +7,8 @@ import { run, sleep, createTask, Task, createFuture, withLabels } from '../src/i
 describe('Task', () => {
   describe('consume', () => {
     it('can be consumed as future', async () => {
-      let { future, resolve } = createFuture();
-      resolve({ state: 'completed', value: 123 });
+      let { future, produce } = createFuture();
+      produce({ state: 'completed', value: 123 });
       let task = run(future);
       let result;
       task.consume(value => result = value);

@@ -17,14 +17,14 @@ export function createIteratorController<TOut>(task: Task<TOut>, iterator: Opera
   let didHalt = false;
   let yieldingTo: Task | undefined;
 
-  let { resolve, future } = createFuture<TOut>();
+  let { produce, future } = createFuture<TOut>();
   let runLoop = createRunLoop();
 
   function start() {
     if (iterator[claimed]) {
       let error = new Error(`An operation iterator can only be run once in a single task, but it looks like has been either yielded to, or run multiple times`)
       error.name = 'DoubleEvalError';
-      resolve({ state: 'errored', error });
+      produce({ state: 'errored', error });
     } else {
       iterator[claimed] = true;
       resume(() => iterator.next());
@@ -37,14 +37,14 @@ export function createIteratorController<TOut>(task: Task<TOut>, iterator: Opera
       try {
         next = iter();
       } catch(error) {
-        resolve({ state: 'errored', error });
+        produce({ state: 'errored', error });
         return;
       }
       if(next.done) {
         if(didHalt) {
-          resolve({ state: 'halted' });
+          produce({ state: 'halted' });
         } else {
-          resolve({ state: 'completed', value: next.value });
+          produce({ state: 'completed', value: next.value });
         }
       } else {
         yieldingTo = createTask(next.value, { resourceScope: options.resourceScope || task, ignoreError: true });

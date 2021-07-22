@@ -5,7 +5,7 @@ import { OperationFunction } from '../operation';
 
 export function createFunctionController<TOut>(task: Task<TOut>, fn: OperationFunction<TOut>, createController: () => Controller<TOut>) {
   let delegate: Controller<TOut>;
-  let { resolve, future } = createFuture<TOut>();
+  let { produce, future } = createFuture<TOut>();
 
   function start() {
     try {
@@ -16,11 +16,11 @@ export function createFunctionController<TOut>(task: Task<TOut>, fn: OperationFu
         ...fn.labels
       });
     } catch (error) {
-      resolve({ state: 'errored', error });
+      produce({ state: 'errored', error });
       return;
     }
     delegate.future.consume((value) => {
-      resolve(value);
+      produce(value);
     });
     delegate.start();
   }

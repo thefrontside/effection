@@ -122,14 +122,14 @@ describe('generator function', () => {
   });
 
   it('can suspend in finally block', async () => {
-    let { future, resolve } = createFuture();
+    let { future, produce } = createFuture();
 
     let task = run(function*() {
       try {
         yield;
       } finally {
         yield sleep(10);
-        resolve({ state: 'completed', value: 123 });
+        produce({ state: 'completed', value: 123 });
       }
     });
 
@@ -184,11 +184,11 @@ describe('generator function', () => {
   });
 
   it('can be halted while in the generator', async () => {
-    let { future, resolve } = createFuture();
+    let { future, produce } = createFuture();
     let task = run(function*(inner) {
       inner.run(function*() {
         yield sleep(2);
-        resolve({ state: 'errored', error: new Error('boom') });
+        produce({ state: 'errored', error: new Error('boom') });
       });
       yield future;
     });

@@ -12,6 +12,8 @@
       "effection": ["packages/effection/src"],
       "@effection/events": ["packages/events/src"],
       "@effection/fetch": ["packages/fetch/src"],
+      "@effection/inspect-utils": ["packages/inspect-utils/src"],
+      "@effection/inspect-server": ["packages/inspect-server/src"],
       "@effection/main": ["packages/main/src"],
       "@effection/mocha": ["packages/mocha/src"],
       "@effection/node": ["packages/node/src"],

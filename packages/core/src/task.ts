@@ -62,7 +62,7 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
 
   let stateMachine = new StateMachine(emitter);
 
-  let { resolve, future } = createFuture<TOut>();
+  let { produce, future } = createFuture<TOut>();
   let result: Value<TOut>;
   let runLoop = createRunLoop();
 
@@ -229,7 +229,7 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
       if(future.state !== 'pending') return;
 
       stateMachine.finish();
-      resolve(result);
+      produce(result);
     });
   }
 

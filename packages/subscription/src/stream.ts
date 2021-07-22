@@ -49,7 +49,7 @@ export function createStream<T, TReturn = undefined>(callback: Callback<T, TRetu
         }
       });
     }, `${name}.filter()`);
-  };
+  }
 
   let stream = {
     subscribe,

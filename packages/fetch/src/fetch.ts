@@ -26,7 +26,7 @@ export function fetch(info: RequestInfo, requestInit: RequestInit = {}): Fetch {
 
     let response: Response = yield nativeFetch(info, requestInit);
     return response;
-  };
+  }
 
   return {
     init,

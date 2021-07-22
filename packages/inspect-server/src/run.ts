@@ -27,4 +27,4 @@ export function runInspectServer(options: Options = {}) {
     console.error("*** EFFECTION INSPECTOR ENCOUNTERED UNEXPECTED ERROR");
     console.error(err);
   });
-};
+}

@@ -234,4 +234,4 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
   }
 
   return task;
-};
+}

@@ -2,7 +2,7 @@ import { EventEmitter } from 'events';
 
 export type State = 'pending' | 'running' | 'halting' | 'halted' | 'erroring' | 'errored' | 'completing' | 'completed';
 
-function f(value: string) { return JSON.stringify(value) };
+function f(value: string) { return JSON.stringify(value) }
 
 export type StateTransition = {
   from: State;

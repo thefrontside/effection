@@ -69,8 +69,8 @@ import { createFuture } from 'effection';
 
 export function once(source, eventName) {
   return (task) => {
-    let { future, resolve } = createFuture();
-    let listener = (value) => resolve({ state: 'completed', value });
+    let { future, produce } = createFuture();
+    let listener = (value) => produce({ state: 'completed', value });
     source.addEventListener(eventName, listener);
     task.consume(() => {
       source.removeEventListener(eventName, listener);

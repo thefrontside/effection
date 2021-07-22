@@ -14,7 +14,7 @@ type Result =
 export const createWin32Process: CreateOSProcess = (command, options) => {
   return {
     *init(scope: Task) {
-      let { future, resolve } = createFuture<Result>();
+      let { future, produce } = createFuture<Result>();
 
       let join = (): Operation<ExitStatus> => function*() {
         let result: Result = yield future;
@@ -68,7 +68,7 @@ export const createWin32Process: CreateOSProcess = (command, options) => {
       yield spawn(function*(task) {
         yield spawn(function*() {
           let value: Error = yield once(childProcess, 'error');
-          resolve({ state: 'completed', value: { type: 'error', value } });
+          produce({ state: 'completed', value: { type: 'error', value } });
         }).within(task);
 
         yield spawn(on<Buffer>(childProcess.stdout, 'data').map((c) => c.toString()).forEach(stdoutChannel.send)).within(task);
@@ -76,7 +76,7 @@ export const createWin32Process: CreateOSProcess = (command, options) => {
 
         try {
           let value = yield onceEmit(childProcess, "exit");
-          resolve({ state: 'completed', value: { type: "status", value } });
+          produce({ state: 'completed', value: { type: "status", value } });
         } finally {
           stdoutChannel.close();
           stderrChannel.close();

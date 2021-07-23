@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Task, createTask } from './task';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import { version } from '../package.json';
 
 const MAJOR_VERSION = version.split('.')[0];
@@ -41,4 +43,4 @@ export const Effection = {
   async halt() {
     await Effection.root.halt();
   }
-}
+};

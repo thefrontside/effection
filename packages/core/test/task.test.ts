@@ -106,7 +106,7 @@ describe('Task', () => {
 
     it('attaches a handler which runs when the task finishes errors', async () => {
       let task = run(function*() {
-        yield sleep(5)
+        yield sleep(5);
         throw new Error('boom');
       });
 
@@ -135,7 +135,7 @@ describe('Task', () => {
 
   describe('event: state', () => {
     it('is triggered when a task changes state', async () => {
-      let events: { to: string; from: string }[] = []
+      let events: { to: string; from: string }[] = [];
       let task = createTask(function*() { yield sleep(5) });
 
       task.on('state', (transition) => events.push(transition));
@@ -174,7 +174,7 @@ describe('Task', () => {
 
   describe('event: link', () => {
     it('is triggered when a child is spawned', async () => {
-      let events: Task[] = []
+      let events: Task[] = [];
       let task = run();
 
       task.on('link', (child) => events.push(child));
@@ -187,7 +187,7 @@ describe('Task', () => {
 
   describe('event: unlink', () => {
     it('is triggered when a child terminates', async () => {
-      let events: Task[] = []
+      let events: Task[] = [];
       let task = run();
 
       task.on('unlink', (child) => events.push(child));
@@ -200,7 +200,7 @@ describe('Task', () => {
     });
 
     it('is triggered when a child halts', async () => {
-      let events: Task[] = []
+      let events: Task[] = [];
       let task = run();
 
       task.on('unlink', (child) => events.push(child));

@@ -13,7 +13,7 @@ export interface Consumer<T> {
 }
 
 export interface FutureLike<T> {
-  consume<R>(consumer: Consumer<T>): void;
+  consume(consumer: Consumer<T>): void;
 }
 
 export interface Future<T> extends Promise<T>, FutureLike<T> {
@@ -90,5 +90,5 @@ export function createFuture<T>(): NewFuture<T> {
       [Symbol.toStringTag]: '[continuation]',
     },
     resolve
-  }
+  };
 }

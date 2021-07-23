@@ -21,7 +21,7 @@ describe('ensure', () => {
     expect(state).toEqual('pending');
     await run(sleep(10));
     expect(state).toEqual('started');
-    await root
+    await root;
     expect(state).toEqual('completed');
     expect(root.state).toEqual('completed');
   });
@@ -38,7 +38,7 @@ describe('ensure', () => {
 
     await run(sleep(5));
     expect(state).toEqual('pending');
-    await root
+    await root;
     expect(state).toEqual('completed');
     expect(root.state).toEqual('completed');
   });

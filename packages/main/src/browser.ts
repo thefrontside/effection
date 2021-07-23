@@ -5,7 +5,7 @@ export * from './error';
 
 export function main<T>(operation: Operation<T>): Task<T> {
   return run(function*(task) {
-    let interrupt = () => { task.halt(); };
+    let interrupt = () => { task.halt() };
     try {
       window.addEventListener('unload', interrupt);
       return yield withLabels(operation, {

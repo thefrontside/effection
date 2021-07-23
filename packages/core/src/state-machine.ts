@@ -2,7 +2,7 @@ import { EventEmitter } from 'events';
 
 export type State = 'pending' | 'running' | 'halting' | 'halted' | 'erroring' | 'errored' | 'completing' | 'completed';
 
-function f(value: string) { return JSON.stringify(value) };
+function f(value: string) { return JSON.stringify(value) }
 
 export type StateTransition = {
   from: State;
@@ -20,7 +20,7 @@ export class StateMachine {
 
     if(!to) {
       let options = Object.keys(validTransitions).map(f).join(', ');
-      throw new Error(`INTERNAL ERROR: state transition ${f(event)} is not valid in current state ${f(from)}, should be one of ${options}`)
+      throw new Error(`INTERNAL ERROR: state transition ${f(event)} is not valid in current state ${f(from)}, should be one of ${options}`);
     }
 
     this.current = to;

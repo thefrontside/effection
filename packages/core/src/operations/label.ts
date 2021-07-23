@@ -7,5 +7,5 @@ export function label(labels: Labels): Resource<void> {
     *init(scope) {
       scope.setLabels(labels);
     }
-  }
+  };
 }

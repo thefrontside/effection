@@ -3,7 +3,7 @@ import expect from 'expect'
 
 import { spawn } from '@effection/core';
 import { ClientMessage } from '@effection/inspect-utils';
-import { createWebSocketClient } from '@effection/websocket-client';
+import { createWebSocketClient, WebSocketClient } from '@effection/websocket-client';
 import { createInspectServer, InspectServer } from '../src/index';
 
 type Message = { value: string };
@@ -15,7 +15,7 @@ describe("createInspectServer()", () => {
       .within(task);
     let server: InspectServer = yield createInspectServer({ task });
 
-    let client = yield createWebSocketClient<Message>(`ws://localhost:${server.port}`);
+    let client: WebSocketClient<Message> = yield createWebSocketClient<Message>(`ws://localhost:${server.port}`);
 
     let result: ClientMessage = yield client.expect();
 

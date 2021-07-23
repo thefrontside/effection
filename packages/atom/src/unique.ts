@@ -5,4 +5,4 @@ export const unique = <S>(current: S) => (state: S): boolean => {
   } else {
     return false;
   }
-}
+};

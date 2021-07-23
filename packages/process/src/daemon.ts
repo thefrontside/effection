@@ -23,5 +23,5 @@ export function daemon(command: string, options: ExecOptions = {}): Daemon {
 
       return process;
     }
-  }
+  };
 }

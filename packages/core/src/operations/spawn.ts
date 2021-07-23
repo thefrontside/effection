@@ -13,7 +13,7 @@ export function spawn<T>(operation?: Operation<T>, options?: TaskOptions): Spawn
   function within(scope: Task) {
     return {
       init: () => init(scope)
-    }
+    };
   }
 
   return { init, within, name: 'spawn' };

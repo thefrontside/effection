@@ -93,6 +93,7 @@
         "@effection/inspect-utils",
         "@effection/events",
         "@effection/main",
+        "@effection/react",
         "@effection/subscription",
         "@effection/mocha"
       ]

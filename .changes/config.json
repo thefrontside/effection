@@ -4,6 +4,7 @@
     "javascript": {
       "version": true,
       "getPublishedVersion": "npm view ${ pkgFile.pkg.name } version",
+      "prepublish": "yarn prepack",
       "publish": [
         "npm publish --access public ${ pkg.tag ? '--tag ' + pkg.tag : '' }"
       ]
@@ -82,20 +83,6 @@
         "@effection/subscription",
         "@effection/websocket-server",
         "@effection/mocha"
-      ]
-    },
-    "@effection/inspect-ui": {
-      "path": "./packages/inspect-ui",
-      "manager": "javascript",
-      "dependencies": [
-        "@effection/core",
-        "@effection/inspect-utils",
-        "@effection/events",
-        "@effection/main",
-        "@effection/react",
-        "@effection/subscription",
-        "@effection/mocha",
-        "@effection/websocket-client"
       ]
     },
     "@effection/inspect-utils": {
@@ -177,6 +164,20 @@
         "@effection/events",
         "@effection/subscription",
         "@effection/mocha"
+      ]
+    },
+    "@effection/inspect-ui": {
+      "path": "./packages/inspect-ui",
+      "manager": "javascript",
+      "dependencies": [
+        "@effection/core",
+        "@effection/inspect-utils",
+        "@effection/events",
+        "@effection/main",
+        "@effection/react",
+        "@effection/subscription",
+        "@effection/mocha",
+        "@effection/websocket-client"
       ]
     }
   }

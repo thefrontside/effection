@@ -44,7 +44,7 @@ jobs:
           title: "Publish New Versions"
           commit-message: "publish new versions"
           labels: "version updates"
-          branch: "release"
+          branch: "release-v2"
           body: ${{ steps.covector.outputs.change }}
           token: ${{ secrets.FRONTSIDEJACK_GITHUB_TOKEN }}
           author: frontsidejack frontsidejack@users.noreply.github.com

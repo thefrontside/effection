@@ -43,13 +43,9 @@
     "yarn": "1.22.4"
   },
   "devDependencies": {
-    "@frontside/eslint-config": "1.1.1",
+    "@frontside/eslint-config": "2.0.0-0a28874",
     "@frontside/tsconfig": "^1.2.0",
     "covector": "^0.7.2",
     "patch-package": "6.2.2"
-  },
-  "resolutions": {
-    "@frontside/eslint-config/@typescript-eslint/eslint-plugin": "4.28.4",
-    "@frontside/eslint-config/@typescript-eslint/parser": "4.28.4"
   }
 }

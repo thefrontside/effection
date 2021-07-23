@@ -20,7 +20,7 @@ export function runInspectServer(options: Options = {}) {
     });
     let server = yield createInspectServer(options);
     console.debug(`[effection] inspector available on http://localhost:${server.port}`);
-    yield
+    yield;
   }, { labels: { name: 'inspector' } });
   task.start();
   task.catchHalt().catch((err: Error) => {

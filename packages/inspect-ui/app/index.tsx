@@ -20,6 +20,6 @@ main(function*(scope) {
       <App client={client}/>
     </EffectionContext.Provider>,
     document.querySelector('#app')
-  )
+  );
   yield;
 });

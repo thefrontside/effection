@@ -8,7 +8,7 @@ export function ensure<T>(fn: () => Operation<T> | void): Resource<undefined> {
     *init() {
       yield spawn(function*() {
         try {
-          yield
+          yield;
         } finally {
           let result = fn();
           if(result) {

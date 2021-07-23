@@ -68,7 +68,7 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
 
   let controller: Controller<TOut>;
 
-  let labels: Labels = { ...operation?.labels, ...options.labels }
+  let labels: Labels = { ...operation?.labels, ...options.labels };
   let yieldingTo: Task | undefined;
 
 
@@ -89,11 +89,11 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
 
     get labels() { return labels },
 
-    get state() { return stateMachine.current; },
+    get state() { return stateMachine.current },
 
     get type() { return controller.type },
 
-    get children() { return Array.from(children); },
+    get children() { return Array.from(children) },
 
     get yieldingTo() { return yieldingTo },
 
@@ -148,7 +148,7 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
         state: stateMachine.current,
         yieldingTo: yieldingTo?.toJSON(),
         children: Array.from(children).map((c) => c.toJSON()),
-      }
+      };
     },
 
     on: (...args) => emitter.on(...args),
@@ -158,7 +158,7 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
     finally: (...args) => future.finally(...args),
     consume: (...args) => future.consume(...args),
     [Symbol.toStringTag]: `[Task ${id}]`,
-  }
+  };
 
   controller = createController(task, operation, {
     onYieldingToChange(value) {
@@ -210,11 +210,11 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
         runLoop.run(() => {
           nextChild = Array.from(children)
             .reverse()
-            .find((c) => (c !== nextChild) && (force || !c.options.blockParent))
+            .find((c) => (c !== nextChild) && (force || !c.options.blockParent));
 
           if(nextChild) {
             nextChild.consume(haltNextChild);
-            nextChild.halt()
+            nextChild.halt();
           }
         });
       }

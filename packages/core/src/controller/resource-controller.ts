@@ -11,7 +11,7 @@ export function createResourceController<TOut>(task: Task<TOut>, resource: Resou
 
   function start() {
     if(!resourceScope) {
-      throw new Error('cannot spawn resource in task which has no resource scope')
+      throw new Error('cannot spawn resource in task which has no resource scope');
     }
     let init;
     try {

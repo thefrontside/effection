@@ -8,7 +8,7 @@ describe('resolution function', () => {
   it('resolves when resolve is called', async () => {
     let task = run({
       perform(resolve) {
-        setTimeout(() => resolve(123), 5)
+        setTimeout(() => resolve(123), 5);
       }
     });
     await expect(task).resolves.toEqual(123);
@@ -18,7 +18,7 @@ describe('resolution function', () => {
   it('rejects when reject is called', async () => {
     let task = run({
       perform(_resolve, reject) {
-        setTimeout(() => reject(new Error('boom')), 5)
+        setTimeout(() => reject(new Error('boom')), 5);
       }
     });
     await expect(task).rejects.toHaveProperty('message', 'boom');
@@ -27,7 +27,7 @@ describe('resolution function', () => {
 
   it('rejects when error is thrown in function', async () => {
     let task = run({
-      perform() { throw new Error('boom'); }
+      perform() { throw new Error('boom') }
     });
     await expect(task).rejects.toHaveProperty('message', 'boom');
     expect(task.state).toEqual('errored');
@@ -42,7 +42,7 @@ describe('resolution function', () => {
 
     await task.halt();
 
-    await expect(task).rejects.toHaveProperty('message', 'halted')
+    await expect(task).rejects.toHaveProperty('message', 'halted');
     expect(task.state).toEqual('halted');
   });
 });

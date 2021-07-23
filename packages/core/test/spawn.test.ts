@@ -32,7 +32,7 @@ describe('spawn', () => {
 
     await root.halt();
 
-    await expect(child).rejects.toHaveProperty('message', 'halted')
+    await expect(child).rejects.toHaveProperty('message', 'halted');
     expect(root.state).toEqual('halted');
     expect(child && child.state).toEqual('halted');
   });
@@ -48,7 +48,7 @@ describe('spawn', () => {
     });
 
     await expect(root).resolves.toEqual(1);
-    await expect(child).rejects.toHaveProperty('message', 'halted')
+    await expect(child).rejects.toHaveProperty('message', 'halted');
     expect(root.state).toEqual('completed');
     expect(child && child.state).toEqual('halted');
   });
@@ -102,7 +102,7 @@ describe('spawn', () => {
     let root = run(function*(context: Task<string>) {
       child = context.run(function*() {
         try {
-          yield
+          yield;
         } finally {
           throw new Error("moo");
         }
@@ -120,7 +120,7 @@ describe('spawn', () => {
     let root = run(function*(context: Task<string>) {
       child = context.run(function*() {
         try {
-          yield
+          yield;
         } finally {
           throw new Error("moo");
         }
@@ -152,7 +152,7 @@ describe('spawn', () => {
     let didFinish = false;
     let root = run(function*(context: Task) {
       context.run(function*() {
-        yield sleep(5)
+        yield sleep(5);
       });
       try {
         yield;
@@ -172,7 +172,7 @@ describe('spawn', () => {
     let root = run(function*(context: Task) {
       context.run(function*() {
         try {
-          yield
+          yield;
         } finally {
           result.push('first start');
           yield sleep(5);
@@ -181,7 +181,7 @@ describe('spawn', () => {
       });
       context.run(function*() {
         try {
-          yield
+          yield;
         } finally {
           result.push('second start');
           yield sleep(10);

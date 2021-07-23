@@ -27,7 +27,7 @@ mocha.afterEach(async function() {
 function runInWorld(fn: TestFunction) {
   return async function(this: mocha.Context) {
     await run({ init: fn.bind(this) }, { resourceScope: world! });
-  }
+  };
 }
 
 export const describe = mocha.describe;
@@ -51,5 +51,5 @@ export function captureError(op: Operation<any>): Operation<Error> {
       return error;
     }
     throw new Error('expected operation to throw an error, but it did not!');
-  }
+  };
 }

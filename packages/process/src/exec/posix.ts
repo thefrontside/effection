@@ -20,16 +20,16 @@ export const createPosixProcess: CreateOSProcess = (command, options) => {
         } else {
           throw result.value;
         }
-      }
+      };
 
       let expect = (): Operation<ExitStatus> => function*() {
         let status: ExitStatus = yield join();
         if (status.code != 0) {
-          throw new ExecError(status, command, options)
+          throw new ExecError(status, command, options);
         } else {
           return status;
         }
-      }
+      };
       // Killing all child processes started by this command is surprisingly
       // tricky. If a process spawns another processes and we kill the parent,
       // then the child process is NOT automatically killed. Instead we're using
@@ -74,7 +74,10 @@ export const createPosixProcess: CreateOSProcess = (command, options) => {
           stdoutChannel.close();
           stderrChannel.close();
           try {
-            process.kill(-childProcess.pid, "SIGTERM")
+            if(typeof childProcess.pid === 'undefined') {
+              throw new Error('no pid for childProcess');
+            }
+            process.kill(-childProcess.pid, "SIGTERM");
           } catch(e) {
             // do nothing, process is probably already dead
           }
@@ -89,7 +92,7 @@ export const createPosixProcess: CreateOSProcess = (command, options) => {
         stderr = stderr.stringBuffer(scope);
       }
 
-      return { pid, stdin, stdout, stderr, join, expect }
+      return { pid: pid as number, stdin, stdout, stderr, join, expect };
     }
-  }
-}
+  };
+};

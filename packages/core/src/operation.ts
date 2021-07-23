@@ -9,17 +9,17 @@ export interface Labelled {
 }
 
 export interface OperationIterator<TOut> extends Generator<Operation<any>, TOut | undefined, any>, Labelled {
-};
+}
 
 export interface OperationPromise<TOut> extends PromiseLike<TOut>, Labelled {
-};
+}
 
 export interface OperationResolution<TOut> extends Labelled {
   perform(resolve: (value: TOut) => void, reject: (err: Error) => void): void | (() => void);
-};
+}
 
 export interface OperationFuture<TOut> extends FutureLike<TOut>, Labelled {
-};
+}
 
 export interface Resource<TOut> extends Labelled {
   init(scope: Task, local: Task): OperationIterator<TOut>;

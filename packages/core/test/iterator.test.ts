@@ -100,23 +100,23 @@ describe('generator function', () => {
 
     task.halt();
 
-    await expect(task).rejects.toHaveProperty('message', 'halted')
+    await expect(task).rejects.toHaveProperty('message', 'halted');
     expect(task.state).toEqual('halted');
   });
 
   it('halts task when halted generator', async () => {
     let child: Task | undefined;
     let task = run(function*() {
-      yield function*(task) {
+      yield function*(task: Task) {
         child = task;
         yield sleep(100);
-      }
+      };
     });
 
     task.halt();
 
-    await expect(task).rejects.toHaveProperty('message', 'halted')
-    await expect(child).rejects.toHaveProperty('message', 'halted')
+    await expect(task).rejects.toHaveProperty('message', 'halted');
+    await expect(child).rejects.toHaveProperty('message', 'halted');
     expect(task.state).toEqual('halted');
     expect(child && child.state).toEqual('halted');
   });
@@ -146,12 +146,12 @@ describe('generator function', () => {
       try {
         yield function*() {
           try {
-            yield
+            yield;
           } finally {
             yield sleep(5);
             things.push("first");
           }
-        }
+        };
       } finally {
         things.push("second");
       }
@@ -159,7 +159,7 @@ describe('generator function', () => {
 
     task.halt();
 
-    await expect(task).rejects.toHaveProperty('message', 'halted')
+    await expect(task).rejects.toHaveProperty('message', 'halted');
     expect(task.state).toEqual('halted');
 
     expect(things).toEqual(['first', 'second']);
@@ -214,7 +214,7 @@ describe('generator function', () => {
         inner.halt();
       });
 
-      yield
+      yield;
     });
 
     await expect(task).rejects.toHaveProperty('message', 'halted');
@@ -229,14 +229,14 @@ describe('generator function', () => {
         throw new Error('boom');
       });
       try {
-        yield
+        yield;
       } finally {
         yield sleep(20);
         didRun = true;
       }
     });
 
-    await run(sleep(10))
+    await run(sleep(10));
 
     expect(task.state).toEqual('erroring');
 
@@ -251,7 +251,7 @@ describe('generator function', () => {
         throw new Error('boom');
       });
       try {
-        yield
+        yield;
       } finally {
         throw new Error('bang');
       }

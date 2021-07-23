@@ -54,7 +54,7 @@ describe('labels', () => {
       yield label({ quox: "quox" });
     });
 
-    let events: Labels[] = []
+    let events: Labels[] = [];
 
     task.on('labels', (labels) => events.push(labels));
 
@@ -90,5 +90,5 @@ describe('labels', () => {
     await task;
 
     expect(task.labels).toMatchObject({ foo: 'bar' });
-  })
+  });
 });

@@ -30,7 +30,7 @@ const createProcess: CreateOSProcess = (cmd, opts) => {
  */
 export function exec(command: string, options: ExecOptions = {}): Exec {
   let [cmd, ...args] = options.shell ? [command]: split(command);
-  let opts = { ...options, arguments: args.concat(options.arguments || []) }
+  let opts = { ...options, arguments: args.concat(options.arguments || []) };
 
   return {
     init(scope: Task, local: Task) {
@@ -58,5 +58,5 @@ export function exec(command: string, options: ExecOptions = {}): Exec {
         return { ...status, stdout, stderr };
       };
     }
-  }
+  };
 }

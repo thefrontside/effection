@@ -1,6 +1,6 @@
 import WebSocket from 'isomorphic-ws';
 
-import { spawn, ensure, Resource, Operation } from '@effection/core'
+import { spawn, ensure, Resource, Operation } from '@effection/core';
 import { createQueue, Subscription } from '@effection/subscription';
 import { on, once } from '@effection/events';
 
@@ -37,7 +37,7 @@ export function createWebSocketClient<TIncoming = unknown, TOutgoing = TIncoming
         *send(message: TOutgoing) {
           socket.send(JSON.stringify(message));
         }
-      }
+      };
     }
-  }
+  };
 }

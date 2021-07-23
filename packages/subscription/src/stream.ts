@@ -35,9 +35,9 @@ export function createStream<T, TReturn = undefined>(callback: Callback<T, TRetu
     task.run(function*() {
       let result = yield callback(queue.send);
       queue.closeWith(result);
-    }, { labels: { name: `publisher`}});
+    }, { labels: { name: `publisher` } });
     return queue.subscription;
-  }
+  };
 
   function filter<R extends T>(predicate: (value: T) => value is R): Stream<T, TReturn>
   function filter(predicate: (value: T) => boolean): Stream<T, TReturn>
@@ -49,7 +49,7 @@ export function createStream<T, TReturn = undefined>(callback: Callback<T, TRetu
         }
       });
     }, `${name}.filter()`);
-  };
+  }
 
   let stream = {
     subscribe,
@@ -126,7 +126,7 @@ export function createStream<T, TReturn = undefined>(callback: Callback<T, TRetu
         get value(): string {
           return buffer;
         }
-      }
+      };
     },
 
     get [SymbolOperationIterable](): ToOperationIterator<T, TReturn> {

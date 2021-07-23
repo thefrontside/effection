@@ -8,7 +8,7 @@ class TimeoutError extends Error {
 
 export function timeout(duration: number): Operation<never> {
   return withLabels(function*() {
-    yield sleep(duration)
+    yield sleep(duration);
     throw new TimeoutError(`timed out after ${duration}ms`);
   }, { name: 'timeout', duration });
 }

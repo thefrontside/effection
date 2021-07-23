@@ -6,27 +6,27 @@ import { Task, Resource, run, sleep } from '../src/index';
 
 export const myResource: Resource<{ status: string }> = {
   *init(scope: Task) {
-    let container = { status: 'pending' }
+    let container = { status: 'pending' };
     scope.run(function*() {
       yield sleep(5);
       container.status = 'active';
     });
-    yield sleep(2)
+    yield sleep(2);
     return container;
   }
-}
+};
 
 export const metaResource: Resource<{ status: string }> = {
   *init(scope: Task) {
     return yield scope.run(myResource);
   }
-}
+};
 
 export const magicMetaResource: Resource<{ status: string }> = {
   *init() {
     return yield myResource;
   }
-}
+};
 
 describe('resource', () => {
   describe('with spawned resource', () => {

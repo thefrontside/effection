@@ -9,5 +9,5 @@ export function sleep(duration?: number): Operation<void> {
         return () => clearTimeout(timeoutId);
       }
     }
-  }
+  };
 }

@@ -41,7 +41,7 @@ export function createQueue<T, TReturn = undefined>(name = 'queue'): Queue<T, TR
     } else {
       values.push({ value, done: true });
     }
-  }
+  };
 
   let next = (): Operation<IteratorResult<T, TReturn>> => {
     return {
@@ -59,11 +59,11 @@ export function createQueue<T, TReturn = undefined>(name = 'queue'): Queue<T, TR
           };
         }
       }
-    }
+    };
   };
 
   function withName<T>(operationName: string, operation: Operation<T>): Operation<T> {
-    return withLabels(operation, { name: `${name}.${operationName}()`});
+    return withLabels(operation, { name: `${name}.${operationName}()` });
   }
 
   let subscription = {
@@ -115,7 +115,7 @@ export function createQueue<T, TReturn = undefined>(name = 'queue'): Queue<T, TR
     collect(): Operation<Iterator<T, TReturn>> {
       return withName<Iterator<T, TReturn>>('collect', function*() {
         let items: T[] = [];
-        let result = yield subscription.forEach((item) => function*() { items.push(item); });
+        let result = yield subscription.forEach((item) => function*() { items.push(item) });
         return (function*() {
           yield *items;
           return result;
@@ -128,11 +128,11 @@ export function createQueue<T, TReturn = undefined>(name = 'queue'): Queue<T, TR
         return Array.from<T>(yield subscription.collect());
       });
     },
-  }
+  };
 
   return {
     send,
     subscription,
     ...subscription,
-  }
+  };
 }

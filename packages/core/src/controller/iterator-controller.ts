@@ -22,7 +22,7 @@ export function createIteratorController<TOut>(task: Task<TOut>, iterator: Opera
 
   function start() {
     if (iterator[claimed]) {
-      let error = new Error(`An operation iterator can only be run once in a single task, but it looks like has been either yielded to, or run multiple times`)
+      let error = new Error(`An operation iterator can only be run once in a single task, but it looks like has been either yielded to, or run multiple times`);
       error.name = 'DoubleEvalError';
       produce({ state: 'errored', error });
     } else {

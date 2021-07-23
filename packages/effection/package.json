@@ -11,20 +11,14 @@
   "author": "Charles Lowell <cowboyd@frontside.com>",
   "license": "MIT",
   "private": false,
-  "typings": "dist/index.d.ts",
+  "types": "dist/index.d.ts",
   "main": "dist/index.js",
-  "module": "dist/effection.esm.js",
-  "files": [
-    "CHANGELOG.md",
-    "dist/**/*",
-    "src/**/*"
-  ],
   "scripts": {
     "lint": "eslint '{src,bin,test}/**/*.ts'",
     "test": "mocha -r ts-node/register test/**/*.test.ts",
     "mocha": "mocha -r ts-node/register",
     "docs": "yarn typedoc src/index.ts",
-    "prepack": "tsdx build --tsconfig tsconfig.dist.json"
+    "prepack": "tsc --build tsconfig.dist.json"
   },
   "dependencies": {
     "@effection/channel": "2.0.0-beta.4",
@@ -34,14 +28,20 @@
     "@effection/subscription": "2.0.0-beta.4"
   },
   "devDependencies": {
+    "@babel/core": "^7.14.8",
+    "@babel/eslint-parser": "^7.14.7",
+    "@babel/eslint-plugin": "^7.14.5",
+    "@babel/plugin-proposal-class-properties": "^7.14.5",
     "@types/mocha": "^7.0.2",
-    "@types/node": "^13.13.5",
-    "eslint": "^6.8.0",
+    "@types/node": "^16.3.2",
+    "eslint": "^7.30.0",
     "expect": "^25.3.0",
     "mocha": "^8.3.1",
-    "ts-node": "^8.8.2",
-    "tsdx": "0.13.2",
+    "ts-node": "^10.1.0",
     "typedoc": "^0.20.36",
-    "typescript": "^3.8.3"
+    "typescript": "^4.3.5"
+  },
+  "volta": {
+    "extends": "../../package.json"
   }
 }

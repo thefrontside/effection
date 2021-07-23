@@ -24,7 +24,7 @@ export const createWin32Process: CreateOSProcess = (command, options) => {
         } else {
           throw result.value;
         }
-      }
+      };
 
       let expect = (): Operation<ExitStatus> => function*() {
         let status: ExitStatus = yield join();
@@ -33,7 +33,7 @@ export const createWin32Process: CreateOSProcess = (command, options) => {
         } else {
           return status;
         }
-      }
+      };
 
       let childProcess = spawnProcess(command, options.arguments || [], {
         // We lose exit information and events if this is detached in windows
@@ -102,9 +102,9 @@ export const createWin32Process: CreateOSProcess = (command, options) => {
         stderr = stderr.stringBuffer(scope);
       }
 
-      return { pid, stdin, stdout, stderr, join, expect };
+      return { pid: pid as number, stdin, stdout, stderr, join, expect };
     }
-  }
+  };
 };
 
 export const isWin32 = () => platform() === "win32";

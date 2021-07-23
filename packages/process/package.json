@@ -11,7 +11,7 @@
     "directory": "packages/process"
   },
   "author": "Frontside Engineering <engineering@frontside.com>",
-    "license": "MIT",
+  "license": "MIT",
   "scripts": {
     "lint": "eslint '{src,tests}/**/*.ts'",
     "test": "mocha -r ts-node/register --timeout 10000 test/**/*.test.ts",

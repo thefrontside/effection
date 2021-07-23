@@ -31,9 +31,9 @@ export function once<T = unknown>(source: EventSource, eventName: string): Opera
     perform(resolve) {
       let listener = (...args: T[]) => { resolve(args[0]) };
       addListener(source, eventName, listener);
-      return () => removeListener(source, eventName, listener)
+      return () => removeListener(source, eventName, listener);
     }
-  }
+  };
 }
 
 /**
@@ -66,7 +66,7 @@ export function onceEmit<TArgs extends unknown[] = unknown[]>(source: EventSourc
     perform(resolve) {
       let listener = (...args: unknown[]) => { resolve(args as TArgs) };
       addListener(source, eventName, listener);
-      return () => removeListener(source, eventName, listener)
+      return () => removeListener(source, eventName, listener);
     }
-  }
+  };
 }

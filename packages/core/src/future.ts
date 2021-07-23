@@ -90,5 +90,5 @@ export function createFuture<T>(): NewFuture<T> {
       [Symbol.toStringTag]: '[continuation]',
     },
     resolve
-  }
+  };
 }

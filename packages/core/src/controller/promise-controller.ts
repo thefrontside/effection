@@ -13,7 +13,7 @@ export function createPromiseController<TOut>(task: Task<TOut>, promise: Promise
       (error) => {
         produce({ state: 'errored', error });
       }
-    )
+    );
   }
 
   function halt() {

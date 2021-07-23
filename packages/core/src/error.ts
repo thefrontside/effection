@@ -16,6 +16,6 @@ export function addTrace(error: Error & Partial<HasEffectionTrace>, task: Task):
   properties.effectionTrace = {
     value: [...(error.effectionTrace || []), info],
     enumerable: true,
-  }
+  };
   return Object.create(Object.getPrototypeOf(error), properties);
 }

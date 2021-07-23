@@ -657,14 +657,17 @@
     minimatch "^3.0.4"
     strip-json-comments "^3.1.1"
 
-"@frontside/eslint-config@1.1.1":
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/@frontside/eslint-config/-/eslint-config-1.1.1.tgz#829318c20321e9a2ebe534f7d4df10f688de6600"
-  integrity sha512-H0eehRvgN9gRDKBIgIcaFV+3SQDGrVd0jnFDmrAj7Yt2haoYzlrYuV8Hb6LX6PqNsQ1on1n73h3V5R1Dxp3mGg==
+"@frontside/eslint-config@2.0.0-0a28874":
+  version "2.0.0-0a28874"
+  resolved "https://registry.yarnpkg.com/@frontside/eslint-config/-/eslint-config-2.0.0-0a28874.tgz#85827f2096f797f62391d305c8435b88e4e19326"
+  integrity sha512-ZQAVf6ayswG3XcThhFWLnfn8tc6oeqDHImdjHF//IHMWCfaBB8Jmwuu7niuyBod8ndG1xYy483whRRa1a56dXg==
   dependencies:
-    "@typescript-eslint/eslint-plugin" "^3.5.0"
-    "@typescript-eslint/parser" "^3.5.0"
-    eslint-plugin-prefer-let "^1.0.2"
+    "@typescript-eslint/eslint-plugin" "4.28.4"
+    "@typescript-eslint/parser" "4.28.4"
+    eslint "7.30.0"
+    eslint-plugin-mocha-no-only "^1.1.1"
+    eslint-plugin-prefer-let "^1.1.0"
+    typescript "4.3.5"
 
 "@frontside/tsconfig@^1.2.0":
   version "1.2.0"
@@ -1572,7 +1575,7 @@
   dependencies:
     "@types/yargs-parser" "*"
 
-"@typescript-eslint/eslint-plugin@4.28.4", "@typescript-eslint/eslint-plugin@^3.5.0":
+"@typescript-eslint/eslint-plugin@4.28.4":
   version "4.28.4"
   resolved "https://registry.yarnpkg.com/@typescript-eslint/eslint-plugin/-/eslint-plugin-4.28.4.tgz#e73c8cabbf3f08dee0e1bda65ed4e622ae8f8921"
   integrity sha512-s1oY4RmYDlWMlcV0kKPBaADn46JirZzvvH7c2CtAqxCY96S538JRBAzt83RrfkDheV/+G/vWNK0zek+8TB3Gmw==
@@ -1597,7 +1600,7 @@
     eslint-scope "^5.1.1"
     eslint-utils "^3.0.0"
 
-"@typescript-eslint/parser@4.28.4", "@typescript-eslint/parser@^3.5.0":
+"@typescript-eslint/parser@4.28.4":
   version "4.28.4"
   resolved "https://registry.yarnpkg.com/@typescript-eslint/parser/-/parser-4.28.4.tgz#bc462dc2779afeefdcf49082516afdc3e7b96fab"
   integrity sha512-4i0jq3C6n+og7/uCHiE6q5ssw87zVdpUj1k6VlVYMonE3ILdFApEzTWgppSRG4kVNB/5jxnH+gTeKLMNfUelQA==
@@ -3509,7 +3512,14 @@ escodegen@^1.11.0:
   optionalDependencies:
     source-map "~0.6.1"
 
-eslint-plugin-prefer-let@^1.0.2:
+eslint-plugin-mocha-no-only@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-mocha-no-only/-/eslint-plugin-mocha-no-only-1.1.1.tgz#2da56949776e8c5455cfeb67f2747d2d8cf522fc"
+  integrity sha512-b+vgjJQ3SjRQCygBhomtjzvRQRpIP8Yd9cqwNSbcoVJREuNajao7M1Kl1aObAUc4wx98qsZyQyUSUxiAbMS9yA==
+  dependencies:
+    requireindex "~1.1.0"
+
+eslint-plugin-prefer-let@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/eslint-plugin-prefer-let/-/eslint-plugin-prefer-let-1.1.0.tgz#a5eb401a5f6b6995883bac7ebafb7fe5d6e9bedb"
   integrity sha512-d7IhB8FZCtnCNQ20e4UTETPJNF3mIES3ZYan9RK/K3sIkEfuL3NfF9t5gxoNRFjeSkhlGpJmZdLGLRGPmKgVfQ==
@@ -7247,6 +7257,11 @@ require-main-filename@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/require-main-filename/-/require-main-filename-2.0.0.tgz#d0b329ecc7cc0f61649f62215be69af54aa8989b"
   integrity sha512-NKN5kMDylKuldxYLSUfrbo5Tuzh4hd+2E8NPPX02mZtn1VuREQToYe/ZdlJy+J3uCpfaiGF05e7B8W0iXbQHmg==
+
+requireindex@~1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/requireindex/-/requireindex-1.1.0.tgz#e5404b81557ef75db6e49c5a72004893fe03e162"
+  integrity sha1-5UBLgVV+91225JxacgBIk/4D4WI=
 
 requireindex@~1.2.0:
   version "1.2.0"

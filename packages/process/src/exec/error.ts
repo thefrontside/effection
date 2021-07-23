@@ -18,7 +18,7 @@ export class ExecError extends Error {
 
     let cwd = this.options.cwd ? `cwd: ${this.options.cwd}` : null;
 
-    let command = `$ ${this.command} ${this.options.arguments?.join(" ")}`.trim()
+    let command = `$ ${this.command} ${this.options.arguments?.join(" ")}`.trim();
 
     return [code, signal, env, shell, cwd, command].filter(item => !!item).join("\n");
   }

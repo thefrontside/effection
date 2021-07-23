@@ -43,4 +43,4 @@ export const Effection = {
   async halt() {
     await Effection.root.halt();
   }
-}
+};

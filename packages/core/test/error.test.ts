@@ -13,7 +13,7 @@ describe('error', () => {
     let error = await run(function *root() {
       yield function *child() {
         throw new ExplodeError('boom');
-      }
+      };
     }).then(null, (err) => err);
 
     expect(error.name).toEqual('ExplodeError');
@@ -28,9 +28,9 @@ describe('error', () => {
       try {
         yield function *child() {
           throw new ExplodeError('boom');
-        }
+        };
       } catch(err) {
-        expect(err.name).toEqual('ExplodeError')
+        expect(err.name).toEqual('ExplodeError');
       }
     });
   });
@@ -44,7 +44,7 @@ describe('error', () => {
       try {
         yield other;
       } catch(err) {
-        expect(err.name).toEqual('ExplodeError')
+        expect(err.name).toEqual('ExplodeError');
       }
     });
   });

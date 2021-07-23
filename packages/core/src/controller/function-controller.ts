@@ -43,5 +43,5 @@ export function createFunctionController<TOut>(task: Task<TOut>, fn: OperationFu
     future,
     start,
     halt,
-  }
+  };
 }

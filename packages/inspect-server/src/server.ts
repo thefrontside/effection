@@ -25,7 +25,7 @@ export function createInspectServer(options: Options = {}): Resource<InspectServ
       let file = new StaticServer(appDir());
 
       let http = createServer((request, response) => {
-        request.addListener('end', () => { file.serve(request, response); }).resume();
+        request.addListener('end', () => { file.serve(request, response) }).resume();
       });
 
       let connections: WebSocketServer<ServerMessage, ClientMessage> = yield createWebSocketSubscription({ http });
@@ -45,12 +45,12 @@ export function createInspectServer(options: Options = {}): Resource<InspectServ
       });
 
       http.listen(options.port);
-      yield ensure(() => { http.close(); });
+      yield ensure(() => { http.close() });
       yield once(http, 'listening');
 
       let port = (http.address() as AddressInfo).port;
 
       return { port };
     }
-  }
+  };
 }

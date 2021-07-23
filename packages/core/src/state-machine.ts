@@ -20,7 +20,7 @@ export class StateMachine {
 
     if(!to) {
       let options = Object.keys(validTransitions).map(f).join(', ');
-      throw new Error(`INTERNAL ERROR: state transition ${f(event)} is not valid in current state ${f(from)}, should be one of ${options}`)
+      throw new Error(`INTERNAL ERROR: state transition ${f(event)} is not valid in current state ${f(from)}, should be one of ${options}`);
     }
 
     this.current = to;

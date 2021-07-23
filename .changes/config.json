@@ -94,7 +94,8 @@
         "@effection/main",
         "@effection/react",
         "@effection/subscription",
-        "@effection/mocha"
+        "@effection/mocha",
+        "@effection/websocket-client"
       ]
     },
     "@effection/inspect-utils": {

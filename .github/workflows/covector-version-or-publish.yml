@@ -47,4 +47,4 @@ jobs:
           branch: "release-v2"
           body: ${{ steps.covector.outputs.change }}
           token: ${{ secrets.FRONTSIDEJACK_GITHUB_TOKEN }}
-          author: frontsidejack frontsidejack@users.noreply.github.com
+          author: frontsidejack <frontsidejack@users.noreply.github.com>

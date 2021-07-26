@@ -22,4 +22,4 @@ module.exports = {
     "packages/websocket-client",
     "packages/websocket-server"
   ]
-}
+};

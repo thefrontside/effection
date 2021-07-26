@@ -56,10 +56,10 @@ task that covers the whole test as "world".
 ``` javascript
 describe('some effection code', () => {
   beforeEach(function*(world, task) {
-    world.spawn(); // still running in the `it` block
-    task.spawn(); // only runs until the end of `beforeEach`
+    world.run(); // still running in the `it` block
+    task.run(); // only runs until the end of `beforeEach`
     yield spawn(); // spawned in `world`, still running in the `it` block
-    yield spawn().within(task); // only runs until the end of `beforeEach`
+    yield task.spawn();
   });
 
   it('does something', function*() {

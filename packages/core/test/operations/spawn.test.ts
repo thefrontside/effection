@@ -22,10 +22,10 @@ describe('spawn', () => {
     let { future, produce } = createFuture<string>();
     run(function*(scope) {
       yield function*() {
-        yield spawn(function*() {
+        yield scope.spawn(function*() {
           yield sleep(5);
           produce({ state: 'completed', value: 'foo' });
-        }).within(scope);
+        });
       };
       yield;
     });

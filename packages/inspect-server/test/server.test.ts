@@ -11,8 +11,7 @@ type Message = { value: string };
 describe("createInspectServer()", () => {
   it('sreams inspect trees', function*() {
     let task = yield spawn(undefined, { labels: { name: 'foo' } });
-    let child = yield spawn(undefined, { labels: { name: 'bar' } })
-      .within(task);
+    let child = yield task.spawn(undefined, { labels: { name: 'bar' } });
     let server: InspectServer = yield createInspectServer({ task });
 
     let client: WebSocketClient<Message> = yield createWebSocketClient<Message>(`ws://localhost:${server.port}`);

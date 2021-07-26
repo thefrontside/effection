@@ -39,13 +39,13 @@ describe("fetch in node", () => {
     });
 
     it("has body with hello: world", function*() {
-      expect(body).toEqual({hello: "world"});
+      expect(body).toEqual({ hello: "world" });
     });
 
     it('has headers', function*() {
       expect(app.lastRequest.headers).toMatchObject({
         'x-header': 'SOME_HEADER'
-      })
+      });
     });
 
     describe('sending the headers from the server to the client, but not the complete body', () => {
@@ -80,7 +80,7 @@ describe("fetch in node", () => {
       });
 
     });
-  })
+  });
 
   describe('.text', () => {
     it('returns text response', function*() {

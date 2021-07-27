@@ -121,7 +121,7 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
         *init() {
           return task.run(operation, options);
         }
-      }
+      };
     },
 
     start() {

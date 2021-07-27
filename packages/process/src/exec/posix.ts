@@ -65,7 +65,7 @@ export const createPosixProcess: CreateOSProcess = (command, options) => {
         });
 
         yield task.spawn(on<Buffer>(childProcess.stdout, 'data').map((c) => c.toString()).forEach(stdoutChannel.send));
-        yield task.spawn(on<Buffer>(childProcess.stderr, 'data').map((c) => c.toString()).forEach(stderrChannel.send))
+        yield task.spawn(on<Buffer>(childProcess.stderr, 'data').map((c) => c.toString()).forEach(stderrChannel.send));
 
         try {
           let value = yield onceEmit(childProcess, 'exit');

@@ -4,7 +4,7 @@ title: Testing
 ---
 
 You can test Effection code with any test framework. Since Effection integrates
-seemlessly with `async/await` code, any test framework which supports
+seamlessly with `async/await` code, any test framework which supports
 asynchronous tests works well with Effection.
 
 Effection itself is tested with [mocha][], and we have created a small

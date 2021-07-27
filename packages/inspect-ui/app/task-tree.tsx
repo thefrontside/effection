@@ -10,7 +10,7 @@ const ICONS = {
   halted: "◇",
   erroring: "𐄂",
   errored: "𐄂",
-}
+};
 
 type TreeProps = {
   tree: InspectTree;
@@ -34,7 +34,7 @@ export function TaskTree({ tree }: TreeProps) {
                 <div className="task--label--title">{key}</div>
                 <div className="task--label--value">{value}</div>
               </div>
-            )
+            );
           })
         }
         <div className="task--title--type">{tree.type} </div>
@@ -57,7 +57,7 @@ export function TaskTree({ tree }: TreeProps) {
                 <li className="task--list--element" key={child.id}>
                   <TaskTree tree={child}/>
                 </li>
-              )
+              );
             })
           }
         </ol>

@@ -7,7 +7,7 @@ import { run, sleep, Task } from '../src/index';
 describe('spawn', () => {
   it('can spawn a new child task', async () => {
     let root = run(function*(context: Task) {
-      let child = context.spawn(function*() {
+      let child = context.run(function*() {
         let one: number = yield Promise.resolve(12);
         let two: number = yield Promise.resolve(55);
 
@@ -23,7 +23,7 @@ describe('spawn', () => {
   it('halts child when halted', async () => {
     let child: Task<void> | undefined;
     let root = run(function*(context: Task) {
-      child = context.spawn(function*() {
+      child = context.run(function*() {
         yield;
       });
 
@@ -32,7 +32,7 @@ describe('spawn', () => {
 
     await root.halt();
 
-    await expect(child).rejects.toHaveProperty('message', 'halted')
+    await expect(child).rejects.toHaveProperty('message', 'halted');
     expect(root.state).toEqual('halted');
     expect(child && child.state).toEqual('halted');
   });
@@ -40,7 +40,7 @@ describe('spawn', () => {
   it('halts child when finishing normally', async () => {
     let child: Task<void> | undefined;
     let root = run(function*(context: Task) {
-      child = context.spawn(function*() {
+      child = context.run(function*() {
         yield;
       });
 
@@ -48,7 +48,7 @@ describe('spawn', () => {
     });
 
     await expect(root).resolves.toEqual(1);
-    await expect(child).rejects.toHaveProperty('message', 'halted')
+    await expect(child).rejects.toHaveProperty('message', 'halted');
     expect(root.state).toEqual('completed');
     expect(child && child.state).toEqual('halted');
   });
@@ -56,7 +56,7 @@ describe('spawn', () => {
   it('halts child when errored', async () => {
     let child;
     let root = run(function*(context: Task) {
-      child = context.spawn(function*() {
+      child = context.run(function*() {
         yield;
       });
 
@@ -71,7 +71,7 @@ describe('spawn', () => {
     let child;
     let error = new Error("moo");
     let root = run(function*(context: Task) {
-      child = context.spawn(function*() {
+      child = context.run(function*() {
         throw error;
       });
 
@@ -86,7 +86,7 @@ describe('spawn', () => {
   it('finishes normally when child halts', async () => {
     let child;
     let root = run(function*(context: Task<string>) {
-      child = context.spawn();
+      child = context.run();
       yield child.halt();
 
       return "foo";
@@ -100,9 +100,9 @@ describe('spawn', () => {
   it('rejects when child errors during completing', async () => {
     let child;
     let root = run(function*(context: Task<string>) {
-      child = context.spawn(function*() {
+      child = context.run(function*() {
         try {
-          yield
+          yield;
         } finally {
           throw new Error("moo");
         }
@@ -118,9 +118,9 @@ describe('spawn', () => {
   it('rejects when child errors during halting', async () => {
     let child;
     let root = run(function*(context: Task<string>) {
-      child = context.spawn(function*() {
+      child = context.run(function*() {
         try {
-          yield
+          yield;
         } finally {
           throw new Error("moo");
         }
@@ -138,21 +138,21 @@ describe('spawn', () => {
 
   it('throws an error when called after controller finishes', async () => {
     let root = run(function*(context: Task) {
-      context.spawn(sleep(100), { blockParent: true });
+      context.run(sleep(100), { blockParent: true });
 
       yield sleep(10);
     });
 
     await run(sleep(20));
 
-    expect(() => root.spawn()).toThrowError('cannot spawn a child on a task which is not running');
+    expect(() => root.run()).toThrowError('cannot spawn a child on a task which is not running');
   });
 
   it('halts when child finishes during asynchronous halt', async () => {
     let didFinish = false;
     let root = run(function*(context: Task) {
-      context.spawn(function*() {
-        yield sleep(5)
+      context.run(function*() {
+        yield sleep(5);
       });
       try {
         yield;
@@ -170,18 +170,18 @@ describe('spawn', () => {
   it('runs destructors in reverse order and in series', async () => {
     let result: string[] = [];
     let root = run(function*(context: Task) {
-      context.spawn(function*() {
+      context.run(function*() {
         try {
-          yield
+          yield;
         } finally {
           result.push('first start');
           yield sleep(5);
           result.push('first done');
         }
       });
-      context.spawn(function*() {
+      context.run(function*() {
         try {
-          yield
+          yield;
         } finally {
           result.push('second start');
           yield sleep(10);
@@ -199,7 +199,7 @@ describe('spawn', () => {
     it('blocks on child when finishing normally', async () => {
       let child: Task<string> | undefined;
       let root = run(function*(context: Task) {
-        child = context.spawn(function*() {
+        child = context.run(function*() {
           yield sleep(5);
           return 'foo';
         }, { blockParent: true });

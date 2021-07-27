@@ -1,6 +1,6 @@
 {
   "name": "@effection/subscription",
-  "version": "2.0.0-beta.3",
+  "version": "2.0.0-beta.4",
   "description": "Effection Subscriptions",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -11,36 +11,28 @@
     "directory": "packages/subscription"
   },
   "author": "Frontside Engineering <engineering@frontside.com>",
-  "license": "MIT",
-  "files": [
-    "README.md",
-    "CHANGELOG.md",
-    "dist/**/*",
-    "src/**/*"
-  ],
+    "license": "MIT",
   "scripts": {
     "lint": "eslint '{src,tests}/**/*.ts'",
     "test": "mocha -r ts-node/register --timeout 5000 test/**/*.test.ts",
-    "prepack": "tsdx build --tsconfig tsconfig.dist.json",
+    "prepack": "tsc --build tsconfig.dist.json",
     "docs": "yarn typedoc src/index.ts",
     "mocha": "mocha -r ts-node/register"
   },
   "dependencies": {
-    "@effection/core": "2.0.0-beta.3"
+    "@effection/core": "2.0.0-beta.4"
   },
   "devDependencies": {
-    "@effection/mocha": "2.0.0-beta.3",
+    "@effection/mocha": "2.0.0-beta.4",
     "@frontside/tsconfig": "^1.2.0",
     "@types/mocha": "^8.0.3",
     "expect": "^25.4.0",
     "mocha": "^8.3.1",
-    "ts-node": "^8.9.0",
-    "tsdx": "0.13.2",
+    "ts-node": "^10.1.0",
     "typedoc": "^0.20.36",
-    "typescript": "^3.7.0"
+    "typescript": "^4.3.5"
   },
   "volta": {
-    "node": "12.16.0",
-    "yarn": "1.19.1"
+    "extends": "../../package.json"
   }
 }

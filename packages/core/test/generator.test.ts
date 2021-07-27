@@ -25,4 +25,4 @@ describe('generators', () => {
     await run(addition);
     expect(run(addition)).rejects.toHaveProperty('name', 'DoubleEvalError');
   });
-})
+});

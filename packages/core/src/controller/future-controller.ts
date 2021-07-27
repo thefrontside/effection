@@ -3,14 +3,14 @@ import { Task } from '../task';
 import { createFuture, FutureLike } from '../future';
 
 export function createFutureController<TOut>(task: Task<TOut>, future: FutureLike<TOut>): Controller<TOut> {
-  let { future: inner, resolve } = createFuture<TOut>();
+  let { future: inner, produce } = createFuture<TOut>();
 
   function start() {
-    future.consume(resolve);
+    future.consume(produce);
   }
 
   function halt() {
-    resolve({ state: 'halted' });
+    produce({ state: 'halted' });
   }
 
   return { start, halt, future: inner, type: 'future', operation: future };

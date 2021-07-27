@@ -42,6 +42,8 @@ export interface Task<TOut = unknown> extends Promise<TOut>, FutureLike<TOut> {
   readonly yieldingTo: Task | undefined;
   catchHalt(): Promise<TOut | undefined>;
   setLabels(labels: Labels): void;
+  run<R>(operation?: Operation<R>, options?: TaskOptions): Task<R>;
+  /** @deprecated Use run() instead */
   spawn<R>(operation?: Operation<R>, options?: TaskOptions): Task<R>;
   halt(): Promise<void>;
   start(): void;
@@ -60,13 +62,13 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
 
   let stateMachine = new StateMachine(emitter);
 
-  let { resolve, future } = createFuture<TOut>();
+  let { produce, future } = createFuture<TOut>();
   let result: Value<TOut>;
   let runLoop = createRunLoop();
 
   let controller: Controller<TOut>;
 
-  let labels: Labels = { ...operation?.labels, ...options.labels }
+  let labels: Labels = { ...operation?.labels, ...options.labels };
   let yieldingTo: Task | undefined;
 
 
@@ -87,11 +89,11 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
 
     get labels() { return labels },
 
-    get state() { return stateMachine.current; },
+    get state() { return stateMachine.current },
 
     get type() { return controller.type },
 
-    get children() { return Array.from(children); },
+    get children() { return Array.from(children) },
 
     get yieldingTo() { return yieldingTo },
 
@@ -104,7 +106,7 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
       emitter.emit('labels', labels);
     },
 
-    spawn(operation?, options = {}) {
+    run(operation?, options = {}) {
       if(stateMachine.current !== 'running') {
         throw new Error('cannot spawn a child on a task which is not running');
       }
@@ -112,6 +114,11 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
       link(child as Task);
       child.start();
       return child;
+    },
+
+    spawn(operation?, options = {}) {
+      console.warn(`DEPRECATED: task.spawn() is deprecated and will be changed or removed prior to the release of effection 2.0\nuse task.run() instead`);
+      return task.run(operation, options);
     },
 
     start() {
@@ -141,7 +148,7 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
         state: stateMachine.current,
         yieldingTo: yieldingTo?.toJSON(),
         children: Array.from(children).map((c) => c.toJSON()),
-      }
+      };
     },
 
     on: (...args) => emitter.on(...args),
@@ -151,7 +158,7 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
     finally: (...args) => future.finally(...args),
     consume: (...args) => future.consume(...args),
     [Symbol.toStringTag]: `[Task ${id}]`,
-  }
+  };
 
   controller = createController(task, operation, {
     onYieldingToChange(value) {
@@ -203,11 +210,11 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
         runLoop.run(() => {
           nextChild = Array.from(children)
             .reverse()
-            .find((c) => (c !== nextChild) && (force || !c.options.blockParent))
+            .find((c) => (c !== nextChild) && (force || !c.options.blockParent));
 
           if(nextChild) {
             nextChild.consume(haltNextChild);
-            nextChild.halt()
+            nextChild.halt();
           }
         });
       }
@@ -222,9 +229,9 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
       if(future.state !== 'pending') return;
 
       stateMachine.finish();
-      resolve(result);
+      produce(result);
     });
   }
 
   return task;
-};
+}

@@ -7,8 +7,8 @@ import { run, sleep, createTask, Task, createFuture, withLabels } from '../src/i
 describe('Task', () => {
   describe('consume', () => {
     it('can be consumed as future', async () => {
-      let { future, resolve } = createFuture();
-      resolve({ state: 'completed', value: 123 });
+      let { future, produce } = createFuture();
+      produce({ state: 'completed', value: 123 });
       let task = run(future);
       let result;
       task.consume(value => result = value);
@@ -26,8 +26,8 @@ describe('Task', () => {
   describe('children', () => {
     it('returns the tasks children', async () => {
       let task = run();
-      let child1 = task.spawn();
-      let child2 = task.spawn();
+      let child1 = task.run();
+      let child2 = task.run();
       expect(task.children).toEqual([child1, child2]);
     });
   });
@@ -68,7 +68,7 @@ describe('Task', () => {
   describe('toJSON', () => {
     it('returns the full task information', async () => {
       let task = run(function* theTask(inner) {
-        inner.spawn(undefined, { labels: { name: 'some-thing' } });
+        inner.run(undefined, { labels: { name: 'some-thing' } });
         yield;
       });
 
@@ -106,7 +106,7 @@ describe('Task', () => {
 
     it('attaches a handler which runs when the task finishes errors', async () => {
       let task = run(function*() {
-        yield sleep(5)
+        yield sleep(5);
         throw new Error('boom');
       });
 
@@ -135,7 +135,7 @@ describe('Task', () => {
 
   describe('event: state', () => {
     it('is triggered when a task changes state', async () => {
-      let events: { to: string; from: string }[] = []
+      let events: { to: string; from: string }[] = [];
       let task = createTask(function*() { yield sleep(5) });
 
       task.on('state', (transition) => events.push(transition));
@@ -174,12 +174,12 @@ describe('Task', () => {
 
   describe('event: link', () => {
     it('is triggered when a child is spawned', async () => {
-      let events: Task[] = []
+      let events: Task[] = [];
       let task = run();
 
       task.on('link', (child) => events.push(child));
 
-      let child = task.spawn();
+      let child = task.run();
 
       expect(events).toEqual([child]);
     });
@@ -187,12 +187,12 @@ describe('Task', () => {
 
   describe('event: unlink', () => {
     it('is triggered when a child terminates', async () => {
-      let events: Task[] = []
+      let events: Task[] = [];
       let task = run();
 
       task.on('unlink', (child) => events.push(child));
 
-      let child = task.spawn(function*() { yield sleep(5); return 1 });
+      let child = task.run(function*() { yield sleep(5); return 1 });
 
       expect(events).toEqual([]);
       await child;
@@ -200,12 +200,12 @@ describe('Task', () => {
     });
 
     it('is triggered when a child halts', async () => {
-      let events: Task[] = []
+      let events: Task[] = [];
       let task = run();
 
       task.on('unlink', (child) => events.push(child));
 
-      let child = task.spawn(function*() { yield sleep(5); return 1 });
+      let child = task.run(function*() { yield sleep(5); return 1 });
 
       expect(events).toEqual([]);
       await child.halt();

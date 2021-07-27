@@ -12,14 +12,14 @@ describe('daemon', () => {
   let proc: Process;
 
   beforeEach(function*() {
-    let { future, resolve } = createFuture();
+    let { future, produce } = createFuture();
     task = run(function*() {
       let proc = yield daemon('node', {
         arguments: ['./fixtures/echo-server.js'],
         env: { PORT: '29000', PATH: process.env.PATH as string },
         cwd: __dirname,
       });
-      resolve({ state: 'completed', value: proc });
+      produce({ state: 'completed', value: proc });
       yield
     });
     proc = yield future;

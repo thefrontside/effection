@@ -16,7 +16,7 @@ function serialize(task: Task): InspectTree {
     state: task.state,
     yieldingTo: task.yieldingTo && serialize(task.yieldingTo),
     children: Object.fromEntries(task.children.map((c) => [c.id, serialize(c)])),
-  }
+  };
 }
 
 export function inspect(rootTask: Task): Resource<Slice<InspectTree>> {
@@ -35,8 +35,8 @@ export function inspect(rootTask: Task): Resource<Slice<InspectTree>> {
       yield spawn(linkChild(child));
     }
 
-    yield spawn(on<Task>(task, 'link').forEach((child) => {
-      scope.spawn(linkChild(child));
+    yield spawn(on<Task>(task, 'link').forEach(child => {
+      return spawn(linkChild(child)).within(scope) as Operation<void>;
     }));
 
     yield spawn(on<StateTransition>(task, 'state').forEach((transition) => {
@@ -59,12 +59,12 @@ export function inspect(rootTask: Task): Resource<Slice<InspectTree>> {
           }
           current = yield subscription.expect();
           yieldingToSlice.set(current ? serialize(current) : undefined);
-        }
+        };
       }
     });
 
     yield;
-  }
+  };
 
   return {
     *init() {
@@ -74,5 +74,5 @@ export function inspect(rootTask: Task): Resource<Slice<InspectTree>> {
 
       return slice;
     }
-  }
+  };
 }

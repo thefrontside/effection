@@ -1,4 +1,4 @@
-import { Task, Resource } from '@effection/core';
+import { spawn, Resource } from '@effection/core';
 
 import { exec, Process, ExecOptions, ExitStatus, DaemonExitError } from './exec';
 
@@ -13,15 +13,15 @@ export interface Daemon extends Resource<Process> {}
 
 export function daemon(command: string, options: ExecOptions = {}): Daemon {
   return {
-    *init(scope: Task) {
+    *init() {
       let process = yield exec(command, options);
 
-      scope.spawn(function*() {
+      yield spawn(function*() {
         let status: ExitStatus = yield process.join();
         throw new DaemonExitError(status, command, options);
       });
 
       return process;
     }
-  }
+  };
 }

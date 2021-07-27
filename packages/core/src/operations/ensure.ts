@@ -1,12 +1,14 @@
 import { Operation, Resource } from '../operation';
+import { spawn } from './spawn';
+
 
 export function ensure<T>(fn: () => Operation<T> | void): Resource<undefined> {
   return {
     name: 'ensure',
-    *init(scope) {
-      scope.spawn(function*() {
+    *init() {
+      yield spawn(function*() {
         try {
-          yield
+          yield;
         } finally {
           let result = fn();
           if(result) {

@@ -1,4 +1,4 @@
-import { Operation, Task } from '@effection/core';
+import { Operation, Task, spawn } from '@effection/core';
 import { throwOnErrorEvent, once } from '@effection/events';
 import { AddressInfo } from 'net';
 import { createServer, Server, IncomingMessage, ServerResponse } from 'http';
@@ -54,14 +54,14 @@ export class EchoServer {
         throw e;
       }
 
-      scope.spawn(throwOnErrorEvent(http));
-      scope.spawn(function*() {
+      yield spawn(throwOnErrorEvent(http)).within(scope);
+      yield spawn(function*() {
         try {
           yield;
         } finally {
           http.close();
         }
-      });
+      }).within(scope);
     }
   }
 }

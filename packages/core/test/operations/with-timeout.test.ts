@@ -8,7 +8,7 @@ describe('withTimeout', () => {
   it('completes normally when completed before timeout', async () => {
     let root = run(withTimeout(10, function*() {
       yield sleep(5);
-      return "foo"
+      return "foo";
     }));
 
     await expect(root).resolves.toEqual("foo");
@@ -17,7 +17,7 @@ describe('withTimeout', () => {
   it('throws an error after the given amount of time', async () => {
     let root = run(withTimeout(5, function*() {
       yield sleep(10);
-      return "foo"
+      return "foo";
     }));
 
     await expect(root).rejects.toHaveProperty('message', 'timed out after 5ms');

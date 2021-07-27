@@ -1,10 +1,10 @@
 import { Server } from 'ws';
 
-import { spawn, ensure, Resource, Operation } from '@effection/core'
+import { spawn, ensure, Resource, Operation } from '@effection/core';
 import { createQueue, Subscription } from '@effection/subscription';
 import { on, once } from '@effection/events';
-import http from 'http'
-import { AddressInfo } from 'net'
+import http from 'http';
+import { AddressInfo } from 'net';
 
 export interface WebSocketConnection<TIncoming = unknown, TOutgoing = TIncoming> extends Subscription<TIncoming> {
   send(message: TOutgoing): Operation<void>;
@@ -31,8 +31,8 @@ export function createWebSocketSubscription<TIncoming = unknown, TOutgoing = TIn
 
       let queue = createQueue<WebSocketConnection<TIncoming, TOutgoing>>();
 
-      yield spawn(on<WebSocket>(wss, 'connection').forEach((raw) => {
-        scope.spawn(function*() {
+      yield spawn(on<WebSocket>(wss, 'connection').forEach(function* (raw) {
+        yield spawn(function*() {
           let messageQueue = createQueue<TIncoming>();
 
           queue.send({
@@ -45,14 +45,14 @@ export function createWebSocketSubscription<TIncoming = unknown, TOutgoing = TIn
           yield on<{ data: string }>(raw, 'message').forEach((message) => {
             messageQueue.send(JSON.parse(message.data));
           });
-        });
+        }).within(scope);
       }));
 
-      yield ensure(() => { wss.close(); });
+      yield ensure(() => { wss.close() });
 
       return queue.subscription;
     }
-  }
+  };
 }
 
 export function createWebSocketServer<TIncoming = unknown, TOutgoing = TIncoming>(options: StartOptions = {}): Resource<WebSocketServer<TIncoming, TOutgoing>> {
@@ -60,7 +60,7 @@ export function createWebSocketServer<TIncoming = unknown, TOutgoing = TIncoming
     *init() {
       let httpServer = http.createServer();
       httpServer.listen(options.port);
-      yield ensure(() => { httpServer.close(); });
+      yield ensure(() => { httpServer.close() });
 
       let server = yield createWebSocketSubscription({ http: httpServer });
 
@@ -76,5 +76,5 @@ export function createWebSocketServer<TIncoming = unknown, TOutgoing = TIncoming
 
       return server;
     }
-  }
+  };
 }

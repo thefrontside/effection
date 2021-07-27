@@ -1,0 +1,183 @@
+{
+  "gitSiteUrl": "https://github.com/thefrontside/effection/",
+  "pkgManagers": {
+    "javascript": {
+      "version": true,
+      "getPublishedVersion": "npm view ${ pkgFile.pkg.name } version",
+      "publish": [
+        "npm publish --access public ${ pkg.tag ? '--tag ' + pkg.tag : '' }"
+      ]
+    }
+  },
+  "packages": {
+    "@effection/channel": {
+      "path": "./packages/channel",
+      "manager": "javascript",
+      "dependencies": [
+        "@effection/core",
+        "@effection/events",
+        "@effection/subscription",
+        "@effection/mocha"
+      ]
+    },
+    "@effection/atom": {
+      "path": "./packages/atom",
+      "manager": "javascript",
+      "dependencies": [
+        "@effection/channel",
+        "@effection/core",
+        "@effection/subscription",
+        "@effection/mocha"
+      ]
+    },
+    "@effection/core": {
+      "path": "./packages/core",
+      "manager": "javascript"
+    },
+    "effection": {
+      "path": "./packages/effection",
+      "manager": "javascript",
+      "dependencies": [
+        "@effection/channel",
+        "@effection/core",
+        "@effection/events",
+        "@effection/main",
+        "@effection/subscription"
+      ]
+    },
+    "@effection/events": {
+      "path": "./packages/events",
+      "manager": "javascript",
+      "dependencies": [
+        "@effection/core",
+        "@effection/subscription",
+        "@effection/mocha"
+      ]
+    },
+    "@effection/fetch": {
+      "path": "./packages/fetch",
+      "manager": "javascript",
+      "dependencies": [
+        "@effection/core",
+        "@effection/mocha"
+      ]
+    },
+    "@effection/inspect": {
+      "path": "./packages/inspect",
+      "manager": "javascript",
+      "dependencies": [
+        "@effection/inspect-server"
+      ]
+    },
+    "@effection/inspect-server": {
+      "path": "./packages/inspect-server",
+      "manager": "javascript",
+      "dependencies": [
+        "@effection/atom",
+        "@effection/channel",
+        "@effection/core",
+        "@effection/inspect-ui",
+        "@effection/inspect-utils",
+        "@effection/events",
+        "@effection/subscription",
+        "@effection/websocket-server",
+        "@effection/mocha"
+      ]
+    },
+    "@effection/inspect-utils": {
+      "path": "./packages/inspect-utils",
+      "manager": "javascript",
+      "dependencies": [
+        "@effection/atom",
+        "@effection/channel",
+        "@effection/core",
+        "@effection/events",
+        "@effection/subscription",
+        "@effection/mocha"
+      ]
+    },
+    "@effection/main": {
+      "path": "./packages/main",
+      "manager": "javascript",
+      "dependencies": [
+        "@effection/core",
+        "@effection/mocha",
+        "@effection/process"
+      ]
+    },
+    "@effection/node": {
+      "path": "./packages/node",
+      "manager": "javascript",
+      "dependencies": [
+        "@effection/main",
+        "@effection/process"
+      ]
+    },
+    "@effection/mocha": {
+      "path": "./packages/mocha",
+      "manager": "javascript"
+    },
+    "@effection/process": {
+      "path": "./packages/process",
+      "manager": "javascript",
+      "dependencies": [
+        "@effection/channel",
+        "@effection/core",
+        "@effection/events",
+        "@effection/subscription",
+        "@effection/mocha"
+      ]
+    },
+    "@effection/react": {
+      "path": "./packages/react",
+      "manager": "javascript",
+      "dependencies": [
+        "@effection/core",
+        "@effection/subscription",
+        "@effection/mocha"
+      ]
+    },
+    "@effection/subscription": {
+      "path": "./packages/subscription",
+      "manager": "javascript",
+      "dependencies": [
+        "@effection/core",
+        "@effection/mocha"
+      ]
+    },
+    "@effection/websocket-client": {
+      "path": "./packages/websocket-client",
+      "manager": "javascript",
+      "dependencies": [
+        "@effection/core",
+        "@effection/events",
+        "@effection/subscription",
+        "@effection/mocha"
+      ]
+    },
+    "@effection/websocket-server": {
+      "path": "./packages/websocket-server",
+      "manager": "javascript",
+      "dependencies": [
+        "@effection/core",
+        "@effection/events",
+        "@effection/subscription",
+        "@effection/mocha"
+      ]
+    },
+    "@effection/inspect-ui": {
+      "path": "./packages/inspect-ui",
+      "manager": "javascript",
+      "dependencies": [
+        "@effection/core",
+        "@effection/inspect-utils",
+        "@effection/events",
+        "@effection/main",
+        "@effection/react",
+        "@effection/subscription",
+        "@effection/mocha",
+        "@effection/websocket-client"
+      ]
+    }
+  }
+}

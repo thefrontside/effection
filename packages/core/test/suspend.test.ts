@@ -18,7 +18,7 @@ describe('suspend', () => {
 
     await task.halt();
 
-    await expect(task).rejects.toHaveProperty('message', 'halted')
+    await expect(task).rejects.toHaveProperty('message', 'halted');
     expect(task.state).toEqual('halted');
   });
 });

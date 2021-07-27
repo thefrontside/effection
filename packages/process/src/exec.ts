@@ -30,15 +30,15 @@ const createProcess: CreateOSProcess = (cmd, opts) => {
  */
 export function exec(command: string, options: ExecOptions = {}): Exec {
   let [cmd, ...args] = options.shell ? [command]: split(command);
-  let opts = { ...options, arguments: args.concat(options.arguments || []) }
+  let opts = { ...options, arguments: args.concat(options.arguments || []) };
 
   return {
     init(scope: Task, local: Task) {
       return createProcess(cmd, opts).init(scope, local);
     },
     join() {
-      return function*(scope: Task) {
-        let process = yield scope.spawn(createProcess(cmd, { ...opts, buffered: true }));
+      return function*() {
+        let process = yield createProcess(cmd, { ...opts, buffered: true });
 
         let status = yield process.join();
         let stdout = yield process.stdout.expect();
@@ -48,8 +48,8 @@ export function exec(command: string, options: ExecOptions = {}): Exec {
       };
     },
     expect() {
-      return function*(scope: Task) {
-        let process = yield scope.spawn(createProcess(cmd, { ...opts, buffered: true }));
+      return function*() {
+        let process = yield createProcess(cmd, { ...opts, buffered: true });
 
         let status = yield process.expect();
         let stdout = yield process.stdout.expect();
@@ -58,5 +58,5 @@ export function exec(command: string, options: ExecOptions = {}): Exec {
         return { ...status, stdout, stderr };
       };
     }
-  }
+  };
 }

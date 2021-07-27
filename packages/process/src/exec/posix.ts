@@ -1,4 +1,4 @@
-import { Task, Operation, createFuture } from '@effection/core';
+import { spawn, Task, Operation, createFuture } from '@effection/core';
 import { createChannel } from '@effection/channel';
 import { on, once, onceEmit } from '@effection/events';
 import { spawn as spawnProcess } from 'child_process';
@@ -10,7 +10,7 @@ type Result = { type: 'error'; value: unknown } | { type: 'status'; value: [numb
 export const createPosixProcess: CreateOSProcess = (command, options) => {
   return {
     *init(scope: Task) {
-      let { future, resolve } = createFuture<Result>();
+      let { future, produce } = createFuture<Result>();
 
       let join = (): Operation<ExitStatus> => function*() {
         let result: Result = yield future;
@@ -20,16 +20,16 @@ export const createPosixProcess: CreateOSProcess = (command, options) => {
         } else {
           throw result.value;
         }
-      }
+      };
 
       let expect = (): Operation<ExitStatus> => function*() {
         let status: ExitStatus = yield join();
         if (status.code != 0) {
-          throw new ExecError(status, command, options)
+          throw new ExecError(status, command, options);
         } else {
           return status;
         }
-      }
+      };
       // Killing all child processes started by this command is surprisingly
       // tricky. If a process spawns another processes and we kill the parent,
       // then the child process is NOT automatically killed. Instead we're using
@@ -58,23 +58,26 @@ export const createPosixProcess: CreateOSProcess = (command, options) => {
         }
       };
 
-      scope.spawn(function*(task) {
-        task.spawn(function*() {
+      yield spawn(function*(task) {
+        yield spawn(function*() {
           let value: Error = yield once(childProcess, 'error');
-          resolve({ state: 'completed', value: { type: 'error', value } });
-        });
+          produce({ state: 'completed', value: { type: 'error', value } });
+        }).within(task);
 
-        task.spawn(on<Buffer>(childProcess.stdout, 'data').map((c) => c.toString()).forEach(stdoutChannel.send));
-        task.spawn(on<Buffer>(childProcess.stderr, 'data').map((c) => c.toString()).forEach(stderrChannel.send));
+        yield spawn(on<Buffer>(childProcess.stdout, 'data').map((c) => c.toString()).forEach(stdoutChannel.send)).within(task);
+        yield spawn(on<Buffer>(childProcess.stderr, 'data').map((c) => c.toString()).forEach(stderrChannel.send)).within(task);
 
         try {
           let value = yield onceEmit(childProcess, 'exit');
-          resolve({ state: 'completed', value: { type: 'status', value } });
+          produce({ state: 'completed', value: { type: 'status', value } });
         } finally {
           stdoutChannel.close();
           stderrChannel.close();
           try {
-            process.kill(-childProcess.pid, "SIGTERM")
+            if(typeof childProcess.pid === 'undefined') {
+              throw new Error('no pid for childProcess');
+            }
+            process.kill(-childProcess.pid, "SIGTERM");
           } catch(e) {
             // do nothing, process is probably already dead
           }
@@ -89,7 +92,7 @@ export const createPosixProcess: CreateOSProcess = (command, options) => {
         stderr = stderr.stringBuffer(scope);
       }
 
-      return { pid, stdin, stdout, stderr, join, expect }
+      return { pid: pid as number, stdin, stdout, stderr, join, expect };
     }
-  }
-}
+  };
+};

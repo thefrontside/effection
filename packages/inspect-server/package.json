@@ -1,6 +1,6 @@
 {
   "name": "@effection/inspect-server",
-  "version": "2.0.0-beta.4",
+  "version": "2.0.0-beta.5",
   "description": "Inspect server for inspecting effection processes",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -22,25 +22,25 @@
   "scripts": {
     "lint": "eslint '{src,tests}/**/*.ts'",
     "test": "mocha -r ts-node/register test/**/*.test.ts",
-    "prepack": "tsdx build --tsconfig tsconfig.dist.json",
+    "prepack": "tsc --build tsconfig.dist.json",
     "mocha": "mocha -r ts-node/register",
     "docs": "yarn typedoc src/index.ts",
     "examples:basic": "ts-node ./examples/basic.ts"
   },
   "dependencies": {
-    "@effection/atom": "2.0.0-beta.3",
-    "@effection/channel": "2.0.0-beta.3",
-    "@effection/core": "2.0.0-beta.3",
-    "@effection/inspect-ui": "2.0.0-beta.3",
-    "@effection/inspect-utils": "2.0.0-beta.3",
-    "@effection/events": "2.0.0-beta.3",
-    "@effection/subscription": "2.0.0-beta.3",
-    "@effection/websocket-server": "2.0.0-beta.4",
+    "@effection/atom": "2.0.0-beta.4",
+    "@effection/channel": "2.0.0-beta.4",
+    "@effection/core": "2.0.0-beta.4",
+    "@effection/inspect-ui": "2.0.0-beta.4",
+    "@effection/inspect-utils": "2.0.0-beta.4",
+    "@effection/events": "2.0.0-beta.4",
+    "@effection/subscription": "2.0.0-beta.4",
+    "@effection/websocket-server": "2.0.0-beta.5",
     "node-static": "^0.7.11",
     "websocket": "^1.0.34"
   },
   "devDependencies": {
-    "@effection/mocha": "2.0.0-beta.3",
+    "@effection/mocha": "2.0.0-beta.4",
     "@frontside/tsconfig": "^1.2.0",
     "@types/node": "^13.13.5",
     "@types/node-static": "^0.7.6",
@@ -48,12 +48,10 @@
     "expect": "^25.4.0",
     "mocha": "^8.3.1",
     "ts-node": "^8.9.0",
-    "tsdx": "0.13.2",
     "typedoc": "^0.20.36",
     "typescript": "^3.7.0"
   },
   "volta": {
-    "node": "12.16.0",
-    "yarn": "1.19.1"
+    "extends": "../../package.json"
   }
 }

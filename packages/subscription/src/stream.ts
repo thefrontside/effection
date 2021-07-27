@@ -32,12 +32,12 @@ export interface StringBufferStream<TReturn = undefined> extends Stream<string, 
 export function createStream<T, TReturn = undefined>(callback: Callback<T, TReturn>, name = 'stream'): Stream<T, TReturn> {
   let subscribe = (task: Task) => {
     let queue = createQueue<T, TReturn>(name);
-    task.spawn(function*() {
+    task.run(function*() {
       let result = yield callback(queue.send);
       queue.closeWith(result);
-    }, { labels: { name: `publisher`}});
+    }, { labels: { name: `publisher` } });
     return queue.subscription;
-  }
+  };
 
   function filter<R extends T>(predicate: (value: T) => value is R): Stream<T, TReturn>
   function filter(predicate: (value: T) => boolean): Stream<T, TReturn>
@@ -49,7 +49,7 @@ export function createStream<T, TReturn = undefined>(callback: Callback<T, TRetu
         }
       });
     }, `${name}.filter()`);
-  };
+  }
 
   let stream = {
     subscribe,
@@ -99,7 +99,7 @@ export function createStream<T, TReturn = undefined>(callback: Callback<T, TRetu
     buffer(scope: Task): Stream<T, TReturn> {
       let buffer: T[] = [];
 
-      scope.spawn(stream.forEach((m) => { buffer.push(m) }));
+      scope.run(stream.forEach((m) => { buffer.push(m) }));
 
       return createStream((publish) => function*() {
         buffer.forEach(publish);
@@ -110,7 +110,7 @@ export function createStream<T, TReturn = undefined>(callback: Callback<T, TRetu
     stringBuffer(scope: Task): StringBufferStream<TReturn> {
       let buffer = "";
 
-      scope.spawn(stream.forEach((m) => { buffer += `${m}` }));
+      scope.run(stream.forEach((m) => { buffer += `${m}` }));
 
       let result = createStream<string, TReturn>((publish) => function*() {
         let internalBuffer = buffer;
@@ -126,7 +126,7 @@ export function createStream<T, TReturn = undefined>(callback: Callback<T, TRetu
         get value(): string {
           return buffer;
         }
-      }
+      };
     },
 
     get [SymbolOperationIterable](): ToOperationIterator<T, TReturn> {

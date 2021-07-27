@@ -1,6 +1,6 @@
 {
   "name": "@effection/node",
-  "version": "2.0.0-beta.4",
+  "version": "2.0.0-beta.5",
   "description": "Work in Node.js with Effection",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -11,7 +11,7 @@
     "directory": "packages/node"
   },
   "author": "Frontside Engineering <engineering@frontside.com>",
-    "license": "MIT",
+  "license": "MIT",
   "scripts": {
     "lint": "eslint '{src,tests}/**/*.ts'",
     "test": "echo noop",
@@ -25,8 +25,8 @@
     "typescript": "^4.3.5"
   },
   "dependencies": {
-    "@effection/main": "2.0.0-beta.4",
-    "@effection/process": "2.0.0-beta.4"
+    "@effection/main": "2.0.0-beta.5",
+    "@effection/process": "2.0.0-beta.5"
   },
   "volta": {
     "extends": "../../package.json"

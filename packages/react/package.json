@@ -1,6 +1,6 @@
 {
   "name": "@effection/react",
-  "version": "2.0.0-beta.5",
+  "version": "2.0.0-beta.6",
   "description": "Hooks for integrating effection into react applications",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -11,7 +11,7 @@
     "directory": "packages/react"
   },
   "author": "Frontside Engineering <engineering@frontside.com>",
-    "license": "MIT",
+  "license": "MIT",
   "scripts": {
     "lint": "eslint '{src,tests}/**/*.{ts,tsx}'",
     "test": "mocha -r ts-node/register 'test/**/*.test.{ts,tsx}'",
@@ -20,12 +20,12 @@
     "mocha": "mocha -r ts-node/register"
   },
   "dependencies": {
-    "@effection/core": "2.0.0-beta.4",
-    "@effection/subscription": "2.0.0-beta.4",
+    "@effection/core": "2.0.0-beta.5",
+    "@effection/subscription": "2.0.0-beta.5",
     "react": "^17.0.2"
   },
   "devDependencies": {
-    "@effection/mocha": "2.0.0-beta.4",
+    "@effection/mocha": "2.0.0-beta.5",
     "@frontside/tsconfig": "^1.2.0",
     "@types/node": "^16.3.2",
     "@types/react": "^17.0.8",

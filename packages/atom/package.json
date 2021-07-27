@@ -10,6 +10,7 @@
     "url": "https://github.com/thefrontside/effection.git",
     "directory": "packages/atom"
   },
+  "typeDocEntry": "src/index.ts",
   "author": "Frontside Engineering <engineering@frontside.io>",
   "license": "MIT",
   "files": [
@@ -22,7 +23,6 @@
     "test:types": "dtslint test-dts --localTs ../../node_modules/typescript/lib --expectOnly",
     "prepack": "tsc --build tsconfig.dist.json",
     "test": "yarn test:unit && yarn test:types",
-    "docs": "yarn typedoc src/index.ts",
     "mocha": "mocha -r ts-node/register"
   },
   "devDependencies": {
@@ -33,7 +33,6 @@
     "expect": "^25.4.0",
     "mocha": "^8.3.1",
     "ts-node": "^10.1.0",
-    "typedoc": "^0.20.36",
     "typescript": "^4.3.5"
   },
   "volta": {

@@ -13,7 +13,6 @@ jobs:
       change: ${{ steps.covector.outputs.change }}
       commandRan: ${{ steps.covector.outputs.commandRan }}
       successfulPublish: ${{ steps.covector.outputs.successfulPublish }}
-
     steps:
       - uses: actions/checkout@v2
         with:
@@ -48,3 +47,11 @@ jobs:
           body: ${{ steps.covector.outputs.change }}
           token: ${{ secrets.FRONTSIDEJACK_GITHUB_TOKEN }}
           author: frontsidejack <frontsidejack@users.noreply.github.com>
+
+  deploy-typedocs:
+    runs-on: ubuntu-latest
+    needs: version-or-publish
+    if: ${{ needs.version-or-publich.outputs.successfulPublish == 'true' }}
+    steps:
+      - name: Trigger Netlify Build
+        run: curl -X POST -d {} ${{ secrets.DEPLOY_API_DOCS_V2 }}

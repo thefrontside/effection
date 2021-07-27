@@ -124,7 +124,7 @@ main(function*() {
 ```
 
 If we unpack this a bit, we can see that we're creating a new `Stream` called
-`channel` using the method `map` on the stream. This stream gets the `text`
+`textStream` using the method `map` on `channel`. This stream gets the `text`
 property from each value in the stream.
 
 We then use `map` again on `textStream` to create `uppercaseStream`, which

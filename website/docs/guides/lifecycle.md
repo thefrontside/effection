@@ -36,7 +36,7 @@ main(function*() {
 Halting a Task means that the task itself is cancelled, it also causes any Task
 that has been spawned from the Task to be halted.
 
-We have previsouly mentioned that when an error occurs in a Task, the task
+We have previously mentioned that when an error occurs in a Task, the task
 becomes errored, and also causes its parent to become errored. However, if a
 Task is halted, the parent task is unaffected.
 
@@ -144,7 +144,7 @@ errors during halting.
 
 ### Ensure
 
-Sometimes you want to avoid the righward drift of using lots of `try/finally` blocks.
+Sometimes you want to avoid the rightward drift of using lots of `try/finally` blocks.
 The `ensure` operation that ships with Effection can help you clean up this type of code.
 
 The following behaves identically to our `try/finally` implementation above:

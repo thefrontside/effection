@@ -1,5 +1,14 @@
 # @effection/core
 
+## \[2.0.0-beta.5]
+
+- Deprecate Future#resolve in favour of Future#produce.
+  - [7b8ce8e](https://github.com/thefrontside/effection/commit/7b8ce8ef1d46ddf10806d51b3f0ed1ef14e8f9cd) Depreacte Future#resolve in favour of Future#produce ([#437](https://github.com/thefrontside/effection/pull/437)) on 2021-07-22
+  - [63f6424](https://github.com/thefrontside/effection/commit/63f64243373ae6c320b9a7564db666ca7efbb597) Replace covector files and delete changesets to trigger publish on 2021-07-23
+  - [1bb643c](https://github.com/thefrontside/effection/commit/1bb643c0f1cfac5b849e3622c274ef0c04a93717) Re-add covector change file on 2021-07-23
+- Upgrade typescript to 4.3.5 and replace tsdx with tsc
+  - [121bd40](https://github.com/thefrontside/effection/commit/121bd40e17609a82bce649c5fed34ee0754681b7) Add change file for typescript bump on 2021-07-23
+
 ## 2.0.0-beta.4
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@effection/mocha",
-  "version": "2.0.0-beta.4",
+  "version": "2.0.0-beta.5",
   "description": "Effection Subscriptions",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -11,7 +11,7 @@
     "directory": "packages/mocha"
   },
   "author": "Frontside Engineering <engineering@frontside.com>",
-    "license": "MIT",
+  "license": "MIT",
   "scripts": {
     "lint": "eslint '{src,tests}/**/*.ts'",
     "test": "mocha -r ts-node/register --timeout 5000 test/**/*.test.ts",

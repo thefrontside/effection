@@ -1,6 +1,6 @@
 {
   "name": "@effection/websocket-client",
-  "version": "2.0.0-beta.5",
+  "version": "2.0.0-beta.6",
   "description": "A websocket client for Effection in node and browser",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -11,7 +11,7 @@
     "directory": "packages/websocket-client"
   },
   "author": "Frontside Engineering <engineering@frontside.com>",
-    "license": "MIT",
+  "license": "MIT",
   "scripts": {
     "lint": "eslint '{src,tests}/**/*.ts'",
     "test": "mocha -r ts-node/register test/**/*.test.ts",
@@ -20,13 +20,13 @@
     "mocha": "mocha -r ts-node/register"
   },
   "dependencies": {
-    "@effection/core": "2.0.0-beta.4",
-    "@effection/events": "2.0.0-beta.4",
-    "@effection/subscription": "2.0.0-beta.4",
+    "@effection/core": "2.0.0-beta.5",
+    "@effection/events": "2.0.0-beta.5",
+    "@effection/subscription": "2.0.0-beta.5",
     "isomorphic-ws": "^4.0.1"
   },
   "devDependencies": {
-    "@effection/mocha": "2.0.0-beta.4",
+    "@effection/mocha": "2.0.0-beta.5",
     "@frontside/tsconfig": "^1.2.0",
     "@types/node": "^16.3.2",
     "@types/ws": "^7.4.4",

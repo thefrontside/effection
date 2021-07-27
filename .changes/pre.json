@@ -1,6 +1,8 @@
 {
   "tag": "beta",
   "changes": [
-    ".changes/covector-bug.md"
+    ".changes/covector-bug.md",
+    ".changes/produce.md",
+    ".changes/typescript-bumps.md"
   ]
 }

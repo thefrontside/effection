@@ -102,3 +102,4 @@ main(function*() {
 ```
 
 [wscode]: https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent
+[childprocess]: https://nodejs.org/api/child_process.html#child_process_class_childprocess

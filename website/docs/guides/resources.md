@@ -59,7 +59,7 @@ export function *createSocket(port, host) {
   } finally {
     socket.close();
   }
-});
+}
 ```
 
 But when we actually try to use our `createSocket` operation, we run into a problem:
@@ -108,7 +108,7 @@ export function createSocket(port, host) {
       return socket;
     }
   }
-});
+}
 ```
 
 Before we unpack what's going on, let's just note that how we use `createSocket` has
@@ -176,7 +176,7 @@ function createJSONSocket(port, host) {
       }
     }
   }
-});
+}
 
 main(function*() {
   let socket = yield createJSONSocket(1337, '127.0.0.1'); // waits for the socket to connect
@@ -204,7 +204,7 @@ export function *createJSONSocket(port, host) {
     write: (value) => socket.write(JSON.stringify(value));
   }
   // socket gets closed here!
-});
+}
 ```
 
 [tasks]: /docs/guides/tasks

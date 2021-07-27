@@ -614,6 +614,19 @@
     "@effection/subscription" "^1.0.0"
     effection "^1.0.0"
 
+"@effection/core@2.0.0-beta.3":
+  version "2.0.0-beta.3"
+  resolved "https://registry.yarnpkg.com/@effection/core/-/core-2.0.0-beta.3.tgz#2be133a9538a946dfa1feda68963ecc1b338e2c5"
+  integrity sha512-VT6Y/JNyKGZ0Z1smFEOt4jntztUJULPGJoln2IJKY2rAOQhO3XATtH43n25KfyXXZkZpWga3LnA9ROBd7BFSBQ==
+
+"@effection/events@2.0.0-beta.3":
+  version "2.0.0-beta.3"
+  resolved "https://registry.yarnpkg.com/@effection/events/-/events-2.0.0-beta.3.tgz#40dd91d3b2b2eb183700b5f07f0dbb88cd04d4bb"
+  integrity sha512-H+42DtB7eGLV/JKZxwS/OkqLHciUlBNRiffs0fron4d8pIu3KJIVB2ZihjbgxuquDLwSp6SPo8LexxNwLDHJLQ==
+  dependencies:
+    "@effection/core" "2.0.0-beta.3"
+    "@effection/subscription" "2.0.0-beta.3"
+
 "@effection/events@^1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@effection/events/-/events-1.0.0.tgz#4430ed538377bf04a5efd7c3b6d40a7b4e2b0607"
@@ -635,12 +648,29 @@
     effection "^1.0.0"
     shellwords "^0.1.1"
 
+"@effection/subscription@2.0.0-beta.3":
+  version "2.0.0-beta.3"
+  resolved "https://registry.yarnpkg.com/@effection/subscription/-/subscription-2.0.0-beta.3.tgz#1a542016a35ac14609398b3ccf04d3379bf6cc68"
+  integrity sha512-RxZQ/kfBBHiGUWGbYed80og9YrN5xpSV1XLDw2p/AHvaVGYgCU+jui/0hdGUsjcDB5V9iNYhcmIJC5cz0wXW5w==
+  dependencies:
+    "@effection/core" "2.0.0-beta.3"
+
 "@effection/subscription@^1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@effection/subscription/-/subscription-1.0.0.tgz#331cc08f8ebc5a09be705532d93d4d308e31ff44"
   integrity sha512-Uldp70Yv/i8vbP+f7vr7U14YMT7iZUm8yrsWKcNUCGOypM8kCPXX3ihtvJ+P3ZpFShecfFQQpjblIVaBEkx37g==
   dependencies:
     effection "^1.0.0"
+
+"@effection/websocket-client@2.0.0-beta.4":
+  version "2.0.0-beta.4"
+  resolved "https://registry.yarnpkg.com/@effection/websocket-client/-/websocket-client-2.0.0-beta.4.tgz#9c61d5789b56bfe0df78f99b441b75a3ce75b19c"
+  integrity sha512-hn1OyA0scdyPuAAUHJtSRd9vUT4VQvfkXTRlHSS3sCCBpAEiQWB2dGp6T/0XbBcnz3Q9rpqGz3kyH8RVw8RCtg==
+  dependencies:
+    "@effection/core" "2.0.0-beta.3"
+    "@effection/events" "2.0.0-beta.3"
+    "@effection/subscription" "2.0.0-beta.3"
+    isomorphic-ws "^4.0.1"
 
 "@eslint/eslintrc@^0.4.2":
   version "0.4.2"

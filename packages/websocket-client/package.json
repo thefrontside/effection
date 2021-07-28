@@ -1,6 +1,6 @@
 {
   "name": "@effection/websocket-client",
-  "version": "2.0.0-beta.6",
+  "version": "2.0.0-beta.7",
   "description": "A websocket client for Effection in node and browser",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -27,12 +27,12 @@
   },
   "dependencies": {
     "@effection/core": "2.0.0-beta.5",
-    "@effection/events": "2.0.0-beta.5",
-    "@effection/subscription": "2.0.0-beta.5",
+    "@effection/events": "2.0.0-beta.6",
+    "@effection/subscription": "2.0.0-beta.6",
     "isomorphic-ws": "^4.0.1"
   },
   "devDependencies": {
-    "@effection/mocha": "2.0.0-beta.5",
+    "@effection/mocha": "2.0.0-beta.6",
     "@frontside/tsconfig": "^1.2.0",
     "@types/node": "^16.3.2",
     "@types/ws": "^7.4.4",

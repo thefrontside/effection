@@ -1,6 +1,6 @@
 {
   "name": "@effection/node",
-  "version": "2.0.0-beta.5",
+  "version": "2.0.0-beta.6",
   "description": "Work in Node.js with Effection",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -30,8 +30,8 @@
     "typescript": "^4.3.5"
   },
   "dependencies": {
-    "@effection/main": "2.0.0-beta.5",
-    "@effection/process": "2.0.0-beta.5"
+    "@effection/main": "2.0.0-beta.6",
+    "@effection/process": "2.0.0-beta.6"
   },
   "volta": {
     "extends": "../../package.json"

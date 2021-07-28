@@ -1,5 +1,11 @@
 # @effection/subscription
 
+## \[2.0.0-beta.6]
+
+- remove accidentally compiled .js files from distributed sources
+  - Bumped due to a bump in @effection/mocha.
+  - [f0f0023](https://github.com/thefrontside/effection/commit/f0f002354743ae6d6f69bfe6df28ddc11d0f8be0) add changefile on 2021-07-26
+
 ## \[2.0.0-beta.5]
 
 - Upgrade typescript to 4.3.5 and replace tsdx with tsc

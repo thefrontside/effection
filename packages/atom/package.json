@@ -15,7 +15,9 @@
   "license": "MIT",
   "files": [
     "README.md",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    "dist/**/*",
+    "src/**/*"
   ],
   "scripts": {
     "lint": "eslint '{src,tests}/**/*.ts'",

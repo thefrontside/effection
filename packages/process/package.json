@@ -13,6 +13,12 @@
   "typeDocEntry": "src/index.ts",
   "author": "Frontside Engineering <engineering@frontside.com>",
   "license": "MIT",
+  "files": [
+    "README.md",
+    "CHANGELOG.md",
+    "dist/**/*",
+    "src/**/*"
+  ],
   "scripts": {
     "lint": "eslint '{src,tests}/**/*.ts'",
     "test": "mocha -r ts-node/register --timeout 10000 test/**/*.test.ts",

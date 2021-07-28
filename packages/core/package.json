@@ -18,6 +18,11 @@
     "build": "yarn prepack",
     "prepack": "tsc --build tsconfig.dist.json"
   },
+  "files": [
+    "CHANGELOG.md",
+    "dist/**/*",
+    "src/**/*"
+  ],
   "devDependencies": {
     "@frontside/tsconfig": "^1.2.0",
     "@types/mocha": "^7.0.2",

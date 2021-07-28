@@ -1,6 +1,6 @@
 {
   "name": "@effection/react",
-  "version": "2.0.0-beta.6",
+  "version": "2.0.0-beta.7",
   "description": "Hooks for integrating effection into react applications",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -27,11 +27,11 @@
   },
   "dependencies": {
     "@effection/core": "2.0.0-beta.5",
-    "@effection/subscription": "2.0.0-beta.5",
+    "@effection/subscription": "2.0.0-beta.6",
     "react": "^17.0.2"
   },
   "devDependencies": {
-    "@effection/mocha": "2.0.0-beta.5",
+    "@effection/mocha": "2.0.0-beta.6",
     "@frontside/tsconfig": "^1.2.0",
     "@types/node": "^16.3.2",
     "@types/react": "^17.0.8",

@@ -1,6 +1,6 @@
 {
   "name": "@effection/atom",
-  "version": "2.0.0-beta.5",
+  "version": "2.0.0-beta.6",
   "description": "State atom implementation for effection",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -28,7 +28,7 @@
     "mocha": "mocha -r ts-node/register"
   },
   "devDependencies": {
-    "@effection/mocha": "2.0.0-beta.5",
+    "@effection/mocha": "2.0.0-beta.6",
     "@frontside/tsconfig": "^1.2.0",
     "@types/node": "^16.3.2",
     "dtslint": "^4.0.7",
@@ -41,9 +41,9 @@
     "extends": "../../package.json"
   },
   "dependencies": {
-    "@effection/channel": "2.0.0-beta.5",
+    "@effection/channel": "2.0.0-beta.6",
     "@effection/core": "2.0.0-beta.5",
-    "@effection/subscription": "2.0.0-beta.5",
+    "@effection/subscription": "2.0.0-beta.6",
     "assert-ts": "^0.2.2",
     "fp-ts": "^2.8.2",
     "monocle-ts": "^2.3.3"

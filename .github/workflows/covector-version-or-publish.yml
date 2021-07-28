@@ -35,6 +35,7 @@ jobs:
         with:
           token: ${{ secrets.FRONTSIDEJACK_GITHUB_TOKEN }}
           command: 'version-or-publish'
+      - run: yarn install # this is to update the lockfile with the new versions of dependencies as a result of covector
       - name: Create Pull Request With Versions Bumped
         id: cpr
         uses: peter-evans/create-pull-request@v3

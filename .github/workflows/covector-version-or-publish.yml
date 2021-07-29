@@ -52,7 +52,7 @@ jobs:
   deploy-typedocs:
     runs-on: ubuntu-latest
     needs: version-or-publish
-    if: ${{ needs.version-or-publich.outputs.successfulPublish == 'true' }}
+    if: ${{ needs.version-or-publish.outputs.successfulPublish == 'true' }}
     steps:
       - name: Trigger Netlify Build
         run: curl -X POST -d {} ${{ secrets.DEPLOY_API_DOCS_V2 }}

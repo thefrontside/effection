@@ -8,6 +8,7 @@
   "private": true,
   "workspaces": {
     "packages": [
+      "packages/build",
       "packages/core",
       "packages/main",
       "packages/mocha",

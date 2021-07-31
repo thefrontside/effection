@@ -2,7 +2,21 @@
   "name": "@effection/channel",
   "version": "2.0.0-beta.6",
   "description": "MPMC Channel implementation for effection",
-  "main": "dist/index.js",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/channel.esm.js",
+  "browser": "dist/umd/channel.umd.js",
+  "exports": {
+    "import": "./dist/esm/channel.esm.js",
+    "require": "./dist/cjs/index.js",
+    "browser": "./dist/umd/channel.umd.js"
+  },
+  "typesVersions": {
+    "*": {
+        "*": [
+            "dist/esm/index.d.ts"
+        ]
+    }
+  },
   "types": "dist/index.d.ts",
   "homepage": "https://github.com/thefrontside/effection",
   "repository": {

@@ -2,7 +2,7 @@
   "extends": "./tsconfig",
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "dist",
+    "outDir": "./dist/esm",
     "module": "esnext"
   },
   "references": [

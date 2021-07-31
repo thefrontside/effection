@@ -3,6 +3,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "composite": true,
+    "module": "ESNext",
     "declaration": true,
     "declarationMap": true,
     "paths": {

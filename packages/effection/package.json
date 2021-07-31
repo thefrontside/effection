@@ -11,8 +11,22 @@
   "author": "Charles Lowell <cowboyd@frontside.com>",
   "license": "MIT",
   "private": false,
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/effection.esm.js",
+  "browser": "dist/umd/effection.umd.js",
+  "exports": {
+    "import": "./dist/esm/effection.esm.js",
+    "require": "./dist/cjs/index.js",
+    "browser": "./dist/umd/effection.umd.js"
+  },
+  "typesVersions": {
+    "*": {
+        "*": [
+            "dist/esm/index.d.ts"
+        ]
+    }
+  },
   "types": "dist/index.d.ts",
-  "main": "dist/index.js",
   "typeDocEntry": "src/index.ts",
   "files": [
     "CHANGELOG.md",
@@ -33,6 +47,7 @@
     "@effection/subscription": "2.0.0-beta.6"
   },
   "devDependencies": {
+    "@effection/build": "^2.0.0-beta.5",
     "@babel/core": "^7.14.8",
     "@babel/eslint-parser": "^7.14.7",
     "@babel/eslint-plugin": "^7.14.5",

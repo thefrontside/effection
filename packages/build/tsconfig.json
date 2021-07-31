@@ -1,13 +1,16 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "module": "commonjs",
     "baseUrl": ".",
     "outDir": "./dist/esm",
+    "rootDir": "src",
     "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "isolatedModules": false
   },
   "include": [
     "test/**/*.ts",
-    "src/**/*.ts",
-    "package.json"
+    "src/**/*.ts"
   ]
 }

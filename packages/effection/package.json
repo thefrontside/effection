@@ -11,8 +11,9 @@
   "author": "Charles Lowell <cowboyd@frontside.com>",
   "license": "MIT",
   "private": false,
-  "types": "dist/cjs/index.d.ts",
   "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
   "typeDocEntry": "src/index.ts",
   "files": [
     "CHANGELOG.md",

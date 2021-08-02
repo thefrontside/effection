@@ -3,7 +3,8 @@
   "version": "2.0.0-beta.7",
   "description": "A websocket client for Effection in node and browser",
   "main": "dist/cjs/index.js",
-  "types": "dist/cjs/index.d.ts",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
   "typeDocEntry": "src/index.ts",
   "homepage": "https://github.com/thefrontside/effection",
   "repository": {

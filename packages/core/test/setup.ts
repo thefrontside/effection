@@ -5,14 +5,14 @@ beforeEach(async () => {
   await Effection.reset();
 });
 
-export function createNumber(value: number) {
+export function createNumber(value: number): Operation<number> {
   return function*() {
     yield sleep(1);
     return value;
   };
 }
 
-export function *blowUp() {
+export function *blowUp(): Operation<void> {
   yield sleep(1);
   throw new Error('boom');
 }

@@ -2,52 +2,52 @@
   "files": [],
   "references": [
     {
-      "path": "./packages/core/tsconfig.cjs.json"
+      "path": "./packages/core/tsconfig.esm.json"
     },
     {
-      "path": "./packages/subscription/tsconfig.cjs.json"
+      "path": "./packages/subscription/tsconfig.esm.json"
     },
     {
-      "path": "./packages/events/tsconfig.cjs.json"
+      "path": "./packages/events/tsconfig.esm.json"
     },
     {
-      "path": "./packages/atom/tsconfig.cjs.json"
+      "path": "./packages/atom/tsconfig.esm.json"
     },
     {
-      "path": "./packages/channel/tsconfig.cjs.json"
+      "path": "./packages/channel/tsconfig.esm.json"
     },
     {
-      "path": "./packages/effection/tsconfig.cjs.json"
+      "path": "./packages/effection/tsconfig.esm.json"
     },
     {
-      "path": "./packages/fetch/tsconfig.cjs.json"
+      "path": "./packages/fetch/tsconfig.esm.json"
     },
     {
-      "path": "./packages/inspect-utils/tsconfig.cjs.json"
+      "path": "./packages/inspect-utils/tsconfig.esm.json"
     },
     {
-      "path": "./packages/inspect-server/tsconfig.cjs.json"
+      "path": "./packages/inspect-server/tsconfig.esm.json"
     },
     {
-      "path": "./packages/main/tsconfig.cjs.json"
+      "path": "./packages/main/tsconfig.esm.json"
     },
     {
-      "path": "./packages/mocha/tsconfig.cjs.json"
+      "path": "./packages/mocha/tsconfig.esm.json"
     },
     {
-      "path": "./packages/node/tsconfig.cjs.json"
+      "path": "./packages/node/tsconfig.esm.json"
     },
     {
-      "path": "./packages/process/tsconfig.cjs.json"
+      "path": "./packages/process/tsconfig.esm.json"
     },
     {
-      "path": "./packages/react/tsconfig.cjs.json"
+      "path": "./packages/react/tsconfig.esm.json"
     },
     {
-      "path": "./packages/websocket-client/tsconfig.cjs.json"
+      "path": "./packages/websocket-client/tsconfig.esm.json"
     },
     {
-      "path": "./packages/websocket-server/tsconfig.cjs.json"
+      "path": "./packages/websocket-server/tsconfig.esm.json"
     },
   ]
 }

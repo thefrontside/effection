@@ -23,7 +23,7 @@
     "lint": "eslint '{src,bin,test}/**/*.ts'",
     "test": "mocha -r ts-node/register test/**/*.test.ts",
     "mocha": "mocha -r ts-node/register",
-    "prepack": "tsc --build tsconfig.cjs.json"
+    "prepack": "tsc --build tsconfig.esm.json && tsc --build tsconfig.cjs.json"
   },
   "dependencies": {
     "@effection/channel": "2.0.0-beta.6",

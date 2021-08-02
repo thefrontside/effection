@@ -22,7 +22,7 @@
   "scripts": {
     "lint": "eslint '{src,tests}/**/*.ts'",
     "test": "mocha -r ts-node/register --timeout 10000 test/**/*.test.ts",
-    "prepack": "tsc --build tsconfig.cjs.json",
+    "prepack": "tsc --build tsconfig.esm.json && tsc --build tsconfig.cjs.json",
     "mocha": "mocha -r ts-node/register"
   },
   "devDependencies": {

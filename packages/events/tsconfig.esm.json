@@ -1,9 +1,8 @@
 {
-  "extends": "./tsconfig",
+  "extends": "./tsconfig.cjs.json",
   "compilerOptions": {
-    "rootDir": "./src",
-    "outDir": "./dist/cjs",
-    "noEmit": false
+    "outDir": "./dist/esm",
+    "module": "ESNext"
   },
   "references": [
     { "path": "../core/tsconfig.esm.json" },

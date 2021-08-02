@@ -4,5 +4,8 @@
     "outDir": "./dist/esm",
     "module": "ESNext"
   },
+  "references": [
+    { "path": "../core/tsconfig.esm.json" }
+  ],
   "exclude": ["./test/*"]
 }

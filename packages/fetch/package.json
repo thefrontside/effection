@@ -21,7 +21,7 @@
   ],
   "scripts": {
     "lint": "eslint '{src,tests}/**/*.ts'",
-    "prepack": "tsc --build tsconfig.cjs.json",
+    "prepack": "tsc --build tsconfig.esm.json && tsc --build tsconfig.cjs.json",
     "test": "mocha -r ts-node/register test/**/*.test.ts",
     "mocha": "mocha -r ts-node/register"
   },

@@ -1,9 +1,9 @@
 {
   "name": "@effection/core",
   "version": "2.0.0-beta.5",
-  "main": "dist/lib/index.js",
+  "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
-  "types": "dist/lib/index.d.ts",
+  "types": "dist/cjs/index.d.ts",
   "typeDocEntry": "src/index.ts",
   "license": "MIT",
   "homepage": "https://github.com/thefrontside/effection",
@@ -17,7 +17,7 @@
     "test": "mocha -r ts-node/register 'test/**/*.test.ts'",
     "mocha": "mocha -r ts-node/register",
     "build": "yarn prepack",
-    "prepack": "copy ./package.json ./dist && tsc --build tsconfig.dist.json && tsc --build tsconfig.dist-esm.json"
+    "prepack": "copy ./package.json ./dist && tsc --build tsconfig.cjs.json && tsc --build tsconfig.esm.json"
   },
   "files": [
     "package.json",

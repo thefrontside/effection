@@ -1,16 +1,14 @@
 {
-  "extends": "../../tsconfig.base.json",
+  "extends": "./tsconfig",
   "compilerOptions": {
-    "baseUrl": ".",
+    "rootDir": "./src",
     "outDir": "./dist/cjs",
-    "jsx": "react"
-  },  
+    "noEmit": false
+  },
   "references": [
     { "path": "../core/tsconfig.cjs.json" },
+    { "path": "../events/tsconfig.cjs.json" },
     { "path": "../subscription/tsconfig.cjs.json" }
   ],
-  "include": [
-    "src/**/*.ts",
-    "test/**/*.ts"
-  ]
+  "exclude": ["./test/*"]
 }

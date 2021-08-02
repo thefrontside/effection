@@ -1,17 +1,15 @@
 {
-  "extends": "../../tsconfig.base.json",
+  "extends": "./tsconfig",
   "compilerOptions": {
-    "baseUrl": ".",
-    "noEmit": true
-  },  
+    "rootDir": "./src",
+    "outDir": "./dist/cjs",
+    "noEmit": false
+  },
   "references": [
+    { "path": "../effection/tsconfig.cjs.json" },
     { "path": "../channel/tsconfig.cjs.json" },
     { "path": "../core/tsconfig.cjs.json" },
-    { "path": "../events/tsconfig.cjs.json" },
     { "path": "../subscription/tsconfig.cjs.json" }
   ],
-  "include": [
-    "src/**/*.ts",
-    "test/**/*.ts"
-  ]
+  "exclude": ["./test/*"]
 }

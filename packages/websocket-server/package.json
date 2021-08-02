@@ -2,8 +2,8 @@
   "name": "@effection/websocket-server",
   "version": "2.0.0-beta.7",
   "description": "A simple websocket server for Effection",
-  "main": "dist/lib/index.js",
-  "types": "dist/lib/index.d.ts",
+  "main": "dist/cjs/index.js",
+  "types": "dist/cjs/index.d.ts",
   "typeDocEntry": "src/index.ts",
   "homepage": "https://github.com/thefrontside/effection",
   "repository": {
@@ -22,7 +22,7 @@
   "scripts": {
     "lint": "eslint '{src,tests}/**/*.ts'",
     "test": "mocha -r ts-node/register test/**/*.test.ts",
-    "prepack": "tsc --build tsconfig.dist.json",
+    "prepack": "tsc --build tsconfig.cjs.json",
     "mocha": "mocha -r ts-node/register"
   },
   "dependencies": {

@@ -4,8 +4,8 @@
   "description": "Web interface for inspecting effection applications",
   "main": "index.js",
   "types": "index.d.ts",
-  "browser": "dist/lib/index.html",
-  "module": "dist/esm/inspect-ui.esm.js",
+  "browser": "dist/cjs/index.html",
+  "module": "dist/esm/index.js",
   "homepage": "https://github.com/thefrontside/effection",
   "repository": {
     "type": "git",

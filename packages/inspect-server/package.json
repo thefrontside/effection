@@ -2,8 +2,8 @@
   "name": "@effection/inspect-server",
   "version": "2.0.0-beta.7",
   "description": "Inspect server for inspecting effection processes",
-  "main": "dist/lib/index.js",
-  "types": "dist/lib/index.d.ts",
+  "main": "dist/cjs/index.js",
+  "types": "dist/cjs/index.d.ts",
   "module": "dist/esm/inspect-server.esm.js",
   "homepage": "https://github.com/thefrontside/effection",
   "repository": {
@@ -22,7 +22,7 @@
   "scripts": {
     "lint": "eslint '{src,tests}/**/*.ts'",
     "test": "mocha -r ts-node/register test/**/*.test.ts",
-    "prepack": "tsc --build tsconfig.dist.json",
+    "prepack": "tsc --build tsconfig.cjs.json",
     "mocha": "mocha -r ts-node/register",
     "docs": "yarn typedoc src/index.ts",
     "examples:basic": "ts-node ./examples/basic.ts"

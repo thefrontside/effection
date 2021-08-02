@@ -2,7 +2,7 @@
   "extends": "./tsconfig",
   "compilerOptions": {
     "rootDir": "./src",
-    "outDir": "./dist/lib",
+    "outDir": "./dist/cjs",
     "noEmit": false
   },
   "exclude": ["./test/*"]

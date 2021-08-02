@@ -2,7 +2,7 @@
   "name": "@effection/core",
   "version": "2.0.0-beta.5",
   "main": "dist/lib/index.js",
-  "module": "dist/es6/index.js",
+  "module": "dist/esm/index.js",
   "types": "dist/lib/index.d.ts",
   "typeDocEntry": "src/index.ts",
   "license": "MIT",
@@ -17,9 +17,10 @@
     "test": "mocha -r ts-node/register 'test/**/*.test.ts'",
     "mocha": "mocha -r ts-node/register",
     "build": "yarn prepack",
-    "prepack": "tsc --build tsconfig.dist.json && tsc --build tsconfig.dist-esm.json"
+    "prepack": "copy ./package.json ./dist && tsc --build tsconfig.dist.json && tsc --build tsconfig.dist-esm.json"
   },
   "files": [
+    "package.json",
     "CHANGELOG.md",
     "dist/**/*",
     "src/**/*"
@@ -28,6 +29,7 @@
     "@frontside/tsconfig": "^1.2.0",
     "@types/mocha": "^7.0.2",
     "@types/node": "^16.3.2",
+    "copy": "^0.3.2",
     "eslint": "^7.30.0",
     "expect": "^25.3.0",
     "mocha": "^8.3.1",

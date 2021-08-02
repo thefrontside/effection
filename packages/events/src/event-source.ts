@@ -6,7 +6,7 @@ function isEventTarget(target: EventSource): target is EventTargetSource {
   return typeof (target as EventTargetSource).addEventListener === 'function';
 }
 
-export function addListener(source: EventSource, name: string, listener: () => void) {
+export function addListener(source: EventSource, name: string, listener: () => void): void {
   if(isEventTarget(source)) {
     source.addEventListener(name, listener);
   } else {
@@ -14,7 +14,7 @@ export function addListener(source: EventSource, name: string, listener: () => v
   }
 }
 
-export function removeListener(source: EventSource, name: string, listener: () => void) {
+export function removeListener(source: EventSource, name: string, listener: () => void): void {
   if(isEventTarget(source)) {
     source.removeEventListener(name, listener);
   } else {

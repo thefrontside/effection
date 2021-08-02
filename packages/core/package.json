@@ -20,7 +20,6 @@
     "prepack": "copy ./package.json ./dist && tsc --build tsconfig.esm.json && tsc --build tsconfig.cjs.json"
   },
   "files": [
-    "package.json",
     "CHANGELOG.md",
     "dist/**/*",
     "src/**/*"

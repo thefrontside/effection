@@ -2,8 +2,8 @@
   "name": "@effection/websocket-client",
   "version": "2.0.0-beta.7",
   "description": "A websocket client for Effection in node and browser",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/lib/index.js",
+  "types": "dist/lib/index.d.ts",
   "typeDocEntry": "src/index.ts",
   "homepage": "https://github.com/thefrontside/effection",
   "repository": {

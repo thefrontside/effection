@@ -1,8 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Task, createTask } from './task';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import { version } from '../package.json';
+import path from 'path';
+
+// there is no __dirname in esm, we might need dynamic imports?
+const pkgJsonPath = ['lib', 'esm'].includes(path.basename(__dirname)) ? '../../package.json' : '../package.json';
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { version } = require(pkgJsonPath);
 
 const MAJOR_VERSION = version.split('.')[0];
 const GLOBAL_PROPERTY = `__effectionV${MAJOR_VERSION}`;

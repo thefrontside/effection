@@ -1,9 +1,9 @@
 {
   "extends": "./tsconfig",
   "compilerOptions": {
-    "rootDir": "src",
-    "outDir": "dist",
-    "module": "esnext"
+    "rootDir": "./src",
+    "outDir": "./dist/lib",
+    "noEmit": false
   },
   "references": [
     { "path": "../atom/tsconfig.dist.json" },

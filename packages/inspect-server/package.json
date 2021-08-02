@@ -2,9 +2,9 @@
   "name": "@effection/inspect-server",
   "version": "2.0.0-beta.7",
   "description": "Inspect server for inspecting effection processes",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "module": "dist/inspect-server.esm.js",
+  "main": "dist/lib/index.js",
+  "types": "dist/lib/index.d.ts",
+  "module": "dist/esm/inspect-server.esm.js",
   "homepage": "https://github.com/thefrontside/effection",
   "repository": {
     "type": "git",

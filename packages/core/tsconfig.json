@@ -2,8 +2,7 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "baseUrl": ".",
-    "outDir": "dist",
-    "resolveJsonModule": true,
+    "noEmit": true
   },
   "include": [
     "test/**/*.ts",

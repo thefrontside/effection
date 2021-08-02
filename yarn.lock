@@ -1317,18 +1317,13 @@
     "@effection/subscription" "^1.0.0"
     effection "^1.0.0"
 
-"@effection/core@2.0.0-beta.4":
-  version "2.0.0-beta.4"
-  resolved "https://registry.npmjs.org/@effection/core/-/core-2.0.0-beta.4.tgz#af1efa9dd7dbab81e3ae4bb1406dd314678425e2"
-  integrity sha512-8V/OhcqJlaD7qsJwWtYXhj++xc/mj9AYrpA07Wj068vneueI1Bn0cc7nhjQCO15jzmxOgrdO4tqJYMdV5Bl50g==
-
-"@effection/events@2.0.0-beta.4":
-  version "2.0.0-beta.4"
-  resolved "https://registry.npmjs.org/@effection/events/-/events-2.0.0-beta.4.tgz#1839dbfa25cb70824d89c56ef5f8412c24e76dad"
-  integrity sha512-JJ8CzDrUSmiNyRUept/kEvlgp9fuTKdS7qES3QWAnrE4FbkcTcdkDrQ9RstVXEy1DubR+ENlt9cBME73Sxebfw==
+"@effection/events@2.0.0-beta.5":
+  version "2.0.0-beta.5"
+  resolved "https://registry.npmjs.org/@effection/events/-/events-2.0.0-beta.5.tgz#e1e4074a10b02f2e59068088cc6cca450d99cc47"
+  integrity sha512-WqHGOI++FblwMqdL4/+Wpdk5G2WmEL6G+SHeV5jazxWjwRrdrn/a/rq/jzDz6cvIKEeW19hNAuVMYi4GB5R4wg==
   dependencies:
-    "@effection/core" "2.0.0-beta.4"
-    "@effection/subscription" "2.0.0-beta.4"
+    "@effection/core" "2.0.0-beta.5"
+    "@effection/subscription" "2.0.0-beta.5"
 
 "@effection/events@^1.0.0":
   version "1.0.0"
@@ -1351,12 +1346,12 @@
     effection "^1.0.0"
     shellwords "^0.1.1"
 
-"@effection/subscription@2.0.0-beta.4":
-  version "2.0.0-beta.4"
-  resolved "https://registry.npmjs.org/@effection/subscription/-/subscription-2.0.0-beta.4.tgz#2606892d929a59dae825462290b62097b55e9466"
-  integrity sha512-KJD9zmofOkEl+arH+cFRf9uXyR45IZN4Xn7UYhrv4bmFM6caaa54ps6IaRIKqxm2/jTlaGq+GKJ9YN8zy0clpQ==
+"@effection/subscription@2.0.0-beta.5":
+  version "2.0.0-beta.5"
+  resolved "https://registry.npmjs.org/@effection/subscription/-/subscription-2.0.0-beta.5.tgz#1ab86b59a86c14babc88ada528cc51e0379c6346"
+  integrity sha512-kEJV+iYRjLdbMc9Rba849YKsECIW1/i4MniGzWb8W5YezsE+0fTH4vEMvYY6Up1eIzXNaV/7iR+XD38PViiozA==
   dependencies:
-    "@effection/core" "2.0.0-beta.4"
+    "@effection/core" "2.0.0-beta.5"
 
 "@effection/subscription@^1.0.0":
   version "1.0.0"
@@ -1365,14 +1360,14 @@
   dependencies:
     effection "^1.0.0"
 
-"@effection/websocket-client@2.0.0-beta.5":
-  version "2.0.0-beta.5"
-  resolved "https://registry.npmjs.org/@effection/websocket-client/-/websocket-client-2.0.0-beta.5.tgz#b911ac1b5f644927437f1a5102bf58b81db40d1c"
-  integrity sha512-vCyXoLc+IVhNwNkHwvmM6MygT0IleM1HT80aHOqcaL4PU9XzAMpv0RmW4KcwkARHQ/Fp5BDRtXsk2arz4vLgvg==
+"@effection/websocket-client@2.0.0-beta.6":
+  version "2.0.0-beta.6"
+  resolved "https://registry.npmjs.org/@effection/websocket-client/-/websocket-client-2.0.0-beta.6.tgz#5037dacedb88fd366d8fe806ce9be0836221e56c"
+  integrity sha512-n5nLaWHnq/74/fGylzwYsT0AO5yvqXFBKskWdGA98D+iTUSseFCk8qvJAWl0YpKSb1jE8YbSy4Rk3T2fGyFgyw==
   dependencies:
-    "@effection/core" "2.0.0-beta.4"
-    "@effection/events" "2.0.0-beta.4"
-    "@effection/subscription" "2.0.0-beta.4"
+    "@effection/core" "2.0.0-beta.5"
+    "@effection/events" "2.0.0-beta.5"
+    "@effection/subscription" "2.0.0-beta.5"
     isomorphic-ws "^4.0.1"
 
 "@eslint/eslintrc@^0.4.2":

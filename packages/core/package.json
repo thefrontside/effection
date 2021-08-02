@@ -2,6 +2,7 @@
   "name": "@effection/core",
   "version": "2.0.0-beta.5",
   "main": "dist/lib/index.js",
+  "module": "dist/es6/index.js",
   "types": "dist/lib/index.d.ts",
   "typeDocEntry": "src/index.ts",
   "license": "MIT",
@@ -16,7 +17,7 @@
     "test": "mocha -r ts-node/register 'test/**/*.test.ts'",
     "mocha": "mocha -r ts-node/register",
     "build": "yarn prepack",
-    "prepack": "tsc --build tsconfig.dist.json"
+    "prepack": "tsc --build tsconfig.dist.json && tsc --build tsconfig.dist-esm.json"
   },
   "files": [
     "CHANGELOG.md",

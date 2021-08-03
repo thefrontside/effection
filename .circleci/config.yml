@@ -26,10 +26,10 @@ commands:
             - ~/Library/Caches/Yarn
   prepack:
     steps:
-      - run: yarn workspace @effection/core copy-pkgjson
       - run:
           name: Prepack
           command: yarn prepack
+      - run: yarn workspace @effection/core copy-pkgjson
 
 jobs:
   prepack:

@@ -18,7 +18,7 @@
     "test": "mocha -r ts-node/register 'test/**/*.test.ts'",
     "mocha": "mocha -r ts-node/register",
     "build": "yarn prepack",
-    "prepack": "yarn clean && copy \"package.json\" \"dist\"  && tsc --build tsconfig.cjs.json && tsc --build tsconfig.esm.json"
+    "prepack": "tsc --build tsconfig.esm.json && tsc --build tsconfig.cjs.json"
   },
   "files": [
     "CHANGELOG.md",

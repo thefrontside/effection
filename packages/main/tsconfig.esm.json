@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.cjs.json",
+  "compilerOptions": {
+    "outDir": "./dist/esm",
+    "module": "ESNext"
+  },
+  "references": [
+    { "path": "../process/tsconfig.esm.json" },
+    { "path": "../core/tsconfig.esm.json" },
+  ],
+  "exclude": ["./test/*"]
+}

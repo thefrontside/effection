@@ -2,7 +2,7 @@ import { createInspectServer, Options } from './server';
 import { spawn, createTask } from '@effection/core';
 import { once } from '@effection/events';
 
-export function runInspectServer(options: Options = {}) {
+export function runInspectServer(options: Options = {}): void {
   // create a task for the inspector, which lives outside of the Effection root
   // so the inspector does not end up inspecting itself
   let task = createTask(function*(scope) {

@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist/cjs",
+    "noEmit": false
+  },
+  "references": [
+    { "path": "../process/tsconfig.cjs.json" },
+    { "path": "../core/tsconfig.cjs.json" },
+  ],
+  "exclude": ["./test/*"]
+}

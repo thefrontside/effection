@@ -5,8 +5,8 @@
     "noEmit": true
   },  
   "references": [
-    { "path": "../main/tsconfig.dist.json" },
-    { "path": "../process/tsconfig.dist.json" }
+    { "path": "../main/tsconfig.cjs.json" },
+    { "path": "../process/tsconfig.cjs.json" }
   ],
   "include": [
     "src/**/*.ts",

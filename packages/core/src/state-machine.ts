@@ -27,19 +27,19 @@ export class StateMachine {
     this.emitter.emit('state', { from, to });
   }
 
-  start() {
+  start(): void {
     this.transition('start', {
       'pending': 'running',
     });
   }
 
-  completing() {
+  completing(): void {
     this.transition('completing', {
       'running': 'completing',
     });
   }
 
-  erroring() {
+  erroring(): void {
     this.transition('erroring', {
       'running': 'erroring',
       'completing': 'erroring',
@@ -48,7 +48,7 @@ export class StateMachine {
     });
   }
 
-  halting() {
+  halting(): void {
     this.transition('halting', {
       'running': 'halting',
       'completing': 'halting',
@@ -56,7 +56,7 @@ export class StateMachine {
     });
   }
 
-  finish() {
+  finish(): void {
     this.transition('finish', {
       'completing': 'completed',
       'erroring': 'errored',

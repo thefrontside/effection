@@ -1,0 +1,18 @@
+{
+  "extends": "./tsconfig",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist/cjs",
+    "noEmit": false
+  },
+  "references": [
+    { "path": "../atom/tsconfig.cjs.json" },
+    { "path": "../channel/tsconfig.cjs.json" },
+    { "path": "../core/tsconfig.cjs.json" },
+    { "path": "../inspect-utils/tsconfig.cjs.json" },
+    { "path": "../events/tsconfig.cjs.json" },
+    { "path": "../subscription/tsconfig.cjs.json" },
+    { "path": "../websocket-server/tsconfig.cjs.json" }
+  ],
+  "exclude": ["./test/*"]
+}

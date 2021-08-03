@@ -1,12 +1,12 @@
 {
   "extends": "./tsconfig",
   "compilerOptions": {
-    "rootDir": "src",
-    "outDir": "dist",
+    "rootDir": "./src",
+    "outDir": "./dist/cjs",
     "noEmit": false
   },
   "references": [
-    { "path": "../core/tsconfig.dist.json" },
+    { "path": "../core/tsconfig.cjs.json" },
   ],
   "exclude": [
     "./test/*"

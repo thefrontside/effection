@@ -16,7 +16,7 @@ type TreeProps = {
   tree: InspectTree;
 }
 
-export function TaskTree({ tree }: TreeProps) {
+export function TaskTree({ tree }: TreeProps): JSX.Element {
   let name = tree.labels.name || 'task';
   let children = Object.values(tree.children);
   let labels = Object.entries(tree.labels).filter(([key]) => key !== 'name');

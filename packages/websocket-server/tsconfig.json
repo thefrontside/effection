@@ -5,9 +5,9 @@
     "noEmit": true
   },  
   "references": [
-    { "path": "../core/tsconfig.dist.json" },
-    { "path": "../events/tsconfig.dist.json" },
-    { "path": "../subscription/tsconfig.dist.json" },
+    { "path": "../core/tsconfig.cjs.json" },
+    { "path": "../events/tsconfig.cjs.json" },
+    { "path": "../subscription/tsconfig.cjs.json" },
   ],
   "include": [
     "src/**/*.ts",

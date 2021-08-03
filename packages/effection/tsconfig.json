@@ -5,11 +5,11 @@
     "noEmit": true
   },
   "references": [
-    { "path": "../channel/tsconfig.dist.json" },
-    { "path": "../core/tsconfig.dist.json" },
-    { "path": "../events/tsconfig.dist.json" },
-    { "path": "../main/tsconfig.dist.json" },
-    { "path": "../subscription/tsconfig.dist.json" }
+    { "path": "../channel/tsconfig.cjs.json" },
+    { "path": "../core/tsconfig.cjs.json" },
+    { "path": "../events/tsconfig.cjs.json" },
+    { "path": "../main/tsconfig.cjs.json" },
+    { "path": "../subscription/tsconfig.cjs.json" }
   ],
   "include": [
     "src/**/*.ts",

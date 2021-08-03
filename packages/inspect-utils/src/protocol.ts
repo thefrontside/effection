@@ -13,7 +13,8 @@ export type InspectEnvelope<T extends ClientMessage | ServerMessage> = {
   payload: T;
 }
 
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function isInspectEnvelope<T extends ClientMessage | ServerMessage>(message: any): message is InspectEnvelope<T> {
-  return message && message.type === 'effection-inspect';
+  return message?.type === 'effection-inspect';
 }

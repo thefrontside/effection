@@ -8,7 +8,7 @@ type AppProps = {
   client: WebSocketClient<InspectTree>;
 }
 
-export function App({ client }: AppProps) {
+export function App({ client }: AppProps): JSX.Element {
   let message = useSubscription(client);
   return (
     <div>

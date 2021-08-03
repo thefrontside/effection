@@ -1,11 +1,11 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "dist",
+    "outDir": "./dist/cjs",
     "baseUrl": "."
   },
   "references": [
-    { "path": "../core/tsconfig.dist.json" },
+    { "path": "../core/tsconfig.cjs.json" },
   ],
   "include": [
     "src/**/*.ts",

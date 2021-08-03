@@ -2,6 +2,7 @@
   "tag": "beta",
   "changes": [
     ".changes/covector-bug.md",
+    ".changes/esm.md",
     ".changes/produce.md",
     ".changes/remove-javascript-turds.md",
     ".changes/typescript-bumps.md"

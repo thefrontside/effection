@@ -17,9 +17,8 @@
     "lint": "eslint '{src,bin,test}/**/*.ts'",
     "test": "mocha -r ts-node/register 'test/**/*.test.ts'",
     "mocha": "mocha -r ts-node/register",
-    "copy-pkgjson": "cp package.json dist",
     "build": "yarn prepack",
-    "prepack": "tsc --build tsconfig.esm.json && tsc --build tsconfig.cjs.json"
+    "prepack": "copy \"./package.json\" \"./dist/\"  && tsc --build tsconfig.esm.json && tsc --build tsconfig.cjs.json"
   },
   "files": [
     "CHANGELOG.md",
@@ -30,6 +29,7 @@
     "@frontside/tsconfig": "^1.2.0",
     "@types/mocha": "^7.0.2",
     "@types/node": "^16.3.2",
+    "copy": "^0.3.2",
     "eslint": "^7.30.0",
     "expect": "^25.3.0",
     "mocha": "^8.3.1",

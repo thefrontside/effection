@@ -29,7 +29,6 @@ commands:
       - run:
           name: Prepack
           command: yarn prepack
-      - run: yarn workspace @effection/core copy-pkgjson
 
 jobs:
   prepack:

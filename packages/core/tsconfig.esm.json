@@ -1,7 +1,7 @@
 {
   "extends": "./tsconfig.cjs.json",
   "compilerOptions": {
-    "outDir": "./dist/esm",
+    "outDir": "./dist-esm",
     "module": "ESNext"
   },
   "exclude": ["./test/*"]

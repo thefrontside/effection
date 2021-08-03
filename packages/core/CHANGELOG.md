@@ -1,5 +1,10 @@
 # @effection/core
 
+## \[2.0.0-beta.6]
+
+- Add esm builds
+  - [6660a46](https://github.com/thefrontside/effection/commit/6660a466a50c9b9c36829c2d52448ebbc0e7e6fb) Add esm build ([#462](https://github.com/thefrontside/effection/pull/462)) on 2021-08-03
+
 ## \[2.0.0-beta.5]
 
 - Deprecate Future#resolve in favour of Future#produce.

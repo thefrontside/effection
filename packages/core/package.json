@@ -23,6 +23,8 @@
   "files": [
     "CHANGELOG.md",
     "dist/**/*",
+    "cjs/**/*",
+    "esm/**/*",
     "src/**/*"
   ],
   "devDependencies": {

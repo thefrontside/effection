@@ -2,9 +2,9 @@
   "name": "@effection/inspect-utils",
   "version": "2.0.0-beta.7",
   "description": "Helper functions and types for inspecting effection applications",
-  "main": "dist/cjs/index.js",
-  "types": "dist/esm/index.d.ts",
-  "module": "dist/inspect-utils.esm.js",
+  "main": "dist-cjs/index.js",
+  "types": "dist-esm/index.d.ts",
+  "module": "dist-inspect-utils.esm.js",
   "homepage": "https://github.com/thefrontside/effection",
   "repository": {
     "type": "git",

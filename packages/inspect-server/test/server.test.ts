@@ -1,5 +1,5 @@
 import { describe, it } from '@effection/mocha';
-import expect from 'expect'
+import expect from 'expect';
 
 import { spawn } from '@effection/core';
 import { ClientMessage } from '@effection/inspect-utils';

@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist/cjs",
+    "noEmit": false
+  },
+  "references": [
+    { "path": "../core/tsconfig.esm.json" },
+    { "path": "../subscription/tsconfig.esm.json" }
+  ],
+  "exclude": ["./test/*"]
+}

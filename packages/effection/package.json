@@ -11,8 +11,9 @@
   "author": "Charles Lowell <cowboyd@frontside.com>",
   "license": "MIT",
   "private": false,
-  "types": "dist/index.d.ts",
-  "main": "dist/index.js",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
   "typeDocEntry": "src/index.ts",
   "files": [
     "CHANGELOG.md",
@@ -23,7 +24,7 @@
     "lint": "eslint '{src,bin,test}/**/*.ts'",
     "test": "mocha -r ts-node/register test/**/*.test.ts",
     "mocha": "mocha -r ts-node/register",
-    "prepack": "tsc --build tsconfig.dist.json"
+    "prepack": "tsc --build tsconfig.esm.json && tsc --build tsconfig.cjs.json"
   },
   "dependencies": {
     "@effection/channel": "2.0.0-beta.6",

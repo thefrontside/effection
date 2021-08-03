@@ -35,12 +35,12 @@ export const Effection = {
     getGlobalConfig().root = value;
   },
 
-  async reset() {
+  async reset(): Promise<void> {
     await Effection.root.halt();
     Effection.root = createRootTask();
   },
 
-  async halt() {
+  async halt(): Promise<void> {
     await Effection.root.halt();
   }
 };

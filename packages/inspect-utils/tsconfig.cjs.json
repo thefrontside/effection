@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist/cjs",
+    "module": "commonjs"
+  },
+  "references": [
+    { "path": "../atom/tsconfig.cjs.json" },
+    { "path": "../channel/tsconfig.cjs.json" },
+    { "path": "../core/tsconfig.cjs.json" },
+    { "path": "../events/tsconfig.cjs.json" },
+    { "path": "../subscription/tsconfig.cjs.json" }
+  ],
+  "exclude": ["./test/*"]
+}

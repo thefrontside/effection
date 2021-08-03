@@ -2,17 +2,17 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "baseUrl": ".",
-    "outDir": "dist",
+    "noEmit": true,
     "resolveJsonModule": true,
   },
   "references": [
-    { "path": "../atom/tsconfig.dist.json" },
-    { "path": "../channel/tsconfig.dist.json" },
-    { "path": "../core/tsconfig.dist.json" },
-    { "path": "../inspect-utils/tsconfig.dist.json" },
-    { "path": "../events/tsconfig.dist.json" },
-    { "path": "../subscription/tsconfig.dist.json" },
-    { "path": "../websocket-server/tsconfig.dist.json" }
+    { "path": "../atom/tsconfig.cjs.json" },
+    { "path": "../channel/tsconfig.cjs.json" },
+    { "path": "../core/tsconfig.cjs.json" },
+    { "path": "../inspect-utils/tsconfig.cjs.json" },
+    { "path": "../events/tsconfig.cjs.json" },
+    { "path": "../subscription/tsconfig.cjs.json" },
+    { "path": "../websocket-server/tsconfig.cjs.json" }
   ],
   "include": [
     "src/**/*.ts",

@@ -2,22 +2,23 @@
   "name": "@effection/process",
   "version": "2.0.0-beta.7",
   "description": "Spawn and manage external processes with Effection",
-  "main": "dist/cjs/index.js",
-  "module": "dist/esm/index.js",
-  "types": "dist/esm/index.d.ts",
+  "main": "dist-cjs/index.js",
+  "module": "dist-esm/index.js",
+  "types": "dist-esm/index.d.ts",
+  "typeDocEntry": "src/index.ts",
   "homepage": "https://github.com/thefrontside/effection",
   "repository": {
     "type": "git",
     "url": "https://github.com/thefrontside/effection.git",
     "directory": "packages/process"
   },
-  "typeDocEntry": "src/index.ts",
   "author": "Frontside Engineering <engineering@frontside.com>",
   "license": "MIT",
   "files": [
     "README.md",
     "CHANGELOG.md",
-    "dist/**/*",
+    "dist-esm/**/*",
+    "dist-cjs/**/*",
     "src/**/*"
   ],
   "scripts": {

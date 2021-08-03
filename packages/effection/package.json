@@ -17,8 +17,7 @@
   "typeDocEntry": "src/index.ts",
   "files": [
     "CHANGELOG.md",
-    "dist-esm/**/*",
-    "dist-cjs/**/*",
+    "dist-*/**/*",
     "src/**/*"
   ],
   "scripts": {

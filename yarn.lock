@@ -1317,13 +1317,18 @@
     "@effection/subscription" "^1.0.0"
     effection "^1.0.0"
 
-"@effection/events@2.0.0-beta.5":
+"@effection/core@2.0.0-beta.5":
   version "2.0.0-beta.5"
-  resolved "https://registry.npmjs.org/@effection/events/-/events-2.0.0-beta.5.tgz#e1e4074a10b02f2e59068088cc6cca450d99cc47"
-  integrity sha512-WqHGOI++FblwMqdL4/+Wpdk5G2WmEL6G+SHeV5jazxWjwRrdrn/a/rq/jzDz6cvIKEeW19hNAuVMYi4GB5R4wg==
+  resolved "https://registry.yarnpkg.com/@effection/core/-/core-2.0.0-beta.5.tgz#5168d4fa6822027c5a6a28fca6637074a2460ae1"
+  integrity sha512-S2q3bkb04Z5t8eB7YXZ6fwd5C1KIfi7VnBt9J00j2DyPupDYaPu0CY5CvQ7fbm0XIg5RxHYNcyoy0NY9mjQmxA==
+
+"@effection/events@2.0.0-beta.6":
+  version "2.0.0-beta.6"
+  resolved "https://registry.yarnpkg.com/@effection/events/-/events-2.0.0-beta.6.tgz#a385a4b95d34af87c755ba6ff13b533af16a824c"
+  integrity sha512-6G5FoOsj1olnW5Yq2ZdU83eZ8d5A3mR6t908Xa/cmzDVGbrSQsYsqevEj65aCcIWClWLRcXovCNaR7sUu8rO9A==
   dependencies:
     "@effection/core" "2.0.0-beta.5"
-    "@effection/subscription" "2.0.0-beta.5"
+    "@effection/subscription" "2.0.0-beta.6"
 
 "@effection/events@^1.0.0":
   version "1.0.0"
@@ -1346,10 +1351,10 @@
     effection "^1.0.0"
     shellwords "^0.1.1"
 
-"@effection/subscription@2.0.0-beta.5":
-  version "2.0.0-beta.5"
-  resolved "https://registry.npmjs.org/@effection/subscription/-/subscription-2.0.0-beta.5.tgz#1ab86b59a86c14babc88ada528cc51e0379c6346"
-  integrity sha512-kEJV+iYRjLdbMc9Rba849YKsECIW1/i4MniGzWb8W5YezsE+0fTH4vEMvYY6Up1eIzXNaV/7iR+XD38PViiozA==
+"@effection/subscription@2.0.0-beta.6":
+  version "2.0.0-beta.6"
+  resolved "https://registry.yarnpkg.com/@effection/subscription/-/subscription-2.0.0-beta.6.tgz#b058ae58d7a5c2b56042659c3e9ef505c3f46eb4"
+  integrity sha512-psE6eml8EQZhbgJ2SWqLvK7ssm0U+JxHDJy4Pqak6wcjysVgWrP7ANgycRytUHslle2mb0vnC9tU/6+m951PSg==
   dependencies:
     "@effection/core" "2.0.0-beta.5"
 
@@ -1360,14 +1365,14 @@
   dependencies:
     effection "^1.0.0"
 
-"@effection/websocket-client@2.0.0-beta.6":
-  version "2.0.0-beta.6"
-  resolved "https://registry.npmjs.org/@effection/websocket-client/-/websocket-client-2.0.0-beta.6.tgz#5037dacedb88fd366d8fe806ce9be0836221e56c"
-  integrity sha512-n5nLaWHnq/74/fGylzwYsT0AO5yvqXFBKskWdGA98D+iTUSseFCk8qvJAWl0YpKSb1jE8YbSy4Rk3T2fGyFgyw==
+"@effection/websocket-client@2.0.0-beta.7":
+  version "2.0.0-beta.7"
+  resolved "https://registry.yarnpkg.com/@effection/websocket-client/-/websocket-client-2.0.0-beta.7.tgz#d6d50fb8f5e062358853428e5f2ab26700f8eb31"
+  integrity sha512-dcR7so6bMLTQPdLEooEoJmacF3vfK4j/7DrxeGyli4k0sTMr7qlJssRUJgqBs0/qDHj5+FiyFCx7ivR1lyXAWQ==
   dependencies:
     "@effection/core" "2.0.0-beta.5"
-    "@effection/events" "2.0.0-beta.5"
-    "@effection/subscription" "2.0.0-beta.5"
+    "@effection/events" "2.0.0-beta.6"
+    "@effection/subscription" "2.0.0-beta.6"
     isomorphic-ws "^4.0.1"
 
 "@eslint/eslintrc@^0.4.2":

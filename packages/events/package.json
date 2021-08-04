@@ -2,9 +2,9 @@
   "name": "@effection/events",
   "version": "2.0.0-beta.7",
   "description": "Helpers for listening to events with effection",
-  "main": "dist/cjs/index.js",
-  "module": "dist/esm/index.js",
-  "types": "dist/esm/index.d.ts",
+  "main": "dist-cjs/index.js",
+  "module": "dist-esm/index.js",
+  "types": "dist-esm/index.d.ts",
   "typeDocEntry": "src/index.ts",
   "homepage": "https://github.com/thefrontside/effection",
   "repository": {
@@ -17,7 +17,7 @@
   "files": [
     "README.md",
     "CHANGELOG.md",
-    "dist/**/*",
+    "dist-*/**/*",
     "src/**/*"
   ],
   "scripts": {

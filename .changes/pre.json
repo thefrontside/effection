@@ -1,6 +1,7 @@
 {
   "tag": "beta",
   "changes": [
+    ".changes/core-esm-cjs-dist.md",
     ".changes/covector-bug.md",
     ".changes/esm.md",
     ".changes/produce.md",

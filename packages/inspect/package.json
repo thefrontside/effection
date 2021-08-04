@@ -14,9 +14,7 @@
   "license": "MIT",
   "files": [
     "README.md",
-    "CHANGELOG.md",
-    "dist/**/*",
-    "src/**/*"
+    "CHANGELOG.md"
   ],
   "scripts": {
     "lint": "echo noop",

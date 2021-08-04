@@ -2,22 +2,22 @@
   "name": "@effection/main",
   "version": "2.0.0-beta.7",
   "description": "Main entry point for Effection applications",
-  "main": "dist/cjs/node.js",
-  "module": "dist/esm/node.js",
-  "browser": "dist/cjs/browser.js",
+  "main": "dist-cjs/node.js",
+  "module": "dist-esm/node.js",
+  "browser": "dist-cjs/browser.js",
+  "typeDocEntry": "src/node.ts",
   "homepage": "https://github.com/thefrontside/effection",
   "repository": {
     "type": "git",
     "url": "https://github.com/thefrontside/effection.git",
     "directory": "packages/main"
   },
-  "typeDocEntry": "src/node.ts",
   "author": "Frontside Engineering <engineering@frontside.com>",
   "license": "MIT",
   "files": [
     "README.md",
     "CHANGELOG.md",
-    "dist/**/*",
+    "dist-*/**/*",
     "src/**/*"
   ],
   "scripts": {

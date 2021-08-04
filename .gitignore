@@ -3,7 +3,8 @@ packages/*/docs
 .esm-cache
 .node-version
 .parcel-cache
-dist/
+dist*/
+*.tgz
 pkg/
 .nyc_output/
 coverage

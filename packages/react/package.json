@@ -2,22 +2,22 @@
   "name": "@effection/react",
   "version": "2.0.0-beta.8",
   "description": "Hooks for integrating effection into react applications",
-  "main": "dist/cjs/index.js",
-  "module": "dist/esm/index.js",
-  "types": "dist/esm/index.d.ts",
+  "main": "dist-cjs/index.js",
+  "module": "dist-esm/index.js",
+  "types": "dist-esm/index.d.ts",
+  "typeDocEntry": "src/index.ts",
   "homepage": "https://github.com/thefrontside/effection",
   "repository": {
     "type": "git",
     "url": "https://github.com/thefrontside/effection.git",
     "directory": "packages/react"
   },
-  "typeDocEntry": "src/index.ts",
   "author": "Frontside Engineering <engineering@frontside.com>",
   "license": "MIT",
   "files": [
     "README.md",
     "CHANGELOG.md",
-    "dist/**/*",
+    "dist-*/**/*",
     "src/**/*"
   ],
   "scripts": {

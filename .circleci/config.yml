@@ -44,7 +44,7 @@ jobs:
       - persist_to_workspace:
           root: .
           paths:
-            - "packages/*/dist"
+            - "packages/*/dist*"
   test:
     executor: <<parameters.executor>>
     parameters:

@@ -38,7 +38,7 @@
     "@effection/mocha": "2.0.0-beta.6",
     "@effection/react": "2.0.0-beta.8",
     "@effection/subscription": "2.0.0-beta.7",
-    "@effection/websocket-client": "2.0.0-beta.7",
+    "@effection/websocket-client": "2.0.0-beta.8",
     "@frontside/tsconfig": "^1.2.0",
     "@parcel/transformer-typescript-types": "2.0.0-beta.1",
     "@types/jsdom-global": "^3.0.2",

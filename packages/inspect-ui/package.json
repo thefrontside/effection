@@ -7,7 +7,8 @@
   "browser": "dist/index.html",
   "module": "dist/inspect-ui.esm.js",
   "sideEffects": [
-    "*.css"
+    "*.css",
+    "./index.js"
   ],
   "homepage": "https://github.com/thefrontside/effection",
   "repository": {

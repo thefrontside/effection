@@ -1,5 +1,4 @@
 import { Effection, Operation, sleep } from '../src/index';
-// eslint-disable-next-line tree-shaking/no-side-effects-in-initialization
 import { beforeEach } from 'mocha';
 
 beforeEach(async () => {

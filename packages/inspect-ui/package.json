@@ -6,6 +6,10 @@
   "types": "index.d.ts",
   "browser": "dist/index.html",
   "module": "dist/inspect-ui.esm.js",
+  "sideEffects": [
+    "*.css",
+    "./index.js"
+  ],
   "homepage": "https://github.com/thefrontside/effection",
   "repository": {
     "type": "git",

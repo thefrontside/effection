@@ -7,6 +7,7 @@
   "types": "dist-esm/index.d.ts",
   "typeDocEntry": "src/index.ts",
   "homepage": "https://github.com/thefrontside/effection",
+  "sideEffects": false,
   "repository": {
     "type": "git",
     "url": "https://github.com/thefrontside/effection.git",

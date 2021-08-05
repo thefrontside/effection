@@ -4,6 +4,7 @@
   "description": "State atom implementation for effection",
   "main": "dist-cjs/index.js",
   "types": "dist-esm/index.d.ts",
+  "sideEffects": false,
   "typeDocEntry": "src/index.ts",
   "homepage": "https://github.com/thefrontside/effection",
   "repository": {

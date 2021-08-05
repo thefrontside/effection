@@ -6,6 +6,7 @@
   "module": "dist-esm/node.js",
   "browser": "dist-cjs/browser.js",
   "typeDocEntry": "src/node.ts",
+  "sideEffects": false,
   "homepage": "https://github.com/thefrontside/effection",
   "repository": {
     "type": "git",

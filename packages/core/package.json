@@ -3,6 +3,7 @@
   "version": "2.0.0-beta.7",
   "main": "dist-cjs/index.js",
   "module": "dist-esm/index.js",
+  "sideEffects": false,
   "types": "dist-esm/index.d.ts",
   "typeDocEntry": "src/index.ts",
   "license": "MIT",

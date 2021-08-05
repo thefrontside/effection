@@ -4356,6 +4356,11 @@ eslint-plugin-react@^7.24.0:
     resolve "^2.0.0-next.3"
     string.prototype.matchall "^4.0.5"
 
+eslint-plugin-tree-shaking@^1.9.2:
+  version "1.9.2"
+  resolved "https://registry.npmjs.org/eslint-plugin-tree-shaking/-/eslint-plugin-tree-shaking-1.9.2.tgz#f3055ba6baf596336fe55c7a2ef5fc6d89b22cbc"
+  integrity sha512-3nF/ea5aeH1Qby7WPrbLGm/5oYH8Oh+8GQiNrqT6L/AS7chciKo+8tvghGAYogqAHkHLYhgCrJkjgomPY7kthg==
+
 eslint-rule-composer@^0.3.0:
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/eslint-rule-composer/-/eslint-rule-composer-0.3.0.tgz#79320c927b0c5c0d3d3d2b76c8b4a488f25bbaf9"

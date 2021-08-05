@@ -6,6 +6,7 @@
   "types": "dist-esm/index.d.ts",
   "module": "dist-inspect-utils.esm.js",
   "homepage": "https://github.com/thefrontside/effection",
+  "sideEffects": false,
   "repository": {
     "type": "git",
     "url": "https://github.com/thefrontside/effection.git",

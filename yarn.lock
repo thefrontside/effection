@@ -1317,19 +1317,6 @@
     "@effection/subscription" "^1.0.0"
     effection "^1.0.0"
 
-"@effection/core@2.0.0-beta.5":
-  version "2.0.0-beta.5"
-  resolved "https://registry.yarnpkg.com/@effection/core/-/core-2.0.0-beta.5.tgz#5168d4fa6822027c5a6a28fca6637074a2460ae1"
-  integrity sha512-S2q3bkb04Z5t8eB7YXZ6fwd5C1KIfi7VnBt9J00j2DyPupDYaPu0CY5CvQ7fbm0XIg5RxHYNcyoy0NY9mjQmxA==
-
-"@effection/events@2.0.0-beta.6":
-  version "2.0.0-beta.6"
-  resolved "https://registry.yarnpkg.com/@effection/events/-/events-2.0.0-beta.6.tgz#a385a4b95d34af87c755ba6ff13b533af16a824c"
-  integrity sha512-6G5FoOsj1olnW5Yq2ZdU83eZ8d5A3mR6t908Xa/cmzDVGbrSQsYsqevEj65aCcIWClWLRcXovCNaR7sUu8rO9A==
-  dependencies:
-    "@effection/core" "2.0.0-beta.5"
-    "@effection/subscription" "2.0.0-beta.6"
-
 "@effection/events@^1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@effection/events/-/events-1.0.0.tgz#4430ed538377bf04a5efd7c3b6d40a7b4e2b0607"
@@ -1351,29 +1338,12 @@
     effection "^1.0.0"
     shellwords "^0.1.1"
 
-"@effection/subscription@2.0.0-beta.6":
-  version "2.0.0-beta.6"
-  resolved "https://registry.yarnpkg.com/@effection/subscription/-/subscription-2.0.0-beta.6.tgz#b058ae58d7a5c2b56042659c3e9ef505c3f46eb4"
-  integrity sha512-psE6eml8EQZhbgJ2SWqLvK7ssm0U+JxHDJy4Pqak6wcjysVgWrP7ANgycRytUHslle2mb0vnC9tU/6+m951PSg==
-  dependencies:
-    "@effection/core" "2.0.0-beta.5"
-
 "@effection/subscription@^1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@effection/subscription/-/subscription-1.0.0.tgz#331cc08f8ebc5a09be705532d93d4d308e31ff44"
   integrity sha512-Uldp70Yv/i8vbP+f7vr7U14YMT7iZUm8yrsWKcNUCGOypM8kCPXX3ihtvJ+P3ZpFShecfFQQpjblIVaBEkx37g==
   dependencies:
     effection "^1.0.0"
-
-"@effection/websocket-client@2.0.0-beta.7":
-  version "2.0.0-beta.7"
-  resolved "https://registry.yarnpkg.com/@effection/websocket-client/-/websocket-client-2.0.0-beta.7.tgz#d6d50fb8f5e062358853428e5f2ab26700f8eb31"
-  integrity sha512-dcR7so6bMLTQPdLEooEoJmacF3vfK4j/7DrxeGyli4k0sTMr7qlJssRUJgqBs0/qDHj5+FiyFCx7ivR1lyXAWQ==
-  dependencies:
-    "@effection/core" "2.0.0-beta.5"
-    "@effection/events" "2.0.0-beta.6"
-    "@effection/subscription" "2.0.0-beta.6"
-    isomorphic-ws "^4.0.1"
 
 "@eslint/eslintrc@^0.4.2":
   version "0.4.2"

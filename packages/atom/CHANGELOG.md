@@ -1,5 +1,10 @@
 # @effection/atom
 
+## \[2.0.0-beta.9]
+
+- Add sideEffects field to package.json
+  - [383141d](https://github.com/thefrontside/effection/commit/383141dc556c6a781d98087f3b68085d5eb31173) Add sideEffects field to package.json ([#470](https://github.com/thefrontside/effection/pull/470)) on 2021-08-05
+
 ## \[2.0.0-beta.8]
 
 - The `dist` directory didn't contain the `esm` and `cjs` directory. We copy the `package.json` for reference into the dist, and this broke the `files` resolution. Switch to using `dist-cjs` and `dist-esm` which allows us to avoid copying `package.json`.

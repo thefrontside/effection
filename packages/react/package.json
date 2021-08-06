@@ -1,6 +1,6 @@
 {
   "name": "@effection/react",
-  "version": "2.0.0-beta.9",
+  "version": "2.0.0-beta.10",
   "description": "Hooks for integrating effection into react applications",
   "main": "dist-cjs/index.js",
   "module": "dist-esm/index.js",
@@ -28,12 +28,12 @@
     "mocha": "mocha -r ts-node/register"
   },
   "dependencies": {
-    "@effection/core": "2.0.0-beta.7",
-    "@effection/subscription": "2.0.0-beta.8",
+    "@effection/core": "2.0.0-beta.8",
+    "@effection/subscription": "2.0.0-beta.9",
     "react": "^17.0.2"
   },
   "devDependencies": {
-    "@effection/mocha": "2.0.0-beta.7",
+    "@effection/mocha": "2.0.0-beta.8",
     "@frontside/tsconfig": "^1.2.0",
     "@types/node": "^16.3.2",
     "@types/react": "^17.0.8",

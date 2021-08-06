@@ -1,9 +1,3 @@
 {
-  "extends": "@frontside/eslint-config",
-  "plugins": [
-    "tree-shaking"
-  ],
-  "rules": {
-    "tree-shaking/no-side-effects-in-initialization": 1
-}
+  "extends": "@frontside/eslint-config"
 }

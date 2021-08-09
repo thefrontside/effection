@@ -25,6 +25,7 @@ jobs:
         run: |
           git config --global user.name "${{ github.event.pusher.name }}"
           git config --global user.email "${{ github.event.pusher.email }}"
+      - uses: volta-cli/action@v1
       - run: yarn install --immutable
       - run: yarn prepack
       - name: covector version or publish (publish when no change files present)

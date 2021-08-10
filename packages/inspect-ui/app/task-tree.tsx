@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { InspectTree } from '@effection/inspect-utils';
 
 const ICONS = {
@@ -17,16 +17,24 @@ type TreeProps = {
 }
 
 export function TaskTree({ tree }: TreeProps): JSX.Element {
+  let [isOpen, setOpen] = useState<boolean>(true);
   let name = tree.labels.name || 'task';
   let children = Object.values(tree.children);
   let labels = Object.entries(tree.labels).filter(([key]) => key !== 'name');
   return (
     <div className={`task ${tree.state}`}>
       <div className={`task--state ${tree.state}`}>
-        {ICONS[tree.state]}
+        <button title={(isOpen ? 'Collapse' : 'Expand') + ' ' + name} onClick={() => setOpen(!isOpen)}>
+          {isOpen ? '-' : '+'}
+        </button>
       </div>
       <div className="task--title">
-        <div className="task--title--name">{name} </div>
+        <div className="task--title--icon">
+          {ICONS[tree.state]}&nbsp;
+        </div>
+        <div className="task--title--name">
+          {name}
+        </div>
         {
           labels.map(([key, value]) => {
             return (
@@ -41,26 +49,30 @@ export function TaskTree({ tree }: TreeProps): JSX.Element {
         <div className="task--title--id">[{tree.id}] </div>
       </div>
 
-      {tree.yieldingTo ? <>
-        <div className="task--yielding-to">
-          <TaskTree tree={tree.yieldingTo}/>
+      {isOpen ? <>
+        <div className="task--details">
+          {tree.yieldingTo ? <>
+            <div className="task--yielding-to">
+              <TaskTree tree={tree.yieldingTo}/>
+            </div>
+          </> : null}
+
+          {children.length ? <>
+            <h6 className="task--section-header">Children</h6>
+
+            <ol className="task--list">
+              {
+                children.map((child) => {
+                  return (
+                    <li className="task--list--element" key={child.id}>
+                      <TaskTree tree={child}/>
+                    </li>
+                  );
+                })
+              }
+            </ol>
+          </> : null}
         </div>
-      </> : null}
-
-      {children.length ? <>
-        <h6 className="task--section-header">Children</h6>
-
-        <ol className="task--list">
-          {
-            children.map((child) => {
-              return (
-                <li className="task--list--element" key={child.id}>
-                  <TaskTree tree={child}/>
-                </li>
-              );
-            })
-          }
-        </ol>
       </> : null}
     </div>
   );

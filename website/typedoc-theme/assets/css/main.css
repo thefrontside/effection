@@ -2,6 +2,7 @@
   --fs-pink: #f74d7b;
   --fs-blue: #14315d;
   --fs-skyblue: #26abe8;
+  --fs-font: proxima-nova, sans-serif;
   --color-background: #fff;
   --color-text: #1c1e21;
   --color-text-aside: #707070;
@@ -1639,8 +1640,8 @@ ul.tsd-descriptions > li > :last-child > :last-child > :last-child,
 }
 body {
   background: var(--color-background);
-  font-family: "Segoe UI", sans-serif;
-  font-size: 16px;
+  font-family: var(--fs-font);
+  font-size: 18px;
   color: var(--color-text);
 }
 

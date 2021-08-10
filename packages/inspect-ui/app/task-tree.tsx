@@ -24,9 +24,11 @@ export function TaskTree({ tree }: TreeProps): JSX.Element {
   return (
     <div className={`task ${tree.state}`}>
       <div className={`task--state ${tree.state}`}>
-        <button title={(isOpen ? 'Collapse' : 'Expand') + ' ' + name} onClick={() => setOpen(!isOpen)}>
-          {isOpen ? '-' : '+'}
-        </button>
+        {tree.yieldingTo || children.length ? <>
+          <button title={(isOpen ? 'Collapse' : 'Expand') + ' ' + name} onClick={() => setOpen(!isOpen)}>
+            {isOpen ? '-' : '+'}
+          </button>
+        </> : null}
       </div>
       <div className="task--title">
         <div className="task--title--icon">

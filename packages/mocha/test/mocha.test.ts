@@ -42,7 +42,7 @@ describe('@effection/mocha', () => {
 
   describe('cleaning up tasks', () => {
     it('sets up task', function*(task) {
-      captured = yield spawn().within(task);
+      captured = yield task.spawn();
     });
 
     it('and cleans it up', function*() {
@@ -62,7 +62,7 @@ describe('@effection/mocha', () => {
 
   describe('spawning in world', () => {
     beforeEach(function*(world) {
-      captured = yield spawn().within(world);
+      captured = yield world.spawn();
     });
 
     it('does not halt the spawned task before it block', function*() {
@@ -72,7 +72,7 @@ describe('@effection/mocha', () => {
 
   describe('spawning in scope', () => {
     beforeEach(function*(_world, scope) {
-      captured = yield spawn().within(scope);
+      captured = yield scope.spawn();
     });
 
     it('halts the spawned task before it block', function*() {

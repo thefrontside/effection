@@ -12,12 +12,11 @@ describe("inspect()", () => {
 
     let tree: Slice<InspectTree> = yield inspect(task);
 
-    let child = yield spawn(function*() {
+    let child = yield task.spawn(function*() {
       yield spawn()
       yield spawn(function*() { /* no op */});
       yield sleep();
-    }, { labels: { name: 'root' } })
-      .within(task);
+    }, { labels: { name: 'root' } });
 
     yield sleep(10);
 

@@ -59,13 +59,13 @@ export const createPosixProcess: CreateOSProcess = (command, options) => {
       };
 
       yield spawn(function*(task) {
-        yield spawn(function*() {
+        yield task.spawn(function*() {
           let value: Error = yield once(childProcess, 'error');
           produce({ state: 'completed', value: { type: 'error', value } });
-        }).within(task);
+        });
 
-        yield spawn(on<Buffer>(childProcess.stdout, 'data').map((c) => c.toString()).forEach(stdoutChannel.send)).within(task);
-        yield spawn(on<Buffer>(childProcess.stderr, 'data').map((c) => c.toString()).forEach(stderrChannel.send)).within(task);
+        yield task.spawn(on<Buffer>(childProcess.stdout, 'data').map((c) => c.toString()).forEach(stdoutChannel.send));
+        yield task.spawn(on<Buffer>(childProcess.stderr, 'data').map((c) => c.toString()).forEach(stderrChannel.send));
 
         try {
           let value = yield onceEmit(childProcess, 'exit');

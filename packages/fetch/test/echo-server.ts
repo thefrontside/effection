@@ -54,14 +54,14 @@ export class EchoServer {
         throw e;
       }
 
-      yield spawn(throwOnErrorEvent(http)).within(scope);
-      yield spawn(function*() {
+      yield scope.spawn(throwOnErrorEvent(http));
+      yield scope.spawn(function*() {
         try {
           yield;
         } finally {
           http.close();
         }
-      }).within(scope);
+      });
     }
   }
 }

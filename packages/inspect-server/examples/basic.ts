@@ -6,13 +6,13 @@ import { runInspectServer } from '../src/index';
 runInspectServer({ port: 47000 });
 
 main(function *myProgram(task) {
-  task.spawn(undefined, { labels: { name: 'someServer', frobs: 123, quantile: 'upper' } });
-  task.spawn(undefined, { labels: { name: 'anotherTask' } });
-  task.spawn(function* willComplete() {
+  task.run(undefined, { labels: { name: 'someServer', frobs: 123, quantile: 'upper' } });
+  task.run(undefined, { labels: { name: 'anotherTask' } });
+  task.run(function* willComplete() {
     yield sleep(10000);
     return 123;
   });
-  task.spawn(function* willBlowUp() {
+  task.run(function* willBlowUp() {
     yield sleep(10000);
     throw new Error('boom!');
   }, { ignoreError: true });

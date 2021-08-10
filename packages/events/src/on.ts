@@ -15,7 +15,7 @@ import { EventSource, addListener, removeListener } from './event-source';
  * log every click in a web page:
  *
  * ```javascript
- * task.spawn(on(document, 'click').forEach(event => {
+ * yield spawn(on(document, 'click').forEach(event => {
  *   console.log(`click at (${event.pageX}, ${event.pageY})`);
  * }));
  * ```
@@ -26,7 +26,7 @@ import { EventSource, addListener, removeListener } from './event-source';
  *
  * ```javascript
  * let buffer = '';
- * task.spawn(on(process.stdin, 'data').forEach(data => {
+ * yield spawn(on(process.stdin, 'data').forEach(data => {
  *   buffer += data;
  * }));
  */
@@ -58,7 +58,7 @@ export function on<T = unknown>(source: EventSource, name: string): Stream<T, vo
  * ```javascript
  * let emitter = new EventEmitter();
  *
- * task.spawn(onEmit(emitter, 'multiplication').forEach(([left, right]) => {
+ * yield spawn(onEmit(emitter, 'multiplication').forEach(([left, right]) => {
  *   console.log(`${left} times ${right} = ${left * right}!`);
  * }));
  *

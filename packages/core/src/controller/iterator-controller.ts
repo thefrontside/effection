@@ -45,7 +45,7 @@ export function createIteratorController<TOut>(task: Task<TOut>, iterator: Opera
           produce({ state: 'completed', value: next.value });
         }
       } else {
-        yieldingTo = createTask(next.value, { resourceScope: options.resourceScope || task, ignoreError: true });
+        yieldingTo = createTask(next.value, { scope: options.resourceTask || task, ignoreError: true });
         yieldingTo.consume(trap);
         yieldingTo.start();
         options.onYieldingToChange && options.onYieldingToChange(yieldingTo);

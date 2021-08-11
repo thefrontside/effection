@@ -1,13 +1,18 @@
 :root {
-  --color-background: rgb(23, 99, 0);
-  --color-text: rgb(53, 228, 0);
+  --fs-pink: #f74d7b;
+  --fs-blue: #14315d;
+  --fs-skyblue: #26abe8;
+  --fs-font: proxima-nova, sans-serif;
+  --color-background: #fff;
+  --color-text: #1c1e21;
   --color-text-aside: #707070;
-  --color-link: #4da6ff;
-  --color-menu-divider: #eee;
+  --color-link: var(--fs-blue);
+  --color-primary: var(--fs-blue);
+  --color-menu-divider: rgba(224, 224, 224, 0.5);
   --color-menu-divider-focus: #000;
   --color-menu-label: #707070;
-  --color-panel: #fff;
-  --color-panel-divider: #eee;
+  --color-panel: var(--color-background);
+  --color-panel-divider: var(--color-menu-divider);
   --color-comment-tag: #707070;
   --color-comment-tag-text: #fff;
   --color-code-background: rgba(0, 0, 0, 0.04);
@@ -16,8 +21,35 @@
   --color-ts-enum: #937210;
   --color-ts-class: #0672de;
   --color-ts-private: #707070;
-  --color-toolbar: #fff;
-  --color-toolbar-text: #333;
+  --color-toolbar: var(--fs-blue);
+  --color-toolbar-floating: #081933;
+  --color-toolbar-floating-alt: #031125;
+  --color-toolbar-text: #fff;
+  --color-title: var(--color-primary);
+  --color-panel-border: #cecece;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background: #18191a;
+    --color-text: #ccc;
+    --color-text-aside: #201e1e;
+    --color-primary: #fff;
+    --color-link: #fff;
+    --color-menu-divider: rgba(92, 92, 92, 0.5);
+    --color-menu-divider-focus: #666a6e;
+    --color-menu-label: #707070;
+    --color-panel-divider: var(--color-menu-divider);
+    --color-comment-tag: #707070;
+    --color-comment-tag-text: #fff;
+    --color-code-background: rgba(0, 0, 0, 0.04);
+    --color-ts: #9600ff;
+    --color-ts-interface: #647f1b;
+    --color-ts-enum: #937210;
+    --color-ts-class: #0672de;
+    --color-ts-private: #707070;
+    --color-panel-border: #7b7b7b;
+  }
 }
 
 /*! normalize.css v1.1.3 | MIT License | git.io/normalize */
@@ -108,16 +140,19 @@ a:active, a:hover {
 h1 {
   font-size: 2em;
   margin: 0.67em 0;
+  color: var(--color-title)
 }
 
 h2 {
   font-size: 1.5em;
   margin: 0.83em 0;
+  color: var(--color-title)
 }
 
 h3 {
   font-size: 1.17em;
   margin: 1em 0;
+  color: var(--color-title)
 }
 
 h4, .tsd-index-panel h3 {
@@ -1605,8 +1640,8 @@ ul.tsd-descriptions > li > :last-child > :last-child > :last-child,
 }
 body {
   background: var(--color-background);
-  font-family: "Segoe UI", sans-serif;
-  font-size: 16px;
+  font-family: var(--fs-font);
+  font-size: 18px;
   color: var(--color-text);
 }
 
@@ -1750,7 +1785,7 @@ html.default.has-menu .col-content {
   padding: 70px 0 20px 0;
   margin: 0 0 40px 0;
   background: var(--color-panel);
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 1px 0 var(--color-menu-divider);
 }
 .tsd-page-title h1 {
   margin: 0;
@@ -2206,9 +2241,10 @@ footer .tsd-legend {
 
 .tsd-panel {
   margin: 20px 0;
-  padding: 20px;
+  padding: 30px 20px;
   background-color: var(--color-panel);
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--color-panel-border);
+  border-radius: 5px;
 }
 .tsd-panel:empty {
   display: none;
@@ -2493,7 +2529,6 @@ ul.tsd-type-parameters .tsd-comment {
   height: 40px;
   color: var(--color-toolbar-text);
   background: var(--color-toolbar);
-  border-bottom: 1px solid var(--color-panel-divider);
   transition: transform 0.3s linear;
 }
 .tsd-page-toolbar a {
@@ -2531,7 +2566,7 @@ ul.tsd-type-parameters .tsd-comment {
   width: 40px;
   height: 40px;
   margin: 0 -8px 0 0;
-  background-image: url(../images/widgets.png);
+  background-image: url(../images/widgets-white.png);
   background-repeat: no-repeat;
   text-indent: -1024px;
   vertical-align: bottom;
@@ -2626,16 +2661,17 @@ input[type=checkbox]:checked + .tsd-widget:before {
 }
 .tsd-select .tsd-select-list li {
   padding: 0 20px 0 0;
-  background-color: var(--color-background);
+  background-color: var(--color-toolbar-floating);
+  color: var(--color-toolbar-text);
 }
 .tsd-select .tsd-select-list li:before {
   background-position: 40px 0;
 }
 .tsd-select .tsd-select-list li:nth-child(even) {
-  background-color: var(--color-panel);
+  background-color: var(--color-toolbar-floating-alt);
 }
 .tsd-select .tsd-select-list li:hover {
-  background-color: var(--color-panel-divider);
+  background-color: var(--color-toolbar);
 }
 .tsd-select .tsd-select-list li.selected:before {
   background-position: -200px 0;

@@ -24,7 +24,7 @@ export interface TaskTree extends TaskInfo {
 }
 
 export interface TaskOptions {
-  readonly resourceScope?: Task;
+  readonly scope?: Task;
   readonly blockParent?: boolean;
   readonly ignoreChildErrors?: boolean;
   readonly ignoreError?: boolean;
@@ -108,7 +108,7 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
       if(stateMachine.current !== 'running') {
         throw new Error('cannot spawn a child on a task which is not running');
       }
-      let child = createTask(operation, { resourceScope: task, ...options });
+      let child = createTask(operation, { scope: task, ...options });
       link(child as Task);
       child.start();
       return child;

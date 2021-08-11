@@ -29,7 +29,7 @@ describe('ensure', () => {
   it('runs the given function at the end of the task', async () => {
     let state = 'pending';
 
-    let root = run(function*() {
+    let root = run(function* rootTask() {
       yield sleep(10);
       yield ensure(() => {
         state = 'completed';

@@ -21,7 +21,6 @@ export interface Controller<TOut> {
 
 export type Options = {
   runLoop: RunLoop;
-  resourceScope?: Task;
   onYieldingToChange?: (task: Task | undefined) => void;
 }
 

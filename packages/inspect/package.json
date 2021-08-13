@@ -1,6 +1,6 @@
 {
   "name": "@effection/inspect",
-  "version": "2.0.0-beta.10",
+  "version": "2.0.0-beta.11",
   "description": "Injects an inspector into an Effection application",
   "main": "index.cjs.js",
   "module": "index.esm.js",
@@ -23,7 +23,7 @@
     "docs": "echo noop"
   },
   "dependencies": {
-    "@effection/inspect-server": "2.0.0-beta.10"
+    "@effection/inspect-server": "2.0.0-beta.11"
   },
   "volta": {
     "node": "12.16.0",

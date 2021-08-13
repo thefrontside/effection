@@ -1,5 +1,10 @@
 # @effection/inspect-ui
 
+## \[2.0.0-beta.10]
+
+- Expand and collapse tasks in inspector
+  - [c7c1c55](https://github.com/thefrontside/effection/commit/c7c1c553fe2760ad5fdfe11aac04fa664977675e) Hide Expand/Collapse button when task has no children on 2021-08-10
+
 ## \[2.0.0-beta.9]
 
 - Add sideEffects field to package.json

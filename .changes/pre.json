@@ -4,10 +4,13 @@
     ".changes/core-esm-cjs-dist.md",
     ".changes/covector-bug.md",
     ".changes/esm.md",
+    ".changes/inspector-collapse-task.md",
+    ".changes/link-reademe.md",
     ".changes/produce.md",
     ".changes/remove-eslint-treeshaking.md",
     ".changes/remove-javascript-turds.md",
     ".changes/side-effects.md",
+    ".changes/task-spawn-operation.md",
     ".changes/typescript-bumps.md"
   ]
 }

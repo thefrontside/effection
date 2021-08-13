@@ -1,5 +1,10 @@
 # @effection/core
 
+## \[2.0.0-beta.9]
+
+- add `Task#spawn` operation to spawn new task with a specific scope
+  - [a71d65b](https://github.com/thefrontside/effection/commit/a71d65b77df5c337a78b7934edd181080eacf5bf) Add changefile on 2021-07-27
+
 ## \[2.0.0-beta.8]
 
 - remove eslint-plugin-treeshaking

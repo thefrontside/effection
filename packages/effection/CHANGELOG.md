@@ -1,5 +1,12 @@
 # Changelog
 
+## \[2.0.0-beta.10]
+
+- Add README from github repo to main effection package
+  - [e3482e8](https://github.com/thefrontside/effection/commit/e3482e806df75d43f1936189e7b6afe023e35237) Add changfile on 2021-08-13
+- add `Task#spawn` operation to spawn new task with a specific scope
+  - [a71d65b](https://github.com/thefrontside/effection/commit/a71d65b77df5c337a78b7934edd181080eacf5bf) Add changefile on 2021-07-27
+
 ## \[2.0.0-beta.9]
 
 - Add sideEffects field to package.json

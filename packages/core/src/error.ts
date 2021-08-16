@@ -12,10 +12,10 @@ export function addTrace(error: Error & Partial<HasEffectionTrace>, task: Task):
     state: task.state,
   };
 
-  let properties = Object.getOwnPropertyDescriptors(error);
-  properties.effectionTrace = {
-    value: [...(error.effectionTrace || []), info],
-    enumerable: true,
-  };
-  return Object.create(Object.getPrototypeOf(error), properties);
+  return Object.create(error, {
+    effectionTrace: {
+      value: [...(error.effectionTrace || []), info],
+      enumerable: true,
+    }
+  });
 }

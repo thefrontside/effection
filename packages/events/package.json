@@ -1,6 +1,6 @@
 {
   "name": "@effection/events",
-  "version": "2.0.0-beta.11",
+  "version": "2.0.0-beta.12",
   "description": "Helpers for listening to events with effection",
   "main": "dist-cjs/index.js",
   "module": "dist-esm/index.js",
@@ -29,10 +29,10 @@
   },
   "dependencies": {
     "@effection/core": "2.0.0-beta.10",
-    "@effection/subscription": "2.0.0-beta.11"
+    "@effection/subscription": "2.0.0-beta.12"
   },
   "devDependencies": {
-    "@effection/mocha": "2.0.0-beta.8",
+    "@effection/mocha": "2.0.0-beta.9",
     "@frontside/tsconfig": "^1.2.0",
     "@types/node": "16.3.2",
     "expect": "^25.4.0",

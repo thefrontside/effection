@@ -1,5 +1,11 @@
 # @effection/main
 
+## \[2.0.0-beta.11]
+
+- Use Object.create to wrap error objects rather than copying properties
+  - Bumped due to a bump in @effection/core.
+  - [a56ae2a](https://github.com/thefrontside/effection/commit/a56ae2af8a6247697b8b6253bd35b6d9e569613d) Use Object.create to create error object with trace on 2021-08-16
+
 ## \[2.0.0-beta.10]
 
 - add `Task#spawn` operation to spawn new task with a specific scope

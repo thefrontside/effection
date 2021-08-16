@@ -1,6 +1,6 @@
 {
   "name": "@effection/mocha",
-  "version": "2.0.0-beta.8",
+  "version": "2.0.0-beta.9",
   "description": "Effection Subscriptions",
   "main": "dist-cjs/index.js",
   "module": "dist-esm/index.js",

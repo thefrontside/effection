@@ -1,6 +1,6 @@
 {
   "name": "@effection/main",
-  "version": "2.0.0-beta.11",
+  "version": "2.0.0-beta.12",
   "description": "Main entry point for Effection applications",
   "main": "dist-cjs/node.js",
   "module": "dist-esm/node.js",
@@ -33,8 +33,8 @@
     "stacktrace-parser": "^0.1.10"
   },
   "devDependencies": {
-    "@effection/mocha": "2.0.0-beta.8",
-    "@effection/process": "2.0.0-beta.11",
+    "@effection/mocha": "2.0.0-beta.9",
+    "@effection/process": "2.0.0-beta.12",
     "@frontside/tsconfig": "^1.2.0",
     "@types/node": "^16.3.2",
     "expect": "^25.4.0",

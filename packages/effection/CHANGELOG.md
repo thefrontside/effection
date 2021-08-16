@@ -1,5 +1,11 @@
 # Changelog
 
+## \[2.0.0-beta.12]
+
+- Update core dependency
+  - Bumped due to a bump in @effection/channel.
+  - [d92eee5](https://github.com/thefrontside/effection/commit/d92eee594fdb8dc6d8ab6a37b6aa362122e63f6e) Update core dependency on 2021-08-16
+
 ## \[2.0.0-beta.11]
 
 - Copy down monorepo readme explicitly

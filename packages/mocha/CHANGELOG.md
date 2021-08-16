@@ -1,5 +1,10 @@
 # @effection/mocha
 
+## \[2.0.0-beta.9]
+
+- Update core dependency
+  - [d92eee5](https://github.com/thefrontside/effection/commit/d92eee594fdb8dc6d8ab6a37b6aa362122e63f6e) Update core dependency on 2021-08-16
+
 ## \[2.0.0-beta.8]
 
 - Add sideEffects field to package.json

@@ -8,6 +8,7 @@
     ".changes/esm.md",
     ".changes/inspector-collapse-task.md",
     ".changes/link-reademe.md",
+    ".changes/mocha-core-dep.md",
     ".changes/produce.md",
     ".changes/remove-eslint-treeshaking.md",
     ".changes/remove-javascript-turds.md",

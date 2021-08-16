@@ -27,7 +27,7 @@
     "mocha": "mocha -r ts-node/register"
   },
   "peerDependencies": {
-    "@effection/core": "2.0.0-beta.4",
+    "@effection/core": "2.0.0-beta.10",
     "mocha": "^8.0.0"
   },
   "devDependencies": {
@@ -41,8 +41,5 @@
   "volta": {
     "node": "12.16.0",
     "yarn": "1.19.1"
-  },
-  "dependencies": {
-    "@effection/core": "^2.0.0-beta.3"
   }
 }

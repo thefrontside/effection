@@ -1,8 +1,10 @@
 {
   "tag": "beta",
   "changes": [
+    ".changes/copy-readme.md",
     ".changes/core-esm-cjs-dist.md",
     ".changes/covector-bug.md",
+    ".changes/error-object-create.md",
     ".changes/esm.md",
     ".changes/inspector-collapse-task.md",
     ".changes/link-reademe.md",

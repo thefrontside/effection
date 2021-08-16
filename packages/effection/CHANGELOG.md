@@ -1,5 +1,10 @@
 # Changelog
 
+## \[2.0.0-beta.11]
+
+- Copy down monorepo readme explicitly
+  - [39ee89f](https://github.com/thefrontside/effection/commit/39ee89f61508f3bf786fb7d9f41ca752415f2508) Copy down README into effection package explicitly on 2021-08-13
+
 ## \[2.0.0-beta.10]
 
 - Add README from github repo to main effection package

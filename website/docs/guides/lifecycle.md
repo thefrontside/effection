@@ -36,7 +36,7 @@ main(function*() {
 Halting a Task means that the task itself is cancelled, it also causes any Task
 that has been spawned from the Task to be halted.
 
-We have previsouly mentioned that when an error occurs in a Task, the task
+We have previously mentioned that when an error occurs in a Task, the task
 becomes errored, and also causes its parent to become errored. However, if a
 Task is halted, the parent task is unaffected.
 
@@ -94,7 +94,7 @@ happens because the Task completes successfully, it becomes halted, or it is
 rejected due to an error.
 
 Imagine that we're doing something with an HTTP server, and we're using node's
-`createServer` function. In order to properly clean up afer ourselves, we
+`createServer` function. In order to properly clean up after ourselves, we
 should call `close()` on the server when we're done.
 
 Using Effection and `try/finally`, we could do something like this:
@@ -144,7 +144,7 @@ errors during halting.
 
 ### Ensure
 
-Sometimes you want to avoid the righward drift of using lots of `try/finally` blocks.
+Sometimes you want to avoid the rightward drift of using lots of `try/finally` blocks.
 The `ensure` operation that ships with Effection can help you clean up this type of code.
 
 The following behaves identically to our `try/finally` implementation above:

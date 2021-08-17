@@ -8,6 +8,7 @@
     "paths": {
       "@effection/atom": ["packages/atom/src"],
       "@effection/channel": ["packages/channel/src"],
+      "@effection/duplex-channel": ["packages/duplex-channel/src"],
       "@effection/core": ["packages/core/src"],
       "effection": ["packages/effection/src"],
       "@effection/events": ["packages/events/src"],

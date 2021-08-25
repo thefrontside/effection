@@ -2,7 +2,9 @@
 import { Task, createTask } from './task';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import { version } from '../package.json';
+import packageInfo from '../package.json';
+
+const { version } = packageInfo;
 
 const MAJOR_VERSION = version.split('.')[0];
 const GLOBAL_PROPERTY = `__effectionV${MAJOR_VERSION}`;

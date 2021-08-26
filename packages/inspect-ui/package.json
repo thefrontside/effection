@@ -4,7 +4,6 @@
   "description": "Web interface for inspecting effection applications",
   "main": "index.js",
   "types": "index.d.ts",
-  "browser": "dist/index.html",
   "module": "dist/inspect-ui.esm.js",
   "sideEffects": [
     "*.css",
@@ -25,9 +24,9 @@
     "src/**/*"
   ],
   "scripts": {
-    "prepack": "parcel build app/index.html --target browser",
-    "start": "parcel serve app/index.html --target browser",
-    "watch": "parcel watch app/index.html --target browser",
+    "prepack": "parcel build --target app ./app/index.html",
+    "start": "parcel serve --target app ./app/index.html",
+    "watch": "parcel watch --target app ./app/index.html",
     "lint": "eslint '{app,src,tests}/**/*.{ts,tsx}'",
     "test": "mocha -r ts-node/register --timeout 5000 test/**/*.test.{ts,tsx}",
     "docs": "echo noop",
@@ -44,7 +43,6 @@
     "@effection/subscription": "2.0.0-beta.12",
     "@effection/websocket-client": "2.0.0-beta.13",
     "@frontside/tsconfig": "^1.2.0",
-    "@parcel/transformer-typescript-types": "2.0.0-beta.1",
     "@types/jsdom-global": "^3.0.2",
     "@types/node": "^13.13.5",
     "@types/react": "^17.0.9",
@@ -54,7 +52,7 @@
     "expect": "^25.4.0",
     "jsdom-global": "^3.0.2",
     "mocha": "^8.3.1",
-    "parcel": "2.0.0-beta.2",
+    "parcel": "^2.0.0-rc.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "ts-node": "^8.9.0",
@@ -63,5 +61,15 @@
   "volta": {
     "node": "12.16.0",
     "yarn": "1.19.1"
+  },
+  "app": "./dist/ui/index.html",
+  "targets": {
+    "app": {
+      "engines": {
+        "browsers": "last 2 Chrome versions"
+      },
+      "distDir": "./dist/ui",
+      "publicUrl": "/ui"
+    }
   }
 }

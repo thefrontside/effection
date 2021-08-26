@@ -19,7 +19,7 @@ export function runInspectServer(options: Options = {}): void {
       scope.halt();
     });
     let server = yield createInspectServer(options);
-    console.debug(`[effection] inspector available on http://localhost:${server.port}`);
+    console.debug(`[effection] inspector available on http://localhost:${server.port}/ui/`);
     yield;
   }, { labels: { name: 'inspector' } });
   task.start();

@@ -24,7 +24,9 @@
       "packages/inspect-utils",
       "packages/inspect-ui",
       "packages/inspect-server",
+      "packages/devtools-hooks",
       "packages/inspect",
+      "packages/devtools",
       "packages/effection"
     ]
   },
@@ -47,7 +49,7 @@
     "@frontside/eslint-config": "2.1.0",
     "@frontside/tsconfig": "^1.2.0",
     "covector": "^0.7.2",
-    "parcel": "^2.0.0-beta.2",
+    "parcel": "^2.0.0-rc.0",
     "patch-package": "6.2.2",
     "typedoc": "0.21.0"
   }

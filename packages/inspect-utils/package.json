@@ -3,8 +3,8 @@
   "version": "2.0.0-beta.12",
   "description": "Helper functions and types for inspecting effection applications",
   "main": "dist-cjs/index.js",
+  "module": "dist-esm/index.js",
   "types": "dist-esm/index.d.ts",
-  "module": "dist-inspect-utils.esm.js",
   "homepage": "https://github.com/thefrontside/effection",
   "sideEffects": false,
   "repository": {

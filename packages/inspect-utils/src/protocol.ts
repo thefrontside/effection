@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { InspectTree } from './inspect';
 
 type TaskTreeMessage = {
@@ -5,16 +8,41 @@ type TaskTreeMessage = {
   tree: InspectTree;
 }
 
-export type ClientMessage = TaskTreeMessage;
-export type ServerMessage = never;
-
-export type InspectEnvelope<T extends ClientMessage | ServerMessage> = {
-  type: 'effection-inspect';
-  payload: T;
+type StartMessage = {
+  type: "start";
 }
 
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function isInspectEnvelope<T extends ClientMessage | ServerMessage>(message: any): message is InspectEnvelope<T> {
-  return message?.type === 'effection-inspect';
+export type ClientMessage = TaskTreeMessage;
+export type ServerMessage = StartMessage;
+
+export type ClientMessageEnvelope = {
+  type: 'effection-inspect-client-message';
+  payload: ClientMessage;
+}
+
+export type ServerMessageEnvelope = {
+  type: 'effection-inspect-server-message';
+  payload: ServerMessage;
+}
+
+export function isClientMessageEnvelope(message: any): message is ClientMessageEnvelope {
+  return message && message.type === 'effection-inspect-client-message';
+}
+
+export function isServerMessageEnvelope(message: any): message is ServerMessageEnvelope {
+  return message && message.type === 'effection-inspect-server-message';
+}
+
+export function envelopeClientMessage(message: ClientMessage): ClientMessageEnvelope {
+  return {
+    type: 'effection-inspect-client-message',
+    payload: message
+  };
+}
+
+export function envelopeServerMessage(message: ServerMessage): ServerMessageEnvelope {
+  return {
+    type: 'effection-inspect-server-message',
+    payload: message
+  };
 }

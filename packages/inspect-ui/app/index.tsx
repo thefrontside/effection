@@ -1,7 +1,10 @@
 import { main } from '@effection/main';
-import { createWebSocketClient, WebSocketClient } from '@effection/websocket-client';
+import { Subscription } from '@effection/subscription';
+import { once, on } from '@effection/events';
+import { createWebSocketClient } from '@effection/websocket-client';
 import { EffectionContext } from '@effection/react';
-import { InspectTree } from '@effection/inspect-utils';
+import { InspectTree, listen } from '@effection/inspect-utils';
+import { ClientMessage, isClientMessageEnvelope } from '@effection/inspect-utils';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -9,15 +12,32 @@ import ReactDOM from 'react-dom';
 import { App } from './app';
 
 main(function*(scope) {
-  let url = new URL(location.href);
-  let port = url.searchParams.get('port') || location.port;
+  yield once(window, 'DOMContentLoaded');
 
-  let client: WebSocketClient<InspectTree> = yield createWebSocketClient(`ws://localhost:${port}`);
-  console.log("Client connected");
+  let url = new URL(location.href);
+  let messages: Subscription<ClientMessage>;
+
+  if(url.searchParams.get('mode') === 'devtools') {
+    console.log("[ui] devtools mode connected");
+    let connection = chrome.runtime.connect({ name: "panel" });
+
+    connection.postMessage({
+      name: 'init',
+      tabId: chrome.devtools.inspectedWindow.tabId
+    });
+
+    messages = yield listen(connection.onMessage).map(([m]) => m);
+  } else {
+    let port = url.searchParams.get('port') || location.port;
+    let address = `ws://localhost:${port}`;
+    console.log("[ui] connecting via websockets to", address);
+    messages = yield createWebSocketClient(address);
+    console.log("[ui] client connected");
+  }
 
   ReactDOM.render(
     <EffectionContext.Provider value={scope}>
-      <App client={client}/>
+      <App messages={messages}/>
     </EffectionContext.Provider>,
     document.querySelector('#app')
   );

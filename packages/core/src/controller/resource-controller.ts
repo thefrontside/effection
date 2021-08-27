@@ -6,6 +6,7 @@ import { createFuture } from '../future';
 
 export function createResourceController<TOut>(task: Task<TOut>, resource: Resource<TOut>, options: Options): Controller<TOut> {
   let delegate: Controller<TOut>;
+  let resourceTask: Task;
   let { scope } = task.options;
   let { produce, future } = createFuture<TOut>();
 
@@ -13,16 +14,19 @@ export function createResourceController<TOut>(task: Task<TOut>, resource: Resou
     if(!scope) {
       throw new Error('cannot spawn resource in task which has no resource scope');
     }
-    let init;
+
+    let name = resource.name || resource.labels?.name || 'resource';
+
+    resourceTask = scope.run(undefined, { labels: { name, type: 'resource' } });
+
+    let iterator;
     try {
-      init = resource.init(scope, task);
+      iterator = resource.init(resourceTask, task);
     } catch(error) {
       produce({ state: 'errored', error });
       return;
     }
-    let name = resource.name || resource.labels?.name || 'resource';
-    let resourceTask = scope.run(undefined, { labels: { name, type: 'resource' } });
-    delegate = createIteratorController(task, init, { resourceTask, runLoop: options.runLoop });
+    delegate = createIteratorController(task, iterator, { resourceTask, runLoop: options.runLoop });
     delegate.future.consume((value) => {
       produce(value);
     });
@@ -33,5 +37,14 @@ export function createResourceController<TOut>(task: Task<TOut>, resource: Resou
     delegate.halt();
   }
 
-  return { start, halt, future, type: 'resource', operation: resource };
+  return {
+    type: 'resource',
+    start,
+    halt,
+    future,
+    get resourceTask() {
+      return resourceTask;
+    },
+    operation: resource
+  };
 }

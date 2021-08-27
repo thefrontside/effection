@@ -40,6 +40,7 @@ export interface Task<TOut = unknown> extends Promise<TOut>, FutureLike<TOut> {
   readonly children: Task[];
   readonly future: Future<TOut>;
   readonly yieldingTo: Task | undefined;
+  readonly resourceTask: Task | undefined;
   catchHalt(): Promise<TOut | undefined>;
   setLabels(labels: Labels): void;
   run<R>(operation?: Operation<R>, options?: TaskOptions): Task<R>;
@@ -94,6 +95,8 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
     get children() { return Array.from(children) },
 
     get yieldingTo() { return yieldingTo },
+
+    get resourceTask() { return controller.resourceTask },
 
     catchHalt() {
       return future.catch(swallowHalt);

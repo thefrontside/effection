@@ -8,6 +8,7 @@ export type Send<T> = Writable<T>['send'];
 
 export type ChannelOptions = {
   maxSubscribers?: number;
+  name?: string;
 }
 
 export interface Channel<T, TClose = undefined> extends WritableStream<T, T, TClose> {
@@ -34,7 +35,7 @@ export function createChannel<T, TClose = undefined>(options: ChannelOptions = {
         publish(next.value);
       }
     }
-  });
+  }, options.name);
 
   let send: Send<T> = (message: T) => {
     bus.emit('event', { done: false, value: message });

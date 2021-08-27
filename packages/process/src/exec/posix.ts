@@ -1,4 +1,4 @@
-import { spawn, Task, Operation, createFuture, label, withLabels } from '@effection/core';
+import { spawn, Task, createFuture, withLabels } from '@effection/core';
 import { createChannel } from '@effection/channel';
 import { on, once, onceEmit } from '@effection/events';
 import { spawn as spawnProcess } from 'child_process';
@@ -12,24 +12,24 @@ export const createPosixProcess: CreateOSProcess = (command, options) => {
     *init(scope: Task) {
       let { future, produce } = createFuture<Result>();
 
-      let join = (): Operation<ExitStatus> => function*() {
-        let result: Result = yield future;
+      let join = () => withLabels(function*() {
+        let result: Result = yield withLabels(future, { name: 'awaitResult' });
         if (result.type === 'status') {
           let [code, signal] = result.value;
-          return { command, options, code, signal };
+          return { command, options, code, signal } as ExitStatus;
         } else {
           throw result.value;
         }
-      };
+      }, { name: 'joinProcess', expand: false });
 
-      let expect = (): Operation<ExitStatus> => function*() {
+      let expect = () => withLabels(function*() {
         let status: ExitStatus = yield join();
         if (status.code != 0) {
           throw new ExecError(status, command, options);
         } else {
           return status;
         }
-      };
+      }, { name: 'expectProcess', expand: false });
       // Killing all child processes started by this command is surprisingly
       // tricky. If a process spawns another processes and we kill the parent,
       // then the child process is NOT automatically killed. Instead we're using
@@ -46,11 +46,12 @@ export const createPosixProcess: CreateOSProcess = (command, options) => {
         env: options.env,
         cwd: options.cwd
       });
+      scope.setLabels({ state: 'running', pid: childProcess.pid || '' });
 
       let { pid } = childProcess;
 
-      let stdoutChannel = createChannel<string>();
-      let stderrChannel = createChannel<string>();
+      let stdoutChannel = createChannel<string>({ name: 'stdout' });
+      let stderrChannel = createChannel<string>({ name: 'stderr' });
 
       let stdin: Writable<string> = {
         send(data: string) {
@@ -58,26 +59,20 @@ export const createPosixProcess: CreateOSProcess = (command, options) => {
         }
       };
 
-      yield spawn(function*() {
-        yield label({ name: 'exec', state: 'running' });
-        yield spawn(function*() {
-          yield label({ name: 'listen for error' });
-          let value: Error = yield withLabels(once(childProcess, 'error'), {
-            name: 'untilFirst(error)',
-            source: 'ChildProcess',
-          });
+      yield spawn(function* execProcess() {
+        yield spawn(function* trapError() {
+          let value: Error = yield once(childProcess, 'error');
           produce({ state: 'completed', value: { type: 'error', value } });
+          scope.setLabels({ state: 'errored' });
         });
 
-        yield spawn(on<Buffer>(childProcess.stdout, 'data').map((c) => c.toString()).forEach(stdoutChannel.send));
-        yield spawn(on<Buffer>(childProcess.stderr, 'data').map((c) => c.toString()).forEach(stderrChannel.send));
+        yield spawn(on<Buffer>(childProcess.stdout, 'data', 'stdout').map((c) => c.toString()).forEach(stdoutChannel.send));
+        yield spawn(on<Buffer>(childProcess.stderr, 'data', 'stderr').map((c) => c.toString()).forEach(stderrChannel.send));
 
         try {
-          let value = yield withLabels(onceEmit(childProcess, 'exit'), {
-            name: 'on(exit)',
-            source: 'ChildProcess',
-          });
+          let value = yield onceEmit(childProcess, 'exit');
           produce({ state: 'completed', value: { type: 'status', value } });
+          scope.setLabels({ state: 'terminated', exitCode: value[0], signal: value[1] });
         } finally {
           stdoutChannel.close();
           stderrChannel.close();

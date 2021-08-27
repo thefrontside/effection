@@ -1,4 +1,4 @@
-import { spawn, Resource, label, withLabels } from '@effection/core';
+import { spawn, Resource } from '@effection/core';
 
 import { exec, Process, ExecOptions, ExitStatus, DaemonExitError } from './exec';
 
@@ -13,16 +13,15 @@ export interface Daemon extends Resource<Process> {}
 
 export function daemon(command: string, options: ExecOptions = {}): Daemon {
   return {
+    name: `daemon \`${command}\``,
+    labels: {
+      expand: false,
+    },
     *init() {
-      // future TODO, this isn't an operation so how can we label it?
       let process = yield exec(command, options);
 
-      yield spawn(function*() {
-        yield label({ name: `untilFirst('error')` });
-        let status: ExitStatus = yield withLabels(process.join(), {
-          name: 'listening for stopped daemon',
-        });
-        // future TODO, are we able to label this error at all?
+      yield spawn(function* failOnExit() {
+        let status: ExitStatus = yield process.join();
         throw new DaemonExitError(status, command, options);
       });
 

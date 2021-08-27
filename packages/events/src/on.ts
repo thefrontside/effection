@@ -30,7 +30,7 @@ import { EventSource, addListener, removeListener } from './event-source';
  *   buffer += data;
  * }));
  */
-export function on<T = unknown>(source: EventSource, name: string): Stream<T, void> {
+export function on<T = unknown>(source: EventSource, name: string, streamName = `on('${name}')`): Stream<T, void> {
   return createStream((publish) => ({
     name: 'listen',
     labels: { eventName: name, source: source.toString() },
@@ -39,7 +39,7 @@ export function on<T = unknown>(source: EventSource, name: string): Stream<T, vo
       addListener(source, name, listener);
       return () => removeListener(source, name, listener);
     }
-  }), `on('${name}')`);
+  }), streamName);
 }
 
 /**
@@ -69,7 +69,7 @@ export function on<T = unknown>(source: EventSource, name: string): Stream<T, vo
  * ```
  *
  */
-export function onEmit<T extends Array<unknown> = unknown[]>(source: EventSource, name: string): Stream<T, void> {
+export function onEmit<T extends Array<unknown> = unknown[]>(source: EventSource, name: string, streamName = `onEmit('${name}')`): Stream<T, void> {
     return createStream((publish) => ({
     name: 'listen',
     labels: { eventName: name, source: source.toString() },
@@ -78,5 +78,5 @@ export function onEmit<T extends Array<unknown> = unknown[]>(source: EventSource
       addListener(source, name, listener);
       return () => removeListener(source, name, listener);
     }
-  }), `onEmit('${name}')`);
+  }), streamName);
 }

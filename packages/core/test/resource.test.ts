@@ -5,6 +5,7 @@ import expect from 'expect';
 import { Task, Resource, run, sleep } from '../src/index';
 
 export const myResource: Resource<{ status: string }> = {
+  name: 'myResource',
   *init(scope: Task) {
     let container = { status: 'pending' };
     scope.run(function*() {
@@ -46,6 +47,20 @@ describe('resource', () => {
       expect(result.status).toEqual('pending');
       await run(sleep(10));
       expect(result.status).toEqual('pending'); // is finished, should not switch to active
+    });
+
+    it('enables access to resource task', async () => {
+      await run(function*(task) {
+        let initTask = task.run(myResource);
+        let result = yield initTask;
+
+        expect(initTask.resourceTask?.state).toEqual('running');
+        expect(initTask.resourceTask?.labels.name).toEqual('myResource');
+
+        yield initTask.resourceTask?.halt();
+        yield sleep(10);
+        expect(result.status).toEqual('pending');
+      });
     });
   });
 

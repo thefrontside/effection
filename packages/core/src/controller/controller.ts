@@ -14,6 +14,7 @@ import { Future } from '../future';
 export interface Controller<TOut> {
   type: string;
   operation: Operation<TOut>;
+  resourceTask?: Task;
   start(): void;
   halt(): void;
   future: Future<TOut>;

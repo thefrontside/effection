@@ -63,7 +63,7 @@ export function createQueue<T, TReturn = undefined>(name = 'queue'): Queue<T, TR
   };
 
   function withName<T>(operationName: string, operation: Operation<T>): Operation<T> {
-    return withLabels(operation, { name: `${name}.${operationName}()` });
+    return withLabels(operation, { name: `${name}.${operationName}()`, expand: false });
   }
 
   let subscription = {

@@ -16,8 +16,9 @@ export function createResourceController<TOut>(task: Task<TOut>, resource: Resou
     }
 
     let name = resource.name || resource.labels?.name || 'resource';
+    let labels = resource.labels || {};
 
-    resourceTask = scope.run(undefined, { labels: { name, type: 'resource' } });
+    resourceTask = scope.run(undefined, { labels: { ...labels, name, type: 'resource' } });
 
     let iterator;
     try {

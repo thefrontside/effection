@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const Handlebars = require('handlebars');
 
-const BASE_URL="https://v2--effection-api.netlify.app/"; // for css
+const BASE_URL="https://frontside.com/effection/api/"; // for css
 
 Handlebars.registerHelper('relativeURL', function(url) {
   return BASE_URL + url;

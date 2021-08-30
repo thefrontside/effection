@@ -35,7 +35,7 @@ export function createStream<T, TReturn = undefined>(callback: Callback<T, TRetu
     task.run(function*() {
       let result = yield callback(queue.send);
       queue.closeWith(result);
-    }, { labels: { name: `publisher` } });
+    }, { labels: { name: 'publisher', expand: false } });
     return queue.subscription;
   };
 

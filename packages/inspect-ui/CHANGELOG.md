@@ -1,5 +1,12 @@
 # @effection/inspect-ui
 
+## \[2.0.0-beta.13]
+
+- Add support for special `expand` label which controls whether a given task is shown as expanded or collapsed in the inspector.
+  - [db79c9b](https://github.com/thefrontside/effection/commit/db79c9b0fb571fc4cb45b71fb0cbdc5b5950ec3d) Add support for `expand` label on 2021-08-27
+- Fix tree shaking being to aggressive by using sideEffects:true
+  - [aa78ef8](https://github.com/thefrontside/effection/commit/aa78ef8eadba2bf4ea50a280c945d54c51e8723b) Enable side effects in inspect-ui package on 2021-08-27
+
 ## \[2.0.0-beta.12]
 
 - Update core dependency

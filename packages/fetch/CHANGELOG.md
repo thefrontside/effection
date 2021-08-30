@@ -1,5 +1,11 @@
 # @effection/fetch
 
+## \[2.0.0-beta.13]
+
+- Change named import from a package.json file to default
+  - Bumped due to a bump in @effection/core.
+  - [65a856a](https://github.com/thefrontside/effection/commit/65a856a8d498205c27de00432fd43bc11bbb0e37) Change named import from a package.json file to default. ([#490](https://github.com/thefrontside/effection/pull/490)) on 2021-08-25
+
 ## \[2.0.0-beta.12]
 
 - Update core dependency

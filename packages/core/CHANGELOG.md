@@ -1,5 +1,10 @@
 # @effection/core
 
+## \[2.0.0-beta.11]
+
+- Change named import from a package.json file to default
+  - [65a856a](https://github.com/thefrontside/effection/commit/65a856a8d498205c27de00432fd43bc11bbb0e37) Change named import from a package.json file to default. ([#490](https://github.com/thefrontside/effection/pull/490)) on 2021-08-25
+
 ## \[2.0.0-beta.10]
 
 - Use Object.create to wrap error objects rather than copying properties

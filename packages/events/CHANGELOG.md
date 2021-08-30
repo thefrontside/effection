@@ -1,5 +1,10 @@
 # Changelog
 
+## \[2.0.0-beta.13]
+
+- Allow streams created through `on` and `onEmit` to be named
+  - [cc49d47](https://github.com/thefrontside/effection/commit/cc49d47e337785f6524d79760b0d2dd4d766e6ed) Name event streams on 2021-08-27
+
 ## \[2.0.0-beta.12]
 
 - Update core dependency

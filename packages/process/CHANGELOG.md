@@ -1,5 +1,11 @@
 # @effection/process
 
+## \[2.0.0-beta.13]
+
+- Allow channels to be named so their internal stream gets named
+  - Bumped due to a bump in @effection/channel.
+  - [c52018a](https://github.com/thefrontside/effection/commit/c52018a1035d551cef76a757d1dc29781b59c851) Allow channels to be named on 2021-08-27
+
 ## \[2.0.0-beta.12]
 
 - Update core dependency

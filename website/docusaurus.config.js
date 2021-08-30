@@ -28,7 +28,7 @@ module.exports = {
           position: 'left'
         },
         {
-          href: '/effection/api',
+          href: 'https://frontside.com/effection/api',
           label: 'API Reference',
           position: 'left',
           sameWindow: true

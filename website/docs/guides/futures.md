@@ -96,4 +96,4 @@ Promises over Futures, since they are easier to reason about, and easier to
 compose.
 
 [introduction]: /docs/guides/introduction
-[future]: /api
+[future]: https://frontside.com/effection/api

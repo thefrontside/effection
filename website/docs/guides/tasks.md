@@ -166,8 +166,8 @@ main(function*() {
 [generator]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Generator
 [async function]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function
 [promise]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise
-[task]: /api
-[run]: /api
+[task]: https://frontside.com/effection/api
+[run]: https://frontside.com/effection/api
 [spawn]: /docs/guides/spawn
 [future]: /docs/guides/futures
 [resource]: /docs/guides/resources

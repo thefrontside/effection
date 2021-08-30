@@ -208,5 +208,5 @@ export function *createJSONSocket(port, host) {
 ```
 
 [tasks]: /docs/guides/tasks
-[operation]: /api
-[resource]: /api
+[operation]: https://frontside.com/effection/api
+[resource]: https://frontside.com/effection/api

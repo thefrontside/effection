@@ -1,5 +1,11 @@
 # @effection/websocket-client
 
+## \[2.0.0-beta.14]
+
+- Collapse subscription methods in the inspector by default.
+  - Bumped due to a bump in @effection/subscription.
+  - [0d7ec90](https://github.com/thefrontside/effection/commit/0d7ec90beea2a8feb26c133ca2d5bbcd1685db3c) Collapse subscriptions methods in the inspector on 2021-08-27
+
 ## \[2.0.0-beta.13]
 
 - Update core dependency

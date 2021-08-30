@@ -17,10 +17,10 @@ type TreeProps = {
 }
 
 export function TaskTree({ tree }: TreeProps): JSX.Element {
-  let [isOpen, setOpen] = useState<boolean>(true);
+  let [isOpen, setOpen] = useState<boolean>((tree.labels.expand != null) ? !!tree.labels.expand : true);
   let name = tree.labels.name || 'task';
   let children = Object.values(tree.children);
-  let labels = Object.entries(tree.labels).filter(([key]) => key !== 'name');
+  let labels = Object.entries(tree.labels).filter(([key, value]) => key !== 'name' && key !== 'expand' && value != null);
   return (
     <div className={`task ${tree.state}`}>
       <div className={`task--state ${tree.state}`}>

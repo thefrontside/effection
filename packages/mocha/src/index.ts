@@ -32,8 +32,8 @@ function runInWorld(fn: TestFunction) {
 
 export const describe = mocha.describe;
 
-export const beforeEach = (fn: TestFunction) => mocha.beforeEach(runInWorld(fn));
-export const afterEach = (fn: TestFunction) => mocha.afterEach(runInWorld(fn));
+export const beforeEach = (fn: TestFunction): void => mocha.beforeEach(runInWorld(fn));
+export const afterEach = (fn: TestFunction): void => mocha.afterEach(runInWorld(fn));
 
 export const it: ItFunction = Object.assign(
   (title: string, fn?: TestFunction) => mocha.it(title, fn ? runInWorld(fn): fn),

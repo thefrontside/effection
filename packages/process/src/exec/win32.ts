@@ -107,4 +107,4 @@ export const createWin32Process: CreateOSProcess = (command, options) => {
   };
 };
 
-export const isWin32 = () => platform() === "win32";
+export const isWin32 = (): boolean => platform() === "win32";

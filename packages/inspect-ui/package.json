@@ -60,6 +60,12 @@
     "ts-node": "^8.9.0",
     "typescript": "^3.7.0"
   },
+  "sideEffects": true,
+  "targets": {
+    "browser": {
+      "optimize": false
+    }
+  },
   "volta": {
     "node": "12.16.0",
     "yarn": "1.19.1"

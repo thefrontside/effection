@@ -8,6 +8,7 @@ import { Labels } from './labels';
 import { addTrace } from './error';
 import { createFuture, Future, FutureLike, Value } from './future';
 import { createRunLoop } from './run-loop';
+import chalk from 'chalk';
 
 let COUNTER = 0;
 
@@ -47,6 +48,7 @@ export interface Task<TOut = unknown> extends Promise<TOut>, FutureLike<TOut> {
   halt(): Promise<void>;
   start(): void;
   toJSON(): TaskTree;
+  toString(): string;
   on: EventEmitter['on'];
   off: EventEmitter['off'];
 }
@@ -69,7 +71,6 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
 
   let labels: Labels = { ...operation?.labels, ...options.labels };
   let yieldingTo: Task | undefined;
-
 
   if (!labels.name) {
     if (operation?.name) {
@@ -152,6 +153,15 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
         yieldingTo: yieldingTo?.toJSON(),
         children: Array.from(children).map((c) => c.toJSON()),
       };
+    },
+
+    toString() {
+      let formattedLabels = Object.entries(labels).filter(([key]) => key !== 'name' && key !== 'expand').map(([key, value]) => `${key}=${chalk.yellow(JSON.stringify(value))}`).join(' ');
+      return [
+        [chalk.white(labels.name || 'task'), formattedLabels, chalk.grey(`[${task.type} ${id}]`)].filter(Boolean).join(' '),
+        yieldingTo && yieldingTo.toString().split('\n').map(l => '┃ ' + l).join('\n').replace(/^┃ /, `┣ ${chalk.green('yield')} `),
+        ...Array.from(children).map((c) => c.toString().split('\n').map(l => '┃ ' + l).join('\n').replace(/^┃/, '┣'),)
+      ].filter(Boolean).join('\n');
     },
 
     on: (...args) => emitter.on(...args),

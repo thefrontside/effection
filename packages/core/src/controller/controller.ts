@@ -31,7 +31,7 @@ export function createController<T>(task: Task<T>, operation: Operation<T>, opti
   } else if(!operation) {
     return createSuspendController();
   } else if (isResource(operation)) {
-    return createResourceController(task, operation, options);
+    return createResourceController(task, operation);
   } else if (isFuture<T>(operation)) {
     return createFutureController(task, operation);
   } else if (isResolution<T>(operation)) {

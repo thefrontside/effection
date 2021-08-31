@@ -24,7 +24,9 @@ export interface TaskTree extends TaskInfo {
 }
 
 export interface TaskOptions {
+  readonly type?: string;
   readonly scope?: Task;
+  readonly yieldScope?: Task;
   readonly blockParent?: boolean;
   readonly ignoreChildErrors?: boolean;
   readonly ignoreError?: boolean;
@@ -90,7 +92,7 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
 
     get state() { return stateMachine.current },
 
-    get type() { return controller.type },
+    get type() { return options.type || controller.type },
 
     get children() { return Array.from(children) },
 
@@ -150,7 +152,7 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
     toJSON() {
       return {
         id: id,
-        type: controller.type,
+        type: task.type,
         labels: labels,
         state: stateMachine.current,
         yieldingTo: yieldingTo?.toJSON(),

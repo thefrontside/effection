@@ -18,12 +18,14 @@ export const myResource: Resource<{ status: string }> = {
 };
 
 export const metaResource: Resource<{ status: string }> = {
+  name: 'metaResource',
   *init(scope: Task) {
     return yield scope.run(myResource);
   }
 };
 
 export const magicMetaResource: Resource<{ status: string }> = {
+  name: 'magicMetaResource',
   *init() {
     return yield myResource;
   }

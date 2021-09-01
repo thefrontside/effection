@@ -1,4 +1,5 @@
 import type { Task } from '../task';
+import type { RunLoop } from '../run-loop';
 import type { Operation } from '../operation';
 import { isResource, isResolution, isFuture, isPromise, isGenerator } from '../predicates';
 import { createFunctionController } from './function-controller';
@@ -19,17 +20,18 @@ export interface Controller<TOut> {
 }
 
 export type Options = {
+  runLoop: RunLoop;
   resourceScope?: Task;
   onYieldingToChange?: (task: Task | undefined) => void;
 }
 
-export function createController<T>(task: Task<T>, operation: Operation<T>, options: Options = {}): Controller<T> {
+export function createController<T>(task: Task<T>, operation: Operation<T>, options: Options): Controller<T> {
   if (typeof(operation) === 'function') {
     return createFunctionController(task, operation, () => createController(task, operation(task), options));
   } else if(!operation) {
     return createSuspendController();
   } else if (isResource(operation)) {
-    return createResourceController(task, operation);
+    return createResourceController(task, operation, options);
   } else if (isFuture<T>(operation)) {
     return createFutureController(task, operation);
   } else if (isResolution<T>(operation)) {

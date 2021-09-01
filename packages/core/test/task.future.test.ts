@@ -53,4 +53,16 @@ describe('task with future', () => {
     await expect(task).rejects.toHaveProperty('message', 'halted');
     expect(task.state).toEqual('halted');
   });
+
+  it('can be synchronously continued even when already failed', async () => {
+    await expect(run((task) => {
+      task.run(function* florb() {
+        throw new Error('moo');
+      });
+
+      let { future, produce } = createFuture<undefined>();
+      produce({ state: 'completed', value: undefined });
+      return future;
+    })).rejects.toHaveProperty('message', 'moo');
+  });
 });

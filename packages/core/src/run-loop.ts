@@ -8,7 +8,7 @@ export interface RunLoop {
 // up calling into themselves. This causes problems because it becomes very
 // difficult to reason about the underlying state. This could be seen as a sort
 // of synchronous mutex
-export function createRunLoop(): RunLoop {
+export function createRunLoop(name?: string): RunLoop {
   let didEnter = false;
   let runnables: Runnable[] = [];
 
@@ -23,7 +23,7 @@ export function createRunLoop(): RunLoop {
             try {
               runnable();
             } catch(e) {
-              console.error("Caught error in run loop:");
+              console.error(`Caught error in run loop \`${name}\`:`);
               console.error(e);
             }
           } else {

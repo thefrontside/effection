@@ -61,15 +61,14 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
 
   let stateMachine = new StateMachine(emitter);
 
-  let { produce, future } = createFuture<TOut>();
   let result: Value<TOut>;
-  let runLoop = createRunLoop();
+  let runLoop = createRunLoop(`task ${id}`);
+  let { produce, future } = createFuture<TOut>({ runLoop });
 
   let controller: Controller<TOut>;
 
   let labels: Labels = { ...operation?.labels, ...options.labels };
   let yieldingTo: Task | undefined;
-
 
   if (!labels.name) {
     if (operation?.name) {
@@ -125,14 +124,16 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
     },
 
     start() {
-      if(stateMachine.current === 'pending') {
-        stateMachine.start();
-        controller.start();
-      }
+      runLoop.run(() => {
+        if(stateMachine.current === 'pending') {
+          stateMachine.start();
+          controller.start();
+        }
+      });
     },
 
     async halt() {
-      if(stateMachine.current === 'running' || stateMachine.current === 'completing') {
+      if(stateMachine.current === 'running') {
         stateMachine.halting();
         result = { state: 'halted' };
         shutdown(true);
@@ -164,6 +165,7 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
   };
 
   controller = createController(task, operation, {
+    runLoop,
     onYieldingToChange(value) {
       yieldingTo = value;
       emitter.emit('yieldingTo', value);
@@ -171,6 +173,7 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
   });
 
   controller.future.consume((value) => {
+    if(stateMachine.isFinalized) return;
     if(value.state === 'completed') {
       stateMachine.completing();
       if(!result) {
@@ -188,17 +191,20 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
   function link(child: Task) {
     if(!children.has(child)) {
       child.consume((value) => {
-        if(value.state === 'errored' && !child.options.ignoreError && !options.ignoreChildErrors) {
-          stateMachine.erroring();
-          result = { state: 'errored', error: addTrace(value.error, task) };
+        runLoop.run(() => {
+          if(stateMachine.isFinalized) return;
+          if(value.state === 'errored' && !child.options.ignoreError && !options.ignoreChildErrors) {
+            stateMachine.erroring();
+            result = { state: 'errored', error: addTrace(value.error, task) };
 
-          shutdown(true);
-        }
-        if(children.has(child)) {
-          children.delete(child);
-          emitter.emit('unlink', child);
-        }
-        finalize();
+            shutdown(true);
+          }
+          if(children.has(child)) {
+            children.delete(child);
+            emitter.emit('unlink', child);
+          }
+          finalize();
+        });
       });
       children.add(child);
       emitter.emit('link', child);
@@ -226,14 +232,12 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
   }
 
   function finalize() {
-    runLoop.run(() => {
-      if(Array.from(children).length !== 0) return;
-      if(controller.future.state === 'pending') return;
-      if(future.state !== 'pending') return;
+    if(Array.from(children).length !== 0) return;
+    if(controller.future.state === 'pending') return;
+    if(future.state !== 'pending') return;
 
-      stateMachine.finish();
-      produce(result);
-    });
+    stateMachine.finish();
+    produce(result);
   }
 
   return task;

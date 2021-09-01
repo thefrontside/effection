@@ -1,10 +1,10 @@
-import { Controller } from './controller';
+import { Controller, Options } from './controller';
 import { createIteratorController } from './iterator-controller';
 import { Resource } from '../operation';
 import { Task } from '../task';
 import { createFuture } from '../future';
 
-export function createResourceController<TOut>(task: Task<TOut>, resource: Resource<TOut>): Controller<TOut> {
+export function createResourceController<TOut>(task: Task<TOut>, resource: Resource<TOut>, options: Options): Controller<TOut> {
   let delegate: Controller<TOut>;
   let { resourceScope } = task.options;
   let { produce, future } = createFuture<TOut>();
@@ -20,7 +20,7 @@ export function createResourceController<TOut>(task: Task<TOut>, resource: Resou
       produce({ state: 'errored', error });
       return;
     }
-    delegate = createIteratorController(task, init, { resourceScope });
+    delegate = createIteratorController(task, init, { resourceScope, runLoop: options.runLoop });
     delegate.future.consume((value) => {
       produce(value);
     });

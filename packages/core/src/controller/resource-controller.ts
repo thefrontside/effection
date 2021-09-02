@@ -1,4 +1,3 @@
-import { createIteratorController } from './iterator-controller';
 import { Controller } from './controller';
 import { Resource } from '../operation';
 import { Task } from '../task';

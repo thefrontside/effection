@@ -8,7 +8,6 @@ import { Labels } from './labels';
 import { addTrace } from './error';
 import { createFutureOnRunLoop, Future, FutureLike, Value } from './future';
 import { createRunLoop } from './run-loop';
-import chalk from 'chalk';
 
 let COUNTER = 0;
 
@@ -163,10 +162,10 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
     },
 
     toString() {
-      let formattedLabels = Object.entries(labels).filter(([key]) => key !== 'name' && key !== 'expand').map(([key, value]) => `${key}=${chalk.yellow(JSON.stringify(value))}`).join(' ');
+      let formattedLabels = Object.entries(labels).filter(([key]) => key !== 'name' && key !== 'expand').map(([key, value]) => `${key}=${JSON.stringify(value)}`).join(' ');
       return [
-        [chalk.white(labels.name || 'task'), formattedLabels, chalk.grey(`[${task.type} ${id}]`)].filter(Boolean).join(' '),
-        yieldingTo && yieldingTo.toString().split('\n').map(l => '┃ ' + l).join('\n').replace(/^┃ /, `┣ ${chalk.green('yield')} `),
+        [labels.name || 'task', formattedLabels, `[${task.type} ${id}]`].filter(Boolean).join(' '),
+        yieldingTo && yieldingTo.toString().split('\n').map(l => '┃ ' + l).join('\n').replace(/^┃ /, `┣ yield `),
         ...Array.from(children).map((c) => c.toString().split('\n').map(l => '┃ ' + l).join('\n').replace(/^┃/, '┣'),)
       ].filter(Boolean).join('\n');
     },

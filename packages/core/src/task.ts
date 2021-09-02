@@ -6,7 +6,7 @@ import { EventEmitter } from 'events';
 import { StateMachine, State } from './state-machine';
 import { Labels } from './labels';
 import { addTrace } from './error';
-import { createFuture, Future, FutureLike, Value } from './future';
+import { createFutureOnRunLoop, Future, FutureLike, Value } from './future';
 import { createRunLoop } from './run-loop';
 import chalk from 'chalk';
 
@@ -68,7 +68,7 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
 
   let result: Value<TOut>;
   let runLoop = createRunLoop(`task ${id}`);
-  let { produce, future } = createFuture<TOut>({ runLoop });
+  let { produce, future } = createFutureOnRunLoop<TOut>(runLoop);
 
   let controller: Controller<TOut>;
 

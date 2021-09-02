@@ -3,7 +3,6 @@ import { OperationIterator } from '../operation';
 import { createTask, Task } from '../task';
 import { Operation } from '../operation';
 import { createFuture, Value } from '../future';
-import { createRunLoop } from '../run-loop';
 
 const claimed = Symbol.for('effection/v2/iterator-controller/claimed');
 
@@ -13,12 +12,11 @@ interface Claimable {
   [claimed]?: boolean;
 }
 
-export function createIteratorController<TOut>(task: Task<TOut>, iterator: OperationIterator<TOut> & Claimable, options: Options = {}): Controller<TOut> {
+export function createIteratorController<TOut>(task: Task<TOut>, iterator: OperationIterator<TOut> & Claimable, options: Options): Controller<TOut> {
   let didHalt = false;
   let yieldingTo: Task | undefined;
 
   let { produce, future } = createFuture<TOut>();
-  let runLoop = createRunLoop();
 
   function start() {
     if (iterator[claimed]) {
@@ -32,7 +30,7 @@ export function createIteratorController<TOut>(task: Task<TOut>, iterator: Opera
   }
 
   function resume(iter: NextFn) {
-    runLoop.run(() => {
+    options.runLoop.run(() => {
       let next;
       try {
         next = iter();
@@ -47,7 +45,7 @@ export function createIteratorController<TOut>(task: Task<TOut>, iterator: Opera
           produce({ state: 'completed', value: next.value });
         }
       } else {
-        yieldingTo = createTask(next.value, { resourceScope: options.resourceScope || task, ignoreError: true });
+        yieldingTo = createTask(next.value, { scope: task.options.yieldScope || task, ignoreError: true });
         yieldingTo.consume(trap);
         yieldingTo.start();
         options.onYieldingToChange && options.onYieldingToChange(yieldingTo);

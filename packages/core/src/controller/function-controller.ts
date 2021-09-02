@@ -1,17 +1,9 @@
 import { Task } from '../task';
 import { Controller } from './controller';
-import { createFuture, Future } from '../future';
-import { Operation, OperationFunction } from '../operation';
+import { createFuture } from '../future';
+import { OperationFunction } from '../operation';
 
-interface FunctionController<TOut> {
-  readonly type: string;
-  readonly operation: Operation<TOut>;
-  future: Future<TOut>;
-  start: () => void;
-  halt: () => void;
-}
-
-export function createFunctionController<TOut>(task: Task<TOut>, fn: OperationFunction<TOut>, createController: () => Controller<TOut>): FunctionController<TOut> {
+export function createFunctionController<TOut>(task: Task<TOut>, fn: OperationFunction<TOut>, createController: () => Controller<TOut>): Controller<TOut> {
   let delegate: Controller<TOut>;
   let { produce, future } = createFuture<TOut>();
 
@@ -47,6 +39,9 @@ export function createFunctionController<TOut>(task: Task<TOut>, fn: OperationFu
     },
     get operation() {
       return delegate?.operation;
+    },
+    get resourceTask() {
+      return delegate?.resourceTask;
     },
     future,
     start,

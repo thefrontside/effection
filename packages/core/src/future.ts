@@ -1,5 +1,5 @@
 import { HaltError } from './halt-error';
-import { createRunLoop } from './run-loop';
+import { createRunLoop, RunLoop } from './run-loop';
 
 export type State = 'pending' | 'errored' | 'completed' | 'halted';
 
@@ -27,8 +27,12 @@ export interface NewFuture<T> {
   resolve(value: Value<T>): void;
 }
 
+
 export function createFuture<T>(): NewFuture<T> {
-  let runLoop = createRunLoop();
+  return createFutureOnRunLoop(createRunLoop('future'));
+}
+
+export function createFutureOnRunLoop<T>(runLoop: RunLoop): NewFuture<T> {
   let consumers: Consumer<T>[] = [];
   let result: Value<T>;
 

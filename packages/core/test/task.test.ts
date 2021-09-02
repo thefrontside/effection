@@ -61,7 +61,11 @@ describe('Task', () => {
       expect(run().type).toEqual('suspend');
       expect(run({ perform() { /* no op */ } }).type).toEqual('resolution');
       expect(run(createFuture().future).type).toEqual('future');
-      expect(run({ *init() { /* no op */ } }).type).toEqual('resource');
+      expect(run({ *init() { /* no op */ } }).type).toEqual('resource constructor');
+    });
+
+    it('can be overridden', async () => {
+      expect(run(undefined, { type: 'moo' }).type).toEqual('moo');
     });
   });
 

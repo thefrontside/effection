@@ -74,8 +74,6 @@ describe('labels', () => {
   it('applies labels of the resolved operation to a function operation', async () => {
     let task = run((() => () => () => withLabels(sleep(), { one: 1 })) as Operation<void>);
 
-    task.consume(value => console.log({ value }));
-
     expect(task.labels).toMatchObject({
       name: 'sleep',
       one: 1

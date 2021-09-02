@@ -26,7 +26,7 @@ mocha.afterEach(async function() {
 
 function runInWorld(fn: TestFunction) {
   return async function(this: mocha.Context) {
-    await run({ init: fn.bind(this) }, { resourceScope: world! });
+    await run({ init: fn.bind(this) }, { scope: world! });
   };
 }
 

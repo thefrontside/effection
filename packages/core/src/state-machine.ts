@@ -27,6 +27,10 @@ export class StateMachine {
     this.emitter.emit('state', { from, to });
   }
 
+  get isFinalized(): boolean {
+    return this.current === 'errored' || this.current === 'completed' || this.current === 'halted';
+  }
+
   start(): void {
     this.transition('start', {
       'pending': 'running',

@@ -200,6 +200,10 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
       stateMachine.erroring();
       result = { state: 'errored', error: addTrace(value.error, task) };
       shutdown(true);
+    } else if(value.state === 'halted' && stateMachine.current !== 'erroring') {
+      stateMachine.halting();
+      result = { state: 'halted' };
+      shutdown(true);
     }
     finalize();
   });

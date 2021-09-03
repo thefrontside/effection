@@ -1,7 +1,7 @@
 /// <reference types="../types/shellwords" />
 import { split } from 'shellwords';
 
-import { Task, Operation, Resource } from '@effection/core';
+import { Task, Operation, Resource, withLabels } from '@effection/core';
 import { ExecOptions, Process, ProcessResult, CreateOSProcess } from './exec/api';
 import { createPosixProcess } from './exec/posix';
 import { createWin32Process, isWin32 } from './exec/win32';
@@ -33,11 +33,15 @@ export function exec(command: string, options: ExecOptions = {}): Exec {
   let opts = { ...options, arguments: args.concat(options.arguments || []) };
 
   return {
+    name: `exec \`${cmd} ${args.join(' ')}\``,
+    labels: {
+      expand: false
+    },
     init(scope: Task, local: Task) {
       return createProcess(cmd, opts).init(scope, local);
     },
     join() {
-      return function*() {
+      return withLabels(function*() {
         let process = yield createProcess(cmd, { ...opts, buffered: true });
 
         let status = yield process.join();
@@ -45,10 +49,10 @@ export function exec(command: string, options: ExecOptions = {}): Exec {
         let stderr = yield process.stderr.expect();
 
         return { ...status, stdout, stderr };
-      };
+      }, { name: `exec join \`${cmd} ${args.join(' ')}\``, expand: false });
     },
     expect() {
-      return function*() {
+      return withLabels(function*() {
         let process = yield createProcess(cmd, { ...opts, buffered: true });
 
         let status = yield process.expect();
@@ -56,7 +60,7 @@ export function exec(command: string, options: ExecOptions = {}): Exec {
         let stderr = yield process.stderr.expect();
 
         return { ...status, stdout, stderr };
-      };
+      }, { name: `exec expect \`${cmd} ${args.join(' ')}\``, expand: false });
     }
   };
 }

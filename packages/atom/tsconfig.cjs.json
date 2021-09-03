@@ -6,7 +6,6 @@
     "noEmit": false
   },
   "references": [
-    { "path": "../effection/tsconfig.cjs.json" },
     { "path": "../channel/tsconfig.cjs.json" },
     { "path": "../core/tsconfig.cjs.json" },
     { "path": "../subscription/tsconfig.cjs.json" }

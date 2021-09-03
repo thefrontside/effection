@@ -1,5 +1,5 @@
 import { Stream } from '@effection/subscription';
-import { Operation } from 'effection';
+import { Operation } from '@effection/core';
 
 export interface Slice<S> extends Stream<S> {
   get(): S;

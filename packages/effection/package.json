@@ -31,6 +31,7 @@
     "@effection/channel": "2.0.0-beta.13",
     "@effection/core": "2.0.0-beta.11",
     "@effection/events": "2.0.0-beta.13",
+    "@effection/fetch": "2.0.0-beta.13",
     "@effection/main": "2.0.0-beta.13",
     "@effection/subscription": "2.0.0-beta.13"
   },

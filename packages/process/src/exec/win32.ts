@@ -1,5 +1,5 @@
 import { platform } from "os";
-import { spawn, Task, Operation, createFuture } from "@effection/core";
+import { spawn, Task, Operation, createFuture } from '@effection/core';
 import { createChannel } from '@effection/channel';
 import { on, once, onceEmit } from "@effection/events";
 import { spawn as spawnProcess } from "cross-spawn";
@@ -57,26 +57,28 @@ export const createWin32Process: CreateOSProcess = (command, options) => {
 
       let { pid } = childProcess;
 
-      let stdoutChannel = createChannel<string>();
-      let stderrChannel = createChannel<string>();
+      let stdoutChannel = createChannel<string>({ name: 'stdout' });
+      let stderrChannel = createChannel<string>({ name: 'stderr' });
       let stdin = {
         send(data: string) {
           childProcess.stdin.write(data);
         }
       };
 
-      yield spawn(function*(task) {
-        yield task.spawn(function*() {
+      yield spawn(function* execProcess() {
+        yield spawn(function* trapError() {
           let value: Error = yield once(childProcess, 'error');
           produce({ state: 'completed', value: { type: 'error', value } });
+          scope.setLabels({ state: 'errored' });
         });
 
-        yield task.spawn(on<Buffer>(childProcess.stdout, 'data').map((c) => c.toString()).forEach(stdoutChannel.send));
-        yield task.spawn(on<Buffer>(childProcess.stderr, 'data').map((c) => c.toString()).forEach(stderrChannel.send));
+        yield spawn(on<Buffer>(childProcess.stdout, 'data', 'stdout').map((c) => c.toString()).forEach(stdoutChannel.send));
+        yield spawn(on<Buffer>(childProcess.stderr, 'data', 'stderr').map((c) => c.toString()).forEach(stderrChannel.send));
 
         try {
-          let value = yield onceEmit(childProcess, "exit");
-          produce({ state: 'completed', value: { type: "status", value } });
+          let value = yield onceEmit(childProcess, 'exit');
+          produce({ state: 'completed', value: { type: 'status', value } });
+          scope.setLabels({ state: 'terminated', exitCode: value[0], signal: value[1] });
         } finally {
           stdoutChannel.close();
           stderrChannel.close();

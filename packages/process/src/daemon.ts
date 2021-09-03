@@ -13,10 +13,14 @@ export interface Daemon extends Resource<Process> {}
 
 export function daemon(command: string, options: ExecOptions = {}): Daemon {
   return {
+    name: `daemon \`${command}\``,
+    labels: {
+      expand: false,
+    },
     *init() {
       let process = yield exec(command, options);
 
-      yield spawn(function*() {
+      yield spawn(function* failOnExit() {
         let status: ExitStatus = yield process.join();
         throw new DaemonExitError(status, command, options);
       });

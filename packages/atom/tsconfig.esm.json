@@ -5,7 +5,6 @@
     "module": "ESNext"
   },
   "references": [
-    { "path": "../effection/tsconfig.esm.json" },
     { "path": "../channel/tsconfig.esm.json" },
     { "path": "../core/tsconfig.esm.json" },
     { "path": "../subscription/tsconfig.esm.json" }

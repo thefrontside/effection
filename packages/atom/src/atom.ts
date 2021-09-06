@@ -48,12 +48,14 @@ export function createAtom<S>(initialState: S, options: ChannelOptions = {}): Sl
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let sliceMaker = <A>(parentOptional: Op.Optional<O.Option<S>, A> = lens as unknown as Op.Optional<O.Option<S>, A>): MakeSlice<any> =>
+  let sliceMaker = <A>(parentPath: string[], parentOptional: Op.Optional<O.Option<S>, A> = lens as unknown as Op.Optional<O.Option<S>, A>): MakeSlice<any> =>
     <P extends keyof A>(...path: P[]): Slice<A[P]> => {
       // The [any, any] cast is needed as `pipe` expects more than 2 arguments
       // typescript cannot work out if the `getters` array has 0 or more elements
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let getters = (path || []).map(p => (typeof p === 'number') ? Op.index(p) : Op.prop<A, P>(p)) as [any, any];
+
+      let fullPath = [...parentPath, ...path] as string[];
 
       let sliceOptional = pipe(
          parentOptional,
@@ -61,12 +63,15 @@ export function createAtom<S>(initialState: S, options: ChannelOptions = {}): Sl
          ...getters
       ) as Op.Optional<O.Option<S>, A[P]>;
 
+
+      let streamName = fullPath.length ? `slice(${fullPath.map((s) => `'${s}'`).join(', ')})` : 'atom';
+
       let stream = createStream<A[P]>(publish => {
         publish(get());
         return states.map(
           (s) => pipe(s as S, O.fromNullable, sliceOptional.getOption, O.toUndefined) as A[P]
         ).filter(unique(get())).forEach(publish);
-      });
+      }, streamName);
 
       function getOption(): O.Option<A[P]> {
         let current = pipe(
@@ -129,12 +134,10 @@ export function createAtom<S>(initialState: S, options: ChannelOptions = {}): Sl
         update,
         stream,
         once,
-        slice: sliceMaker(sliceOptional),
+        slice: sliceMaker(fullPath, sliceOptional),
         remove,
       }, stream);
   };
 
-  return {
-    ...sliceMaker()(),
-  };
+  return sliceMaker([])();
 }

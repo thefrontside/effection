@@ -33,7 +33,7 @@ export function exec(command: string, options: ExecOptions = {}): Exec {
   let opts = { ...options, arguments: args.concat(options.arguments || []) };
 
   return {
-    name: `exec \`${cmd} ${args.join(' ')}\``,
+    name: `exec(${JSON.stringify(command)})`,
     labels: {
       expand: false
     },
@@ -49,7 +49,7 @@ export function exec(command: string, options: ExecOptions = {}): Exec {
         let stderr = yield process.stderr.expect();
 
         return { ...status, stdout, stderr };
-      }, { name: `exec join \`${cmd} ${args.join(' ')}\``, expand: false });
+      }, { name: `exec(${JSON.stringify(command)}).join()`, expand: false });
     },
     expect() {
       return withLabels(function*() {
@@ -60,7 +60,7 @@ export function exec(command: string, options: ExecOptions = {}): Exec {
         let stderr = yield process.stderr.expect();
 
         return { ...status, stdout, stderr };
-      }, { name: `exec expect \`${cmd} ${args.join(' ')}\``, expand: false });
+      }, { name: `exec(${JSON.stringify(command)}).expect()`, expand: false });
     }
   };
 }

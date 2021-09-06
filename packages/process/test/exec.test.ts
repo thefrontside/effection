@@ -22,6 +22,10 @@ describe('exec', () => {
       expect(result.stdout).toEqual('hello world\n');
       expect(result.stderr).toEqual('boom\n');
     });
+
+    it('applies labels', function*() {
+      expect(exec("foo").join()?.labels?.name).toEqual('exec("foo").join()');
+    });
   });
 
   describe('.expect', () => {
@@ -38,6 +42,14 @@ describe('exec', () => {
 
       expect(error.name).toEqual('ExecError');
     });
+
+    it('applies labels', function*() {
+      expect(exec("foo").expect()?.labels?.name).toEqual('exec("foo").expect()');
+    });
+  });
+
+  it('applies labels to resource', function*() {
+    expect(exec("foo").name).toEqual('exec("foo")');
   });
 
   describe('spawning', () => {

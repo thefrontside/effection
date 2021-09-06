@@ -13,7 +13,7 @@ export interface Daemon extends Resource<Process> {}
 
 export function daemon(command: string, options: ExecOptions = {}): Daemon {
   return {
-    name: `daemon \`${command}\``,
+    name: `daemon(${JSON.stringify(command)})`,
     labels: {
       expand: false,
     },

@@ -18,6 +18,12 @@ describe("fetch in node", () => {
     yield app.listen();
   });
 
+  it("applies labels", function*() {
+    expect(fetch('http://www.example.com').name).toEqual('fetch(\'http://www.example.com\')');
+    expect(fetch('http://www.example.com').labels?.method).toEqual('GET');
+    expect(fetch('http://www.example.com', { method: 'POST' }).labels?.method).toEqual('POST');
+  });
+
   describe('calling the server and posting a body', () => {
     beforeEach(function*() {
       response = yield spawn(fetch(`${app.address}`, {
@@ -107,6 +113,11 @@ describe("fetch in node", () => {
 
       let result = yield response;
       expect(result.foo).toEqual('bar');
+    });
+
+    it("applies labels", function*() {
+      expect(fetch('http://www.example.com').json()?.labels?.name).toEqual('fetch(\'http://www.example.com\').json()');
+      expect(fetch('http://www.example.com', { method: 'POST' }).json()?.labels?.method).toEqual('POST');
     });
   });
 });

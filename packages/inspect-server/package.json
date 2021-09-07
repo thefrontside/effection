@@ -1,6 +1,6 @@
 {
   "name": "@effection/inspect-server",
-  "version": "2.0.0-beta.14",
+  "version": "2.0.0-beta.15",
   "description": "Inspect server for inspecting effection processes",
   "main": "dist-cjs/index.js",
   "types": "dist-esm/index.d.ts",
@@ -29,14 +29,14 @@
     "examples:basic": "ts-node ./examples/basic.ts"
   },
   "dependencies": {
-    "@effection/atom": "2.0.0-beta.13",
-    "@effection/channel": "2.0.0-beta.13",
-    "@effection/core": "2.0.0-beta.11",
-    "@effection/inspect-ui": "2.0.0-beta.13",
-    "@effection/inspect-utils": "2.0.0-beta.13",
-    "@effection/events": "2.0.0-beta.13",
-    "@effection/subscription": "2.0.0-beta.13",
-    "@effection/websocket-server": "2.0.0-beta.14",
+    "@effection/atom": "2.0.0-beta.14",
+    "@effection/channel": "2.0.0-beta.14",
+    "@effection/core": "2.0.0-beta.12",
+    "@effection/inspect-ui": "2.0.0-beta.14",
+    "@effection/inspect-utils": "2.0.0-beta.14",
+    "@effection/events": "2.0.0-beta.14",
+    "@effection/subscription": "2.0.0-beta.14",
+    "@effection/websocket-server": "2.0.0-beta.15",
     "node-static": "^0.7.11",
     "websocket": "^1.0.34"
   },

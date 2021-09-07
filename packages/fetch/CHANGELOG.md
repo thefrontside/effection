@@ -1,5 +1,10 @@
 # @effection/fetch
 
+## \[2.0.0-beta.14]
+
+- Add labels for fetch operations
+  - [4e6f2b7](https://github.com/thefrontside/effection/commit/4e6f2b758ea131654c531860cf2583dfd558c5b8) Add labels to fetch package on 2021-09-06
+
 ## \[2.0.0-beta.13]
 
 - Change named import from a package.json file to default

@@ -1,5 +1,10 @@
 # @effection/atom
 
+## \[2.0.0-beta.14]
+
+- Add labels for atom streams
+  - [d6cbbf4](https://github.com/thefrontside/effection/commit/d6cbbf4efed3c3c6b7e08a4c9c220eabd7630277) Add labels for atom streams on 2021-09-06
+
 ## \[2.0.0-beta.13]
 
 - Allow channels to be named so their internal stream gets named

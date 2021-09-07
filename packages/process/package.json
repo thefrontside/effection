@@ -1,6 +1,6 @@
 {
   "name": "@effection/process",
-  "version": "2.0.0-beta.13",
+  "version": "2.0.0-beta.14",
   "description": "Spawn and manage external processes with Effection",
   "main": "dist-cjs/index.js",
   "module": "dist-esm/index.js",
@@ -40,10 +40,10 @@
     "typescript": "^4.3.5"
   },
   "dependencies": {
-    "@effection/channel": "2.0.0-beta.13",
-    "@effection/core": "2.0.0-beta.11",
-    "@effection/events": "2.0.0-beta.13",
-    "@effection/subscription": "2.0.0-beta.13",
+    "@effection/channel": "2.0.0-beta.14",
+    "@effection/core": "2.0.0-beta.12",
+    "@effection/events": "2.0.0-beta.14",
+    "@effection/subscription": "2.0.0-beta.14",
     "cross-spawn": "^7.0.3",
     "ctrlc-windows": "^2.0.0",
     "shellwords": "^0.1.1"

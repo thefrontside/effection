@@ -1,5 +1,16 @@
 # @effection/core
 
+## \[2.0.0-beta.12]
+
+- Add @effection/fetch as a dependency and reexport it
+  - [5ab5d06](https://github.com/thefrontside/effection/commit/5ab5d0691af75f3583de97402b5aac12325e2918) Reexport @effection/fetch from effection package on 2021-08-26
+- Share internal run loop among task, task future and task controller. Prevents race conditions which cause internal errors.
+  - [222d511](https://github.com/thefrontside/effection/commit/222d5116c388c5b597cc3ec5e0fb64b4d22b273a) Share event loop among controller, task and future on 2021-09-01
+- Introduce task scope as an alternative to resources for being able to access the outer scope of an operation
+  - [3ed11bd](https://github.com/thefrontside/effection/commit/3ed11bd4f5d980cd130ea894a63acb57450c5aac) Make resource task accessible through init task on 2021-08-27
+- Add `toString()` method to task for nicely formatted rendering of task structure
+  - [9a63928](https://github.com/thefrontside/effection/commit/9a6392836704ad527d6da5195f5736462d69bef8) Add toString output for tasks on 2021-08-31
+
 ## \[2.0.0-beta.11]
 
 - Change named import from a package.json file to default

@@ -1,6 +1,8 @@
 {
   "tag": "beta",
   "changes": [
+    ".changes/atom-labels.md",
+    ".changes/bless-fetch.md",
     ".changes/channel-name.md",
     ".changes/collapse-subscriptions.md",
     ".changes/copy-readme.md",
@@ -9,8 +11,11 @@
     ".changes/error-object-create.md",
     ".changes/esm.md",
     ".changes/expand-label.md",
+    ".changes/fetch-labels.md",
+    ".changes/improved-exec-labels.md",
     ".changes/inspect-tree-shaking.md",
     ".changes/inspector-collapse-task.md",
+    ".changes/label-effection-process.md",
     ".changes/label-on-events.md",
     ".changes/link-reademe.md",
     ".changes/mocha-core-dep.md",
@@ -18,8 +23,11 @@
     ".changes/produce.md",
     ".changes/remove-eslint-treeshaking.md",
     ".changes/remove-javascript-turds.md",
+    ".changes/shared-event-loop.md",
     ".changes/side-effects.md",
+    ".changes/task-scope.md",
     ".changes/task-spawn-operation.md",
+    ".changes/task-to-string.md",
     ".changes/typescript-bumps.md"
   ]
 }

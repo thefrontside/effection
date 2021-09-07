@@ -1,6 +1,6 @@
 {
   "name": "@effection/atom",
-  "version": "2.0.0-beta.13",
+  "version": "2.0.0-beta.14",
   "description": "State atom implementation for effection",
   "main": "dist-cjs/index.js",
   "types": "dist-esm/index.d.ts",
@@ -42,9 +42,9 @@
     "extends": "../../package.json"
   },
   "dependencies": {
-    "@effection/channel": "2.0.0-beta.13",
-    "@effection/core": "2.0.0-beta.11",
-    "@effection/subscription": "2.0.0-beta.13",
+    "@effection/channel": "2.0.0-beta.14",
+    "@effection/core": "2.0.0-beta.12",
+    "@effection/subscription": "2.0.0-beta.14",
     "assert-ts": "^0.2.2",
     "fp-ts": "^2.8.2",
     "monocle-ts": "^2.3.3"

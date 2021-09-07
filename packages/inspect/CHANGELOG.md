@@ -1,5 +1,11 @@
 # @effection/inspect
 
+## \[2.0.0-beta.15]
+
+- Add labels for atom streams
+  - Bumped due to a bump in @effection/inspect-server.
+  - [d6cbbf4](https://github.com/thefrontside/effection/commit/d6cbbf4efed3c3c6b7e08a4c9c220eabd7630277) Add labels for atom streams on 2021-09-06
+
 ## \[2.0.0-beta.14]
 
 - Allow channels to be named so their internal stream gets named

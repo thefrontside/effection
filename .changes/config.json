@@ -16,8 +16,7 @@
       "dependencies": [
         "@effection/core",
         "@effection/events",
-        "@effection/subscription",
-        "@effection/mocha"
+        "@effection/subscription"
       ]
     },
     "@effection/atom": {
@@ -26,8 +25,7 @@
       "dependencies": [
         "@effection/channel",
         "@effection/core",
-        "@effection/subscription",
-        "@effection/mocha"
+        "@effection/subscription"
       ]
     },
     "@effection/core": {
@@ -41,6 +39,7 @@
         "@effection/channel",
         "@effection/core",
         "@effection/events",
+        "@effection/fetch",
         "@effection/main",
         "@effection/subscription"
       ]
@@ -50,16 +49,14 @@
       "manager": "javascript",
       "dependencies": [
         "@effection/core",
-        "@effection/subscription",
-        "@effection/mocha"
+        "@effection/subscription"
       ]
     },
     "@effection/fetch": {
       "path": "./packages/fetch",
       "manager": "javascript",
       "dependencies": [
-        "@effection/core",
-        "@effection/mocha"
+        "@effection/core"
       ]
     },
     "@effection/inspect": {
@@ -80,8 +77,7 @@
         "@effection/inspect-utils",
         "@effection/events",
         "@effection/subscription",
-        "@effection/websocket-server",
-        "@effection/mocha"
+        "@effection/websocket-server"
       ]
     },
     "@effection/inspect-utils": {
@@ -92,17 +88,14 @@
         "@effection/channel",
         "@effection/core",
         "@effection/events",
-        "@effection/subscription",
-        "@effection/mocha"
+        "@effection/subscription"
       ]
     },
     "@effection/main": {
       "path": "./packages/main",
       "manager": "javascript",
       "dependencies": [
-        "@effection/core",
-        "@effection/mocha",
-        "@effection/process"
+        "@effection/core"
       ]
     },
     "@effection/node": {
@@ -115,7 +108,10 @@
     },
     "@effection/mocha": {
       "path": "./packages/mocha",
-      "manager": "javascript"
+      "manager": "javascript",
+      "dependencies": [
+        "@effection/core"
+      ]
     },
     "@effection/process": {
       "path": "./packages/process",
@@ -124,8 +120,7 @@
         "@effection/channel",
         "@effection/core",
         "@effection/events",
-        "@effection/subscription",
-        "@effection/mocha"
+        "@effection/subscription"
       ]
     },
     "@effection/react": {
@@ -133,16 +128,14 @@
       "manager": "javascript",
       "dependencies": [
         "@effection/core",
-        "@effection/subscription",
-        "@effection/mocha"
+        "@effection/subscription"
       ]
     },
     "@effection/subscription": {
       "path": "./packages/subscription",
       "manager": "javascript",
       "dependencies": [
-        "@effection/core",
-        "@effection/mocha"
+        "@effection/core"
       ]
     },
     "@effection/websocket-client": {
@@ -151,8 +144,7 @@
       "dependencies": [
         "@effection/core",
         "@effection/events",
-        "@effection/subscription",
-        "@effection/mocha"
+        "@effection/subscription"
       ]
     },
     "@effection/websocket-server": {
@@ -161,8 +153,7 @@
       "dependencies": [
         "@effection/core",
         "@effection/events",
-        "@effection/subscription",
-        "@effection/mocha"
+        "@effection/subscription"
       ]
     },
     "@effection/inspect-ui": {
@@ -175,7 +166,6 @@
         "@effection/main",
         "@effection/react",
         "@effection/subscription",
-        "@effection/mocha",
         "@effection/websocket-client"
       ]
     }

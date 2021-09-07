@@ -1317,6 +1317,11 @@
     "@effection/subscription" "^1.0.0"
     effection "^1.0.0"
 
+"@effection/core@2.0.0-beta.11":
+  version "2.0.0-beta.11"
+  resolved "https://registry.yarnpkg.com/@effection/core/-/core-2.0.0-beta.11.tgz#8582287085f6b6c873bb0748dc7680666f821199"
+  integrity sha512-cgxARBSmRn/7MMwdeIscp/kz62YdB67Soj8psj8OXruQMfTy7chuB+mSNQd4sp1M1vcdYqh//DFyrFYQiXqBiQ==
+
 "@effection/events@^1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@effection/events/-/events-1.0.0.tgz#4430ed538377bf04a5efd7c3b6d40a7b4e2b0607"
@@ -1324,6 +1329,16 @@
   dependencies:
     "@effection/subscription" "^1.0.0"
     effection "^1.0.0"
+
+"@effection/fetch@2.0.0-beta.13":
+  version "2.0.0-beta.13"
+  resolved "https://registry.yarnpkg.com/@effection/fetch/-/fetch-2.0.0-beta.13.tgz#87506b70633c916c0dd95a62ec23d3acab026809"
+  integrity sha512-j2pImidM/+axBsteuapWzq04dTvpTl/ktBmiAtIO7pQ14s5hNxm8MunLSNGM7evDGpLd6+RjTcIf6mv51G03wg==
+  dependencies:
+    "@effection/core" "2.0.0-beta.11"
+    abort-controller "^3.0.0"
+    cross-fetch "^3.0.4"
+    node-fetch "^2.6.1"
 
 "@effection/node@^1.0.2":
   version "1.0.2"

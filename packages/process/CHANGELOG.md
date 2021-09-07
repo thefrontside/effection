@@ -1,5 +1,12 @@
 # @effection/process
 
+## \[2.0.0-beta.14]
+
+- Improve naming scheme for process labels
+  - [82f31cd](https://github.com/thefrontside/effection/commit/82f31cd3fc8c490a795ee83ad61fd38fef18e8ea) Improve naming scheme of exec labels on 2021-09-06
+- Apply labels to the operations. These will improve error output and show up in the effection inspector.
+  - [74160a5](https://github.com/thefrontside/effection/commit/74160a51f9c937e8fd6c1690eba7494a51c88d8c) label @effection/process Operations on 2021-07-20
+
 ## \[2.0.0-beta.13]
 
 - Allow channels to be named so their internal stream gets named

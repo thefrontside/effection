@@ -1,6 +1,6 @@
 {
   "name": "effection",
-  "version": "2.0.0-beta.13",
+  "version": "2.0.0-beta.14",
   "description": "Effortlessly composable structured concurrency primitive for JavaScript",
   "homepage": "https://github.com/thefrontside/effection",
   "repository": {
@@ -28,12 +28,12 @@
     "prepack": "tsc --build tsconfig.esm.json && tsc --build tsconfig.cjs.json && cpy ../../README.md ."
   },
   "dependencies": {
-    "@effection/channel": "2.0.0-beta.13",
-    "@effection/core": "2.0.0-beta.11",
-    "@effection/events": "2.0.0-beta.13",
+    "@effection/channel": "2.0.0-beta.14",
+    "@effection/core": "2.0.0-beta.12",
+    "@effection/events": "2.0.0-beta.14",
     "@effection/fetch": "2.0.0-beta.13",
-    "@effection/main": "2.0.0-beta.13",
-    "@effection/subscription": "2.0.0-beta.13"
+    "@effection/main": "2.0.0-beta.14",
+    "@effection/subscription": "2.0.0-beta.14"
   },
   "devDependencies": {
     "@babel/core": "^7.14.8",

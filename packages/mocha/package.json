@@ -26,8 +26,10 @@
     "prepack": "tsc --build tsconfig.esm.json && tsc --build tsconfig.cjs.json",
     "mocha": "mocha -r ts-node/register"
   },
+  "dependencies": {
+    "@effection/core": "2.0.0-beta.12"
+  },
   "peerDependencies": {
-    "@effection/core": "2.0.0-beta.10",
     "mocha": "^8.0.0"
   },
   "devDependencies": {

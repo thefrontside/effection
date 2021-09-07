@@ -1,5 +1,10 @@
 # @effection/mocha
 
+## \[2.0.0-beta.10]
+
+- Fix dependency versions
+  - [5054ac0](https://github.com/thefrontside/effection/commit/5054ac0f10970bb5654e05545375c5349f18d43a) Add changeset on 2021-09-07
+
 ## \[2.0.0-beta.9]
 
 - Update core dependency

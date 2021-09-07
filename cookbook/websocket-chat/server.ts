@@ -23,7 +23,7 @@ main(function*(scope) {
           }
         });
       } finally {
-        console.log('client disconnected')
+        console.log('client disconnected');
         clients.delete(connection);
       }
     }).within(scope);

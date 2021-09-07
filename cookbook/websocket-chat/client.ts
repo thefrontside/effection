@@ -10,11 +10,11 @@ main(function* () {
     let messageDiv = document.createElement('div');
     messageDiv.innerText = message;
     messages.appendChild(messageDiv);
-  };
+  }
 
   yield spawn(client.forEach(value => {
     appendMessage(value);
-  }))
+  }));
 
   yield on<KeyboardEvent>(textfield, 'keydown').forEach(function*(event) {
     if(event.key === 'Enter') {

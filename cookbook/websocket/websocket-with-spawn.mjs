@@ -2,7 +2,7 @@ import { createWebSocketClient } from '@effection/websocket-client';
 import { main, spawn } from 'effection';
 
 main(function* (scope) {
-  let client = yield createWebSocketClient('wss://echo.websocket.org'); 
+  let client = yield createWebSocketClient('wss://echo.websocket.org');
   console.log('Created websocket...');
 
   yield spawn(client.forEach(( value ) => {
@@ -12,7 +12,7 @@ main(function* (scope) {
   let send = (data) => {
     scope.spawn(client.send(data.toString()));
   };
-  
+
   try {
     process.stdin.on('data', send);
     yield;

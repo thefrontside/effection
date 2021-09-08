@@ -1,5 +1,5 @@
 import { Operation, OperationFunction } from '../operation';
-import { createFuture } from '../future';
+import { Future } from '../future';
 import type { Task, TaskOptions } from '../task';
 
 interface Spawn<T> extends OperationFunction<Task<T>> {
@@ -13,9 +13,7 @@ export function spawn<T>(operation?: Operation<T>, options?: TaskOptions): Spawn
       throw new Error('cannot run `spawn` on a task without scope');
     }
     let result = scope.run(operation, options);
-    let { future, produce } = createFuture<Task<T>>();
-    produce({ state: 'completed', value: result });
-    return future;
+    return Future.resolve(result);
   }
 
   function within(scope: Task) {

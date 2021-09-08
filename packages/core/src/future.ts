@@ -93,3 +93,23 @@ export function createFutureOnRunLoop<T>(runLoop: RunLoop): NewFuture<T> {
     halt: () => produce({ state: 'halted' }),
   };
 }
+
+export const Future = {
+  resolve<T>(value: T): Future<T> {
+    let { future, resolve } = createFuture<T>();
+    resolve(value);
+    return future;
+  },
+
+  reject<T = unknown>(error: Error): Future<T> {
+    let { future, reject } = createFuture<T>();
+    reject(error);
+    return future;
+  },
+
+  halt<T = unknown>(): Future<T> {
+    let { future, halt } = createFuture<T>();
+    halt();
+    return future;
+  },
+};

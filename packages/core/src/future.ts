@@ -23,8 +23,9 @@ export interface Future<T> extends Promise<T>, FutureLike<T> {
 export interface NewFuture<T> {
   future: Future<T>;
   produce(value: Value<T>): void;
-  /** @deprecated Use produce(value) instead */
-  resolve(value: Value<T>): void;
+  resolve(value: T): void;
+  reject(error: Error): void;
+  halt(): void;
 }
 
 
@@ -61,12 +62,6 @@ export function createFutureOnRunLoop<T>(runLoop: RunLoop): NewFuture<T> {
     }
   }
 
-  function resolve(value: Value<T>) {
-    console.warn(`DEPRECATED: resolve() is deprecated and will be changed or removed prior to the release of effection 2.0\nuse produce() instead`);
-    produce(value);
-  }
-
-
   let promise: Promise<T>;
 
   function getPromise(): Promise<T> {
@@ -93,6 +88,8 @@ export function createFutureOnRunLoop<T>(runLoop: RunLoop): NewFuture<T> {
       finally: (...args) => getPromise().finally(...args),
       [Symbol.toStringTag]: '[continuation]',
     },
-    resolve
+    resolve: (value: T) => produce({ state: 'completed', value }),
+    reject: (error: Error) => produce({ state: 'errored', error }),
+    halt: () => produce({ state: 'halted' }),
   };
 }

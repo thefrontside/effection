@@ -17,7 +17,6 @@
       "@effection/inspect-server": ["packages/inspect-server/src"],
       "@effection/main": ["packages/main/src"],
       "@effection/mocha": ["packages/mocha/src"],
-      "@effection/node": ["packages/node/src"],
       "@effection/process": ["packages/process/src"],
       "@effection/react": ["packages/react/src"],
       "@effection/subscription": ["packages/subscription/src"],

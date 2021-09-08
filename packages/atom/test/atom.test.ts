@@ -168,40 +168,6 @@ describe('@bigtest/atom createAtom', () => {
     });
   });
 
-  describe('.once()', () => {
-    let result: Promise<State>;
-    let subject: Slice<State>;
-
-    describe('when initial state matches', () => {
-      beforeEach(function*(world) {
-        subject = createAtom({foo: 'bar'});
-        result = world.run(subject.once((state) => state.foo === 'bar'));
-
-        subject.update(() => ({ foo: 'baz' }));
-      });
-
-      it('gets the first state that passes the given predicate', function*() {
-        expect(yield result).toEqual({ foo: 'bar' });
-        expect(subject.get()).toEqual({ foo: 'baz' });
-      });
-    });
-
-    describe('when initial state does not match', () => {
-      beforeEach(function*(world) {
-        result = world.run(subject.once((state) => state.foo === 'baz'));
-
-        subject.update(() => ({ foo: 'bar' }));
-        subject.update(() => ({ foo: 'baz' }));
-        subject.update(() => ({ foo: 'quox' }));
-      });
-
-      it('gets the first state that passes the given predicate', function*() {
-        expect(yield result).toEqual({ foo: 'baz' });
-        expect(subject.get()).toEqual({ foo: 'quox' });
-      });
-    });
-  });
-
   type Subject = {
     foo: string;
   }

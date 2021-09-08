@@ -93,46 +93,6 @@ describe('@bigtest/atom Slice', () => {
     });
   });
 
-  describe('.once()', () => {
-    let result: Promise<string | undefined>;
-    let atom: Slice<Data>;
-    let slice: Slice<string>;
-
-    beforeEach(function*() {
-      atom = createAtom({ data: 'foo' });
-      slice = atom.slice('data');
-    });
-
-    describe('when initial state matches', () => {
-      beforeEach(function*() {
-        result = yield spawn(slice.once((state) => state === 'foo'));
-
-        slice.update(() => 'bar');
-      });
-
-      it('gets the first state that passes the given predicate', function*() {
-        expect(yield result).toEqual('foo');
-        expect(slice.get()).toEqual('bar');
-      });
-    });
-
-    describe('when initial state does not match', () => {
-      beforeEach(function*() {
-        result = yield spawn(slice.once((state) => state === 'baz'));
-
-        slice.update(() => 'bar');
-        slice.update(() => 'baz');
-        slice.update(() => 'quox');
-      });
-
-      it('gets the first state that passes the given predicate', function*() {
-        expect(yield result).toEqual('baz');
-        expect(slice.get()).toEqual('quox');
-      });
-    });
-  });
-
-
   describe('subscribe', () => {
     let atom: Slice<Data>;
     let slice: Slice<string>;

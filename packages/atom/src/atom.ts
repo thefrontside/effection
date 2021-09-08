@@ -1,7 +1,6 @@
 import * as O from 'fp-ts/Option';
 import * as Op from 'monocle-ts/Optional';
 import { pipe } from 'fp-ts/function';
-import { Operation } from '@effection/core';
 import { createStream } from '@effection/subscription';
 import { createChannel, ChannelOptions } from '@effection/channel';
 import { MakeSlice, Slice } from './types';
@@ -112,12 +111,6 @@ export function createAtom<S>(initialState: S, options: ChannelOptions = {}): Sl
         setState(O.toUndefined(next) as S);
       }
 
-      let once = function onceWithWarning(predicate: (state: A[P]) => boolean): Operation<A[P]> {
-        console.warn('DEPRECATION: every slice of an atom is now an instance of Stream, and so calls to  once() can be converted to `filter(predicate).expect()`');
-        once = (predicate) => stream.filter(predicate).expect();
-        return once(predicate);
-      };
-
       function remove() {
         let next = pipe(
           sliceOptional,
@@ -133,7 +126,6 @@ export function createAtom<S>(initialState: S, options: ChannelOptions = {}): Sl
         set,
         update,
         stream,
-        once,
         slice: sliceMaker(fullPath, sliceOptional),
         remove,
       }, stream);

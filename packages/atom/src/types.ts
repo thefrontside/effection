@@ -1,12 +1,10 @@
 import { Stream } from '@effection/subscription';
-import { Operation } from '@effection/core';
 
 export interface Slice<S> extends Stream<S> {
   get(): S;
   set(value: S): void;
   update(fn: (state: S) => S): void;
   slice: MakeSlice<S>;
-  once(predicate: (state: S) => boolean): Operation<S>;
   remove(): void;
   stream: Stream<S>;
 }

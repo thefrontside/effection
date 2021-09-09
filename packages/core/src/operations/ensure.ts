@@ -1,5 +1,5 @@
 import { Operation } from '../operation';
-import { createFuture } from '../future';
+import { Future } from '../future';
 
 export function ensure<T>(fn: () => Operation<T> | void): Operation<undefined> {
   return function ensure(task) {
@@ -18,8 +18,6 @@ export function ensure<T>(fn: () => Operation<T> | void): Operation<undefined> {
       }
     });
 
-    let { future, produce } = createFuture<undefined>();
-    produce({ state: 'completed', value: undefined });
-    return future;
+    return Future.resolve(undefined);
   };
 }

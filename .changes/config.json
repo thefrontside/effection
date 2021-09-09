@@ -107,14 +107,6 @@
         "@effection/core"
       ]
     },
-    "@effection/node": {
-      "path": "./packages/node",
-      "manager": "javascript",
-      "dependencies": [
-        "@effection/main",
-        "@effection/process"
-      ]
-    },
     "@effection/mocha": {
       "path": "./packages/mocha",
       "manager": "javascript",

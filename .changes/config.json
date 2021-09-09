@@ -19,6 +19,15 @@
         "@effection/subscription"
       ]
     },
+    "@effection/duplex-channel": {
+      "path": "./packages/duplex-channel",
+      "manager": "javascript",
+      "dependencies": [
+        "@effection/core",
+        "@effection/channel",
+        "@effection/subscription"
+      ]
+    },
     "@effection/atom": {
       "path": "./packages/atom",
       "manager": "javascript",

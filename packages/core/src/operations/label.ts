@@ -1,6 +1,6 @@
 import { Operation } from '../operation';
 import { Labels } from '../labels';
-import { createFuture } from '../future';
+import { Future } from '../future';
 import { withLabels } from '../labels';
 
 export function label(labels: Labels): Operation<void> {
@@ -10,8 +10,6 @@ export function label(labels: Labels): Operation<void> {
       throw new Error('cannot run `label` on a task without scope');
     }
     scope.setLabels(labels);
-    let { future, produce } = createFuture<undefined>();
-    produce({ state: 'completed', value: undefined });
-    return future;
+    return Future.resolve(undefined);
   }, { name: 'label' });
 }

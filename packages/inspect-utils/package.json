@@ -17,7 +17,7 @@
   "files": [
     "README.md",
     "CHANGELOG.md",
-    "dist/**/*",
+    "dist-*/**/*",
     "src/**/*"
   ],
   "scripts": {

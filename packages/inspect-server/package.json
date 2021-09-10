@@ -1,6 +1,6 @@
 {
   "name": "@effection/inspect-server",
-  "version": "2.0.0-beta.16",
+  "version": "2.0.0-beta.17",
   "description": "Inspect server for inspecting effection processes",
   "main": "dist-cjs/index.js",
   "types": "dist-esm/index.d.ts",
@@ -32,7 +32,7 @@
     "@effection/atom": "2.0.0-beta.15",
     "@effection/channel": "2.0.0-beta.15",
     "@effection/core": "2.0.0-beta.13",
-    "@effection/inspect-ui": "2.0.0-beta.15",
+    "@effection/inspect-ui": "2.0.0-beta.16",
     "@effection/inspect-utils": "2.0.0-beta.15",
     "@effection/events": "2.0.0-beta.15",
     "@effection/subscription": "2.0.0-beta.15",

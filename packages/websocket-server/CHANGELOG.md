@@ -1,5 +1,11 @@
 # @effection/websocket-server
 
+## \[2.0.0-beta.16]
+
+- Add shortcuts to create resolved/rejected/halted futures via Future.resolve(123), etc...
+  - Bumped due to a bump in @effection/core.
+  - [9599dde](https://github.com/thefrontside/effection/commit/9599dde14e9bc3ba4ac7ea473e8624164727be0c) Add shortcuts for resolves/rejected/halted future on 2021-09-08
+
 ## \[2.0.0-beta.15]
 
 - Add @effection/fetch as a dependency and reexport it

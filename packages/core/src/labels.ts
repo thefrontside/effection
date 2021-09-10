@@ -8,3 +8,10 @@ export function withLabels<T>(operation: Operation<T>, labels: Labels): Operatio
   }
   return operation;
 }
+
+export function setLabels<T>(operation: Operation<T>, labels: Labels): Operation<T> {
+  if(operation) {
+    operation.labels = labels;
+  }
+  return operation;
+}

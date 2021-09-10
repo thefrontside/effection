@@ -16,6 +16,7 @@
     ".changes/future-constructors.md",
     ".changes/improved-exec-labels.md",
     ".changes/inspect-tree-shaking.md",
+    ".changes/inspect-ui-files.md",
     ".changes/inspector-collapse-task.md",
     ".changes/label-effection-process.md",
     ".changes/label-on-events.md",

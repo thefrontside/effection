@@ -12,6 +12,8 @@
     ".changes/esm.md",
     ".changes/expand-label.md",
     ".changes/fetch-labels.md",
+    ".changes/fix-files-export.md",
+    ".changes/future-constructors.md",
     ".changes/improved-exec-labels.md",
     ".changes/inspect-tree-shaking.md",
     ".changes/inspector-collapse-task.md",

@@ -18,8 +18,8 @@
   "files": [
     "README.md",
     "CHANGELOG.md",
-    "dist-*/**/*",
-    "src/**/*"
+    "dist/**/*",
+    "app/**/*"
   ],
   "scripts": {
     "prepack": "parcel build app/index.html --target browser",

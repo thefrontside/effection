@@ -10,6 +10,7 @@ module.exports = {
         'guides/lifecycle',
         'guides/collections',
         'guides/events',
+        'guides/errors',
       ]
     },
     {

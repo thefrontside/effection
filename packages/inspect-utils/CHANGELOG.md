@@ -1,5 +1,10 @@
 # @effection/inspect-utils
 
+## \[2.0.0-beta.15]
+
+- fix files array in inspect package.json
+  - [183958d](https://github.com/thefrontside/effection/commit/183958d92c9f056bd916b2acf172436da5f858a7) Fix inspect files export ([#528](https://github.com/thefrontside/effection/pull/528)) on 2021-09-10
+
 ## \[2.0.0-beta.14]
 
 - Add labels for atom streams

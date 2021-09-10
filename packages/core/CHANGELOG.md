@@ -1,5 +1,10 @@
 # @effection/core
 
+## \[2.0.0-beta.13]
+
+- Add shortcuts to create resolved/rejected/halted futures via Future.resolve(123), etc...
+  - [9599dde](https://github.com/thefrontside/effection/commit/9599dde14e9bc3ba4ac7ea473e8624164727be0c) Add shortcuts for resolves/rejected/halted future on 2021-09-08
+
 ## \[2.0.0-beta.12]
 
 - Add @effection/fetch as a dependency and reexport it

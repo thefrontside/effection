@@ -7,7 +7,7 @@
   "browser": "dist/index.html",
   "module": "dist/inspect-ui.esm.js",
   "sideEffects": true,
-  "homepage": "https://github.com/thefrontside/effection",
+  "homepage": "https://frontside.com/effection",
   "repository": {
     "type": "git",
     "url": "https://github.com/thefrontside/effection.git",

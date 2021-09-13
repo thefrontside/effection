@@ -7,7 +7,7 @@ export { createTask, Task, TaskOptions, TaskInfo, TaskTree } from './task';
 export { Operation, Resource } from './operation';
 export { Effection } from './effection';
 export { deprecated } from './deprecated';
-export { Labels, withLabels } from './labels';
+export { Labels, withLabels, setLabels } from './labels';
 export { HasEffectionTrace } from './error';
 export { createFuture, Future, FutureLike } from './future';
 

@@ -2,7 +2,7 @@
   "name": "effection",
   "version": "2.0.0-beta.16",
   "description": "Effortlessly composable structured concurrency primitive for JavaScript",
-  "homepage": "https://github.com/thefrontside/effection",
+  "homepage": "https://frontside.com/effection",
   "repository": {
     "type": "git",
     "url": "https://github.com/thefrontside/effection.git",

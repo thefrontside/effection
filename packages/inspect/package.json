@@ -4,7 +4,7 @@
   "description": "Injects an inspector into an Effection application",
   "main": "index.cjs.js",
   "module": "index.esm.js",
-  "homepage": "https://github.com/thefrontside/effection",
+  "homepage": "https://frontside.com/effection",
   "repository": {
     "type": "git",
     "url": "https://github.com/thefrontside/effection.git",

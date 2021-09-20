@@ -152,7 +152,7 @@ main(function*() {
 
 ## Main error
 
-We have used the `main` entry point to run our code to run our code, when we build
+We have already seen using the `main` entry point to run our code when we build
 our entire application using Effection. One advantage of `main` over `run` is that
 when our operation fails, we exit the program with a proper failure exit code.
 

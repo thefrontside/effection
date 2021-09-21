@@ -1,5 +1,10 @@
 # @effection/atom
 
+## \[2.0.0-beta.16]
+
+- Remove deprecated `once` from atom
+  - [9bfb22d](https://github.com/thefrontside/effection/commit/9bfb22dfb9e52697678e7af8a78308232cc9a441) Remove deprecated `once` from atom on 2021-09-08
+
 ## \[2.0.0-beta.15]
 
 - Add shortcuts to create resolved/rejected/halted futures via Future.resolve(123), etc...

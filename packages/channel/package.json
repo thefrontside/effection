@@ -1,6 +1,6 @@
 {
   "name": "@effection/channel",
-  "version": "2.0.0-beta.15",
+  "version": "2.0.0-beta.16",
   "description": "MPMC Channel implementation for effection",
   "main": "dist-cjs/index.js",
   "module": "dist-esm/index.js",
@@ -40,8 +40,8 @@
     "extends": "../../package.json"
   },
   "dependencies": {
-    "@effection/core": "2.0.0-beta.13",
-    "@effection/events": "2.0.0-beta.15",
-    "@effection/subscription": "2.0.0-beta.15"
+    "@effection/core": "2.0.0-beta.14",
+    "@effection/events": "2.0.0-beta.16",
+    "@effection/subscription": "2.0.0-beta.16"
   }
 }

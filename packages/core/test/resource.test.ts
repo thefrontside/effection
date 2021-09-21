@@ -2,7 +2,7 @@ import './setup';
 import { describe, it } from 'mocha';
 import expect from 'expect';
 
-import { Task, Resource, run, sleep } from '../src/index';
+import { Task, Resource, run, sleep, spawn } from '../src/index';
 
 export const myResource: Resource<{ status: string }> = {
   name: 'myResource',
@@ -42,6 +42,19 @@ describe('resource', () => {
       });
     });
 
+    it('throws init error', async () => {
+      let task = run(function*(inner) {
+        inner.run({
+          *init() {
+            throw new Error('moo');
+          }
+        });
+        yield;
+      });
+
+      await expect(task).rejects.toHaveProperty('message', 'moo');
+    });
+
     it('terminates resource when task completes', async () => {
       let result: { status: string } = await run(function*(task) {
         return yield task.run(myResource);
@@ -64,6 +77,24 @@ describe('resource', () => {
         expect(result.status).toEqual('pending');
       });
     });
+
+    it('can halt resource task', async () => {
+      let result = { status: 'pending' };
+      await run(function*(task) {
+        let resourceConstructor = task.run({
+          *init() {
+            yield spawn(function*() {
+              yield sleep(5);
+              result.status = 'active';
+            });
+            return "123";
+          }
+        });
+        resourceConstructor.halt();
+        yield sleep(10);
+      });
+      expect(result.status).toEqual('pending'); // is finished, should not switch to active
+    });
   });
 
   describe('with yielded resource', () => {
@@ -73,6 +104,22 @@ describe('resource', () => {
         expect(result.status).toEqual('pending');
         yield sleep(10);
         expect(result.status).toEqual('active');
+      });
+    });
+
+    it('can catch init error', async () => {
+      await run(function*() {
+        let error: Error | undefined = undefined;
+        try {
+          yield {
+            *init() {
+              throw new Error('moo');
+            }
+          };
+        } catch(err) {
+          error = err;
+        }
+        expect(error?.message).toEqual('moo');
       });
     });
 

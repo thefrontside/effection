@@ -21,13 +21,19 @@ export function createResourceController<TOut>(task: Task<TOut>, resource: Resou
 
     initTask = resourceTask.run((task) => resource.init(resourceTask, task), {
       yieldScope: resourceTask,
-      labels: { name: 'init' }
+      labels: { name: 'init' },
+      ignoreError: true,
     });
-    initTask.consume(produce);
+    initTask.consume((value) => {
+      if(value.state !== 'completed') {
+        resourceTask.halt();
+      }
+      produce(value);
+    });
   }
 
   function halt() {
-    initTask?.halt();
+    resourceTask?.halt();
   }
 
   return {

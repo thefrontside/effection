@@ -58,8 +58,7 @@ main(function*() {
 We could rewrite our `fetchWeekDay` operation to do this automatically for us:
 
 ``` javascript
-import { withLabels } from 'effection';
-import { fetch } from '@effection/fetch';
+import { fetch, withLabels } from 'effection';
 
 export function fetchWeekDay(timezone) {
   return withLabels(function*() {
@@ -107,8 +106,7 @@ A final trick is that if our operation is a generator *function*, then we can na
 function to automatically set the `name` label:
 
 ``` javascript
-import { withLabels } from 'effection';
-import { fetch } from '@effection/fetch';
+import { fetch, withLabels } from 'effection';
 
 export function fetchWeekDay(timezone) {
   return function* fetchWeekDay() {
@@ -123,8 +121,7 @@ Unfortunately, there is no way to obtain the name of the generator *function*
 from a `Generator`, so the following does *not* set any labels:
 
 ``` javascript
-import { withLabels } from 'effection';
-import { fetch } from '@effection/fetch';
+import { fetch, withLabels } from 'effection';
 
 export function *fetchWeekDay(timezone) {
   let response = yield fetch(`http://worldclockapi.com/api/json/${timezone}/now`);

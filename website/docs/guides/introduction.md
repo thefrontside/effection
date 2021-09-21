@@ -68,7 +68,7 @@ export async function fetchWeekDay(timezone) {
 The same code using Effection looks like this:
 
 ``` javascript
-import { fetch } from '@effection/fetch';
+import { fetch } from 'effection';
 
 export function *fetchWeekDay(timezone) {
   let response = yield fetch(`http://worldclockapi.com/api/json/${timezone}/now`);

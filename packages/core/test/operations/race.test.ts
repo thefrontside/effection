@@ -1,8 +1,8 @@
-import { asyncResolve, asyncReject, syncResolve, syncReject } from '../setup';
+import { asyncResolve, asyncReject, syncResolve, syncReject, asyncResource } from '../setup';
 import { describe, it } from 'mocha';
 import expect from 'expect';
 
-import { race, run } from '../../src/index';
+import { race, run, sleep } from '../../src/index';
 
 describe('race()', () => {
   it('resolves when one of the given operations resolves asynchronously first', async () => {
@@ -43,6 +43,45 @@ describe('race()', () => {
     ]));
 
     await expect(result).rejects.toHaveProperty('message', 'boom: foo');
+  });
+
+  describe("with resource", () => {
+    it("resolves when first resources resolves", async () => {
+      await run(function*() {
+        let fooStatus = { status: 'pending' };
+        let barStatus = { status: 'pending' };
+        let result = yield race([
+          asyncResource(10, "foo", fooStatus),
+          asyncResource(30, "bar", barStatus),
+        ]);
+
+        expect(result).toEqual('foo');
+        expect(fooStatus.status).toEqual('pending');
+        yield sleep(60);
+        expect(fooStatus.status).toEqual('active');
+        expect(barStatus.status).toEqual('pending');
+      });
+    });
+
+    it("rejects when one of the operations reject", async () => {
+      await run(function*() {
+        let fooStatus = { status: 'pending' };
+        let error;
+        try {
+          yield race([
+            asyncResource(20, "foo", fooStatus),
+            asyncReject(10, "bar"),
+          ]);
+        } catch(err) {
+          error = err;
+        }
+
+        expect(fooStatus.status).toEqual('pending');
+        expect(error).toHaveProperty("message", "boom: bar");
+        yield sleep(40);
+        expect(fooStatus.status).toEqual('pending');
+      });
+    });
   });
 
   it('applies labels', () => {

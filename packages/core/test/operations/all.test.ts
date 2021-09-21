@@ -1,4 +1,4 @@
-import { asyncResolve, asyncReject, syncResolve, syncReject } from '../setup';
+import { asyncResolve, asyncReject, syncResolve, syncReject, asyncResource } from '../setup';
 import { describe, it } from 'mocha';
 import expect from 'expect';
 
@@ -59,6 +59,45 @@ describe('all()', () => {
     ]));
 
     await expect(result).rejects.toHaveProperty('message', 'boom: bar');
+  });
+
+  describe("with resource", () => {
+    it("resolves when all resources resolve", async () => {
+      await run(function*() {
+        let fooStatus = { status: 'pending' };
+        let barStatus = { status: 'pending' };
+        let result = yield all([
+          asyncResource(10, "foo", fooStatus),
+          asyncResource(30, "bar", barStatus),
+        ]);
+
+        expect(result).toEqual(['foo', 'bar']);
+        expect(fooStatus.status).toEqual('active');
+        expect(barStatus.status).toEqual('pending');
+        yield sleep(20);
+        expect(barStatus.status).toEqual('active');
+      });
+    });
+
+    it("rejects when one of the operations reject", async () => {
+      await run(function*() {
+        let fooStatus = { status: 'pending' };
+        let error;
+        try {
+          yield all([
+            asyncResource(20, "foo", fooStatus),
+            asyncReject(10, "bar"),
+          ]);
+        } catch(err) {
+          error = err;
+        }
+
+        expect(fooStatus.status).toEqual('pending');
+        expect(error).toHaveProperty("message", "boom: bar");
+        yield sleep(40);
+        expect(fooStatus.status).toEqual('pending');
+      });
+    });
   });
 
   it('applies labels', () => {

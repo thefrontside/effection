@@ -55,7 +55,7 @@ resource as well.
 input and output streams of an external process, and to block and wait for
 the process to complete using `myProcess.join()`.
 
-Often we expect the process to complete orderly with an exit code of `0`
+Often we expect the process to complete in an orderly fashion with an exit code of `0`
 and we don't want to have to add any error handling in case the process
 exits with a non-zero error code. `expect()` is a convenient operation
 which blocks just like `join()` but throws on any non-zero error code.

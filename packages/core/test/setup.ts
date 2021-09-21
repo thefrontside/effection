@@ -1,4 +1,4 @@
-import { Effection, Operation, sleep } from '../src/index';
+import { Effection, Operation, Resource, sleep, spawn } from '../src/index';
 import { beforeEach } from 'mocha';
 
 beforeEach(async () => {
@@ -35,3 +35,15 @@ export function *syncReject(value: string): Operation<string> {
   throw new Error(`boom: ${value}`);
 }
 
+export function asyncResource(duration: number, value: string, status: { status: string }): Resource<string> {
+  return {
+    *init() {
+      yield spawn(function*() {
+        yield sleep(duration + 10);
+        status.status = 'active';
+      });
+      yield sleep(duration);
+      return value;
+    }
+  };
+}

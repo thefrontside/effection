@@ -150,17 +150,28 @@ main(function*() {
 });
 ```
 
-## Main error
+## Stack traces
 
 We have already seen using the `main` entry point to run our code when we build
 our entire application using Effection. One advantage of `main` over `run` is that
-when our operation fails, we exit the program with a proper failure exit code.
+when our operation fails, we exit the program with a proper failure exit code. Additionally
+`main` prints a nicely formatted stack trace for us on failure:
 
-However, there are cases where we want the program to exit, but it might be due
-to user error, rather than an internal failure. In this case we might not want
-to print a stack trace. For example, if we're building a CLI which reads a
-file, and the file that the user has specified does not exist, then we might want to
-show a message to the user, but there is no need to show a stack trace. Additonally,
+![Error when using main](/images/no-main-error.png)
+
+We can see that in addition to the regular stack trace of our program, we also
+receive an "Effection trace". This gives some context on where the error
+occurred within the structure of our Effection code. To make this as useful as
+possible, you can apply [Labels][] to your operations, which will be shown in
+this trace.
+
+## MainError
+
+There are cases where we want the program to exit, but it might be due to user
+error, rather than an internal failure. In this case we might not want to print
+a stack trace. For example, if we're building a CLI which reads a file, and the
+file that the user has specified does not exist, then we might want to show a
+message to the user, but there is no need to show a stack trace. Additonally,
 we might want to set a specific exit code.
 
 Effection ships with a special error type, `MainError`, which works together
@@ -184,7 +195,11 @@ main(function*() {
 ```
 
 When using `MainError` the stack trace will not be printed and the exit code
-specified in the error will be used.
+specified in the error will be used. This is what it looks like when we try to
+read a file which does not exist:
+
+![Using main error](/images/main-error.png)
 
 [Future]: /docs/guides/futures
 [Resource]: /docs/guides/resources
+[Labels]: /docs/guides/labels

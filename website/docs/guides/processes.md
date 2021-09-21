@@ -114,21 +114,35 @@ want a process to live for the entire duration of the program, or in the case
 of effection for the entire duration of an operation. When using `exec`,
 effection ensures that the process cannot live *longer* than the operation, but
 it does not ensure that the process cannot live *shorter* than the operation.
+
+An example of this might be spawning a server which must keep running so that
+we can send requests to it. If the server exists for any reason, even if it
+exits successfully with an exit code of `0`, that is an unexpected condition,
+and we need to throw an error.
+
 This is where `daemon` comes in. When using `daemon`, if the process finishes
 before the operation is complete, even if it finishes with an exit code of `0`,
 an error is thrown.
 
+Here is an example of using `daemon` to spawn a server process in the
+background:
+
 ``` typescript
-import { main, spawn } from 'effection';
+import { main, spawn, fetch } from 'effection';
 import { daemon } from '@effection/process';
 
 main(function*() {
-  let myProcess = yield daemon('npm start');
+  let myProcess = yield daemon('my-server --port 3000');
 
-  yield spawn(myProcess.stdout.forEach((text) => console.log(text)));
+  yield myProcess.stdout.filter((chunk) => chunk.includes("ready")).expect();
 
-  yield;
+  let result = yield fetch('http://localhost:3000').json();
+
+  console.log('got result:', result);
 });
 ```
+
+Since we're sending a request to the server using `fetch`, the server must be
+kept running.
 
 [resource]: /docs/guides/resources

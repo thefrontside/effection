@@ -139,6 +139,7 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
     },
 
     async halt() {
+      controller.halt();
       if(stateMachine.current === 'running') {
         stateMachine.halting();
         result = { state: 'halted' };
@@ -216,6 +217,7 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
             stateMachine.erroring();
             result = { state: 'errored', error: addTrace(value.error, task) };
 
+            controller.halt();
             shutdown(true);
           }
           if(children.has(child)) {
@@ -231,7 +233,6 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
   }
 
   function shutdown(force: boolean) {
-    controller.halt();
     controller.future.consume(() => {
       let nextChild: Task | undefined;
       function haltNextChild() {

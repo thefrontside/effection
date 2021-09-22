@@ -1,5 +1,5 @@
 import { spawn, Task, createFuture, withLabels } from '@effection/core';
-import { createChannel } from '@effection/channel';
+import { createIoStream } from '@effection/stream';
 import { on, once, onceEmit } from '@effection/events';
 import { spawn as spawnProcess } from 'child_process';
 import { Writable, ExitStatus, CreateOSProcess } from './api';
@@ -50,8 +50,17 @@ export const createPosixProcess: CreateOSProcess = (command, options) => {
 
       let { pid } = childProcess;
 
-      let stdoutChannel = createChannel<string>({ name: 'stdout' });
-      let stderrChannel = createChannel<string>({ name: 'stderr' });
+      let stdout = createIoStream(function*(publish) {
+        yield spawn(on<Buffer>(childProcess.stdout, 'data').forEach(publish));
+        yield future;
+        return undefined;
+      }, 'stdout');
+
+      let stderr = createIoStream(function*(publish) {
+        yield spawn(on<Buffer>(childProcess.stderr, 'data').forEach(publish));
+        yield future;
+        return undefined;
+      }, 'stderr');
 
       let stdin: Writable<string> = {
         send(data: string) {
@@ -66,16 +75,11 @@ export const createPosixProcess: CreateOSProcess = (command, options) => {
           scope.setLabels({ state: 'errored' });
         });
 
-        yield spawn(on<Buffer>(childProcess.stdout, 'data', 'stdout').map((c) => c.toString()).forEach(stdoutChannel.send));
-        yield spawn(on<Buffer>(childProcess.stderr, 'data', 'stderr').map((c) => c.toString()).forEach(stderrChannel.send));
-
         try {
           let value = yield onceEmit(childProcess, 'exit');
           produce({ state: 'completed', value: { type: 'status', value } });
           scope.setLabels({ state: 'terminated', exitCode: value[0], signal: value[1] });
         } finally {
-          stdoutChannel.close();
-          stderrChannel.close();
           try {
             if(typeof childProcess.pid === 'undefined') {
               throw new Error('no pid for childProcess');
@@ -86,14 +90,6 @@ export const createPosixProcess: CreateOSProcess = (command, options) => {
           }
         }
       });
-
-      let { stream: stdout } = stdoutChannel;
-      let { stream: stderr } = stderrChannel;
-
-      if(options.buffered) {
-        stdout = stdout.stringBuffer(scope);
-        stderr = stderr.stringBuffer(scope);
-      }
 
       return { pid: pid as number, stdin, stdout, stderr, join, expect };
     }

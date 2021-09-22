@@ -1,5 +1,5 @@
 import { Operation, Resource } from '@effection/core';
-import { Stream } from '@effection/stream';
+import { IoStream } from '@effection/stream';
 
 // TODO: import from subscription package once #236 is merged
 export interface Writable<T> {
@@ -49,16 +49,11 @@ export interface ExecOptions {
    * Sets the working directory of the process
    */
   cwd?: string;
-
-  /**
-   * Skip buffering of output streams
-   */
-  buffered?: boolean;
 }
 
 export interface StdIO {
-  stdout: Stream<string>;
-  stderr: Stream<string>;
+  stdout: IoStream;
+  stderr: IoStream;
   stdin: Writable<string>;
 }
 

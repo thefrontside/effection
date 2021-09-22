@@ -1,10 +1,11 @@
 import { createQueue, Subscription } from '@effection/subscription';
-import { Operation, Task, Resource } from '@effection/core';
+import { Operation, Task, Resource, spawn } from '@effection/core';
 import { DeepPartial, matcher } from './match';
 import { OperationIterable, ToOperationIterator } from './operation-iterable';
 import { SymbolOperationIterable } from './symbol-operation-iterable';
+import { BufferLike, RingBuffer } from './buffer';
 
-type Callback<T,TReturn> = (publish: (value: T) => void) => Operation<TReturn>;
+export type Callback<T,TReturn> = (publish: (value: T) => void) => Operation<TReturn>;
 
 export interface Stream<T, TReturn = undefined> extends OperationIterable<T, TReturn>, Resource<Subscription<T, TReturn>> {
   filter<R extends T>(predicate: (value: T) => value is R): Stream<R, TReturn>;
@@ -21,12 +22,7 @@ export interface Stream<T, TReturn = undefined> extends OperationIterable<T, TRe
   collect(): Operation<Iterator<T, TReturn>>;
   toArray(): Operation<T[]>;
   subscribe(scope: Task): Subscription<T, TReturn>;
-  buffer(scope: Task): Stream<T, TReturn>;
-  stringBuffer(scope: Task): StringBufferStream<TReturn>;
-}
-
-export interface StringBufferStream<TReturn = undefined> extends Stream<string, TReturn> {
-  value: string;
+  buffer(limit?: number): Resource<Stream<T, TReturn>>;
 }
 
 export function createStream<T, TReturn = undefined>(callback: Callback<T, TReturn>, name = 'stream'): Stream<T, TReturn> {
@@ -104,35 +100,24 @@ export function createStream<T, TReturn = undefined>(callback: Callback<T, TRetu
       return task => subscribe(task).toArray();
     },
 
-    buffer(scope: Task): Stream<T, TReturn> {
-      let buffer: T[] = [];
-
-      scope.run(stream.forEach((m) => { buffer.push(m) }));
-
-      return createStream((publish) => function*() {
-        buffer.forEach(publish);
-        return yield stream.forEach(publish);
-      });
-    },
-
-    stringBuffer(scope: Task): StringBufferStream<TReturn> {
-      let buffer = "";
-
-      scope.run(stream.forEach((m) => { buffer += `${m}` }));
-
-      let result = createStream<string, TReturn>((publish) => function*() {
-        let internalBuffer = buffer;
-        publish(internalBuffer);
-        return yield stream.forEach((m: T) => {
-          internalBuffer += `${m}`;
-          publish(internalBuffer);
-        });
-      });
-
+    buffer(limit?: number): Resource<Stream<T, TReturn>> {
       return {
-        ...result,
-        get value(): string {
-          return buffer;
+        *init() {
+          let buffer: BufferLike<T>;
+          if(limit) {
+            buffer = new RingBuffer(limit);
+          } else {
+            buffer = [];
+          }
+
+          yield spawn(stream.forEach((value) => { buffer.push(value) }));
+
+          return createStream<T, TReturn>((publish) => function*() {
+            for(let value of buffer) {
+              publish(value);
+            }
+            return yield stream.forEach(publish);
+          });
         }
       };
     },

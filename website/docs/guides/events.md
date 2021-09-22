@@ -84,7 +84,7 @@ main(function*() {
 });
 ```
 
-This way we can convert events into Effection streams, and we can also
+This way we can convert events into [Effection streams](./collections), and we can also
 use all of the Stream operations to transform these streams:
 
 ``` javascript

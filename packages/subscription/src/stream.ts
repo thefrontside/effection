@@ -12,6 +12,7 @@ export interface Stream<T, TReturn = undefined> extends OperationIterable<T, TRe
   filter(predicate: (value: T) => boolean): Stream<T, TReturn>;
   filter(predicate: (value: T) => boolean): Stream<T, TReturn>;
   match(reference: DeepPartial<T>): Stream<T,TReturn>;
+  grep(search: string | RegExp): Stream<T,TReturn>;
   map<R>(mapper: (value: T) => R): Stream<R, TReturn>;
 
   first(): Operation<T | undefined>;
@@ -62,6 +63,14 @@ export function createStream<T, TReturn = undefined>(callback: Callback<T, TRetu
 
     match(reference: DeepPartial<T>): Stream<T,TReturn> {
       return stream.filter(matcher(reference));
+    },
+
+    grep(search: string | RegExp): Stream<T,TReturn> {
+      if(typeof(search) === 'string') {
+        return stream.filter((value) => String(value).includes(search));
+      } else {
+        return stream.filter((value) => !!String(value).match(search));
+      }
     },
 
     map<R>(mapper: (value: T) => R): Stream<R, TReturn> {

@@ -1,5 +1,12 @@
 # @effection/core
 
+## \[2.0.0-beta.14]
+
+- Adjust the propagation of errors for resources to make it possible to catch errors from `init`
+  - [75a7248](https://github.com/thefrontside/effection/commit/75a7248ae13d1126bbcaf9b6223f348168e987d0) Catch errors thrown during resource init on 2021-09-21
+- Enable support for resources in higher order operations `all`, `race` and `withTimeout`.
+  - [bbe6cdc](https://github.com/thefrontside/effection/commit/bbe6cdc44184a7669278d0d01ad23a2a79a69e52) Enable resource support for higher order operations on 2021-09-09
+
 ## \[2.0.0-beta.13]
 
 - Add shortcuts to create resolved/rejected/halted futures via Future.resolve(123), etc...

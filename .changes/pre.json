@@ -2,7 +2,9 @@
   "tag": "beta",
   "changes": [
     ".changes/atom-labels.md",
+    ".changes/atom-once.md",
     ".changes/bless-fetch.md",
+    ".changes/catch-init-error.md",
     ".changes/channel-name.md",
     ".changes/collapse-subscriptions.md",
     ".changes/copy-readme.md",
@@ -14,6 +16,7 @@
     ".changes/fetch-labels.md",
     ".changes/fix-files-export.md",
     ".changes/future-constructors.md",
+    ".changes/higher-order-operations.md",
     ".changes/improved-exec-labels.md",
     ".changes/inspect-tree-shaking.md",
     ".changes/inspect-ui-files.md",

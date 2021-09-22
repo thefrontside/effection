@@ -89,13 +89,12 @@ describe('exec', () => {
         proc = yield exec("node './fixtures/echo-server.js'", {
           env: { PORT: '29000', PATH: process.env.PATH as string },
           cwd: __dirname,
-          buffered: true,
         });
 
         joinStdout = yield spawn(proc.stdout.join());
         joinStderr = yield spawn(proc.stderr.join());
 
-        yield proc.stdout.filter((v) => v.includes('listening')).expect();
+        yield proc.stdout.lines().filter((v) => v.includes('listening')).expect();
       });
 
       it('has a pid', function*() {
@@ -120,10 +119,6 @@ describe('exec', () => {
 
         it('closes stdout and stderr', function*() {
           yield proc.expect();
-          let output = yield proc.stdout.expect();
-          let errput = yield proc.stderr.expect();
-          expect(output).toContain('exit(0)');
-          expect(errput).toContain('got request');
           expect(yield joinStdout).toEqual(undefined);
           expect(yield joinStderr).toEqual(undefined);
         });

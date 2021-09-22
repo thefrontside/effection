@@ -119,7 +119,6 @@
       "path": "./packages/process",
       "manager": "javascript",
       "dependencies": [
-        "@effection/channel",
         "@effection/core",
         "@effection/events",
         "@effection/stream"

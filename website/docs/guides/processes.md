@@ -28,7 +28,7 @@ main(function*() {
   console.log(`terminated with exit code ${result.code}`);
 });
 ```
-
+> Note: every process has `stdout` and `stderr`  properties which can be consumed as [effection streams](./collections)
 Processes are automatically terminated when the operation in which they were
 created completed:
 
@@ -58,7 +58,7 @@ the process to complete using `myProcess.join()`.
 Often we expect the process to complete in an orderly fashion with an exit code of `0`
 and we don't want to have to add any error handling in case the process
 exits with a non-zero error code. `expect()` is a convenient operation
-which blocks just like `join()` but throws on any non-zero error code.
+which blocks just like `join()` but throws an error on any non-zero exit code.
 
 ``` typescript
 import { main, spawn } from 'effection';
@@ -143,6 +143,6 @@ main(function*() {
 ```
 
 Since we're sending a request to the server using `fetch`, the server must be
-kept running.
+kept running. If it ever stops, then the operation will not be able to do its job, and so it will fail immediately.
 
 [resource]: /docs/guides/resources

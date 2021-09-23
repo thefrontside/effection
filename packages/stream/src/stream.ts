@@ -1,5 +1,5 @@
 import { createQueue, Subscription } from '@effection/subscription';
-import { Operation, Task, Resource } from '@effection/core';
+import { Operation, Task, Resource, spawn } from '@effection/core';
 import { DeepPartial, matcher } from './match';
 import { OperationIterable, ToOperationIterator } from './operation-iterable';
 import { SymbolOperationIterable } from './symbol-operation-iterable';
@@ -144,3 +144,15 @@ export function createStream<T, TReturn = undefined>(callback: Callback<T, TRetu
 
   return stream;
 }
+
+export const Stream = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  merge<T>(streams: Stream<T, any>[]): Stream<T> {
+    return createStream<T>(function*(publish) {
+      for(let stream of streams) {
+        yield spawn(stream.forEach(publish), { blockParent: true });
+      }
+      return undefined;
+    });
+  }
+};

@@ -1,5 +1,6 @@
 import expect from 'expect';
 import { describe, it, beforeEach, captureError } from '@effection/mocha';
+import { sleep } from '@effection/core';
 import { EventEmitter } from 'events';
 
 import { createStream, Stream, StringBufferStream } from '../src/index';
@@ -23,6 +24,26 @@ const emptyStream: Stream<Thing, number> = createStream(() => function*() {
 });
 
 describe('Stream', () => {
+  describe('merge', () => {
+    it('merges multiple streams', function*() {
+      let people = createStream<Thing, void>(function*(publish) {
+        yield sleep(5);
+        publish({ name: 'bob', type: 'person' });
+        publish({ name: 'alice', type: 'person' });
+      });
+      let planets = createStream<Thing, void>(function*(publish) {
+        yield sleep(10);
+        publish({ name: 'world', type: 'planet', moon: 'Luna' });
+      });
+      let result = yield Stream.merge([people, planets]).toArray();
+      expect(result).toEqual([
+        {name: 'bob', type: 'person' },
+        {name: 'alice', type: 'person' },
+        {name: 'world', type: 'planet', moon: 'Luna' },
+      ])
+    });
+  });
+
   describe('join', () => {
     it('returns the result of the stream', function*() {
       let result = yield stuff.join();

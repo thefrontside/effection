@@ -118,6 +118,21 @@ describe('Stream', () => {
     });
   });
 
+  describe('grep', () => {
+    it('filters the values based on the given regexp', function*() {
+      let matched = yield stuff.map((v) => v.name).grep(/bob|alice/).collect();
+      expect(matched.next()).toEqual({ done: false, value: 'bob' });
+      expect(matched.next()).toEqual({ done: false, value: 'alice' });
+      expect(matched.next()).toEqual({ done: true, value: 3 });
+    });
+
+    it('filters the values based on the given substring', function*() {
+      let matched = yield stuff.map((v) => v.name).grep('ob').collect();
+      expect(matched.next()).toEqual({ done: false, value: 'bob' });
+      expect(matched.next()).toEqual({ done: true, value: 3 });
+    });
+  });
+
   describe('first', () => {
     it('returns the first item in the subscription', function*() {
       expect(yield stuff.first()).toEqual({ name: 'bob', type: 'person' });

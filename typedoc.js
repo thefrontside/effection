@@ -11,8 +11,11 @@ module.exports = {
   "name": "effection",
   "out": "docs/api/v2",
   "hideGenerator": true,
-  "theme": "website/typedoc-theme/",
-  "packages": [
+  "readme": "API.md",
+  "customCss": "typedoc.css",
+  "name": "Effection API Reference",
+  "entryPointStrategy": "packages",
+  "entryPoints": [
     "packages/atom",
     "packages/effection",
     "packages/fetch",

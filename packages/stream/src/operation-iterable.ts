@@ -1,5 +1,5 @@
 import { Task } from '@effection/core';
-import { OperationIterator } from './operation-iterator';
+import { OperationIterator } from '@effection/subscription';
 import { SymbolOperationIterable } from './symbol-operation-iterable';
 
 export interface ToOperationIterator<T, TReturn = undefined> {

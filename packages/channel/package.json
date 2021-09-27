@@ -42,6 +42,6 @@
   "dependencies": {
     "@effection/core": "2.0.0-beta.14",
     "@effection/events": "2.0.0-beta.16",
-    "@effection/subscription": "2.0.0-beta.16"
+    "@effection/stream": "2.0.0-beta.1"
   }
 }

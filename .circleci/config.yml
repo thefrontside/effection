@@ -111,6 +111,7 @@ workflows:
               package:
                 - core
                 - subscription
+                - stream
                 - events
                 - channel
                 - duplex-channel

@@ -1,4 +1,4 @@
-import { createStream, Stream } from '@effection/subscription';
+import { createStream, Stream } from '@effection/stream';
 import { EventSource, addListener, removeListener } from './event-source';
 
 

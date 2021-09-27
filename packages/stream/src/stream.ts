@@ -1,7 +1,6 @@
+import { createQueue, Subscription } from '@effection/subscription';
 import { Operation, Task, Resource } from '@effection/core';
 import { DeepPartial, matcher } from './match';
-import { createQueue } from './queue';
-import { Subscription } from './subscription';
 import { OperationIterable, ToOperationIterator } from './operation-iterable';
 import { SymbolOperationIterable } from './symbol-operation-iterable';
 

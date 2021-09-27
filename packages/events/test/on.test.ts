@@ -2,7 +2,7 @@ import { describe, it, beforeEach } from '@effection/mocha';
 import expect from 'expect'
 
 import { sleep } from '@effection/core';
-import { OperationIterator } from '@effection/subscription';
+import { Subscription } from '@effection/subscription';
 import { EventEmitter } from 'events';
 
 import { on, onEmit } from '../src/index';
@@ -11,7 +11,7 @@ import { FakeEventEmitter, FakeEvent } from './fake-event-target';
 describe("on()", () => {
   describe('subscribe to an EventEmitter', () => {
     let emitter: EventEmitter;
-    let iterator: OperationIterator<string, void>;
+    let iterator: Subscription<string, void>;
 
     beforeEach(function*(task) {
       emitter = new EventEmitter();
@@ -57,7 +57,7 @@ describe("on()", () => {
 
   describe('subscribing to an EventTarget', () => {
     let target: FakeEventEmitter;
-    let iterator: OperationIterator<string, void>;
+    let iterator: Subscription<string, void>;
     let thingEvent: FakeEvent;
 
     beforeEach(function*(task) {
@@ -80,7 +80,7 @@ describe("on()", () => {
 
   describe('chaining', () => {
     let emitter: EventEmitter;
-    let iterator: OperationIterator<number, void>;
+    let iterator: Subscription<number, void>;
 
     beforeEach(function*(task) {
       emitter = new EventEmitter();
@@ -102,7 +102,7 @@ describe("on()", () => {
 
 describe('onEmit()', () => {
   let emitter: EventEmitter;
-  let iterator: OperationIterator<[string], void>;
+  let iterator: Subscription<[string], void>;
 
   beforeEach(function*(task) {
     emitter = new EventEmitter();

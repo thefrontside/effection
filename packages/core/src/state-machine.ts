@@ -1,9 +1,24 @@
 import { EventEmitter } from 'events';
 
+/**
+ * The state of a Task can be one of the following:
+ *
+ * - `pending`: the task has not been started yet
+ * - `running`: the task is currently running
+ * - `halting`: the task has been halted, but halting is not finished yet
+ * - `halted`: the task is fully halted
+ * - `erroring`: the task or one of its children has failed and is in the process of shutting down
+ * - `errored`: the task has fully failed and evaluates to an Error
+ * - `completing`: the task is completing and shutting down its children
+ * - `completed`: the task is fully complete and evaluates to a value
+ */
 export type State = 'pending' | 'running' | 'halting' | 'halted' | 'erroring' | 'errored' | 'completing' | 'completed';
 
 function f(value: string) { return JSON.stringify(value) }
 
+/**
+ * @hidden
+ */
 export type StateTransition = {
   from: State;
   to: State;

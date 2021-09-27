@@ -1,7 +1,7 @@
 import * as O from 'fp-ts/Option';
 import * as Op from 'monocle-ts/Optional';
 import { pipe } from 'fp-ts/function';
-import { createStream } from '@effection/subscription';
+import { createStream } from '@effection/stream';
 import { createChannel, ChannelOptions } from '@effection/channel';
 import { MakeSlice, Slice } from './types';
 import { unique } from './unique';

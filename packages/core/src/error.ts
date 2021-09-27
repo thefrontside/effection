@@ -1,5 +1,8 @@
 import type { Task, TaskInfo } from './task';
 
+/**
+ * @hidden
+ */
 export interface HasEffectionTrace {
   effectionTrace: TaskInfo[];
 }

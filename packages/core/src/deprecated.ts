@@ -1,3 +1,6 @@
+/**
+ * @hidden
+ */
 export function deprecated<TThis, TArgs extends unknown[], TReturn>(message: string, fn: (this: TThis, ...args: TArgs) => TReturn): (this: TThis, ...args: TArgs) => TReturn {
   return function(...args) {
     try {

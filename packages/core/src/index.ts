@@ -20,6 +20,30 @@ export { race } from './operations/race';
 export { all } from './operations/all';
 export { label } from './operations/label';
 
+/**
+ * Run takes an operation and runs it in a task. It returns the task it created.
+ *
+ * Run is an entry point into Effection, and is especially useful when
+ * embedding Effection code into existing code. If you are writing your whole
+ * program using Effection, you should prefer using `main`.
+ *
+ * ### Example
+ *
+ * ```
+ * import { run, fetch } from 'effection';
+ *
+ * async function fetchExample() {
+ *   await run(function*() {
+ *     let response = yield fetch('http://www.example.com');
+ *     yield response.text();
+ *   });
+ * });
+ * ```
+ *
+ * @param operation the operation to run
+ * @param options the options to configure the task with
+ * @returns the new task
+ */
 export function run<TOut>(operation?: Operation<TOut>, options?: TaskOptions): Task<TOut> {
   return Effection.root.run(operation, options);
 }

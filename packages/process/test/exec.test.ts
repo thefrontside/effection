@@ -1,9 +1,27 @@
 import { Task, spawn } from '@effection/core';
+import { createStream, Stream } from '@effection/stream';
 import { describe, it, beforeEach, captureError } from '@effection/mocha';
 import expect from 'expect';
+import os from 'os';
+import path from 'path';
+import { open } from 'fs/promises';
 
 import { exec, Process, ProcessResult } from '../src';
 import fetch from 'node-fetch';
+import { Tail } from 'tail';
+
+function tail(path: string): Stream<string> {
+  let t = new Tail(path);
+  return createStream<string>(function*(publish) {
+    t.on('line', publish);
+    try {
+      yield;
+      return undefined;
+    } finally {
+      t.unwatch();
+    }
+  });
+}
 
 describe('exec', () => {
   describe('.join', () => {
@@ -150,6 +168,23 @@ describe('exec', () => {
           expect(yield joinStdout).toEqual(undefined);
           expect(yield joinStderr).toEqual(undefined);
         });
+      });
+    });
+
+    describe('a process with custom stdio', () => {
+      it('passes down options to node', function*() {
+        let filePath = path.join(os.tmpdir(), './echo-server-output.txt');
+        let file = yield open(filePath, 'w');
+        let result = yield tail(filePath).buffer();
+        let proc = yield exec("node './fixtures/echo-server.js'", {
+          env: { PORT: '29000', PATH: process.env.PATH as string },
+          cwd: __dirname,
+          stdio: ['pipe', file, file, 'ipc'],
+        });
+
+        proc.send('hello world');
+
+        yield result.grep('got message hello world').expect();
       });
     });
   });

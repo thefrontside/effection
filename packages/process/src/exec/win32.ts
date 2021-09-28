@@ -44,34 +44,36 @@ export const createWin32Process: CreateOSProcess = (command, options) => {
         // `cross-spawn` handles running it with the shell in windows if needed.
         // Neither mac nor linux need shell and we run it detached.
         shell: false,
-        // With stdio as pipe, windows gets stuck where neither the child nor the
-        // parent wants to close the stream, so we call it ourselves in the exit event.
-        stdio: "pipe",
         // Hide the child window so that killing it will not block the parent
         // with a Terminate Batch Process (Y/n)
         windowsHide: true,
 
         env: options.env,
         cwd: options.cwd,
+        stdio: options.stdio,
       });
 
       let { pid } = childProcess;
 
       let stdout = createIoStream(function*(publish) {
-        yield spawn(on<Buffer>(childProcess.stdout, 'data').forEach(publish));
+        if(childProcess.stdout) {
+          yield spawn(on<Buffer>(childProcess.stdout, 'data').forEach(publish));
+        }
         yield future;
         return undefined;
       }, 'stdout');
 
       let stderr = createIoStream(function*(publish) {
-        yield spawn(on<Buffer>(childProcess.stderr, 'data').forEach(publish));
+        if(childProcess.stderr) {
+          yield spawn(on<Buffer>(childProcess.stderr, 'data').forEach(publish));
+        }
         yield future;
         return undefined;
       }, 'stderr');
 
       let stdin = {
         send(data: string) {
-          childProcess.stdin.write(data);
+          childProcess.stdin?.write(data);
         }
       };
 
@@ -90,18 +92,27 @@ export const createWin32Process: CreateOSProcess = (command, options) => {
           if (pid) {
             ctrlc(pid);
             let stdin = childProcess.stdin;
-            if (stdin.writable) {
-              try {
-                //Terminate batch process (Y/N)
-                stdin.write("Y\n");
-              } catch (_err) { /* not much we can do here */}
+            if(stdin) {
+              if(stdin.writable) {
+                try {
+                  //Terminate batch process (Y/N)
+                  stdin.write("Y\n");
+                } catch (_err) { /* not much we can do here */}
+              }
+              stdin.end();
             }
-            stdin.end();
           }
         }
       });
 
-      return { pid: pid as number, stdin, stdout, stderr, join, expect };
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      function send(value: any) {
+        if(childProcess.send) {
+          childProcess.send(value);
+        }
+      }
+
+      return { pid: pid as number, stdin, stdout, stderr, join, expect, send };
     }
   };
 };

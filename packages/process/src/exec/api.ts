@@ -1,16 +1,19 @@
 import { Operation, Resource } from '@effection/core';
-import { IoStream } from '@effection/stream';
+import { IoStream, Writable } from '@effection/stream';
+import { Stream } from 'stream';
 
-// TODO: import from subscription package once #236 is merged
-export interface Writable<T> {
-  send(message: T): void;
-}
+export type StdIOOptionCommon = 'inherit' | 'ignore' | 'pipe' | 'overlapped' | undefined
+export type StdIOOptionItem = StdIOOptionCommon | null | Stream;
+export type StdIOOption = StdIOOptionCommon | StdIOOptionItem[];
 
 /**
  * The process type is what is returned by the `exec` operation. It has all of
  * standard io handles, and methods for synchronizing on return.
  */
-export interface Process extends StdIO {
+export interface Process extends Writable<any> {
+  stdout: IoStream;
+  stderr: IoStream;
+  stdin: Writable<string>;
 
   readonly pid: number;
 
@@ -49,12 +52,13 @@ export interface ExecOptions {
    * Sets the working directory of the process
    */
   cwd?: string;
-}
 
-export interface StdIO {
-  stdout: IoStream;
-  stderr: IoStream;
-  stdin: Writable<string>;
+  /**
+   * Sets the options for standard IO of the spawned process. See the
+   * [ChildProcess documentation](https://nodejs.org/api/child_process.html#child_process_options_stdio)
+   * for more information.
+   */
+  stdio?: StdIOOption
 }
 
 export interface ExitStatus {

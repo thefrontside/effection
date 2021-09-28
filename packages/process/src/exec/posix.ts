@@ -1,8 +1,8 @@
 import { spawn, Task, createFuture, withLabels } from '@effection/core';
-import { createIoStream } from '@effection/stream';
+import { createIoStream, Writable } from '@effection/stream';
 import { on, once, onceEmit } from '@effection/events';
 import { spawn as spawnProcess } from 'child_process';
-import { Writable, ExitStatus, CreateOSProcess } from './api';
+import { ExitStatus, CreateOSProcess } from './api';
 import { ExecError } from './error';
 
 type Result = { type: 'error'; value: unknown } | { type: 'status'; value: [number?, string?] };
@@ -44,27 +44,32 @@ export const createPosixProcess: CreateOSProcess = (command, options) => {
         detached: true,
         shell: options.shell,
         env: options.env,
-        cwd: options.cwd
+        cwd: options.cwd,
+        stdio: options.stdio,
       });
       scope.setLabels({ state: 'running', pid: childProcess.pid || '' });
 
       let { pid } = childProcess;
 
       let stdout = createIoStream(function*(publish) {
-        yield spawn(on<Buffer>(childProcess.stdout, 'data').forEach(publish));
+        if(childProcess.stdout) {
+          yield spawn(on<Buffer>(childProcess.stdout, 'data').forEach(publish));
+        }
         yield future;
         return undefined;
       }, 'stdout');
 
       let stderr = createIoStream(function*(publish) {
-        yield spawn(on<Buffer>(childProcess.stderr, 'data').forEach(publish));
+        if(childProcess.stderr) {
+          yield spawn(on<Buffer>(childProcess.stderr, 'data').forEach(publish));
+        }
         yield future;
         return undefined;
       }, 'stderr');
 
       let stdin: Writable<string> = {
         send(data: string) {
-          childProcess.stdin.write(data);
+          childProcess.stdin?.write(data);
         }
       };
 
@@ -91,7 +96,14 @@ export const createPosixProcess: CreateOSProcess = (command, options) => {
         }
       });
 
-      return { pid: pid as number, stdin, stdout, stderr, join, expect };
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      function send(value: any) {
+        if(childProcess.send) {
+          childProcess.send(value);
+        }
+      }
+
+      return { pid: pid as number, stdin, stdout, stderr, join, expect, send };
     }
   };
 };

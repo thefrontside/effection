@@ -2390,6 +2390,11 @@
   resolved "https://registry.yarnpkg.com/@types/stack-utils/-/stack-utils-2.0.0.tgz#7036640b4e21cc2f259ae826ce843d277dad8cff"
   integrity sha512-RJJrrySY7A8havqpGObOB4W92QXKJo63/jFLLgpvOtsGUqbQZ9Sbgl35KMm1DjC6j7AvmmU2bIno+3IyEaemaw==
 
+"@types/tail@^2.2.1":
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/@types/tail/-/tail-2.2.1.tgz#ca8d8ea542cf3fefbdac9e8f131ae04990596f1e"
+  integrity sha512-j75Gs5MiIpNR14wztQ4vtViUqxZi+lcgflyXC7P9iMgNnMab7XcV5p+2590IO3njsWWn5l8C+55ILk2CDDyaHg==
+
 "@types/tough-cookie@*":
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/@types/tough-cookie/-/tough-cookie-4.0.0.tgz#fef1904e4668b6e5ecee60c52cc6a078ffa6697d"
@@ -9245,6 +9250,11 @@ table@^6.0.9:
     slice-ansi "^4.0.0"
     string-width "^4.2.0"
     strip-ansi "^6.0.0"
+
+tail@^2.2.3:
+  version "2.2.3"
+  resolved "https://registry.yarnpkg.com/tail/-/tail-2.2.3.tgz#3e6bf65963bb868913e4e3b770cc1584c9d8091c"
+  integrity sha512-XbBmVsJZ636kncPew2Y+pOxOsb9GsNFZ1bcAGCDn23ME/JPJ+TImZYjnqBnMLdw+K11Hql5ZgiUQmRvDHaFc6w==
 
 tar-stream@^2.1.4:
   version "2.2.0"

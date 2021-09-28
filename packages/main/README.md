@@ -1,17 +1,9 @@
 # @effection/main
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Created by Frontside](https://img.shields.io/badge/created%20by-frontside-26abe8.svg)](https://frontside.com)
+[![Chat on Discord](https://img.shields.io/discord/700803887132704931?Label=Discord)](https://discord.gg/Ug5nWH8)
 
-Entry point for Effection applications which provides nice setup and teardown.
-Works both in node and browser contexts.
+[Effection][] is the structured concurrency toolkit for JavaScript. You can find
+detailed information about using `main()` here [https://frontside.com/effection/docs/guides/tasks](https://frontside.com/effection/docs/guides/tasks)
 
-## Usage
-
-``` typescript
-import { sleep } from '@effection/core';
-import { main } from '@effection/main';
-
-main(function* sayHello() {
-  console.log('Hello World!');
-  yield sleep(2000);
-  console.log('Goodbye World!')
-});
-```
+[Effection]: https://frontside.com/effection

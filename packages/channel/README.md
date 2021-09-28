@@ -1,40 +1,9 @@
 # @effection/channel
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Created by Frontside](https://img.shields.io/badge/created%20by-frontside-26abe8.svg)](https://frontside.com)
+[![Chat on Discord](https://img.shields.io/discord/700803887132704931?Label=Discord)](https://discord.gg/Ug5nWH8a)
 
-A multi producer, multi consumer unbounded channel for Effection. Channels are
-useful for communicating between different parts of a system, for building
-pubsub buses, or a whole lot of other synchronization needs.
+[Effection][] is the structured concurrency toolkit for JavaScript. You can find
+detailed information about channels, streams and subscriptions at [https://frontside.com/effection/docs/guides/collections#stream](https://frontside.com/effection/docs/guides/collections#stream)
 
-Sending to a channel is synchronous and does not require the sender to be
-running in an effection context. However, reading from a channel can only be
-done through operations.
-
-Because of the synchronous nature of sends, channels are unbounded in size, which
-means that they cannot handle backpressure. As such, channels should be used more
-as a synchronization mechanism, rather than a high-throughput system.
-
-## Usage
-
-A basic example:
-
-``` typescript
-import { createChannel } from '@effection/channel';
-import { main } from '@effection/main';
-import { sleep } from '@effection/core';
-
-main(function*() {
-  let channel = createChannel();
-
-  spawn(function*() {
-    while(true) {
-      yield sleep(1000);
-      channel.send({ message: "ping" });
-    }
-  });
-
-  let subscription = yield channel.subscribe();
-
-  while(true) {
-    let { value } = yield subscription.next();
-    console.log("value:", value);
-  }
-});
+[Effection]: https://frontside.com/effection

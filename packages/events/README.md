@@ -1,59 +1,9 @@
 # @effection/events
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Created by Frontside](https://img.shields.io/badge/created%20by-frontside-26abe8.svg)](https://frontside.com)
+[![Chat on Discord](https://img.shields.io/discord/700803887132704931?Label=Discord)](https://discord.gg/Ug5nWH8)
 
-Helpers for working with events in Effection. These helpers work both with
-Node.js style EventEmitters (`on`/`off`) and with browser style EventTarget
-(`addEventListeners`/`removeEventListener`).
+[Effection][] is the structured concurrency toolkit for JavaScript. You can find
+detailed information about using it to handle events at [https://frontside.com/effection/docs/guides/events](https://frontside.com/effection/docs/guides/events)
 
-## Usage
-
-The `once` operation can be used to wait for an event to occur exactly once.
-
-``` typescript
-import { main } from '@effection/main';
-import { once } from '@effection/events';
-
-main(function* sayHello() {
-  yield once(window, "DOMContentLoaded");
-  console.log('Hello World!');
-});
-```
-
-The `on` operation returns a subscription which can be used to loop over events:
-
-``` typescript
-import { main } from '@effection/main';
-import { on } from '@effection/events';
-
-main(function* sayHello() {
-  let messages = yield on(window, "message");
-
-  while(true) {
-    let message = yield messages.next();
-    console.log('Got message:', message);
-  }
-});
-```
-
-It is a common pattern, primarily in Node to have an event called `error` which
-has an error as its first argument. `@effection/events` includes a helper to
-make handling this situation convenient:
-
-``` typescript
-import { main } from '@effection/main';
-import { once, throwOnErrorEvent } from '@effection/events';
-
-main(function* sayHello() {
-  let someSocket = createSocket();
-
-  yield throwOnErrorEvent(someSocket);
-
-  yield once(someSocket, "open");
-
-  let messages = yield once(someSocket, "message");
-
-  while(true) {
-    let message = yield messages.next();
-    console.log('Got message:', message);
-  }
-});
-```
+[Effection]: https://frontside.com/effection

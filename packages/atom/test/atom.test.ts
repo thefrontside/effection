@@ -2,7 +2,7 @@ import { describe, beforeEach, it } from '@effection/mocha';
 import expect from 'expect';
 import { createAtom } from '../src/atom';
 import { spawn } from '@effection/core';
-import { OperationIterator } from '@effection/subscription';
+import { Subscription } from '@effection/subscription';
 import { Slice } from '../src/types';
 
 type TestRunAgentState = {
@@ -149,7 +149,7 @@ describe('@bigtest/atom createAtom', () => {
   type State = { foo: string};
   describe('subscribe', () => {
     let subject: Slice<State>;
-    let iterator: OperationIterator<State, undefined>;
+    let iterator: Subscription<State, undefined>;
 
     beforeEach(function*(world) {
       subject = createAtom({foo: 'bar'});
@@ -173,7 +173,7 @@ describe('@bigtest/atom createAtom', () => {
   }
 
   describe('subscribe - unique state publish', () => {
-    let iterator: OperationIterator<Subject>;
+    let iterator: Subscription<Subject>;
 
     beforeEach(function*(world) {
       let bar = { foo: 'bar' };

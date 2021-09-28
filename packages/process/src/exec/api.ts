@@ -1,5 +1,5 @@
 import { Operation, Resource } from '@effection/core';
-import { Stream } from '@effection/subscription';
+import { Stream } from '@effection/stream';
 
 // TODO: import from subscription package once #236 is merged
 export interface Writable<T> {

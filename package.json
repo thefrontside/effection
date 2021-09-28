@@ -12,6 +12,7 @@
       "packages/main",
       "packages/mocha",
       "packages/subscription",
+      "packages/stream",
       "packages/events",
       "packages/channel",
       "packages/duplex-channel",

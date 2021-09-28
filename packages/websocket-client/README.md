@@ -1,23 +1,10 @@
 # @effection/websocket-client
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Created by Frontside](https://img.shields.io/badge/created%20by-frontside-26abe8.svg)](https://frontside.com)
+[![Chat on Discord](https://img.shields.io/discord/700803887132704931?Label=Discord)](https://discord.gg/Ug5nWH8a)
 
-A basic websocket client for sending and receiving messages over a websocket
-connection.  Works both in the browser and in node. The client is oppinionated
-in that it assumes that the messages are serialized as JSON.
+[Effection][] is the structured concurrency toolkit for JavaScript. See the
+[guide on websockets](https://frontside.com/effection/docs/guides/websockets)
+for more information
 
-## Usage
-
-``` typescript
-import { createWebSocketClient, WebSocketClient } from '@effection/websocket-client';
-import { main } from '@effection/main';
-
-type Request = { value: string };
-type Response = { value: number };
-
-main(function* () {
-  let client: WebSocketClient<Request, Response> = yield createWebSocketClient('ws://localhost:1234');
-
-  yield client.forEach(({ value }) {
-    client.send({ value: parseInt(value) });
-  });
-});
-```
+[Effection]: https://frontside.com/effection

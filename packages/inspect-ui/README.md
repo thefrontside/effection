@@ -1,22 +1,10 @@
 # @effection/inspect-ui
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Created by Frontside](https://img.shields.io/badge/created%20by-frontside-26abe8.svg)](https://frontside.com)
+[![Chat on Discord](https://img.shields.io/discord/700803887132704931?Label=Discord)](https://discord.gg/Ug5nWH8a)
 
-This provides a UI for inspecting Effection applications, written in React. This
-package is normally not used directly, but is bundled by the
-`@effection/inspect-server` package and the Effection devtools.
+[Effection][] is the structured concurrency toolkit for JavaScript. See the
+guide on [debugging and inspecting effection programs](https://frontside.com/effection/docs/guides/inspector)
+for more information.
 
-## Development
-
-You will need a inspect server to connect to, start the example in the `@effection/inspect-server` package:
-
-```
-cd ../inspect-server
-yarn examples:basic
-```
-
-Then you can start the UI:
-
-```
-yarn start
-```
-
-Now connect to the UI via <http://localhost:1234/?port=47000>
+[Effection]: https://frontside.com/effection

@@ -4,3 +4,4 @@ export * from '@effection/channel';
 export * from '@effection/events';
 export * from '@effection/fetch';
 export * from '@effection/subscription';
+export * from '@effection/stream';

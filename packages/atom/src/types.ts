@@ -1,4 +1,4 @@
-import { Stream } from '@effection/subscription';
+import { Stream } from '@effection/stream';
 
 export interface Slice<S> extends Stream<S> {
   get(): S;

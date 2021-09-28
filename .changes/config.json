@@ -16,7 +16,7 @@
       "dependencies": [
         "@effection/core",
         "@effection/events",
-        "@effection/subscription"
+        "@effection/stream"
       ]
     },
     "@effection/duplex-channel": {
@@ -25,7 +25,7 @@
       "dependencies": [
         "@effection/core",
         "@effection/channel",
-        "@effection/subscription"
+        "@effection/stream"
       ]
     },
     "@effection/atom": {
@@ -34,7 +34,7 @@
       "dependencies": [
         "@effection/channel",
         "@effection/core",
-        "@effection/subscription"
+        "@effection/stream"
       ]
     },
     "@effection/core": {
@@ -50,7 +50,8 @@
         "@effection/events",
         "@effection/fetch",
         "@effection/main",
-        "@effection/subscription"
+        "@effection/subscription",
+        "@effection/stream"
       ]
     },
     "@effection/events": {
@@ -121,7 +122,7 @@
         "@effection/channel",
         "@effection/core",
         "@effection/events",
-        "@effection/subscription"
+        "@effection/stream"
       ]
     },
     "@effection/react": {
@@ -134,6 +135,13 @@
     },
     "@effection/subscription": {
       "path": "./packages/subscription",
+      "manager": "javascript",
+      "dependencies": [
+        "@effection/core"
+      ]
+    },
+    "@effection/stream": {
+      "path": "./packages/stream",
       "manager": "javascript",
       "dependencies": [
         "@effection/core"

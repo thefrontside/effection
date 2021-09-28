@@ -30,6 +30,7 @@
   },
   "devDependencies": {
     "@effection/mocha": "2.0.0-beta.9",
+    "@effection/subscription": "2.0.0-beta.16",
     "@frontside/tsconfig": "^1.2.0",
     "@types/node": "^16.3.2",
     "dtslint": "^4.0.7",
@@ -44,7 +45,7 @@
   "dependencies": {
     "@effection/channel": "2.0.0-beta.16",
     "@effection/core": "2.0.0-beta.14",
-    "@effection/subscription": "2.0.0-beta.16",
+    "@effection/stream": "2.0.0-beta.1",
     "assert-ts": "^0.2.2",
     "fp-ts": "^2.8.2",
     "monocle-ts": "^2.3.3"

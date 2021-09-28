@@ -2,7 +2,7 @@ import { describe, it, beforeEach } from '@effection/mocha';
 import expect from 'expect';
 import { createAtom } from '../src/atom';
 import { spawn } from '@effection/core';
-import { OperationIterator } from '@effection/subscription';
+import { Subscription } from '@effection/subscription';
 import { Slice } from '../src/types';
 
 type Data = { data: string };
@@ -96,7 +96,7 @@ describe('@bigtest/atom Slice', () => {
   describe('subscribe', () => {
     let atom: Slice<Data>;
     let slice: Slice<string>;
-    let subscription: OperationIterator<string, undefined>;
+    let subscription: Subscription<string, undefined>;
 
     beforeEach(function*(world) {
       atom = createAtom({ data: 'foo' });
@@ -119,7 +119,7 @@ describe('@bigtest/atom Slice', () => {
   describe('subscribe - unique state publish', () => {
     let atom: Slice<Data>;
     let slice: Slice<string>;
-    let iterator: OperationIterator<string>;
+    let iterator: Subscription<string>;
 
     beforeEach(function*(world) {
       atom = createAtom({ data: 'foo' });

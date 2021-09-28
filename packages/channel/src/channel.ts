@@ -1,4 +1,4 @@
-import { createStream, WritableStream, Writable, Stream } from '@effection/subscription';
+import { createStream, WritableStream, Writable, Stream } from '@effection/stream';
 import { on } from '@effection/events';
 import { EventEmitter } from 'events';
 

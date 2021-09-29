@@ -1,13 +1,11 @@
 import { createQueue, Subscription } from '@effection/subscription';
 import { Operation, Task, Resource, spawn } from '@effection/core';
 import { DeepPartial, matcher } from './match';
-import { OperationIterable, ToOperationIterator } from './operation-iterable';
-import { SymbolOperationIterable } from './symbol-operation-iterable';
 import { createBuffer } from './buffer';
 
 export type Callback<T,TReturn> = (publish: (value: T) => void) => Operation<TReturn>;
 
-export interface Stream<T, TReturn = undefined> extends OperationIterable<T, TReturn>, Resource<Subscription<T, TReturn>> {
+export interface Stream<T, TReturn = undefined> extends Resource<Subscription<T, TReturn>> {
   filter<R extends T>(predicate: (value: T) => value is R): Stream<R, TReturn>;
   filter(predicate: (value: T) => boolean): Stream<T, TReturn>;
   filter(predicate: (value: T) => boolean): Stream<T, TReturn>;
@@ -115,11 +113,7 @@ export function createStream<T, TReturn = undefined>(callback: Callback<T, TRetu
           });
         }
       };
-    },
-
-    get [SymbolOperationIterable](): ToOperationIterator<T, TReturn> {
-      return subscribe;
-    },
+    }
   };
 
   return stream;

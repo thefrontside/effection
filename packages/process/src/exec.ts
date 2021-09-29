@@ -1,7 +1,7 @@
 /// <reference types="../types/shellwords" />
 import { split } from 'shellwords';
 
-import { Task, Operation, Resource, withLabels } from '@effection/core';
+import { Task, Operation, Resource, spawn, withLabels } from '@effection/core';
 import { ExecOptions, Process, ProcessResult, CreateOSProcess } from './exec/api';
 import { createPosixProcess } from './exec/posix';
 import { createWin32Process, isWin32 } from './exec/win32';
@@ -42,22 +42,30 @@ export function exec(command: string, options: ExecOptions = {}): Exec {
     },
     join() {
       return withLabels(function*() {
-        let process = yield createProcess(cmd, { ...opts, buffered: true });
+        let process: Process = yield createProcess(cmd, opts);
+
+        let stdout = "";
+        let stderr = "";
+
+        yield spawn(process.stdout.forEach((chunk) => { stdout += chunk }));
+        yield spawn(process.stderr.forEach((chunk) => { stderr += chunk }));
 
         let status = yield process.join();
-        let stdout = yield process.stdout.expect();
-        let stderr = yield process.stderr.expect();
 
         return { ...status, stdout, stderr };
       }, { name: `exec(${JSON.stringify(command)}).join()`, expand: false });
     },
     expect() {
       return withLabels(function*() {
-        let process = yield createProcess(cmd, { ...opts, buffered: true });
+        let process: Process = yield createProcess(cmd, opts);
+
+        let stdout = "";
+        let stderr = "";
+
+        yield spawn(process.stdout.forEach((chunk) => { stdout += chunk }));
+        yield spawn(process.stderr.forEach((chunk) => { stderr += chunk }));
 
         let status = yield process.expect();
-        let stdout = yield process.stdout.expect();
-        let stderr = yield process.stderr.expect();
 
         return { ...status, stdout, stderr };
       }, { name: `exec(${JSON.stringify(command)}).expect()`, expand: false });

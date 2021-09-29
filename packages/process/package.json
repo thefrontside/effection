@@ -40,7 +40,6 @@
     "typescript": "^4.3.5"
   },
   "dependencies": {
-    "@effection/channel": "2.0.0-beta.16",
     "@effection/core": "2.0.0-beta.14",
     "@effection/events": "2.0.0-beta.16",
     "@effection/stream": "2.0.0-beta.1",

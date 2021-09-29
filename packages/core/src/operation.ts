@@ -14,10 +14,6 @@ export interface OperationIterator<TOut> extends Generator<Operation<any>, TOut 
 export interface OperationPromise<TOut> extends PromiseLike<TOut>, Labelled {
 }
 
-export interface OperationResolution<TOut> extends Labelled {
-  perform(resolve: (value: TOut) => void, reject: (err: Error) => void): void | (() => void);
-}
-
 export interface OperationFuture<TOut> extends FutureLike<TOut>, Labelled {
 }
 
@@ -54,7 +50,6 @@ export interface OperationFunction<TOut> extends Labelled {
 export type Operation<TOut> =
   OperationPromise<TOut> |
   OperationIterator<TOut> |
-  OperationResolution<TOut> |
   OperationFuture<TOut> |
   OperationFunction<TOut> |
   Resource<TOut> |

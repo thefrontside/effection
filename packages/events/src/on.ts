@@ -1,3 +1,4 @@
+import { withLabels } from '@effection/core';
 import { createStream, Stream } from '@effection/stream';
 import { EventSource, addListener, removeListener } from './event-source';
 
@@ -31,15 +32,14 @@ import { EventSource, addListener, removeListener } from './event-source';
  * }));
  */
 export function on<T = unknown>(source: EventSource, name: string, streamName = `on('${name}')`): Stream<T, void> {
-  return createStream((publish) => ({
-    name: 'listen',
-    labels: { eventName: name, source: source.toString() },
-    perform() {
-      let listener = (...args: T[]) => publish(args[0]);
-      addListener(source, name, listener);
-      return () => removeListener(source, name, listener);
+  return createStream((publish) => withLabels(function*() {
+    addListener(source, name, publish);
+    try {
+      yield;
+    } finally {
+      removeListener(source, name, publish);
     }
-  }), streamName);
+  }, { name: 'listen', eventName: name, source: source.toString() }), streamName);
 }
 
 /**
@@ -70,13 +70,13 @@ export function on<T = unknown>(source: EventSource, name: string, streamName = 
  *
  */
 export function onEmit<T extends Array<unknown> = unknown[]>(source: EventSource, name: string, streamName = `onEmit('${name}')`): Stream<T, void> {
-    return createStream((publish) => ({
-    name: 'listen',
-    labels: { eventName: name, source: source.toString() },
-    perform() {
-      let listener = (...args: T) => publish(args);
-      addListener(source, name, listener);
-      return () => removeListener(source, name, listener);
+  return createStream((publish) => withLabels(function*() {
+    let listener = (...args: T) => publish(args);
+    addListener(source, name, listener);
+    try {
+      yield;
+    } finally {
+      removeListener(source, name, listener);
     }
-  }), streamName);
+  }, { name: 'listen', eventName: name, source: source.toString() }), streamName);
 }

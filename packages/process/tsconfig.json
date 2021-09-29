@@ -3,9 +3,8 @@
   "compilerOptions": {
     "baseUrl": ".",
     "noEmit": true
-  },  
+  },
   "references": [
-    { "path": "../channel/tsconfig.cjs.json" },
     { "path": "../core/tsconfig.cjs.json" },
     { "path": "../events/tsconfig.cjs.json" },
     { "path": "../subscription/tsconfig.cjs.json" }

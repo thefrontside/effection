@@ -1,8 +1,8 @@
 import expect from 'expect';
-import { describe, it, beforeEach, captureError } from '@effection/mocha';
+import { describe, it, captureError } from '@effection/mocha';
 import { EventEmitter } from 'events';
 
-import { createStream, Stream, StringBufferStream } from '../src/index';
+import { createStream, Stream } from '../src/index';
 
 type Person = { name: string; type: 'person'; };
 type Planet = { name: string; type: 'planet'; moon: string };
@@ -154,7 +154,7 @@ describe('Stream', () => {
   });
 
   describe('buffer', () => {
-    it('replays previously sent messages', function*(world) {
+    it('replays all previously sent messages with unlimited buffer', function*(world) {
       let emitter = new EventEmitter();
       let stream = createStream<string>((publish) => function*() {
         try {
@@ -168,10 +168,11 @@ describe('Stream', () => {
 
       emitter.emit('message', 'ignored');
 
-      let bufferedStream = stream.buffer(world);
+      let bufferedStream = yield stream.buffer();
 
       emitter.emit('message', 'hello');
       emitter.emit('message', 'world');
+      emitter.emit('message', 'monkey');
 
       let iterator = bufferedStream.subscribe(world);
 
@@ -179,18 +180,13 @@ describe('Stream', () => {
 
       expect(yield iterator.next()).toEqual({ done: false, value: 'hello' });
       expect(yield iterator.next()).toEqual({ done: false, value: 'world' });
+      expect(yield iterator.next()).toEqual({ done: false, value: 'monkey' });
       expect(yield iterator.next()).toEqual({ done: false, value: 'blah' });
     });
-  });
 
-  describe('stringBuffer', () => {
-    let bufferedStream: StringBufferStream;
-    let emitter: EventEmitter;
-    let stream: Stream<string>;
-
-    beforeEach(function*(world) {
-      emitter = new EventEmitter();
-      stream = createStream<string>((publish) => function*() {
+    it('replays previously sent messages with limited buffer', function*(world) {
+      let emitter = new EventEmitter();
+      let stream = createStream<string>((publish) => function*() {
         try {
           emitter.on('message', publish);
           yield;
@@ -202,30 +198,19 @@ describe('Stream', () => {
 
       emitter.emit('message', 'ignored');
 
-      bufferedStream = stream.stringBuffer(world);
-    });
+      let bufferedStream = yield stream.buffer(2);
 
-    it('concatenates previous messages with each other', function*(world) {
       emitter.emit('message', 'hello');
       emitter.emit('message', 'world');
+      emitter.emit('message', 'monkey');
 
       let iterator = bufferedStream.subscribe(world);
 
       emitter.emit('message', 'blah');
 
-      expect(yield iterator.next()).toEqual({ done: false, value: 'helloworld' });
-      expect(yield iterator.next()).toEqual({ done: false, value: 'helloworldblah' });
-    });
-
-    it('returns current buffer value', function*() {
-      emitter.emit('message', 'hello');
-      emitter.emit('message', 'world');
-
-      expect(bufferedStream.value).toEqual('helloworld');
-
-      emitter.emit('message', 'blah');
-
-      expect(bufferedStream.value).toEqual('helloworldblah');
+      expect(yield iterator.next()).toEqual({ done: false, value: 'world' });
+      expect(yield iterator.next()).toEqual({ done: false, value: 'monkey' });
+      expect(yield iterator.next()).toEqual({ done: false, value: 'blah' });
     });
   });
 

@@ -1,17 +1,20 @@
 import expect from 'expect';
 import { describe, it, beforeEach } from '@effection/mocha';
+import { Stream } from '@effection/stream';
 
 import { exec, Process, ProcessResult } from '@effection/process';
 import { terminate, interrupt } from './helpers';
 
 describe('main', () => {
   let child: Process;
+  let stdout: Stream<string>;
 
   describe('with successful process', () => {
     beforeEach(function*() {
-      child = yield exec(`ts-node ./test/fixtures/text-writer.ts`, { buffered: true });
+      child = yield exec(`ts-node ./test/fixtures/text-writer.ts`);
+      stdout = yield child.stdout.lines().buffer();
 
-      yield child.stdout.filter((s) => s.includes("started")).expect();
+      yield stdout.grep("started").expect();
     });
 
     describe('interrupting the process', () => {
@@ -21,7 +24,7 @@ describe('main', () => {
       });
 
       it('shuts down gracefully', function*() {
-        yield child.stdout.filter((s) => s.includes("stopped")).expect();
+        yield stdout.grep("stopped").expect();
       });
     });
 
@@ -32,7 +35,7 @@ describe('main', () => {
       });
 
       it('shuts down gracefully', function*() {
-        yield child.stdout.filter((s) => s.includes("stopped")).expect();
+        yield stdout.grep("stopped").expect();
       });
     });
   });

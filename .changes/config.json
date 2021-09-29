@@ -59,7 +59,7 @@
       "manager": "javascript",
       "dependencies": [
         "@effection/core",
-        "@effection/subscription"
+        "@effection/stream"
       ]
     },
     "@effection/fetch": {

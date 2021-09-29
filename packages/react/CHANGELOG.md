@@ -1,5 +1,9 @@
 # @effection/react
 
+## \[2.0.0-beta.18]
+
+- - [0248d79](https://github.com/thefrontside/effection/commit/0248d79a33dcfc4200b0832aba975c9cad08981e) Add package readmes on 2021-09-28
+
 ## \[2.0.0-beta.17]
 
 - Adjust the propagation of errors for resources to make it possible to catch errors from `init`

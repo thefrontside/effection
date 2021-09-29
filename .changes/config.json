@@ -143,7 +143,8 @@
       "path": "./packages/stream",
       "manager": "javascript",
       "dependencies": [
-        "@effection/core"
+        "@effection/core",
+        "@effection/subscription"
       ]
     },
     "@effection/websocket-client": {

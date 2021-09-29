@@ -1,5 +1,11 @@
 # Changelog
 
+## \[2.0.0-beta.4]
+
+- - [0248d79](https://github.com/thefrontside/effection/commit/0248d79a33dcfc4200b0832aba975c9cad08981e) Add package readmes on 2021-09-28
+- Split off `Stream` from subscription package into its own `@effection/stream` package
+  - [248de1d](https://github.com/thefrontside/effection/commit/248de1dd31d172762d9601a2b5acd983dce61ab0) Split `Stream` into its own package on 2021-09-27
+
 ## \[2.0.0-beta.3]
 
 - Adjust the propagation of errors for resources to make it possible to catch errors from `init`

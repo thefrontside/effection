@@ -1,0 +1,3 @@
+# @effection/core
+
+[Effection

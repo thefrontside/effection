@@ -29,6 +29,7 @@ main(function*() {
 });
 ```
 > Note: every process has `stdout` and `stderr`  properties which can be consumed as [effection streams](./collections)
+
 Processes are automatically terminated when the operation in which they were
 created completed:
 

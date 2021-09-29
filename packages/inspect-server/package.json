@@ -41,7 +41,6 @@
     "websocket": "^1.0.34"
   },
   "devDependencies": {
-    "@effection/mocha": "2.0.0-beta.9",
     "@frontside/tsconfig": "^1.2.0",
     "@types/node": "^13.13.5",
     "@types/node-static": "^0.7.6",

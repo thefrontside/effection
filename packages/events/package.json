@@ -32,8 +32,6 @@
     "@effection/stream": "2.0.0-beta.1"
   },
   "devDependencies": {
-    "@effection/mocha": "2.0.0-beta.9",
-    "@effection/subscription": "2.0.0-beta.16",
     "@frontside/tsconfig": "^1.2.0",
     "@types/node": "16.3.2",
     "expect": "^25.4.0",

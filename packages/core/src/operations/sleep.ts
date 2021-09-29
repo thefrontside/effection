@@ -1,4 +1,6 @@
 import { Operation } from '../operation';
+import { createFuture } from '../future';
+import { withLabels } from '../labels';
 
 /**
  * Sleep for the given amount of milliseconds. If no duration is given, then
@@ -18,13 +20,12 @@ import { Operation } from '../operation';
  * @param duration the number of milliseconds to sleep
  */
 export function sleep(duration?: number): Operation<void> {
-  return {
-    labels: { name: 'sleep', duration: (duration != null) ? duration : 'forever' },
-    perform(resolve) {
-      if(duration != null) {
-        let timeoutId = setTimeout(resolve, duration);
-        return () => clearTimeout(timeoutId);
-      }
+  return withLabels((task) => {
+    let { future, resolve } = createFuture<void>();
+    if(duration != null) {
+      let timeoutId = setTimeout(resolve, duration);
+      task.consume(() => clearTimeout(timeoutId));
     }
-  };
+    return future;
+  }, { name: 'sleep', duration: (duration != null) ? duration : 'forever' });
 }

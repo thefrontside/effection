@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import type { OperationResolution, Resource } from "./operation";
+import type { Resource } from "./operation";
 import type { FutureLike } from "./future";
 
 export function isPromise(value: any): value is PromiseLike<unknown> {
@@ -10,10 +10,6 @@ export function isPromise(value: any): value is PromiseLike<unknown> {
 
 export function isGenerator(value: any): value is Iterator<unknown> {
   return value && typeof(value.next) === 'function';
-}
-
-export function isResolution<T>(value: any): value is OperationResolution<T> {
-  return value && typeof(value.perform) === 'function';
 }
 
 export function isFuture<T>(value: any): value is FutureLike<T> {

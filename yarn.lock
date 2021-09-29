@@ -1308,15 +1308,6 @@
     tar "^2.2.2"
     tar-stream "^2.1.4"
 
-"@effection/channel@2.0.0-beta.14":
-  version "2.0.0-beta.14"
-  resolved "https://registry.yarnpkg.com/@effection/channel/-/channel-2.0.0-beta.14.tgz#a2e9bfff10996e827a60b53d883d310d476a8f2a"
-  integrity sha512-5OTkHsJJ5tT6r184/ZSd2s9X91ReYIg6l6HzHkJJzjI8vA3K+QIym2NWOf5SBbeEuacOo5pu3lQgykPKVicbGg==
-  dependencies:
-    "@effection/core" "2.0.0-beta.12"
-    "@effection/events" "2.0.0-beta.14"
-    "@effection/subscription" "2.0.0-beta.14"
-
 "@effection/channel@^1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@effection/channel/-/channel-1.0.0.tgz#6f41e210d3bf88298784f6716a074d834246e381"
@@ -1325,19 +1316,6 @@
     "@effection/events" "^1.0.0"
     "@effection/subscription" "^1.0.0"
     effection "^1.0.0"
-
-"@effection/core@2.0.0-beta.12":
-  version "2.0.0-beta.12"
-  resolved "https://registry.yarnpkg.com/@effection/core/-/core-2.0.0-beta.12.tgz#e01e831d6146eb8b1d8b3c406d32e820ac85aaa1"
-  integrity sha512-1gVX6PZknwjSWfw+LGZ/NK3eJtVu8/+ocPPlqUY2bB6XDoR7DpH14gCfDADlN3ec+fBMIPwS207F7t0U0lVJbg==
-
-"@effection/events@2.0.0-beta.14":
-  version "2.0.0-beta.14"
-  resolved "https://registry.yarnpkg.com/@effection/events/-/events-2.0.0-beta.14.tgz#5d415fb204c6276f5a54318d24e25fc1d5c83fe7"
-  integrity sha512-f1kmKeVk05GOs3wQ+Zi0IDT8bWaFdZLDuaCm9UgbidiqclExqA3mgfVI0513J/bNa31+5x7pOIuzPlTvlFW4qg==
-  dependencies:
-    "@effection/core" "2.0.0-beta.12"
-    "@effection/subscription" "2.0.0-beta.14"
 
 "@effection/events@^1.0.0":
   version "1.0.0"
@@ -1364,26 +1342,6 @@
     ctrlc-windows "^2.0.0"
     effection "^1.0.0"
     shellwords "^0.1.1"
-
-"@effection/process@2.0.0-beta.14":
-  version "2.0.0-beta.14"
-  resolved "https://registry.yarnpkg.com/@effection/process/-/process-2.0.0-beta.14.tgz#4c3a8795589d46bea37748f9f5737982bce3e722"
-  integrity sha512-64PQhn7OCaMCbvZSE/H31N2xCZOPiFtQFi/Qfvlh1mrc1dct5koU1i21EaYNbgujJP+ePLRXAxAJ6VNbQfRb+g==
-  dependencies:
-    "@effection/channel" "2.0.0-beta.14"
-    "@effection/core" "2.0.0-beta.12"
-    "@effection/events" "2.0.0-beta.14"
-    "@effection/subscription" "2.0.0-beta.14"
-    cross-spawn "^7.0.3"
-    ctrlc-windows "^2.0.0"
-    shellwords "^0.1.1"
-
-"@effection/subscription@2.0.0-beta.14":
-  version "2.0.0-beta.14"
-  resolved "https://registry.yarnpkg.com/@effection/subscription/-/subscription-2.0.0-beta.14.tgz#bf9b476ad3bb68e086ca87d5205336f62122de3b"
-  integrity sha512-zkONe3hpJeR9Ok5g0AVsBEmh+2r9I9LDKgQASSlaaE7MGeNtb3K2SmFHzK1Hz0CtzFXrGqrbvKb6a0lO2AmApQ==
-  dependencies:
-    "@effection/core" "2.0.0-beta.12"
 
 "@effection/subscription@^1.0.0":
   version "1.0.0"

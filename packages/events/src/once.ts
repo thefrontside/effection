@@ -1,4 +1,4 @@
-import { Operation } from '@effection/core';
+import { Operation, createFuture, withLabels } from '@effection/core';
 import { EventSource, addListener, removeListener } from './event-source';
 
 
@@ -25,15 +25,13 @@ import { EventSource, addListener, removeListener } from './event-source';
  * ```
  */
 export function once<T = unknown>(source: EventSource, eventName: string): Operation<T> {
-  return {
-    name: `once`,
-    labels: { eventName, source: source.toString() },
-    perform(resolve) {
-      let listener = (...args: T[]) => { resolve(args[0]) };
-      addListener(source, eventName, listener);
-      return () => removeListener(source, eventName, listener);
-    }
-  };
+  return withLabels((task) => {
+    let { future, resolve } = createFuture<T>();
+    let listener = (...args: T[]) => { resolve(args[0]) };
+    addListener(source, eventName, listener);
+    task.consume(() => removeListener(source, eventName, listener));
+    return future;
+  }, { name: `once`, eventName, source: source.toString() });
 }
 
 /**
@@ -60,13 +58,11 @@ export function once<T = unknown>(source: EventSource, eventName: string): Opera
  * ```
  */
 export function onceEmit<TArgs extends unknown[] = unknown[]>(source: EventSource, eventName: string): Operation<TArgs> {
-  return {
-    name: `onceEmit`,
-    labels: { eventName, source: source.toString() },
-    perform(resolve) {
-      let listener = (...args: unknown[]) => { resolve(args as TArgs) };
-      addListener(source, eventName, listener);
-      return () => removeListener(source, eventName, listener);
-    }
-  };
+  return withLabels((task) => {
+    let { future, resolve } = createFuture<TArgs>();
+    let listener = (...args: unknown[]) => { resolve(args as TArgs) };
+    addListener(source, eventName, listener);
+    task.consume(() => removeListener(source, eventName, listener));
+    return future;
+  }, { name: `onceEmit`, eventName, source: source.toString() });
 }

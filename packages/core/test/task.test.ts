@@ -59,7 +59,6 @@ describe('Task', () => {
       expect(run(function*() { /* no op */ }).type).toEqual('generator function');
       expect(run((function*() { /* no op */ })()).type).toEqual('generator');
       expect(run().type).toEqual('suspend');
-      expect(run({ perform() { /* no op */ } }).type).toEqual('resolution');
       expect(run(createFuture().future).type).toEqual('future');
       expect(run({ *init() { /* no op */ } }).type).toEqual('resource constructor');
     });

@@ -27,6 +27,7 @@
     ".changes/label-on-events.md",
     ".changes/link-reademe.md",
     ".changes/mocha-core-dep.md",
+    ".changes/mocha-labels.md",
     ".changes/no-named-package-json-import.md",
     ".changes/package-readmes.md",
     ".changes/process-std.md",

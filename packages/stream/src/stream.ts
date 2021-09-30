@@ -20,7 +20,8 @@ export interface Stream<T, TReturn = undefined> extends Resource<Subscription<T,
   collect(): Operation<Iterator<T, TReturn>>;
   toArray(): Operation<T[]>;
   subscribe(scope: Task): Subscription<T, TReturn>;
-  buffer(limit?: number): Resource<Iterable<T>>;
+  toBuffer(limit?: number): Resource<Iterable<T>>;
+  buffered(limit?: number): Resource<Stream<T, TReturn>>;
 }
 
 export function createStream<T, TReturn = undefined>(callback: Callback<T, TReturn>, name = 'stream'): Stream<T, TReturn> {
@@ -98,7 +99,7 @@ export function createStream<T, TReturn = undefined>(callback: Callback<T, TRetu
       return task => subscribe(task).toArray();
     },
 
-    buffer(limit = Infinity): Resource<Iterable<T>> {
+    toBuffer(limit = Infinity): Resource<Iterable<T>> {
       return {
         name: `${name}.buffer(${limit})`,
         *init() {
@@ -107,6 +108,21 @@ export function createStream<T, TReturn = undefined>(callback: Callback<T, TRetu
           yield spawn(stream.forEach((value) => { buffer.push(value) }));
 
           return buffer;
+        }
+      };
+    },
+
+    buffered(limit = Infinity): Resource<Stream<T, TReturn>> {
+      return {
+        *init() {
+          let buffer = yield stream.toBuffer(limit);
+
+          return createStream<T, TReturn>((publish) => function*() {
+            for(let value of buffer) {
+              publish(value);
+            }
+            return yield stream.forEach(publish);
+          }, `${name}.buffered(${limit})`);
         }
       };
     }

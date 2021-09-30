@@ -153,7 +153,7 @@ describe('Stream', () => {
     });
   });
 
-  describe('buffer', () => {
+  describe('toBuffer', () => {
     it('adds emitted values to unlimited size buffer', function*(world) {
       let emitter = new EventEmitter();
       let stream = createStream<string>((publish) => function*() {
@@ -168,7 +168,7 @@ describe('Stream', () => {
 
       emitter.emit('message', 'ignored');
 
-      let buffer = yield stream.buffer();
+      let buffer = yield stream.toBuffer();
 
       emitter.emit('message', 'hello');
       emitter.emit('message', 'world');
@@ -195,7 +195,7 @@ describe('Stream', () => {
 
       emitter.emit('message', 'ignored');
 
-      let buffer = yield stream.buffer(2);
+      let buffer = yield stream.toBuffer(2);
 
       emitter.emit('message', 'hello');
       emitter.emit('message', 'world');
@@ -206,6 +206,67 @@ describe('Stream', () => {
       emitter.emit('message', 'blah');
 
       expect(Array.from(buffer)).toEqual(['monkey', 'blah']);
+    });
+  });
+
+  describe('buffered', () => {
+    it('replays all previously sent messages with unlimited buffer', function*(world) {
+      let emitter = new EventEmitter();
+      let stream = createStream<string>((publish) => function*() {
+        try {
+          emitter.on('message', publish);
+          yield;
+        } finally {
+          emitter.off('message', publish);
+        }
+        return undefined;
+      });
+
+      emitter.emit('message', 'ignored');
+
+      let bufferedStream = yield stream.buffered();
+
+      emitter.emit('message', 'hello');
+      emitter.emit('message', 'world');
+      emitter.emit('message', 'monkey');
+
+      let iterator = bufferedStream.subscribe(world);
+
+      emitter.emit('message', 'blah');
+
+      expect(yield iterator.next()).toEqual({ done: false, value: 'hello' });
+      expect(yield iterator.next()).toEqual({ done: false, value: 'world' });
+      expect(yield iterator.next()).toEqual({ done: false, value: 'monkey' });
+      expect(yield iterator.next()).toEqual({ done: false, value: 'blah' });
+    });
+
+    it('replays previously sent messages with limited buffer', function*(world) {
+      let emitter = new EventEmitter();
+      let stream = createStream<string>((publish) => function*() {
+        try {
+          emitter.on('message', publish);
+          yield;
+        } finally {
+          emitter.off('message', publish);
+        }
+        return undefined;
+      });
+
+      emitter.emit('message', 'ignored');
+
+      let bufferedStream = yield stream.buffered(2);
+
+      emitter.emit('message', 'hello');
+      emitter.emit('message', 'world');
+      emitter.emit('message', 'monkey');
+
+      let iterator = bufferedStream.subscribe(world);
+
+      emitter.emit('message', 'blah');
+
+      expect(yield iterator.next()).toEqual({ done: false, value: 'world' });
+      expect(yield iterator.next()).toEqual({ done: false, value: 'monkey' });
+      expect(yield iterator.next()).toEqual({ done: false, value: 'blah' });
     });
   });
 

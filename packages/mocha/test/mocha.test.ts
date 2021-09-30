@@ -2,6 +2,7 @@ import { describe, it, beforeEach, captureError } from '../src/index';
 import expect from 'expect';
 
 import { Task, Resource, spawn } from '@effection/core';
+import { exec } from '@effection/process';
 
 let captured: Task;
 
@@ -13,24 +14,25 @@ const myResource: Resource<Task> = {
   *init() {
     return yield spawn();
   }
-}
+};
 
 describe('@effection/mocha', () => {
-  // TODO: how can we test that a test should fail? Spawn external mocha process?
-  // it('throws error', function*(task) {
-  //   task.spawn(function*() {
-  //     try {
-  //       yield sleep(3);
-  //     } finally {
-  //       throw new Error('boom');
-  //     }
-  //   });
-  //   yield sleep(10);
-  // });
-  //
-  // it('throws error directly', function*(task) {
-  //   throw new Error('boom');
-  // });
+  it('applies labels', function*(world, local) {
+    expect(world.labels.name).toEqual('world');
+    expect(local.labels.name).toContain('it("applies labels")');
+  });
+
+  it('throws error on failure', function*() {
+    let result = yield exec('yarn mocha test/direct-error.failure.ts').join();
+    expect(result.code).toEqual(1);
+    expect(result.stdout).toContain('Error: boom');
+  });
+
+  it('throws error on failure in background task', function*() {
+    let result = yield exec('yarn mocha test/spawned-error.failure.ts').join();
+    expect(result.code).toEqual(2);
+    expect(result.stdout).toContain('Error: boom');
+  });
 
   it('can have pending tasks (note: this is not actually pending)');
 

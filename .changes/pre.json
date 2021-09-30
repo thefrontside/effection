@@ -4,6 +4,7 @@
     ".changes/atom-labels.md",
     ".changes/atom-once.md",
     ".changes/bless-fetch.md",
+    ".changes/block-parent-halt-children.md",
     ".changes/buffer-resource.md",
     ".changes/catch-init-error.md",
     ".changes/channel-name.md",

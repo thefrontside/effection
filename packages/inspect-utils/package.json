@@ -1,6 +1,6 @@
 {
   "name": "@effection/inspect-utils",
-  "version": "2.0.0-beta.19",
+  "version": "2.0.0-beta.20",
   "description": "Helper functions and types for inspecting effection applications",
   "main": "dist-cjs/index.js",
   "types": "dist-esm/index.d.ts",
@@ -28,11 +28,11 @@
     "mocha": "mocha -r ts-node/register"
   },
   "dependencies": {
-    "@effection/atom": "2.0.0-beta.19",
-    "@effection/channel": "2.0.0-beta.19",
-    "@effection/core": "2.0.0-beta.15",
-    "@effection/events": "2.0.0-beta.19",
-    "@effection/subscription": "2.0.0-beta.17"
+    "@effection/atom": "2.0.0-beta.20",
+    "@effection/channel": "2.0.0-beta.20",
+    "@effection/core": "2.0.0-beta.16",
+    "@effection/events": "2.0.0-beta.20",
+    "@effection/subscription": "2.0.0-beta.18"
   },
   "devDependencies": {
     "@frontside/tsconfig": "^1.2.0",

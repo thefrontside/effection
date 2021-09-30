@@ -39,6 +39,7 @@
     ".changes/remove-string-buffer.md",
     ".changes/shared-event-loop.md",
     ".changes/side-effects.md",
+    ".changes/stream-buffer-access.md",
     ".changes/stream-grep.md",
     ".changes/stream-package.md",
     ".changes/stream-release.md",

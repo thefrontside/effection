@@ -1,5 +1,11 @@
 # @effection/subscription
 
+## \[2.0.0-beta.18]
+
+- Fix a bug when using blockParent where the children are not getting halt on an explicit halt.
+  - Bumped due to a bump in @effection/core.
+  - [1cd9803](https://github.com/thefrontside/effection/commit/1cd98033d2641989114f9589c7d887954fa66781) Fix halting children for blockParent tasks on 2021-09-30
+
 ## \[2.0.0-beta.17]
 
 - The `buffer` method on `Stream` returns a resource and can receive an optional limit using a ring buffer for efficient bounded caching

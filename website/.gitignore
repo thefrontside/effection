@@ -10,3 +10,5 @@
 build
 sidebars
 public
+
+!docs

@@ -1,5 +1,4 @@
 node_modules
-packages/*/docs
 .esm-cache
 .node-version
 .parcel-cache
@@ -16,7 +15,7 @@ yarn-error.log
 !website/yarn.lock
 .DS_Store
 .parcel-cache
-./docs
+docs
 
 # Local Netlify folder
 .netlify

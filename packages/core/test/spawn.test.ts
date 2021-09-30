@@ -212,5 +212,21 @@ describe('spawn', () => {
       expect(root.state).toEqual('completed');
       expect(child && child.state).toEqual('completed');
     });
+
+    it('halts children on explicit halt', async () => {
+      let child: Task<string> | undefined;
+      let root = run(function*(context: Task) {
+        child = context.run(function*() {
+          yield sleep(20);
+          return 'foo';
+        }, { blockParent: true });
+
+        return 1;
+      });
+
+      root.halt();
+
+      await expect(child).rejects.toHaveProperty('message', 'halted');
+    });
   });
 });

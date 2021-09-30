@@ -154,7 +154,7 @@ describe('Stream', () => {
   });
 
   describe('buffer', () => {
-    it('replays all previously sent messages with unlimited buffer', function*(world) {
+    it('adds emitted values to unlimited size buffer', function*(world) {
       let emitter = new EventEmitter();
       let stream = createStream<string>((publish) => function*() {
         try {
@@ -168,20 +168,17 @@ describe('Stream', () => {
 
       emitter.emit('message', 'ignored');
 
-      let bufferedStream = yield stream.buffer();
+      let buffer = yield stream.buffer();
 
       emitter.emit('message', 'hello');
       emitter.emit('message', 'world');
       emitter.emit('message', 'monkey');
 
-      let iterator = bufferedStream.subscribe(world);
+      expect(Array.from(buffer)).toEqual(['hello', 'world', 'monkey']);
 
       emitter.emit('message', 'blah');
 
-      expect(yield iterator.next()).toEqual({ done: false, value: 'hello' });
-      expect(yield iterator.next()).toEqual({ done: false, value: 'world' });
-      expect(yield iterator.next()).toEqual({ done: false, value: 'monkey' });
-      expect(yield iterator.next()).toEqual({ done: false, value: 'blah' });
+      expect(Array.from(buffer)).toEqual(['hello', 'world', 'monkey', 'blah']);
     });
 
     it('replays previously sent messages with limited buffer', function*(world) {
@@ -198,19 +195,17 @@ describe('Stream', () => {
 
       emitter.emit('message', 'ignored');
 
-      let bufferedStream = yield stream.buffer(2);
+      let buffer = yield stream.buffer(2);
 
       emitter.emit('message', 'hello');
       emitter.emit('message', 'world');
       emitter.emit('message', 'monkey');
 
-      let iterator = bufferedStream.subscribe(world);
+      expect(Array.from(buffer)).toEqual(['world', 'monkey']);
 
       emitter.emit('message', 'blah');
 
-      expect(yield iterator.next()).toEqual({ done: false, value: 'world' });
-      expect(yield iterator.next()).toEqual({ done: false, value: 'monkey' });
-      expect(yield iterator.next()).toEqual({ done: false, value: 'blah' });
+      expect(Array.from(buffer)).toEqual(['monkey', 'blah']);
     });
   });
 

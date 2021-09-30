@@ -395,8 +395,8 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
       if(stateMachine.current === 'running') {
         stateMachine.halting();
         result = { state: 'halted' };
-        shutdown(true);
       }
+      shutdown(true);
       await future.catch(() => {
         // TODO: should this catch all errors, or only halt errors?
         // see https://github.com/jnicklas/mini-effection/issues/23

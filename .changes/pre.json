@@ -43,6 +43,7 @@
     ".changes/stream-grep.md",
     ".changes/stream-package.md",
     ".changes/stream-release.md",
+    ".changes/stream-to-buffer.md",
     ".changes/task-scope.md",
     ".changes/task-spawn-operation.md",
     ".changes/task-to-string.md",

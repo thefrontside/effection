@@ -1,5 +1,11 @@
 # @effection/inspect-utils
 
+## \[2.0.0-beta.19]
+
+- Add Stream `toBuffer` and Stream `buffered` so we have both options on either accessing the buffer directly or returning the stream.
+  - Bumped due to a bump in @effection/channel.
+  - [fe60532](https://github.com/thefrontside/effection/commit/fe60532c3f8cfdd8b53c324b7ea8e38e437f080f) Add both toBuffer and buffered to Stream on 2021-09-30
+
 ## \[2.0.0-beta.18]
 
 - Stream `buffer` returns the actual buffer and gives direct access to it

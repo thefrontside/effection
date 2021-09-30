@@ -15,6 +15,7 @@ module.exports = {
   "customCss": "typedoc.css",
   "name": "Effection API Reference",
   "entryPointStrategy": "packages",
+  "excludeExternals": true,
   "entryPoints": [
     "packages/atom",
     "packages/effection",

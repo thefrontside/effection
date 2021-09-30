@@ -4,6 +4,7 @@ packages/*/docs
 .node-version
 .parcel-cache
 dist*/
+docs
 *.tgz
 pkg/
 .nyc_output/

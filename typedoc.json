@@ -9,7 +9,6 @@
   "entryPoints": [
     "packages/atom",
     "packages/effection",
-    "packages/fetch",
     "packages/mocha",
     "packages/process",
     "packages/react",

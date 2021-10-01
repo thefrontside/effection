@@ -65,7 +65,7 @@ export interface Fetch extends Resource<Response> {
  *```
  *
  * Like most operations in Effection, [[fetch]] is stateless, and does not
- * actually _do_ anything unless it yielded to:
+ * actually _do_ anything unless it is yielded to:
  *
  * ```ts
  * // nothing happens here except describing the requests

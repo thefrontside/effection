@@ -12,15 +12,31 @@ type Thing = Person | Planet;
 function isPlanet(thing: Thing): thing is Planet { return thing.type === 'planet' }
 
 const stuff: Stream<Thing, number> = createStream((publish) => function*() {
-  publish({name: 'bob', type: 'person' });
-  publish({name: 'alice', type: 'person' });
-  publish({name: 'world', type: 'planet', moon: 'Luna' });
+  yield publish({ name: 'bob', type: 'person' });
+  yield publish({ name: 'alice', type: 'person' });
+  yield publish({ name: 'world', type: 'planet', moon: 'Luna' });
   return 3;
 });
 
 const emptyStream: Stream<Thing, number> = createStream(() => function*() {
   return 12;
 });
+
+
+function createEmitterStream(): { stream: Stream<string>, emitter: EventEmitter } {
+  let emitter = new EventEmitter();
+  let stream = createStream<string>((publish) => function*(task) {
+    let listener = (value: string) => task.run(publish(value));
+    try {
+      emitter.on('message', listener);
+      yield;
+    } finally {
+      emitter.off('message', listener);
+    }
+    return undefined;
+  });
+  return { stream, emitter };
+}
 
 describe('Stream', () => {
   describe('join', () => {
@@ -155,17 +171,7 @@ describe('Stream', () => {
 
   describe('toBuffer', () => {
     it('adds emitted values to unlimited size buffer', function*(world) {
-      let emitter = new EventEmitter();
-      let stream = createStream<string>((publish) => function*() {
-        try {
-          emitter.on('message', publish);
-          yield;
-        } finally {
-          emitter.off('message', publish);
-        }
-        return undefined;
-      });
-
+      let { stream, emitter } = createEmitterStream();
       emitter.emit('message', 'ignored');
 
       let buffer = yield stream.toBuffer();
@@ -182,16 +188,7 @@ describe('Stream', () => {
     });
 
     it('replays previously sent messages with limited buffer', function*(world) {
-      let emitter = new EventEmitter();
-      let stream = createStream<string>((publish) => function*() {
-        try {
-          emitter.on('message', publish);
-          yield;
-        } finally {
-          emitter.off('message', publish);
-        }
-        return undefined;
-      });
+      let { stream, emitter } = createEmitterStream();
 
       emitter.emit('message', 'ignored');
 
@@ -211,16 +208,7 @@ describe('Stream', () => {
 
   describe('buffered', () => {
     it('replays all previously sent messages with unlimited buffer', function*(world) {
-      let emitter = new EventEmitter();
-      let stream = createStream<string>((publish) => function*() {
-        try {
-          emitter.on('message', publish);
-          yield;
-        } finally {
-          emitter.off('message', publish);
-        }
-        return undefined;
-      });
+      let { stream, emitter } = createEmitterStream();
 
       emitter.emit('message', 'ignored');
 
@@ -241,16 +229,7 @@ describe('Stream', () => {
     });
 
     it('replays previously sent messages with limited buffer', function*(world) {
-      let emitter = new EventEmitter();
-      let stream = createStream<string>((publish) => function*() {
-        try {
-          emitter.on('message', publish);
-          yield;
-        } finally {
-          emitter.off('message', publish);
-        }
-        return undefined;
-      });
+      let { stream, emitter } = createEmitterStream();
 
       emitter.emit('message', 'ignored');
 

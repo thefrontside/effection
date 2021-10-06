@@ -27,12 +27,12 @@ describe('useSubscription', () => {
 
     expect(renderer.toJSON()).toMatchObject({ type: 'h1', children: null });
 
-    queue.send("hello")
+    yield queue.send("hello");
     yield sleep(5);
 
     expect(renderer.toJSON()).toMatchObject({ type: 'h1', children: ['hello'] });
 
-    queue.send("world")
+    yield queue.send("world");
     yield sleep(5);
 
     expect(renderer.toJSON()).toMatchObject({ type: 'h1', children: ['world'] });

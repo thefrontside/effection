@@ -1,13 +1,12 @@
 import { Server } from 'ws';
 
-import { spawn, ensure, Resource, Operation } from '@effection/core';
-import { createQueue, Subscription } from '@effection/subscription';
+import { spawn, ensure, Resource } from '@effection/core';
+import { createQueue, Subscription, Sink } from '@effection/subscription';
 import { on, once } from '@effection/events';
 import http from 'http';
 import { AddressInfo } from 'net';
 
-export interface WebSocketConnection<TIncoming = unknown, TOutgoing = TIncoming> extends Subscription<TIncoming> {
-  send(message: TOutgoing): Operation<void>;
+export interface WebSocketConnection<TIncoming = unknown, TOutgoing = TIncoming> extends Subscription<TIncoming>, Sink<TOutgoing> {
 }
 
 export type WebSocketSubscription<TIncoming = unknown, TOutgoing = TIncoming> = Subscription<WebSocketConnection<TIncoming, TOutgoing>>;
@@ -35,15 +34,18 @@ export function createWebSocketSubscription<TIncoming = unknown, TOutgoing = TIn
         yield scope.spawn(function*() {
           let messageQueue = createQueue<TIncoming>();
 
-          queue.send({
+          yield queue.send({
             ...messageQueue.subscription,
             *send(message: TOutgoing) {
               raw.send(JSON.stringify(message));
+            },
+            *close() {
+              wss.close();
             }
           });
 
-          yield on<{ data: string }>(raw, 'message').forEach((message) => {
-            messageQueue.send(JSON.parse(message.data));
+          yield on<{ data: string }>(raw, 'message').forEach(function*(message) {
+            yield messageQueue.send(JSON.parse(message.data));
           });
         });
       }));

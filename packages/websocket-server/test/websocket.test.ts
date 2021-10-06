@@ -15,7 +15,7 @@ describe("createWebSocketServer()", () => {
     let server: WebSocketServer<Message> = yield createWebSocketServer();
 
     yield spawn(server.forEach(function*(connection) {
-      yield connection.forEach(({ value }) => function*() {
+      yield connection.forEach(function*({ value }) {
         yield connection.send({ value: value.toUpperCase() });
       });
     }));
@@ -41,7 +41,7 @@ describe("createWebSocketServer()", () => {
     let port = (http.address() as AddressInfo).port;
 
     yield spawn(server.forEach(function*(connection) {
-      yield connection.forEach(({ value }) => function*() {
+      yield connection.forEach(function*({ value }) {
         yield connection.send({ value: value.toUpperCase() });
       });
     }));

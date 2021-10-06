@@ -25,7 +25,7 @@ export function inspect(rootTask: Task): Resource<Slice<InspectTree>> {
       let childSlice = slice.slice('children', child.id.toString());
 
       if(!childSlice.get()) {
-        childSlice.set(serialize(child));
+        yield childSlice.set(serialize(child));
       }
       yield spawn(inspectTreeTask(child, childSlice));
       yield on(task, 'unlink').match({ id: child.id }).expect();
@@ -39,12 +39,12 @@ export function inspect(rootTask: Task): Resource<Slice<InspectTree>> {
       return scope.spawn(linkChild(child)) as Operation<void>;
     }));
 
-    yield spawn(on<StateTransition>(task, 'state').forEach((transition) => {
-      slice.slice('state').set(transition.to);
+    yield spawn(on<StateTransition>(task, 'state').forEach(function*(transition) {
+      yield slice.slice('state').set(transition.to);
     }));
 
-    yield spawn(on<Labels>(task, 'labels').forEach((labels) => {
-      slice.slice('labels').set(labels);
+    yield spawn(on<Labels>(task, 'labels').forEach(function*(labels) {
+      yield slice.slice('labels').set(labels);
     }));
 
     yield spawn(function*() {
@@ -58,7 +58,7 @@ export function inspect(rootTask: Task): Resource<Slice<InspectTree>> {
             yield spawn(inspectTreeTask(current, yieldingToSlice as Slice<InspectTree>));
           }
           current = yield subscription.expect();
-          yieldingToSlice.set(current ? serialize(current) : undefined);
+          yield yieldingToSlice.set(current ? serialize(current) : undefined);
         };
       }
     });

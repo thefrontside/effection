@@ -62,8 +62,8 @@ export const createPosixProcess: CreateOSProcess = (command, options) => {
         return undefined;
       }, 'stderr');
 
-      let stdin: Writable<string> = {
-        send(data: string) {
+      let stdin: Writable = {
+        *write(data) {
           childProcess.stdin.write(data);
         }
       };

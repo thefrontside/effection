@@ -3,7 +3,7 @@ import { Operation, Task, Resource, spawn } from '@effection/core';
 import { DeepPartial, matcher } from './match';
 import { createBuffer } from './buffer';
 
-export type Callback<T,TReturn> = (publish: (value: T) => void) => Operation<TReturn>;
+export type Callback<T,TReturn> = (publish: (value: T) => Operation<void>) => Operation<TReturn>;
 
 export interface Stream<T, TReturn = undefined> extends Resource<Subscription<T, TReturn>> {
   filter<R extends T>(predicate: (value: T) => value is R): Stream<R, TReturn>;
@@ -29,7 +29,7 @@ export function createStream<T, TReturn = undefined>(callback: Callback<T, TRetu
     let queue = createQueue<T, TReturn>(name);
     task.run(function*() {
       let result = yield callback(queue.send);
-      queue.closeWith(result);
+      yield queue.close(result);
     }, { labels: { name: 'publisher', expand: false } });
     return queue.subscription;
   };
@@ -40,7 +40,7 @@ export function createStream<T, TReturn = undefined>(callback: Callback<T, TRetu
     return createStream((publish) => {
       return stream.forEach((value) => function*() {
         if(predicate(value)) {
-          publish(value);
+          yield publish(value);
         }
       });
     }, `${name}.filter()`);
@@ -70,7 +70,7 @@ export function createStream<T, TReturn = undefined>(callback: Callback<T, TRetu
     map<R>(mapper: (value: T) => R): Stream<R, TReturn> {
       return createStream((publish) => {
         return stream.forEach((value: T) => function*() {
-          publish(mapper(value));
+          yield publish(mapper(value));
         });
       }, `${name}.map()`);
     },
@@ -119,7 +119,7 @@ export function createStream<T, TReturn = undefined>(callback: Callback<T, TRetu
 
           return createStream<T, TReturn>((publish) => function*() {
             for(let value of buffer) {
-              publish(value);
+              yield publish(value);
             }
             return yield stream.forEach(publish);
           }, `${name}.buffered(${limit})`);

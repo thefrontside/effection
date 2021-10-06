@@ -15,7 +15,7 @@ describe('Channel', () => {
     describe('sending a message', () => {
       it('receives message on subscription', function*(task) {
         let subscription = channel.subscribe(task);
-        channel.send('hello');
+        yield channel.send('hello');
         let result = yield subscription.next();
         expect(result.done).toEqual(false);
         expect(result.value).toEqual('hello');
@@ -27,7 +27,7 @@ describe('Channel', () => {
         let subscription = channel.subscribe(task);
         let result = yield spawn(subscription.next());
         yield sleep(10);
-        channel.send('hello');
+        yield channel.send('hello');
         expect(yield result).toHaveProperty('value', 'hello');
       });
     });
@@ -35,9 +35,9 @@ describe('Channel', () => {
     describe('sending multiple messages', () => {
       it('receives messages in order', function*(task) {
         let subscription = channel.subscribe(task);
-        channel.send('hello');
-        channel.send('foo');
-        channel.send('bar');
+        yield channel.send('hello');
+        yield channel.send('foo');
+        yield channel.send('bar');
         expect(yield subscription.next()).toHaveProperty('value', 'hello');
         expect(yield subscription.next()).toHaveProperty('value', 'foo');
         expect(yield subscription.next()).toHaveProperty('value', 'bar');
@@ -51,7 +51,7 @@ describe('Channel', () => {
 
       let subscription = stream.subscribe(task);
 
-      send('hello');
+      yield send('hello');
 
       expect(yield subscription.next()).toEqual({ done: false, value: 'hello' });
     });
@@ -62,8 +62,8 @@ describe('Channel', () => {
       it('closes subscriptions', function*(task) {
         let channel = createChannel();
         let subscription = channel.subscribe(task);
-        channel.send('foo');
-        channel.close();
+        yield channel.send('foo');
+        yield channel.close();
         expect(yield subscription.next()).toEqual({ done: false, value: 'foo' });
         expect(yield subscription.next()).toEqual({ done: true, value: undefined });
       });
@@ -73,8 +73,8 @@ describe('Channel', () => {
       it('closes subscriptions with the argument', function*(task) {
         let channel = createChannel<string, number>();
         let subscription = channel.subscribe(task);
-        channel.send('foo');
-        channel.close(12);
+        yield channel.send('foo');
+        yield channel.close(12);
         expect(yield subscription.next()).toEqual({ done: false, value: 'foo' });
         expect(yield subscription.next()).toEqual({ done: true, value: 12 });
       });

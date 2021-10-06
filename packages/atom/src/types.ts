@@ -1,11 +1,12 @@
+import { Operation } from '@effection/core';
 import { Stream } from '@effection/stream';
 
 export interface Slice<S> extends Stream<S> {
   get(): S;
-  set(value: S): void;
-  update(fn: (state: S) => S): void;
+  set(value: S): Operation<void>;
+  update(fn: (state: S) => S): Operation<void>;
   slice: MakeSlice<S>;
-  remove(): void;
+  remove(): Operation<void>;
   stream: Stream<S>;
 }
 

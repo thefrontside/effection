@@ -7,7 +7,7 @@ export function terminate(process: Process) {
   if (isWin32) {
     ctrlc(process.pid);
     //Terminate batch process? (Y/N)
-    process.stdin.send("Y\n");
+    process.stdin.write("Y\n");
   } else {
     global.process.kill(process.pid, 'SIGTERM');
   }
@@ -20,7 +20,7 @@ export function interrupt(process: Process) {
   if (isWin32) {
     ctrlc(process.pid);
     //Terminate batch process? (Y/N)
-    process.stdin.send("Y\n");
+    process.stdin.write("Y\n");
   } else {
     global.process.kill(process.pid, 'SIGINT');
   }

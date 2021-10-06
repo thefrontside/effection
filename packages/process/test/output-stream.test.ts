@@ -9,9 +9,9 @@ const b = (value: string) => Buffer.from(value, 'utf8');
 describe('createOutputStream', () => {
   it('can be created from regular stream', function*() {
     let stream = createStream<Buffer>(function*(publish) {
-      publish(b("foo"));
-      publish(b("bar"));
-      publish(b("baz"));
+      yield publish(b("foo"));
+      yield publish(b("bar"));
+      yield publish(b("baz"));
       return undefined;
     });
     let ioStream = createOutputStream(stream);
@@ -23,9 +23,9 @@ describe('createOutputStream', () => {
 
   it('works like a regular stream', function*() {
     let stream = createOutputStream(function*(publish) {
-      publish(b("foo"));
-      publish(b("bar"));
-      publish(b("baz"));
+      yield publish(b("foo"));
+      yield publish(b("bar"));
+      yield publish(b("baz"));
       return undefined;
     });
     let values: Buffer[] = [];
@@ -37,9 +37,9 @@ describe('createOutputStream', () => {
   describe('text()', () => {
     it('maps output to string', function*() {
       let stream = createOutputStream(function*(publish) {
-        publish(b("foo"));
-        publish(b("bar"));
-        publish(b("baz"));
+        yield publish(b("foo"));
+        yield publish(b("bar"));
+        yield publish(b("baz"));
         return undefined;
       });
       let values: string[] = [];
@@ -52,9 +52,9 @@ describe('createOutputStream', () => {
   describe('lines()', () => {
     it('combines output into complete lines', function*() {
       let stream = createOutputStream(function*(publish) {
-        publish(b("foo\nhello"));
-        publish(b("world\n"));
-        publish(b("something"));
+        yield publish(b("foo\nhello"));
+        yield publish(b("world\n"));
+        yield publish(b("something"));
         return undefined;
       });
       let values: string[] = [];

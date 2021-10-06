@@ -3,7 +3,7 @@ import { spawn, Task, Operation, createFuture } from '@effection/core';
 import { on, once, onceEmit } from "@effection/events";
 import { spawn as spawnProcess } from "cross-spawn";
 import { ctrlc } from "ctrlc-windows";
-import { ExitStatus, CreateOSProcess } from "./api";
+import { ExitStatus, CreateOSProcess, Writable } from "./api";
 import { ExecError } from "./error";
 import { createOutputStream } from '../output-stream';
 
@@ -69,8 +69,8 @@ export const createWin32Process: CreateOSProcess = (command, options) => {
         return undefined;
       }, 'stderr');
 
-      let stdin = {
-        send(data: string) {
+      let stdin: Writable = {
+        *write(data) {
           childProcess.stdin.write(data);
         }
       };

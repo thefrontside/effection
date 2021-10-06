@@ -32,12 +32,13 @@ import { EventSource, addListener, removeListener } from './event-source';
  * }));
  */
 export function on<T = unknown>(source: EventSource, name: string, streamName = `on('${name}')`): Stream<T, void> {
-  return createStream((publish) => withLabels(function*() {
-    addListener(source, name, publish);
+  return createStream((publish) => withLabels(function*(task) {
+    let listener = (value: T) => task.run(publish(value));
+    addListener(source, name, listener);
     try {
       yield;
     } finally {
-      removeListener(source, name, publish);
+      removeListener(source, name, listener);
     }
   }, { name: 'listen', eventName: name, source: source.toString() }), streamName);
 }
@@ -70,8 +71,8 @@ export function on<T = unknown>(source: EventSource, name: string, streamName = 
  *
  */
 export function onEmit<T extends Array<unknown> = unknown[]>(source: EventSource, name: string, streamName = `onEmit('${name}')`): Stream<T, void> {
-  return createStream((publish) => withLabels(function*() {
-    let listener = (...args: T) => publish(args);
+  return createStream((publish) => withLabels(function*(task) {
+    let listener = (...args: T) => task.run(publish(args));
     addListener(source, name, listener);
     try {
       yield;

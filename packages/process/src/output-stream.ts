@@ -1,7 +1,7 @@
 import { Operation } from '@effection/core';
 import { Stream, createStream } from '@effection/stream';
 
-export type Callback<T,TReturn> = (publish: (value: T) => void) => Operation<TReturn>;
+export type Callback<T,TReturn> = (publish: (value: T) => Operation<void>) => Operation<TReturn>;
 
 export interface OutputStream extends Stream<Buffer> {
   text(): Stream<string>;
@@ -25,12 +25,14 @@ export function createOutputStream(callbackOrStream: Stream<Buffer> | Callback<B
         let current = "";
         yield stream.forEach(function*(chunk) {
           let lines = (current + chunk.toString()).split('\n');
-          lines.slice(0, -1).forEach(publish);
+          for(let line of lines.slice(0, -1)) {
+            yield publish(line);
+          }
           current = lines.slice(-1)[0];
         });
 
         if(current) {
-          publish(current);
+          yield publish(current);
         }
 
         return undefined;

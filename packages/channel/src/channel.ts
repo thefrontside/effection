@@ -1,18 +1,14 @@
-import { createStream, WritableStream, Writable, Stream } from '@effection/stream';
+import { Sink, Close } from '@effection/subscription';
+import { createStream, Stream } from '@effection/stream';
 import { on } from '@effection/events';
 import { EventEmitter } from 'events';
-
-export type Close<T> = (...args: T extends undefined ? [] : [T]) => void;
-
-export type Send<T> = Writable<T>['send'];
 
 export type ChannelOptions = {
   maxSubscribers?: number;
   name?: string;
 }
 
-export interface Channel<T, TClose = undefined> extends WritableStream<T, T, TClose> {
-  close: Close<TClose>;
+export interface Channel<T, TClose = undefined> extends Stream<T, TClose>, Sink<T, TClose> {
   stream: Stream<T, TClose>;
 }
 
@@ -32,18 +28,18 @@ export function createChannel<T, TClose = undefined>(options: ChannelOptions = {
       if(next.done) {
         return next.value;
       } else {
-        publish(next.value);
+        yield publish(next.value);
       }
     }
   }, options.name);
 
-  let send: Send<T> = (message: T) => {
+  let send = function*(message: T) {
     bus.emit('event', { done: false, value: message });
   };
 
-  let close: Close<TClose> = (...args) => {
-    bus.emit('event', { done: true, value: args[0] });
-  };
+  let close = function*(value: TClose) {
+    bus.emit('event', { done: true, value });
+  } as Close<TClose>;
 
   return { send, close, stream , ...stream };
 }

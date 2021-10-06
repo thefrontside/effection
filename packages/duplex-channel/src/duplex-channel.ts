@@ -1,11 +1,9 @@
+import { all } from '@effection/core';
+import type { Sink, Close } from '@effection/subscription';
 import type { Stream } from '@effection/stream';
 import { createChannel, ChannelOptions } from '@effection/channel';
 
-type Close<T> = (...args: T extends undefined ? [] : [T]) => void;
-
-export interface DuplexChannel<TReceive, TSend, TClose = undefined> extends Stream<TReceive, TClose> {
-  send(message: TSend): void;
-  close: Close<TClose>;
+export interface DuplexChannel<TReceive, TSend, TClose = undefined> extends Stream<TReceive, TClose>, Sink<TSend, TClose> {
   stream: Stream<TReceive, TClose>;
 }
 
@@ -15,10 +13,12 @@ export function createDuplexChannel<TLeft, TRight, TClose = undefined>(options: 
   let leftChannel = createChannel<TLeft, TClose>(options);
   let rightChannel = createChannel<TRight, TClose>(options);
 
-  let close: Close<TClose> = (...args) => {
-    leftChannel.close(...args);
-    rightChannel.close(...args);
-  };
+  let close = function*(value: TClose) {
+    yield all([
+      leftChannel.close(value),
+      rightChannel.close(value),
+    ]);
+  } as Close<TClose>;
 
   return [
     { send: rightChannel.send, stream: leftChannel.stream, close, ...leftChannel.stream },

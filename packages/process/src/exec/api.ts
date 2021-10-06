@@ -1,9 +1,9 @@
 import { Operation, Resource } from '@effection/core';
 import { OutputStream } from '../output-stream';
 
-// TODO: import from subscription package once #236 is merged
-export interface Writable<T> {
-  send(message: T): void;
+export interface Writable {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  write(message: any): Operation<void>;
 }
 
 /**
@@ -54,7 +54,7 @@ export interface ExecOptions {
 export interface StdIO {
   stdout: OutputStream;
   stderr: OutputStream;
-  stdin: Writable<string>;
+  stdin: Writable;
 }
 
 export interface ExitStatus {

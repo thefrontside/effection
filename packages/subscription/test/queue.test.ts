@@ -16,19 +16,19 @@ describe('Queue', () => {
 
   beforeEach(function*() {
     queue = createQueue<Thing, number>();
-    queue.send({name: 'bob', type: 'person' });
-    queue.send({name: 'alice', type: 'person' });
-    queue.send({name: 'world', type: 'planet' });
-    queue.close(3);
+    yield queue.send({ name: 'bob', type: 'person' });
+    yield queue.send({ name: 'alice', type: 'person' });
+    yield queue.send({ name: 'world', type: 'planet' });
+    yield queue.close(3);
     emptyQueue = createQueue<Thing, number>();
-    emptyQueue.close(12);
+    yield emptyQueue.close(12);
   });
 
   describe('send', () => {
     it('sends value to an already waiting listener', function*() {
       let anotherQueue = createQueue<string>();
       let listener = yield spawn(anotherQueue.expect());
-      anotherQueue.send('hello');
+      yield anotherQueue.send('hello');
       expect(yield listener).toEqual('hello');
     });
 
@@ -36,20 +36,20 @@ describe('Queue', () => {
       let anotherQueue = createQueue<string>();
       let listener1 = yield spawn(abortAfter(anotherQueue.expect(), 10));
       let listener2 = yield spawn(abortAfter(anotherQueue.expect(), 10));
-      anotherQueue.send('hello');
+      yield anotherQueue.send('hello');
       expect([yield listener1, yield listener2].filter(Boolean)).toEqual(['hello']);
     });
 
     it('queues value if there is no listener', function*() {
       let anotherQueue = createQueue<string>();
-      anotherQueue.send('hello');
+      yield anotherQueue.send('hello');
       expect(yield anotherQueue.expect()).toEqual('hello');
     });
 
     it('can be destructured', function*() {
       let { send, subscription } = createQueue<string>();
       let listener = yield spawn(subscription.expect());
-      send('hello');
+      yield send('hello');
       expect(yield listener).toEqual('hello');
     });
   });

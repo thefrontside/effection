@@ -72,7 +72,7 @@ describe('@bigtest/atom createAtom', () => {
     });
 
     beforeEach(function*() {
-      subject.set({...state, status: "off"});
+      yield subject.set({...state, status: "off"});
     });
 
     it('updates the current state', function*() {
@@ -82,15 +82,15 @@ describe('@bigtest/atom createAtom', () => {
     describe('with listener which modifies atom', () => {
       it('shoule be reentrant', function*(world) {
         let atom = createAtom({ status: 'idle' });
-        yield spawn(atom.forEach(({ status }) => {
+        yield spawn(atom.forEach(function*({ status }) {
           if(status === 'pending') {
-            atom.set({ status: 'active' });
+            yield atom.set({ status: 'active' });
           }
         }));
 
         let subscription = atom.slice('status').subscribe(world);
 
-        atom.set({ status: 'pending' });
+        yield atom.set({ status: 'pending' });
 
         expect(yield subscription.next()).toEqual({ done: false, value: 'idle' });
         expect(yield subscription.next()).toEqual({ done: false, value: 'pending' });
@@ -106,7 +106,7 @@ describe('@bigtest/atom createAtom', () => {
     });
 
     beforeEach(function*() {
-      subject.update(previous => {
+      yield subject.update(previous => {
         expect(previous).toEqual(state);
         return {...previous, status: "off"}
       });
@@ -139,7 +139,7 @@ describe('@bigtest/atom createAtom', () => {
     it('set', function*() {
       let result = subject.slice('agents', "agent-2", "status");
 
-      result.set('errored');
+      yield result.set('errored');
 
       expect(result.get()).toBe('errored');
     })
@@ -155,9 +155,9 @@ describe('@bigtest/atom createAtom', () => {
       subject = createAtom({foo: 'bar'});
       iterator = subject.subscribe(world);
 
-      subject.update(() => ({ foo: 'bar' }));
-      subject.update(() => ({ foo: 'baz' }));
-      subject.update(() => ({ foo: 'quox' }));
+      yield subject.update(() => ({ foo: 'bar' }));
+      yield subject.update(() => ({ foo: 'baz' }));
+      yield subject.update(() => ({ foo: 'quox' }));
     });
 
     it('iterates over emitted states', function*() {
@@ -183,12 +183,12 @@ describe('@bigtest/atom createAtom', () => {
       let subject = createAtom(bar);
       iterator = subject.subscribe(world);
 
-      subject.update(() => bar);
-      subject.update(() => bar);
-      subject.update(() => baz);
-      subject.update(() => baz);
-      subject.update(() => qux);
-      subject.update(() => bar);
+      yield subject.update(() => bar);
+      yield subject.update(() => bar);
+      yield subject.update(() => baz);
+      yield subject.update(() => baz);
+      yield subject.update(() => qux);
+      yield subject.update(() => bar);
     });
 
     it('publishes the initial state and subsequent  unique state changes', function*() {

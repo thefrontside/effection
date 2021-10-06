@@ -23,7 +23,7 @@ describe('@bigtest/atom Slice', () => {
     });
 
     it('should not blow up with no state and set', function*() {
-      slice.set('houston we have a problem');
+      yield slice.set('houston we have a problem');
 
       expect(slice.get()).toBeUndefined();
     });
@@ -43,14 +43,14 @@ describe('@bigtest/atom Slice', () => {
     });
 
     it('should set the slice and atom', function*() {
-      slice.set({ data: 'bar' });
+      yield slice.set({ data: 'bar' });
 
       expect(slice.get()).toEqual({ data: 'bar' });
       expect(atom.get()).toEqual({ outer: { data: 'bar' } });
     });
 
     it('should update the slice', function*() {
-      slice.update((prev) => ({ data: `${prev.data}-bar` }));
+      yield slice.update((prev) => ({ data: `${prev.data}-bar` }));
 
       expect(slice.get()).toEqual({ data: 'baz-bar' });
       expect(atom.get()).toEqual({ outer: { data: 'baz-bar' } });
@@ -74,7 +74,7 @@ describe('@bigtest/atom Slice', () => {
 
     describe('updating the returned slice', () => {
       beforeEach(function*() {
-        slice2.update(() => {
+        yield slice2.update(() => {
           return 'blah'
         });
       });
@@ -103,9 +103,9 @@ describe('@bigtest/atom Slice', () => {
       slice = atom.slice('data');
       subscription = slice.subscribe(world);
 
-      slice.update(() => 'bar');
-      slice.update(() => 'baz');
-      slice.update(() => 'quox');
+      yield slice.update(() => 'bar');
+      yield slice.update(() => 'baz');
+      yield slice.update(() => 'quox');
     });
 
     it('iterates over initial and emitted states', function*() {
@@ -129,13 +129,13 @@ describe('@bigtest/atom Slice', () => {
 
       // foo is the initial value, it should only appear once
       // as the first result
-      slice.update(() => 'foo');
-      slice.update(() => 'bar');
-      slice.update(() => 'bar');
-      slice.update(() => 'baz');
-      slice.update(() => 'baz');
+      yield slice.update(() => 'foo');
+      yield slice.update(() => 'bar');
+      yield slice.update(() => 'bar');
+      yield slice.update(() => 'baz');
+      yield slice.update(() => 'baz');
       // back to foo, should exist in the result
-      slice.update(() => 'foo');
+      yield slice.update(() => 'foo');
     });
 
     it('should only publish the initial state and unique state changes', function*() {
@@ -169,7 +169,7 @@ describe('@bigtest/atom Slice', () => {
       let slice = atom.slice('foo');
 
       expect(atom.get()).toEqual({ foo: 1, bar: 2 });
-      slice.remove();
+      yield slice.remove();
       expect(atom.get()).toEqual({ bar: 2 });
     })
 
@@ -178,7 +178,7 @@ describe('@bigtest/atom Slice', () => {
       let slice = atom.slice(0);
 
       expect(atom.get()).toEqual(['foo', 'bar']);
-      slice.remove();
+      yield slice.remove();
       expect(atom.get()).toEqual([undefined, 'bar']); // TODO: shouldn't this remove the item entirely?!
     })
   });

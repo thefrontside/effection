@@ -9,11 +9,10 @@ describe("inspect()", () => {
   it('returns a slice of the task tree', function*() {
     let task: Task<void> = yield spawn();
 
-
     let tree: Slice<InspectTree> = yield inspect(task);
 
     let child = yield task.spawn(function*() {
-      yield spawn()
+      yield spawn();
       yield spawn(function*() { /* no op */});
       yield sleep();
     }, { labels: { name: 'root' } });

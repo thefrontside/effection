@@ -15,7 +15,7 @@ describe("createDuplexChannel", () => {
   it('can destructure channels as a record', function*(world) {
     let [{ send }, { stream }] = createDuplexChannel<number, string>();
     let subscription = stream.subscribe(world);
-    send("hello");
+    yield send("hello");
     expect(yield subscription.next()).toEqual({ done: false, value: "hello" })
   });
 
@@ -24,7 +24,7 @@ describe("createDuplexChannel", () => {
 
     beforeEach(function*(world) {
       subscription = right.subscribe(world);
-      left.send("hello");
+      yield left.send("hello");
     });
 
     it('is received on right', function*() {
@@ -37,7 +37,7 @@ describe("createDuplexChannel", () => {
 
     beforeEach(function*(world) {
       subscription = left.subscribe(world);
-      right.send(123);
+      yield right.send(123);
     });
 
     it('is received on right', function*() {
@@ -56,7 +56,7 @@ describe("createDuplexChannel", () => {
 
     describe('on right', () => {
       it('closes both ends', function*() {
-        right.close();
+        yield right.close();
         expect(yield rxSubscription.next()).toEqual({ done: true, value: undefined })
         expect(yield txSubscription.next()).toEqual({ done: true, value: undefined })
       });
@@ -64,7 +64,7 @@ describe("createDuplexChannel", () => {
 
     describe('on left', () => {
       it('closes both ends', function*() {
-        left.close();
+        yield left.close();
         expect(yield rxSubscription.next()).toEqual({ done: true, value: undefined })
         expect(yield txSubscription.next()).toEqual({ done: true, value: undefined })
       });

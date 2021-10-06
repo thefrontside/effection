@@ -1,14 +1,9 @@
 import { Operation, withLabels, createFuture } from '@effection/core';
-import { Subscription } from './index';
-
-type Close<T> = (...args: T extends undefined ? [] : [T]) => void;
+import { Subscription, Sink, Close } from './index';
 
 type Waiter<T, TReturn> = (value: IteratorResult<T, TReturn>) => void;
 
-export interface Queue<T, TReturn = undefined> extends Subscription<T, TReturn> {
-  send(value: T): void;
-  close: Close<TReturn>;
-  closeWith(value: TReturn): void;
+export interface Queue<T, TReturn = undefined> extends Subscription<T, TReturn>, Sink<T, TReturn> {
   subscription: Subscription<T, TReturn>;
 }
 
@@ -17,7 +12,7 @@ export function createQueue<T, TReturn = undefined>(name = 'queue'): Queue<T, TR
   let values: IteratorResult<T, TReturn>[] = [];
   let didClose = false;
 
-  let send = (value: T): void => {
+  let send = function*(value: T): Operation<void> {
     if(didClose) {
       new Error(`tried to publish a value: ${value} on an already finished queue`);
     }
@@ -30,7 +25,7 @@ export function createQueue<T, TReturn = undefined>(name = 'queue'): Queue<T, TR
     }
   };
 
-  let close = (value: TReturn) => {
+  let close = function*(value: TReturn): Operation<void> {
     if(didClose) {
       new Error('tried to close an already closed queue');
     }
@@ -41,7 +36,7 @@ export function createQueue<T, TReturn = undefined>(name = 'queue'): Queue<T, TR
     } else {
       values.push({ value, done: true });
     }
-  };
+  } as Close<TReturn>;
 
   let next = (): Operation<IteratorResult<T, TReturn>> => {
     return withLabels((task) => {
@@ -67,8 +62,7 @@ export function createQueue<T, TReturn = undefined>(name = 'queue'): Queue<T, TR
 
   let subscription = {
     next,
-    close: ((...args) => close(args[0] as TReturn)) as Close<TReturn>,
-    closeWith: close,
+    close,
     first(): Operation<T | undefined> {
       return withName<T | undefined>(`first`, function*() {
         let result: IteratorResult<T, TReturn> = yield next();

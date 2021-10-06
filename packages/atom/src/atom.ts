@@ -1,6 +1,7 @@
 import * as O from 'fp-ts/Option';
 import * as Op from 'monocle-ts/Optional';
 import { pipe } from 'fp-ts/function';
+import { Operation } from '@effection/core';
 import { createStream } from '@effection/stream';
 import { createChannel, ChannelOptions } from '@effection/channel';
 import { MakeSlice, Slice } from './types';
@@ -17,7 +18,7 @@ export function createAtom<S>(initialState: S, options: ChannelOptions = {}): Sl
     return state;
   }
 
-  function setState(value: S) {
+  function* setState(value: S) {
     let next = O.fromNullable(value);
 
     if (next === getState()) {
@@ -38,7 +39,7 @@ export function createAtom<S>(initialState: S, options: ChannelOptions = {}): Sl
 
         let nextValue;
         while(nextValue = valueQueue.shift()) {
-          states.send(nextValue);
+          yield states.send(nextValue);
         }
       } finally {
         didEnter = false;
@@ -65,11 +66,12 @@ export function createAtom<S>(initialState: S, options: ChannelOptions = {}): Sl
 
       let streamName = fullPath.length ? `slice(${fullPath.map((s) => `'${s}'`).join(', ')})` : 'atom';
 
-      let stream = createStream<A[P]>(publish => {
-        publish(get());
-        return states.map(
+      let stream = createStream<A[P]>(function*(publish) {
+        yield publish(get());
+        yield states.map(
           (s) => pipe(s as S, O.fromNullable, sliceOptional.getOption, O.toUndefined) as A[P]
         ).filter(unique(get())).forEach(publish);
+        return undefined;
       }, streamName);
 
       function getOption(): O.Option<A[P]> {
@@ -88,7 +90,7 @@ export function createAtom<S>(initialState: S, options: ChannelOptions = {}): Sl
         ) as A[P];
       }
 
-      function set(value: A[P]): void {
+      function* set(value: A[P]): Operation<void> {
         if(value === get()) {
           return;
         }
@@ -99,26 +101,26 @@ export function createAtom<S>(initialState: S, options: ChannelOptions = {}): Sl
           O.toUndefined
         );
 
-        setState(next as S);
+        yield setState(next as S);
       }
 
-      function update(fn: (s: A[P]) => A[P]) {
+      function* update(fn: (s: A[P]) => A[P]) {
         let next = pipe(
           sliceOptional,
           Op.modify(fn),
         )(getState());
 
-        setState(O.toUndefined(next) as S);
+        yield setState(O.toUndefined(next) as S);
       }
 
-      function remove() {
+      function* remove() {
         let next = pipe(
           sliceOptional,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           Op.modify(() => undefined as any),
         )(getState());
 
-        setState(O.toUndefined(next) as S);
+        yield setState(O.toUndefined(next) as S);
       }
 
       return Object.assign({

@@ -49,6 +49,7 @@
     ".changes/task-spawn-operation.md",
     ".changes/task-to-string.md",
     ".changes/typescript-bumps.md",
-    ".changes/version-fix.md"
+    ".changes/version-fix.md",
+    ".changes/yield-non-operation.md"
   ]
 }

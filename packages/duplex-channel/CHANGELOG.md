@@ -1,5 +1,11 @@
 # Changelog
 
+## \[2.0.0-beta.8]
+
+- Yielding to something which is not an operation no longer throws an internal error, but properly rejects the task.
+  - Bumped due to a bump in @effection/core.
+  - [a3ad19a](https://github.com/thefrontside/effection/commit/a3ad19a3177a731fee5cd2389ab898dee7b1788e) Fix yielding non operation bug on 2021-10-07
+
 ## \[2.0.0-beta.7]
 
 - Fix a bug when using blockParent where the children are not getting halt on an explicit halt.

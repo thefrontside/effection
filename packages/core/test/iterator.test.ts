@@ -2,7 +2,7 @@ import { createNumber, blowUp } from './setup';
 import { describe, it } from 'mocha';
 import expect from 'expect';
 
-import { run, sleep, Task, createFuture } from '../src/index';
+import { run, sleep, Task, Operation, createFuture } from '../src/index';
 
 describe('generator function', () => {
   it('can compose multiple promises via generator', async () => {
@@ -258,5 +258,13 @@ describe('generator function', () => {
     });
 
     await expect(task).rejects.toHaveProperty('message', 'bang');
+  });
+
+  it('can throw error when yield point is not a valid operation', async () => {
+    let task = run(function*() {
+      yield "I am not an operation" as unknown as Operation<unknown>;
+    });
+
+    await expect(task).rejects.toHaveProperty('message', 'unkown type of operation: I am not an operation');
   });
 });

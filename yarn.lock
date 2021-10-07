@@ -1325,11 +1325,6 @@
     "@effection/subscription" "^1.0.0"
     effection "^1.0.0"
 
-"@effection/mocha@2.0.0-beta.9":
-  version "2.0.0-beta.9"
-  resolved "https://registry.yarnpkg.com/@effection/mocha/-/mocha-2.0.0-beta.9.tgz#672e3acdfe714c37d6bee9666ae10dfe60154978"
-  integrity sha512-7PQI+BsPdWrPhdg0vkeFH0YiNcYeNIsYb1VLZQyD7MgxqGp7CnSAW9hSgav6/fgQvCQkjG0LHFXXJOGd6ncO9w==
-
 "@effection/node@^1.0.2":
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/@effection/node/-/node-1.0.2.tgz#fedd1e495b3d7960c3b936b46c44f26333a872b8"

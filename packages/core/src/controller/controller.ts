@@ -37,7 +37,7 @@ export function createController<T>(task: Task<T>, operation: Operation<T>, opti
     return createPromiseController(task, operation);
   } else if (isGenerator(operation)) {
     return createIteratorController(task, operation, options);
+  } else {
+    return createFutureController(task, Future.reject(new Error(`unkown type of operation: ${operation}`)));
   }
-
-  throw new Error(`unkown type of operation: ${operation}`);
 }

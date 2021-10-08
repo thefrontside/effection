@@ -23,6 +23,6 @@
     "packages/websocket-client",
     "packages/websocket-server",
     "packages/inspect-utils",
-    "packages/inspect-server",
+    "packages/inspect-server"
   ]
 }

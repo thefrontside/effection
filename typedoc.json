@@ -7,13 +7,22 @@
   "name": "Effection API Reference",
   "entryPointStrategy": "packages",
   "entryPoints": [
-    "packages/atom",
     "packages/effection",
-    "packages/fetch",
+    "packages/core",
+    "packages/main",
     "packages/mocha",
+    "packages/subscription",
+    "packages/stream",
+    "packages/events",
+    "packages/channel",
+    "packages/duplex-channel",
+    "packages/atom",
     "packages/process",
+    "packages/fetch",
     "packages/react",
     "packages/websocket-client",
-    "packages/websocket-server"
+    "packages/websocket-server",
+    "packages/inspect-utils",
+    "packages/inspect-server",
   ]
 }

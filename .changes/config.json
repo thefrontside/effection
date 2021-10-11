@@ -23,18 +23,14 @@
       "path": "./packages/duplex-channel",
       "manager": "javascript",
       "dependencies": [
-        "@effection/core",
-        "@effection/channel",
-        "@effection/stream"
+        "effection"
       ]
     },
     "@effection/atom": {
       "path": "./packages/atom",
       "manager": "javascript",
       "dependencies": [
-        "@effection/channel",
-        "@effection/core",
-        "@effection/stream"
+        "effection"
       ]
     },
     "@effection/core": {
@@ -81,13 +77,10 @@
       "manager": "javascript",
       "dependencies": [
         "@effection/atom",
-        "@effection/channel",
-        "@effection/core",
         "@effection/inspect-ui",
         "@effection/inspect-utils",
-        "@effection/events",
-        "@effection/subscription",
-        "@effection/websocket-server"
+        "@effection/websocket-server",
+        "effection"
       ]
     },
     "@effection/inspect-utils": {
@@ -95,10 +88,7 @@
       "manager": "javascript",
       "dependencies": [
         "@effection/atom",
-        "@effection/channel",
-        "@effection/core",
-        "@effection/events",
-        "@effection/subscription"
+        "effection"
       ]
     },
     "@effection/main": {
@@ -112,24 +102,21 @@
       "path": "./packages/mocha",
       "manager": "javascript",
       "dependencies": [
-        "@effection/core"
+        "effection"
       ]
     },
     "@effection/process": {
       "path": "./packages/process",
       "manager": "javascript",
       "dependencies": [
-        "@effection/core",
-        "@effection/events",
-        "@effection/stream"
+        "effection"
       ]
     },
     "@effection/react": {
       "path": "./packages/react",
       "manager": "javascript",
       "dependencies": [
-        "@effection/core",
-        "@effection/subscription"
+        "effection"
       ]
     },
     "@effection/subscription": {
@@ -151,31 +138,24 @@
       "path": "./packages/websocket-client",
       "manager": "javascript",
       "dependencies": [
-        "@effection/core",
-        "@effection/events",
-        "@effection/subscription"
+        "effection"
       ]
     },
     "@effection/websocket-server": {
       "path": "./packages/websocket-server",
       "manager": "javascript",
       "dependencies": [
-        "@effection/core",
-        "@effection/events",
-        "@effection/subscription"
+        "effection"
       ]
     },
     "@effection/inspect-ui": {
       "path": "./packages/inspect-ui",
       "manager": "javascript",
       "dependencies": [
-        "@effection/core",
         "@effection/inspect-utils",
-        "@effection/events",
-        "@effection/main",
         "@effection/react",
-        "@effection/subscription",
-        "@effection/websocket-client"
+        "@effection/websocket-client",
+        "effection"
       ]
     }
   }

@@ -1,8 +1,7 @@
 import { describe, beforeEach, it } from '@effection/mocha';
 import expect from 'expect';
 import { createAtom } from '../src/atom';
-import { spawn } from '@effection/core';
-import { Subscription } from '@effection/subscription';
+import { Subscription, spawn } from 'effection';
 import { Slice } from '../src/types';
 
 type TestRunAgentState = {

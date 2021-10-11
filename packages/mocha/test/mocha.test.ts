@@ -1,7 +1,7 @@
 import { describe, it, beforeEach, captureError } from '../src/index';
 import expect from 'expect';
 
-import { Task, Resource, spawn } from '@effection/core';
+import { Task, Resource, spawn } from 'effection';
 import { exec } from '@effection/process';
 
 let captured: Task;

@@ -1,5 +1,4 @@
-import { spawn, Task, createFuture, withLabels } from '@effection/core';
-import { on, once, onceEmit } from '@effection/events';
+import { on, once, onceEmit, spawn, Task, createFuture, withLabels } from 'effection';
 import { spawn as spawnProcess } from 'child_process';
 import { Writable, ExitStatus, CreateOSProcess } from './api';
 import { ExecError } from './error';

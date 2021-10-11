@@ -1,5 +1,10 @@
 # @effection/fetch
 
+## \[2.0.0]
+
+- Release Effection 2.0.0
+  - [8bd89ad](https://github.com/thefrontside/effection/commit/8bd89ad40e42805ab6da0fd1b7a49beed9769865) Add 2.0 changeset on %as
+
 ## \[2.0.0-beta.20]
 
 - Yielding to something which is not an operation no longer throws an internal error, but properly rejects the task.

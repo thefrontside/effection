@@ -1,6 +1,5 @@
 import { createInspectServer, Options } from './server';
-import { spawn, createTask } from '@effection/core';
-import { once } from '@effection/events';
+import { spawn, createTask, once } from 'effection';
 
 export function runInspectServer(options: Options = {}): void {
   // create a task for the inspector, which lives outside of the Effection root

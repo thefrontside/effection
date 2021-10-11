@@ -1,7 +1,6 @@
 import { describe, it } from '@effection/mocha';
 import expect from 'expect';
-import { createQueue, Subscription } from '@effection/subscription';
-import { sleep } from '@effection/core';
+import { createQueue, sleep, Subscription } from 'effection';
 import { useSubscription } from '../src/index';
 import React from 'react';
 import { ReactTestRenderer } from 'react-test-renderer';

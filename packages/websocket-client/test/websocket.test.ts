@@ -2,8 +2,7 @@ import { describe, it, beforeEach } from '@effection/mocha';
 import expect from 'expect'
 import http from 'http'
 import type { AddressInfo } from 'net'
-import { spawn, ensure } from '@effection/core';
-import { on, once } from '@effection/events';
+import { on, once, spawn, ensure } from 'effection';
 
 import WebSocket from 'ws';
 import { Server as WebSocketServer } from 'ws';

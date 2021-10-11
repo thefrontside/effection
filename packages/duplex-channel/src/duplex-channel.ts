@@ -1,5 +1,4 @@
-import type { Stream } from '@effection/stream';
-import { createChannel, ChannelOptions } from '@effection/channel';
+import { Stream, createChannel, ChannelOptions } from 'effection';
 
 type Close<T> = (...args: T extends undefined ? [] : [T]) => void;
 

@@ -1,9 +1,8 @@
-import { describe, it, beforeEach } from '@effection/mocha';
+import { describe, it } from '@effection/mocha';
 import expect from 'expect'
 import { createServer } from 'http'
 import { AddressInfo } from 'net'
-import { spawn, ensure } from '@effection/core';
-import { once } from '@effection/events';
+import { spawn, ensure, once } from 'effection';
 
 import { createWebSocketClient } from '@effection/websocket-client';
 import { createWebSocketServer, createWebSocketSubscription, WebSocketServer } from '../src/index';

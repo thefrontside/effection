@@ -1,6 +1,5 @@
 import { platform } from "os";
-import { spawn, Task, Operation, createFuture } from '@effection/core';
-import { on, once, onceEmit } from "@effection/events";
+import { on, once, onceEmit, spawn, Task, Operation, createFuture } from 'effection';
 import { spawn as spawnProcess } from "cross-spawn";
 import { ctrlc } from "ctrlc-windows";
 import { ExitStatus, CreateOSProcess } from "./api";

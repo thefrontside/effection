@@ -6,6 +6,36 @@ import { createChannel, ChannelOptions } from '@effection/channel';
 import { MakeSlice, Slice } from './types';
 import { unique } from './unique';
 
+/**
+ * Create a new atom for managing state. An atom has a current value which
+ * can be retrieved and updated, and which can be consumed as a stream.
+ *
+ * An atom can also be sliced to work with nested state.
+ *
+ * ### Example
+ *
+ * ```typescript
+ * import { main, spawn } from 'effection';
+ * import { createAtom } from '@effection/atom';
+ *
+ * main(function*() {
+ *   let atom = createAtom({ room: { lights: 4 } });
+ *   let lights = atom.slice('room', 'lights');
+ *
+ *   yield spawn(lights.forEach((number) => console.log(`there are ${number} lights`)));
+ *
+ *   lights.update((number) => number + 1);
+ *   lights.set(8);
+ *
+ *   console.log(atom.get()) // => { room: { lights: 8 } }
+ * });
+ * ```
+ *
+ * See [the atom guide](https://frontside.com/effection/docs/guides/atom) for more details.
+ *
+ * @param initialState the state that the atom starts out with
+ * @param options options to pass down to the underlying channel, see `createChannel`
+ */
 export function createAtom<S>(initialState: S, options: ChannelOptions = {}): Slice<S> {
   let lens = pipe(Op.id<O.Option<S>>(), Op.some);
   let state: O.Option<S> = O.fromNullable(initialState);

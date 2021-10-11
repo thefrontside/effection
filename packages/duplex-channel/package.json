@@ -37,9 +37,7 @@
     "typescript": "^4.3.5"
   },
   "dependencies": {
-    "@effection/core": "^2.0.0",
-    "@effection/channel": "^2.0.0",
-    "@effection/stream": "^2.0.0"
+    "effection": "^2.0.0"
   },
   "volta": {
     "extends": "../../package.json"

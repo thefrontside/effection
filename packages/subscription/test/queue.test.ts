@@ -1,6 +1,6 @@
 import expect from 'expect';
 import { describe, it, beforeEach, captureError } from '@effection/mocha';
-import { spawn } from '@effection/core';
+import { spawn } from 'effection';
 
 import { createQueue, Queue } from '../src/index';
 import { abortAfter } from './helpers';

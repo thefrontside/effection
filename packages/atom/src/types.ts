@@ -1,4 +1,4 @@
-import { Stream } from '@effection/stream';
+import { Stream } from 'effection';
 
 export interface Slice<S> extends Stream<S> {
   get(): S;

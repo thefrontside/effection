@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from 'react';
-import { Subscription } from '@effection/subscription';
+import { Subscription } from 'effection';
 import { EffectionContext } from './context';
 
 export function useSubscription<T>(subscription: Subscription<T>): T | undefined {

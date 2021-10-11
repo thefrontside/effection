@@ -1,5 +1,4 @@
-import { sleep } from '@effection/core';
-import { main } from '@effection/main';
+import { sleep, main } from 'effection';
 
 import { runInspectServer } from '../src/index';
 

@@ -1,4 +1,4 @@
-import { Operation, Resource } from '@effection/core';
+import { Operation, Resource } from 'effection';
 import { OutputStream } from '../output-stream';
 
 // TODO: import from subscription package once #236 is merged

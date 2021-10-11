@@ -1,8 +1,6 @@
 import WebSocket from 'isomorphic-ws';
 
-import { spawn, ensure, Resource, Operation } from '@effection/core';
-import { createQueue, Subscription } from '@effection/subscription';
-import { on, once } from '@effection/events';
+import { on, once, spawn, ensure, createQueue, Resource, Operation, Subscription } from 'effection';
 
 export interface WebSocketClient<TIncoming = unknown, TOutgoing = TIncoming> extends Subscription<TIncoming> {
   send(message: TOutgoing): Operation<void>;

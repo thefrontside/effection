@@ -23,7 +23,7 @@
     "docs": "echo noop"
   },
   "dependencies": {
-    "@effection/inspect-server": "^2.0.0"
+    "@effection/inspect-server": "2.0.0"
   },
   "volta": {
     "node": "12.16.0",

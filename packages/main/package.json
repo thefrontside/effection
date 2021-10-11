@@ -28,7 +28,7 @@
     "mocha": "mocha -r ts-node/register"
   },
   "dependencies": {
-    "@effection/core": "^2.0.0",
+    "@effection/core": "2.0.0",
     "chalk": "^4.1.2",
     "stacktrace-parser": "^0.1.10"
   },

@@ -2,8 +2,7 @@ import { describe, it, beforeEach, afterEach } from '@effection/mocha';
 import expect from 'expect';
 import fetch from 'node-fetch';
 
-import '@effection/mocha';
-import { run, Task, createFuture } from '@effection/core';
+import { run, Task, createFuture } from 'effection';
 
 import { daemon, Process } from '../src';
 

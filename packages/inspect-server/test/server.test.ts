@@ -1,7 +1,7 @@
 import { describe, it } from '@effection/mocha';
 import expect from 'expect';
 
-import { spawn } from '@effection/core';
+import { spawn } from 'effection';
 import { ClientMessage } from '@effection/inspect-utils';
 import { createWebSocketClient, WebSocketClient } from '@effection/websocket-client';
 import { createInspectServer, InspectServer } from '../src/index';

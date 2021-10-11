@@ -1,6 +1,6 @@
 import expect from 'expect';
 import { describe, it } from '@effection/mocha';
-import { createStream } from '@effection/stream';
+import { createStream } from 'effection';
 
 import { createOutputStream } from '../src/output-stream';
 

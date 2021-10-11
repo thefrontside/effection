@@ -1,4 +1,4 @@
-import { Task, spawn } from '@effection/core';
+import { Task, spawn } from 'effection';
 import { describe, it, beforeEach, captureError } from '@effection/mocha';
 import expect from 'expect';
 

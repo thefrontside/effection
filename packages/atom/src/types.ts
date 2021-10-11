@@ -1,4 +1,4 @@
-import { Stream } from '@effection/stream';
+import { Stream } from 'effection';
 
 /**
  * A slice represents a piece of the atom. Each part of the state can be

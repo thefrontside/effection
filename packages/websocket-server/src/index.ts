@@ -1,8 +1,6 @@
 import { Server } from 'ws';
 
-import { spawn, ensure, Resource, Operation } from '@effection/core';
-import { createQueue, Subscription } from '@effection/subscription';
-import { on, once } from '@effection/events';
+import { spawn, ensure, createQueue, on, once, Subscription, Resource, Operation } from 'effection';
 import http from 'http';
 import { AddressInfo } from 'net';
 

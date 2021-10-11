@@ -1,4 +1,4 @@
-import { spawn, Resource } from '@effection/core';
+import { spawn, Resource } from 'effection';
 
 import { exec, Process, ExecOptions, ExitStatus, DaemonExitError } from './exec';
 

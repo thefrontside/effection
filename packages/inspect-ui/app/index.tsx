@@ -1,4 +1,4 @@
-import { main } from '@effection/main';
+import { main } from 'effection';
 import { createWebSocketClient, WebSocketClient } from '@effection/websocket-client';
 import { EffectionContext } from '@effection/react';
 import { InspectTree } from '@effection/inspect-utils';

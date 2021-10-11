@@ -1,6 +1,4 @@
-import { TaskInfo, Operation, Labels, Task, Resource, spawn, StateTransition } from '@effection/core';
-import { on } from '@effection/events';
-import { Subscription } from '@effection/subscription';
+import { TaskInfo, Operation, Labels, Task, Resource, spawn, StateTransition, on, Subscription } from 'effection';
 import { createAtom, Slice } from '@effection/atom';
 
 export interface InspectTree extends TaskInfo {

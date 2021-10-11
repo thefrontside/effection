@@ -28,9 +28,7 @@
     "mocha": "mocha -r ts-node/register"
   },
   "dependencies": {
-    "@effection/core": "^2.0.0",
-    "@effection/events": "^2.0.0",
-    "@effection/subscription": "^2.0.0",
+    "effection": "^2.0.0",
     "ws": "^7.4.6"
   },
   "devDependencies": {

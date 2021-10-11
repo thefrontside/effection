@@ -28,13 +28,13 @@
     "prepack": "tsc --build tsconfig.esm.json && tsc --build tsconfig.cjs.json && cpy ../../README.md ."
   },
   "dependencies": {
-    "@effection/channel": "^2.0.0",
-    "@effection/core": "^2.0.0",
-    "@effection/events": "^2.0.0",
-    "@effection/fetch": "^2.0.0",
-    "@effection/main": "^2.0.0",
-    "@effection/subscription": "^2.0.0",
-    "@effection/stream": "^2.0.0"
+    "@effection/channel": "2.0.0",
+    "@effection/core": "2.0.0",
+    "@effection/events": "2.0.0",
+    "@effection/fetch": "2.0.0",
+    "@effection/main": "2.0.0",
+    "@effection/subscription": "2.0.0",
+    "@effection/stream": "2.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.14.8",

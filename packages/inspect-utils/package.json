@@ -29,10 +29,7 @@
   },
   "dependencies": {
     "@effection/atom": "^2.0.0",
-    "@effection/channel": "^2.0.0",
-    "@effection/core": "^2.0.0",
-    "@effection/events": "^2.0.0",
-    "@effection/subscription": "^2.0.0"
+    "effection": "^2.0.0"
   },
   "devDependencies": {
     "@frontside/tsconfig": "^1.2.0",

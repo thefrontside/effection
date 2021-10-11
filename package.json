@@ -15,18 +15,18 @@
       "packages/stream",
       "packages/events",
       "packages/channel",
+      "packages/fetch",
+      "packages/effection",
       "packages/duplex-channel",
       "packages/atom",
       "packages/process",
-      "packages/fetch",
       "packages/react",
       "packages/websocket-client",
       "packages/websocket-server",
       "packages/inspect-utils",
       "packages/inspect-ui",
       "packages/inspect-server",
-      "packages/inspect",
-      "packages/effection"
+      "packages/inspect"
     ]
   },
   "scripts": {

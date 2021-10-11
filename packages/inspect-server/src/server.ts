@@ -1,7 +1,6 @@
 import { inspect, ClientMessage, ServerMessage, InspectTree } from '@effection/inspect-utils';
 import { appDir } from '@effection/inspect-ui';
-import { Effection, Resource, Task, ensure, spawn } from '@effection/core';
-import { once } from '@effection/events';
+import { Effection, Resource, Task, ensure, once, spawn } from 'effection';
 import { Slice } from '@effection/atom';
 
 import { createServer } from 'http';

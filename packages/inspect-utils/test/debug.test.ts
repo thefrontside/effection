@@ -1,7 +1,7 @@
 import { describe, it } from '@effection/mocha';
 import expect from 'expect'
 
-import { Task, sleep, spawn } from '@effection/core';
+import { Task, sleep, spawn } from 'effection';
 import { Slice } from '@effection/atom';
 import { inspect, InspectTree } from '../src/index';
 

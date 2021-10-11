@@ -1,5 +1,5 @@
 import TestRenderer from 'react-test-renderer';
-import { ensure, Effection, Resource } from '@effection/core';
+import { ensure, Effection, Resource } from 'effection';
 import { EffectionContext } from '../src/index';
 import React from 'react';
 

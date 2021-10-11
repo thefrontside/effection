@@ -1,5 +1,4 @@
-import { Operation } from '@effection/core';
-import { Stream, createStream } from '@effection/stream';
+import { Operation, Stream, createStream } from 'effection';
 
 export type Callback<T,TReturn> = (publish: (value: T) => void) => Operation<TReturn>;
 

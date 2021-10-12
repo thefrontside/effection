@@ -1,5 +1,11 @@
 # @effection/inspect
 
+## \[2.0.1]
+
+- workaround borked 2.0 release https://status.npmjs.org/incidents/wy4002vc8ryc
+  - Bumped due to a bump in @effection/inspect-server.
+  - [97711a7](https://github.com/thefrontside/effection/commit/97711a77419c8e539bff3060a9f3c1bae947f9b8) Work around borked NPM release on 2021-10-12
+
 ## \[2.0.0]
 
 - Release Effection 2.0.0

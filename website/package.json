@@ -10,10 +10,14 @@
     "serve": "docusaurus serve"
   },
   "dependencies": {
-    "@docusaurus/core": "2.0.0-alpha.69",
-    "@docusaurus/preset-classic": "2.0.0-alpha.69",
+    "@docusaurus/core": "2.0.0-beta.3",
+    "@docusaurus/preset-classic": "2.0.0-beta.3",
     "@mdx-js/react": "^1.5.8",
+    "@vanilla-extract/css": "^1.6.2",
+    "@vanilla-extract/css-utils": "^0.1.1",
+    "@vanilla-extract/webpack-plugin": "^2.1.0",
     "clsx": "^1.1.1",
+    "downshift": "^6.1.7",
     "email-validator": "^2.0.4",
     "jsonp": "^0.2.1",
     "react": "^16.8.4",

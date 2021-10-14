@@ -1,10 +1,10 @@
 module.exports = {
   title: 'Effection',
-  tagline: 'Effects made easy',
+  tagline: 'Structured Concurrency for JavaScript',
   url: 'https://frontside.com',
   baseUrl: '/effection/',
   onBrokenLinks: 'throw',
-  favicon: 'images/favicon.png',
+  favicon: 'images/favicon-effection.png',
   organizationName: 'thefrontside',
   projectName: 'effection',
   themeConfig: {
@@ -18,20 +18,19 @@ module.exports = {
     navbar: {
       title: 'Effection',
       logo: {
-        alt: '',
-        src: 'images/effection-icon.png'
+        alt: 'Effection',
+        src: 'images/effection-logo.svg'
       },
       items: [
         {
           to: '/docs',
           label: 'Guides',
-          position: 'left'
+          position: "right",
         },
         {
           href: 'https://frontside.com/effection/api/index.html',
           label: 'API Reference',
-          position: 'left',
-          sameWindow: true
+          position: 'right',
         },
         {
           href: 'https://github.com/thefrontside/effection',
@@ -49,6 +48,32 @@ module.exports = {
       style: 'light',
       links: [
         {
+          title: 'About',
+          items: [
+            {
+              label: "Maintained by Frontside",
+              href: "https://fronside.com/",
+            },
+          ]
+        },
+        {
+          title: "OSS Projects",
+          items: [
+            {
+              label: "Interactors",
+              to: "/",
+            },
+            {
+              label: "Bigtest",
+              href: "https://frontside.com/bigtest",
+            },
+            {
+              label: "Effection",
+              href: "https://frontside.com/effection",
+            },
+          ],
+        },
+        {
           title: 'Community',
           items: [
             {
@@ -64,7 +89,7 @@ module.exports = {
       ],
       copyright: `Copyright © ${new Date().getFullYear()} The Frontside Software, Inc.`,
     },
-    image: 'images/meta-image.png'
+    image: 'images/meta-effection.png'
   },
   presets: [
     [
@@ -79,7 +104,21 @@ module.exports = {
       },
     ],
   ],
-  stylesheets: [
-    'https://use.typekit.net/gyc5wys.css'
+  stylesheets: ["https://use.typekit.net/ugs0ewy.css"],
+  plugins: [
+    [
+      require.resolve("./plugins/docusaurus-plugin-vanilla-extract"),
+      {
+        /* options */
+      },
+    ],
+  ],
+  scripts: [
+    {
+      src: "https://plausible.io/js/plausible.js",
+      async: true,
+      defer: true,
+      "data-domain": "frontside.com",
+    },
   ],
 };

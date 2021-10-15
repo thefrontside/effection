@@ -50,6 +50,10 @@ globalStyle(`.markdown > blockquote`, markdownBlockDescription);
 globalStyle('.markdown > .admonition-note', markdownBlockDescription);
 globalStyle('.markdown > .tabs-container', markdownBlockDescription);
 
+globalStyle('.markdown a', {
+  textDecoration: 'underline',
+});
+
 globalStyle('.markdown h1', {
   fontSize: vars.fontSize['3xl'],
   lineHeight: vars.lineHeights['3xl'],

@@ -4,19 +4,18 @@ import vars, {
   desktopQuery,
 } from "../../css/frontside-theme.css";
 import { globalStyle, style, styleVariants } from "@vanilla-extract/css";
-import { pageWrap } from "../../css/page.css";
-import { headingLg, headingMd, textBlue, textGradientDemiSkybluePink, textGradientPinkViolet, textGradientSkybluePurple, textMd, textSm, textWhiteDashBlue } from "../../css/typography.css";
+import { layoutWrap } from "../../css/page.css";
+import { headingMd, textBlue, textGradientPinkViolet, textGradientSkybluePink, textGradientPurpleViolet, textSm } from "../../css/typography.css";
 import { calc } from "@vanilla-extract/css-utils";
 
 const navWrap = style([
-  pageWrap,
+  layoutWrap,
   {
     display: "flex",
     flexFlow: "row wrap",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingTop: vars.space.sm,
-    paddingBottom: vars.space.sm,
+    padding: vars.space.sm,
     position: 'sticky',
     top: 0,
     zIndex: 300,
@@ -27,8 +26,8 @@ const navWrap = style([
       [desktopQuery]: {
         marginTop: vars.space.xs,
         borderRadius: vars.radius.md,
-        paddingTop: vars.space.sm,
-        paddingBottom: vars.space.sm,
+        paddingRight: vars.space.md,
+        paddingLeft: vars.space.md,
       },
       [darkThemeQuery]: {
         boxShadow: `0 3px 6px rgba(0, 0, 0, 0.5)`,
@@ -43,11 +42,16 @@ const interactorsNav = style({
 
 const effectionNav = style({
   backgroundImage: `linear-gradient(45deg, ${vars.colors.blue} -5%, ${vars.colors.violet}, ${vars.colors.skyblue} 105%)`,
-})
+});
+
+const bigtestNav = style({
+  backgroundImage: `linear-gradient(45deg, ${vars.colors.blue} -5%, ${vars.colors.violet}, ${vars.colors.blue} 105%)`,
+});
 
 export const navBar = styleVariants({
   'Interactors': [navWrap, interactorsNav],
   'Effection': [navWrap, effectionNav],
+  'Bigtest': [navWrap, bigtestNav],
   default: [navWrap]
 });
 
@@ -162,8 +166,6 @@ export const projectItem = style({
 
 export const projectItemHighlighted = style([projectItem, {
   background: 'rgba(38, 171, 232, 0.10);',
-  // background: vars.colors.violet,
-  // color: vars.colors.white,
 }]);
 
 export const projectTitle = style([headingMd, textBlue, {
@@ -174,10 +176,12 @@ export const projectTitle = style([headingMd, textBlue, {
 
 export const projectCurrent = styleVariants({
   'Interactors': [projectTitle, textGradientPinkViolet],
-  'Effection': [projectTitle, textGradientSkybluePurple],
+  'Effection': [projectTitle, textGradientSkybluePink],
+  'Bigtest': [projectTitle, textGradientPurpleViolet],
   default: [projectTitle],
 });
 
 export const projectDescription = style([textSm, textBlue, {
   marginBottom: 0,
+  display: 'block',
 }]);

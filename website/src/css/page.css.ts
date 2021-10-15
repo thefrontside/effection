@@ -2,17 +2,14 @@ import { style } from '@vanilla-extract/css';
 import { calc } from '@vanilla-extract/css-utils';
 import vars, { laptopQuery, desktopQuery } from './frontside-theme.css';
 
-export const pageWrap = style({
+export const layoutWrap = style({
   boxSizing: 'border-box',
-  width: '100vw',
+  width: '100%',
   overflow: 'hidden',
-  padding: vars.space.sm,
   maxWidth: '37rem',
   margin: '0 auto',
-
   '@media': {
     [laptopQuery]: {
-      padding: vars.space.md,
       maxWidth: vars.pixelBase.maxWdith,
     },
     [desktopQuery]: {
@@ -20,6 +17,15 @@ export const pageWrap = style({
     },
   }
 });
+
+export const pageWrap = style([layoutWrap, {
+  padding: vars.space.sm,
+  '@media': {
+    [laptopQuery]: {
+      padding: vars.space.md,
+    },
+  }
+}]);
 
 export const heroWrap = style([pageWrap, {
   '@media': {

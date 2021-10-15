@@ -1,4 +1,4 @@
-import { globalStyle, style } from '@vanilla-extract/css';
+import { style } from '@vanilla-extract/css';
 import { calc } from '@vanilla-extract/css-utils';
 import vars, { darkThemeQuery, laptopQuery, desktopQuery } from './frontside-theme.css';
 
@@ -281,6 +281,10 @@ export const textGradientSkyblueVioletPink = style([clipBackgroundToText, {
 
 export const textGradientPinkViolet = style([clipBackgroundToText, {
   backgroundImage: `linear-gradient(90deg, ${vars.colors.pink}, ${vars.colors.violet})`,
+}]);
+
+export const textGradientPurpleViolet = style([clipBackgroundToText, {
+  backgroundImage: `linear-gradient(90deg, ${vars.colors.purple}, ${vars.colors.violet})`,
 }]);
 
 export const textBottomGradient = style({

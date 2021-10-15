@@ -61,7 +61,7 @@ module.exports = {
           items: [
             {
               label: "Interactors",
-              to: "/",
+              href: "https://frontside.com/effection",
             },
             {
               label: "Bigtest",
@@ -69,7 +69,7 @@ module.exports = {
             },
             {
               label: "Effection",
-              href: "https://frontside.com/effection",
+              to: "/",
             },
           ],
         },
@@ -118,7 +118,7 @@ module.exports = {
       src: "https://plausible.io/js/plausible.js",
       async: true,
       defer: true,
-      "data-domain": "frontside.com",
+      "data-domain": "frontside.com/effection",
     },
   ],
 };

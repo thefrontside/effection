@@ -30,6 +30,7 @@
   --ifm-link-hover-color: var(--fs-text-color); /* .hash-link controls, this is hover for all links # */
   --ifm-footer-color: var(--fs-text-color);
   --ifm-link-hover-decoration: none;
+  --ifm-menu-link-sublist-icon: url(/images/dropdown-arrow.svg);
 }
 
 .main-wrapper {

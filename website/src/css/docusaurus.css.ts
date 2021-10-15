@@ -1,6 +1,6 @@
 import { globalStyle } from '@vanilla-extract/css';
 import { calc } from '@vanilla-extract/css-utils';
-import vars, { darkThemeQuery, laptopQuery, desktopQuery } from './frontside-theme.css';
+import vars, { darkThemeQuery, laptopQuery } from './frontside-theme.css';
 
 globalStyle('.container', {
   maxWidth: '37rem',
@@ -141,3 +141,9 @@ globalStyle('.footer__col', {
 globalStyle('.footer__copyright', {
   fontSize: vars.fontSize.xs
 })
+
+globalStyle('.menu__link--sublist:after', {
+  backgroundSize: '100%',
+  minWidth: '0.8rem',
+  height: '0.8rem',
+});

@@ -7,133 +7,30 @@
 
 /* You can override the default Infima variables here. */
 :root {
-  --ifm-background-color: #fff;
-  --ifm-color-primary: #14315D;
-  --ifm-color-primary-dark: #14315D;
-  --ifm-color-primary-darker: #14315D;
-  --ifm-color-primary-darkest: #14315D;
-  --ifm-color-primary-light: #14315D;
-  --ifm-color-primary-lighter: #14315D;
-  --ifm-color-primary-lightest: #14315D;
-  --color-over-primary: #fff;
-  --ifm-code-font-size: 95%;
-  --ifm-heading-color: #14315D;
-  --ifm-sub-heading-color: #4f6586;
-  --ifm-navbar-height: 80px;
-  --ifm-container-width: 1346px;
-  --ifm-spacing-horizontal: 33px;
-  --ifm-toc-border-color: rgba(224, 224, 224, 0.5);
-  --ifm-navbar-shadow: 0 1px 0px var(--ifm-toc-border-color);
-  --ifm-code-font-size: 0.80em;
-  --ifm-navbar-link-color: var(--ifm-color-primary);
+  --fs-white: #fff;
+  --fs-black: #0e151d;
   --fs-pink: #f74d7b;
+  --fs-blue: #14315d;
   --fs-skyblue: #26abe8;
+  --fs-violet: #44378a;
+  --fs-green: #33a38d;
+  --fs-text-color: var(--fs-blue);
+  --ifm-container-width: 1440px;
+  --ifm-toc-border-color: rgba(224, 224, 224, 0.0);
+  --ifm-alert-color: white;
+  --ifm-alert-background-color: var(--fs-violet);
+  --ifm-color-secondary: var(--fs-violet); /* .alert--secondary controls hard coded color */
+  --ifm-alert-color: var(--fs-white);
+  --ifm-color-primary: var(--fs-text-color);
+  --ifm-color-info: var(--fs-green); /* color controled by --ifm-alert-color */
+
+  --ifm-tabs-color-active: var(--fs-pink);
+  --ifm-tabs-color: var(--fs-text-color);
+  --ifm-link-color: var(--fs-text-color);
+  --ifm-link-hover-color: var(--fs-text-color); /* .hash-link controls, this is hover for all links # */
+  --ifm-footer-color: var(--fs-text-color);
   --ifm-link-hover-decoration: none;
-  --ra-color-text-dark: var(--ifm-color-primary);
-  --font-family: proxima-nova, sans-serif;
-  --size-med-sm: 20px;
-}
-
-html[data-theme='dark'] {
-  --ifm-color-content: #CCCCCC;
-  --ifm-color-primary: white;
-  --ifm-color-primary-dark: white;
-  --ifm-color-primary-darker: white;
-  --ifm-color-primary-darkest: white;
-  --ifm-color-primary-light: white;
-  --ifm-color-primary-lighter: white;
-  --ifm-color-primary-lightest: white;
-  --color-over-primary: #14315D;
-  --ifm-heading-color: white;
-  --ifm-sub-heading-color: #95acce;
-  --ifm-navbar-background-color: var(--ifm-background-color);
-  --ifm-toc-border-color: rgba(92, 92, 92, 0.5);
-}
-
-.docusaurus-highlight-code-line {
-  /* background-color: rgb(72, 77, 91); */
-  display: block;
-  margin: 0 calc(-1 * var(--ifm-pre-padding));
-  padding: 0 var(--ifm-pre-padding);
-}
-
-body {
-  font-family: proxima-nova, sans-serif;
-  font-size: 18px;
-  line-height: 27px;
-  font-weight: normal;
-}
-
-.docSidebarContainer_node_modules-\@docusaurus-theme-classic-lib-theme-DocPage- {
-  width: 320px;
-}
-
-.navbar {
-  max-width: var(--ifm-container-width);
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: var(--ifm-spacing-horizontal);
-  padding-right: var(--ifm-spacing-horizontal);
-}
-
-.navbar__link[href$="interactors"] {
-  width: 164px;
-  text-align: center;
-}
-
-.navbar__link[href$="interactors"]:after {
-  content: 'beta';
-  font-size: 0.7em;
-  padding: 1px 2px;
-  border: 1px solid var(--fs-pink);
-  color: var(--fs-pink);
-  border-radius: 5px;
-  margin-left: 0.5rem;
-  text-transform: uppercase;
-  font-weight: normal;
-}
-
-.navbar__link[href$="platform"] {
-  width: 156px;
-  text-align: center;
-}
-
-.navbar__link[href$="platform"]:after {
-  content: 'alpha';
-  font-size: 0.7em;
-  padding: 1px 2px;
-  border: 1px solid var(--ifm-sub-heading-color);
-  color: var(--ifm-sub-heading-color);
-  border-radius: 5px;
-  margin-left: 0.5rem;
-  text-transform: uppercase;
-  font-weight: normal;
-}
-
-.navbar__link {
-  letter-spacing: 0.05px;
-}
-
-.navbar__link--active {
-  position: relative;
-  font-weight: bold;
-  letter-spacing: 0px;
-}
-
-.navbar__brand {
-  width: 125px;
-}
-
-@media screen and (min-width: 997px) {
-  .navbar__link--active:before {
-    content: '';
-    width: 100%;
-    height: 2px;
-    background: linear-gradient(-90deg, #26abe8, #f74d7b);
-    position: absolute;
-    bottom: -21px;
-    left: 0;
-  }
+  --ifm-menu-link-sublist-icon: url(/images/dropdown-arrow.svg);
 }
 
 .main-wrapper {
@@ -143,168 +40,23 @@ body {
   margin-right: auto;
 }
 
-.docSidebarContainer_node_modules-\@docusaurus-theme-classic-lib-theme-DocPage- {
-  flex-shrink: 0;
-}
-
-.docMainContainer_node_modules-\@docusaurus-theme-classic-lib-theme-DocPage- {
-  width: 100%;
-}
-
-@media screen and (min-width: 997px) {
-  .docMainContainer_node_modules-\@docusaurus-theme-classic-lib-theme-DocPage- {
-    width: calc(100% - 300px);
+@media screen and (prefers-color-scheme: dark) {
+  :root {
+    --fs-text-color: var(--fs-white);
+    --ifm-menu-color: #8c96a3;
+    --ifm-toc-link-color: #8c96a3;
+    --ifm-background-surface-color: #242526;
+    --ifm-footer-background-color: #242526;
+    --ifm-footer-link-color: var(--fs-white);
   }
 }
 
-.menu.menu--responsive.thin-scrollbar {
-  margin-top: 2rem;
+.markdown .alert--secondary {
+  --ifm-alert-color: var(--fs-white);
+  --ra-admonition-color: var(--fs-white);
 }
 
-.menu__link {
-  border: 1px solid transparent;
-}
-
-.menu__link--active:not(.menu__link--sublist) {
-  border: 1px solid var(--ifm-color-primary);
-  color: var(--ifm-color-primary);
-  background: none;
-}
-
-.markdown > p {
-  font-size: 20px;
-  line-height: 30px;
-}
-
-.markdown a[href] {
+.alert a {
   text-decoration: none;
-  color: var(--ifm-color-content);
-  border-bottom: 1px dotted var(--ifm-color-content);
-  display: inline-block;
-  line-height: 25px;
-  margin-bottom: 2px;
-}
-
-.markdown a.hash-link, a.hash-link {
-  color: var(--fs-pink);
-  border: none;
-}
-
-.markdown a:hover {
-  border-color: var(--fs-pink);
-}
-
-.table-of-contents {
-  font-size: 1rem;
-  line-height: 1.3rem;
-  padding: 0;
-}
-
-.table-of-contents > li {
-  padding: 0;
-  margin: 0;
-  margin-bottom: 1rem;
-  margin-left: -1px;
-}
-
-.table-of-contents__link {
-  display: block;
-  position: relative;
-  padding-left: 10px;
-}
-.table-of-contents__link:before {
-  content: '';
-  display: block;
-  background: transparent;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 2px;
-  height: 100%;
-}
-.table-of-contents__link--active:before {
-  background: linear-gradient(0deg, #26abe8, #f74d7b);
-}
-
-.footer {
-  background: none;
-  padding: 0;
-  font-size: 20px;
-  text-align: center;
-}
-
-.footer .text--center {
-  font-size: 15px;
-  text-transform: uppercase;
-  margin-top: 40px;
-}
-
-.footer__link-item {
-  text-decoration: none;
-}
-
-.footer .container {
-  border-top: 1px solid var(--ifm-toc-border-color);
-  padding-top: 40px;
-  padding-bottom: 40px;
-}
-
-.footer__title {
   font-weight: bold;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  font-size: 0.8rem;
-}
-
-.interactors-hero-tabs .maybe-class-name {
-  /* color: var(--fs-pink) !important; */
-  font-weight: bold;
-  background-image: linear-gradient(45deg,#ec6999,#59aae9 95%);
-  text-align: center;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.interactors-hero-tabs .punctuation + .punctuation + .property-access {
-  color: #db95c2 !important;
-  font-weight: bold;
-}
-
-.interactors-hero-tabs .token-line {
-  margin-top: 0.6rem;
-  margin-bottom: 0.6rem;
-}
-
-.tabs__item {
-  padding: 0.3rem 1rem;
-  border-radius: var(--ifm-global-radius);
-  border: 1px solid transparent;
-  color: var(--ifm-sub-heading-color);
-  margin-right: 0.5rem;
-}
-
-.tabs__item.tabs__item--active {
-  background: none;
-  border-bottom: none;
-  border-radius: var(--ifm-global-radius);
-  border: 1px solid var(--ifm-color-primary);
-  color: var(--ifm-color-primary);
-}
-
-.admonition h5 {
-  color: var(--ra-admonition-icon-color);
-}
-
-.alert--secondary {
-  --ifm-alert-background-color: #25abe826;
-  --ifm-alert-border-color: #25abe826;
-  --ifm-alert-color: var(--ifm-font-color-base);
-}
-
-.alert--info {
-  --ifm-alert-background-color: #ff92ae2e;
-  --ifm-alert-border-color: var(--fs-pink);
-  --ifm-alert-color: var(--ifm-font-color-base);
-  --ra-admonition-icon-color: var(--fs-pink);
 }

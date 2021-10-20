@@ -115,6 +115,7 @@ workflows:
                 - events
                 - channel
                 - duplex-channel
+                - dispatch
                 - fetch
                 - process
                 - atom

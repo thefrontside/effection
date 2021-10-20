@@ -40,7 +40,7 @@ you're dealing correctly with errors in all of them?
 
 The solution seems clear: adopt the ideas of structured concurrency, and apply
 them to JavaScript.  We have experimented with these ideas for a while at
-Frontside, and out of this experimentation we've created a framework which has
+[Frontside][], and out of this experimentation we've created a framework which has
 changed the way we write and think about JavaScript systems. This process has
 been challenging and exciting, and we think that we've built something which is
 useful far beyond our own team and our own needs. [Effection][] is a
@@ -78,6 +78,9 @@ async function fetchSomeUsers() {
 }
 ```
 
+> Note: we could have used `Promise.all` for this, the resulting behaviour
+> would be the same.
+
 It looks like the `fetchSomeUsers` function is nice and self contained, but it
 is really not. We start fetching two users, but both of those fetches are in no
 way tied to the `fetchSomeUsers` function. They run in the background, and no
@@ -101,6 +104,26 @@ Even ages after the `fetchUser` function has finished, it will still print
 something to the console. We obviously can't close the existing loopholes,
 such as `setTimeout`, but as long as you are writing idiomatic Effection code,
 something like the above just cannot happen.
+
+Or let's imagine that our `fetchSomeUsers` fails for some reason:
+
+```javascript
+async function fetchSomeUsers() {
+  let userOne = fetchUser(1);
+  let userTwo = fetchUser(2);
+  throw new Error('boom');
+  return {
+    one: await userOne,
+    two: await userTwo,
+  }
+}
+```
+
+What will happen in this case? `fetchUser(1)` and `fetchUser(2)` will happily
+keep running, even though the `fetchSomeUsers` function which initially called
+them has already failed.
+
+![fetchSomeUsers timing with async/await](/images/fetch-async-await.svg)
 
 Let's look at the initial example again, this time using Effection:
 
@@ -131,6 +154,8 @@ Moreover, no task that `fetchUser` spawns can outlive `fetchUser` either.
 Effection tasks ensure that everything that happens within the task stays
 within the task.
 
+![fetchSomeUsers timing with async/await](/images/fetch-effection.svg)
+
 This might seem like a trivial thing, but the implications are profound. For
 example: Effection ships with a special operation called `withTimeout`, this
 adds a time limit to any task, and if it is exceeded, an error is thrown. We
@@ -157,7 +182,14 @@ Structured concurrency allows us to build abstractions which would otherwise
 be impossible to build, and this is the power of Effection. We think it is a
 fundamentally better way to write JavaScript.
 
-### The Future
+### Going further
+
+There is much more to Effection than what we've shown here. Our vision is a
+framework which not only allows you to write rock solid code, but also gives
+you amazing insight into your application through our experimental
+[inspector][]. If you're curious to learn more, the [guides][] explain in
+greater detail how to use Effection. The [API Reference][] contains a complete
+reference of all methods and types that Effection provides.
 
 We are a small but dedicated team, and we're tackling an ambitious problem with
 an ambitious solution. There is boundless work to be done, and boundless ideas
@@ -165,6 +197,10 @@ to explore. Do you want to join us in this journey? Come hang out with us [on
 discord][discord], where we occasionally stream our work, and are always interested in
 discussing where to go next.
 
+[Frontside]: http://frontside.com/effection
 [Effection]: http://frontside.com/effection
 [structured concurrency]: https://vorpus.org/blog/notes-on-structured-concurrency-or-go-statement-considered-harmful/
 [discord]: https://discord.gg/Ug5nWH8
+[guides]: http://frontside.com/effection/docs/guides/introduction
+[API Reference]: https://frontside.com/effection/api/index.html
+[inspector]: http://frontside.com/effection/docs/guides/inspector

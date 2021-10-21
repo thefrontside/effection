@@ -1,6 +1,7 @@
 import { Queue, Subscription, createQueue } from 'effection';
 
 type Close<T> = T extends undefined ? (() => void) : ((result: T) => void);
+type CloseKey<K, T> = T extends undefined ? ((key: K) => void) : ((key: K, result: T) => void);
 
 /**
  * A dispatch object which dispatches messages by key. See {@link createDispatch}.
@@ -30,6 +31,11 @@ export interface Dispatch<K, V, TClose = undefined> {
    * Close all subscriptions
    */
   close: Close<TClose>
+
+  /**
+   * Close the subscription with the given key
+   */
+  closeKey: CloseKey<K, TClose>
 }
 
 /**
@@ -68,6 +74,15 @@ export function createDispatch<K, V, TClose = undefined>(): Dispatch<K, V, TClos
       for(let [, value] of map) {
         value.closeWith(result);
       }
-    }) as Close<TClose>
+      map.clear();
+    }) as Close<TClose>,
+
+    closeKey: ((key, result) => {
+      let queue = map.get(key);
+      if(queue) {
+        queue.closeWith(result);
+        map.delete(key);
+      }
+    }) as CloseKey<K, TClose>
   };
 }

@@ -40,5 +40,15 @@ describe('Dispatch', () => {
       expect(yield foo).toEqual(12);
       expect(yield bar).toEqual(12);
     });
+
+    it('closes specific subscription', function*() {
+      let foo = yield spawn(dispatch.get('foo').next());
+      let bar = yield spawn(dispatch.get('bar').next());
+      dispatch.closeKey('foo', 12);
+      dispatch.send('bar', { text: 'hello' });
+
+      expect(yield foo).toEqual({ done: true, value: 12 });
+      expect(yield bar).toEqual({ done: false, value: { text: 'hello' } });
+    });
   });
 });

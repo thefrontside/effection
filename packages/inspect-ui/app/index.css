@@ -21,37 +21,20 @@ h1 {
 }
 
 .task {
-  border: 1px solid #ccc;
-  background: #fafafa;
-  padding: 0.4rem 0.8rem 0.4rem 1.6rem;
-  border-radius: 0.3rem;
   position: relative;
   overflow: hidden;
 }
 
-.task.running {
-  border-color: rgb(61, 210, 255);
+.task.halting .task--title--name, .task.halted .task--title--name {
+  color: #ccc;
 }
 
-.task.errored, .task.erroring {
-  border-color: rgb(189, 0, 0);
+.task.errored .task--title--name, .task.erroring .task--title--name {
+  color: rgb(189, 0, 0);
 }
 
-.task.completing, .task.completed {
-  border-color: rgb(33, 186, 79);
-}
-
-.task--state {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: 1rem;
-  line-height: 100%;
-  padding: 0.4rem 0 0 0.3rem;
-  color: white;
-  font-weight: bold;
-  background: #ccc;
+.task.completing .task--title--name, .task.completed .task--title--name {
+  color: rgb(33, 186, 79);
 }
 
 .task--state.running {
@@ -65,7 +48,6 @@ h1 {
 .task--state.completing, .task--state.completed {
   background: rgb(33, 186, 79);
 }
-
 
 .task--title {
   font-size: 1rem;
@@ -83,13 +65,40 @@ h1 {
   margin: 0.4rem 0 0;
 }
 
+.task--title--expand {
+  width: 1.3rem;
+  height: 1.3rem;
+  border-radius: 0.3rem;
+  border: 1px solid #aaa;
+  color: #444;
+  background-color: transparent;
+}
+
+.task--title--expand.disabled {
+  border-color: #eee;
+}
+
+.task--title--yield {
+  font-weight: bold;
+  color: rgb(168, 18, 255);
+}
+
 .task--title--name {
+}
+
+.task--title--icon {
+  width: 1rem;
+  margin-right: 0.4rem;
+}
+
+.task--title--icon img {
+  width: 1.2rem;
+  height: 1.2rem;
 }
 
 .task--title--type {
   font-weight: normal;
-  color: #aaa;
-  margin-left: auto;
+  color: #ccc;
 }
 
 .task--title--id {
@@ -116,21 +125,28 @@ h1 {
 .task--label {
   display: inline-block;
   margin-right: 0.2rem;
-  background: rgb(31, 124, 143);
-  color: white;
+  background: rgb(189, 201, 204);
+  color: rgb(78, 83, 84);
   padding: 0.1rem 0.4rem 0.2rem;
   border-radius: 0.3rem;
   font-size: 0.8rem;
 }
 
 .task--label--title {
-  color: rgb(167, 224, 236);
+  color: rgb(134, 147, 149);
+  padding: 0 0 0.1rem;
   display: inline-block;
   margin-right: 0.3rem;
 }
 
 .task--label--value {
   display: inline-block;
+}
+
+.task--details {
+  border-left: 1px solid #ccc;
+  padding-left: 0.8rem;
+  margin-left: 0.6rem;
 }
 
 .task--details.open {

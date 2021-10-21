@@ -1,7 +1,8 @@
 import { main } from 'effection';
+import { Slice } from '@effection/atom';
 import { createWebSocketClient, WebSocketClient } from '@effection/websocket-client';
 import { EffectionContext } from '@effection/react';
-import { InspectTree } from '@effection/inspect-utils';
+import { ClientMessage, InspectState, inspectState } from '@effection/inspect-utils';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -12,12 +13,14 @@ main(function*(scope) {
   let url = new URL(location.href);
   let port = url.searchParams.get('port') || location.port;
 
-  let client: WebSocketClient<InspectTree> = yield createWebSocketClient(`ws://localhost:${port}`);
+  let client: WebSocketClient<ClientMessage> = yield createWebSocketClient(`ws://localhost:${port}`);
   console.log("Client connected");
+
+  let slice: Slice<InspectState> = yield inspectState(client);
 
   ReactDOM.render(
     <EffectionContext.Provider value={scope}>
-      <App client={client}/>
+      <App slice={slice}/>
     </EffectionContext.Provider>,
     document.querySelector('#app')
   );

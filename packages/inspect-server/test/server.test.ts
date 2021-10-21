@@ -18,9 +18,12 @@ describe("createInspectServer()", () => {
 
     let result: ClientMessage = yield client.expect();
 
-    expect(result.type).toEqual('tree');
-    expect(result.tree.id).toEqual(task.id);
-    expect(result.tree.labels.name).toEqual('foo');
-    expect(result.tree.children[child.id].labels.name).toEqual('bar');
+    expect(result).toEqual({
+      type: 'start',
+      task: expect.objectContaining({
+        id: task.id,
+        labels: { name: 'foo' },
+      })
+    });
   });
 });

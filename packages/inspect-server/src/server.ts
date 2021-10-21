@@ -1,7 +1,6 @@
-import { inspect, ClientMessage, ServerMessage, InspectTree } from '@effection/inspect-utils';
+import { inspect, ClientMessage, ServerMessage } from '@effection/inspect-utils';
 import { appDir } from '@effection/inspect-ui';
 import { Effection, Resource, Task, ensure, once, spawn } from 'effection';
-import { Slice } from '@effection/atom';
 
 import { createServer } from 'http';
 import { Server as StaticServer } from 'node-static';
@@ -33,13 +32,7 @@ export function createInspectServer(options: Options = {}): Resource<InspectServ
         while(true) {
           let connection: WebSocketConnection<ServerMessage, ClientMessage> = yield connections.expect();
 
-          yield spawn(function*() {
-            let slice: Slice<InspectTree> = yield inspect(options.task || Effection.root);
-
-            yield slice.forEach(function*(tree) {
-              yield connection.send({ type: 'tree', tree });
-            });
-          });
+          yield spawn(inspect(options.task || Effection.root).forEach(connection.send));
         }
       });
 

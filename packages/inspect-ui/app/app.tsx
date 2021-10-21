@@ -1,20 +1,20 @@
 import React from 'react';
-import { WebSocketClient } from '@effection/websocket-client';
-import { InspectTree } from '@effection/inspect-utils';
-import { useSubscription } from '@effection/react';
+import { Slice } from '@effection/atom';
+import { useSlice } from '@effection/react';
+import { TaskState } from './task-state';
 import { TaskTree } from './task-tree';
 
 type AppProps = {
-  client: WebSocketClient<InspectTree>;
+  slice: Slice<TaskState>;
 }
 
-export function App({ client }: AppProps): JSX.Element {
-  let message = useSubscription(client);
+export function App({ slice }: AppProps): JSX.Element {
+  let task = useSlice(slice);
   return (
     <div>
       <h1>Effection Inspector</h1>
 
-      {message && <TaskTree tree={message.tree}/>}
+      <TaskTree task={task}/>
     </div>
   );
 }

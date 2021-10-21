@@ -26,13 +26,6 @@
         "effection"
       ]
     },
-    "@effection/dispatch": {
-      "path": "./packages/dispatch",
-      "manager": "javascript",
-      "dependencies": [
-        "effection"
-      ]
-    },
     "@effection/atom": {
       "path": "./packages/atom",
       "manager": "javascript",

@@ -1,37 +1,39 @@
 import { describe, it } from '@effection/mocha';
 import expect from 'expect';
-import { createQueue, sleep, Subscription } from 'effection';
-import { useSubscription } from '../src/index';
+import { createChannel, sleep, Stream } from 'effection';
+import { useStream } from '../src/index';
 import React from 'react';
 import { ReactTestRenderer } from 'react-test-renderer';
 import { render } from './helpers';
 
 type TestComponentProps = {
-  subscription: Subscription<string>;
+  stream: Stream<string>;
 }
 
-describe('useSubscription', () => {
-  it('updates the component when a new value is pushed to the subscription', function*() {
+describe('useStream', () => {
+  it('updates the component when a new value is pushed to the stream', function*() {
     function TestComponent(props: TestComponentProps): JSX.Element {
-      let value = useSubscription(props.subscription);
+      let value = useStream(props.stream);
       return (
         <h1>{value}</h1>
       );
     }
 
-    let queue = createQueue<string>();
+    let channel = createChannel<string>();
     let renderer: ReactTestRenderer = yield render(
-      <TestComponent subscription={queue.subscription}/>
+      <TestComponent stream={channel.stream}/>
     );
+
+    yield sleep(5);
 
     expect(renderer.toJSON()).toMatchObject({ type: 'h1', children: null });
 
-    queue.send("hello");
+    channel.send("hello");
     yield sleep(5);
 
     expect(renderer.toJSON()).toMatchObject({ type: 'h1', children: ['hello'] });
 
-    queue.send("world");
+    channel.send("world");
     yield sleep(5);
 
     expect(renderer.toJSON()).toMatchObject({ type: 'h1', children: ['world'] });
@@ -39,20 +41,22 @@ describe('useSubscription', () => {
 
   it('can set initial value', function*() {
     function TestComponent(props: TestComponentProps): JSX.Element {
-      let value = useSubscription(props.subscription, 'monkey');
+      let value = useStream(props.stream, 'monkey');
       return (
         <h1>{value}</h1>
       );
     }
 
-    let queue = createQueue<string>();
+    let channel = createChannel<string>();
     let renderer: ReactTestRenderer = yield render(
-      <TestComponent subscription={queue.subscription}/>
+      <TestComponent stream={channel.stream}/>
     );
+
+    yield sleep(5);
 
     expect(renderer.toJSON()).toMatchObject({ type: 'h1', children: ['monkey'] });
 
-    queue.send("hello");
+    channel.send("hello");
     yield sleep(5);
 
     expect(renderer.toJSON()).toMatchObject({ type: 'h1', children: ['hello'] });

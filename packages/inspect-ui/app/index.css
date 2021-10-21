@@ -9,15 +9,40 @@ html {
 
 body {
   margin: 0;
-  padding: 1rem;
   font-family: sans-serif;
+  height: 100vh;
+  overflow: hidden;
 }
 
 h1 {
-  margin: 0 0 1rem;
   font-size: 1rem;
   text-transform: uppercase;
   color: #444;
+}
+
+#app {
+  height: 100%;
+}
+
+.inspector {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #f0f0f0;
+}
+
+.inspector--menu {
+  margin: 0.8rem 0.8rem 0;
+}
+
+.inspector--main {
+  border-radius: 0.3rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid #ccc;
+  overflow: auto;
+  flex-grow: 1;
+  margin: 0.8rem;
+  background: white;
 }
 
 .task {

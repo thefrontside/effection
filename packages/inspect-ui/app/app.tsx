@@ -11,10 +11,13 @@ type AppProps = {
 export function App({ slice }: AppProps): JSX.Element {
   let task = useSlice(slice);
   return (
-    <div>
-      <h1>Effection Inspector</h1>
-
-      <TaskTree task={task}/>
+    <div className="inspector">
+      <div className="inspector--menu">
+        <h1>Effection Inspector</h1>
+      </div>
+      <div className="inspector--main">
+        <TaskTree task={task}/>
+      </div>
     </div>
   );
 }

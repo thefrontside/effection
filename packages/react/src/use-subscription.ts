@@ -1,15 +1,11 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState } from 'react';
 import { Subscription } from 'effection';
-import { EffectionContext } from './context';
+import { useOperation } from './use-operation';
 
-export function useSubscription<T>(subscription: Subscription<T>): T | undefined {
-  let scope = useContext(EffectionContext);
-  let [state, setState] = useState<T>();
-
-  useEffect(() => {
-    let task = scope.run(subscription.forEach((value) => { setState(value) }));
-    return () => { task.halt() };
-  }, [subscription, scope]);
-
+export function useSubscription<T>(subscription: Subscription<T>): T | undefined;
+export function useSubscription<T>(subscription: Subscription<T>, initial: T): T;
+export function useSubscription<T>(subscription: Subscription<T>, initial?: T): T | undefined {
+  let [state, setState] = useState<T | undefined>(initial);
+  useOperation(subscription.forEach(function*(value) { setState(value) }), [subscription]);
   return state;
 }

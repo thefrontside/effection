@@ -168,6 +168,34 @@ h1 {
   display: inline-block;
 }
 
+.task--error {
+  border: 1px solid #caa;
+  background: #fee;
+  border-radius: 0.3rem;
+  margin: 0.5rem 0;
+  padding: 0.4rem 0.8rem;
+  font-family: monospace;
+  font-size: 0.8rem;
+  overflow: auto;
+  white-space: nowrap
+}
+
+.task--error--name {
+  display: inline-block;
+  margin-bottom: 1rem;
+  margin-right: 0.4rem;
+  font-weight: bold;
+}
+
+.task--error--message {
+  display: inline-block;
+  margin-bottom: 1rem;
+}
+
+.task--error--stack {
+  white-space: pre;
+}
+
 .task--details {
   border-left: 1px solid #ccc;
   padding-left: 0.8rem;

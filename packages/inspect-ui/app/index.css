@@ -34,6 +34,7 @@ h1 {
 .inspector--menu {
   margin: 0.8rem 0.8rem 0;
   display: flex;
+  align-items: center;
 }
 
 .inspector--menu--title {
@@ -41,12 +42,24 @@ h1 {
 }
 
 .inspector--menu--toolbar button {
-  padding: 0.2rem 0.3rem;
+  padding: 0.3rem 0.4rem;
   background: white;
   border: none;
   border-radius: 0.3rem;
   color: #888;
   box-shadow: 0px 1px 2px rgba(0,0,0,0.2);
+  display: flex;
+  align-items: center;
+}
+
+.inspector--menu--toolbar button:active {
+  background: #f0f0f0;
+}
+
+.inspector--menu--toolbar button img {
+  height: 1rem;
+  display: inline-block;
+  margin-right: 0.4rem;
 }
 
 .inspector--main {

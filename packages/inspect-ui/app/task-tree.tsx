@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { State } from 'effection';
 import { InspectState } from '@effection/inspect-utils';
+import { SettingsContext } from './settings';
 
 const ICONS = {
   completing: "✓",
@@ -42,14 +43,23 @@ type TreeProps = {
 }
 
 export function TaskTree({ task, isYielding }: TreeProps): JSX.Element {
+  let { settings } = useContext(SettingsContext);
   let [isOpen, setOpen] = useState<boolean>((task.labels.expand != null) ? !!task.labels.expand : true);
   let name = task.labels.name || 'task';
   let labels = Object.entries(task.labels).filter(([key, value]) => key !== 'name' && key !== 'expand' && value != null);
+
+  let visibleChildren = task.children.filter((child) => {
+    if(child.state === 'completed' && !settings.showCompleted) return false;
+    if(child.state === 'errored' && !settings.showErrored) return false;
+    if(child.state === 'halted' && !settings.showHalted) return false;
+    return true;
+  });
+
   return (
     <div className={`task ${task.state}`}>
       <div className="task--title">
         {
-          task.yieldingTo || task.children.length ?
+          task.yieldingTo || visibleChildren.length ?
             <button className="task--title--expand" title={(isOpen ? 'Collapse' : 'Expand') + ' ' + name} onClick={() => setOpen(!isOpen)}>
               {isOpen ? '-' : '+'}
             </button>
@@ -77,7 +87,7 @@ export function TaskTree({ task, isYielding }: TreeProps): JSX.Element {
 
       {isOpen ? <>
         <div className="task--details">
-          {task.error ? <div className="task--error">
+          {(task.error && settings.showStackTraces) ? <div className="task--error">
             <div className="task--error--stack">{task.error.stack}</div>
           </div> : null}
 
@@ -87,10 +97,10 @@ export function TaskTree({ task, isYielding }: TreeProps): JSX.Element {
             </div>
           </> : null}
 
-          {task.children.length ? <>
+          {visibleChildren.length ? <>
             <ol className="task--list">
               {
-                task.children.map((child) => {
+                visibleChildren.map((child) => {
                   return (
                     <li className="task--list--element" key={child.id}>
                       <TaskTree task={child}/>

@@ -77,6 +77,10 @@ export function TaskTree({ task, isYielding }: TreeProps): JSX.Element {
 
       {isOpen ? <>
         <div className="task--details">
+          {task.error ? <div className="task--error">
+            <div className="task--error--stack">{task.error.stack}</div>
+          </div> : null}
+
           {task.yieldingTo ? <>
             <div className="task--yielding-to">
               <TaskTree task={task.yieldingTo} isYielding={true}/>

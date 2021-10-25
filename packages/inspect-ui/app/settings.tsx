@@ -25,7 +25,7 @@ export function SettingsMenu(): JSX.Element {
 
   return (
     <div className="settings-menu">
-      <button className="settings-menu--toggle" onClick={() => setOpen(!isOpen)}>
+      <button className="settings-menu--toggle button" onClick={() => setOpen(!isOpen)}>
         <img src={(new URL("settings-icon.svg", import.meta.url)).toString()}/>
         <span>Settings</span>
       </button>

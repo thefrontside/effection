@@ -1,4 +1,5 @@
 import React, { useState, useContext } from 'react';
+import { Link } from 'react-router-dom';
 import { State } from 'effection';
 import { InspectState } from '@effection/inspect-utils';
 import { SettingsContext } from './settings';
@@ -69,7 +70,9 @@ export function TaskTree({ task, isYielding }: TreeProps): JSX.Element {
         {isYielding ? <div className="task--title--yield">yield</div> : null}
         {taskIcon(task.state)}
         <div className="task--title--name">
-          {name}
+          <Link to={`/tasks/${task.id}`}>
+            {name}
+          </Link>
         </div>
         {
           labels.map(([key, value]) => {

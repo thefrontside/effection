@@ -132,3 +132,11 @@ h1 {
 .task--label--value {
   display: inline-block;
 }
+
+.task--details.open {
+  display: block;
+}
+
+.task--details.closed {
+  display: none;
+}

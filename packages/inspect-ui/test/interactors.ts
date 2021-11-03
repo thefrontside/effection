@@ -7,6 +7,7 @@ export const Task = HTML.extend('task')
     name: (element) => element.querySelector('.task--title--name')?.textContent?.trim() || "",
     taskId: (element) => element.querySelector('.task--title--id')?.textContent?.trim() || "",
     type: (element) => element.querySelector('.task--title--type')?.textContent?.trim() || "",
+    open: (element) => element.querySelector('.task--details')?.classList.contains('open'),
   });
 
 export const YieldingToTask = Task.extend('yielding to task').selector('.task--yielding-to .task');

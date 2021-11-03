@@ -4,7 +4,7 @@
   "description": "Helper functions and types for inspecting effection applications",
   "main": "dist-cjs/index.js",
   "types": "dist-esm/index.d.ts",
-  "module": "dist-inspect-utils.esm.js",
+  "module": "dist-esm/index.js",
   "homepage": "https://frontside.com/effection",
   "sideEffects": false,
   "repository": {

@@ -1,11 +1,6 @@
-import { InspectTree } from './inspect';
+import { InspectMessage } from './inspect';
 
-type TaskTreeMessage = {
-  type: "tree";
-  tree: InspectTree;
-}
-
-export type ClientMessage = TaskTreeMessage;
+export type ClientMessage = InspectMessage;
 export type ServerMessage = never;
 
 export type InspectEnvelope<T extends ClientMessage | ServerMessage> = {

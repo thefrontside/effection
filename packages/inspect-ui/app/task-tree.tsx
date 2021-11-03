@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { InspectTree } from '@effection/inspect-utils';
+import { InspectState } from '@effection/inspect-utils';
 
 const ICONS = {
   pending: "⌛︎",
@@ -13,18 +13,17 @@ const ICONS = {
 };
 
 type TreeProps = {
-  tree: InspectTree;
+  task: InspectState;
 }
 
-export function TaskTree({ tree }: TreeProps): JSX.Element {
-  let [isOpen, setOpen] = useState<boolean>((tree.labels.expand != null) ? !!tree.labels.expand : true);
-  let name = tree.labels.name || 'task';
-  let children = Object.values(tree.children);
-  let labels = Object.entries(tree.labels).filter(([key, value]) => key !== 'name' && key !== 'expand' && value != null);
+export function TaskTree({ task }: TreeProps): JSX.Element {
+  let [isOpen, setOpen] = useState<boolean>((task.labels.expand != null) ? !!task.labels.expand : true);
+  let name = task.labels.name || 'task';
+  let labels = Object.entries(task.labels).filter(([key, value]) => key !== 'name' && key !== 'expand' && value != null);
   return (
-    <div className={`task ${tree.state}`}>
-      <div className={`task--state ${tree.state}`}>
-        {tree.yieldingTo || children.length ? <>
+    <div className={`task ${task.state}`}>
+      <div className={`task--state ${task.state}`}>
+        {task.yieldingTo || task.children.length ? <>
           <button title={(isOpen ? 'Collapse' : 'Expand') + ' ' + name} onClick={() => setOpen(!isOpen)}>
             {isOpen ? '-' : '+'}
           </button>
@@ -32,7 +31,7 @@ export function TaskTree({ tree }: TreeProps): JSX.Element {
       </div>
       <div className="task--title">
         <div className="task--title--icon">
-          {ICONS[tree.state]}&nbsp;
+          {ICONS[task.state]}&nbsp;
         </div>
         <div className="task--title--name">
           {name}
@@ -47,27 +46,27 @@ export function TaskTree({ tree }: TreeProps): JSX.Element {
             );
           })
         }
-        <div className="task--title--type">{tree.type} </div>
-        <div className="task--title--id">[{tree.id}] </div>
+        <div className="task--title--type">{task.type} </div>
+        <div className="task--title--id">[{task.id}] </div>
       </div>
 
       {isOpen ? <>
         <div className="task--details">
-          {tree.yieldingTo ? <>
+          {task.yieldingTo ? <>
             <div className="task--yielding-to">
-              <TaskTree tree={tree.yieldingTo}/>
+              <TaskTree task={task.yieldingTo}/>
             </div>
           </> : null}
 
-          {children.length ? <>
+          {task.children.length ? <>
             <h6 className="task--section-header">Children</h6>
 
             <ol className="task--list">
               {
-                children.map((child) => {
+                task.children.map((child) => {
                   return (
                     <li className="task--list--element" key={child.id}>
-                      <TaskTree tree={child}/>
+                      <TaskTree task={child}/>
                     </li>
                   );
                 })

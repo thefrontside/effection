@@ -49,7 +49,7 @@ export function App({ slice }: AppProps): JSX.Element {
   let [settings, setSettings] = useState(DEFAULT_SETTINGS);
 
   function AllTasksPage(): JSX.Element {
-    return <TaskTreeRoot slice={slice}/>
+    return <TaskTreeRoot slice={slice}/>;
   }
 
   function TaskPage({ match }: RouteComponentProps): JSX.Element {

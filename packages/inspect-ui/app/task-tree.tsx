@@ -1,42 +1,8 @@
 import React, { useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
-import { State } from 'effection';
 import { InspectState } from '@effection/inspect-utils';
 import { SettingsContext } from './settings';
-
-const ICONS = {
-  completing: "✓",
-  completed: "✓",
-  halting: "◇",
-  halted: "◇",
-  erroring: "𐄂",
-  errored: "𐄂",
-};
-
-function taskIcon(state: State): JSX.Element {
-  if(state === 'halting' || state === 'halted') {
-    return (
-      <div className="task--title--icon">
-        <img src={(new URL("halted.svg", import.meta.url)).toString()}/>
-      </div>
-    );
-  } else if(state === 'completing' || state === 'completed') {
-    return (
-      <div className="task--title--icon">
-        <img src={(new URL("completed.svg", import.meta.url)).toString()}/>
-      </div>
-    );
-  } else if(state === 'erroring' || state === 'errored') {
-    return (
-      <div className="task--title--icon">
-        <img src={(new URL("failed.svg", import.meta.url)).toString()}/>
-      </div>
-    );
-  } else {
-    return null;
-  }
-
-}
+import { TaskIcon } from './task-icon';
 
 type TreeProps = {
   task: InspectState;
@@ -68,7 +34,7 @@ export function TaskTree({ task, isYielding }: TreeProps): JSX.Element {
             <button disabled className="task--title--expand disabled"></button>
         }
         {isYielding ? <div className="task--title--yield">yield</div> : null}
-        {taskIcon(task.state)}
+        <TaskIcon state={task.state}/>
         <div className="task--title--name">
           <Link to={`/tasks/${task.id}`}>
             {name}

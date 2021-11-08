@@ -140,6 +140,7 @@ h1 {
   padding: 0;
   display: flex;
   color: #444;
+  align-items: center;
 }
 
 .task--title > * {
@@ -179,7 +180,6 @@ h1 {
 
 .task--title--icon {
   width: 1rem;
-  margin-right: 0.4rem;
 }
 
 .task--title--icon img {
@@ -275,3 +275,16 @@ h1 {
 .task--details.closed {
   display: none;
 }
+
+.icon {
+  width: 1rem;
+  height: 1rem;
+  display: inline-block;
+  background-position: center;
+  background-repeat: none;
+}
+
+.icon.settings { background-image: url('./settings-icon.svg'); }
+.icon.halted { background-image: url('./halted.svg'); }
+.icon.completed { background-image: url('./completed.svg'); }
+.icon.failed { background-image: url('./failed.svg'); }

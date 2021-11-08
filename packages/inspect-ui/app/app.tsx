@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { HashRouter, Switch, Route, Link, Redirect, RouteComponentProps } from 'react-router-dom';
+import { Switch, Route, Link, Redirect, RouteComponentProps } from 'react-router-dom';
 import { Slice } from '@effection/atom';
 import { useSlice } from '@effection/react';
 import { InspectState } from '@effection/inspect-utils';
@@ -18,7 +18,7 @@ function findSliceById(slice: Slice<InspectState>, targetId: number): Slice<Insp
   }
 
   if(task.yieldingTo) {
-    let result = findSliceById(slice.slice('yieldingTo'), targetId);
+    let result = findSliceById(slice.slice('yieldingTo') as Slice<InspectState>, targetId);
     if(result) {
       return result;
     }
@@ -52,7 +52,7 @@ export function App({ slice }: AppProps): JSX.Element {
     return <TaskTreeRoot slice={slice}/>;
   }
 
-  function TaskPage({ match }: RouteComponentProps): JSX.Element {
+  function TaskPage({ match }: RouteComponentProps<{ id: string }>): JSX.Element {
     let targetSlice = findSliceById(slice, Number(match.params.id));
     if(targetSlice) {
       return (
@@ -68,23 +68,21 @@ export function App({ slice }: AppProps): JSX.Element {
   }
 
   return (
-    <HashRouter>
-      <SettingsContext.Provider value={{ settings, setSettings }}>
-        <div className="inspector">
-          <div className="inspector--menu">
-            <h1 className="inspector--menu--title">Effection Inspector</h1>
-            <div className="inspector--menu--toolbar">
-              <SettingsMenu/>
-            </div>
-          </div>
-          <div className="inspector--main">
-            <Switch>
-              <Route exact path="/" component={AllTasksPage}/>
-              <Route path="/tasks/:id" component={TaskPage}/>
-            </Switch>
+    <SettingsContext.Provider value={{ settings, setSettings }}>
+      <div className="inspector">
+        <div className="inspector--menu">
+          <h1 className="inspector--menu--title">Effection Inspector</h1>
+          <div className="inspector--menu--toolbar">
+            <SettingsMenu/>
           </div>
         </div>
-      </SettingsContext.Provider>
-    </HashRouter>
+        <div className="inspector--main">
+          <Switch>
+            <Route exact path="/" component={AllTasksPage}/>
+            <Route path="/tasks/:id" component={TaskPage}/>
+          </Switch>
+        </div>
+      </div>
+    </SettingsContext.Provider>
   );
 }

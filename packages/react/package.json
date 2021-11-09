@@ -1,6 +1,6 @@
 {
   "name": "@effection/react",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "Hooks for integrating effection into react applications",
   "main": "dist-cjs/index.js",
   "module": "dist-esm/index.js",

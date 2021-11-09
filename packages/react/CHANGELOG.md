@@ -1,5 +1,12 @@
 # @effection/react
 
+## \[2.1.0]
+
+- Add `useOperation`, `useStream` and `useSlice` hooks.
+  - [8b947ea](https://github.com/thefrontside/effection/commit/8b947ea620f8b683078799c160a85beb839b8706) Improve @effection/react package on 2021-10-21
+- `useSubscription` can take an initial value
+  - [8b947ea](https://github.com/thefrontside/effection/commit/8b947ea620f8b683078799c160a85beb839b8706) Improve @effection/react package on 2021-10-21
+
 ## \[2.0.1]
 
 - workaround borked 2.0 release https://status.npmjs.org/incidents/wy4002vc8ryc

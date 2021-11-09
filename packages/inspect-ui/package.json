@@ -32,7 +32,6 @@
   },
   "devDependencies": {
     "@bigtest/interactor": "^0.29.0",
-    "effection": "2.0.1",
     "@effection/inspect-utils": "2.0.1",
     "@effection/react": "2.0.1",
     "@effection/websocket-client": "2.0.1",
@@ -42,6 +41,9 @@
     "@types/node": "^13.13.5",
     "@types/react": "^17.0.9",
     "@types/react-dom": "^17.0.6",
+    "@types/react-router": "^5.1.17",
+    "@types/react-router-dom": "^5.3.1",
+    "effection": "2.0.1",
     "eslint-plugin-react": "^7.24.0",
     "eslint-plugin-react-hooks": "^4.2.0",
     "expect": "^25.4.0",
@@ -50,7 +52,9 @@
     "parcel": "2.0.0-beta.2",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "ts-node": "^8.9.0",
+    "react-router": "^5.2.1",
+    "react-router-dom": "^5.3.0",
+    "ts-node": "^10.4.0",
     "typescript": "^3.7.0"
   },
   "targets": {

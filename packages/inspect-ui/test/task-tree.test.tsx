@@ -1,15 +1,19 @@
 import './setup';
 import expect from 'expect';
-import { describe, it } from '@effection/mocha';
+import { describe, it, beforeEach } from '@effection/mocha';
+import { spawn } from '@effection/core';
+import { createAtom, Slice } from '@effection/atom';
+import { EffectionContext } from '@effection/react';
 import { Button } from '@bigtest/interactor';
 import { InspectState } from '@effection/inspect-utils';
+import { MemoryRouter } from 'react-router-dom';
 
 import { Task, YieldingToTask, ChildTask, Label } from './interactors';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import { TaskTree } from '../app/task-tree';
+import { App } from '../app/app';
 
 let task: InspectState = {
   id: 123,
@@ -45,19 +49,28 @@ let task: InspectState = {
 };
 
 describe("TaskTree", () => {
-  it("Renders a basic task", function*() {
-    ReactDOM.render(<TaskTree task={task}/>, document.querySelector('#test'));
+  beforeEach(function*() {
+    let slice: Slice<InspectState> = createAtom(task);
 
-    yield Task('Some task').has({ taskId: '[123]', type: 'generator function' });
+    ReactDOM.render(
+      <EffectionContext.Provider value={yield spawn()}>
+        <MemoryRouter>
+          <App slice={slice}/>
+        </MemoryRouter>
+      </EffectionContext.Provider>,
+      document.querySelector('#test')
+    );
+  });
+
+  it("Renders a basic task", function*() {
+    yield Task('Some task').has({ taskId: '[id: 123]', type: 'generator function' });
     yield Task('Some task').find(Label('frobs')).has({ value: 'quox' });
-    yield Task('Some task').find(YieldingToTask('Yielding to this')).has({ taskId: '[556]' });
-    yield Task('Some task').find(ChildTask('First child')).has({ taskId: '[777]' });
-    yield Task('Some task').find(ChildTask('Second child')).has({ taskId: '[999]' });
+    yield Task('Some task').find(YieldingToTask('Yielding to this')).has({ taskId: '[id: 556]' });
+    yield Task('Some task').find(ChildTask('First child')).has({ taskId: '[id: 777]' });
+    yield Task('Some task').find(ChildTask('Second child')).has({ taskId: '[id: 999]' });
   });
 
   it("can collapse a task", function*() {
-    ReactDOM.render(<TaskTree task={task}/>, document.querySelector('#test'));
-
     yield Task('Some task').find(ChildTask('Second child')).exists();
     yield Task('Some task').find(Button({ title: 'Collapse Some task' })).click();
     yield Task('Some task').find(ChildTask('Second child')).absent();

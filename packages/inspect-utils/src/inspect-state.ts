@@ -2,9 +2,10 @@ import { Resource, Operation, Subscription, Task, State, TaskInfo, spawn } from 
 import { createDispatch, Dispatch } from '@effection/dispatch';
 import { createAtom, Slice } from '@effection/atom';
 
-import { InspectMessage } from './inspect';
+import { InspectMessage, SerializedError } from './inspect';
 
 export interface InspectState extends TaskInfo {
+  error?: SerializedError;
   yieldingTo?: InspectState;
   children: InspectState[];
 }
@@ -53,6 +54,7 @@ function* taskState(taskSlice: Slice<InspectState>, dispatch: Dispatch<number, I
           }
         } else if (message.type === 'state') {
           taskSlice.slice('state').set(message.state);
+          taskSlice.slice('error').set(message.error);
           // if the task is complete, there is no point in listening for further events
           if(isFinished(message.state)) {
             return;

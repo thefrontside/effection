@@ -1,4 +1,5 @@
 import { main } from 'effection';
+import { HashRouter } from 'react-router-dom';
 import { Slice } from '@effection/atom';
 import { createWebSocketClient, WebSocketClient } from '@effection/websocket-client';
 import { EffectionContext } from '@effection/react';
@@ -20,7 +21,9 @@ main(function*(scope) {
 
   ReactDOM.render(
     <EffectionContext.Provider value={scope}>
-      <App slice={slice}/>
+      <HashRouter>
+        <App slice={slice}/>
+      </HashRouter>
     </EffectionContext.Provider>,
     document.querySelector('#app')
   );

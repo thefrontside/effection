@@ -1,6 +1,6 @@
 {
   "name": "@effection/inspect-ui",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "Web interface for inspecting effection applications",
   "main": "index.js",
   "types": "index.d.ts",
@@ -32,8 +32,8 @@
   },
   "devDependencies": {
     "@bigtest/interactor": "^0.29.0",
-    "@effection/inspect-utils": "2.0.1",
-    "@effection/react": "2.0.1",
+    "@effection/inspect-utils": "2.1.0",
+    "@effection/react": "2.1.0",
     "@effection/websocket-client": "2.0.1",
     "@frontside/tsconfig": "^1.2.0",
     "@parcel/transformer-typescript-types": "2.0.0-beta.1",

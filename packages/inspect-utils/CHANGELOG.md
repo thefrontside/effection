@@ -1,5 +1,12 @@
 # @effection/inspect-utils
 
+## \[2.1.0]
+
+- Improve the internal communication protocol of the inspector for better efficiency
+  - [eec3b77](https://github.com/thefrontside/effection/commit/eec3b77f0d252507d8e432dfab6bb6ce5f94db6b) Rewrite and improve inspector protocol on 2021-10-21
+- Redesign inspector with a fresh new design and added functionality, including navigation, settings and stack traces
+  - [f1ca2ed](https://github.com/thefrontside/effection/commit/f1ca2edecd3a22bbc9c40fc35d7f9908587d8ddf) Add changeset on 2021-11-08
+
 ## \[2.0.1]
 
 - workaround borked 2.0 release https://status.npmjs.org/incidents/wy4002vc8ryc

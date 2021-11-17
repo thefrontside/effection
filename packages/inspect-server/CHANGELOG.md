@@ -1,5 +1,11 @@
 # @effection/inspect-server
 
+## \[2.1.1]
+
+- Add missing dependency on @effection/dispatch
+  - Bumped due to a bump in @effection/inspect-utils.
+  - [90ca47d](https://github.com/thefrontside/effection/commit/90ca47d73e1d49826aa0248082689a3501d2aac0) Add dependency on dispatch on 2021-11-16
+
 ## \[2.1.0]
 
 - Improve the internal communication protocol of the inspector for better efficiency

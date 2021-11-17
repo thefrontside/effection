@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "@effection/atom": "2.0.1",
+    "@effection/dispatch": "2.0.1",
     "effection": "2.0.1"
   },
   "devDependencies": {

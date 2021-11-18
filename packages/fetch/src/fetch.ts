@@ -1,6 +1,5 @@
-import { ensure, withLabels, Operation, Resource } from '@effection/core';
+import { AbortSignal, createAbortSignal, withLabels, Operation, Resource } from '@effection/core';
 import { fetch as nativeFetch } from 'cross-fetch';
-import { AbortController } from 'abort-controller';
 
 /**
  * A resource that can be used to create an HTTP request. This is the return
@@ -89,12 +88,8 @@ export interface Fetch extends Resource<Response> {
  */
 export function fetch(info: RequestInfo, requestInit: RequestInit = {}): Fetch {
   function* init() {
-    let controller = new AbortController();
-
-    yield ensure(() => { controller.abort() });
-
-    requestInit.signal = controller.signal;
-
+    let signal: AbortSignal = yield createAbortSignal();
+    requestInit.signal = signal;
     let response: Response = yield nativeFetch(info, requestInit);
     return response;
   }

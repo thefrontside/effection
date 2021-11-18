@@ -37,7 +37,6 @@
   },
   "dependencies": {
     "@effection/core": "2.0.1",
-    "abort-controller": "^3.0.0",
     "cross-fetch": "^3.0.4",
     "node-fetch": "^2.6.1"
   },

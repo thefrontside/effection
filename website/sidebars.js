@@ -3,6 +3,7 @@ module.exports = {
     {
       type: 'category',
       label: 'Getting started',
+      collapsed: false,
       items: [
         'guides/introduction',
         'guides/tasks',
@@ -16,6 +17,7 @@ module.exports = {
     {
       type: 'category',
       label: 'Advanced',
+      collapsed: false,
       items: [
         'guides/resources',
         'guides/testing',

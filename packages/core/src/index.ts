@@ -10,6 +10,7 @@ export { deprecated } from './deprecated';
 export { Labels, withLabels, setLabels } from './labels';
 export { HasEffectionTrace } from './error';
 export { createFuture, Future, FutureLike } from './future';
+export { createAbortSignal } from './abort-signal';
 
 export { sleep } from './operations/sleep';
 export { ensure } from './operations/ensure';

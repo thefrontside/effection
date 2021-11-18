@@ -1,8 +1,8 @@
 import { spawn } from './operations/spawn';
 import { Resource } from "./operation";
-import { AbortController } from 'abort-controller';
+import { AbortController, AbortSignal } from 'abort-controller';
 
-function createAbortSignal(): Resource<any> {
+function createAbortSignal(): Resource<AbortSignal> {
   return {
     *init() {
       let controller = new AbortController();
@@ -12,10 +12,10 @@ function createAbortSignal(): Resource<any> {
         } finally {
           controller.abort();
         }
-      })
+      });
       return controller.signal;
     }
-  }
+  };
 }
 
-export { createAbortSignal };
+export { createAbortSignal, AbortSignal };

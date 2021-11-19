@@ -1,7 +1,7 @@
 import { createGlobalTheme } from "@vanilla-extract/css";
 
 export const laptopQuery = "screen and (min-width: 992px)";
-export const desktopQuery = "screen and (min-width: 1440px)";
+export const desktopQuery = "screen and (min-width: 1450px)";
 export const darkThemeQuery = "(prefers-color-scheme: dark)";
 export const colorValues = {
   white: "#fff",

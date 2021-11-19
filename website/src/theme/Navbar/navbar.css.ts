@@ -5,7 +5,7 @@ import vars, {
 } from "../../css/frontside-theme.css";
 import { globalStyle, style, styleVariants } from "@vanilla-extract/css";
 import { layoutWrap } from "../../css/page.css";
-import { headingMd, textBlue, textGradientPinkViolet, textGradientSkybluePink, textGradientPurpleViolet, textSm } from "../../css/typography.css";
+import { headingMd, textBlue, textGradientPinkViolet, textGradientSkybluePink, textGradientPurpleViolet, textSm, textXs } from "../../css/typography.css";
 import { calc } from "@vanilla-extract/css-utils";
 
 const navWrap = style([
@@ -27,7 +27,7 @@ const navWrap = style([
         marginTop: vars.space.xs,
         borderRadius: vars.radius.md,
         paddingRight: vars.space.md,
-        paddingLeft: vars.space.md,
+        paddingLeft: vars.space.sm,
       },
       [darkThemeQuery]: {
         boxShadow: `0 3px 6px rgba(0, 0, 0, 0.5)`,
@@ -137,6 +137,7 @@ export const projectsList = style({
   padding: 0,
   borderRadius: vars.radius.sm,
   top: calc(vars.space.sm).subtract(vars.space['2xs']).toString(),
+  left: vars.space.sm,
   boxShadow: `0 2px 15px rgba(0, 0, 0, 0.10)`,
   zIndex: 350,
   '@media': {
@@ -164,6 +165,16 @@ export const projectItem = style({
   }
 });
 
+export const projectLink = style({
+  display: 'flex',
+  flexFlow: 'row nowrap',
+});
+
+export const projectLogo = style({
+  marginRight: vars.space['2xs'],
+  width: '34px',
+});
+
 export const projectItemHighlighted = style([projectItem, {
   background: 'rgba(38, 171, 232, 0.10);',
 }]);
@@ -172,6 +183,17 @@ export const projectTitle = style([headingMd, textBlue, {
   marginBottom: 0,
   letterSpacing: vars.letterSpacing["2xl"],
   display: 'block',
+}]);
+
+export const logoTitle = style([projectTitle, {
+  color: vars.colors.white,
+  paddingTop: '0.2rem',
+}]);
+
+export const projectVersion = style([textXs, {
+  fontWeight: vars.fontWeights.normal,
+  marginLeft: vars.space['3xs'],
+  textTransform: 'none',
 }]);
 
 export const projectCurrent = styleVariants({

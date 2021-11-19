@@ -1,5 +1,5 @@
 ---
-"@effection/fetch": "minor"
+"@effection/fetch": "patch"
 "@effection/core": "minor"
 ---
 

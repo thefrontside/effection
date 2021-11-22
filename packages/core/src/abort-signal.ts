@@ -4,9 +4,7 @@ import { AbortController, AbortSignal } from 'abort-controller';
 
 function createAbortSignal(): Resource<AbortSignal> {
   return {
-    labels: {
-      name: 'createAbortSignal()'
-    },
+    name: 'AbortSignal',
     *init() {
       let controller = new AbortController();
       yield spawn(function* () {
@@ -17,7 +15,7 @@ function createAbortSignal(): Resource<AbortSignal> {
         }
       }, {
         labels: {
-          name: 'controller.abort()'
+          name: 'ensure signal aborted'
         }
       });
       return controller.signal;

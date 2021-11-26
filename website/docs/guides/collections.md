@@ -81,8 +81,8 @@ main(function*() {
 
   channel.send('too early'); // the channel has no subscribers yet!
 
-  let firstSubscription = yield channel.subscribe();
-  let secondSubscription = yield channel.subscribe();
+  let firstSubscription = yield channel;
+  let secondSubscription = yield channel;
 
   channel.send('hello');
   channel.send('world');
@@ -113,7 +113,7 @@ main(function*() {
   let textStream = channel.map((value) => value.text);
   let uppercaseStream = textStream.map((value) => value.toUpperCase());
 
-  let subscription = yield uppercaseStream.subscribe();
+  let subscription = yield uppercaseStream;
 
   channel.send({ text: 'hello' });
   channel.send({ text: 'world' });
@@ -142,7 +142,7 @@ main(function*() {
   let channel = createChannel();
   let elloStream = channel.filter((value) => value.match(/ello/));
 
-  let subscription = yield elloStream.subscribe();
+  let subscription = yield elloStream;
 
   channel.send('hello');
   channel.send('world'); // our filtered stream skips over this value
@@ -163,7 +163,7 @@ main(function*() {
   let channel = createChannel();
   let planetStream = channel.match({ type: 'planet' }).map((value) => value.name);
 
-  let subscription = yield elloStream.subscribe();
+  let subscription = yield elloStream;
 
   channel.send({ type: 'planet', name: 'Earth');
   channel.send({ type: 'planet', name: 'Jeff' }); 'world'); // our filtered stream skips over this value
@@ -177,7 +177,7 @@ main(function*() {
 ## Consuming Streams
 
 Once we have a stream, we would normally like to consume values from it, we
-have already seen how we can use `subscribe` to subscribe to a Stream and turn
+have already seen how we can use `yield` to subscribe to a Stream and turn
 a Stream into a Subscription. But there is an easier way! We can use the
 `forEach` method to subscribe to a stream and iterate its values all in one go:
 
@@ -310,7 +310,7 @@ import { main, createChannel, spawn, sleep } from 'effection';
 main(function*() {
   let channel = createChannel();
 
-  let subscription = yield channel.subscribe();
+  let subscription = yield channel;
 
   yield spawn(function*() {
     yield sleep(1000);

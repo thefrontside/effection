@@ -26,6 +26,9 @@
     "dist-*/**/*",
     "src/**/*"
   ],
+  "dependencies": {
+    "abort-controller": "^3.0.0"
+  },
   "devDependencies": {
     "@frontside/tsconfig": "^1.2.0",
     "@types/mocha": "^7.0.2",
@@ -37,7 +40,6 @@
     "ts-node": "^10.4.0",
     "typescript": "^4.3.5"
   },
-  "dependencies": {},
   "volta": {
     "extends": "../../package.json"
   }

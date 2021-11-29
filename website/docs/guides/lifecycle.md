@@ -164,6 +164,56 @@ let task = main(function*() {
 task.halt();
 ```
 
+### Abort Signal
+
+While cancellation and teardown is handled automatically for us as long as we
+are using Effection operations, what do we do when we want to integrate with a
+3rd party API? One very common answer is to use the JavaScript standard
+[`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal)
+which can broadcast an event whenever it is time for an operation to be
+cancelled. Effection makes it easy to create abort signals, and pass them around
+so that they can notify dependencies whenever an operation terminates.
+
+To create an abort signal, we use the `createAbortSignal` that comes with
+Effection.
+
+`AbortSignal`s instantiated with the `createAbortSignal()` operation are
+implicitly bound to the task in which they were created, and whenever that task
+ceases running, they will emit an `abort` event.
+
+``` javascript
+import { main, sleep, createAbortSignal } from 'effection';
+
+main(function*() {
+  let signal = yield createAbortSignal();
+
+  signal.addEventListener('abort', () => console.log('done!'));
+
+  yield sleep(5000);
+  // prints 'done!'
+});
+```
+
+It is very common (though not universal) that APIs which perform
+asynchronous operations will accept an `AbortSignal` in order to make
+sure those operations go away if needed. For example, the standard
+[`fetch`](https://developer.mozilla.org/en-US/docs/Web/API/Fetch) function
+accepts an abort signal to cancel itself when needed.
+
+``` javascript
+function* request(url) {
+  let signal = yield createAbortSignal();
+  let response = yield fetch('/some/url', { signal });
+  if (response.ok) {
+    return yield response.text();
+  } else {
+    throw new Error(`failed: ${ response.status }: ${response.statusText}`);
+  }
+}
+```
+
+Now, no matter what happens, when the `request` operation is completed (or
+cancelled), the HTTP request is guaranteed to be shut down.
 
 ### Lifecycle
 

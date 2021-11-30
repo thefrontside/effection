@@ -1,6 +1,6 @@
 {
   "name": "@effection/subscription",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Effection Subscriptions",
   "main": "dist-cjs/index.js",
   "module": "dist-esm/index.js",
@@ -28,7 +28,7 @@
     "mocha": "mocha -r ts-node/register"
   },
   "dependencies": {
-    "@effection/core": "2.0.1"
+    "@effection/core": "2.1.0"
   },
   "devDependencies": {
     "@frontside/tsconfig": "^1.2.0",

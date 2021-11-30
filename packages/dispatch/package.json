@@ -1,6 +1,6 @@
 {
   "name": "@effection/dispatch",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Splits a subscription into multiple subscriptions",
   "main": "dist-cjs/index.js",
   "module": "dist-esm/index.js",
@@ -39,6 +39,6 @@
     "extends": "../../package.json"
   },
   "dependencies": {
-    "effection": "2.0.1"
+    "effection": "2.0.2"
   }
 }

@@ -2,7 +2,7 @@
 id: typescript
 title: TypeScript
 ---
-As of version 2, Effection itself is written in TypeScript, and so comes bundled
+Effection itself is written in TypeScript, and so comes bundled
 with its own type definitions. As a result, there's nothing special required to
 make them interoperate. However, there are still some idiosyncracies with
 using Effection and TypeScript together. This section contains information about
@@ -68,7 +68,7 @@ export function future(): Future<boolean> {
 
 export function resource(): Resource<number> {
   return {
-    name: "true",
+    name: "Life the Universe and Everything",
     *init() { return 42; }
   }
 }

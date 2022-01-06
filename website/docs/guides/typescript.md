@@ -2,12 +2,12 @@
 id: typescript
 title: TypeScript
 ---
-Effection itself is written in TypeScript, and so comes bundled
-with its own type definitions. As a result, there's nothing special required to
-make them interoperate. However, there are still some idiosyncracies with
-using Effection and TypeScript together. This section contains information about
-what these idiosyncrasies are, and what you can do to make your development
-experience as painless as possible.
+Effection is written in TypeScript and comes bundled with its own type
+definitions. Effection doesn't require any special setup to use in a
+TypeScript project, but there are some TypeScript specific
+idiosyncrasies to keep in mind. This section describes these
+idiosyncrasies and what you can do to make development experience of
+using Effection in your TypeScript project as painless as possible.
 
 ## Operations
 

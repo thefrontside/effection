@@ -12,6 +12,7 @@ module.exports = {
         'guides/collections',
         'guides/events',
         'guides/errors',
+        'guides/typescript'
       ]
     },
     {

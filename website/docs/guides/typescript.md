@@ -168,9 +168,21 @@ esoteric [`yield*`][yield*] syntax.
 
 Of course, it's not ideal that these kind of trade-offs are required,
 but we can surely hope that the TypeScript team will find a way to
-make them a thing of the past.
+make them a thing of the past. You can help bring this about sooner by taking
+to github and voicing your support for resolving [the primary issue][2], or
+upvoting one of the [proposed solutions][2]. It doesn't have to be an essay,
+just a simple, true statement like the following to let them know you're out
+there:
 
+``` text
+I use JavaScript generators a lot to write more powerful code than would
+be possible otherwise. It would be amazing if TypeScript were able to typecheck
+programs like mine in a 100% hassle-free way.
+```
+
+You can make a difference!
 [operations]: ./tasks#operations
 [generators]: ./tasks#yield
-[1]: https://github.com/microsoft/TypeScript/issues/43632
 [yield*]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/yield*
+[1]: https://github.com/microsoft/TypeScript/issues/32523
+[2]: https://github.com/microsoft/TypeScript/issues/43632

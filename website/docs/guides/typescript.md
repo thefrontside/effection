@@ -174,11 +174,7 @@ upvoting one of the [proposed solutions][2]. It doesn't have to be an essay,
 just a simple, true statement like the following to let them know you're out
 there:
 
-``` text
-I use JavaScript generators a lot to write more powerful code than would
-be possible otherwise. It would be amazing if TypeScript were able to typecheck
-programs like mine in a 100% hassle-free way.
-```
+> I use JavaScript generators a lot to write more powerful code than would be possible otherwise. It would be amazing if TypeScript were able to typecheck programs like mine in a 100% hassle-free way.
 
 You can make a difference!
 [operations]: ./tasks#operations

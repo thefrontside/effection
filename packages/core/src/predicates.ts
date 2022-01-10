@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import type { Resource } from "./operation";
+import { OperationObject, Resource, toOperation } from "./operation";
 import type { FutureLike } from "./future";
 
 export function isPromise(value: any): value is PromiseLike<unknown> {
@@ -18,4 +18,8 @@ export function isFuture<T>(value: any): value is FutureLike<T> {
 
 export function isResource<TOut>(value: any): value is Resource<TOut> {
   return typeof(value) === 'object' && typeof(value.init) === 'function';
+}
+
+export function isObjectOperation<TOut>(x: unknown): x is OperationObject<TOut> {
+  return typeof x === 'object' && x != null && toOperation in x;
 }

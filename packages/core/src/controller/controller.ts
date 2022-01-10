@@ -1,7 +1,8 @@
 import type { Task } from '../task';
 import type { RunLoop } from '../run-loop';
-import type { Operation } from '../operation';
-import { isResource, isFuture, isPromise, isGenerator } from '../predicates';
+import { Operation, toOperation } from '../operation';
+import { isResource, isFuture, isPromise, isGenerator, isObjectOperation } from '../predicates';
+import { createObjectController } from './object-controller';
 import { createFunctionController } from './function-controller';
 import { createSuspendController } from './suspend-controller';
 import { createPromiseController } from './promise-controller';
@@ -25,7 +26,9 @@ export type Options = {
 }
 
 export function createController<T>(task: Task<T>, operation: Operation<T>, options: Options): Controller<T> {
-  if (typeof(operation) === 'function') {
+  if (isObjectOperation<T>(operation)) {
+    return createObjectController(task, operation, () => createController(task, operation[toOperation](), options));
+  } else if (typeof(operation) === 'function') {
     return createFunctionController(task, operation, () => createController(task, operation(task), options));
   } else if(!operation) {
     return createSuspendController();

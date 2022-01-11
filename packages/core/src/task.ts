@@ -4,10 +4,11 @@ import { Operation } from './operation';
 import { swallowHalt } from './halt-error';
 import { EventEmitter } from 'events';
 import { StateMachine, State } from './state-machine';
-import { Labels } from './labels';
+import { extractLabels, Labels } from './labels';
 import { addTrace } from './error';
 import { createFutureOnRunLoop, Future, FutureLike, Value } from './future';
 import { createRunLoop } from './run-loop';
+import { isNotObjectOperation, isObjectOperation } from './predicates';
 
 let COUNTER = 0;
 
@@ -323,11 +324,14 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
 
   let controller: Controller<TOut>;
 
-  let labels: Labels = { ...operation?.labels, ...options.labels };
+  let labels: Labels = {};
   let yieldingTo: Task | undefined;
 
+  if (isObjectOperation<TOut>(operation)) labels = extractLabels(operation);
+  if (isNotObjectOperation<TOut>(operation)) labels = operation?.labels ?? {};
+
   if (!labels.name) {
-    if (operation?.name) {
+    if (isNotObjectOperation(operation) && operation?.name) {
       labels.name = operation?.name;
     } else if (!operation) {
       labels.name = 'suspend';

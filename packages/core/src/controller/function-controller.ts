@@ -2,6 +2,8 @@ import { Task } from '../task';
 import { Controller } from './controller';
 import { createFuture } from '../future';
 import { OperationFunction } from '../operation';
+import { extractLabels, Labels } from '../labels';
+import { isNotObjectOperation, isObjectOperation } from '../predicates';
 
 export function createFunctionController<TOut>(task: Task<TOut>, fn: OperationFunction<TOut>, createController: () => Controller<TOut>): Controller<TOut> {
   let delegate: Controller<TOut>;
@@ -10,9 +12,11 @@ export function createFunctionController<TOut>(task: Task<TOut>, fn: OperationFu
   function start() {
     try {
       delegate = createController();
+      let labels: Labels = {};
+      if (isObjectOperation<TOut>(delegate.operation)) labels = extractLabels(delegate.operation);
+      if (isNotObjectOperation<TOut>(delegate.operation)) labels = delegate.operation?.labels ?? {};
       task.setLabels({
-        ...task.labels,
-        ...delegate.operation?.labels,
+        ...labels,
         ...fn.labels
       });
     } catch (error) {

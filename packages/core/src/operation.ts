@@ -2,8 +2,7 @@
 import type { Task } from './task';
 import type { Labels } from './labels';
 import type { FutureLike } from './future';
-
-export const toOperation = Symbol.for('Symbol.operation');
+import { Symbol } from './symbol';
 
 export interface Labelled {
   name?: string;
@@ -42,8 +41,8 @@ export interface OperationFunction<TOut> extends Labelled {
   (task: Task<TOut>): Operation<TOut>;
 }
 
-export interface OperationObject<TOut> extends Labelled {
-  [toOperation]: () => Operation<TOut>;
+export interface OperationObject<TOut> extends Record<string, unknown> {
+  [Symbol.operation]: Operation<TOut>;
 }
 
 /**

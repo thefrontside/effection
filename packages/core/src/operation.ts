@@ -3,7 +3,7 @@ import type { Task } from './task';
 import type { Labels } from './labels';
 import type { FutureLike } from './future';
 
-export const toOperation = Symbol.for('toOperation');
+export const toOperation = Symbol.for('Symbol.operation');
 
 export interface Labelled {
   name?: string;

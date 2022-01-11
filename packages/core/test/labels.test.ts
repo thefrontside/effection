@@ -2,7 +2,7 @@ import './setup';
 import { describe, it } from 'mocha';
 import expect from 'expect';
 
-import { withLabels, run, sleep, label, Labels, Operation } from '../src/index';
+import { withLabels, run, sleep, label, Labels, Operation, Symbol } from '../src';
 
 describe('labels', () => {
   describe('withLabels', () => {
@@ -78,6 +78,12 @@ describe('labels', () => {
       name: 'sleep',
       one: 1
     });
+  });
+
+  it('applies labels of the resolved operation to a object operation', async () => {
+    let task = run((() => () => () => withLabels({ *[Symbol.operation]() {} }, { one: 1 })) as Operation<void>);
+
+    expect(task.labels).toMatchObject({ one: 1 });
   });
 
   it('can change labels of a resolved function operation dynamically', async () => {

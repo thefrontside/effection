@@ -1,6 +1,6 @@
 import type { Task } from '../task';
 import type { RunLoop } from '../run-loop';
-import { Operation, toOperation } from '../operation';
+import { Operation } from '../operation';
 import { isResource, isFuture, isPromise, isGenerator, isObjectOperation } from '../predicates';
 import { createObjectController } from './object-controller';
 import { createFunctionController } from './function-controller';
@@ -10,6 +10,7 @@ import { createIteratorController } from './iterator-controller';
 import { createFutureController } from './future-controller';
 import { createResourceController } from './resource-controller';
 import { Future } from '../future';
+import { Symbol } from '../symbol';
 
 export interface Controller<TOut> {
   type: string;
@@ -27,7 +28,7 @@ export type Options = {
 
 export function createController<T>(task: Task<T>, operation: Operation<T>, options: Options): Controller<T> {
   if (isObjectOperation<T>(operation)) {
-    return createObjectController(task, operation, () => createController(task, operation[toOperation](), options));
+    return createObjectController(task, operation, () => createController(task, operation[Symbol.operation], options));
   } else if (typeof(operation) === 'function') {
     return createFunctionController(task, operation, () => createController(task, operation(task), options));
   } else if(!operation) {

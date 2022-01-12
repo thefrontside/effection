@@ -4,7 +4,7 @@ import { Effection } from './effection';
 
 export { State, StateTransition } from './state-machine';
 export { createTask, Task, TaskOptions, TaskInfo, TaskTree } from './task';
-export { Operation, Resource } from './operation';
+export { Operation, Resource, OperationObject } from './operation';
 export { Effection } from './effection';
 export { deprecated } from './deprecated';
 export { Labels, withLabels, setLabels } from './labels';

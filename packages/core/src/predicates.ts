@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { Operation, OperationObject, Resource } from "./operation";
+import { OperationObject, Resource } from "./operation";
 import type { FutureLike } from "./future";
 import { Symbol } from "./symbol";
 
@@ -23,8 +23,4 @@ export function isResource<TOut>(value: any): value is Resource<TOut> {
 
 export function isObjectOperation<TOut>(x: unknown): x is OperationObject<TOut> {
   return typeof x === 'object' && x != null && Symbol.operation in x;
-}
-
-export function isNotObjectOperation<TOut>(x: unknown): x is Exclude<Operation<TOut>, OperationObject<TOut>> {
-  return !isObjectOperation(x);
 }

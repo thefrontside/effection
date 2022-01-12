@@ -116,8 +116,8 @@ describe("fetch in node", () => {
     });
 
     it("applies labels", function*() {
-      expect(fetch('http://www.example.com').json()?.labels?.name).toEqual('fetch(\'http://www.example.com\').json()');
-      expect(fetch('http://www.example.com', { method: 'POST' }).json()?.labels?.method).toEqual('POST');
+      expect(fetch('http://www.example.com').json()?.name).toEqual('fetch(\'http://www.example.com\').json()');
+      expect(fetch('http://www.example.com', { method: 'POST' }).json()?.method).toEqual('POST');
     });
   });
 });

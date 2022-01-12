@@ -1,4 +1,4 @@
-import { AbortSignal, createAbortSignal, withLabels, Operation, Resource } from '@effection/core';
+import { AbortSignal, createAbortSignal, withLabels, OperationObject, Resource } from '@effection/core';
 import { fetch as nativeFetch } from 'cross-fetch';
 
 /**
@@ -12,33 +12,33 @@ export interface Fetch extends Resource<Response> {
    * [ArrayBuffer](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer)
    * representation of the response body.
    */
-  arrayBuffer(): Operation<ArrayBuffer>;
+  arrayBuffer(): OperationObject<ArrayBuffer>;
 
   /**
    * An operation that executes the request and produces a
    * [Blob](https://developer.mozilla.org/en-US/docs/Web/API/Blob)
    * representation of the response body.
    */
-  blob(): Operation<Blob>;
+  blob(): OperationObject<Blob>;
 
   /**
    * An operation that executes the request and produces a
    * [FormData](https://developer.mozilla.org/en-US/docs/Web/API/FormData)
    * representation of the response body.
    */
-  formData(): Operation<FormData>;
+  formData(): OperationObject<FormData>;
 
   /**
    * An operation that executes the request and produces the response body
    * parsed as JSON.
    */
-  json(): Operation<unknown>;
+  json(): OperationObject<unknown>;
 
   /**
    * An operation that executes the request and produces the raw text of the
    * response body
    */
-  text(): Operation<string>;
+  text(): OperationObject<string>;
 }
 
 /**

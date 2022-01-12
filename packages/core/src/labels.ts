@@ -1,3 +1,4 @@
+import { extractLabels } from './controller/utils';
 import { Operation, OperationObject } from './operation';
 import { isObjectOperation } from './predicates';
 import { Symbol } from './symbol';
@@ -17,43 +18,30 @@ export type Labels = Record<string, string | number | boolean>;
  * removed. See {@link setLabels} if you want to replace the existing labels
  * entirely.
  */
-export function withLabels<T>(operation: Operation<T>, labels: Labels): Operation<T> {
+export function withLabels<T>(operation: Operation<T>, labels: Labels): OperationObject<T> {
   if (isObjectOperation<T>(operation)) {
     let original = operation[Symbol.operation];
-    Object.assign(operation, {
+    let originalLabels = extractLabels(operation);
+    return {
+      ...originalLabels,
       ...labels,
       [Symbol.operation]: original
-    });
-  } else if (operation) {
-    operation.labels = { ...(operation.labels || {}), ...labels };
+    };
+  } else {
+    return {
+      ...(operation?.labels),
+      ...labels,
+      [Symbol.operation]: operation
+    };
   }
-  return operation;
 }
 
 /**
  * Like {@link withLabels}, but replaces the existing labels entirely.
  */
-export function setLabels<T>(operation: Operation<T>, labels: Labels): Operation<T> {
-  if (isObjectOperation<T>(operation)) {
-    let original = operation[Symbol.operation];
-    operation = {
-      ...labels,
-      [Symbol.operation]: original
-    } as Operation<T>;
-  } else if (operation) {
-    operation.labels = labels;
-  }
-  return operation;
-}
-
-export function extractLabels<T>(obj: OperationObject<T>): Labels {
-  let labels: Labels = {};
-  for (let key in obj) {
-    let value = obj[key];
-    if (typeof value == 'string'
-    || typeof value == 'number'
-    || typeof value == 'boolean')
-      labels[key] = value;
-  }
-  return labels;
+export function setLabels<T>(operation: Operation<T>, labels: Labels): OperationObject<T> {
+  return {
+    ...labels,
+    [Symbol.operation]: isObjectOperation<T>(operation) ? operation[Symbol.operation] : operation
+  };
 }

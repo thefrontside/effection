@@ -1,7 +1,7 @@
 /// <reference types="../types/shellwords" />
 import { split } from 'shellwords';
 
-import { Task, Operation, Resource, spawn, withLabels } from 'effection';
+import { Task, Resource, spawn, withLabels, OperationObject } from 'effection';
 import { ExecOptions, Process, ProcessResult, CreateOSProcess } from './exec/api';
 import { createPosixProcess } from './exec/posix';
 import { createWin32Process, isWin32 } from './exec/win32';
@@ -10,8 +10,8 @@ export * from './exec/api';
 export * from './exec/error';
 
 export interface Exec extends Resource<Process> {
-  join(): Operation<ProcessResult>;
-  expect(): Operation<ProcessResult>;
+  join(): OperationObject<ProcessResult>;
+  expect(): OperationObject<ProcessResult>;
 }
 
 const createProcess: CreateOSProcess = (cmd, opts) => {

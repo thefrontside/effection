@@ -1,4 +1,7 @@
-const SymbolOperation = Symbol.for("Symbol.operation");
+declare global {
+  // eslint-disable-next-line prefer-let/prefer-let
+  const SymbolOperation: unique symbol;
+}
 
 export interface SymbolExtentions {
   operation: typeof SymbolOperation;
@@ -11,7 +14,7 @@ const SymbolExtended: SymbolConstructor = Object.create(Symbol, {
     writable: false,
     enumerable: false,
     configurable: false,
-    value: SymbolOperation,
+    value: Symbol.for("Symbol.operation"),
   },
 });
 

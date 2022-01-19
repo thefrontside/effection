@@ -1,5 +1,5 @@
 import { IncomingMessage } from 'http';
-import { spawn } from '@effection/core';
+import { Labels, spawn } from '@effection/core';
 
 import { EchoServer } from "./echo-server";
 import { when, never } from "./helpers";
@@ -116,8 +116,8 @@ describe("fetch in node", () => {
     });
 
     it("applies labels", function*() {
-      expect(fetch('http://www.example.com').json()?.name).toEqual('fetch(\'http://www.example.com\').json()');
-      expect(fetch('http://www.example.com', { method: 'POST' }).json()?.method).toEqual('POST');
+      expect((fetch('http://www.example.com').json()?.labels as Labels)?.name).toEqual('fetch(\'http://www.example.com\').json()');
+      expect((fetch('http://www.example.com', { method: 'POST' }).json()?.labels as Labels)?.method).toEqual('POST');
     });
   });
 });

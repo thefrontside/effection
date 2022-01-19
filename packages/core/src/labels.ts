@@ -1,5 +1,4 @@
-import { extractLabels } from './controller/utils';
-import { Operation, OperationObject } from './operation';
+import { Operation } from './operation';
 import { isObjectOperation } from './predicates';
 import { Symbol } from './symbol';
 
@@ -18,30 +17,31 @@ export type Labels = Record<string, string | number | boolean>;
  * removed. See {@link setLabels} if you want to replace the existing labels
  * entirely.
  */
-export function withLabels<T>(operation: Operation<T>, labels: Labels): OperationObject<T> {
+export function withLabels<T>(operation: Operation<T>, labels: Labels): Operation<T> {
   if (isObjectOperation<T>(operation)) {
     let original = operation[Symbol.operation];
-    let originalLabels = extractLabels(operation);
-    return {
-      ...originalLabels,
+    return Object.assign(operation, {
       ...labels,
       [Symbol.operation]: original
-    };
-  } else {
-    return {
-      ...(operation?.labels),
-      ...labels,
-      [Symbol.operation]: operation
-    };
+    });
+  } else if (operation) {
+    operation.labels = { ...(operation.labels || {}), ...labels };
   }
+  return operation;
 }
 
 /**
  * Like {@link withLabels}, but replaces the existing labels entirely.
  */
-export function setLabels<T>(operation: Operation<T>, labels: Labels): OperationObject<T> {
-  return {
-    ...labels,
-    [Symbol.operation]: isObjectOperation<T>(operation) ? operation[Symbol.operation] : operation
-  };
+export function setLabels<T>(operation: Operation<T>, labels: Labels): Operation<T> {
+  if (isObjectOperation<T>(operation)) {
+    let original = operation[Symbol.operation];
+    operation = {
+      ...labels,
+      [Symbol.operation]: original
+    } as Operation<T>;
+  } else if (operation) {
+    operation.labels = labels;
+  }
+  return operation;
 }

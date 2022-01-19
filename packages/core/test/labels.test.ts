@@ -7,26 +7,21 @@ import { withLabels, run, sleep, label, Labels, Operation, Symbol } from '../src
 describe('labels', () => {
   describe('withLabels', () => {
     it('applies labels to an operation', () => {
-      let originalOperation = function*() { /* no op */ };
-      let someOperation = withLabels(originalOperation, { bar: "baz" });
+      let someOperation = withLabels(function*() { /* no op */ }, { bar: "baz" });
 
-      expect(someOperation).toEqual({ bar: "baz", [Symbol.operation]: originalOperation });
+      expect(someOperation?.labels).toEqual({ bar: "baz" });
     });
 
     it('merges with existing labels', () => {
-      let originalOperation: Operation<void> = function*() { /* no op */ };
-      originalOperation.labels = { spam: "spam" };
       let someOperation = withLabels(
         withLabels(
-          originalOperation,
+          function*() { /* no op */ },
           { foo: "foo", bar: "bar" }
         ),
         { foo: "quox", blah: "blah" }
       );
 
-      expect(originalOperation).toHaveProperty("labels.spam", "spam");
-      expect(originalOperation).not.toHaveProperty("labels.bar", "bar");
-      expect(someOperation).toEqual({ foo: "quox", bar: "bar", blah: "blah", spam: "spam", [Symbol.operation]: originalOperation });
+      expect(someOperation?.labels).toEqual({ foo: "quox", bar: "bar", blah: "blah" });
     });
 
     it('applies labels on task', async () => {

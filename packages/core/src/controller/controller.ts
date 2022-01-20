@@ -2,8 +2,7 @@ import type { Task } from '../task';
 import type { RunLoop } from '../run-loop';
 import { Operation } from '../operation';
 import { isResource, isFuture, isPromise, isGenerator, isObjectOperation } from '../predicates';
-import { createObjectController } from './object-controller';
-import { createFunctionController } from './function-controller';
+import { createDelegationController } from './delegation-controller';
 import { createSuspendController } from './suspend-controller';
 import { createPromiseController } from './promise-controller';
 import { createIteratorController } from './iterator-controller';
@@ -28,9 +27,9 @@ export type Options = {
 
 export function createController<T>(task: Task<T>, operation: Operation<T>, options: Options): Controller<T> {
   if (isObjectOperation<T>(operation)) {
-    return createObjectController(task, operation, () => createController(task, operation[Symbol.operation], options));
+    return createDelegationController(task, operation, () => createController(task, operation[Symbol.operation], options));
   } else if (typeof(operation) === 'function') {
-    return createFunctionController(task, operation, () => createController(task, operation(task), options));
+    return createDelegationController(task, operation, () => createController(task, operation(task), options));
   } else if(!operation) {
     return createSuspendController();
   } else if (isResource(operation)) {

@@ -9,7 +9,7 @@ export interface Labelled {
   labels?: Labels;
 }
 
-export interface OperationIterator<TOut> extends Generator<Operation<any>, TOut | undefined, any>, Labelled {
+export interface OperationGenerator<TOut> extends Generator<Operation<any>, TOut | undefined, any>, Labelled {
 }
 
 export interface OperationPromise<TOut> extends PromiseLike<TOut>, Labelled {
@@ -34,7 +34,7 @@ export interface Resource<TOut> extends Labelled {
    * @param resourceTask a handle to the resource task that the resource is running
    * @param initTask a handle to the task of the `init` itself
    */
-  init(resourceTask: Task, initTask: Task): OperationIterator<TOut>;
+  init(resourceTask: Task, initTask: Task): OperationGenerator<TOut>;
 }
 
 export interface OperationFunction<TOut> extends Labelled {
@@ -54,7 +54,7 @@ export interface OperationObject<TOut> extends Record<string, unknown> {
  */
 export type Operation<TOut> =
   OperationPromise<TOut> |
-  OperationIterator<TOut> |
+  OperationGenerator<TOut> |
   OperationFuture<TOut> |
   OperationFunction<TOut> |
   OperationObject<TOut> |

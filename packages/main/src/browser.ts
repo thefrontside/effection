@@ -3,16 +3,14 @@ import { isMainError } from './error';
 
 export * from './error';
 
-const DEFAULT_NAME = 'entry point';
-
 export function main<T>(operation: Operation<T>): Task<T> {
   return run(function*(task) {
     let interrupt = () => { task.halt() };
     try {
       window.addEventListener('unload', interrupt);
-      let name = operation?.name || DEFAULT_NAME;
+      let name = operation?.name || 'entry point';
       return yield withLabels(operation, {
-        name: typeof name == 'string' ? name : DEFAULT_NAME
+        name: typeof name == 'string' ? name : 'entry point'
       });
     } catch(error) {
       if(isMainError(error)) {

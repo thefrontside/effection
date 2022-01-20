@@ -4,8 +4,6 @@ import { isMainError } from './error';
 
 export * from './error';
 
-const DEFAULT_NAME = 'entry point';
-
 /**
  * Runs the given operation in a task and returns that task. `main` functions
  * as an entry point to programs written in Effection. That means that your
@@ -41,9 +39,9 @@ export function main<T>(operation: Operation<T>): Task<T> {
     try {
       process.on('SIGINT', interrupt);
       process.on('SIGTERM', interrupt);
-      let name = operation?.name || DEFAULT_NAME;
+      let name = operation?.name || 'entry point';
       return yield withLabels(operation, {
-        name: typeof name == 'string' ? name : DEFAULT_NAME
+        name: typeof name == 'string' ? name : 'entry point'
       });
     } catch(error) {
       console.error(formatError(error));

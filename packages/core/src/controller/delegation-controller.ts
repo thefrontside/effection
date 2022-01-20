@@ -1,11 +1,11 @@
 import { Task } from '../task';
 import type { Controller } from './controller';
 import { createFuture } from '../future';
-import { OperationFunction } from '../operation';
+import { Operation } from '../operation';
 import { isObjectOperation } from '../predicates';
-import { extractLabels } from './utils';
+import { extractLabels } from '../labels';
 
-export function createFunctionController<TOut>(task: Task<TOut>, fn: OperationFunction<TOut>, createController: () => Controller<TOut>): Controller<TOut> {
+export function createDelegationController<TOut>(task: Task<TOut>, operation: Operation<TOut>, createController: () => Controller<TOut>): Controller<TOut> {
   let delegate: Controller<TOut>;
   let { produce, future } = createFuture<TOut>();
 
@@ -14,7 +14,7 @@ export function createFunctionController<TOut>(task: Task<TOut>, fn: OperationFu
       delegate = createController();
       task.setLabels({
         ...(isObjectOperation<TOut>(delegate.operation) ? extractLabels(delegate.operation) : delegate.operation?.labels),
-        ...fn.labels
+        ...extractLabels(operation)
       });
     } catch (error) {
       produce({ state: 'errored', error });

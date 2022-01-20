@@ -9,7 +9,7 @@ import { addTrace } from './error';
 import { createFutureOnRunLoop, Future, FutureLike, Value } from './future';
 import { createRunLoop } from './run-loop';
 import { isObjectOperation } from './predicates';
-import { extractLabels } from './controller/utils';
+import { extractLabels } from './labels';
 
 let COUNTER = 0;
 

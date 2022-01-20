@@ -41,7 +41,7 @@ export interface OperationFunction<TOut> extends Labelled {
   (task: Task<TOut>): Operation<TOut>;
 }
 
-export interface OperationObject<TOut> extends Record<string, unknown> {
+export interface OperationObject<TOut> extends Record<string | symbol | number, unknown> {
   [Symbol.operation]: Operation<TOut>;
 }
 

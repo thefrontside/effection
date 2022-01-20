@@ -1,5 +1,5 @@
 import { Controller, Options } from './controller';
-import { OperationIterator } from '../operation';
+import { OperationGenerator } from '../operation';
 import { createTask, Task } from '../task';
 import { Operation } from '../operation';
 import { createFuture, Value } from '../future';
@@ -12,7 +12,7 @@ interface Claimable {
   [claimed]?: boolean;
 }
 
-export function createIteratorController<TOut>(task: Task<TOut>, iterator: OperationIterator<TOut> & Claimable, options: Options): Controller<TOut> {
+export function createIteratorController<TOut>(task: Task<TOut>, iterator: OperationGenerator<TOut> & Claimable, options: Options): Controller<TOut> {
   let didHalt = false;
   let yieldingTo: Task | undefined;
 

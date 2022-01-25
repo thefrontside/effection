@@ -1327,6 +1327,15 @@
     tar "^2.2.2"
     tar-stream "^2.1.4"
 
+"@effection/channel@2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@effection/channel/-/channel-2.0.1.tgz#69d03ab16b5a0e70537c9db781dc10062f29b781"
+  integrity sha512-oyGTskv5qSD6k2fo4w9m3L1d4OdLxBvlRfDpXu96yPVatEo4z+i25hEYE2oGXdBjsnIK/PMd50Ehaw/q4QakxA==
+  dependencies:
+    "@effection/core" "2.0.1"
+    "@effection/events" "2.0.1"
+    "@effection/stream" "2.0.1"
+
 "@effection/channel@^1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@effection/channel/-/channel-1.0.0.tgz#6f41e210d3bf88298784f6716a074d834246e381"
@@ -1336,6 +1345,26 @@
     "@effection/subscription" "^1.0.0"
     effection "^1.0.0"
 
+"@effection/core@2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@effection/core/-/core-2.0.1.tgz#f200e4df020666ec5dc232da3057bafb63aa19af"
+  integrity sha512-Bl2pfu9gbTwlieTgcEhFOwz70QDPXpyVRuOiOqccGVBvZpa3/mzepH6LFZSCyothnc7YO0b31xXV551POiLEow==
+
+"@effection/dispatch@2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@effection/dispatch/-/dispatch-2.0.1.tgz#aa16dc34517a84462a42307420243aa10a17a2ba"
+  integrity sha512-22EIHjEGlxl/5r+kTxLKHyWTt3D341os5LiDgV2RqElZnD1F7ki5JwYfqg3chm7M4Usl2Xj5mdgb8g7DiV/tnA==
+  dependencies:
+    effection "2.0.1"
+
+"@effection/events@2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@effection/events/-/events-2.0.1.tgz#9eaaed36270c0d0d4ee06c2657e819b22c52f1ac"
+  integrity sha512-ufaYE8srITlbt1kuJv5vn12HobQPTot5MJZC7tHcNDGqvF+/ewTuVaxKGD5Vq4JP5H29GAZfjjUrkQaopBdjTw==
+  dependencies:
+    "@effection/core" "2.0.1"
+    "@effection/stream" "2.0.1"
+
 "@effection/events@^1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@effection/events/-/events-1.0.0.tgz#4430ed538377bf04a5efd7c3b6d40a7b4e2b0607"
@@ -1343,6 +1372,25 @@
   dependencies:
     "@effection/subscription" "^1.0.0"
     effection "^1.0.0"
+
+"@effection/fetch@2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@effection/fetch/-/fetch-2.0.1.tgz#f67a307ef6b4450007bbf2207c6be00c143d4ce2"
+  integrity sha512-doIE8g3ljm8YUJp+JJQr2i9PKLo/bWCtXjUbI+8wtVqAM5ifDElGWRH++o57JRDwNuHLPj9TdLfdwWxrTRM2Fw==
+  dependencies:
+    "@effection/core" "2.0.1"
+    abort-controller "^3.0.0"
+    cross-fetch "^3.0.4"
+    node-fetch "^2.6.1"
+
+"@effection/main@2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@effection/main/-/main-2.0.1.tgz#becbaf0b28665e401b05e429d4cad8c2c5c84ee2"
+  integrity sha512-HIoK7cf4dCzCLvDuXO2YTIly7cJVU3vB47M58bqILCyGeMwcfW1iQU92SeykUZRCxfPTrQbU4vDWAS1hSvE0ow==
+  dependencies:
+    "@effection/core" "2.0.1"
+    chalk "^4.1.2"
+    stacktrace-parser "^0.1.10"
 
 "@effection/node@^1.0.2":
   version "1.0.2"
@@ -1356,6 +1404,21 @@
     ctrlc-windows "^2.0.0"
     effection "^1.0.0"
     shellwords "^0.1.1"
+
+"@effection/stream@2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@effection/stream/-/stream-2.0.1.tgz#f0a7b9f63135f7cefb74a9898b386a86aa48f23d"
+  integrity sha512-GZ65WAK5npuJVET4Cgx50G3ruKzb7LoihpyKHBSzOOmXIIJIhJ5yf1hYf9/EPh8KRzBDG3yGDZ2JpUINpElgng==
+  dependencies:
+    "@effection/core" "2.0.1"
+    "@effection/subscription" "2.0.1"
+
+"@effection/subscription@2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@effection/subscription/-/subscription-2.0.1.tgz#677cfdaa21a0a16f5aee4834e9da10afbfb5678b"
+  integrity sha512-cU54UzXhQ7EX2TC6lejDIO1dV4pdRmQ3ev7hS9EVAsxg0XP0UGdCNE/ddfWYoSHoOVKgkbeOjZkvaKvjvs4G0A==
+  dependencies:
+    "@effection/core" "2.0.1"
 
 "@effection/subscription@^1.0.0":
   version "1.0.0"
@@ -4285,6 +4348,19 @@ ee-first@1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/ee-first/-/ee-first-1.1.1.tgz#590c61156b0ae2f4f0255732a158b266bc56b21d"
   integrity sha1-WQxhFWsK4vTwJVcyoViyZrxWsh0=
+
+effection@2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/effection/-/effection-2.0.1.tgz#6063a17afb0bdaee30cc4c94cdffdb2a6cab08af"
+  integrity sha512-KV5P1FZ7nZlSar9Li/cTj88D/0A1Ac+dv+QVDcK7hGBh2OLHtns//54trublT6L0PBP/0RYa5yPUixDdzMSDug==
+  dependencies:
+    "@effection/channel" "2.0.1"
+    "@effection/core" "2.0.1"
+    "@effection/events" "2.0.1"
+    "@effection/fetch" "2.0.1"
+    "@effection/main" "2.0.1"
+    "@effection/stream" "2.0.1"
+    "@effection/subscription" "2.0.1"
 
 effection@^1.0.0:
   version "1.0.0"

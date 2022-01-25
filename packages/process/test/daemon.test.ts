@@ -1,4 +1,4 @@
-import { describe, it, beforeEach, afterEach } from '@effection/mocha';
+import { describe, it, beforeEach, afterEach, captureError } from '@effection/mocha';
 import expect from 'expect';
 
 import { run, Task, createFuture, fetch, spawn } from 'effection';
@@ -42,13 +42,7 @@ describe('daemon', () => {
       task.halt();
     });
     it('kills the process', function*() {
-      let error;
-      try {
-        yield fetch(`http://localhost:29000`, { method: "POST", body: "hello" })
-      } catch (err) {
-        error = err;
-      }
-      expect(error).toHaveProperty('name', 'FetchError');
+      expect(yield captureError(fetch(`http://localhost:29000`, { method: "POST", body: "hello" }))).toHaveProperty('name', 'FetchError');
     });
   });
 

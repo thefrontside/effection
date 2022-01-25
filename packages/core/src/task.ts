@@ -325,7 +325,7 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
 
   let controller: Controller<TOut>;
 
-  let labels: Labels = { ...(isObjectOperation<TOut>(operation) ? extractLabels(operation) : operation?.labels), ...options.labels };
+  let labels: Labels = { ...extractLabels(operation), ...options.labels };
   let yieldingTo: Task | undefined;
 
   if (!labels.name) {

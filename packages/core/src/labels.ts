@@ -1,4 +1,4 @@
-import { Operation, OperationObject } from './operation';
+import { Operation } from './operation';
 import { isObjectOperation } from './predicates';
 import { Symbol } from './symbol';
 
@@ -48,7 +48,10 @@ export function setLabels<T>(operation: Operation<T>, labels: Labels): Operation
 
 export function extractLabels<T>(operation: Operation<T>): Labels | undefined {
   if (!isObjectOperation<T>(operation)) {
-    return operation?.labels;
+    return {
+      ...(operation?.name ? { name: operation?.name }: null),
+      ...operation?.labels
+    };
   }
   let labels: Labels = {};
   for (let key in operation) {

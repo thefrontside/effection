@@ -4,7 +4,7 @@ import { createFuture } from '../future';
 import { Operation } from '../operation';
 import { extractLabels } from '../labels';
 
-export function createDelegationController<TOut>(task: Task<TOut>, operation: Operation<TOut>, createController: () => Controller<TOut>): Controller<TOut> {
+export function createDelegateController<TOut>(task: Task<TOut>, operation: Operation<TOut>, createController: () => Controller<TOut>): Controller<TOut> {
   let delegate: Controller<TOut>;
   let { produce, future } = createFuture<TOut>();
 

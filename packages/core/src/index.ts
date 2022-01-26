@@ -11,6 +11,7 @@ export { Labels, withLabels, setLabels } from './labels';
 export { HasEffectionTrace } from './error';
 export { createFuture, Future, FutureLike } from './future';
 export { createAbortSignal, AbortSignal } from './abort-signal';
+export { Symbol } from './symbol';
 
 export { sleep } from './operations/sleep';
 export { ensure } from './operations/ensure';

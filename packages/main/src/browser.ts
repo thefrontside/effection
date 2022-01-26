@@ -8,8 +8,9 @@ export function main<T>(operation: Operation<T>): Task<T> {
     let interrupt = () => { task.halt() };
     try {
       window.addEventListener('unload', interrupt);
+      let name = operation?.name || 'entry point';
       return yield withLabels(operation, {
-        name: operation?.name || 'entry point'
+        name: typeof name == 'string' ? name : 'entry point'
       });
     } catch(error) {
       if(isMainError(error)) {

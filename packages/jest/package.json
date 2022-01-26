@@ -1,0 +1,45 @@
+{
+  "name": "@effection/jest",
+  "version": "2.0.0",
+  "description": "Effection Integration for the Jest framework",
+  "main": "dist-cjs/index.js",
+  "module": "dist-esm/index.js",
+  "types": "dist-esm/index.d.ts",
+  "typeDocEntry": "src/index.ts",
+  "homepage": "https://frontside.com/effection",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thefrontside/effection.git",
+    "directory": "packages/jest"
+  },
+  "author": "Frontside Engineering <engineering@frontside.com>",
+  "license": "MIT",
+  "files": [
+    "README.md",
+    "CHANGELOG.md",
+    "dist-*/**/*",
+    "src/**/*"
+  ],
+  "scripts": {
+    "lint": "eslint '{src,tests}/**/*.ts'",
+    "test": "jest",
+    "prepack": "tsc --build tsconfig.esm.json && tsc --build tsconfig.cjs.json"
+  },
+  "dependencies": {
+    "effection": "2.0.2",
+    "assert-ts": "^0.3.4"
+  },
+  "peerDependencies": {
+    "jest": "^27.0.0"
+  },
+  "devDependencies": {
+    "@frontside/tsconfig": "^1.2.0",
+    "jest": "^27.0.0",
+    "ts-jest": "^27.1.3",
+    "@types/jest": "^27.4.0",
+    "typescript": "^4.3.5"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  }
+}

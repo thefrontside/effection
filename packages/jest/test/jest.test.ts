@@ -32,7 +32,7 @@ describe('@effection/jest', () => {
     expect(stderr).toContain('boom');
   });
 
-  //it.todo('can have pending tasks (note: this is not actually pending)');
+  it.todo('can have pending tasks (note: this is not actually pending)');
 
   describe('accessing the Jest Context API', () => {
     beforeEach(function*() {

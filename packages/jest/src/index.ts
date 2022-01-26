@@ -10,9 +10,15 @@ export interface TestFn {
   (this: Global.TestContext, world: Task, scope: Task): ReturnType<Resource<void>['init']>;
 }
 
-export interface It {
+export interface ItFn {
   (title: string, fn: TestFn, timeout?: number): void;
-  eventually(title: string, fn: TestFn, timeout?: number): void;
+}
+
+export interface It extends ItFn {
+  only: ItFn;
+  skip: ItFn;
+  eventually: ItFn;
+  todo(title: string): void;
 }
 
 let allScope: Task | undefined;
@@ -22,13 +28,10 @@ function runInEachScope(fn: TestFn, name: string): Global.TestFn {
   return async function (this: Global.TestContext | undefined) {
     assert(!!eachScope, 'critical: eachScope not initialized');
     await eachScope
-      .run(
-        {
-          name,
-          init: fn.bind(this ?? {}),
-        },
-        { ignoreError: true },
-      )
+      .run({
+        name,
+        init: fn.bind(this ?? {}),
+      })
       .catchHalt();
     if (eachScope.state === 'errored') {
       await eachScope;
@@ -53,7 +56,7 @@ function runInAllScope(fn: TestFn, name: string): Global.TestFn {
 
 jestGlobals.beforeAll(async () => {
   await Effection.reset();
-  allScope = run(undefined, { labels: { name: 'allScope' }, ignoreChildErrors: true });
+  allScope = run(undefined, { labels: { name: 'allScope' } });
 });
 
 jestGlobals.afterAll(async () => {
@@ -89,6 +92,15 @@ export const it: It = Object.assign(
     return jestGlobals.it(name, runInEachScope(fn, `it(${JSON.stringify(name)})`), timeout);
   },
   {
+    only(name: string, fn: TestFn, timeout?: number): void {
+      return jestGlobals.it.only(name, runInEachScope(fn, `it(${JSON.stringify(name)})`), timeout);
+    },
+    skip(name: string, fn: TestFn, timeout?: number): void {
+      return jestGlobals.it.skip(name, runInEachScope(fn, `it(${JSON.stringify(name)})`), timeout);
+    },
+    todo(name: string): void {
+      return jestGlobals.it.todo(name);
+    },
     eventually(name: string, fn: TestFn, testTimeout?: number) {
       let limit = testTimeout ?? getState().testTimeout;
 

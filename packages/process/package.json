@@ -1,6 +1,6 @@
 {
   "name": "@effection/process",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Spawn and manage external processes with Effection",
   "main": "dist-cjs/index.js",
   "module": "dist-esm/index.js",
@@ -28,20 +28,19 @@
     "mocha": "mocha -r ts-node/register"
   },
   "devDependencies": {
+    "@effection/fetch": "^2.0.2",
     "@frontside/tsconfig": "^1.2.0",
     "@types/cross-spawn": "^6.0.2",
     "@types/node": "^16.3.2",
-    "@types/node-fetch": "^2.5.7",
     "expect": "^25.4.0",
     "mocha": "^8.3.1",
-    "node-fetch": "^2.6.1",
     "ts-node": "^10.4.0",
     "typescript": "^4.3.5"
   },
   "dependencies": {
-    "effection": "2.0.2",
     "cross-spawn": "^7.0.3",
     "ctrlc-windows": "^2.0.0",
+    "effection": "2.0.3",
     "shellwords": "^0.1.1"
   },
   "volta": {

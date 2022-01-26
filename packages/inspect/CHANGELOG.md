@@ -1,5 +1,11 @@
 # @effection/inspect
 
+## \[2.1.3]
+
+- Remove redundant node-fetch from dependencies
+  - Bumped due to a bump in @effection/inspect-server.
+  - [b4a87d5](https://github.com/thefrontside/effection/commit/b4a87d525d270e53b92543676c9fb10c7fd1edd7) Add change file for covector on 2022-01-24
+
 ## \[2.1.2]
 
 - Extract `AbortSignal` from `@effection/fetch` to `@effection/core` as a resource

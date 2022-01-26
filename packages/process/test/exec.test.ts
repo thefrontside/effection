@@ -1,9 +1,8 @@
-import { Task, spawn, Labels } from 'effection';
+import { Task, spawn, fetch, Labels } from 'effection';
 import { describe, it, beforeEach, captureError } from '@effection/mocha';
 import expect from 'expect';
 
 import { exec, Process, ProcessResult } from '../src';
-import fetch from 'node-fetch';
 
 describe('exec', () => {
   describe('.join', () => {

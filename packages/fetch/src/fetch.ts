@@ -1,4 +1,4 @@
-import { AbortSignal, createAbortSignal, withLabels, Resource, Operation } from '@effection/core';
+import { AbortSignal, createAbortSignal, withLabels, Operation, Resource } from '@effection/core';
 import { fetch as nativeFetch } from 'cross-fetch';
 
 /**

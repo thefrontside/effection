@@ -2,17 +2,17 @@ import './setup';
 import { describe, it } from 'mocha';
 import expect from 'expect';
 
-import { withLabels, run, sleep, label, Labels, Operation } from '../src/index';
+import { withLabels, run, sleep, label, Labels, Operation, Symbol } from '../src';
 
 describe('labels', () => {
   describe('withLabels', () => {
-    it('applies labels to an operation', async () => {
+    it('applies labels to an operation', () => {
       let someOperation = withLabels(function*() { /* no op */ }, { bar: "baz" });
 
-      await expect(someOperation?.labels).toEqual({ bar: "baz" });
+      expect(someOperation?.labels).toEqual({ bar: "baz" });
     });
 
-    it('merges with existing labels', async () => {
+    it('merges with existing labels', () => {
       let someOperation = withLabels(
         withLabels(
           function*() { /* no op */ },
@@ -21,7 +21,7 @@ describe('labels', () => {
         { foo: "quox", blah: "blah" }
       );
 
-      await expect(someOperation?.labels).toEqual({ foo: "quox", bar: "bar", blah: "blah" });
+      expect(someOperation?.labels).toEqual({ foo: "quox", bar: "bar", blah: "blah" });
     });
 
     it('applies labels on task', async () => {
@@ -78,6 +78,12 @@ describe('labels', () => {
       name: 'sleep',
       one: 1
     });
+  });
+
+  it('applies labels of the resolved operation to a object operation', async () => {
+    let task = run((() => () => () => withLabels({ *[Symbol.operation]() {} }, { one: 1 })) as Operation<void>);
+
+    expect(task.labels).toMatchObject({ one: 1 });
   });
 
   it('can change labels of a resolved function operation dynamically', async () => {

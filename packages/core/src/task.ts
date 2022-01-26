@@ -8,6 +8,8 @@ import { Labels } from './labels';
 import { addTrace } from './error';
 import { createFutureOnRunLoop, Future, FutureLike, Value } from './future';
 import { createRunLoop } from './run-loop';
+import { isObjectOperation } from './predicates';
+import { extractLabels } from './labels';
 
 let COUNTER = 0;
 
@@ -323,11 +325,11 @@ export function createTask<TOut = unknown>(operation: Operation<TOut>, options: 
 
   let controller: Controller<TOut>;
 
-  let labels: Labels = { ...operation?.labels, ...options.labels };
+  let labels: Labels = { ...extractLabels(operation), ...options.labels };
   let yieldingTo: Task | undefined;
 
   if (!labels.name) {
-    if (operation?.name) {
+    if (!isObjectOperation<TOut>(operation) && operation?.name) {
       labels.name = operation?.name;
     } else if (!operation) {
       labels.name = 'suspend';

@@ -39,8 +39,9 @@ export function main<T>(operation: Operation<T>): Task<T> {
     try {
       process.on('SIGINT', interrupt);
       process.on('SIGTERM', interrupt);
+      let name = operation?.name || 'entry point';
       return yield withLabels(operation, {
-        name: operation?.name || 'entry point'
+        name: typeof name == 'string' ? name : 'entry point'
       });
     } catch(error) {
       console.error(formatError(error));

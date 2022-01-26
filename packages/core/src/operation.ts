@@ -2,6 +2,7 @@
 import type { Task } from './task';
 import type { Labels } from './labels';
 import type { FutureLike } from './future';
+import { Symbol } from './symbol';
 
 export interface Labelled {
   name?: string;
@@ -40,6 +41,10 @@ export interface OperationFunction<TOut> extends Labelled {
   (task: Task<TOut>): Operation<TOut>;
 }
 
+export interface OperationObject<TOut> extends Record<string | symbol | number, unknown> {
+  [Symbol.operation]: Operation<TOut>;
+}
+
 /**
  * An `Operation` in Effection describes an abstract computation, that is a
  * computation which is not currently running.
@@ -52,5 +57,6 @@ export type Operation<TOut> =
   OperationGenerator<TOut> |
   OperationFuture<TOut> |
   OperationFunction<TOut> |
+  OperationObject<TOut> |
   Resource<TOut> |
   undefined;

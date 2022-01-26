@@ -1,4 +1,4 @@
-import { Task, spawn, fetch } from 'effection';
+import { Task, spawn, fetch, Labels } from 'effection';
 import { describe, it, beforeEach, captureError } from '@effection/mocha';
 import expect from 'expect';
 
@@ -23,7 +23,7 @@ describe('exec', () => {
     });
 
     it('applies labels', function*() {
-      expect(exec("foo").join()?.labels?.name).toEqual('exec("foo").join()');
+      expect((exec("foo").join()?.labels as Labels)?.name).toEqual('exec("foo").join()');
     });
   });
 
@@ -43,7 +43,7 @@ describe('exec', () => {
     });
 
     it('applies labels', function*() {
-      expect(exec("foo").expect()?.labels?.name).toEqual('exec("foo").expect()');
+      expect((exec("foo").expect()?.labels as Labels)?.name).toEqual('exec("foo").expect()');
     });
   });
 

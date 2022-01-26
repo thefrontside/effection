@@ -24,7 +24,7 @@ Using Effection provides many benefits over using plain Promises and
   synchronous in nature, this means you have full control over the event loop
   and operations requiring synchronous setup remain race condition free.
 - **Composition:** Since all Effection code is well behaved, it
-  composes easily, and there  are no nasty surprises when trying to
+  composes easily, and there are no nasty surprises when trying to
   fit different pieces together.
 
 Effection leverages the idea of [structured concurrency][structured concurrency]
@@ -43,18 +43,34 @@ work, it is not tested so your mileage may vary.
 
 To build, run the `prepack` command from the root directory.
 
-``` text
+```text
 $ yarn prepack
 ```
 
 You can also run the `prepack` command within each sub directory to
 only build that package.
 
+Don't forget describe changes that you made.
+For that you need to create `*.md` file in `.changes` directory with
+list of changed packages, each package should be versioned by semver, and
+on the last line briefly describe your changes. Like this:
+
+```md
+---
+"package-name1": "patch"
+"package-name2": "minor"
+---
+
+Added new awesome feature
+```
+
+The more information about this format you can find in [`covector` docs](https://github.com/jbolda/covector/tree/main/packages/covector#applying-changes)
+
 ### Testing
 
 To run tests:
 
-``` text
+```text
 $ yarn test
 ```
 

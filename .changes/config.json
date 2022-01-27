@@ -112,6 +112,13 @@
         "effection"
       ]
     },
+    "@effection/jest": {
+      "path": "./packages/jest",
+      "manager": "javascript",
+      "dependencies": [
+        "effection"
+      ]
+    },
     "@effection/process": {
       "path": "./packages/process",
       "manager": "javascript",

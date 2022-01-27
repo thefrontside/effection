@@ -17,6 +17,7 @@
       "packages/fetch",
       "packages/effection",
       "packages/mocha",
+      "packages/jest",
       "packages/dispatch",
       "packages/duplex-channel",
       "packages/atom",

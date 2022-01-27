@@ -24,13 +24,13 @@ describe('@effection/jest', () => {
     let { code, stderr } = yield exec('yarn jest --testMatch "**/test/direct-error.failure.ts" --no-colors').join();
     expect(code).toEqual(1);
     expect(stderr).toContain('boom');
-  });
+  }, process.env.CI ? 30000 : undefined);
 
   it('throws error on failure in background task', function*() {
     let { code, stderr } = yield exec('yarn jest --testMatch "**/test/spawned-error.failure.ts" --no-colors').join();
     expect(code).toEqual(1);
     expect(stderr).toContain('boom');
-  });
+  }, process.env.CI ? 30000 : undefined);
 
   it.todo('can have pending tasks (note: this is not actually pending)');
 

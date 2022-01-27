@@ -3,70 +3,486 @@ id: testing
 title: Testing
 ---
 
-You can test Effection code with any test framework. Since Effection integrates
-seamlessly with `async/await` code, any test framework which supports
-asynchronous tests works well with Effection.
+Effection not only simplifies the process of writing tests, but by
+managing all the timing complexity of your setup and teardown, it can
+often make new kinds of tests possible that beforehand may have seemed
+unachievable.
 
-Effection itself is tested with [mocha][], and we have created a small
-integration to make the process of writing tests with mocha easier.
+Currently, both [Jest][jest] and [Mocha][mocha] are supported out of the box, but
+because of the way Effection works, and because of the nature of task
+you have to do while testing, it's easy to integrate it with
+any test framework you like.
 
-## Getting started
+## Lifecycle
 
-Add the `@effection/mocha` package:
+The reason Effection can so effectively power your tests is because the
+life-cycle of a test mirrors that of an Effection Task almost perfectly.
 
-```
-npm install --save-dev @effection/mocha
-```
+Consider that almost every test framework executes the following sequence of
+operations when running a test:
 
-In your test files you can now import `describe`, `it` and friends from
-`@effection/mocha` instead:
+1. setup()
+2. run()
+3. teardown()
+
+While there are certainly different ways of expressing this syntactically, it
+turns out that as a fundamental testing pattern, it is nearly universal. Notice
+that, like tests, the cleanup of an effection operation is intrinsic. We can
+leverage this fact to associate an effection task, or scope, with each test.
+Then, we run any operation that is part of the test within that
+scope. After it is finished, a test's scope is disposed
+of, thereby halting any tasks that were running as a part of it.
+
+This means that any resources being used by the testcase such as servers,
+database connections, file handles, etc... can be automatically released without
+writing any cleanup logic explicitly into the test itself. In essense, your
+tests are able to completely eliminate `teardown` altogether and become:
+
+1. setup()
+2. run()
+
+## Jest and Mocha
+
+Effection provides packages for seamless integration between [Jest][jest] and
+[Mocha][mocha].
+
+To get started, install from NPM
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs
+  groupId="jest-and-mocha-install"
+  defaultValue="jest"
+  values={[{label: 'Jest', value: 'jest'}, {label: 'Mocha', value: 'mocha'}]}>
+
+  <TabItem value="jest">
+
+  ```
+  npm install --save-dev @effection/jest
+  ```
+
+  </TabItem>
+  <TabItem value="mocha">
+
+  ```
+  npm install --save-dev @effection/mocha
+  ```
+
+  </TabItem>
+</Tabs>
+
+### Writing Tests
+
+Let's say we have a test case written without the benefit of effection that
+looks like this:
 
 ``` javascript
-import { it, beforeEach } from '@effection/mocha';
-import { spawn } from 'effection';
+describe("a server", () => {
+  let server: Server;
+  beforeEach(async () => {
+    server = await startServer({ port: 3500 });
+  });
 
-describe('some effection code', () => {
+  it('can be pinged', async () => {
+    let response = await fetch('http://localhost:3500/ping');
+    expect(response.ok).toBe(true);
+  });
+
+  afterEach(async () => {
+    await server.close();
+  });
+});
+```
+:::note Cleanup
+
+It is critical that we shutdown the server after each test. Otherwise, node
+will never exit without a hard stop because it's still bound to port
+`3500`, and worse, every subsequent time we try and run our tests they will fail
+because port `3500` is not available!
+:::
+
+To re-write this test case using effection, there are two superficial
+differences from the vanilla version of the framework.
+
+1. You `import` all of your test syntax from the effection package, and not
+from the global namespace.
+2. You use [generator functions instead of async functions][replace-async] to
+express all of your test operations.
+
+Our test case now looks like this.
+
+<Tabs
+  groupId="jest-and-mocha-replacement"
+  defaultValue="jest"
+  values={[{label: 'Jest', value: 'jest'}, {label: 'Mocha', value: 'mocha'}]}>
+
+  <TabItem value="jest">
+
+``` javascript
+import { beforeEach, afterEach, it } from '@effection/jest';
+
+describe("a server", () => {
+  let server: Server;
   beforeEach(function*() {
-    yield spawn(function*() {
-      // ...
-    });
+    server = yield startServer({ port: 3500 });
   });
 
-  it('does something', function*() {
-    yield performSomeOperation();
+  it('can be pinged', function*() {
+    let response = yield fetch('http://localhost:3500/ping');
+    expect(response.ok).toBe(true);
+  });
+
+  afterEach(function*() {
+    yield server.close();
   });
 });
 ```
 
-As you can see, we can use a generator function with `it` and `beforeEach`,
-which makes it very easy to call Effection code.
-
-## World
-
-The generator functions passed to `it` and `beforeEach` and other hooks, are a
-bit special in that tasks spawned within the function and [resources][]
-created, actually live for the duration of the whole test.  This allows you to
-spawn an operation in a `beforeEach` and have it still be running in the `it`
-block.
-
-These functions receive two arguments: the first being the task for the whole test,
-and the second being the task for just the function. By convention we refer to the
-task that covers the whole test as "world".
+  </TabItem>
+  <TabItem value="mocha">
 
 ``` javascript
-describe('some effection code', () => {
-  beforeEach(function*(world, task) {
-    world.run(); // still running in the `it` block
-    task.run(); // only runs until the end of `beforeEach`
-    yield spawn(); // spawned in `world`, still running in the `it` block
-    yield task.spawn();
+import { beforeEach, afterEach, it } from '@effection/mocha';
+
+describe("a server", () => {
+  let server: Server;
+  beforeEach(function*() {
+    server = yield startServer({ port: 3500 });
   });
 
-  it('does something', function*() {
-    yield performSomeOperation();
+  it('can be pinged', function*() {
+    let response = yield fetch('http://localhost:3500/ping');
+    expect(response.ok).toBe(true);
+  });
+
+  afterEach(function*() {
+    yield server.close();
   });
 });
 ```
+
+  </TabItem>
+</Tabs>
+
+But so far, we've only traded one syntax for another. Now however, we can
+begin to leverage the power of Effection to make our test cases not only more
+concise, but also more flexible. To do this, we use the fact that each test
+case gets its own scope that is automatically destroyed for us after it runs.
+
+So if we re-cast our server as a [resource][] that is running in our test scope,
+then when the test scope goes away, so will our server.
+
+
+<Tabs
+  groupId="jest-and-mocha-resource"
+  defaultValue="jest"
+  values={[{label: 'Jest', value: 'jest'}, {label: 'Mocha', value: 'mocha'}]}>
+
+  <TabItem value="jest">
+
+``` javascript
+import { ensure } from 'effection';
+import { beforeEach, it } from '@effection/jest';
+
+describe("a server", () => {
+  beforeEach(function*() {
+    yield {
+      name: 'ping server',
+      *init() {
+        let server = yield startServer({ port: 3500 });
+        yield ensure(() => server.close())
+      }
+    }
+  });
+
+  it('can be pinged', function*() {
+    let response = yield fetch('http://localhost:3500/ping');
+    expect(response.ok).toBe(true);
+  });
+});
+```
+
+  </TabItem>
+  <TabItem value="mocha">
+
+``` javascript
+import { ensure } from 'effection';
+import { beforeEach, it } from '@effection/mocha';
+
+describe("a server", () => {
+  beforeEach(function*() {
+    yield {
+      name: 'ping server',
+      *init() {
+        let server = yield startServer({ port: 3500 });
+        yield ensure(() => server.close())
+      }
+    }
+  });
+
+  it('can be pinged', function*() {
+    let response = yield fetch('http://localhost:3500/ping');
+    expect(response.ok).toBe(true);
+  });
+});
+```
+
+  </TabItem>
+</Tabs>
+
+We don't have to write an `afterEach()` _at all_ anymore, because the resource
+knows how to tear itself down no matter where it ends up running.
+
+This has the added benefit of making your tests more refactorable. For example,
+let's say that we decided that since our server is read-only, we can actually
+start it once before all of the tests run, so we move it to a _suite_ level
+hook. Before, we would have had to remember to convert our teardown hook as
+well, but with Effection, we can just move our resource to its new location.
+
+<Tabs
+  groupId="jest-and-mocha-resource"
+  defaultValue="jest"
+  values={[{label: 'Jest', value: 'jest'}, {label: 'Mocha', value: 'mocha'}]}>
+  <TabItem value="jest">
+
+``` javascript
+import { ensure } from 'effection';
+import { beforeAll, it } from '@effection/jest';
+
+describe("a server", () => {
+  beforeAll(function*() {
+    yield {
+      name: 'ping server',
+      *init() {
+        let server = yield startServer({ port: 3500 });
+        yield ensure(() => server.close())
+      }
+    }
+  });
+
+  it('can be pinged', function*() {
+    let response = yield fetch('http://localhost:3500/ping');
+    expect(response.ok).toBe(true);
+  });
+});
+```
+
+  </TabItem>
+  <TabItem value="mocha">
+
+``` javascript
+import { ensure } from 'effection';
+import { before, it } from '@effection/mocha';
+
+describe("a server", () => {
+  before(function*() {
+    yield {
+      name: 'ping server',
+      *init() {
+        let server = yield startServer({ port: 3500 });
+        nyield ensure(() => server.close())
+      }
+    }
+  });
+
+  it('can be pinged', function*() {
+    let response = yield fetch('http://localhost:3500/ping');
+    expect(response.ok).toBe(true);
+  });
+});
+```
+
+  </TabItem>
+</Tabs>
+
+It is common to extract such resources into re-usable functions that can be
+embedded anywhere into your test suite, and you never have to worry about them
+being torn down. For example, we could define our server resource in a single
+place:
+
+``` javascript
+//server.js
+import { ensure } from 'effection';
+
+export function createServer(options) {
+  let { port = 3500, name = 'ping server' } = options;
+  return {
+    name,
+    *init() {
+      let server = yield startServer({ port });
+      yield ensure(() => server.close());
+    }
+  }
+}
+```
+
+Then we can use it easily in any test case:
+
+<Tabs
+  groupId="jest-and-mocha-reuse"
+  defaultValue="jest"
+  values={[{label: 'Jest', value: 'jest'}, {label: 'Mocha', value: 'mocha'}]}>
+  <TabItem value="jest">
+
+``` javascript
+import { beforeAll, it } from '@effection/jest';
+import { createServer } from './server';
+
+describe("a server", () => {
+  beforeAll(function*() {
+    yield createServer({ port: 3500 });
+  });
+
+  it('can be pinged', function*() {
+    let response = yield fetch('http://localhost:3500/ping');
+    expect(response.ok).toBe(true);
+  });
+});
+```
+
+  </TabItem>
+  <TabItem value="mocha">
+
+``` javascript
+import { before, it } from '@effection/mocha';
+import { createServer } from './server';
+
+describe("a server", () => {
+  before(function*() {
+    yield createServer({ port: 3500 });
+  });
+
+  it('can be pinged', function*() {
+    let response = yield fetch('http://localhost:3500/ping');
+    expect(response.ok).toBe(true);
+  });
+});
+```
+
+  </TabItem>
+</Tabs>
+
+### Test Scope
+
+As hinted at above, there are two separate scopes at play in your tests, _suite_
+scope, and _test_ scope. The lifetime of the suite scope is the entire test run.
+Any task spawned within it can potentially last across multiple test runs. By
+the same token, the _test_ scope is disposed of after every single test is
+finished. Any tasks spawned within it will be halted immediately after the test
+is finished. For example:
+
+
+<Tabs
+  groupId="jest-and-mocha-reuse"
+  defaultValue="jest"
+  values={[{label: 'Jest', value: 'jest'}, {label: 'Mocha', value: 'mocha'}]}>
+  <TabItem value="jest">
+
+``` javascript
+import { beforeAll, beforeEach, it } from '@effection/jest';
+import { createServer } from './server';
+
+describe("a server", () => {
+  beforeAll(function*() {
+    // started once before both `it` blocks
+    // stopped once after both `it` blocks
+    yield createServer({ port: 3500 });
+  });
+
+  beforeEach(function*() {
+    // started before every `it` block
+    // stopped after every `it` block,
+    yield createServer({ port: 3501 });
+  });
+
+  it('can be pinged', function*() {
+    let response = yield fetch('http://localhost:3500/ping');
+    expect(response.ok).toBe(true);
+
+    let response = yield fetch('http://localhost:3501/ping');
+    expect(response.ok).toBe(true);
+  });
+
+  it('can be ponged', function*() {
+    let response = yield fetch('http://localhost:3500/pong');
+    expect(response.ok).toBe(true);
+
+    let response = yield fetch('http://localhost:3501/pong');
+    expect(response.ok).toBe(true);
+  });
+});
+```
+
+  </TabItem>
+  <TabItem value="mocha">
+
+``` javascript
+import { before, beforeEach, it } from '@effection/mocha';
+import { createServer } from './server';
+
+describe("a server", () => {
+  before(function*() {
+    // started once before both `it` blocks
+    // stopped once after both `it` blocks
+    yield createServer({ port: 3500 });
+  });
+
+  beforeEach(function*() {
+    // started before every `it` block
+    // stopped after every `it` block,
+    yield createServer({ port: 3501 });
+  });
+
+  it('can be pinged', function*() {
+    let response = yield fetch('http://localhost:3500/ping');
+    expect(response.ok).toBe(true);
+
+    let response = yield fetch('http://localhost:3501/ping');
+    expect(response.ok).toBe(true);
+  });
+
+  it('can be ponged', function*() {
+    let response = yield fetch('http://localhost:3500/pong');
+    expect(response.ok).toBe(true);
+
+    let response = yield fetch('http://localhost:3501/pong');
+    expect(response.ok).toBe(true);
+  });
+});
+```
+
+  </TabItem>
+</Tabs>
+
+### Caveats
+
+:::note Jest
+
+There is currently a [critical bug in
+Jest](https://github.com/facebook/jest/issues/12259) that causes
+teardown hooks to be completely ignored if you hit `CTRL-C` while your
+tests are running. This is true for any Jest test whether you're using
+Effection or not, but you must be careful about interrupting your
+tests from the command line while they are running as it can have
+unknown consequences.
+
+If you'd like to see this fixed, please [go to the
+issue](https://github.com/facebook/jest/issues/12259) and leave a
+comment.
+
+:::
+
+## Other Frameworks
+
+Have a favorite testing tool that you don't see listed here that you
+think could benefit from a first class Effection integration? Feel
+free to [create an issue for
+it](https://github.com/thefrontside/effection/issues/new) or [drop
+into discord][discord] and let us know!
 
 [mocha]: https://mochajs.org
+[jest]: https://jestjs.io
 [resource]: /docs/guides/resources
+[replace-async]: /docs/guides/introduction#replacing-asyncawait
+[discord]: https://discord.gg/r6AvtnU

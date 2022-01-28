@@ -32,6 +32,20 @@ describe('@effection/jest', () => {
     expect(stderr).toContain('boom');
   }, process.env.CI ? 30000 : undefined);
 
+  it('throws error on failure in suite scope', function*() {
+    let { code, stderr } = yield exec('yarn jest --testMatch "**/test/error-in-beforeall.failure.ts" --no-colors').join();
+    expect(code).toEqual(1);
+    expect(stderr).toContain('boom');
+  }, process.env.CI ? 30000 : undefined);
+
+  it('throws error on failure in suite scope', function*() {
+    let { code, stderr } = yield exec('yarn jest --testMatch "**/test/beforeach-spawned-failure.ts" --no-colors').join();
+    expect(code).toEqual(1);
+    expect(stderr).toContain('boom');
+  }, process.env.CI ? 30000 : undefined);
+
+
+
   it.todo('can have pending tasks (note: this is not actually pending)');
 
   describe('accessing the Jest Context API', () => {

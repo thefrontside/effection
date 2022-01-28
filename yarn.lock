@@ -1597,15 +1597,6 @@
     cross-fetch "^3.0.4"
     node-fetch "^2.6.1"
 
-"@effection/fetch@2.0.2":
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/@effection/fetch/-/fetch-2.0.2.tgz#32047f4976a4a226e9561b201027698309294204"
-  integrity sha512-OBzlbDT2u68aZBTrbItby6iXfahEKYrSu2+oC9EmOPgWSmJVYCALVRCK/cWpnH9Sk6dw9Ymafc63+jl0sPeQhw==
-  dependencies:
-    "@effection/core" "2.1.0"
-    cross-fetch "^3.0.4"
-    node-fetch "^2.6.1"
-
 "@effection/main@2.0.1":
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/@effection/main/-/main-2.0.1.tgz#becbaf0b28665e401b05e429d4cad8c2c5c84ee2"
@@ -5074,19 +5065,6 @@ effection@2.0.1:
     "@effection/main" "2.0.1"
     "@effection/stream" "2.0.1"
     "@effection/subscription" "2.0.1"
-
-effection@2.0.2:
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/effection/-/effection-2.0.2.tgz#f0ff74476e5f68a6266c3759796cce3b2bdaaf57"
-  integrity sha512-GZmUfLjiW8im/FXSXsYSfZ6nODG2oR9UAlcq5LXTXZ5glAayLN0WXfhvZZQCa+EZIU2bRXxpKpJ1AEQOCFo2vA==
-  dependencies:
-    "@effection/channel" "2.0.2"
-    "@effection/core" "2.1.0"
-    "@effection/events" "2.0.2"
-    "@effection/fetch" "2.0.2"
-    "@effection/main" "2.0.2"
-    "@effection/stream" "2.0.2"
-    "@effection/subscription" "2.0.2"
 
 effection@^1.0.0:
   version "1.0.0"

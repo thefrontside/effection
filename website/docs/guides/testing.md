@@ -25,13 +25,14 @@ operations when running a test:
 2. run()
 3. teardown()
 
-While there are certainly different ways of expressing this syntactically, it
-turns out that as a fundamental testing pattern, it is nearly universal. Notice
-that, like tests, the cleanup of an effection operation is intrinsic. We can
-leverage this fact to associate an effection task, or scope, with each test.
-Then, we run any operation that is part of the test within that
-scope. After it is finished, a test's scope is disposed
-of, thereby halting any tasks that were running as a part of it.
+While there are certainly different ways of expressing this
+syntactically, it turns out that as a fundamental testing pattern, it
+is nearly universal. Notice that, like tests, the cleanup of an
+effection operation is intrinsic. We can leverage this fact to
+associate an effection task with each test.  Then, we run any
+operation that is part of the test as a child of that task. After it
+is finished, a test's task is halted , thereby halting any sub-tasks
+that were running as a part of it.
 
 This means that any resources being used by the testcase such as servers,
 database connections, file handles, etc... can be automatically released without
@@ -168,10 +169,11 @@ describe("a server", () => {
 But so far, we've only traded one syntax for another. Now however, we can
 begin to leverage the power of Effection to make our test cases not only more
 concise, but also more flexible. To do this, we use the fact that each test
-case gets its own scope that is automatically destroyed for us after it runs.
+case gets its own task that is automatically halted for us after it runs.
 
-So if we re-cast our server as a [resource][] that is running in our test scope,
-then when the test scope goes away, so will our server.
+So if we re-cast our server as a [resource][] that is running as a
+child of our test-scoped task, then when the test task goes away, so
+will our server.
 
 
 <Tabs
@@ -365,12 +367,13 @@ describe("a server", () => {
 
 ### Test Scope
 
-As hinted at above, there are two separate scopes at play in your tests, _suite_
-scope, and _test_ scope. The lifetime of the suite scope is the entire test run.
-Any task spawned within it can potentially last across multiple test runs. By
-the same token, the _test_ scope is disposed of after every single test is
-finished. Any tasks spawned within it will be halted immediately after the test
-is finished. For example:
+As hinted at above, there are two separate tasks scopes at play in
+your tests: _suite_ scope, and _test_ scope. The lifetime of the suite
+scope task is the entire test run.  Any task spawned within it can
+potentially last across multiple test runs. By the same token, the
+_test_ scoped task is halted of after every single test is
+finished. Any tasks spawned within it will be halted immediately after
+the test is finished. For example:
 
 
 <Tabs

@@ -367,12 +367,12 @@ describe("a server", () => {
 
 ### Test Scope
 
-As hinted at above, there are two separate tasks scopes at play in
-your tests: _suite_ scope, and _test_ scope. Effection creates one
+As hinted at above, there are two separate levels of task in
+your tests: _suite-scoped_, and _test-scoped_. Effection creates one
 task that has the same lifetime as the beginning and end of your test
 suite. Any task spawned within it can potentially last across multiple
-test runs. By the same token, the _test_ scoped task is created before
-and halted after every single test.. Any tasks spawned within it will
+test runs. By the same token, the _test-scoped_ task is created before
+and halted after every single test. Any tasks spawned within it will
 be halted immediately after the test is finished. For example:
 
 

@@ -111,7 +111,7 @@ from the global namespace.
 2. You use [generator functions instead of async functions][replace-async] to
 express all of your test operations.
 
-Our test case now looks like this.
+Once we make those changes, our test case now looks like this.
 
 <Tabs
   groupId="jest-and-mocha-replacement"
@@ -368,12 +368,12 @@ describe("a server", () => {
 ### Test Scope
 
 As hinted at above, there are two separate tasks scopes at play in
-your tests: _suite_ scope, and _test_ scope. The lifetime of the suite
-scope task is the entire test run.  Any task spawned within it can
-potentially last across multiple test runs. By the same token, the
-_test_ scoped task is halted of after every single test is
-finished. Any tasks spawned within it will be halted immediately after
-the test is finished. For example:
+your tests: _suite_ scope, and _test_ scope. Effection creates one
+task that has the same lifetime as the beginning and end of your test
+suite. Any task spawned within it can potentially last across multiple
+test runs. By the same token, the _test_ scoped task is created before
+and halted after every single test.. Any tasks spawned within it will
+be halted immediately after the test is finished. For example:
 
 
 <Tabs

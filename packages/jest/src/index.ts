@@ -21,59 +21,72 @@ export interface It extends ItFn {
   todo(title: string): void;
 }
 
-let allScope: Task | undefined;
-let eachScope: Task | undefined;
+const scopes = {} as {
+  all: Task | undefined;
+  each: Task | undefined;
+};
+
+async function withinScope(name: keyof typeof scopes, fn: (task: Task) => Promise<void>) {
+  let scope = scopes[name];
+  assert(!!scope, `critical: test scope '${name}' was not initialized`);
+  if (scope.state === 'errored' || scope.state === 'erroring') {
+    await scope;
+  }
+  await fn(scope);
+  if (scope.state === 'errored' || scope.state === 'erroring') {
+    await scope;
+  }
+}
 
 function runInEachScope(fn: TestFn, name: string): Global.TestFn {
   return async function (this: Global.TestContext | undefined) {
-    assert(!!eachScope, 'critical: eachScope not initialized');
-    await eachScope
-      .run({
-        name,
-        init: fn.bind(this ?? {}),
-      })
-      .catchHalt();
-    if (eachScope.state === 'errored') {
-      await eachScope;
-    }
+    await withinScope('all', async () => {
+      await withinScope('each', async (each) => {
+        await each
+          .run({
+            name,
+            init: fn.bind(this ?? {}),
+          })
+          .catchHalt();
+      });
+    });
   };
 }
 
 function runInAllScope(fn: TestFn, name: string): Global.TestFn {
   return async function (this: Global.TestContext | undefined) {
-    assert(!!allScope, 'critical: allScope not initialized');
-    await allScope
-      .run({
-        name,
-        init: fn.bind(this ?? {}),
-      })
-      .catchHalt();
-    if (allScope.state === 'errored') {
-      await allScope;
-    }
+    await withinScope('all', async (all) => {
+      await all
+        .run({
+          name,
+          init: fn.bind(this ?? {}),
+        })
+        .catchHalt();
+
+    });
   };
 }
 
 jestGlobals.beforeAll(async () => {
   await Effection.reset();
-  allScope = run(undefined, { labels: { name: 'allScope' } });
+  scopes.all = run(undefined, { labels: { name: 'allScope' } });
 });
 
 jestGlobals.afterAll(async () => {
-  allScope = undefined;
+  scopes.all = undefined;
   await Effection.halt();
 });
 
 jestGlobals.beforeEach(async () => {
-  assert(!!allScope, 'critical: universe not initialized');
-  eachScope = allScope.run(undefined, { labels: { name: 'eachScope' } });
+  scopes.each = run(undefined, { labels: { name: 'eachScope' } });
 });
 
 jestGlobals.afterEach(async () => {
-  if (!!eachScope) {
-    eachScope.halt();
-    await eachScope.catchHalt();
-    eachScope = undefined;
+  let each = scopes.each;
+  if (!!each) {
+    each.halt();
+    await each.catchHalt();
+    scopes.each = undefined;
   }
 });
 

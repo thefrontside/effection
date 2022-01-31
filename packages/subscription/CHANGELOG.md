@@ -1,5 +1,12 @@
 # @effection/subscription
 
+## \[2.0.3]
+
+- Allow pass object with `Symbol.operation` as an operation
+  - Bumped due to a bump in @effection/core.
+  - [3e7daa8](https://github.com/thefrontside/effection/commit/3e7daa82cce974ea6b4ff90764343594ae7cba13) add changelog on 2022-01-26
+  - [c623a84](https://github.com/thefrontside/effection/commit/c623a8448dfef764a03b3af6a6b0afa9ee834ba9) remove fetch and process packages from changes list on 2022-01-26
+
 ## \[2.0.2]
 
 - Extract `AbortSignal` from `@effection/fetch` to `@effection/core` as a resource

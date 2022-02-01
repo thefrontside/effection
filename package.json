@@ -17,6 +17,7 @@
       "packages/fetch",
       "packages/effection",
       "packages/mocha",
+      "packages/jest",
       "packages/dispatch",
       "packages/duplex-channel",
       "packages/atom",
@@ -42,7 +43,7 @@
   },
   "volta": {
     "node": "14.17.1",
-    "yarn": "1.22.4"
+    "yarn": "1.22.17"
   },
   "devDependencies": {
     "@frontside/eslint-config": "2.1.0",

@@ -119,12 +119,13 @@ export const it: It = Object.assign(
 
       return it(
         name,
-        function* () {
+        function* (scope, current) {
+          let operation = fn.bind(this) as (scope: Task, current: Task) => Operation<void>;
           let error = new Error(`operation never succeeded within the ${limit}ms limit`);
           function* trial(): Operation<void> {
             while (true) {
               try {
-                yield runInEachScope(fn, name);
+                yield operation(scope, current);
                 break;
               } catch (e) {
                 error = e as Error;

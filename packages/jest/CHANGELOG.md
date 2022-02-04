@@ -1,5 +1,10 @@
 # @effection/jest
 
+## \[2.0.2]
+
+- Do not run each trial of it.eventually() in each scope
+  - [ca9de5c](https://github.com/thefrontside/effection/commit/ca9de5c0e6dc0baa33a05772ab53154fea385326) Don't run each it.eventually trial in test scope on 2022-02-03
+
 ## \[2.0.1]
 
 - depends on effection 2.0.3

@@ -1,6 +1,6 @@
 import { describe, it, beforeEach, captureError } from '../src/index';
 
-import { Task, Resource, spawn } from 'effection';
+import { Task, Resource, spawn, sleep } from 'effection';
 import { exec } from '@effection/process';
 
 let captured: Task;
@@ -105,6 +105,18 @@ describe('@effection/jest', () => {
 
     it('keeps running beyond the before each block', function*() {
       expect(captured.state).toEqual('running');
+    });
+  });
+
+  describe('.eventually()', () => {
+    beforeEach(function*() {
+      this.tries = 0;
+    });
+
+    it.eventually("passes if the operaton passes within timeout", function*() {
+      yield sleep(1);
+      (this.tries as number)++;
+      expect(this.tries).toBeGreaterThan(10);
     });
   });
 });

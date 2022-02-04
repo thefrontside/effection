@@ -1,6 +1,6 @@
 {
   "name": "@effection/jest",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Effection Integration for the Jest framework",
   "main": "dist-cjs/index.js",
   "module": "dist-esm/index.js",

@@ -22,3 +22,7 @@ export function addTrace(error: Error & Partial<HasEffectionTrace>, task: Task):
     }
   });
 }
+
+export class UnknownOperationTypeError extends Error {
+  name = "UnknownOperationTypeError";
+}

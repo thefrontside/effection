@@ -10,6 +10,7 @@ import { createFutureController } from './future-controller';
 import { createResourceController } from './resource-controller';
 import { Future } from '../future';
 import { Symbol } from '../symbol';
+import { UnknownOperationTypeError } from '../error';
 
 export interface Controller<TOut> {
   type: string;
@@ -37,10 +38,10 @@ export function createController<T>(task: Task<T>, operation: Operation<T>, opti
   } else if (isFuture<T>(operation)) {
     return createFutureController(task, operation);
   } else if(isPromise(operation)) {
-    return createPromiseController(task, operation);
+    return createPromiseController(task, operation, value => createController(task, value, options));
   } else if (isGenerator(operation)) {
     return createIteratorController(task, operation, options);
   } else {
-    return createFutureController(task, Future.reject(new Error(`unkown type of operation: ${operation}`)));
+    return createFutureController(task, Future.reject(new UnknownOperationTypeError(`unknown type of operation: ${operation}`)));
   }
 }

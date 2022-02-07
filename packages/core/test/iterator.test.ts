@@ -265,6 +265,6 @@ describe('generator function', () => {
       yield "I am not an operation" as unknown as Operation<unknown>;
     });
 
-    await expect(task).rejects.toHaveProperty('message', 'unkown type of operation: I am not an operation');
+    await expect(task).rejects.toHaveProperty('message', 'unknown type of operation: I am not an operation');
   });
 });

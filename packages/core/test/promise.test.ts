@@ -11,6 +11,12 @@ describe('promise', () => {
     expect(task.state).toEqual('completed');
   });
 
+  it('can run resolved value as operation', async () => {
+    let task = run(Promise.resolve(async () => 123));
+    await expect(task).resolves.toEqual(123);
+    expect(task.state).toEqual('completed');
+  });
+
   it('rejects a failed promise', async () => {
     let error = new Error('boom');
     let task = run(Promise.reject(error));

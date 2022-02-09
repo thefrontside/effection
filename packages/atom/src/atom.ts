@@ -2,7 +2,7 @@ import * as O from 'fp-ts/Option';
 import * as Op from 'monocle-ts/Optional';
 import { pipe } from 'fp-ts/function';
 import { ChannelOptions, createChannel, createStream } from 'effection';
-import { MakeSlice, Slice } from './types';
+import { NestedIndex, ResolveKeys, Slice } from './types';
 import { unique } from './unique';
 
 /**
@@ -76,32 +76,32 @@ export function createAtom<S>(initialState: S, options: ChannelOptions = {}): Sl
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let sliceMaker = <A>(parentPath: string[], parentOptional: Op.Optional<O.Option<S>, A> = lens as unknown as Op.Optional<O.Option<S>, A>): MakeSlice<any> =>
-    <P extends keyof A>(...path: P[]): Slice<A[P]> => {
+  let sliceMaker = <A>(parentPath?: string[], parentOptional: Op.Optional<O.Option<S>, A> = lens as unknown as Op.Optional<O.Option<S>, A>): Slice<A>['slice'] =>
+    <P extends [keyof A, ...NestedIndex<A, P>]>(...path: P): Slice<ResolveKeys<A, P>> => {
       // The [any, any] cast is needed as `pipe` expects more than 2 arguments
       // typescript cannot work out if the `getters` array has 0 or more elements
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let getters = (path || []).map(p => (typeof p === 'number') ? Op.index(p) : Op.prop<A, P>(p)) as [any, any];
+      let getters = (path ?? []).map(p => (typeof p === 'number') ? Op.index(p) : Op.prop<A, P[0]>(p as any)) as [any, any];
 
-      let fullPath = [...parentPath, ...path] as string[];
+      let fullPath = [...(parentPath ?? []), ...path] as string[];
 
       let sliceOptional = pipe(
          parentOptional,
          Op.fromNullable,
          ...getters
-      ) as Op.Optional<O.Option<S>, A[P]>;
+      ) as Op.Optional<O.Option<S>, ResolveKeys<A,P>>;
 
 
       let streamName = fullPath.length ? `slice(${fullPath.map((s) => `'${s}'`).join(', ')})` : 'atom';
 
-      let stream = createStream<A[P]>(publish => {
+      let stream = createStream<ResolveKeys<A,P>>(publish => {
         publish(get());
         return states.map(
-          (s) => pipe(s as S, O.fromNullable, sliceOptional.getOption, O.toUndefined) as A[P]
+          (s) => pipe(s as S, O.fromNullable, sliceOptional.getOption, O.toUndefined) as ResolveKeys<A,P>
         ).filter(unique(get())).forEach(publish);
       }, streamName);
 
-      function getOption(): O.Option<A[P]> {
+      function getOption(): O.Option<ResolveKeys<A,P>> {
         let current = pipe(
           getState(),
           sliceOptional.getOption,
@@ -110,14 +110,14 @@ export function createAtom<S>(initialState: S, options: ChannelOptions = {}): Sl
         return current;
       }
 
-      function get(): A[P] {
+      function get(): ResolveKeys<A, P> {
         return pipe(
           getOption(),
           O.toUndefined
-        ) as A[P];
+        ) as ResolveKeys<A, P>;
       }
 
-      function set(value: A[P]): void {
+      function set(value: ResolveKeys<A,P>): void {
         if(value === get()) {
           return;
         }
@@ -131,7 +131,7 @@ export function createAtom<S>(initialState: S, options: ChannelOptions = {}): Sl
         setState(next as S);
       }
 
-      function update(fn: (s: A[P]) => A[P]) {
+      function update(fn: (s: ResolveKeys<A,P>) => ResolveKeys<A,P>) {
         let next = pipe(
           sliceOptional,
           Op.modify(fn),
@@ -160,5 +160,5 @@ export function createAtom<S>(initialState: S, options: ChannelOptions = {}): Sl
       }, stream);
   };
 
-  return sliceMaker([])();
+  return sliceMaker<S>().apply([]) as unknown as Slice<S>;
 }

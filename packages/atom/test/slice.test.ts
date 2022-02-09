@@ -65,7 +65,7 @@ describe('@bigtest/atom Slice', () => {
       atom = createAtom({ outer: { data: "baz" } });
       slice1 = atom.slice('outer');
       slice2 = slice1.slice('data');
-    })
+    });
 
     it('further slices the slice', function*() {
       expect(slice2.get()).toEqual('baz');
@@ -74,7 +74,7 @@ describe('@bigtest/atom Slice', () => {
     describe('updating the returned slice', () => {
       beforeEach(function*() {
         slice2.update(() => {
-          return 'blah'
+          return 'blah';
         });
       });
 
@@ -170,7 +170,7 @@ describe('@bigtest/atom Slice', () => {
       expect(atom.get()).toEqual({ foo: 1, bar: 2 });
       slice.remove();
       expect(atom.get()).toEqual({ bar: 2 });
-    })
+    });
 
     it('should remove a slice from an array', function*() {
       let atom = createAtom<string[]>(['foo', 'bar']);
@@ -179,6 +179,6 @@ describe('@bigtest/atom Slice', () => {
       expect(atom.get()).toEqual(['foo', 'bar']);
       slice.remove();
       expect(atom.get()).toEqual([undefined, 'bar']); // TODO: shouldn't this remove the item entirely?!
-    })
+    });
   });
 });

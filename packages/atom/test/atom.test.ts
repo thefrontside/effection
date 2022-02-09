@@ -71,7 +71,7 @@ describe('@bigtest/atom createAtom', () => {
     });
 
     beforeEach(function*() {
-      subject.set({...state, status: "off"});
+      subject.set({ ...state, status: "off" });
     });
 
     it('updates the current state', function*() {
@@ -79,7 +79,7 @@ describe('@bigtest/atom createAtom', () => {
     });
 
     describe('with listener which modifies atom', () => {
-      it('shoule be reentrant', function*(world) {
+      it('should be reentrant', function*(world) {
         let atom = createAtom({ status: 'idle' });
         yield spawn(atom.forEach(({ status }) => {
           if(status === 'pending') {
@@ -107,7 +107,7 @@ describe('@bigtest/atom createAtom', () => {
     beforeEach(function*() {
       subject.update(previous => {
         expect(previous).toEqual(state);
-        return {...previous, status: "off"}
+        return { ...previous, status: "off" };
       });
     });
 
@@ -141,7 +141,7 @@ describe('@bigtest/atom createAtom', () => {
       result.set('errored');
 
       expect(result.get()).toBe('errored');
-    })
+    });
   });
 
 
@@ -151,7 +151,7 @@ describe('@bigtest/atom createAtom', () => {
     let iterator: Subscription<State, undefined>;
 
     beforeEach(function*(world) {
-      subject = createAtom({foo: 'bar'});
+      subject = createAtom({ foo: 'bar' });
       iterator = subject.subscribe(world);
 
       subject.update(() => ({ foo: 'bar' }));

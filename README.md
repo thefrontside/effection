@@ -7,7 +7,7 @@
 
 # Effection
 
-A JavaScript framework for that makes building concurrent systems easy to get right.
+A JavaScript framework that makes building concurrent systems easy to get right.
 
 ## Why use Effection?
 

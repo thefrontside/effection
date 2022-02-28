@@ -3,7 +3,7 @@ id: introduction
 title: Introduction
 ---
 
-Effection is a framework for Node and the browser that makes building
+Effection is a JavaScript framework that makes building
 concurrent systems easy to get right.
 
 ## Why use Effection?

@@ -7,8 +7,7 @@
 
 # Effection
 
-A framework for Node and the browser that makes building concurrent
-systems easy to get right.
+A JavaScript framework for that makes building concurrent systems easy to get right.
 
 ## Why use Effection?
 

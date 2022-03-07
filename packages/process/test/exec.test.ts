@@ -2,6 +2,9 @@ import { Task, spawn, fetch, Labels } from 'effection';
 import { describe, it, beforeEach, captureError } from '@effection/mocha';
 import expect from 'expect';
 
+// delete this once we see to test difference
+import { default as execaCommand } from 'execa';
+
 import { exec, Process, ProcessResult } from '../src';
 
 describe('exec', () => {
@@ -169,7 +172,7 @@ describe('exec', () => {
     });
   }
 
-  describe('when the `shell` option is `false`', () => {
+  describe.skip('when the `shell` option is `false`', () => {
     it('automatically parses the command argumens using shellwords', function*() {
       let proc = exec('echo "first" | echo "second"', {
         shell: false
@@ -178,6 +181,142 @@ describe('exec', () => {
 
       expect(stdout).toEqual("first | echo second\n");
     })
+  });
+
+  describe("handles env vars", () => {
+    it("echo env", function* () {
+      let proc = exec("echo $EFFECTION_TEST_ENV_VAL", {
+        env: { EFFECTION_TEST_ENV_VAL: "boop" },
+      });
+      let { stdout }: ProcessResult = yield proc.expect();
+
+      expect(stdout).toEqual("boop\n");
+    });
+
+    it("echo curly env", function* () {
+      let proc = exec("echo ${EFFECTION_TEST_ENV_VAL}", {
+        env: { EFFECTION_TEST_ENV_VAL: "boop" },
+      });
+      let { stdout }: ProcessResult = yield proc.expect();
+
+      expect(stdout).toEqual("boop\n");
+    });
+
+    describe("execa@6 handles env vars", () => {
+      describe("env as option - shell: bash", () => {
+        it("echo env", function*() {
+          let { stdout } = yield execaCommand("echo $EFFECTION_TEST_ENV_VAL", {
+            shell: "bash",
+            env: { EFFECTION_TEST_ENV_VAL: "boop" },
+          });
+    
+          expect(stdout).toEqual("boop");
+        });
+    
+        it("echo curly env", function*() {
+          let { stdout } = yield execaCommand("echo ${EFFECTION_TEST_ENV_VAL}", {
+            shell: "bash",
+            env: { EFFECTION_TEST_ENV_VAL: "boop" },
+          });
+    
+          expect(stdout).toEqual("boop");
+        });
+      });
+    
+      describe("env as option - shell: true", () => {
+        it("echo env", function*() {
+          let { stdout } = yield execaCommand("echo $EFFECTION_TEST_ENV_VAL", {
+            shell: true,
+            env: { EFFECTION_TEST_ENV_VAL: "boop" },
+          });
+    
+          expect(stdout).toEqual("boop");
+        });
+    
+        it("echo curly env", function*() {
+          let { stdout } = yield execaCommand("echo ${EFFECTION_TEST_ENV_VAL}", {
+            shell: true,
+            env: { EFFECTION_TEST_ENV_VAL: "boop" },
+          });
+    
+          expect(stdout).toEqual("boop");
+        });
+      });
+    
+      describe("env as option - shell: false", () => {
+        it("echo env", function*() {
+          let { stdout } = yield execaCommand("echo $EFFECTION_TEST_ENV_VAL", {
+            shell: false,
+            env: { EFFECTION_TEST_ENV_VAL: "boop" },
+          });
+    
+          expect(stdout).toEqual("boop");
+        });
+    
+        it("echo curly env", function*() {
+          let { stdout } = yield execaCommand("echo ${EFFECTION_TEST_ENV_VAL}", {
+            shell: false,
+            env: { EFFECTION_TEST_ENV_VAL: "boop" },
+          });
+    
+          expect(stdout).toEqual("boop");
+        });
+      });
+    
+      describe("env that exists through yarn/npm - shell: bash", () => {
+        it("echo env", function*() {
+          let { stdout } = yield execaCommand("echo $npm_lifecycle_event", {
+            shell: "bash",
+          });
+    
+          expect(stdout).toEqual("test");
+        });
+    
+        it("echo curly env", function*() {
+          let { stdout } = yield execaCommand("echo ${npm_lifecycle_event}", {
+            shell: "bash",
+          });
+    
+          expect(stdout).toEqual("test");
+        });
+      });
+    
+      describe("env that exists through yarn/npm - shell: true", () => {
+        it("echo env", function*() {
+          let { stdout } = yield execaCommand("echo $npm_lifecycle_event", {
+            shell: true,
+          });
+    
+          expect(stdout).toEqual("test");
+        });
+    
+        it("echo curly env", function*() {
+          let { stdout } = yield execaCommand("echo ${npm_lifecycle_event}", {
+            shell: true,
+          });
+    
+          expect(stdout).toEqual("test");
+        });
+      });
+    
+      describe("env that exists through yarn/npm - shell: false", () => {
+        it("echo env", function*() {
+          let { stdout } = yield execaCommand("echo $npm_lifecycle_event", {
+            shell: false,
+          });
+    
+          expect(stdout).toEqual("test");
+        });
+    
+        it("echo curly env", function*() {
+          let { stdout } = yield execaCommand("echo ${npm_lifecycle_event}", {
+            shell: false,
+          });
+    
+          expect(stdout).toEqual("test");
+        });
+      });
+    });
   });
 
 });

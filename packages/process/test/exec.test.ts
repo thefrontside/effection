@@ -292,15 +292,22 @@ describe('exec', () => {
         });
         let { stdout, code }: ProcessResult = yield proc.expect();
 
-        // note shellwords normalizes this from ${ENV} to $ENV
-        expect(stdout).toEqual('$EFFECTION_TEST_ENV_VAL\n');
+        // note shellwords normalizes this from ${ENV} to $ENV on windows
+        let result =
+          process.platform !== 'win32'
+            ? '${EFFECTION_TEST_ENV_VAL}\n'
+            : '$EFFECTION_TEST_ENV_VAL\n';
+        expect(stdout).toEqual(result);
         expect(code).toBe(0);
       });
     });
 
     describe('env as option - shell: process.env.shell', () => {
       let shell = process.env.shell;
-      console.log(shell);
+      let result = shell?.endsWith('bash.exe')
+        ? 'boop\n'
+        : '$EFFECTION_TEST_ENV_VAL\n';
+
       it('echo env', function* () {
         let proc = exec('echo $EFFECTION_TEST_ENV_VAL', {
           shell,
@@ -308,7 +315,7 @@ describe('exec', () => {
         });
         let { stdout, code }: ProcessResult = yield proc.expect();
 
-        expect(stdout).toEqual('boop\n');
+        expect(stdout).toEqual(result);
         expect(code).toBe(0);
       });
 
@@ -319,7 +326,7 @@ describe('exec', () => {
         });
         let { stdout, code }: ProcessResult = yield proc.expect();
 
-        expect(stdout).toEqual('boop\n');
+        expect(stdout).toEqual(result);
         expect(code).toBe(0);
       });
     });

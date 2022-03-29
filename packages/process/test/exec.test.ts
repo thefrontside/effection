@@ -206,6 +206,7 @@ describe('exec', () => {
   describe('handles env vars', () => {
     describe('env as option - shell: bash', () => {
       let shell = 'bash';
+
       it('echo env', function* () {
         let proc = exec('echo $EFFECTION_TEST_ENV_VAL', {
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -235,6 +236,7 @@ describe('exec', () => {
 
     describe('env as option - shell: true', () => {
       let shell = true;
+
       it('echo env', function* () {
         let proc = exec('echo $EFFECTION_TEST_ENV_VAL', {
           shell,
@@ -274,6 +276,7 @@ describe('exec', () => {
 
     describe('env as option - shell: false', () => {
       let shell = false;
+
       it('echo env', function* () {
         let proc = exec('echo $EFFECTION_TEST_ENV_VAL', {
           shell,
@@ -304,9 +307,6 @@ describe('exec', () => {
 
     describe('env as option - shell: process.env.shell', () => {
       let shell = process.env.shell;
-      let result = shell?.endsWith('bash.exe')
-        ? 'boop\n'
-        : '$EFFECTION_TEST_ENV_VAL\n';
 
       it('echo env', function* () {
         let proc = exec('echo $EFFECTION_TEST_ENV_VAL', {
@@ -315,6 +315,9 @@ describe('exec', () => {
         });
         let { stdout, code }: ProcessResult = yield proc.expect();
 
+        let result = shell?.endsWith('bash.exe')
+          ? 'boop\n'
+          : '$EFFECTION_TEST_ENV_VAL\n';
         expect(stdout).toEqual(result);
         expect(code).toBe(0);
       });
@@ -326,6 +329,9 @@ describe('exec', () => {
         });
         let { stdout, code }: ProcessResult = yield proc.expect();
 
+        let result = shell?.endsWith('bash.exe')
+          ? 'boop\n'
+          : '${EFFECTION_TEST_ENV_VAL}\n';
         expect(stdout).toEqual(result);
         expect(code).toBe(0);
       });

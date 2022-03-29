@@ -307,6 +307,9 @@ describe('exec', () => {
 
     describe('env as option - shell: process.env.shell', () => {
       let shell = process.env.shell;
+      // This comes back undefined in linux, mac and windows (by default)
+      // when using git-bash on windows, this appears to be set.
+      // We haven't found any other configurations where it is set by default.
 
       it('echo env', function* () {
         let proc = exec('echo $EFFECTION_TEST_ENV_VAL', {
@@ -329,10 +332,13 @@ describe('exec', () => {
         });
         let { stdout, code }: ProcessResult = yield proc.expect();
 
-        let result = shell?.endsWith('bash.exe')
-          ? 'boop\n'
-          : '${EFFECTION_TEST_ENV_VAL}\n';
-        expect(stdout).toEqual(result);
+        if (shell?.endsWith('bash.exe')) {
+          expect(stdout).toEqual('boop\n');
+        } else if (process.platform === 'win32') {
+          expect(stdout).toEqual('$EFFECTION_TEST_ENV_VAL\n');
+        } else {
+          expect(stdout).toEqual('${EFFECTION_TEST_ENV_VAL}\n');
+        }
         expect(code).toBe(0);
       });
     });

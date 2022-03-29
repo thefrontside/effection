@@ -42,7 +42,7 @@ export const createWin32Process: CreateOSProcess = (command, options) => {
         // node has trouble with PATHEXT and exe. It can't run exe directly for example.
         // `cross-spawn` handles running it with the shell in windows if needed.
         // Neither mac nor linux need shell and we run it detached.
-        shell: false,
+        shell: typeof options.shell === "string" ? options.shell : false,
         // With stdio as pipe, windows gets stuck where neither the child nor the
         // parent wants to close the stream, so we call it ourselves in the exit event.
         stdio: "pipe",

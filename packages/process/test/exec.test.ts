@@ -247,7 +247,8 @@ describe('exec', () => {
         let result =
           process.platform !== 'win32'
             ? 'boop\n'
-            : '$EFFECTION_TEST_ENV_VAL\r\n';
+            : // note the additional \r that is added
+              '$EFFECTION_TEST_ENV_VAL\r\n';
         expect(stdout).toEqual(result);
         expect(code).toBe(0);
       });
@@ -264,7 +265,8 @@ describe('exec', () => {
         let result =
           process.platform !== 'win32'
             ? 'boop\n'
-            : '${EFFECTION_TEST_ENV_VAL}\r\n';
+            : // note the additional \r that is added
+              '${EFFECTION_TEST_ENV_VAL}\r\n';
         expect(stdout).toEqual(result);
         expect(code).toBe(0);
       });
@@ -279,11 +281,7 @@ describe('exec', () => {
         });
         let { stdout, code }: ProcessResult = yield proc.expect();
 
-        // this fails on windows, this shell option doesn't work on windows
-        // due to it generally running through cmd.exe which can't handle this syntax
-        let result =
-          process.platform !== 'win32' ? 'boop\n' : '$EFFECTION_TEST_ENV_VAL\n';
-        expect(stdout).toEqual(result);
+        expect(stdout).toEqual('$EFFECTION_TEST_ENV_VAL\n');
         expect(code).toBe(0);
       });
 
@@ -294,20 +292,15 @@ describe('exec', () => {
         });
         let { stdout, code }: ProcessResult = yield proc.expect();
 
-        // this fails on windows, this shell option doesn't work on windows
-        // due to it generally running through cmd.exe which can't handle this syntax
-        let result =
-          process.platform !== 'win32'
-            ? 'boop\n'
-            : // note shellwords normalizes this from ${ENV} to $ENV
-              '$EFFECTION_TEST_ENV_VAL\n';
-        expect(stdout).toEqual(result);
+        // note shellwords normalizes this from ${ENV} to $ENV
+        expect(stdout).toEqual('$EFFECTION_TEST_ENV_VAL\n');
         expect(code).toBe(0);
       });
     });
 
     describe('env as option - shell: process.env.shell', () => {
       let shell = process.env.shell;
+      console.log(shell);
       it('echo env', function* () {
         let proc = exec('echo $EFFECTION_TEST_ENV_VAL', {
           shell,

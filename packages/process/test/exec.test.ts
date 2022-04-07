@@ -181,13 +181,11 @@ describe('exec', () => {
   });
 
   describe('handles env vars', () => {
-    describe('env as option - shell: bash', () => {
+    describe('when the `shell` option is `bash`', () => {
       let shell = 'bash';
 
-      it('echo env', function* () {
+      it('can echo a passed in environment variable', function* () {
         let proc = exec('echo $EFFECTION_TEST_ENV_VAL', {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          //@ts-ignore
           shell,
           env: { EFFECTION_TEST_ENV_VAL: 'boop' },
         });
@@ -197,10 +195,8 @@ describe('exec', () => {
         expect(code).toBe(0);
       });
 
-      it('echo curly env', function* () {
+      it('can echo a passed in environment variable with curly brace syntax', function* () {
         let proc = exec('echo ${EFFECTION_TEST_ENV_VAL}', {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          //@ts-ignore
           shell,
           env: { EFFECTION_TEST_ENV_VAL: 'boop' },
         });
@@ -211,10 +207,10 @@ describe('exec', () => {
       });
     });
 
-    describe('env as option - shell: true', () => {
+    describe('when the `shell` option is `true`', () => {
       let shell = true;
 
-      it('echo env', function* () {
+      it('can echo a passed in environment variable', function* () {
         let proc = exec('echo $EFFECTION_TEST_ENV_VAL', {
           shell,
           env: { EFFECTION_TEST_ENV_VAL: 'boop' },
@@ -232,7 +228,7 @@ describe('exec', () => {
         expect(code).toBe(0);
       });
 
-      it('echo curly env', function* () {
+      it('can echo a passed in environment variable with curly brace syntax', function* () {
         let proc = exec('echo ${EFFECTION_TEST_ENV_VAL}', {
           shell,
           env: { EFFECTION_TEST_ENV_VAL: 'boop' },
@@ -251,10 +247,10 @@ describe('exec', () => {
       });
     });
 
-    describe('env as option - shell: false', () => {
+    describe('when the `shell` option is `false`', () => {
       let shell = false;
 
-      it('echo env', function* () {
+      it('can echo a passed in environment variable', function* () {
         let proc = exec('echo $EFFECTION_TEST_ENV_VAL', {
           shell,
           env: { EFFECTION_TEST_ENV_VAL: 'boop' },
@@ -265,7 +261,7 @@ describe('exec', () => {
         expect(code).toBe(0);
       });
 
-      it('echo curly env', function* () {
+      it('can echo a passed in environment variable with curly brace syntax', function* () {
         let proc = exec('echo ${EFFECTION_TEST_ENV_VAL}', {
           shell,
           env: { EFFECTION_TEST_ENV_VAL: 'boop' },
@@ -282,13 +278,13 @@ describe('exec', () => {
       });
     });
 
-    describe('env as option - shell: process.env.shell', () => {
+    describe('when the `shell` option is `process.env.shell`', () => {
       let shell = process.env.shell;
-      // This comes back undefined in linux, mac and windows (by default)
-      // when using git-bash on windows, this appears to be set.
+      // This comes back undefined in linux, mac and windows (using the cmd.exe default).
+      // When using git-bash on windows, this appears to be set.
       // We haven't found any other configurations where it is set by default.
 
-      it('echo env', function* () {
+      it('can echo a passed in environment variable', function* () {
         let proc = exec('echo $EFFECTION_TEST_ENV_VAL', {
           shell,
           env: { EFFECTION_TEST_ENV_VAL: 'boop' },
@@ -302,7 +298,7 @@ describe('exec', () => {
         expect(code).toBe(0);
       });
 
-      it('echo curly env', function* () {
+      it('can echo a passed in environment variable with curly brace syntax', function* () {
         let proc = exec('echo ${EFFECTION_TEST_ENV_VAL}', {
           shell,
           env: { EFFECTION_TEST_ENV_VAL: 'boop' },

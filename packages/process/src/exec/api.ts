@@ -40,10 +40,13 @@ export interface ExecOptions {
   env?: Record<string, string>;
 
   /**
-   * Create an intermediate shell process. Useful if you need to handle glob
-   * expansion;
+   * Create an intermediate shell process; defaults to `false`. Useful if you
+   * need to handle glob expansion or passing environment variables. A truthy value
+   * will use an intermediate shell to interpret the command using the default system shell.
+   * However, if the value is a string, that will be used as the executable path
+   * for the intermediate shell.
    */
-  shell?: boolean;
+  shell?: boolean | string;
 
   /**
    * Sets the working directory of the process

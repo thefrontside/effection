@@ -1,5 +1,10 @@
 # @effection/process
 
+## \[2.1.0]
+
+- The shell option now accepts a string which allows one to specify an exact shell to run a command. This is helpful on windows as the default generally doesn't handle bash-like syntax.
+  - [31d8512](https://github.com/thefrontside/effection/commit/31d85123535903820c7ee2c58891ad4f7ae385e5) change file on 2022-03-29
+
 ## \[2.0.4]
 
 - Allow pass object with `Symbol.operation` as an operation

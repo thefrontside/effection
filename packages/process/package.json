@@ -1,6 +1,6 @@
 {
   "name": "@effection/process",
-  "version": "2.0.4",
+  "version": "2.1.0",
   "description": "Spawn and manage external processes with Effection",
   "main": "dist-cjs/index.js",
   "module": "dist-esm/index.js",

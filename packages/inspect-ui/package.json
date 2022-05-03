@@ -4,7 +4,6 @@
   "description": "Web interface for inspecting effection applications",
   "main": "index.js",
   "types": "index.d.ts",
-  "browser": "dist/index.html",
   "module": "dist/inspect-ui.esm.js",
   "sideEffects": true,
   "homepage": "https://frontside.com/effection",
@@ -18,13 +17,13 @@
   "files": [
     "README.md",
     "CHANGELOG.md",
-    "dist/**/*",
+    "dist-*/**/*",
     "app/**/*"
   ],
   "scripts": {
-    "prepack": "parcel build app/index.html --target browser",
-    "start": "parcel serve app/index.html --target browser",
-    "watch": "parcel watch app/index.html --target browser",
+    "prepack": "parcel build --target app",
+    "start": "parcel serve --target app",
+    "watch": "parcel watch --target app",
     "lint": "eslint '{app,src,tests}/**/*.{ts,tsx}'",
     "test": "mocha -r ts-node/register --timeout 5000 test/**/*.test.{ts,tsx}",
     "docs": "echo noop",
@@ -36,7 +35,6 @@
     "@effection/react": "2.1.3",
     "@effection/websocket-client": "2.0.4",
     "@frontside/tsconfig": "^1.2.0",
-    "@parcel/transformer-typescript-types": "2.0.0-beta.1",
     "@types/jsdom-global": "^3.0.2",
     "@types/node": "^13.13.5",
     "@types/react": "^17.0.9",
@@ -46,10 +44,11 @@
     "effection": "2.0.4",
     "eslint-plugin-react": "^7.24.0",
     "eslint-plugin-react-hooks": "^4.2.0",
+    "events": "^3.3.0",
     "expect": "^25.4.0",
     "jsdom-global": "^3.0.2",
     "mocha": "^8.3.1",
-    "parcel": "2.0.0-beta.2",
+    "parcel": "^2.5.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-router": "^5.2.1",
@@ -58,7 +57,9 @@
     "typescript": "^4.3.5"
   },
   "targets": {
-    "browser": {
+    "app": {
+      "source": "app/index.html",
+      "distDir": "dist-app",
       "optimize": false
     }
   },

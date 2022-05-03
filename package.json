@@ -49,7 +49,6 @@
     "@frontside/eslint-config": "2.1.0",
     "@frontside/tsconfig": "^1.2.0",
     "covector": "^0.7.2",
-    "parcel": "^2.0.0-beta.2",
     "typedoc": "^0.22.4"
   }
 }

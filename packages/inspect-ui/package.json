@@ -4,7 +4,8 @@
   "description": "Web interface for inspecting effection applications",
   "main": "index.js",
   "types": "index.d.ts",
-  "module": "dist/inspect-ui.esm.js",
+  "browser": "dist-esm/index.js",
+  "module": "dist-esm/index.js",
   "sideEffects": true,
   "homepage": "https://frontside.com/effection",
   "repository": {
@@ -21,7 +22,7 @@
     "app/**/*"
   ],
   "scripts": {
-    "prepack": "parcel build --target app",
+    "prepack": "parcel build --target app && yarn tsc --build tsconfig.esm.json && copyfiles -f app/*.{css,svg} dist-esm",
     "start": "parcel serve --target app",
     "watch": "parcel watch --target app",
     "lint": "eslint '{app,src,tests}/**/*.{ts,tsx}'",
@@ -41,6 +42,7 @@
     "@types/react-dom": "^17.0.6",
     "@types/react-router": "^5.1.17",
     "@types/react-router-dom": "^5.3.1",
+    "copyfiles": "^2.4.1",
     "effection": "2.0.4",
     "eslint-plugin-react": "^7.24.0",
     "eslint-plugin-react-hooks": "^4.2.0",

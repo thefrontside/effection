@@ -1,5 +1,15 @@
 # @effection/inspect
 
+## \[2.1.5]
+
+- Add ESM build of react components so that they can be embedded into any
+  application
+  - Bumped due to a bump in @effection/inspect-server.
+  - [78e0282](https://github.com/thefrontside/effection/commit/78e0282c1a647fbf3e6f476d8a551a9431a4d069) Add ESM Build of `@effection/inspect-ui` React Components on 2022-05-03
+- Upgrade parcel build to public release
+  - Bumped due to a bump in @effection/inspect-server.
+  - [d3a7453](https://github.com/thefrontside/effection/commit/d3a7453d171afb4775af9806b77337f8db07f98d) ✨Build inspect-ui with stable parcel on 2022-05-03
+
 ## \[2.1.4]
 
 - Allow pass object with `Symbol.operation` as an operation

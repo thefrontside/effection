@@ -1,5 +1,10 @@
 # @effection/react
 
+## \[2.1.4]
+
+- make react a flexible peer dependency for 16,17
+  - [96c769b](https://github.com/thefrontside/effection/commit/96c769b92261ca2ebfaf15b6895986a9e92a92f5) Make React a flexible peer dependency on 2022-05-03
+
 ## \[2.1.3]
 
 - Allow pass object with `Symbol.operation` as an operation

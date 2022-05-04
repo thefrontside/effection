@@ -1,6 +1,6 @@
 {
   "name": "@effection/inspect-server",
-  "version": "2.1.4",
+  "version": "2.1.5",
   "description": "Inspect server for inspecting effection processes",
   "main": "dist-cjs/index.js",
   "types": "dist-esm/index.d.ts",
@@ -30,7 +30,7 @@
   },
   "dependencies": {
     "@effection/atom": "2.0.4",
-    "@effection/inspect-ui": "2.1.4",
+    "@effection/inspect-ui": "2.1.5",
     "@effection/inspect-utils": "2.1.4",
     "@effection/websocket-server": "2.0.4",
     "effection": "2.0.4",

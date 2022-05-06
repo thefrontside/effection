@@ -1,7 +1,7 @@
 import React from "react";
 import { useParams, Link, Navigate } from "react-router-dom";
 import { InspectStateSlice } from "./app";
-import { TaskTreeRoot } from "./task-tree-root";
+import { TaskTreePage } from "./task-tree-page";
 
 export function TaskPage({ slice }: { slice: InspectStateSlice }): JSX.Element {
   let { id } = useParams();
@@ -16,7 +16,7 @@ export function TaskPage({ slice }: { slice: InspectStateSlice }): JSX.Element {
           </Link>
         </p>
 
-        <TaskTreeRoot slice={targetSlice} />
+        <TaskTreePage slice={targetSlice} />
       </div>
     );
   } else {

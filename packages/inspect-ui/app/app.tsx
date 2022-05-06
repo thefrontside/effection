@@ -4,7 +4,7 @@ import { Slice } from '@effection/atom';
 import { InspectState } from '@effection/inspect-utils';
 import { SettingsMenu, SettingsContext, DEFAULT_SETTINGS } from './settings';
 import { TaskPage } from './task-page';
-import { TaskTreeRoot } from './task-tree-root';
+import { TaskTreePage } from './task-tree-page';
 
 export type InspectStateSlice = Slice<InspectState>;
 
@@ -18,7 +18,7 @@ export function App({ slice }: AppProps): JSX.Element {
       children: [
         {
           index: true,
-          element: <TaskTreeRoot slice={slice} />,
+          element: <TaskTreePage slice={slice} />,
         },
         {
           path: "tasks/:id",

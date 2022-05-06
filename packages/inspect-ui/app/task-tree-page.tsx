@@ -4,7 +4,7 @@ import { Navigate } from 'react-router-dom';
 import { InspectStateSlice } from './app';
 import { TaskTree } from './task-tree';
 
-export function TaskTreeRoot({ slice }: { slice: InspectStateSlice }): JSX.Element {
+export function TaskTreePage({ slice }: { slice: InspectStateSlice }): JSX.Element {
   let task = useSlice(slice);
 
   if (task) {

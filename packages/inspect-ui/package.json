@@ -31,7 +31,7 @@
     "mocha": "mocha -r ts-node/register --timeout 5000"
   },
   "devDependencies": {
-    "@bigtest/interactor": "^0.29.0",
+    "@interactors/html": "^1.0.0-rc1.2",
     "@effection/inspect-utils": "2.1.4",
     "@effection/react": "2.1.4",
     "@effection/websocket-client": "2.0.4",

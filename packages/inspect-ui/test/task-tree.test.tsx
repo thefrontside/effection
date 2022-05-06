@@ -1,10 +1,9 @@
 import './setup';
-import expect from 'expect';
 import { describe, it, beforeEach } from '@effection/mocha';
 import { spawn } from '@effection/core';
 import { createAtom, Slice } from '@effection/atom';
 import { EffectionContext } from '@effection/react';
-import { Button } from '@bigtest/interactor';
+import { Button } from '@interactors/html';
 import { InspectState } from '@effection/inspect-utils';
 import { MemoryRouter } from 'react-router-dom';
 

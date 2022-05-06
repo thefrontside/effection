@@ -1,4 +1,4 @@
-import { HTML } from '@bigtest/interactor';
+import { HTML } from '@interactors/html';
 
 export const Task = HTML.extend('task')
   .selector('.task')

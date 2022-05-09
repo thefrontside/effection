@@ -30,6 +30,12 @@
     "docs": "echo noop",
     "mocha": "mocha -r ts-node/register --timeout 5000"
   },
+  "dependencies": {
+    "@material-ui/core": "^4.12.2",
+    "@material-ui/icons": "^4.9.1",
+    "@material-ui/lab": "^4.0.0-alpha.57",
+    "query-string": "^7.1.1"
+  },
   "peerDependencies": {
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
@@ -37,11 +43,11 @@
     "react-router-dom": "^6.3.0"
   },
   "devDependencies": {
-    "@interactors/html": "^1.0.0-rc1.2",
     "@effection/inspect-utils": "2.1.4",
     "@effection/react": "2.2.0",
     "@effection/websocket-client": "2.0.4",
     "@frontside/tsconfig": "^1.2.0",
+    "@interactors/html": "^1.0.0-rc1.2",
     "@types/jsdom-global": "^3.0.2",
     "@types/node": "^13.13.5",
     "@types/react": "^17.0.9",

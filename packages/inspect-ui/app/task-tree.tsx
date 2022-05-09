@@ -2,7 +2,7 @@ import React, { useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { InspectState } from '@effection/inspect-utils';
 import { SettingsContext } from './settings';
-import { TaskIcon } from './task-icon';
+import { TaskIcon } from './components/task-icon';
 
 type TreeProps = {
   task: InspectState;

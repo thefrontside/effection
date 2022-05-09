@@ -1,5 +1,8 @@
 import React from 'react';
 import { State } from 'effection';
+import HaltedIcon from './halted-icon';
+import CompletedIcon from './completed-icon';
+import ErroredIcon from './errored-icon';
 
 type Props = {
   state: State;
@@ -8,15 +11,15 @@ type Props = {
 export function TaskIcon({ state }: Props): JSX.Element | null {
   if(state === 'halting' || state === 'halted') {
     return (
-      <i className="task--title--icon icon halted"></i>
+      <HaltedIcon />
     );
   } else if(state === 'completing' || state === 'completed') {
     return (
-      <i className="task--title--icon icon completed"></i>
+      <CompletedIcon />
     );
   } else if(state === 'erroring' || state === 'errored') {
     return (
-      <i className="task--title--icon icon failed"></i>
+      <ErroredIcon />
     );
   } else {
     return null;

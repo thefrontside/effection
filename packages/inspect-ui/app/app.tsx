@@ -5,6 +5,7 @@ import { InspectState } from '@effection/inspect-utils';
 import { SettingsMenu, SettingsContext, DEFAULT_SETTINGS } from './settings';
 import { TaskPage } from './task-page';
 import { TaskTreePage } from './task-tree-page';
+import { AppBar } from '@material-ui/core';
 
 export type InspectStateSlice = Slice<InspectState>;
 
@@ -34,15 +35,12 @@ export function App({ slice }: AppProps): JSX.Element {
 
   return (
     <SettingsContext.Provider value={{ settings, setSettings }}>
-      <div className="inspector">
-        <div className="inspector--menu">
-          <h1 className="inspector--menu--title">Effection Inspector</h1>
-          <div className="inspector--menu--toolbar">
-            <SettingsMenu />
-          </div>
-        </div>
-        <div className="inspector--main">{element}</div>
-      </div>
+      <AppBar position="absolute">
+        <SettingsMenu />
+      </AppBar>
+      <main>
+        {element}
+      </main>
     </SettingsContext.Provider>
   );
 }

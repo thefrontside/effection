@@ -49,6 +49,7 @@
     "@frontside/eslint-config": "2.1.0",
     "@frontside/tsconfig": "^1.2.0",
     "covector": "^0.7.2",
-    "typedoc": "^0.22.4"
+    "typedoc": "^0.22.4",
+    "nx": "14.1.4"
   }
 }

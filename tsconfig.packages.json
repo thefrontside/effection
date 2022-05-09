@@ -35,9 +35,6 @@
       "path": "./packages/mocha/tsconfig.esm.json"
     },
     {
-      "path": "./packages/node/tsconfig.esm.json"
-    },
-    {
       "path": "./packages/process/tsconfig.esm.json"
     },
     {

@@ -1,26 +1,23 @@
 import React from 'react';
 import { State } from 'effection';
+import { SvgIconProps } from '@material-ui/core/SvgIcon';
 import HaltedIcon from './halted-icon';
 import CompletedIcon from './completed-icon';
 import ErroredIcon from './errored-icon';
 
 type Props = {
   state: State;
-}
+} & SvgIconProps;
 
-export function TaskIcon({ state }: Props): JSX.Element | null {
+export function TaskIcon({ state, ...props }: Props): JSX.Element | null {
   if(state === 'halting' || state === 'halted') {
     return (
-      <HaltedIcon />
+      <HaltedIcon {...props} />
     );
   } else if(state === 'completing' || state === 'completed') {
-    return (
-      <CompletedIcon />
-    );
+    return <CompletedIcon {...props} />;
   } else if(state === 'erroring' || state === 'errored') {
-    return (
-      <ErroredIcon />
-    );
+    return <ErroredIcon {...props} />;
   } else {
     return null;
   }

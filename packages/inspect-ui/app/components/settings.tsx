@@ -13,9 +13,9 @@ import {
 } from "@material-ui/core";
 import { Link as RouterLink, useSearchParams, useNavigate } from "react-router-dom";
 import { stringify } from "query-string";
-import ErroredIcon from "./components/errored-icon";
-import HaltedIcon from "./components/halted-icon";
-import CompletedIcon from "./components/completed-icon";
+import ErroredIcon from "./errored-icon";
+import HaltedIcon from "./halted-icon";
+import CompletedIcon from "./completed-icon";
 
 interface Settings {
   showCompleted: boolean;

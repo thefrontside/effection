@@ -1,6 +1,8 @@
 import React from "react";
-import { useParams, Link, Navigate } from "react-router-dom";
+import Link from "@material-ui/core/Link";
+import { useParams, Link as RouterLink, Navigate } from "react-router-dom";
 import { InspectStateSlice } from "./app";
+import { findSliceById } from "./find-slice-by-id";
 import { TaskTreePage } from "./task-tree-page";
 
 export function TaskPage({ slice }: { slice: InspectStateSlice }): JSX.Element {
@@ -11,7 +13,7 @@ export function TaskPage({ slice }: { slice: InspectStateSlice }): JSX.Element {
     return (
       <div>
         <p>
-          <Link to="/" className="inspector--main--return">
+          <Link to="/" component={RouterLink}>
             ← Show all
           </Link>
         </p>
@@ -24,32 +26,4 @@ export function TaskPage({ slice }: { slice: InspectStateSlice }): JSX.Element {
   }
 }
 
-function findSliceById(
-  slice: InspectStateSlice,
-  targetId: number
-): InspectStateSlice | undefined {
-  let task = slice.get();
 
-  if (task.id === targetId) {
-    return slice;
-  }
-
-  if (task.yieldingTo) {
-    let result = findSliceById(
-      slice.slice("yieldingTo") as InspectStateSlice,
-      targetId
-    );
-    if (result) {
-      return result;
-    }
-  }
-
-  for (let [index] of task.children.entries()) {
-    let result = findSliceById(slice.slice("children", index), targetId);
-    if (result) {
-      return result;
-    }
-  }
-
-  return undefined;
-}

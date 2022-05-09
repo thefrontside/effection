@@ -4,7 +4,6 @@ import { Slice } from '@effection/atom';
 import { createWebSocketClient, WebSocketClient } from '@effection/websocket-client';
 import { EffectionContext } from '@effection/react';
 import { ClientMessage, InspectState, inspectState } from '@effection/inspect-utils';
-import CssBaseline from "@material-ui/core/CssBaseline";
 
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -23,7 +22,6 @@ main(function*(scope) {
   ReactDOM.render(
     <EffectionContext.Provider value={scope}>
       <HashRouter>
-        <CssBaseline />
         <App slice={slice}/>
       </HashRouter>
     </EffectionContext.Provider>,

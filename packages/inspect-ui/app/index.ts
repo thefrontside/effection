@@ -1,1 +1,1 @@
-export * from './task-tree';
+export * from './components/task-tree-item';

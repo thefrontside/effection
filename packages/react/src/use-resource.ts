@@ -21,9 +21,9 @@ export function useResource<T>(resource: Operation<T>, deps: DependencyList = []
       yield function* ErrorBoundary() {
         setState({ type: 'resolved', value: yield resource });
         yield;
-      }
-    } catch (error: any) {
-      setState({ type: 'rejected', error });
+      };
+    } catch (error: unknown) {
+      setState({ type: 'rejected', error: error as Error });
     }
   }, deps as unknown[]);
 

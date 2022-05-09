@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { Link as RouterLink } from "react-router-dom";
-import { Link } from "@material-ui/core";
+import { Chip, Link, Typography } from "@material-ui/core";
 import { InspectState } from "@effection/inspect-utils";
 import TreeItem from "@material-ui/lab/TreeItem";
 import { SettingsContext } from "./settings";
@@ -14,7 +14,7 @@ type TreeProps = {
 export function TaskTreeItem({ task, isYielding }: TreeProps): JSX.Element {
   let { settings } = useContext(SettingsContext);
   let name = task.labels.name || "task";
-  // let labels = Object.entries(task.labels).filter(([key, value]) => key !== 'name' && key !== 'expand' && value != null);
+  let labels = Object.entries(task.labels).filter(([key, value]) => key !== 'name' && key !== 'expand' && value != null);
 
   let visibleChildren = task.children.filter((child) => {
     if (child.state === "completed" && !settings.showCompleted) return false;
@@ -30,6 +30,18 @@ export function TaskTreeItem({ task, isYielding }: TreeProps): JSX.Element {
       <Link component={RouterLink} to={`/tasks/${task.id}`}>
         {name}
       </Link>
+      {labels.map(([key, value]) => (
+        <Chip
+          key={key}
+          label={
+            <>
+              <span>{key}</span>: <span>{value}</span>
+            </>
+          }
+        />
+      ))}
+      <Typography variant="body1" component="span">{task.type}</Typography>
+      <Typography variant="body1" component="span">[id]: {task.id}</Typography>
     </div>
   );
 

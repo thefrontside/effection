@@ -12,13 +12,17 @@ import ErroredIcon from "./errored-icon";
 import HaltedIcon from "./halted-icon";
 import CompletedIcon from "./completed-icon";
 import { useSettings } from "../hooks/use-settings";
+import { useStyles } from "../hooks/use-styles";
 
 export function SettingsForm(): JSX.Element {
   let { settings, setSettings } = useSettings();
+  let classes = useStyles();
 
   return (
-    <>
-      <Typography variant="h4">Settings</Typography>
+    <div className={classes.settingsForm}>
+      <Typography variant="h5" className={classes.settingsFormHeader}>
+        Settings
+      </Typography>
       <List>
         <ListItem
           role={undefined}
@@ -143,6 +147,6 @@ export function SettingsForm(): JSX.Element {
           </ListItemSecondaryAction>
         </ListItem>
       </List>
-    </>
+    </div>
   );
 }

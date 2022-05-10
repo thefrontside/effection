@@ -50,4 +50,10 @@ export const useStyles = makeStyles((theme) => ({
     paddingTop: theme.spacing(0.25),
     paddingBottom: theme.spacing(0.25),
   },
+  settingsForm: {
+    padding: theme.spacing(2)
+  },
+  settingsFormHeader: {
+    color: grey[800]
+  }
 }));

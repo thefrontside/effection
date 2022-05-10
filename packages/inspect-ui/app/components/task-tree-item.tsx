@@ -1,10 +1,10 @@
-import React, { useContext } from "react";
+import React from "react";
 import { Link as RouterLink } from "react-router-dom";
 import { Chip, Link, Typography } from "@material-ui/core";
 import { InspectState } from "@effection/inspect-utils";
 import TreeItem from "@material-ui/lab/TreeItem";
-import { SettingsContext } from "./settings";
 import { TaskIcon } from "./task-icon";
+import { useSettings } from "../hooks/use-settings";
 
 type TreeProps = {
   task: InspectState;
@@ -12,7 +12,7 @@ type TreeProps = {
 };
 
 export function TaskTreeItem({ task, isYielding }: TreeProps): JSX.Element {
-  let { settings } = useContext(SettingsContext);
+  let { settings } = useSettings();
   let name = task.labels.name || "task";
   let labels = Object.entries(task.labels).filter(([key, value]) => key !== 'name' && key !== 'expand' && value != null);
 

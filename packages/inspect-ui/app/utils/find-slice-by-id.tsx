@@ -1,4 +1,4 @@
-import { InspectStateSlice } from "./app";
+import { InspectStateSlice } from "../app";
 
 export function findSliceById(
   slice: InspectStateSlice,

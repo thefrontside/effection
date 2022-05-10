@@ -1,9 +1,9 @@
-import React from "react";
 import Link from "@material-ui/core/Link";
-import { useParams, Link as RouterLink, Navigate } from "react-router-dom";
+import React from "react";
+import { Link as RouterLink, Navigate, useParams } from "react-router-dom";
 import { InspectStateSlice } from "./app";
-import { findSliceById } from "./find-slice-by-id";
 import { TaskTreePage } from "./task-tree-page";
+import { findSliceById } from "./utils/find-slice-by-id";
 
 export function TaskPage({ slice }: { slice: InspectStateSlice }): JSX.Element {
   let { id } = useParams();

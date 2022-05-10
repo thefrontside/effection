@@ -3,14 +3,15 @@ import {
   Checkbox,
   ClickAwayListener,
   Drawer,
+  IconButton,
   List,
   ListItem,
   ListItemIcon,
   ListItemSecondaryAction,
   ListItemText,
   Typography,
-  Button,
 } from "@material-ui/core";
+import SettingsIcon from "@material-ui/icons/Settings";
 import { Link as RouterLink, useSearchParams, useNavigate } from "react-router-dom";
 import { stringify } from "query-string";
 import ErroredIcon from "./errored-icon";
@@ -66,16 +67,25 @@ export function SettingsMenu(): JSX.Element {
 
   return (
     <>
-      <Button
+      <IconButton
+        edge="start"
+        color="inherit"
+        aria-label={`${open} settings`}
         component={RouterLink}
-        to={{ search: searchString({ showSettings: true }) }}
+        disabled={isOpen}
+        to={{
+          search: searchString({ showSettings: isOpen ? undefined : true }),
+        }}
       >
-        Settings
-      </Button>
+        <SettingsIcon />
+      </IconButton>
       <ClickAwayListener
         mouseEvent="onMouseDown"
         touchEvent="onTouchStart"
-        onClickAway={() => isOpen && navigate({ search: searchString({ showSettings: undefined }) })}
+        onClickAway={() =>
+          isOpen &&
+          navigate({ search: searchString({ showSettings: undefined }) })
+        }
       >
         <Drawer open={isOpen} variant="persistent" anchor="right">
           <Typography variant="h4">Settings</Typography>

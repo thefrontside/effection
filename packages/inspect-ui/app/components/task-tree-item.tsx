@@ -5,6 +5,7 @@ import { InspectState } from "@effection/inspect-utils";
 import TreeItem from "@material-ui/lab/TreeItem";
 import { TaskIcon } from "./task-icon";
 import { useSettings } from "../hooks/use-settings";
+import { useStyles } from "../hooks/use-styles";
 
 type TreeProps = {
   task: InspectState;
@@ -13,6 +14,8 @@ type TreeProps = {
 
 export function TaskTreeItem({ task, isYielding }: TreeProps): JSX.Element {
   let { settings } = useSettings();
+  let classes = useStyles();
+
   let name = task.labels.name || "task";
   let labels = Object.entries(task.labels).filter(([key, value]) => key !== 'name' && key !== 'expand' && value != null);
 
@@ -25,29 +28,20 @@ export function TaskTreeItem({ task, isYielding }: TreeProps): JSX.Element {
 
   let label = (
     <div>
-      {isYielding && "yield"}
+      {isYielding && <YieldText />}
       <TaskIcon state={task.state} color="inherit" />
-      <Link component={RouterLink} to={`/tasks/${task.id}`}>
+      <Link component={RouterLink} to={`/tasks/${task.id}`} className={classes.linkText}>
         {name}
       </Link>
-      {labels.map(([key, value]) => (
-        <Chip
-          key={key}
-          label={
-            <>
-              <span>{key}</span>: <span>{value}</span>
-            </>
-          }
-        />
-      ))}
-      <Typography variant="body1" component="span">{task.type}</Typography>
-      <Typography variant="body1" component="span">[id]: {task.id}</Typography>
+      {labels.map(([key, value]) => <LabelChip key={key} name={key} value={value} />)}
+      <TypeText type={task.type} />
+      <IdText taskId={task.id} />
     </div>
   );
 
   if (task.yieldingTo || visibleChildren.length > 0) {
     return (
-      <TreeItem nodeId={`${task.id}`} label={label}>
+      <TreeItem className={classes.treeItem} nodeId={`${task.id}`} label={label}>
         {task.yieldingTo && (
           <TaskTreeItem task={task.yieldingTo} isYielding={true} />
         )}
@@ -57,73 +51,59 @@ export function TaskTreeItem({ task, isYielding }: TreeProps): JSX.Element {
       </TreeItem>
     );
   } else {
-    return <TreeItem nodeId={`${task.id}`} label={label} />;
+    return (
+      <TreeItem
+        className={classes.treeItem}
+         nodeId={`${task.id}`}
+        label={label}
+      />
+    );
   }
 }
 
-// return (
-//   <div className={`task ${task.state}`}>
-//     <div className="task--title">
-//       {task.yieldingTo || visibleChildren.length ? (
-//         <button
-//           className="task--title--expand"
-//           title={(isOpen ? "Collapse" : "Expand") + " " + name}
-//           onClick={() => setOpen(!isOpen)}
-//         >
-//           {isOpen ? "-" : "+"}
-//         </button>
-//       ) : (
-//         <button disabled className="task--title--expand disabled"></button>
-//       )}
-//       {isYielding ? <div className="task--title--yield">yield</div> : null}
-//       <TaskIcon state={task.state} />
-//       <div className="task--title--name">
-//         <Link to={`/tasks/${task.id}`}>{name}</Link>
-//       </div>
-//       {labels.map(([key, value]) => {
-//         return (
-//           <div className="task--label" key={key}>
-//             <div className="task--label--title">{key}</div>
-//             <div className="task--label--value">{value}</div>
-//           </div>
-//         );
-//       })}
-//       <div className="task--title--type">{task.type} </div>
-//       <div className="task--title--id">[id: {task.id}] </div>
-//     </div>
+function YieldText() {
+  let classes = useStyles();
+  return (
+    <Typography className={classes.yieldText} component="span">
+      yield
+    </Typography>
+  );
+}
 
-//     {isOpen ? (
-//       <>
-//         <div className="task--details">
-//           {task.error && settings.showStackTraces ? (
-//             <div className="task--error">
-//               <div className="task--error--stack">{task.error.stack}</div>
-//             </div>
-//           ) : null}
+function TypeText({ type }: { type: string }) {
+  let classes = useStyles();
+  return (
+    <Typography className={classes.typeText} component="span">
+      {type}
+    </Typography>
+  );
+}
 
-//           {task.yieldingTo ? (
-//             <>
-//               <div className="task--yielding-to">
-//                 <TaskTree task={task.yieldingTo} isYielding={true} />
-//               </div>
-//             </>
-//           ) : null}
+function IdText({ taskId }: { taskId: string | number }) {
+  let classes = useStyles();
+  return (
+    <Typography
+      className={classes.idText}
+      component="span"
+    >
+      [ID: {`${taskId}`}]
+    </Typography>
+  );
+}
 
-//           {visibleChildren.length ? (
-//             <>
-//               <ol className="task--list">
-//                 {visibleChildren.map((child) => {
-//                   return (
-//                     <li className="task--list--element" key={child.id}>
-//                       <TaskTree task={child} />
-//                     </li>
-//                   );
-//                 })}
-//               </ol>
-//             </>
-//           ) : null}
-//         </div>
-//       </>
-//     ) : null}
-//   </div>
-// )
+function LabelChip({ name, value }: { name: string, value: string | number | boolean}) {
+  let classes = useStyles();
+  return (
+    <Chip
+      className={classes.labelChip}
+      size="small"
+      label={
+        <>
+          <span className={classes.labelChipName}>{name}</span>:{" "}
+          <span>{value}</span>
+        </>
+      }
+    />
+  );
+}
+

@@ -1,4 +1,5 @@
 import { makeStyles } from "@material-ui/core/styles";
+import { purple, grey } from "@material-ui/core/colors";
 
 export const useStyles = makeStyles((theme) => ({
   root: {
@@ -18,5 +19,35 @@ export const useStyles = makeStyles((theme) => ({
   container: {
     paddingTop: theme.spacing(4),
     paddingBottom: theme.spacing(4),
+  },
+  yieldText: {
+    color: purple[700],
+    display: "inline-block",
+    paddingLeft: theme.spacing(0.5),
+    paddingRight: theme.spacing(0.5),
+    fontWeight: "bold",
+  },
+  typeText: {
+    color: grey[400],
+    display: "inline-block",
+    paddingLeft: theme.spacing(0.5),
+    paddingRight: theme.spacing(0.5),
+  },
+  idText: {
+    color: grey[600],
+  },
+  labelChipName: {
+    color: grey[600],
+  },
+  labelChip: {
+    marginLeft: theme.spacing(0.25),
+    marginRight: theme.spacing(0.25),
+  },
+  linkText: {
+    color: "black",
+  },
+  treeItem: {
+    paddingTop: theme.spacing(0.25),
+    paddingBottom: theme.spacing(0.25),
   },
 }));

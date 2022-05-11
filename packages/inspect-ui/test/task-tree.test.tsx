@@ -3,7 +3,7 @@ import { describe, it, beforeEach } from '@effection/mocha';
 import { spawn } from '@effection/core';
 import { createAtom, Slice } from '@effection/atom';
 import { EffectionContext } from '@effection/react';
-import { Button } from '@interactors/html';
+import { Button } from '@interactors/material-ui';
 import { InspectState } from '@effection/inspect-utils';
 import { MemoryRouter } from 'react-router-dom';
 

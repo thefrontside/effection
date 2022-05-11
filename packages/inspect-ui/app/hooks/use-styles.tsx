@@ -23,7 +23,6 @@ export const useStyles = makeStyles((theme) => ({
   yieldText: {
     color: purple[700],
     display: "inline-block",
-    paddingLeft: theme.spacing(0.5),
     paddingRight: theme.spacing(0.5),
     fontWeight: "bold",
   },

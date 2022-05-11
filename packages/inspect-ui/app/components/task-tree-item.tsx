@@ -33,7 +33,7 @@ export function TaskTreeItem({ task, isYielding }: TreeProps): JSX.Element {
       <Link
         className={`task--title--name ${classes.linkText}`}
         component={RouterLink}
-        to={`/tasks/${task.id}`}
+        to={`tasks/${task.id}`}
       >
         {name}
       </Link>

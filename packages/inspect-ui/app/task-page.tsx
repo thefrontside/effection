@@ -13,7 +13,7 @@ export function TaskPage({ slice }: { slice: InspectStateSlice }): JSX.Element {
     return (
       <div>
         <p>
-          <Link to="/" component={RouterLink}>
+          <Link to="../" component={RouterLink}>
             ← Show all
           </Link>
         </p>
@@ -22,7 +22,7 @@ export function TaskPage({ slice }: { slice: InspectStateSlice }): JSX.Element {
       </div>
     );
   } else {
-    return <Navigate to="/" />;
+    return <Navigate to="../" />;
   }
 }
 

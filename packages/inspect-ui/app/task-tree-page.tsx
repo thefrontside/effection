@@ -54,7 +54,7 @@ export function TaskTreePage({
   if (task) {
     return <TaskTree task={task} collapsed={collapsed} onToggle={onToggle} />;
   } else {
-    return <Navigate to="/" />;
+    return <Navigate to="../" />;
   }
 }
 

@@ -18,7 +18,7 @@ export function TaskPage({ slice }: { slice: InspectStateSlice }): JSX.Element {
           </Link>
         </p>
 
-        <TaskTreePage slice={targetSlice} />
+        <TaskTreePage slice={targetSlice} showCollapsed={true} />
       </div>
     );
   } else {

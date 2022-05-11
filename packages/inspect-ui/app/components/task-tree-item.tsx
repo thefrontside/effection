@@ -1,30 +1,33 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Link as RouterLink } from "react-router-dom";
 import { Chip, Link, Typography } from "@material-ui/core";
 import { InspectState } from "@effection/inspect-utils";
 import TreeItem from "@material-ui/lab/TreeItem";
 import { TaskIcon } from "./task-icon";
-import { useSettings } from "../hooks/use-settings";
 import { useStyles } from "../hooks/use-styles";
 
 type TreeProps = {
   task: InspectState;
   isYielding?: boolean;
+  childFilter: (child: InspectState) => boolean;
 };
 
-export function TaskTreeItem({ task, isYielding }: TreeProps): JSX.Element {
-  let { settings } = useSettings();
+export function TaskTreeItem({
+  task,
+  isYielding,
+  childFilter,
+}: TreeProps): JSX.Element {
   let classes = useStyles();
 
   let name = task.labels.name || "task";
-  let labels = Object.entries(task.labels).filter(([key, value]) => key !== 'name' && key !== 'expand' && value != null);
+  let labels = Object.entries(task.labels).filter(
+    ([key, value]) => key !== "name" && key !== "expand" && value != null
+  );
 
-  let visibleChildren = task.children.filter((child) => {
-    if (child.state === "completed" && !settings.showCompleted) return false;
-    if (child.state === "errored" && !settings.showErrored) return false;
-    if (child.state === "halted" && !settings.showHalted) return false;
-    return true;
-  });
+  let visibleChildren = useMemo(
+    () => (task.children ?? []).filter(childFilter),
+    [task.children, childFilter]
+  );
 
   let label = (
     <>
@@ -55,10 +58,14 @@ export function TaskTreeItem({ task, isYielding }: TreeProps): JSX.Element {
         label={label}
       >
         {task.yieldingTo && (
-          <TaskTreeItem task={task.yieldingTo} isYielding={true} />
+          <TaskTreeItem
+            task={task.yieldingTo}
+            isYielding={true}
+            childFilter={childFilter}
+          />
         )}
         {visibleChildren.map((child) => (
-          <TaskTreeItem key={child.id} task={child} />
+          <TaskTreeItem key={child.id} task={child} childFilter={childFilter} />
         ))}
       </TreeItem>
     );
@@ -85,7 +92,10 @@ function YieldText() {
 function TypeText({ type }: { type: string }) {
   let classes = useStyles();
   return (
-    <Typography className={`task--title--type ${classes.typeText}`} component="span">
+    <Typography
+      className={`task--title--type ${classes.typeText}`}
+      component="span"
+    >
       {type}
     </Typography>
   );
@@ -103,7 +113,13 @@ function IdText({ taskId }: { taskId: string | number }) {
   );
 }
 
-function LabelChip({ name, value }: { name: string, value: string | number | boolean}) {
+function LabelChip({
+  name,
+  value,
+}: {
+  name: string;
+  value: string | number | boolean;
+}) {
   let classes = useStyles();
   return (
     <Chip
@@ -121,4 +137,3 @@ function LabelChip({ name, value }: { name: string, value: string | number | boo
     />
   );
 }
-

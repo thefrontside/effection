@@ -11,15 +11,15 @@ export function TaskPage({ slice }: { slice: InspectStateSlice }): JSX.Element {
   let targetSlice = findSliceById(slice, Number(id));
   if (targetSlice) {
     return (
-      <div>
-        <p>
-          <Link to="../" component={RouterLink}>
-            ← Show all
-          </Link>
-        </p>
+      <>
+      <p>
+        <Link to="../" component={RouterLink}>
+          ← Show all
+        </Link>
+      </p>
 
         <TaskTreePage slice={targetSlice} showCollapsed={true} />
-      </div>
+      </>
     );
   } else {
     return <Navigate to="../" />;

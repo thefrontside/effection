@@ -774,12 +774,12 @@
   resolved "https://registry.yarnpkg.com/@iarna/toml/-/toml-2.2.5.tgz#b32366c89b43c6f8cefbdefac778b9c828e3ba8c"
   integrity sha512-trnsAYxU3xnS1gPHPyU961coFyLkh4gAD/0zQ5mymY4yOZ+CYvsPqUbOFSw0aDM4y0tV7tiFxL/1XfXPNC6IPg==
 
-"@interactors/core@1.0.0-rc1.2":
-  version "1.0.0-rc1.2"
-  resolved "https://registry.yarnpkg.com/@interactors/core/-/core-1.0.0-rc1.2.tgz#df76e71dd6f961e8d68fe4ea5a438d5d3a197830"
-  integrity sha512-+u1gOrfsaRblqoTtdBTANiDOGXXLlERlOHev8Yb9iAfvpMFgmz9mvy5ZCjkMO+y4Kd+Xanr35ZPGzTD+wvf+1w==
+"@interactors/core@^0.4.0":
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/@interactors/core/-/core-0.4.0.tgz#4c964647e39f7353513521673b6157cbe012e7bf"
+  integrity sha512-QcqAzH9jDRzpRueYO7v4Dl/TfgYEYdjdRJ/sU8YBMnvL4nWNyT4u9Fw2RsC+OgFLB4IJ1Pakl0mm0NGJSLLDuQ==
   dependencies:
-    "@interactors/globals" "1.0.0-rc1.1"
+    "@interactors/globals" "^0.2.0"
     "@testing-library/dom" "^8.5.0"
     "@testing-library/user-event" "^13.2.1"
     change-case "^4.1.1"
@@ -787,26 +787,33 @@
     lodash.isequal "^4.5.0"
     performance-api "^1.0.0"
 
-"@interactors/globals@1.0.0-rc1.1":
-  version "1.0.0-rc1.1"
-  resolved "https://registry.yarnpkg.com/@interactors/globals/-/globals-1.0.0-rc1.1.tgz#85d4bfd514313c0cbf9b013c4e4fc6ca36ff181e"
-  integrity sha512-liLDRok1UeKQi9YrLzSfxXMTYY9Pl+SxxvhpxPoJ8xFbRVYmuGRXfkKOLEV0NBrEzg2t0ZLX0joukSUEnSd54A==
+"@interactors/globals@^0.2.0":
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/@interactors/globals/-/globals-0.2.0.tgz#863de5b2d6ec4fc700d25fff258a4ae93d399bc0"
+  integrity sha512-QxBCCmAR+YXqp4Kk7PCQf9AKMxIPyHD+bPf/YUjy1Xf52srAWwRLbs0id4e5JrZXnbN3S6u9BJqjFTeE6KZ6Qw==
 
-"@interactors/html@^1.0.0-rc1.2":
-  version "1.0.0-rc1.2"
-  resolved "https://registry.yarnpkg.com/@interactors/html/-/html-1.0.0-rc1.2.tgz#3791e4e432ffbf326b172dc2490005763247b38b"
-  integrity sha512-/MPv+AfjC9gtpNeYrtb2f8PB8OOwqojibaz1/Qyu0f7tfq4zR1BdEfHnORfv3EWA/WFuUWHN4BsxvKTPS0fPvw==
+"@interactors/html@^0.37.0":
+  version "0.37.0"
+  resolved "https://registry.yarnpkg.com/@interactors/html/-/html-0.37.0.tgz#0f324860724639864ccbfa2953b97e307a416943"
+  integrity sha512-O7pXBZlpsNPKO/pQt+LhlQz9vJ1i2/hPaR1ZJ26jcHSj2F1UwIEDrELaiW5grgkJEN4T+IMG48kCy6XP2Ig8TA==
   dependencies:
-    "@interactors/core" "1.0.0-rc1.2"
-    "@interactors/keyboard" "1.0.0-rc1.2"
+    "@interactors/core" "^0.4.0"
+    "@interactors/keyboard" "^0.1.1"
 
-"@interactors/keyboard@1.0.0-rc1.2":
-  version "1.0.0-rc1.2"
-  resolved "https://registry.yarnpkg.com/@interactors/keyboard/-/keyboard-1.0.0-rc1.2.tgz#6cacb59c78754d490c4f7715ab4e6095bea70280"
-  integrity sha512-CaT057/OIbo/jovrVjPbcngaRpbT2LML5xq20cZ8s+0RD932DEEnhplm+B333JXcSrucmaWXCsP34BU3DQMbew==
+"@interactors/keyboard@^0.1.1":
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/@interactors/keyboard/-/keyboard-0.1.1.tgz#bd9e91ecfdc160fe7bac44e8b9317363028e2d22"
+  integrity sha512-UeS0N/edhhPO7AErKcNvzzAKHj2j7iN3DII6CaCmmVFreU8x5djt35Bhreux8HUK+Mlc4HX+KU4qfnZQvpkTuQ==
   dependencies:
-    "@interactors/core" "1.0.0-rc1.2"
-    "@interactors/globals" "1.0.0-rc1.1"
+    "@interactors/core" "^0.4.0"
+
+"@interactors/material-ui@^4.1.0":
+  version "4.2.2"
+  resolved "https://registry.yarnpkg.com/@interactors/material-ui/-/material-ui-4.2.2.tgz#43f5386579277a122cc632724ef380ba920001d1"
+  integrity sha512-nyEpbDIM4om3isInsbobY1OjLIBCLOCuoYNMdot5ZmgT1Eu5JxjEoCjX1mpP4z6FLqROCni2Ixt1JuarLJvKvg==
+  dependencies:
+    "@interactors/core" "^0.4.0"
+    "@interactors/html" "^0.37.0"
 
 "@istanbuljs/load-nyc-config@^1.0.0":
   version "1.1.0"

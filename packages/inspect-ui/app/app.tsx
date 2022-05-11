@@ -50,7 +50,7 @@ export function App({ slice }: AppProps): JSX.Element {
         </AppBar>
         <main className={classes.content}>
           <div className={classes.appBarSpacer}>
-            <Container maxWidth="lg" className={classes.container}>
+            <Container className={classes.container}>
               <>{element}</>
             </Container>
           </div>

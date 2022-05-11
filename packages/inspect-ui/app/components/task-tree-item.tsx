@@ -30,10 +30,16 @@ export function TaskTreeItem({ task, isYielding }: TreeProps): JSX.Element {
     <div>
       {isYielding && <YieldText />}
       <TaskIcon state={task.state} color="inherit" />
-      <Link component={RouterLink} to={`/tasks/${task.id}`} className={classes.linkText}>
+      <Link
+        className={`task--title--name ${classes.linkText}`}
+        component={RouterLink}
+        to={`/tasks/${task.id}`}
+      >
         {name}
       </Link>
-      {labels.map(([key, value]) => <LabelChip key={key} name={key} value={value} />)}
+      {labels.map(([key, value]) => (
+        <LabelChip key={key} name={key} value={value} />
+      ))}
       <TypeText type={task.type} />
       <IdText taskId={task.id} />
     </div>
@@ -41,7 +47,13 @@ export function TaskTreeItem({ task, isYielding }: TreeProps): JSX.Element {
 
   if (task.yieldingTo || visibleChildren.length > 0) {
     return (
-      <TreeItem className={classes.treeItem} nodeId={`${task.id}`} label={label}>
+      <TreeItem
+        className={`task ${task.yieldingTo ? "task--yielding-to" : null} ${
+          classes.treeItem
+        }`}
+        nodeId={`${task.id}`}
+        label={label}
+      >
         {task.yieldingTo && (
           <TaskTreeItem task={task.yieldingTo} isYielding={true} />
         )}
@@ -53,8 +65,8 @@ export function TaskTreeItem({ task, isYielding }: TreeProps): JSX.Element {
   } else {
     return (
       <TreeItem
-        className={classes.treeItem}
-         nodeId={`${task.id}`}
+        className={`task ${classes.treeItem}`}
+        nodeId={`${task.id}`}
         label={label}
       />
     );
@@ -73,7 +85,7 @@ function YieldText() {
 function TypeText({ type }: { type: string }) {
   let classes = useStyles();
   return (
-    <Typography className={classes.typeText} component="span">
+    <Typography className={`task--title--type ${classes.typeText}`} component="span">
       {type}
     </Typography>
   );
@@ -83,10 +95,10 @@ function IdText({ taskId }: { taskId: string | number }) {
   let classes = useStyles();
   return (
     <Typography
-      className={classes.idText}
+      className={`task--title--id ${classes.idText}`}
       component="span"
     >
-      [ID: {`${taskId}`}]
+      [id: {`${taskId}`}]
     </Typography>
   );
 }
@@ -95,12 +107,14 @@ function LabelChip({ name, value }: { name: string, value: string | number | boo
   let classes = useStyles();
   return (
     <Chip
-      className={classes.labelChip}
+      className={`task--label ${classes.labelChip}`}
       size="small"
       label={
         <>
-          <span className={classes.labelChipName}>{name}</span>:{" "}
-          <span>{value}</span>
+          <span className={`task--label--title ${classes.labelChipName}`}>
+            {name}
+          </span>
+          : <span className={`task--label--value`}>{value}</span>
         </>
       }
     />

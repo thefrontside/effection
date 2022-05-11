@@ -44,7 +44,7 @@ export function TaskTree({
   }, [task]);
 
   let expanded = useMemo(
-    () => ids.filter((id) => (collapsed ? !collapsed.includes(id) : true)),
+    () => ids.filter((id) => !collapsed.includes(id)),
     [ids, collapsed]
   );
 

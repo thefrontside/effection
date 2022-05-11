@@ -25,7 +25,7 @@ export function App({ slice }: AppProps): JSX.Element {
       children: [
         {
           index: true,
-          element: <TaskTreePage slice={slice} />,
+          element: <TaskTreePage slice={slice} showCollapsed={false} />,
         },
         {
           path: "tasks/:id",

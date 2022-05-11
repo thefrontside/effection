@@ -7,7 +7,7 @@ import IndeterminateCheckBoxOutlinedIcon from "@material-ui/icons/IndeterminateC
 
 export function TaskTree({
   task,
-  collapsed,
+  collapsed = [],
   onToggle,
 }: {
   task: InspectState;

@@ -2,7 +2,6 @@ import { Slice } from "@effection/atom";
 import { InspectState } from "@effection/inspect-utils";
 import AppBar from "@material-ui/core/AppBar";
 import Container from "@material-ui/core/Container/Container";
-import CssBaseline from "@material-ui/core/CssBaseline";
 import React, { useState } from "react";
 import { RouteObject, useRoutes } from "react-router-dom";
 import { SettingsButton } from "./components/settings-button";
@@ -42,7 +41,6 @@ export function App({ slice }: AppProps): JSX.Element {
   return (
     <SettingsContext.Provider value={{ settings, setSettings }}>
       <div className={classes.root}>
-        <CssBaseline />
         <AppBar position="absolute" className={classes.appBar}>
           <SettingsButton>
             <SettingsForm />

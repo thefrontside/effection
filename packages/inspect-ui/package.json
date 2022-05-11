@@ -1,6 +1,6 @@
 {
   "name": "@effection/inspect-ui",
-  "version": "2.1.5",
+  "version": "2.2.0",
   "description": "Web interface for inspecting effection applications",
   "main": "app/index.ts",
   "types": "dist-esm/index.d.ts",
@@ -39,7 +39,7 @@
   "devDependencies": {
     "@interactors/html": "^1.0.0-rc1.2",
     "@effection/inspect-utils": "2.1.4",
-    "@effection/react": "2.1.4",
+    "@effection/react": "2.2.0",
     "@effection/websocket-client": "2.0.4",
     "@frontside/tsconfig": "^1.2.0",
     "@types/jsdom-global": "^3.0.2",

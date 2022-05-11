@@ -1,5 +1,10 @@
 # @effection/react
 
+## \[2.2.0]
+
+- introduce the `useResource()` hook for working directly with resources.
+  - [47f9c9e](https://github.com/thefrontside/effection/commit/47f9c9ee4092d8f05b21372f9300e4f9cd530c2a) Add useResource hook. on 2022-05-09
+
 ## \[2.1.4]
 
 - make react a flexible peer dependency for 16,17

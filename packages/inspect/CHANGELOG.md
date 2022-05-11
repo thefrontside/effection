@@ -1,5 +1,13 @@
 # @effection/inspect
 
+## \[2.1.6]
+
+- `@effection/inspect-server` is now responsible for resolving the path of `@effection/inspect-ui/dist-app/index.html`.
+  This allows us to remove Node.js specific code from the `@effection/inspect-ui` package and make sure that exports only
+  include the code that will be used in the browser.
+  - Bumped due to a bump in @effection/inspect-server.
+  - [3b40df0](https://github.com/thefrontside/effection/commit/3b40df0f660987ec782d3d4ab9674b595cf5b019) Added changeset on 2022-05-10
+
 ## \[2.1.5]
 
 - Add ESM build of react components so that they can be embedded into any

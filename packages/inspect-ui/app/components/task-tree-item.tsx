@@ -27,7 +27,7 @@ export function TaskTreeItem({ task, isYielding }: TreeProps): JSX.Element {
   });
 
   let label = (
-    <div>
+    <>
       {isYielding && <YieldText />}
       <TaskIcon state={task.state} color="inherit" />
       <Link
@@ -42,7 +42,7 @@ export function TaskTreeItem({ task, isYielding }: TreeProps): JSX.Element {
       ))}
       <TypeText type={task.type} />
       <IdText taskId={task.id} />
-    </div>
+    </>
   );
 
   if (task.yieldingTo || visibleChildren.length > 0) {
@@ -107,6 +107,7 @@ function LabelChip({ name, value }: { name: string, value: string | number | boo
   let classes = useStyles();
   return (
     <Chip
+      component="span"
       className={`task--label ${classes.labelChip}`}
       size="small"
       label={

@@ -11,7 +11,9 @@ export const Task = HTML.extend('task')
   });
 
 export const YieldingToTask = Task.extend('yielding to task').selector('.task--yielding-to .task');
-export const ChildTask = Task.extend('child task').selector('.task--list .task');
+export const ChildTask = Task.extend("child task").selector(
+  ".MuiTreeItem-group .task"
+);
 
 export const Label = HTML.extend('label')
   .selector('.task--label')

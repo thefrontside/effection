@@ -4,6 +4,7 @@ import { TaskTreeItem } from "./task-tree-item";
 import TreeView, { MultiSelectTreeViewProps } from "@material-ui/lab/TreeView";
 import AddBoxOutlinedIcon from "@material-ui/icons/AddBoxOutlined";
 import IndeterminateCheckBoxOutlinedIcon from "@material-ui/icons/IndeterminateCheckBoxOutlined";
+import { useSettings } from "../hooks/use-settings";
 
 export function TaskTree({
   task,
@@ -53,6 +54,20 @@ export function TaskTree({
     [onToggle, ids]
   );
 
+  let {
+    settings: { showCompleted, showErrored, showHalted },
+  } = useSettings();
+
+  let childVisibilityFilter = useCallback(
+    (child: InspectState) => {
+      if (child.state === "completed" && !showCompleted) return false;
+      if (child.state === "errored" && !showErrored) return false;
+      if (child.state === "halted" && !showHalted) return false;
+      return true;
+    },
+    [showCompleted, showErrored, showHalted]
+  );
+
   return (
     <TreeView
       multiSelect
@@ -61,7 +76,7 @@ export function TaskTree({
       defaultCollapseIcon={<IndeterminateCheckBoxOutlinedIcon />}
       onNodeToggle={onNodeToggle}
     >
-      <TaskTreeItem task={task} />
+      <TaskTreeItem task={task} childFilter={childVisibilityFilter} />
     </TreeView>
   );
 }

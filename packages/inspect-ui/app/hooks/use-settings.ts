@@ -1,7 +1,7 @@
-import { useContext, useMemo } from "react";
-import { To, useNavigate, useSearchParams } from "react-router-dom";
+import { useContext, useMemo, useCallback } from "react";
+import { To, useNavigate } from "react-router-dom";
 import { Settings, SettingsContext } from "../context";
-import { searchString } from "../utils/search-string";
+import { useQueryParams } from "./use-query-params";
 
 interface UseSettings {
   settings: Settings;
@@ -13,26 +13,28 @@ interface UseSettings {
 
 export function useSettings(): UseSettings {
   let { settings, setSettings } = useContext(SettingsContext);
-  let [search] = useSearchParams();
+  let [queryParams, mergeQueryParams] = useQueryParams();
   let navigate = useNavigate();
-  let isShowingSettings = search.has("showSettings");
 
-  let toSettings = useMemo(
-    () => ({
-      search: searchString({
-        showSettings: isShowingSettings ? undefined : true,
-      }),
-    }),
-    [isShowingSettings]
-  );
+  let isShowingSettings = !!queryParams["showSettings"];
+
+  let toSettings = useMemo(() => {
+    return {
+      search: mergeQueryParams({ showSettings: true }),
+    };
+  }, [mergeQueryParams]);
+
+  let closeSettings = useCallback(() => {
+    navigate({
+      search: mergeQueryParams({ showSettings: null }),
+    });
+  }, [navigate, mergeQueryParams]);
 
   return {
     settings,
     setSettings,
     isShowingSettings,
     toSettings,
-    closeSettings: () =>
-      isShowingSettings &&
-      navigate({ search: searchString({ showSettings: undefined }) }),
+    closeSettings,
   };
 }

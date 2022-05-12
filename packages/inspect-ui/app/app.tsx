@@ -21,16 +21,12 @@ export function App({ slice }: AppProps): JSX.Element {
   let classes = useStyles();
   let routes: RouteObject[] = [
     {
-      children: [
-        {
-          index: true,
-          element: <TaskTreePage slice={slice} showCollapsed={false} />,
-        },
-        {
-          path: ":id",
-          element: <TaskPage slice={slice} />,
-        },
-      ],
+      path: ":id",
+      element: <TaskPage slice={slice} />,
+    },
+    {
+      index: true,
+      element: <TaskTreePage slice={slice} showCollapsed={false} />,
     },
   ];
 

@@ -36,7 +36,7 @@ export function TaskTreeItem({
       <Link
         className={`task--title--name ${classes.linkText}`}
         component={RouterLink}
-        to={`${task.id}`}
+        to={`../${task.id}`}
       >
         {name}
       </Link>

@@ -22,7 +22,7 @@ export function useQueryParams(): [
 
   let mergeSearchParams = useCallback(
     (overrides: ParsedQueryParams) =>
-      stringify(
+      '?' + stringify(
         { ...search, ...overrides },
         { skipEmptyString: true, skipNull: true, arrayFormat: "comma" }
       ),

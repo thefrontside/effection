@@ -1,7 +1,5 @@
-import Button from "@material-ui/core/Button";
-import ArrowBack from "@material-ui/icons/ArrowBack";
 import React from "react";
-import { Link as RouterLink, Navigate, useParams } from "react-router-dom";
+import { Navigate, useParams } from "react-router-dom";
 import { InspectStateSlice } from "./app";
 import { TaskTreePage } from "./task-tree-page";
 import { findSliceById } from "./utils/find-slice-by-id";
@@ -12,15 +10,7 @@ export function TaskPage({ slice }: { slice: InspectStateSlice }): JSX.Element {
   let targetSlice = findSliceById(slice, Number(id));
   if (targetSlice) {
     return (
-      <>
-        <p>
-          <Button to=".." component={RouterLink} startIcon={<ArrowBack />}>
-            Show all
-          </Button>
-        </p>
-
-        <TaskTreePage slice={targetSlice} showCollapsed={true} />
-      </>
+      <TaskTreePage slice={targetSlice} showCollapsed={true} />
     );
   } else {
     return <Navigate to=".." />;

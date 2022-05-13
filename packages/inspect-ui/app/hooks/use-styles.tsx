@@ -3,21 +3,24 @@ import { makeStyles } from "@material-ui/core/styles";
 export const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
+    flexDirection: "column",
   },
   content: {
-    flexGrow: 1,
-    height: "100vh",
-    overflow: "auto",
-    paddingTop: theme.spacing(3),
+    padding: theme.spacing(2)
   },
   appBar: {
-    display: "flex",
-    alignItems: "end",
+    alignItems: "center",
+    flexDirection: "row",
+    paddingLeft: theme.spacing(1),
+    paddingRight: theme.spacing(1),
+    paddingBottom: theme.spacing(0.5),
+    paddingTop: theme.spacing(0.5),
   },
-  appBarSpacer: theme.mixins.toolbar,
-  container: {
-    paddingTop: theme.spacing(4),
-    paddingBottom: theme.spacing(4),
+  appBarLeftSection: {},
+  appBarRightSection: {
+    display: "flex",
+    flexGrow: 1,
+    justifyContent: "end",
   },
   yieldText: {
     color: theme.palette.info.main,
@@ -49,9 +52,9 @@ export const useStyles = makeStyles((theme) => ({
     paddingBottom: theme.spacing(0.25),
   },
   settingsForm: {
-    padding: theme.spacing(2)
+    padding: theme.spacing(2),
   },
   settingsFormHeader: {
-    color: theme.palette.text.primary
-  }
+    color: theme.palette.text.primary,
+  },
 }));

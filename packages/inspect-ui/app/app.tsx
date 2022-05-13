@@ -3,13 +3,15 @@ import { InspectState } from "@effection/inspect-utils";
 import AppBar from "@material-ui/core/AppBar";
 import Container from "@material-ui/core/Container/Container";
 import React, { useState } from "react";
-import { RouteObject, useRoutes } from "react-router-dom";
+import { RouteObject, useRoutes, Link as RouterLink } from "react-router-dom";
 import { SettingsButton } from "./components/settings-button";
 import { SettingsForm } from "./components/settings-form";
 import { DEFAULT_SETTINGS, SettingsContext } from "./context";
 import { useStyles } from "./hooks/use-styles";
 import { TaskPage } from "./task-page";
 import { TaskTreePage } from "./task-tree-page";
+import Button from "@material-ui/core/Button";
+import ArrowBack from "@material-ui/icons/ArrowBack";
 
 export type InspectStateSlice = Slice<InspectState>;
 
@@ -37,17 +39,20 @@ export function App({ slice }: AppProps): JSX.Element {
   return (
     <SettingsContext.Provider value={{ settings, setSettings }}>
       <div className={classes.root}>
-        <AppBar position="absolute" className={classes.appBar}>
-          <SettingsButton>
-            <SettingsForm />
-          </SettingsButton>
+        <AppBar position="sticky" className={classes.appBar}>
+          <div className={classes.appBarLeftSection}>
+            <Button to=".." component={RouterLink} startIcon={<ArrowBack />}>
+              Show all
+            </Button>
+          </div>
+          <div className={classes.appBarRightSection}>
+            <SettingsButton>
+              <SettingsForm />
+            </SettingsButton>
+          </div>
         </AppBar>
         <main className={classes.content}>
-          <div className={classes.appBarSpacer}>
-            <Container className={classes.container}>
-              <>{element}</>
-            </Container>
-          </div>
+          {element}
         </main>
       </div>
     </SettingsContext.Provider>

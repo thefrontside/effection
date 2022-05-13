@@ -1,4 +1,4 @@
-import { ClickAwayListener, Drawer, IconButton } from "@material-ui/core";
+import { Button, ClickAwayListener, Drawer } from "@material-ui/core";
 // import { useStyles } from "../hooks/use-styles";
 import SettingsIcon from "@material-ui/icons/Settings";
 import React from "react";
@@ -14,16 +14,15 @@ export function SettingsButton({
 
   return (
     <>
-      <IconButton
-        edge="start"
-        color="inherit"
-        aria-label={`show settings`}
+      <Button
         component={RouterLink}
         disabled={isShowingSettings}
+        aria-label="show settings"
         to={toSettings}
+        startIcon={<SettingsIcon />}
       >
-        <SettingsIcon />
-      </IconButton>
+        Settings
+      </Button>
       {isShowingSettings && (
         <ClickAwayListener
           mouseEvent="onMouseDown"

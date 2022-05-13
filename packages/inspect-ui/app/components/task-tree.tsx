@@ -10,8 +10,10 @@ export function TaskTree({
   task,
   collapsed = [],
   onToggle,
+  basePath
 }: {
   task: InspectState;
+  basePath: string;
 
   /**
    * TreeView expects all nodes to be collapsed by default and expand only
@@ -76,7 +78,7 @@ export function TaskTree({
       defaultCollapseIcon={<IndeterminateCheckBoxOutlinedIcon />}
       onNodeToggle={onNodeToggle}
     >
-      <TaskTreeItem task={task} childFilter={childVisibilityFilter} />
+      <TaskTreeItem task={task} childFilter={childVisibilityFilter} basePath={basePath} />
     </TreeView>
   );
 }

@@ -6,7 +6,7 @@ export const useStyles = makeStyles((theme) => ({
     flexDirection: "column",
   },
   content: {
-    padding: theme.spacing(2)
+    padding: theme.spacing(2),
   },
   appBar: {
     alignItems: "center",
@@ -15,6 +15,9 @@ export const useStyles = makeStyles((theme) => ({
     paddingRight: theme.spacing(1),
     paddingBottom: theme.spacing(0.5),
     paddingTop: theme.spacing(0.5),
+  },
+  appBarText: {
+    color: theme.palette.grey[50],
   },
   appBarLeftSection: {},
   appBarRightSection: {

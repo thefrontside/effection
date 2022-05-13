@@ -2,7 +2,7 @@ import { Slice } from "@effection/atom";
 import { InspectState } from "@effection/inspect-utils";
 
 import React, { useState } from "react";
-import { RouteObject, useRoutes } from "react-router-dom";
+import { Navigate, RouteObject, useRoutes } from "react-router-dom";
 import { Layout } from "./components/layout";
 
 import { DEFAULT_SETTINGS, SettingsContext } from "./context";
@@ -19,6 +19,7 @@ type AppProps = {
 export function App({ slice }: AppProps): JSX.Element {
   let routes: RouteObject[] = [
     {
+      path: 'tasks',
       element: <Layout />,
       children: [
         {
@@ -31,6 +32,10 @@ export function App({ slice }: AppProps): JSX.Element {
         },
       ],
     },
+    {
+      index: true,
+      element: <Navigate to="tasks" />
+    }
   ];
 
   let [settings, setSettings] = useState(DEFAULT_SETTINGS);

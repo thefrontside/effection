@@ -48,39 +48,6 @@ jobs:
   test:
     executor: <<parameters.executor>>
     parameters:
-      package:
-        type: string
-        default: ""
-      executor:
-        type: executor
-        default: "linux"
-      prepack:
-        type: boolean
-        default: true
-    steps:
-      - checkout
-      - yarn_install
-      - when:
-          condition: <<parameters.prepack>>
-          steps:
-            - prepack
-      - attach_workspace:
-          at: .
-      - when:
-          condition: <<parameters.package>>
-          steps:
-            - run:
-                name: Running tests
-                command: yarn workspace @effection/<<parameters.package>> test
-      - unless:
-          condition: <<parameters.package>>
-          steps:
-            - run:
-                name: Running tests
-                command: yarn test
-  lint:
-    executor: <<parameters.executor>>
-    parameters:
       executor:
         type: executor
         default: "linux"
@@ -97,41 +64,32 @@ jobs:
       - attach_workspace:
           at: .
       - run:
+          name: Running tests
+          command: yarn test:all
+  lint:
+    executor: <<parameters.executor>>
+    parameters:
+      executor:
+        type: executor
+        default: "linux"
+    steps:
+      - checkout
+      - yarn_install
+      - attach_workspace:
+          at: .
+      - run:
           name: Running lint
-          command: yarn lint
+          command: yarn lint:all
 workflows:
   test:
     jobs:
       - prepack
       - test:
-          name: "test-<<matrix.package>>"
+          name: "test-linux"
           prepack: false
-          matrix:
-            parameters:
-              package:
-                - core
-                - subscription
-                - stream
-                - events
-                - channel
-                - duplex-channel
-                - dispatch
-                - fetch
-                - process
-                - atom
-                - mocha
-                - main
-                - react
-                - websocket-client
-                - websocket-server
-                - inspect-utils
-                - inspect-ui
-                - inspect-server
-                - inspect
           requires:
             - prepack
       - lint:
-          prepack: false
           requires:
             - prepack
       - test:

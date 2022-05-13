@@ -34,8 +34,10 @@
   "scripts": {
     "clean": "git clean -dxf",
     "prepack": "yarn workspaces run prepack",
-    "test": "yarn nx affected --target=test",
-    "lint": "yarn nx affected --target=lint",
+    "test:all": "nx run-many --target=test --all",
+    "test:affected": "nx affected --target=test",
+    "lint:all": "nx run-many --target=lint --all",
+    "lint:affected": "nx affected --target=lint",
     "build:tsc": "tsc -b ./tsconfig.packages.json",
     "watch:tsc": "yarn build && \"$(npm bin)/tsc\" -b ./tsconfig.packages.json --watch",
     "docs": "rm -rf docs && yarn typedoc --options typedoc.json",
@@ -49,7 +51,10 @@
     "@frontside/eslint-config": "2.1.0",
     "@frontside/tsconfig": "^1.2.0",
     "covector": "^0.7.2",
-    "typedoc": "^0.22.4",
-    "nx": "14.1.4"
+    "nx": "14.1.4",
+    "typedoc": "^0.22.4"
+  },
+  "dependencies": {
+    "@nrwl/nx-cloud": "^14.0.3"
   }
 }

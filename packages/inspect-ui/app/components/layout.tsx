@@ -24,7 +24,6 @@ export function Layout(): JSX.Element {
               to="."
               component={RouterLink}
               startIcon={<ArrowBack />}
-              className={classes.appBarText}
             >
               Show all
             </Button>
@@ -37,7 +36,6 @@ export function Layout(): JSX.Element {
             aria-label="show settings"
             to={toSettings}
             startIcon={<SettingsIcon />}
-            className={classes.appBarText}
           >
             Settings
           </Button>

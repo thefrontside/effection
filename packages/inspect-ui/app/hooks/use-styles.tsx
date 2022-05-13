@@ -1,4 +1,3 @@
-import { blue } from "@material-ui/core/colors";
 import { makeStyles } from "@material-ui/core/styles";
 
 export const useStyles = makeStyles((theme) => ({
@@ -16,10 +15,7 @@ export const useStyles = makeStyles((theme) => ({
     paddingRight: theme.spacing(1),
     paddingBottom: theme.spacing(0.5),
     paddingTop: theme.spacing(0.5),
-    backgroundColor: blue[800]
-  },
-  appBarText: {
-    color: theme.palette.grey[50],
+    backgroundColor: "transparent"
   },
   appBarLeftSection: {},
   appBarRightSection: {

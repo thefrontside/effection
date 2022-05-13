@@ -10,7 +10,7 @@ export function TaskPage({ slice }: { slice: InspectStateSlice }): JSX.Element {
   let targetSlice = findSliceById(slice, Number(id));
   if (targetSlice) {
     return (
-      <TaskTreePage slice={targetSlice} showCollapsed={true} />
+      <TaskTreePage slice={targetSlice} showCollapsed={true} basePath="../" />
     );
   } else {
     return <Navigate to=".." />;

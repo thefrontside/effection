@@ -10,12 +10,14 @@ type TreeProps = {
   task: InspectState;
   isYielding?: boolean;
   childFilter: (child: InspectState) => boolean;
+  basePath: string;
 };
 
 export function TaskTreeItem({
   task,
   isYielding,
   childFilter,
+  basePath = "",
 }: TreeProps): JSX.Element {
   let classes = useStyles();
 
@@ -36,7 +38,7 @@ export function TaskTreeItem({
       <Link
         className={`task--title--name ${classes.linkText}`}
         component={RouterLink}
-        to={`../${task.id}`}
+        to={`${basePath}${task.id}`}
       >
         {name}
       </Link>
@@ -62,10 +64,11 @@ export function TaskTreeItem({
             task={task.yieldingTo}
             isYielding={true}
             childFilter={childFilter}
+            basePath={basePath}
           />
         )}
         {visibleChildren.map((child) => (
-          <TaskTreeItem key={child.id} task={child} childFilter={childFilter} />
+          <TaskTreeItem key={child.id} task={child} childFilter={childFilter} basePath={basePath} />
         ))}
       </TreeItem>
     );

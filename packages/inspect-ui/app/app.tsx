@@ -28,7 +28,7 @@ export function App({ slice }: AppProps): JSX.Element {
         },
         {
           index: true,
-          element: <TaskTreePage slice={slice} showCollapsed={false} />,
+          element: <TaskTreePage slice={slice} showCollapsed={false} basePath="" />,
         },
       ],
     },

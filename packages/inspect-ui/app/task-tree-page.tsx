@@ -9,10 +9,12 @@ import { InspectState } from "@effection/inspect-utils";
 
 export function TaskTreePage({
   slice,
-  showCollapsed
+  showCollapsed,
+  basePath
 }: {
   slice: InspectStateSlice;
   showCollapsed: boolean;
+  basePath: string;
 }): JSX.Element {
   let task = useSlice(slice);
 
@@ -52,7 +54,7 @@ export function TaskTreePage({
   );
 
   if (task) {
-    return <TaskTree task={task} collapsed={collapsed} onToggle={onToggle} />;
+    return <TaskTree task={task} collapsed={collapsed} onToggle={onToggle} basePath={basePath} />;
   } else {
     return <Navigate to=".." />;
   }

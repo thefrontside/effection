@@ -3,8 +3,7 @@ id: introduction
 title: Introduction
 ---
 
-Effection is a JavaScript framework that makes building
-concurrent systems easy to get right.
+Effection is a structured concurrency and effects framework for JavaScript.
 
 ## Why use Effection?
 

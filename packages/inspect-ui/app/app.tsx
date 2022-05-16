@@ -1,31 +1,41 @@
-import React, { useState } from 'react';
-import { RouteObject, useRoutes } from 'react-router-dom';
-import { Slice } from '@effection/atom';
-import { InspectState } from '@effection/inspect-utils';
-import { SettingsMenu, SettingsContext, DEFAULT_SETTINGS } from './settings';
-import { TaskPage } from './task-page';
-import { TaskTreePage } from './task-tree-page';
+import { Slice } from "@effection/atom";
+import { InspectState } from "@effection/inspect-utils";
+
+import React, { useState } from "react";
+import { Navigate, RouteObject, useRoutes } from "react-router-dom";
+import { Layout } from "./components/layout";
+
+import { DEFAULT_SETTINGS, SettingsContext } from "./context";
+
+import { TaskPage } from "./task-page";
+import { TaskTreePage } from "./task-tree-page";
 
 export type InspectStateSlice = Slice<InspectState>;
 
 type AppProps = {
-  slice: InspectStateSlice
-}
+  slice: InspectStateSlice;
+};
 
 export function App({ slice }: AppProps): JSX.Element {
   let routes: RouteObject[] = [
     {
+      path: 'tasks',
+      element: <Layout />,
       children: [
         {
-          index: true,
-          element: <TaskTreePage slice={slice} />,
+          path: ":id",
+          element: <TaskPage slice={slice} />,
         },
         {
-          path: "tasks/:id",
-          element: <TaskPage slice={slice} />
-        }
+          index: true,
+          element: <TaskTreePage slice={slice} showCollapsed={false} basePath="" />,
+        },
       ],
     },
+    {
+      index: true,
+      element: <Navigate to="tasks" />
+    }
   ];
 
   let [settings, setSettings] = useState(DEFAULT_SETTINGS);
@@ -34,15 +44,7 @@ export function App({ slice }: AppProps): JSX.Element {
 
   return (
     <SettingsContext.Provider value={{ settings, setSettings }}>
-      <div className="inspector">
-        <div className="inspector--menu">
-          <h1 className="inspector--menu--title">Effection Inspector</h1>
-          <div className="inspector--menu--toolbar">
-            <SettingsMenu />
-          </div>
-        </div>
-        <div className="inspector--main">{element}</div>
-      </div>
+      {element}
     </SettingsContext.Provider>
   );
 }

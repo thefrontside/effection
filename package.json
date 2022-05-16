@@ -34,10 +34,8 @@
   "scripts": {
     "clean": "git clean -dxf",
     "prepack": "yarn workspaces run prepack",
-    "test:all": "nx run-many --target=test --all",
-    "test:affected": "nx affected --target=test",
-    "lint:all": "nx run-many --target=lint --all",
-    "lint:affected": "nx affected --target=lint",
+    "test:all": "turbo run test",
+    "lint:all": "turbo run lint",
     "build:tsc": "tsc -b ./tsconfig.packages.json",
     "watch:tsc": "yarn build && \"$(npm bin)/tsc\" -b ./tsconfig.packages.json --watch",
     "docs": "rm -rf docs && yarn typedoc --options typedoc.json",
@@ -51,6 +49,7 @@
     "@frontside/eslint-config": "2.1.0",
     "@frontside/tsconfig": "^1.2.0",
     "covector": "^0.7.2",
+    "turbo": "^1.2.9",
     "typedoc": "^0.22.4"
   }
 }

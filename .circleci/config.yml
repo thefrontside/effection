@@ -47,6 +47,9 @@ jobs:
             - "packages/*/dist*"
   test:
     executor: <<parameters.executor>>
+    environment:
+      TURBO_TOKEN: $MIN_VERCEL_TOKEN
+      TURBO_TEAM: $MIN_VERCEL_TEAM
     parameters:
       executor:
         type: executor
@@ -68,6 +71,9 @@ jobs:
           command: yarn test:all
   lint:
     executor: <<parameters.executor>>
+    environment:
+      TURBO_TOKEN: $MIN_VERCEL_TOKEN
+      TURBO_TEAM: $MIN_VERCEL_TEAM
     parameters:
       executor:
         type: executor

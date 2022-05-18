@@ -115,6 +115,7 @@ workflows:
                 - events
                 - channel
                 - duplex-channel
+                - supervisor
                 - dispatch
                 - fetch
                 - process

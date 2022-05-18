@@ -19,6 +19,7 @@
       "packages/mocha",
       "packages/jest",
       "packages/dispatch",
+      "packages/supervisor",
       "packages/duplex-channel",
       "packages/atom",
       "packages/process",

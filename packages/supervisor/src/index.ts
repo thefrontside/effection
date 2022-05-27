@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, prefer-let/prefer-let */
 
 import type { Operation, Resource, Task, Labels } from 'effection';
-import { createFuture } from 'effection';
+import { formatError, createFuture } from 'effection';
 
 type ChildName = string;
 type ChildTask = Task;
@@ -12,6 +12,7 @@ export type Shutdown = 'never' | 'anySignificant' | 'allSignificant';
 export type SupervisorOptions = {
   strategy?: Strategy;
   shutdown?: Shutdown;
+  logErrors?: boolean;
 };
 
 export type ChildType = 'permanent' | 'transient' | 'temporary';
@@ -65,12 +66,19 @@ export function createSupervisor(specs: ChildSpecification<any[]>[] = [], option
         if(isLive(child?.task)) {
           throw new Error(`child with name ${name} has already been started`);
         }
+
+        child.reaped = false; // reset reaped flag
+
         let childTask = resourceTask.run(child.spec.run(...(child.spec.args || [])), { ignoreError: true, labels: { name, ...child.spec.labels } });
 
         resourceTask.run(function*() {
           let { resolve, future } = createFuture();
           childTask.consume(resolve);
           let result = yield future;
+
+          if(result.state === 'errored' && options.logErrors) {
+            console.error(formatError(result.error));
+          }
 
           if(options.shutdown === 'anySignificant' && child.spec.significant) {
             resourceTask.halt();

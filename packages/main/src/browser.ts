@@ -3,6 +3,14 @@ import { isMainError } from './error';
 
 export * from './error';
 
+export function formatError(error: Error): string {
+  if(isMainError(error)) {
+    return error.message;
+  } else {
+    return error.toString();
+  }
+}
+
 export function main<T>(operation: Operation<T>): Task<T> {
   return run(function*(task) {
     let interrupt = () => { task.halt() };

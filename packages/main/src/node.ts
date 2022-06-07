@@ -3,6 +3,7 @@ import { formatError } from './format-error-node';
 import { isMainError } from './error';
 
 export * from './error';
+export { formatError } from './format-error-node';
 
 /**
  * Runs the given operation in a task and returns that task. `main` functions

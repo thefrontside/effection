@@ -166,7 +166,7 @@ main(function*() {
   let subscription = yield elloStream;
 
   channel.send({ type: 'planet', name: 'Earth');
-  channel.send({ type: 'planet', name: 'Jeff' }); 'world'); // our filtered stream skips over this value
+  channel.send({ type: 'planet', name: 'Jeff' }); // our filtered stream skips over this value
   channel.send({ type: 'planet', name: 'Jupiter');
 
   console.log(yield subscription.expect()); // logs 'Earth'

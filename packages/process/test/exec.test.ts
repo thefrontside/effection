@@ -42,6 +42,13 @@ describe('exec', () => {
       expect(error.name).toEqual('ExecError');
     });
 
+    it('allows to read output on exception', function* () {
+      let { stdout, stderr } = yield exec("node './test/fixtures/hello-world-failed.js'").expect();
+
+      expect(stdout).toEqual('hello world\n');
+      expect(stderr).toEqual('boom\n');
+    });
+
     it('applies labels', function*() {
       expect((exec("foo").expect()?.labels as Labels)?.name).toEqual('exec("foo").expect()');
     });

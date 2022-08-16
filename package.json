@@ -28,7 +28,8 @@
       "packages/inspect-utils",
       "packages/inspect-ui",
       "packages/inspect-server",
-      "packages/inspect"
+      "packages/inspect",
+      "packages/vitest"
     ]
   },
   "scripts": {
@@ -42,8 +43,8 @@
     "docs:preview": "yarn parcel docs/api/v2/index.html"
   },
   "volta": {
-    "node": "14.17.1",
-    "yarn": "1.22.17"
+    "node": "14.20.0",
+    "yarn": "1.22.19"
   },
   "devDependencies": {
     "@frontside/eslint-config": "2.1.0",

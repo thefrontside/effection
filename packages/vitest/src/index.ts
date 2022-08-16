@@ -8,13 +8,16 @@ import {
   run,
 } from 'effection';
 import * as vitestGlobals from 'vitest';
-import type { SuiteHooks, TestContext, Suite, File } from 'vitest';
+import type { TestFunction, Suite, File, TestContext } from 'vitest';
 import { assert } from 'assert-ts';
 
-export interface TestFn {
-  (this: TestContext, world: Task, scope: Task): ReturnType<
-    Resource<void>['init']
-  >;
+// eslint-disable-next-line @typescript-eslint/ban-types
+export interface TestFn<ExtraContext = {}> {
+  (
+    this: (TestContext & ExtraContext & (Suite | File)) | any,
+    world: Task,
+    scope: Task
+  ): ReturnType<Resource<void>['init']>;
 }
 
 export interface ItFn {
@@ -48,27 +51,35 @@ async function withinScope(
   }
 }
 
-function runInAllScope(fn: Suite | File, name: string) {
-  return async function (this: TestContext) {
+function runInAllScope(
+  fn: TestFn<TestContext & (Suite | File)>,
+  name: string
+): any {
+  // TestFunction {
+  return async function (context: TestContext & (Suite | File)) {
     await withinScope('all', async (all) => {
       await all
         .run({
           name,
-          init: fn.bind(this ?? {}),
+          init: fn.bind(context ?? {}),
         })
         .catchHalt();
     });
   };
 }
 
-function runInEachScope(fn: TestContext, name: string) {
-  return async function (this: TestContext) {
+function runInEachScope(
+  fn: TestFn<TestFunction & (Suite | File)>,
+  name: string
+): any {
+  // TestFunction {
+  return async function (context: TestContext) {
     await withinScope('all', async () => {
       await withinScope('each', async (each) => {
         await each
           .run({
             name,
-            init: fn.bind(this ?? {}),
+            init: fn.bind(context ?? {}),
           })
           .catchHalt();
       });
@@ -100,14 +111,14 @@ vitestGlobals.afterEach(async () => {
 });
 
 export function beforeAll(
-  fn: SuiteHooks['beforeAll'][0],
+  fn: any, //SuiteHooks['beforeAll'][0],
   timeout?: number
 ): void {
   return vitestGlobals.beforeAll(runInAllScope(fn, 'beforeAll'), timeout);
 }
 
 export function beforeEach(
-  fn: SuiteHooks['beforeEach'][0],
+  fn: any, // SuiteHooks['beforeEach'][0],
   timeout?: number
 ): void {
   return vitestGlobals.beforeEach(runInEachScope(fn, 'beforeEach'), timeout);

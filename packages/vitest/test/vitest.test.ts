@@ -79,6 +79,7 @@ describe('@effection/vitest', () => {
 
   describe('accessing the Vitest Context API', () => {
     beforeEach(function* () {
+      //@ts-expect-error TODO Type 'Generator<any, void, Task<unknown>>' is not assignable to type 'PromiseLike<HookCleanupCallback>'
       this.contextValue = 'hello Vitest';
     });
 
@@ -111,7 +112,10 @@ describe('@effection/vitest', () => {
   });
 
   describe('spawning in world', () => {
+    //@ts-expect-error TODO Type 'Generator<any, void, Task<unknown>>' is not assignable to type 'PromiseLike<HookCleanupCallback>'
     beforeEach(function* (world) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      //@ts-ignore TODO Property 'spawn' does not exist on type 'Suite'.
       captured = yield world.spawn();
     });
 
@@ -121,6 +125,7 @@ describe('@effection/vitest', () => {
   });
 
   describe('spawning in scope', () => {
+    //@ts-expect-error TODO Type 'Generator<any, void, Task<unknown>>' is not assignable to type 'PromiseLike<HookCleanupCallback>'
     beforeEach(function* (_world, scope) {
       captured = yield scope.spawn();
     });
@@ -142,6 +147,7 @@ describe('@effection/vitest', () => {
 
   describe('.eventually()', () => {
     beforeEach(function* () {
+      //@ts-expect-error TODO issue with this, implicit any type, not enough typing in lib?
       this.tries = 0;
     });
 

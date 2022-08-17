@@ -19,7 +19,7 @@ const myResource: Resource<Task> = {
 const cwd = dirname(__dirname);
 
 describe('@effection/vitest', () => {
-  it('applies labels', function* (scope) {
+  it('applies labels', function* (_context, _suite, scope) {
     expect(scope.labels.name).toContain('it("applies labels")');
   });
 
@@ -78,18 +78,17 @@ describe('@effection/vitest', () => {
   it.todo('can have pending tasks (note: this is not actually pending)');
 
   describe('accessing the Vitest Context API', () => {
-    beforeEach(function* () {
-      //@ts-expect-error TODO Type 'Generator<any, void, Task<unknown>>' is not assignable to type 'PromiseLike<HookCleanupCallback>'
-      this.contextValue = 'hello Vitest';
+    beforeEach(function* (context) {
+      context.contextValue = 'hello Vitest';
     });
 
-    it('works', function* () {
-      expect(this.contextValue).toEqual('hello Vitest');
+    it('works', function* (context) {
+      expect(context.contextValue).toEqual('hello Vitest');
     });
   });
 
   describe('cleaning up tasks', () => {
-    it('sets up task', function* (task) {
+    it('sets up task', function* (_context, _suite, task) {
       captured = yield task.spawn();
     });
 
@@ -112,10 +111,7 @@ describe('@effection/vitest', () => {
   });
 
   describe('spawning in world', () => {
-    //@ts-expect-error TODO Type 'Generator<any, void, Task<unknown>>' is not assignable to type 'PromiseLike<HookCleanupCallback>'
-    beforeEach(function* (world) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      //@ts-ignore TODO Property 'spawn' does not exist on type 'Suite'.
+    beforeEach(function* (_context, _suite, world) {
       captured = yield world.spawn();
     });
 
@@ -125,12 +121,11 @@ describe('@effection/vitest', () => {
   });
 
   describe('spawning in scope', () => {
-    //@ts-expect-error TODO Type 'Generator<any, void, Task<unknown>>' is not assignable to type 'PromiseLike<HookCleanupCallback>'
-    beforeEach(function* (_world, scope) {
+    beforeEach(function* (_context, _suite, _world, scope) {
       captured = yield scope.spawn();
     });
 
-    it('halts the spawned task before it block', function* () {
+    it('halts the spawned task before it blocks', function* () {
       expect(captured.state).toEqual('halted');
     });
   });
@@ -146,17 +141,16 @@ describe('@effection/vitest', () => {
   });
 
   describe('.eventually()', () => {
-    beforeEach(function* () {
-      //@ts-expect-error TODO issue with this, implicit any type, not enough typing in lib?
-      this.tries = 0;
+    beforeEach(function* (context) {
+      context.tries = 0;
     });
 
     it.eventually(
       'passes if the operation passes within timeout',
-      function* () {
+      function* (context) {
         yield sleep(1);
-        (this.tries as number)++;
-        expect(this.tries).toBeGreaterThan(10);
+        (context.tries as number)++;
+        expect(context.tries).toBeGreaterThan(10);
       }
     );
   });

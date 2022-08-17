@@ -158,7 +158,11 @@ export const it: It = Object.assign(
       return vitestGlobals.it.todo(name);
     },
     eventually(name: string, fn: TestFn, testTimeout?: number) {
-      let limit = testTimeout ?? 10000; //getState().testTimeout; TODO
+      let limit =
+        testTimeout ??
+        // @ts-expect-error this is real hacky, but really any other options
+        globalThis?.['__vitest_worker__']?.config?.testTimeout ??
+        5000;
 
       return it(
         name,

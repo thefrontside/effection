@@ -9,10 +9,9 @@ import {
 } from 'effection';
 import * as vitestGlobals from 'vitest';
 import type {
-  // TestFunction,
-  Suite,
-  // File,
   TestContext,
+  Suite,
+  File,
 } from 'vitest';
 import { assert } from 'assert-ts';
 
@@ -42,11 +41,14 @@ export interface It extends ItFn {
   todo(title: string): void;
 }
 
+// this is a global that each test runs adds the scopes to
+// and then retrieves them
 const scopes = {} as {
   all: Task | undefined;
   each: Task | undefined;
 };
 
+// we pull the named scope out and execute it
 async function withinScope(
   name: keyof typeof scopes,
   fn: (task: Task) => Promise<void>

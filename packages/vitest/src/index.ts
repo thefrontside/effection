@@ -8,16 +8,20 @@ import {
   run,
 } from 'effection';
 import * as vitestGlobals from 'vitest';
-import type { TestFunction, Suite, File, TestContext } from 'vitest';
+import type {
+  // TestFunction,
+  // Suite,
+  // File,
+  TestContext,
+  // SuiteHooks,
+} from 'vitest';
 import { assert } from 'assert-ts';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
-export interface TestFn<ExtraContext = {}> {
-  (
-    this: (TestContext & ExtraContext & (Suite | File)) | any,
-    world: Task,
-    scope: Task
-  ): ReturnType<Resource<void>['init']>;
+export interface TestFn {
+  (this: TestContext, world: Task, scope: Task): ReturnType<
+    Resource<void>['init']
+  >;
 }
 
 export interface ItFn {
@@ -39,7 +43,7 @@ const scopes = {} as {
 async function withinScope(
   name: keyof typeof scopes,
   fn: (task: Task) => Promise<void>
-) {
+): Promise<void> {
   let scope = scopes[name];
   assert(!!scope, `critical: test scope '${name}' was not initialized`);
   if (scope.state === 'errored' || scope.state === 'erroring') {
@@ -51,28 +55,20 @@ async function withinScope(
   }
 }
 
-function runInAllScope(
-  fn: TestFn<TestContext & (Suite | File)>,
-  name: string
-): any {
-  // TestFunction {
-  return async function (context: TestContext & (Suite | File)) {
+function runInAllScope(fn: TestFn, name: string): TestContext {
+  return async function (this: TestContext) {
     await withinScope('all', async (all) => {
       await all
         .run({
           name,
-          init: fn.bind(context ?? {}),
+          init: fn.bind(this ?? { meta: undefined, expect: undefined }),
         })
         .catchHalt();
     });
   };
 }
 
-function runInEachScope(
-  fn: TestFn<TestFunction & (Suite | File)>,
-  name: string
-): any {
-  // TestFunction {
+function runInEachScope(fn: TestFn, name: string) {
   return async function (context: TestContext) {
     await withinScope('all', async () => {
       await withinScope('each', async (each) => {

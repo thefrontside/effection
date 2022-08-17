@@ -26,7 +26,7 @@ export interface TestFn {
 }
 
 export interface TestSuite {
-  (suite: Suite, file: File, world: Task, scope: Task): ReturnType<
+  (suiteOrFile: Suite | File, world: Task, scope: Task): ReturnType<
     Resource<void>['init']
   >;
 }
@@ -63,12 +63,12 @@ async function withinScope(
 }
 
 function runInAllScope(fn: TestSuite, name: string) {
-  return async function (suite: Suite, file: File) {
+  return async function (suiteOrFile: Suite | File) {
     await withinScope('all', async (all) => {
       await all
         .run({
           name,
-          init: fn.bind(undefined, suite, file),
+          init: fn.bind(undefined, suiteOrFile),
         })
         .catchHalt();
     });
@@ -76,21 +76,26 @@ function runInAllScope(fn: TestSuite, name: string) {
 }
 
 function runInEachScope(fn: TestFn, name: string) {
-  return async function (
+  async function runner(
+    context: TestContext & Record<string, unknown>
+  ): Promise<void>
+  async function runner(
     context: TestContext & Record<string, unknown>,
-    suite: Suite
-  ) {
+    suite?: Suite
+  ): Promise<void> {
     await withinScope('all', async () => {
       await withinScope('each', async (each) => {
         await each
           .run({
             name,
-            init: fn.bind(undefined, context, suite),
+            init: fn.bind(undefined, context, suite as Suite),
           })
           .catchHalt();
       });
     });
-  };
+  }
+
+  return runner;
 }
 
 vitestGlobals.beforeAll(async () => {

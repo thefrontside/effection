@@ -23,12 +23,14 @@ describe('@effection/mocha', () => {
   });
 
   it('throws error on failure', function*() {
+    if (process.env.CI) this.timeout(10000);
     let result = yield exec('yarn mocha test/direct-error.failure.ts').join();
     expect(result.code).toEqual(1);
     expect(result.stdout).toContain('Error: boom');
   });
 
   it('throws error on failure in background task', function*() {
+    if (process.env.CI) this.timeout(10000);
     let result = yield exec('yarn mocha test/spawned-error.failure.ts').join();
     expect(result.code).toEqual(2);
     expect(result.stdout).toContain('Error: boom');

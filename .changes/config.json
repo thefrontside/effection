@@ -3,7 +3,7 @@
   "pkgManagers": {
     "javascript": {
       "version": true,
-      "getPublishedVersion": "npm view ${ pkgFile.pkg.name } version",
+      "getPublishedVersion": "node ../../.scripts/checkIfPublished.mjs ${ pkgFile.pkg.name } ${ pkg.tag ? pkg.tag : 'latest' }",
       "publish": [
         "npm publish --access public ${ pkg.tag ? '--tag ' + pkg.tag : '' }"
       ]

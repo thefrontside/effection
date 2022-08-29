@@ -171,6 +171,13 @@
         "@effection/websocket-client",
         "effection"
       ]
+    },
+    "@effection/vitest": {
+      "path": "./packages/vitest",
+      "manager": "javascript",
+      "dependencies": [
+        "effection"
+      ]
     }
   }
 }

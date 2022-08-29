@@ -4,10 +4,10 @@ orbs:
 executors:
   linux:
     docker:
-      - image: circleci/node:15-browsers
+      - image: circleci/node:16-browsers
   macos:
     macos:
-      xcode: "12.4.0"
+      xcode: "13.4.1"
 commands:
   yarn_install:
     steps:
@@ -128,6 +128,7 @@ workflows:
                 - inspect-ui
                 - inspect-server
                 - inspect
+                - vitest
           requires:
             - prepack
       - lint:

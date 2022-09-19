@@ -43,7 +43,7 @@
     "docs:preview": "yarn parcel docs/api/v2/index.html"
   },
   "volta": {
-    "node": "14.20.0",
+    "node": "18.8.0",
     "yarn": "1.22.19"
   },
   "devDependencies": {

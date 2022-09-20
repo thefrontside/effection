@@ -14,17 +14,29 @@ function Navbar() {
     navbar: { items, title },
   } = useThemeConfig();
 
+  // https://github.com/facebook/docusaurus/issues/7505#issuecomment-1138589476
+  // The `nav` requires a classname `navbar` that the classic theme is looking for
+  // otherwise we get a `Cannot read properties of null (reading 'clientHeight')` error
   return (
-    <nav className={navBar[title]}>
+    <nav className={`navbar ${navBar[title]}`}>
       <LogoSelect currentProject={title} />
       <div>
         {items.map((item, i) => (
           <React.Fragment key={i}>
-            {(!!item.to ? (
-              <Link to={item.to} className={navLink}>{item.label}</Link>
+            {!!item.to ? (
+              <Link to={item.to} className={navLink}>
+                {item.label}
+              </Link>
             ) : (
-              <a href={item.href} className={navLink} target="_blank" rel="noreferrer noopener">{item.label}</a>
-            ))}
+              <a
+                href={item.href}
+                className={navLink}
+                target="_blank"
+                rel="noreferrer noopener"
+              >
+                {item.label}
+              </a>
+            )}
           </React.Fragment>
         ))}
       </div>

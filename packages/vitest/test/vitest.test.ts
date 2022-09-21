@@ -43,7 +43,7 @@ describe('@effection/vitest', () => {
         'yarn vitest run spawned-error.failure.ts --no-color --config vite.test.config.ts',
         { cwd }
       ).join();
-      expect(code).toEqual(1);
+      expect(code).toMatch(/1|100/);
       expect(stderr).toContain('boom');
     },
     process.env.CI ? 30000 : undefined

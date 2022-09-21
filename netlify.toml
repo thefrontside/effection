@@ -1,3 +1,0 @@
-[build.environment]
-  NODE_VERSION = "12.20.0"
-  YARN_VERSION = "1.22.4"

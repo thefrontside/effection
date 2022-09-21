@@ -39,7 +39,7 @@
   },
   "dependencies": {
     "cross-spawn": "^7.0.3",
-    "ctrlc-windows": "^2.0.0",
+    "ctrlc-windows": "^2.1.0",
     "effection": "2.0.4",
     "shellwords": "^0.1.1"
   },

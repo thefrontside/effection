@@ -4,7 +4,7 @@ orbs:
 executors:
   linux:
     docker:
-      - image: cimg/node:18.8.0-browsers
+      - image: cimg/node:18.9.0-browsers
   macos:
     macos:
       xcode: "13.4.1"

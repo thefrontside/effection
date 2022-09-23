@@ -95,6 +95,7 @@
       "manager": "javascript",
       "dependencies": [
         "@effection/atom",
+        "@effection/dispatch",
         "effection"
       ]
     },

@@ -7,11 +7,11 @@ jobs:
     outputs:
       statoos: ${{ steps.covector.outputs.status }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: covector status
         uses: jbolda/covector/packages/action@main
         id: covector
         with:
-          command: 'status'
+          command: "status"

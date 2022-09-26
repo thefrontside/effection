@@ -1,14 +1,13 @@
 name: Synchronize NPM Tags
 
-on:
-  delete
+on: delete
 
 jobs:
   clean:
     name: Synchronize NPM Tags
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
-    - uses: thefrontside/actions/synchronize-npm-tags@v1.1
-      env:
-        NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+      - uses: actions/checkout@v3
+      - uses: thefrontside/actions/synchronize-npm-tags@v1.1
+        env:
+          NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}

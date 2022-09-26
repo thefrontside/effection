@@ -1,22 +1,22 @@
 import React, { useCallback, useMemo } from "react";
 import { useSlice } from "@effection/react";
 import { Navigate } from "react-router-dom";
-import { InspectStateSlice } from "./app";
 import { TaskTree } from "./components/task-tree";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { parse, stringify } from "query-string";
-import { InspectState } from "@effection/inspect-utils";
+import type { InspectState } from "@effection/inspect-utils";
+import { Slice } from '@effection/atom';
 
 export function TaskTreePage({
   slice,
   showCollapsed,
   basePath
 }: {
-  slice: InspectStateSlice;
+  slice: Slice<InspectState>;
   showCollapsed: boolean;
   basePath: string;
 }): JSX.Element {
-  let task = useSlice(slice);
+  let task: InspectState = useSlice(slice);
 
   let [searchParams] = useSearchParams();
   let navigate = useNavigate();

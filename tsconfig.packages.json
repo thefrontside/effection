@@ -2,31 +2,40 @@
   "files": [],
   "references": [
     {
-      "path": "./packages/core/tsconfig.esm.json"
-    },
-    {
-      "path": "./packages/subscription/tsconfig.esm.json"
-    },
-    {
-      "path": "./packages/events/tsconfig.esm.json"
-    },
-    {
       "path": "./packages/atom/tsconfig.esm.json"
     },
     {
       "path": "./packages/channel/tsconfig.esm.json"
     },
     {
+      "path": "./packages/core/tsconfig.esm.json"
+    },
+    {
+      "path": "./packages/dispatch/tsconfig.esm.json"
+    },
+    {
+      "path": "./packages/duplex-channel/tsconfig.esm.json"
+    },
+    {
       "path": "./packages/effection/tsconfig.esm.json"
+    },
+    {
+      "path": "./packages/events/tsconfig.esm.json"
     },
     {
       "path": "./packages/fetch/tsconfig.esm.json"
     },
     {
+      "path": "./packages/inspect-server/tsconfig.esm.json"
+    },
+    {
+      "path": "./packages/inspect-ui/tsconfig.esm.json"
+    },
+    {
       "path": "./packages/inspect-utils/tsconfig.esm.json"
     },
     {
-      "path": "./packages/inspect-server/tsconfig.esm.json"
+      "path": "./packages/jest/tsconfig.esm.json"
     },
     {
       "path": "./packages/main/tsconfig.esm.json"
@@ -35,19 +44,25 @@
       "path": "./packages/mocha/tsconfig.esm.json"
     },
     {
-      "path": "./packages/node/tsconfig.esm.json"
-    },
-    {
       "path": "./packages/process/tsconfig.esm.json"
     },
     {
       "path": "./packages/react/tsconfig.esm.json"
     },
     {
+      "path": "./packages/stream/tsconfig.esm.json"
+    },
+    {
+      "path": "./packages/subscription/tsconfig.esm.json"
+    },
+    {
+      "path": "./packages/vitest/tsconfig.esm.json"
+    },
+    {
       "path": "./packages/websocket-client/tsconfig.esm.json"
     },
     {
       "path": "./packages/websocket-server/tsconfig.esm.json"
-    },
+    }
   ]
 }

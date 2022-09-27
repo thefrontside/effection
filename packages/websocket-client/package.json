@@ -1,6 +1,6 @@
 {
   "name": "@effection/websocket-client",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "A websocket client for Effection in node and browser",
   "main": "dist-cjs/index.js",
   "module": "dist-esm/index.js",
@@ -28,7 +28,7 @@
     "mocha": "mocha -r ts-node/register"
   },
   "dependencies": {
-    "effection": "2.0.4",
+    "effection": "2.0.5",
     "isomorphic-ws": "^4.0.1"
   },
   "devDependencies": {

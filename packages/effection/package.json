@@ -1,6 +1,6 @@
 {
   "name": "effection",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "Structured concurrency and effects for JavaScript",
   "homepage": "https://frontside.com/effection",
   "repository": {
@@ -32,7 +32,7 @@
     "@effection/core": "2.2.0",
     "@effection/events": "2.0.3",
     "@effection/fetch": "2.0.4",
-    "@effection/main": "2.0.3",
+    "@effection/main": "2.1.0",
     "@effection/subscription": "2.0.3",
     "@effection/stream": "2.0.3"
   },

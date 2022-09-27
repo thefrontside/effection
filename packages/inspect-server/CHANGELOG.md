@@ -1,5 +1,11 @@
 # @effection/inspect-server
 
+## \[2.2.1]
+
+- `@effection/dispatch` was not listed as a dependency which led to it becoming out of sync with the latest.
+  - Bumped due to a bump in @effection/inspect-utils.
+  - [ee76b1f](https://github.com/thefrontside/effection/commit/ee76b1f67568bf0cf7790a7fbd19d145852520e0) adjust inspect-utils dep on dispatch to latest on 2022-09-23
+
 ## \[2.2.0]
 
 - `@effection/inspect-server` is now responsible for resolving the path of `@effection/inspect-ui/dist-app/index.html`.

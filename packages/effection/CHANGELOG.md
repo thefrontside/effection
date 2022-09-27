@@ -1,5 +1,11 @@
 # Changelog
 
+## \[2.0.5]
+
+- Expose `formatError` so other packages can format errors the same way as `main`
+  - Bumped due to a bump in @effection/main.
+  - [6b2077f](https://github.com/thefrontside/effection/commit/6b2077f6217883630e20df4569e22d2ebce3a6ce) Expose  so packages other than  can make nice errors on 2022-05-27
+
 ## \[2.0.4]
 
 - Allow pass object with `Symbol.operation` as an operation

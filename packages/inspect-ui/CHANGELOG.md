@@ -1,5 +1,11 @@
 # @effection/inspect-ui
 
+## \[2.3.0]
+
+- Refactored the UI to use Material UI
+  - [65260ac](https://github.com/thefrontside/effection/commit/65260ac0cbab594ec581326a6d4cdc83142f605d) Add covector change file on 2022-05-10
+  - [c174eae](https://github.com/thefrontside/effection/commit/c174eae2e86a51d23bc78296c053df235b320d45) Fix formatting on 2022-05-10
+
 ## \[2.2.0]
 
 - `@effection/inspect-server` is now responsible for resolving the path of `@effection/inspect-ui/dist-app/index.html`.

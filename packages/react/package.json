@@ -1,6 +1,6 @@
 {
   "name": "@effection/react",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "Hooks for integrating effection into react applications",
   "main": "dist-cjs/index.js",
   "module": "dist-esm/index.js",
@@ -28,7 +28,7 @@
     "mocha": "mocha -r ts-node/register"
   },
   "dependencies": {
-    "effection": "2.0.4"
+    "effection": "2.0.5"
   },
   "devDependencies": {
     "@frontside/tsconfig": "^1.2.0",

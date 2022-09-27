@@ -1,5 +1,10 @@
 # @effection/inspect-utils
 
+## \[2.1.5]
+
+- `@effection/dispatch` was not listed as a dependency which led to it becoming out of sync with the latest.
+  - [ee76b1f](https://github.com/thefrontside/effection/commit/ee76b1f67568bf0cf7790a7fbd19d145852520e0) adjust inspect-utils dep on dispatch to latest on 2022-09-23
+
 ## \[2.1.4]
 
 - Allow pass object with `Symbol.operation` as an operation

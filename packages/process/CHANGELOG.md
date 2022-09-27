@@ -1,5 +1,10 @@
 # @effection/process
 
+## \[2.1.1]
+
+- Bump the `ctrlc-windows` package to include the new build process and remove all dependencies.
+  - [4b7ca17](https://github.com/thefrontside/effection/commit/4b7ca1791a776bd1a7e4b8d100554aa683ebc49f) bump ctrlc-windows to 2.1.0 on 2022-09-21
+
 ## \[2.1.0]
 
 - The shell option now accepts a string which allows one to specify an exact shell to run a command. This is helpful on windows as the default generally doesn't handle bash-like syntax.

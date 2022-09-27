@@ -6,7 +6,8 @@
   },
   "references": [
     { "path": "../core/tsconfig.esm.json" },
-    { "path": "../subscription/tsconfig.esm.json" }
+    { "path": "../subscription/tsconfig.esm.json" },
+    { "path": "../stream/tsconfig.esm.json" }
   ],
   "exclude": ["./test/*"]
 }

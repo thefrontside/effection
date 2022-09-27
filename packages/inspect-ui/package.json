@@ -1,6 +1,6 @@
 {
   "name": "@effection/inspect-ui",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "description": "Web interface for inspecting effection applications",
   "main": "app/index.ts",
   "types": "dist-esm/index.d.ts",

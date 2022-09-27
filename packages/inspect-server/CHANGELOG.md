@@ -1,5 +1,9 @@
 # @effection/inspect-server
 
+## \[2.2.2]
+
+- These had unintentional preview publishes on a separate tag. Bumping and setting it to latest.
+
 ## \[2.2.1]
 
 - `@effection/dispatch` was not listed as a dependency which led to it becoming out of sync with the latest.
@@ -102,7 +106,7 @@
 
 - Revert `dist/**` in inspect-ui package.json
   - Bumped due to a bump in @effection/inspect-ui.
-  - [b31d6b8](https://github.com/thefrontside/effection/commit/b31d6b87ac193f4489f4f006673e1f6ed58f0008) Revert  in inspect-ui package.json on 2021-09-10
+  - [b31d6b8](https://github.com/thefrontside/effection/commit/b31d6b87ac193f4489f4f006673e1f6ed58f0008) Revert in inspect-ui package.json on 2021-09-10
 
 ## \[2.0.0-beta.16]
 

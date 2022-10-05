@@ -16,6 +16,14 @@ export function addTrace(error: Error & Partial<HasEffectionTrace>, task: Task):
   };
 
   return Object.create(error, {
+    name: {
+      get: () => error.name,
+      enumerable: true,
+    },
+    message: {
+      get: () => error.message,
+      enumerable: true,
+    },
     effectionTrace: {
       value: [...(error.effectionTrace || []), info],
       enumerable: true,

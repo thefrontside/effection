@@ -1,5 +1,11 @@
 # @effection/main
 
+## \[2.1.1]
+
+- delegate `error` and `name` properties to underlying `Error`. fixes  https://github.com/thefrontside/effection/issues/675)
+  - Bumped due to a bump in @effection/core.
+  - [84a66d7](https://github.com/thefrontside/effection/commit/84a66d799060ba2292fff2482d87bf6abafa7937) Delegate error properties to original error on 2022-10-05
+
 ## \[2.1.0]
 
 - Expose `formatError` so other packages can format errors the same way as `main`

@@ -3,10 +3,11 @@
   "version": "2.0.2",
   "description": "Effection Integration for the Vitest framework",
   "types": "dist-esm/index.d.ts",
-  "type": "module",
+  "main": "dist-cjs/index.js",
   "module": "dist-esm/index.js",
   "exports": {
-    "import": "./dist-esm/index.js"
+    "import": "./dist-esm/index.js",
+    "require": "./dist-cjs/index.js"
   },
   "typeDocEntry": "src/index.ts",
   "homepage": "https://frontside.com/effection",
@@ -26,7 +27,7 @@
   "scripts": {
     "lint": "eslint '{src,tests}/**/*.ts'",
     "test": "vitest",
-    "prepack": "tsc --build tsconfig.esm.json"
+    "prepack": "tsc --build tsconfig.esm.json && tsc --build tsconfig.cjs.json"
   },
   "dependencies": {
     "effection": "2.0.6",
@@ -42,5 +43,8 @@
     "vite": "^3.2.3",
     "vite-plugin-checker": "^0.5.1",
     "vitest": "^0.25.0"
+  },
+  "volta": {
+    "extends": "../../package.json"
   }
 }

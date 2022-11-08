@@ -9,6 +9,7 @@ export default defineConfig({
     /* for example, use global to avoid globals imports (describe, test, expect): */
     // globals: true,
     include: ['test/*.{js,ts}'],
+    reporters: ['verbose']
   },
   plugins: [
     checker({

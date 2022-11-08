@@ -1,6 +1,6 @@
 {
   "name": "@effection/vitest",
-  "version": "2.0.2",
+  "version": "2.1.0",
   "description": "Effection Integration for the Vitest framework",
   "types": "dist-esm/index.d.ts",
   "main": "dist-cjs/index.js",

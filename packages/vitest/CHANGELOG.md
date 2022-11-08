@@ -1,5 +1,10 @@
 # @effection/vitest
 
+## \[2.0.2]
+
+- Make @effection/vitest esm only.
+  - [a5350c4](https://github.com/thefrontside/effection/commit/a5350c4613306747322580c63ce471141ec63872) remove all cjs from @effection/vitest ([#678](https://github.com/thefrontside/effection/pull/678)) on 2022-11-08
+
 ## \[2.0.1]
 
 - delegate `error` and `name` properties to underlying `Error`. fixes  https://github.com/thefrontside/effection/issues/675)

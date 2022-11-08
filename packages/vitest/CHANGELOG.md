@@ -1,5 +1,10 @@
 # @effection/vitest
 
+## \[2.1.0]
+
+- Add cjs support to @effection/vitest by adding require to package imports
+  - [3261079](https://github.com/thefrontside/effection/commit/3261079d702106b29a2da2b810534da6f297b1be) add require to @effction/vitest exports ([#681](https://github.com/thefrontside/effection/pull/681)) on 2022-11-08
+
 ## \[2.0.2]
 
 - Make @effection/vitest esm only.

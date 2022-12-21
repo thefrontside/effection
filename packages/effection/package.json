@@ -33,8 +33,8 @@
     "@effection/events": "2.0.4",
     "@effection/fetch": "2.0.5",
     "@effection/main": "2.1.1",
-    "@effection/subscription": "2.0.4",
-    "@effection/stream": "2.0.4"
+    "@effection/stream": "2.0.4",
+    "@effection/subscription": "2.0.4"
   },
   "devDependencies": {
     "@babel/core": "^7.14.8",

@@ -30,8 +30,8 @@
     "prepack": "tsc --build tsconfig.esm.json && tsc --build tsconfig.cjs.json"
   },
   "dependencies": {
-    "effection": "2.0.6",
-    "assert-ts": "^0.3.4"
+    "assert-ts": "^0.3.4",
+    "effection": "2.0.6"
   },
   "peerDependencies": {
     "vitest": "^0.25.0"

@@ -41,8 +41,8 @@
     "extends": "../../package.json"
   },
   "dependencies": {
-    "effection": "2.0.6",
     "assert-ts": "^0.2.2",
+    "effection": "2.0.6",
     "fp-ts": "^2.8.2",
     "monocle-ts": "^2.3.3"
   }

@@ -38,15 +38,8 @@
     "websocket": "^1.0.34"
   },
   "devDependencies": {
-    "@frontside/tsconfig": "^1.2.0",
-    "@types/node": "^13.13.5",
     "@types/node-static": "^0.7.6",
-    "@types/websocket": "^1.0.2",
-    "expect": "^25.4.0",
-    "mocha": "^8.3.1",
-    "ts-node": "^10.4.0",
-    "typedoc": "^0.22.4",
-    "typescript": "^4.3.5"
+    "@types/websocket": "^1.0.2"
   },
   "volta": {
     "extends": "../../package.json"

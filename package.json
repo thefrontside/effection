@@ -48,7 +48,15 @@
   },
   "devDependencies": {
     "@frontside/eslint-config": "2.1.0",
-    "@frontside/tsconfig": "^1.2.0",
-    "typedoc": "^0.22.4"
+    "@frontside/tsconfig": "^3.0.0",
+    "expect": "^25.4.0",
+    "@typescript-eslint/eslint-plugin": "^5.47.0",
+    "eslint": "^7.30.0",
+    "typedoc": "^0.23.23",
+    "mocha": "^10.2.0",
+    "@types/mocha": "10.0.1",
+    "@types/node": "^18.11.17",
+    "typescript": "^4.9.4",
+    "ts-node": "^10.4.0"
   }
 }

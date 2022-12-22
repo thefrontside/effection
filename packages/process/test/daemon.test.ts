@@ -1,9 +1,10 @@
 import { describe, it, beforeEach, afterEach, captureError } from '@effection/mocha';
 import expect from 'expect';
 
-import { run, Task, createFuture, fetch, spawn } from 'effection';
+import { run, Task, createFuture, fetch } from 'effection';
 
 import { daemon, Process } from '../src';
+import { Daemon } from '../src/daemon';
 
 describe('daemon', () => {
   let task: Task;
@@ -12,13 +13,13 @@ describe('daemon', () => {
   beforeEach(function*() {
     let { future, produce } = createFuture();
     task = run(function*() {
-      let proc = yield daemon('node', {
+      let proc: Daemon = yield daemon('node', {
         arguments: ['./fixtures/echo-server.js'],
         env: { PORT: '29000', PATH: process.env.PATH as string },
         cwd: __dirname,
       });
       produce({ state: 'completed', value: proc });
-      yield
+      yield;
     });
     proc = yield future;
 

@@ -14,7 +14,8 @@ describe('spawn', () => {
         return one + two;
       });
 
-      return yield child;
+      let r: number = yield child;
+      return r;
     });
     await expect(root).resolves.toEqual(67);
     expect(root.state).toEqual('completed');

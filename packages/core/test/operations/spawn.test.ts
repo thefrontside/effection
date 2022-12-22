@@ -2,17 +2,18 @@ import '../setup';
 import { describe, it } from 'mocha';
 import expect from 'expect';
 
-import { run, spawn, sleep, createFuture } from '../../src/index';
+import { run, spawn, sleep, createFuture, Operation } from '../../src/index';
 
 describe('spawn', () => {
   it('can spawn a new child task', async () => {
     let root = run(function*() {
-      let child = yield spawn(function*() {
+      let child: Operation<string> = yield spawn(function*() {
         yield sleep(5);
         return 'foo';
       });
 
-      return yield child;
+      let result: string = yield child;
+      return result;
     });
     await expect(root).resolves.toEqual('foo');
     expect(root.state).toEqual('completed');

@@ -1,4 +1,4 @@
-import { AbortSignal, createAbortSignal, withLabels, Operation, Resource } from '@effection/core';
+import { createAbortSignal, withLabels, Operation, Resource } from '@effection/core';
 import { fetch as nativeFetch } from 'cross-fetch';
 
 /**
@@ -102,24 +102,29 @@ export function fetch(info: RequestInfo, requestInit: RequestInit = {}): Fetch {
     labels,
     init,
     arrayBuffer: () => withLabels(function*() {
-      let response = yield { init };
-      return yield response.arrayBuffer();
+      let response: Response = yield { init };
+      let result: ArrayBuffer = yield response.arrayBuffer();
+      return result;
     }, { name: `${name}.arrayBuffer()`, ...labels }),
     blob: () => withLabels(function*() {
-      let response = yield { init };
-      return yield response.blob();
+      let response: Response = yield { init };
+      let result: Blob = yield response.blob();
+      return result;
     }, { name: `${name}.blob()`, ...labels }),
     formData: () => withLabels(function*() {
-      let response = yield { init };
-      return yield response.formData();
+      let response: Response = yield { init };
+      let result: FormData = yield response.formData();
+      return result;
     }, { name: `${name}.formData()`, ...labels }),
     json: () => withLabels(function*() {
-      let response = yield { init };
-      return yield response.json();
+      let response: Response = yield { init };
+      let result: unknown = yield response.json();
+      return result;
     }, { name: `${name}.json()`, ...labels }),
     text: () => withLabels(function*() {
-      let response = yield { init };
-      return yield response.text();
+      let response: Response = yield { init };
+      let result: string = yield response.text();
+      return result;
     }, { name: `${name}.text()`, ...labels }),
   };
 }

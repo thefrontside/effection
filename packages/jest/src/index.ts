@@ -150,7 +150,7 @@ export function captureError(op: Operation<any>): Operation<Error> {
     try {
       yield op;
     } catch(error) {
-      return error;
+      return error as Error;
     }
     throw new Error('expected operation to throw an error, but it did not!');
   };

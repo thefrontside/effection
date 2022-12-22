@@ -27,7 +27,7 @@ describe('withTimeout', () => {
     it("resolves when resources resolves before timeout", async () => {
       await run(function*() {
         let fooStatus = { status: 'pending' };
-        let result = yield withTimeout(30, asyncResource(10, "foo", fooStatus));
+        let result: string = yield withTimeout(30, asyncResource(10, "foo", fooStatus));
 
         expect(result).toEqual('foo');
         expect(fooStatus.status).toEqual('pending');

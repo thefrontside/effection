@@ -35,7 +35,7 @@ describe('resource', () => {
   describe('with spawned resource', () => {
     it('runs resource in task scope', async () => {
       await run(function*(task) {
-        let result = yield task.run(myResource);
+        let result: { status: string } = yield task.run(myResource);
         expect(result.status).toEqual('pending');
         yield sleep(10);
         expect(result.status).toEqual('active');
@@ -67,7 +67,7 @@ describe('resource', () => {
     it('enables access to resource task', async () => {
       await run(function*(task) {
         let initTask = task.run(myResource);
-        let result = yield initTask;
+        let result: { status: string } = yield initTask;
 
         expect(initTask.resourceTask?.state).toEqual('running');
         expect(initTask.resourceTask?.labels.name).toEqual('myResource');
@@ -100,7 +100,7 @@ describe('resource', () => {
   describe('with yielded resource', () => {
     it('runs resource in task scope', async () => {
       await run(function*() {
-        let result = yield myResource;
+        let result: { status: string } = yield myResource;
         expect(result.status).toEqual('pending');
         yield sleep(10);
         expect(result.status).toEqual('active');
@@ -117,7 +117,7 @@ describe('resource', () => {
             }
           };
         } catch(err) {
-          error = err;
+          error = err as Error;
         }
         expect(error?.message).toEqual('moo');
       });
@@ -125,7 +125,8 @@ describe('resource', () => {
 
     it('terminates resource when task completes', async () => {
       let result: { status: string } = await run(function*() {
-        return yield myResource;
+        let r: { status: string } = yield myResource;
+        return r;
       });
       expect(result.status).toEqual('pending');
       await run(sleep(10));
@@ -136,7 +137,7 @@ describe('resource', () => {
   describe('with resource which spawns other resources', () => {
     it('runs resource in task scope', async () => {
       await run(function*() {
-        let result = yield metaResource;
+        let result: { status: string } = yield metaResource;
         expect(result.status).toEqual('pending');
         yield sleep(10);
         expect(result.status).toEqual('active');
@@ -145,7 +146,8 @@ describe('resource', () => {
 
     it('terminates resource when task completes', async () => {
       let result: { status: string } = await run(function*() {
-        return yield metaResource;
+        let r: { status: string } = yield metaResource;
+        return r;
       });
       expect(result.status).toEqual('pending');
       await run(sleep(10));
@@ -156,7 +158,7 @@ describe('resource', () => {
   describe('with resource which yields to other resources', () => {
     it('runs resource in task scope', async () => {
       await run(function*() {
-        let result = yield magicMetaResource;
+        let result: { status: string } = yield magicMetaResource;
         expect(result.status).toEqual('pending');
         yield sleep(10);
         expect(result.status).toEqual('active');
@@ -165,7 +167,8 @@ describe('resource', () => {
 
     it('terminates resource when task completes', async () => {
       let result: { status: string } = await run(function*() {
-        return yield magicMetaResource;
+        let r: { status: string } = yield magicMetaResource;
+        return r;
       });
       expect(result.status).toEqual('pending');
       await run(sleep(10));

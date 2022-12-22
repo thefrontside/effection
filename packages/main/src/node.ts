@@ -45,7 +45,7 @@ export function main<T>(operation: Operation<T>): Task<T> {
         name: typeof name == 'string' ? name : 'entry point'
       });
     } catch(error) {
-      console.error(formatError(error));
+      console.error(formatError(error as Error));
       if(isMainError(error)) {
         process.exit(error.exitCode || -1);
       } else {

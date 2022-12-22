@@ -31,14 +31,6 @@
     "@effection/core": "2.2.1",
     "@effection/subscription": "2.0.4"
   },
-  "devDependencies": {
-    "@frontside/tsconfig": "^1.2.0",
-    "@types/mocha": "^8.0.3",
-    "expect": "^25.4.0",
-    "mocha": "^8.3.1",
-    "ts-node": "^10.4.0",
-    "typescript": "^4.3.5"
-  },
   "volta": {
     "extends": "../../package.json"
   }

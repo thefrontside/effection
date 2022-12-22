@@ -66,7 +66,7 @@ describe('all()', () => {
       await run(function*() {
         let fooStatus = { status: 'pending' };
         let barStatus = { status: 'pending' };
-        let result = yield all([
+        let result: string[] = yield all([
           asyncResource(10, "foo", fooStatus),
           asyncResource(30, "bar", barStatus),
         ]);

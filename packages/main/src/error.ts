@@ -50,6 +50,6 @@ export class MainError extends Error {
 /**
  * @hidden
  */
-export function isMainError(error: Error): error is MainError {
-  return error.name === 'EffectionMainError';
+export function isMainError(error: unknown): error is MainError {
+  return !!error && typeof error === 'object' && 'name' in error && error.name === 'EffectionMainError';
 }

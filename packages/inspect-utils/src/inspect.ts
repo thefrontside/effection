@@ -76,15 +76,16 @@ function streamTask(task: Task, publish: (message: InspectMessage) => void): Ope
       }
     });
 
-    let states = yield on<StateTransition>(task, 'state');
+    let states: Stream<StateTransition> = yield on<StateTransition>(task, 'state');
 
     while(true) {
-      let transition = yield states.expect();
+      let transition: StateTransition = yield states.expect();
       let error: SerializedError | undefined;
       if(transition.to === 'errored') {
         try {
           yield task;
-        } catch({ name, message, stack }) {
+        } catch(error) {
+          let { name, message, stack } = error as Error;
           error = { name, message, stack };
         }
       }

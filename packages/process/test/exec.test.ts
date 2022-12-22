@@ -71,8 +71,8 @@ describe('exec', () => {
           let error: unknown;
           let proc = yield exec("argle", { arguments: ['bargle'] });
           try {
-            yield proc.expect()
-          } catch (e) { error = e; }
+            yield proc.expect();
+          } catch (e) { error = e }
 
           expect(error).toBeDefined();
         });
@@ -124,7 +124,7 @@ describe('exec', () => {
       });
 
       describe('when it fails', () => {
-        let error: Error
+        let error: Error;
         beforeEach(function*() {
           yield fetch('http://localhost:29000', { method: "POST", body: "fail" });
         });
@@ -139,10 +139,10 @@ describe('exec', () => {
             try {
               yield proc.expect();
             } catch (e) {
-              error = e;
+              error = e as Error;
             }
           };
-          expect(error).toBeDefined()
+          expect(error).toBeDefined();
         });
 
         it('closes stdout and stderr', function*() {
@@ -165,7 +165,7 @@ describe('exec', () => {
         let { stdout }: ProcessResult = yield proc.expect();
 
         expect(stdout).toEqual("second\n");
-      })
+      });
     });
   }
 
@@ -177,7 +177,7 @@ describe('exec', () => {
       let { stdout }: ProcessResult = yield proc.expect();
 
       expect(stdout).toEqual("first | echo second\n");
-    })
+    });
   });
 
   describe('handles env vars', () => {

@@ -203,7 +203,7 @@ export function createQueue<T, TClose = undefined>(name = 'queue'): Queue<T, TCl
     collect(): Operation<Iterator<T, TClose>> {
       return withName<Iterator<T, TClose>>('collect', function*() {
         let items: T[] = [];
-        let result = yield subscription.forEach((item) => function*() { items.push(item) });
+        let result: TClose = yield subscription.forEach((item) => function*() { items.push(item) });
         return (function*() {
           yield *items;
           return result;

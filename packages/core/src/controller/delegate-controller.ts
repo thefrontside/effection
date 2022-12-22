@@ -16,7 +16,7 @@ export function createDelegateController<TOut>(task: Task<TOut>, operation: Oper
         ...extractLabels(operation)
       });
     } catch (error) {
-      produce({ state: 'errored', error });
+      produce({ state: 'errored', error: error as Error });
       return;
     }
     delegate.future.consume((value) => {

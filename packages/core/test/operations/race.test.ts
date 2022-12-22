@@ -50,7 +50,7 @@ describe('race()', () => {
       await run(function*() {
         let fooStatus = { status: 'pending' };
         let barStatus = { status: 'pending' };
-        let result = yield race([
+        let result: string = yield race([
           asyncResource(10, "foo", fooStatus),
           asyncResource(30, "bar", barStatus),
         ]);

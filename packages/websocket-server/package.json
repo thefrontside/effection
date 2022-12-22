@@ -33,9 +33,7 @@
   },
   "devDependencies": {
     "@frontside/tsconfig": "^1.2.0",
-    "@types/ws": "^7.4.4",
-    
-    "ts-node": "^10.4.0"
+    "@types/ws": "^7.4.4"
   },
   "volta": {
     "extends": "../../package.json"

@@ -30,9 +30,7 @@
   },
   "devDependencies": {
     "@frontside/tsconfig": "^1.2.0",
-    "dtslint": "^4.0.7",
-    
-    "ts-node": "^10.4.0"
+    "dtslint": "^4.0.7"
   },
   "volta": {
     "extends": "../../package.json"

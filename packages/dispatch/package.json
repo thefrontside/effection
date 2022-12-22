@@ -28,9 +28,7 @@
     "mocha": "mocha -r ts-node/register"
   },
   "devDependencies": {
-    "@frontside/tsconfig": "^1.2.0",
-    
-    "ts-node": "^10.4.0"
+    "@frontside/tsconfig": "^1.2.0"
   },
   "volta": {
     "extends": "../../package.json"

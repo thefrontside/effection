@@ -30,10 +30,7 @@
   "devDependencies": {
     "@effection/fetch": "^2.0.2",
     "@frontside/tsconfig": "^1.2.0",
-    "@types/cross-spawn": "^6.0.2",
-    
-    
-    "ts-node": "^10.4.0"
+    "@types/cross-spawn": "^6.0.2"
   },
   "dependencies": {
     "cross-spawn": "^7.0.3",

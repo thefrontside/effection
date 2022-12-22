@@ -34,8 +34,6 @@
   "devDependencies": {
     "@frontside/tsconfig": "^1.2.0",
     "@types/ws": "^7.4.4",
-    
-    "ts-node": "^10.4.0",
     "ws": "^7.4.6"
   },
   "volta": {

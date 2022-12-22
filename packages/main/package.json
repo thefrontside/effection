@@ -34,9 +34,7 @@
   },
   "devDependencies": {
     "@frontside/tsconfig": "^1.2.0",
-    "@effection/mocha": "^2.0.6",
-    
-    "ts-node": "^10.4.0"
+    "@effection/mocha": "^2.0.6"  
   },
   "volta": {
     "extends": "../../package.json"

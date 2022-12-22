@@ -28,10 +28,7 @@
     "mocha": "mocha -r ts-node/register"
   },
   "devDependencies": {
-    "@frontside/tsconfig": "^1.2.0",
-    "expect": "26.0.1",
-    
-    "ts-node": "^10.4.0"
+    "@frontside/tsconfig": "^1.2.0"    
   },
   "dependencies": {
     "@effection/core": "2.2.1",

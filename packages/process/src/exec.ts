@@ -2,7 +2,7 @@
 import { split } from 'shellwords';
 
 import { Task, Operation, Resource, spawn, withLabels } from 'effection';
-import { ExecOptions, Process, ProcessResult, CreateOSProcess } from './exec/api';
+import { ExecOptions, Process, ProcessResult, CreateOSProcess, ExitStatus } from './exec/api';
 import { createPosixProcess } from './exec/posix';
 import { createWin32Process, isWin32 } from './exec/win32';
 
@@ -50,7 +50,7 @@ export function exec(command: string, options: ExecOptions = {}): Exec {
         yield spawn(process.stdout.forEach((chunk) => { stdout += chunk }));
         yield spawn(process.stderr.forEach((chunk) => { stderr += chunk }));
 
-        let status = yield process.join();
+        let status: ExitStatus = yield process.join();
 
         return { ...status, stdout, stderr };
       }, { name: `exec(${JSON.stringify(command)}).join()`, expand: false });
@@ -65,7 +65,7 @@ export function exec(command: string, options: ExecOptions = {}): Exec {
         yield spawn(process.stdout.forEach((chunk) => { stdout += chunk }));
         yield spawn(process.stderr.forEach((chunk) => { stderr += chunk }));
 
-        let status = yield process.expect();
+        let status: ExitStatus = yield process.expect();
 
         return { ...status, stdout, stderr };
       }, { name: `exec(${JSON.stringify(command)}).expect()`, expand: false });

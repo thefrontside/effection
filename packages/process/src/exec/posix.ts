@@ -75,7 +75,7 @@ export const createPosixProcess: CreateOSProcess = (command, options) => {
         });
 
         try {
-          let value = yield onceEmit(childProcess, 'exit');
+          let value: [number, string] = yield onceEmit(childProcess, 'exit');
           produce({ state: 'completed', value: { type: 'status', value } });
           scope.setLabels({ state: 'terminated', exitCode: value[0], signal: value[1] });
         } finally {

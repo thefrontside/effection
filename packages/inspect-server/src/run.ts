@@ -1,4 +1,4 @@
-import { createInspectServer, Options } from './server';
+import { createInspectServer, InspectServer, Options } from './server';
 import { spawn, createTask, once } from 'effection';
 
 export function runInspectServer(options: Options = {}): void {
@@ -17,7 +17,7 @@ export function runInspectServer(options: Options = {}): void {
       yield once(process, 'exit');
       scope.halt();
     });
-    let server = yield createInspectServer(options);
+    let server: InspectServer = yield createInspectServer(options);
     console.debug(`[effection] inspector available on http://localhost:${server.port}`);
     yield;
   }, { labels: { name: 'inspector' } });

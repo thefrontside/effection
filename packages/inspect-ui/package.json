@@ -50,7 +50,6 @@
     "@frontside/tsconfig": "^1.2.0",
     "@interactors/material-ui": "^4.1.0",
     "@types/jsdom-global": "^3.0.2",
-    "@types/node": "^13.13.5",
     "@types/react": "^17.0.50",
     "@types/react-dom": "^17.0.17",
     "@types/react-router": "^5.1.17",

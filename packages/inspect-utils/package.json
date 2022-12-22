@@ -34,7 +34,6 @@
   },
   "devDependencies": {
     "@frontside/tsconfig": "^1.2.0",
-    "@types/node": "^13.13.5",
     "expect": "^25.4.0",
     "mocha": "^8.3.1",
     "ts-node": "^10.4.0",

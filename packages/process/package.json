@@ -31,7 +31,7 @@
     "@effection/fetch": "^2.0.2",
     "@frontside/tsconfig": "^1.2.0",
     "@types/cross-spawn": "^6.0.2",
-    "@types/node": "^16.3.2",
+    
     "expect": "^25.4.0",
     "mocha": "^8.3.1",
     "ts-node": "^10.4.0",

@@ -32,7 +32,6 @@
   "devDependencies": {
     "@frontside/tsconfig": "^1.2.0",
     "@types/mocha": "^7.0.2",
-    "@types/node": "^16.3.2",
     "eslint": "^7.30.0",
     "expect": "^25.3.0",
     "mocha": "^8.3.1",

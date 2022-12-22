@@ -39,7 +39,6 @@
   },
   "devDependencies": {
     "@frontside/tsconfig": "^1.2.0",
-    "@types/node": "^13.13.5",
     "@types/node-static": "^0.7.6",
     "@types/websocket": "^1.0.2",
     "expect": "^25.4.0",

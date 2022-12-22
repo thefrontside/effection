@@ -11,6 +11,6 @@ main(function* main() {
       yield sleep(10);
       throw new CustomError('moo');
     }, { labels: { name: "request", path: '/foobar' } });
-    yield
-  }, { name: 'server' })
+    yield;
+  }, { name: 'server' });
 });

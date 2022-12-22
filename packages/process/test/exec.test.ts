@@ -71,8 +71,8 @@ describe('exec', () => {
           let error: unknown;
           let proc = yield exec("argle", { arguments: ['bargle'] });
           try {
-            yield proc.expect()
-          } catch (e) { error = e; }
+            yield proc.expect();
+          } catch (e) { error = e }
 
           expect(error).toBeDefined();
         });

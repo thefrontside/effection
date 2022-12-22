@@ -40,8 +40,7 @@
   "devDependencies": {
     "@frontside/tsconfig": "^1.2.0",
     "@types/node-static": "^0.7.6",
-    "@types/websocket": "^1.0.2",
-    "typedoc": "^0.22.4"
+    "@types/websocket": "^1.0.2"
   },
   "volta": {
     "extends": "../../package.json"

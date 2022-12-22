@@ -33,8 +33,7 @@
     "effection": "2.0.6"
   },
   "devDependencies": {
-    "@frontside/tsconfig": "^1.2.0",
-    "typedoc": "^0.22.4"
+    "@frontside/tsconfig": "^1.2.0"
   },
   "volta": {
     "extends": "../../package.json"

@@ -30,13 +30,13 @@
     "effection": "2.0.6"
   },
   "peerDependencies": {
-    "mocha": "^8.0.0"
+    "mocha": "^10.0.0"
   },
   "devDependencies": {
     "@frontside/tsconfig": "^1.2.0",
     "@types/mocha": "^8.0.3",
     "expect": "^25.4.0",
-    "mocha": "^8.0.0",
+    "mocha": "^10.0.0",
     "ts-node": "^10.4.0"
   },
   "volta": {

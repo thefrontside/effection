@@ -30,7 +30,7 @@ describe('error', () => {
           throw new ExplodeError('boom');
         };
       } catch(err) {
-        expect(err.name).toEqual('ExplodeError');
+        expect((err as Error).name).toEqual('ExplodeError');
       }
     });
   });
@@ -44,7 +44,7 @@ describe('error', () => {
       try {
         yield other;
       } catch(err) {
-        expect(err.name).toEqual('ExplodeError');
+        expect((err as Error).name).toEqual('ExplodeError');
       }
     });
   });

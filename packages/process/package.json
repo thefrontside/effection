@@ -33,7 +33,7 @@
     "@types/cross-spawn": "^6.0.2",
     
     "expect": "^25.4.0",
-    "mocha": "^8.3.1",
+    "mocha": "^10.2.0",
     "ts-node": "^10.4.0"
   },
   "dependencies": {

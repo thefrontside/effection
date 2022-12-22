@@ -41,11 +41,10 @@
     "@babel/eslint-parser": "^7.14.7",
     "@babel/eslint-plugin": "^7.14.5",
     "@babel/plugin-proposal-class-properties": "^7.14.5",
-    "@types/mocha": "^7.0.2",
     "cpy-cli": "^3.1.1",
     "eslint": "^7.30.0",
     "expect": "^25.3.0",
-    "mocha": "^10.2.0",
+    
     "ts-node": "^10.4.0"
   },
   "volta": {

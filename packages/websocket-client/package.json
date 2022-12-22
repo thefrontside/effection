@@ -35,7 +35,7 @@
     "@frontside/tsconfig": "^1.2.0",
     "@types/ws": "^7.4.4",
     "expect": "^25.4.0",
-    "mocha": "^10.2.0",
+    
     "ts-node": "^10.4.0",
     "ws": "^7.4.6"
   },

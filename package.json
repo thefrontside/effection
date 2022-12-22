@@ -50,6 +50,7 @@
     "@frontside/eslint-config": "2.1.0",
     "@frontside/tsconfig": "^1.2.0",
     "expect": "^25.4.0",
+    "eslint": "^7.30.0",
     "typedoc": "^0.23.23",
     "mocha": "^10.2.0",
     "@types/mocha": "10.0.1",

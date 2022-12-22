@@ -30,7 +30,6 @@
     "abort-controller": "^3.0.0"
   },
   "devDependencies": {
-    "eslint": "^7.30.0",
     "rimraf": "^3.0.2"
   },
   "volta": {

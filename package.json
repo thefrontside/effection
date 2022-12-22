@@ -50,6 +50,7 @@
     "@frontside/eslint-config": "2.1.0",
     "@frontside/tsconfig": "^1.2.0",
     "typedoc": "^0.22.4",
-    "@types/node": "^18.11.17"
+    "@types/node": "^18.11.17",
+    "typescript": "^4.9.4"
   }
 }

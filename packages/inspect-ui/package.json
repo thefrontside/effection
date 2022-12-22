@@ -59,7 +59,6 @@
     "eslint-plugin-react": "^7.31.8",
     "eslint-plugin-react-hooks": "^4.6.0",
     "events": "^3.3.0",
-    "expect": "^25.4.0",
     "jsdom-global": "^3.0.2",
     
     "parcel": "^2.7.0",

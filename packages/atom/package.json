@@ -31,7 +31,6 @@
   "devDependencies": {
     "@frontside/tsconfig": "^1.2.0",
     "dtslint": "^4.0.7",
-    "expect": "^25.4.0",
     
     "ts-node": "^10.4.0"
   },

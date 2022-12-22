@@ -38,6 +38,7 @@
   },
   "devDependencies": {
     "@frontside/tsconfig": "^1.2.0",
+    "@effection/process": "^2.1.2",
     "vite": "^3.2.3",
     "vite-plugin-checker": "^0.5.1",
     "vitest": "^0.25.0"

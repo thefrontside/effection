@@ -32,7 +32,6 @@
     "@frontside/tsconfig": "^1.2.0",
     "@types/cross-spawn": "^6.0.2",
     
-    "expect": "^25.4.0",
     
     "ts-node": "^10.4.0"
   },

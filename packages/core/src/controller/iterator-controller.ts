@@ -35,7 +35,7 @@ export function createIteratorController<TOut>(task: Task<TOut>, iterator: Opera
       try {
         next = iter();
       } catch(error) {
-        produce({ state: 'errored', error });
+        produce({ state: 'errored', error: error as Error });
         return;
       }
       if(next.done) {

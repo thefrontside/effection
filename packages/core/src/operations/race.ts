@@ -40,7 +40,7 @@ export function race<T>(operations: Operation<T>[]): Operation<T> {
       }
     }
 
-    let resultChild = yield future;
+    let resultChild: Task<unknown> = yield future;
 
     for(let child of tasks) {
       if(child !== resultChild) {

@@ -33,7 +33,10 @@
     "stacktrace-parser": "^0.1.10"
   },
   "devDependencies": {
-    "@effection/mocha": "^2.0.6"  
+    "@effection/core": "^2.2.1",
+    "@effection/mocha": "^2.0.6",
+    "@effection/process": "^2.1.2",
+    "@effection/stream": "^2.0.4"
   },
   "volta": {
     "extends": "../../package.json"

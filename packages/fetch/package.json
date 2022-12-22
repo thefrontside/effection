@@ -27,9 +27,6 @@
     "test": "mocha -r ts-node/register test/**/*.test.ts",
     "mocha": "mocha -r ts-node/register"
   },
-  "devDependencies": {
-    "@frontside/tsconfig": "^1.2.0"    
-  },
   "dependencies": {
     "@effection/core": "2.2.1",
     "@effection/mocha": "^2.0.6",

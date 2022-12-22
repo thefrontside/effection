@@ -29,7 +29,6 @@
     "mocha": "mocha -r ts-node/register"
   },
   "devDependencies": {
-    "@frontside/tsconfig": "^1.2.0",
     "dtslint": "^4.0.7"
   },
   "volta": {

@@ -32,9 +32,6 @@
   "peerDependencies": {
     "mocha": "^10.0.0"
   },
-  "devDependencies": {
-    "@frontside/tsconfig": "^1.2.0"
-  },
   "volta": {
     "extends": "../../package.json"
   }

@@ -33,7 +33,6 @@
     "stacktrace-parser": "^0.1.10"
   },
   "devDependencies": {
-    "@frontside/tsconfig": "^1.2.0",
     "@effection/mocha": "^2.0.6"  
   },
   "volta": {

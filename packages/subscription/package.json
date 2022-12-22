@@ -30,9 +30,6 @@
   "dependencies": {
     "@effection/core": "2.2.1"
   },
-  "devDependencies": {
-    "@frontside/tsconfig": "^1.2.0"
-  },
   "volta": {
     "extends": "../../package.json"
   }

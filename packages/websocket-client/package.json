@@ -32,7 +32,6 @@
     "isomorphic-ws": "^4.0.1"
   },
   "devDependencies": {
-    "@frontside/tsconfig": "^1.2.0",
     "@types/ws": "^7.4.4",
     "ws": "^7.4.6"
   },

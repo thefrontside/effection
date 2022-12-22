@@ -33,7 +33,6 @@
     "jest": "^27.0.0"
   },
   "devDependencies": {
-    "@frontside/tsconfig": "^1.2.0",
     "@types/jest": "^27.4.0",
     "jest": "^27.0.0",
     "ts-jest": "^27.1.3"

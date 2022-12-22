@@ -30,7 +30,6 @@
     "abort-controller": "^3.0.0"
   },
   "devDependencies": {
-    "@frontside/tsconfig": "^1.2.0",
     "eslint": "^7.30.0",
     "expect": "^25.3.0",
     "rimraf": "^3.0.2"

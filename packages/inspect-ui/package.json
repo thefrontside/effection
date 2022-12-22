@@ -47,7 +47,6 @@
   "devDependencies": {
     "@effection/inspect-utils": "2.1.6",
     "@effection/websocket-client": "2.0.6",
-    "@frontside/tsconfig": "^1.2.0",
     "@interactors/material-ui": "^4.1.0",
     "@types/jsdom-global": "^3.0.2",
     "@types/react": "^17.0.50",

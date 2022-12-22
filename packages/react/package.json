@@ -31,7 +31,6 @@
     "effection": "2.0.6"
   },
   "devDependencies": {
-    "@frontside/tsconfig": "^1.2.0",
     "@types/react": "^17.0.8",
     "@types/react-test-renderer": "^17.0.1",
     "eslint-plugin-react": "^7.24.0",

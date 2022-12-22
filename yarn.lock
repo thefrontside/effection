@@ -582,10 +582,10 @@
     eslint-plugin-prefer-let "^1.1.0"
     typescript "4.3.5"
 
-"@frontside/tsconfig@^1.2.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@frontside/tsconfig/-/tsconfig-1.2.0.tgz#4faf77841e9a3ff9159cd9e0ff8f10d336a84cfe"
-  integrity sha512-Ua/q/M99ohPLdNtMNuJ1EToTjVkuiUECqQTZB7jsKLpGIn0dazon1KyqNtWYfMExMYXdk4uZimxljoVtFxM/OQ==
+"@frontside/tsconfig@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@frontside/tsconfig/-/tsconfig-3.0.0.tgz#81851b980bb03882eba115e18c5120c3d1eb2117"
+  integrity sha512-yVSk+FLUyL5TzqYC85IpMI6qfgnIZwNPuj5RMwEY02z6zdi5Wa0Uj2G+N5VJNc5g6XKHKue9Rmr4vqn9GUU20g==
 
 "@humanwhocodes/config-array@^0.5.0":
   version "0.5.0"

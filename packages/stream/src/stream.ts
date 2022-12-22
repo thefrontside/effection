@@ -335,7 +335,7 @@ export function createStream<T, TReturn = undefined>(callback: StreamCallback<T,
   let subscribe = (task: Task) => {
     let queue = createQueue<T, TReturn>(name);
     task.run(function*() {
-      let result = yield callback(queue.send);
+      let result: TReturn = yield callback(queue.send);
       queue.closeWith(result);
     }, { labels: { name: 'publisher', expand: false } });
     return queue.subscription;

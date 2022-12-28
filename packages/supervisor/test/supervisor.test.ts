@@ -530,7 +530,7 @@ describe("createSupervisor", () => {
             { name: "child2", run: () => track("child2") },
             { name: "child3", run: () => track("child3") },
           ],
-          { period: 50, intensity: 2 }
+          { period: 100, intensity: 2 }
         )
       );
     });
@@ -551,18 +551,22 @@ describe("createSupervisor", () => {
       expect(supervisorTask.state).toEqual("errored");
       yield expect(supervisorTask).rejects.toHaveProperty(
         "message",
-        "child task restarted more than 2 times within 50ms"
+        "child task restarted more than 2 times within 100ms"
       );
     });
 
     it("does not shut down if restart intensity is not exceeded", function* () {
       supervisor.getChild("child2")!.run(crash);
 
-      yield sleep(30);
+      yield sleep(80);
 
       supervisor.getChild("child2")!.run(crash);
 
-      yield sleep(30);
+      yield sleep(80);
+
+      supervisor.getChild("child2")!.run(crash);
+
+      yield sleep(80);
 
       supervisor.getChild("child2")!.run(crash);
 

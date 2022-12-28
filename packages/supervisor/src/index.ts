@@ -2,6 +2,7 @@
 
 import type { Operation, Resource, Task, Labels, Stream } from "effection";
 import { formatError, createFuture, createChannel } from "effection";
+import { RotateBuffer } from "./rotate-buffer";
 
 export type Value<T> =
   | { state: "errored"; error: Error }
@@ -18,6 +19,8 @@ export type SupervisorOptions = {
   strategy?: Strategy;
   shutdown?: Shutdown;
   logErrors?: boolean;
+  period?: number;
+  intensity?: number;
 };
 
 export type ChildType = "permanent" | "transient" | "temporary";
@@ -28,6 +31,13 @@ export type ChildSpecification = {
   type?: ChildType;
   significant?: boolean;
   labels?: Labels;
+};
+
+type ChildInfo = {
+  task?: Task;
+  spec: ChildSpecification;
+  reaped: boolean;
+  restarts: RotateBuffer<number>;
 };
 
 export interface Supervisor {
@@ -45,6 +55,9 @@ export interface Supervisor {
   resourceTask: Task;
 }
 
+const DEFAULT_INTENSITY = 1;
+const DEFAULT_PERIOD = 5000;
+
 function isLive(task?: Task): boolean {
   return task ? task.state === "running" || task.state === "pending" : false;
 }
@@ -56,14 +69,24 @@ export function createSupervisor(
   return {
     *init(resourceTask) {
       let onExit = createChannel<[Task, Value<any>]>();
-      let children: Map<
-        ChildName,
-        { task?: Task; spec: ChildSpecification; reaped: boolean }
-      > = new Map(specs.map((spec) => [spec.name, { spec, reaped: false }]));
+      let children: Map<ChildName, ChildInfo> = new Map(
+        specs.map((spec) => [
+          spec.name,
+          {
+            spec,
+            reaped: false,
+            restarts: new RotateBuffer(options.intensity || DEFAULT_INTENSITY),
+          },
+        ])
+      );
 
       function addChild(spec: ChildSpecification) {
         if (!children.has(spec.name)) {
-          children.set(spec.name, { spec, reaped: false });
+          children.set(spec.name, {
+            spec,
+            reaped: false,
+            restarts: new RotateBuffer(options.intensity || DEFAULT_INTENSITY),
+          });
           return startChild(spec.name);
         } else {
           throw new Error(
@@ -94,6 +117,20 @@ export function createSupervisor(
           let result = yield future;
 
           onExit.send([childTask, result]);
+
+          let now = new Date().getTime();
+          let lastRestart = child.restarts.push(now);
+
+          if (
+            lastRestart &&
+            now - lastRestart <= (options.period || DEFAULT_PERIOD)
+          ) {
+            throw new Error(
+              `child task restarted more than ${
+                options.intensity || DEFAULT_INTENSITY
+              } times within ${options.period || DEFAULT_PERIOD}ms`
+            );
+          }
 
           if (result.state === "errored" && options.logErrors) {
             console.error(formatError(result.error));

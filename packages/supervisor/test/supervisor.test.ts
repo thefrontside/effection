@@ -516,4 +516,59 @@ describe("createSupervisor", () => {
       expect(value2.state).toEqual("halted");
     });
   });
+
+  describe("intensity and period", () => {
+    let supervisorTask: Task<Supervisor>;
+    let supervisor: Supervisor;
+
+    beforeEach(function* () {
+      supervisorTask = run();
+      supervisor = yield supervisorTask.run(
+        createSupervisor(
+          [
+            { name: "child1", run: () => track("child1") },
+            { name: "child2", run: () => track("child2") },
+            { name: "child3", run: () => track("child3") },
+          ],
+          { period: 50, intensity: 2 }
+        )
+      );
+    });
+
+    it("shuts down if restart intensity is exceeded during period", function* () {
+      supervisor.getChild("child2")!.run(crash);
+
+      yield sleep(20);
+
+      supervisor.getChild("child2")!.run(crash);
+
+      yield sleep(20);
+
+      supervisor.getChild("child2")!.run(crash);
+
+      yield sleep(10);
+
+      expect(supervisorTask.state).toEqual("errored");
+      yield expect(supervisorTask).rejects.toHaveProperty(
+        "message",
+        "child task restarted more than 2 times within 50ms"
+      );
+    });
+
+    it("does not shut down if restart intensity is not exceeded", function* () {
+      supervisor.getChild("child2")!.run(crash);
+
+      yield sleep(30);
+
+      supervisor.getChild("child2")!.run(crash);
+
+      yield sleep(30);
+
+      supervisor.getChild("child2")!.run(crash);
+
+      yield sleep(10);
+
+      expect(supervisorTask.state).toEqual("running");
+    });
+  });
 });

@@ -18,7 +18,7 @@ await build({
   test: false,
   typeCheck: false,
   compilerOptions: {
-    lib: ["esnext"],
+    lib: ["esnext", "dom"],
     target: "ES2020",
     sourceMap: true,
   },

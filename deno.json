@@ -1,0 +1,47 @@
+{
+  "tasks": {
+    "build:npm": "deno run -A tasks/build-npm.ts"
+  },
+  "lint": {
+    "rules": {
+      "exclude": ["prefer-const", "require-yield"]
+    },
+    "files": {
+      "exclude": [
+        "build",
+        "www",
+        "website",
+        "examples",
+        "packages",
+        ".scripts",
+        "./*.md"
+      ]
+    }
+  },
+  "fmt": {
+    "files": {
+      "exclude": [
+        "build",
+        "www",
+        "website",
+        "examples",
+        "packages",
+        ".scripts",
+        "./*.md"
+      ]
+    }
+  },
+  "test": {
+    "files": {
+      "exclude": [
+        "build",
+        "www",
+        "website",
+        "examples",
+        "packages",
+        ".scripts",
+        "./*.md"
+      ]
+    }
+  }
+}

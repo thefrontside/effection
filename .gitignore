@@ -21,3 +21,4 @@ docs
 .netlify
 
 *.tsbuildinfo
+/build/

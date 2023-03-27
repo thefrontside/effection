@@ -39,6 +39,7 @@ await build({
     engines: {
       node: ">= 16",
     },
+    sideEffects: false,
   },
 });
 

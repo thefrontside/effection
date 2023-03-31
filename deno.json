@@ -9,12 +9,8 @@
     "files": {
       "exclude": [
         "build",
-        "www",
         "website",
-        "examples",
-        "packages",
-        ".scripts",
-        "./*.md"
+        "packages"
       ]
     }
   },
@@ -22,12 +18,10 @@
     "files": {
       "exclude": [
         "build",
-        "www",
         "website",
-        "examples",
         "packages",
-        ".scripts",
-        "./*.md"
+        "CODE_OF_CONDUCT.md",
+        "README.md"
       ]
     }
   },
@@ -35,12 +29,7 @@
     "files": {
       "exclude": [
         "build",
-        "www",
-        "website",
-        "examples",
-        "packages",
-        ".scripts",
-        "./*.md"
+        "packages"
       ]
     }
   }

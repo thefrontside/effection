@@ -1,24 +1,6 @@
-node_modules
-.esm-cache
-.node-version
-.parcel-cache
-dist*/
-*.tgz
-pkg/
-.nyc_output/
-coverage
-package-lock.json
-/scratchpad
-yarn-error.log
-.cache
-*/**/yarn.lock
 !website/yarn.lock
 .DS_Store
-.parcel-cache
-docs
 
 # Local Netlify folder
 .netlify
-
-*.tsbuildinfo
 /build/

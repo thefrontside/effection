@@ -1,9 +1,0 @@
-/dist
-/pkg
-/scratchpad
-/node_modules
-/benchmarks
-/README
-/**/*.d.ts
-/**/**/*.test.ts
-/tests/typescript/*.ts

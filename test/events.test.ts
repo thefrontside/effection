@@ -1,7 +1,6 @@
-import { expectType } from "../lib/deps.ts";
 import { on, once } from "../mod.ts";
 import type { Operation, Stream } from "../mod.ts";
-import { describe, it } from "./suite.ts";
+import { describe, expectType, it } from "./suite.ts";
 
 describe("events", () => {
   const domElement = {} as HTMLElement;

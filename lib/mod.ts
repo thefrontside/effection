@@ -10,3 +10,4 @@ export * from "./first.ts";
 export * from "./async.ts";
 export * from "./abort-signal.ts";
 export * from "./result.ts";
+export * from "./buffer.ts";

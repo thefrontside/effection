@@ -22,9 +22,11 @@ export interface Scope extends Operation<void> {
   close(): Future<void>;
 }
 
-export type Subscription<T, R> = Operation<IteratorResult<T, R>>;
-
 export type Stream<T, TReturn> = Operation<Subscription<T, TReturn>>;
+
+export interface Subscription<T, R> {
+  next(): Operation<IteratorResult<T, R>>;
+}
 
 export interface Port<T, R> {
   send(message: T): Operation<void>;

@@ -10,7 +10,7 @@ export function expect<T>(promise: Promise<T>): Operation<T> {
 
 export function subscribe<T, R>(iter: AsyncIterator<T, R>): Subscription<T, R> {
   return {
-    [Symbol.iterator]: () => expect(iter.next())[Symbol.iterator](),
+    next: () => expect(iter.next()),
   };
 }
 

@@ -52,7 +52,7 @@ function createSubscriber<T, TClose>(): ChannelSubscriber<T, TClose> {
       }
     },
     subscription: {
-      *[Symbol.iterator]() {
+      *next() {
         let message = items.pop();
         if (message) {
           return message;

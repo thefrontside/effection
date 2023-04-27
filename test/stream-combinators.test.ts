@@ -27,11 +27,18 @@ describe("Stream combinators", () => {
     let next = yield* subscription.next();
 
     expect(next.done).toBe(false);
-    expect(next.value).toBe('FOO')
+    expect(next.value).toBe('FOO');
+
+    yield* channel.input.close('var');
+
+    expect(yield* subscription.next()).toEqual({
+      done: true,
+      value: 'var'
+    });
   }));
 
   it('lets you filter', async () => {
-    
+
   });
 
   it('lets you map and filter in combination', async () => {});

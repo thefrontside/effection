@@ -1,10 +1,10 @@
-import { Operation, Stream } from "./types.ts";
+import type { Operation, Stream } from "./types.ts";
 
 export function map<A, B>(op: (a: A) => Operation<B>) {
   return function <TClose>(stream: Stream<A, TClose>): Stream<B, TClose> {
     return {
       *[Symbol.iterator]() {
-        let subscription = yield * stream;
+        let subscription = yield* stream;
 
         return {
           * next() {

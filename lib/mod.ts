@@ -13,3 +13,4 @@ export * from "./result.ts";
 export * from "./map.ts";
 export * from './filter.ts';
 export * from './pipe.ts';
+export * from './lift.ts';

@@ -16,8 +16,10 @@ describe("Stream combinators", () => {
   });
 
   it("lets you map", () => run(function* () {
-    let upCase = map(function* (item: string) {
-      return item.toUpperCase();
+    let upCase = map({
+      op: function*(item: string) {
+        return item.toUpperCase();
+      }
     });
 
     let subscription = yield* upCase(channel.output);
@@ -62,11 +64,44 @@ describe("Stream combinators", () => {
   }));
 
   it('lets you map and filter in combination', () => run(function* () {
-    let upCase = map(function* (item: string) {
-      return item.toUpperCase();
+    let upCase = map({
+      op: function*(item: string) {
+        return item.toUpperCase();
+      }
     });
 
     let shorts = filter(function* (a: string) {
+      return a.length < 4;
+    });
+
+    let subscription = yield* pipe(channel.output, shorts, upCase);
+
+    yield* channel.input.send('too long');
+    yield* channel.input.send('too long 2');
+    yield* channel.input.send('too long 3');
+    yield* channel.input.send('foo');
+
+    let next = yield* subscription.next();
+
+    expect(next.done).toBe(false);
+    expect(next.value).toBe('FOO');
+
+    yield* channel.input.close('var');
+
+    expect(yield* subscription.next()).toEqual({
+      done: true,
+      value: 'var'
+    });
+  }));
+
+  it('lets you combine ordinary functions and operations in combination', () => run(function* () {
+    let upCase = map({
+      op: function(item: string) {
+        return item.toUpperCase();
+      }
+    });
+
+    let shorts = filter(function(a: string) {
       return a.length < 4;
     });
 

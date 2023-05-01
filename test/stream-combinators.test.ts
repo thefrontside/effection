@@ -1,12 +1,8 @@
-import {
-  beforeEach,
-  describe,
-  expect,
-  it,
-} from "./suite.ts";
+import { beforeEach, describe, expect, expectType, it } from "./suite.ts";
 
 import type { Channel } from "../mod.ts";
-import { createChannel, run, map, filter, pipe } from "../mod.ts";
+import { createChannel, filter, map, pipe, run } from "../mod.ts";
+import type { Subscription } from "../lib/types.ts";
 
 describe("Stream combinators", () => {
   let channel: Channel<string, string>;
@@ -15,113 +11,123 @@ describe("Stream combinators", () => {
     channel = createChannel();
   });
 
-  it("lets you map", () => run(function* () {
-    let upCase = map({
-      op: function*(item: string) {
-        return item.toUpperCase();
-      }
-    });
+  it("lets you map", () =>
+    run(function* () {
+      let upCase = map({
+        op: function* (item: string) {
+          return item.toUpperCase();
+        },
+      });
 
-    let subscription = yield* upCase(channel.output);
+      let subscription = yield* upCase(channel.output);
 
-    yield* channel.input.send('foo');
+      expectType<Subscription<string, string>>(subscription);
 
-    let next = yield* subscription.next();
+      yield* channel.input.send("foo");
 
-    expect(next.done).toBe(false);
-    expect(next.value).toBe('FOO');
+      let next = yield* subscription.next();
 
-    yield* channel.input.close('var');
+      expect(next.done).toBe(false);
+      expect(next.value).toBe("FOO");
 
-    expect(yield* subscription.next()).toEqual({
-      done: true,
-      value: 'var'
-    });
-  }));
+      yield* channel.input.close("var");
 
-  it('lets you filter', () => run(function* () {
-    let longs = filter(function* (a: string) {
-      return a.length > 3;
-    });
+      expect(yield* subscription.next()).toEqual({
+        done: true,
+        value: "var",
+      });
+    }));
 
-    let subscription = yield* longs(channel.output);
+  it("lets you filter", () =>
+    run(function* () {
+      let longs = filter(function* (a: string) {
+        return a.length > 3;
+      });
 
-    yield* channel.input.send('no');
-    yield* channel.input.send('way');
-    yield* channel.input.send('good');
+      let subscription = yield* longs(channel.output);
 
-    let next = yield* subscription.next();
+      expectType<Subscription<string, string>>(subscription);
 
-    expect(next.done).toBe(false);
-    expect(next.value).toBe('good');
+      yield* channel.input.send("no");
+      yield* channel.input.send("way");
+      yield* channel.input.send("good");
 
-    yield* channel.input.close('var');
+      let next = yield* subscription.next();
 
-    expect(yield* subscription.next()).toEqual({
-      done: true,
-      value: 'var'
-    });
-  }));
+      expect(next.done).toBe(false);
+      expect(next.value).toBe("good");
 
-  it('lets you map and filter in combination', () => run(function* () {
-    let upCase = map({
-      op: function*(item: string) {
-        return item.toUpperCase();
-      }
-    });
+      yield* channel.input.close("var");
 
-    let shorts = filter(function* (a: string) {
-      return a.length < 4;
-    });
+      expect(yield* subscription.next()).toEqual({
+        done: true,
+        value: "var",
+      });
+    }));
 
-    let subscription = yield* pipe(channel.output, shorts, upCase);
+  it("lets you map and filter in combination", () =>
+    run(function* () {
+      let upCase = map({
+        op: function* (item: string) {
+          return item.toUpperCase();
+        },
+      });
 
-    yield* channel.input.send('too long');
-    yield* channel.input.send('too long 2');
-    yield* channel.input.send('too long 3');
-    yield* channel.input.send('foo');
+      let shorts = filter(function* (a: string) {
+        return a.length < 4;
+      });
 
-    let next = yield* subscription.next();
+      let subscription = yield* pipe(channel.output, shorts, upCase);
 
-    expect(next.done).toBe(false);
-    expect(next.value).toBe('FOO');
+      expectType<Subscription<string, string>>(subscription);
 
-    yield* channel.input.close('var');
+      yield* channel.input.send("too long");
+      yield* channel.input.send("too long 2");
+      yield* channel.input.send("too long 3");
+      yield* channel.input.send("foo");
 
-    expect(yield* subscription.next()).toEqual({
-      done: true,
-      value: 'var'
-    });
-  }));
+      let next = yield* subscription.next();
 
-  it('lets you pass an ordinary function for a predicate', () => run(function* () {
-    let upCase = map({
-      op: function(item: string) {
-        return item.toUpperCase();
-      }
-    });
+      expect(next.done).toBe(false);
+      expect(next.value).toBe("FOO");
 
-    let shorts = filter(function(a: string) {
-      return a.length < 4;
-    });
+      yield* channel.input.close("var");
 
-    let subscription = yield* pipe(channel.output, shorts, upCase);
+      expect(yield* subscription.next()).toEqual({
+        done: true,
+        value: "var",
+      });
+    }));
 
-    yield* channel.input.send('too long');
-    yield* channel.input.send('too long 2');
-    yield* channel.input.send('too long 3');
-    yield* channel.input.send('foo');
+  it("lets you pass an ordinary function for a predicate", () =>
+    run(function* () {
+      let upCase = map({
+        op: function (item: string) {
+          return item.toUpperCase();
+        },
+      });
 
-    let next = yield* subscription.next();
+      let shorts = filter(function (a: string) {
+        return a.length < 4;
+      });
 
-    expect(next.done).toBe(false);
-    expect(next.value).toBe('FOO');
+      let subscription = yield* pipe(channel.output, shorts, upCase);
 
-    yield* channel.input.close('var');
+      yield* channel.input.send("too long");
+      yield* channel.input.send("too long 2");
+      yield* channel.input.send("too long 3");
+      yield* channel.input.send("foo");
 
-    expect(yield* subscription.next()).toEqual({
-      done: true,
-      value: 'var'
-    });
-  }));
+      let next = yield* subscription.next();
+
+      expect(next.done).toBe(false);
+      expect(next.value).toBe("FOO");
+
+      yield* channel.input.close("var");
+
+      expect(yield* subscription.next()).toEqual({
+        done: true,
+        value: "var",
+      });
+    }));
 });

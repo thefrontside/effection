@@ -7,28 +7,28 @@ export interface Predicate<A> {
 
 export function filter<A>(predicate: Predicate<A>) {
   let lifted = isOperation(predicate) ? predicate : lift(predicate);
-  
+
   return function <TClose>(stream: Stream<A, TClose>): Stream<A, TClose> {
     return {
       *[Symbol.iterator]() {
         let subscription = yield* stream;
 
         return {
-          * next() {
+          *next() {
             while (true) {
               let next = yield* subscription.next();
 
               if (next.done) {
-                return next
+                return next;
               } else {
                 if (yield* lifted(next.value)) {
                   return next;
                 }
               }
             }
-          }
-        }
-      }
-    }
-  }
+          },
+        };
+      },
+    };
+  };
 }

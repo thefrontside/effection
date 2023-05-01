@@ -113,6 +113,8 @@ describe("Stream combinators", () => {
 
       let subscription = yield* pipe(channel.output, shorts, upCase);
 
+      expectType<Subscription<string, string>>(subscription);
+
       yield* channel.input.send("too long");
       yield* channel.input.send("too long 2");
       yield* channel.input.send("too long 3");

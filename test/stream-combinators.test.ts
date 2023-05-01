@@ -94,7 +94,7 @@ describe("Stream combinators", () => {
     });
   }));
 
-  it('lets you combine ordinary functions and operations in combination', () => run(function* () {
+  it('lets you pass an ordinary function for a predicate', () => run(function* () {
     let upCase = map({
       op: function(item: string) {
         return item.toUpperCase();

@@ -6,7 +6,7 @@ export type  OperationFunction<Args extends unknown[], R> = (...args: Args) => O
 
 export function isOperation<Args extends unknown[], R>(fn: AnyFunction<Args, R> | OperationFunction<Args, R>): fn is OperationFunction<Args, R> {
   // deno-lint-ignore no-prototype-builtins
-  return fn.hasOwnProperty("prototype") && "next" in fn.prototype;
+  return fn.hasOwnProperty("prototype") && "next" in fn.prototype && "return" in fn.prototype && 'throw' in fn.prototype;
 }
 
 export function lift<Args extends unknown[], R>(fn: AnyFunction<Args, R>): OperationFunction<Args, R> {

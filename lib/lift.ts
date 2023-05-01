@@ -2,9 +2,7 @@ import { type Operation } from "./types.ts";
 
 type AnyFunction<Args extends unknown[], R> = (...args: Args) => R;
 
-export interface OperationFunction<Args extends unknown[], R> {
-  (...args: Args): Operation<R>
-}
+export type  OperationFunction<Args extends unknown[], R> = (...args: Args) => Operation<R>;
 
 export function isOperation<Args extends unknown[], R>(fn: AnyFunction<Args, R> | OperationFunction<Args, R>): fn is OperationFunction<Args, R> {
   // deno-lint-ignore no-prototype-builtins

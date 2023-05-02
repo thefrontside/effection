@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, expectType, it } from "./suite.ts";
 
 import type { Channel } from "../mod.ts";
-import { createChannel, filter, map, pipe, run } from "../mod.ts";
+import { createChannel, filter, map, op, pipe, run } from "../mod.ts";
 import type { Subscription } from "../lib/types.ts";
 
 describe("Stream combinators", () => {
@@ -13,10 +13,8 @@ describe("Stream combinators", () => {
 
   it("lets you map", () =>
     run(function* () {
-      let upCase = map({
-        op: function* (item: string) {
-          return item.toUpperCase();
-        },
+      let upCase = map(function* (item: string) {
+        return item.toUpperCase();
       });
 
       let subscription = yield* upCase(channel.output);
@@ -67,10 +65,8 @@ describe("Stream combinators", () => {
 
   it("lets you map and filter in combination", () =>
     run(function* () {
-      let upCase = map({
-        op: function* (item: string) {
-          return item.toUpperCase();
-        },
+      let upCase = map(function* (item: string) {
+        return item.toUpperCase();
       });
 
       let shorts = filter(function* (a: string) {
@@ -101,15 +97,13 @@ describe("Stream combinators", () => {
 
   it("lets you pass an ordinary function for a predicate", () =>
     run(function* () {
-      let upCase = map({
-        op: function (item: string) {
-          return item.toUpperCase();
-        },
-      });
+      let upCase = map(op((item: string) => {
+        return item.toUpperCase();
+      }));
 
-      let shorts = filter(function (a: string) {
+      let shorts = filter(op((a: string) => {
         return a.length < 4;
-      });
+      }));
 
       let subscription = yield* pipe(channel.output, shorts, upCase);
 

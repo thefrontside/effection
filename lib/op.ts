@@ -14,7 +14,7 @@ export function isOperation<Args extends unknown[], R>(
     "return" in fn.prototype && "throw" in fn.prototype;
 }
 
-export function lift<Args extends unknown[], R>(
+export function op<Args extends unknown[], R>(
   fn: AnyFunction<Args, R>,
 ): OperationFunction<Args, R> {
   return (...args: Args) => {

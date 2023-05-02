@@ -1,13 +1,10 @@
-import { isOperation, lift } from "./mod.ts";
 import type { Operation, Stream } from "./types.ts";
 
 export interface Predicate<A> {
-  (a: A): boolean | Operation<boolean>;
+  (a: A): Operation<boolean>;
 }
 
 export function filter<A>(predicate: Predicate<A>) {
-  let lifted = isOperation(predicate) ? predicate : lift(predicate);
-
   return function <TClose>(stream: Stream<A, TClose>): Stream<A, TClose> {
     return {
       *[Symbol.iterator]() {
@@ -21,7 +18,7 @@ export function filter<A>(predicate: Predicate<A>) {
               if (next.done) {
                 return next;
               } else {
-                if (yield* lifted(next.value)) {
+                if (yield* predicate(next.value)) {
                   return next;
                 }
               }

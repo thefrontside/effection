@@ -15,8 +15,8 @@
     "https://deno.land/x/expect@v0.3.0/matchers.ts": "a37ef4577739247af77a852cdcd69484f999a41ad86ec16bb63a88a7a47a2372",
     "https://deno.land/x/expect@v0.3.0/mock.ts": "562d4b1d735d15b0b8e935f342679096b64fe452f86e96714fe8616c0c884914",
     "https://deno.land/x/expect@v0.3.0/mod.ts": "0304d2430e1e96ba669a8495e24ba606dcc3d152e1f81aaa8da898cea24e36c2",
-    "https://esm.sh/ts-expect@1.3.0": "a0268b08285685ee2b1e26a8f1d772732d01840e52401beeb6d0eada0e82c3c6",
-    "https://esm.sh/v113/ts-expect@1.3.0/deno/ts-expect.mjs": "c7b69ca5c89607901c927026c39c44c322733cf2081ab44cc3b46a75edb7d43a",
-    "https://esm.sh/v113/ts-expect@1.3.0/dist/index.d.ts": "d3b5df65f830ba8273665821d1f59946cd92acef455339a0ab53f5fd4c36d09e"
+    "https://esm.sh/ts-expect@1.3.0": "36d0866bd9f2b373fc2a20ee48bb3e4e4ae1b406618f70c56dd57f6263355c58",
+    "https://esm.sh/v118/ts-expect@1.3.0/deno/ts-expect.mjs": "c7b69ca5c89607901c927026c39c44c322733cf2081ab44cc3b46a75edb7d43a",
+    "https://esm.sh/v118/ts-expect@1.3.0/dist/index.d.ts": "d3b5df65f830ba8273665821d1f59946cd92acef455339a0ab53f5fd4c36d09e"
   }
 }

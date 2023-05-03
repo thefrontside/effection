@@ -17,10 +17,8 @@ export function filter<A>(predicate: Predicate<A>) {
 
               if (next.done) {
                 return next;
-              } else {
-                if (yield* predicate(next.value)) {
-                  return next;
-                }
+              } else if (yield* predicate(next.value)) {
+                return next;
               }
             }
           },

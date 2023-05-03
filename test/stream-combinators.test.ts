@@ -65,17 +65,17 @@ describe("Stream combinators", () => {
 
   it("lets you map and filter in combination", () =>
     run(function* () {
-      let upCase = map(function* (item: string) {
-        return item.toUpperCase();
-      });
-
       let shorts = filter(function* (a: string) {
         return a.length < 4;
       });
 
-      let subscription = yield* pipe(channel.output, shorts, upCase);
+      let length = map(function* (item: string) {
+        return item.length;
+      });
 
-      expectType<Subscription<string, string>>(subscription);
+      let subscription = yield* pipe(channel.output, shorts, length);
+
+      expectType<Subscription<number, string>>(subscription);
 
       yield* channel.input.send("too long");
       yield* channel.input.send("too long 2");
@@ -85,7 +85,7 @@ describe("Stream combinators", () => {
       let next = yield* subscription.next();
 
       expect(next.done).toBe(false);
-      expect(next.value).toBe("FOO");
+      expect(next.value).toBe("foo".length);
 
       yield* channel.input.close("var");
 

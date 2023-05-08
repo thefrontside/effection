@@ -1,35 +1,8 @@
-import { on, once, run } from "../mod.ts";
+import { on, once } from "../mod.ts";
 import type { Operation, Stream } from "../mod.ts";
-import { describe, expect, expectType, it } from "./suite.ts";
-import { EventEmitter } from "node:events";
+import { describe, expectType, it } from "./suite.ts";
 
 describe("events", () => {
-  describe("eventEmitter", () => {
-    it("on", () =>
-      run(function* () {
-        let eventEmitter = new EventEmitter();
-        let subscription = yield* on(eventEmitter, "event");
-
-        eventEmitter.emit("event", 1);
-
-        let next = yield* subscription.next();
-
-        expect(next).toEqual({ done: false, value: 1 });
-      }));
-
-    it("once", () =>
-      run(function* () {
-        let eventEmitter = new EventEmitter();
-        let subscription = yield* on(eventEmitter, "event");
-
-        eventEmitter.emit("event", 1);
-
-        let next = yield* subscription.next();
-
-        expect(next).toEqual({ done: false, value: 1 });
-      }));
-  });
-
   describe("types", () => {
     const domElement = {} as HTMLElement;
     const socket = {} as WebSocket;
@@ -46,11 +19,6 @@ describe("events", () => {
       expectType<Operation<Event>>(once(domElement, "mycustomevent"));
 
       expectType<Stream<Event, never>>(on(domElement, "anothercustomevent"));
-    });
-
-    it("should type eventEmitter", () => {
-      let eventEmitter = new EventEmitter();
-      expectType<Stream<Event, never>>(on(eventEmitter, "event"));
     });
   });
 });

@@ -4,7 +4,6 @@ import { resource } from "./instructions.ts";
 import { first } from "./mod.ts";
 import { useScope } from "./run/scope.ts";
 import type { Operation, Stream } from "./types.ts";
-import { EventEmitter } from "node:events";
 
 type FN = (...any: any[]) => any;
 
@@ -20,7 +19,7 @@ export type EventList<T> = T extends {
   : never;
 
 export function once<
-  T extends EventTarget | EventEmitter,
+  T extends EventTarget,
   K extends EventList<T> | (string & {}),
 >(target: T, name: K): Operation<EventTypeFromEventTarget<T, K>> {
   return resource(function* (provide) {
@@ -29,28 +28,20 @@ export function once<
 
     let listener = (event: Event) => scope.run(() => input.send(event));
 
-    if ("addEventListener" in target) {
-      target.addEventListener(name, listener);
-    } else if ("addListener" in target) {
-      target.addListener(name, listener);
-    }
+    target.addEventListener(name, listener);
 
     try {
       yield* provide(
         yield* first(output as Stream<EventTypeFromEventTarget<T, K>, never>),
       );
     } finally {
-      if ("removeEventListener" in target) {
-        target.removeEventListener(name, listener);
-      } else {
-        target.removeListener(name, listener);
-      }
+      target.removeEventListener(name, listener);
     }
   });
 }
 
 export function on<
-  T extends EventTarget | EventEmitter,
+  T extends EventTarget,
   K extends EventList<T> | (string & {}),
 >(target: T, name: K): Stream<EventTypeFromEventTarget<T, K>, never> {
   return resource(function* (provide) {
@@ -58,22 +49,14 @@ export function on<
     let scope = yield* useScope();
     let listener = (event: Event) => scope.run(() => input.send(event));
 
-    if ("addEventListener" in target) {
-      target.addEventListener(name, listener);
-    } else if ("addListener" in target) {
-      target.addListener(name, listener);
-    }
+    target.addEventListener(name, listener);
 
     try {
       yield* provide(
         yield* output as Stream<EventTypeFromEventTarget<T, K>, never>,
       );
     } finally {
-      if ("removeEventListener" in target) {
-        target.removeEventListener(name, listener);
-      } else {
-        target.removeListener(name, listener);
-      }
+      target.removeEventListener(name, listener);
     }
   });
 }

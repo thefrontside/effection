@@ -22,22 +22,7 @@ export function once<
   T extends EventTarget,
   K extends EventList<T> | (string & {}),
 >(target: T, name: K): Operation<EventTypeFromEventTarget<T, K>> {
-  return resource(function* (provide) {
-    let { input, output } = createChannel<Event, never>();
-    let scope = yield* useScope();
-
-    let listener = (event: Event) => scope.run(() => input.send(event));
-
-    target.addEventListener(name, listener);
-
-    try {
-      yield* provide(
-        yield* first(output as Stream<EventTypeFromEventTarget<T, K>, never>),
-      );
-    } finally {
-      target.removeEventListener(name, listener);
-    }
-  });
+  return first(on(target, name));
 }
 
 export function on<

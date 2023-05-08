@@ -18,5 +18,16 @@
     "https://esm.sh/ts-expect@1.3.0": "c5a28d141915c0a7722ef2a1bb807f469b395c3485f9626d7deeffb71989f055",
     "https://esm.sh/v119/ts-expect@1.3.0/deno/ts-expect.mjs": "c7b69ca5c89607901c927026c39c44c322733cf2081ab44cc3b46a75edb7d43a",
     "https://esm.sh/v119/ts-expect@1.3.0/dist/index.d.ts": "d3b5df65f830ba8273665821d1f59946cd92acef455339a0ab53f5fd4c36d09e"
+  },
+  "npm": {
+    "specifiers": {
+      "@types/node": "@types/node@18.11.18"
+    },
+    "packages": {
+      "@types/node@18.11.18": {
+        "integrity": "sha512-DHQpWGjyQKSHj3ebjFI/wRKcqQcdR+MoFBygntYOZytCqNfkd2ZC4ARDJ2DQqhjH5p85Nnd3jhUJIXrszFX/JA==",
+        "dependencies": {}
+      }
+    }
   }
 }

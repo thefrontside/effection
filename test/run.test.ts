@@ -1,13 +1,24 @@
 import { blowUp, createNumber, describe, expect, it } from "./suite.ts";
 import {
-  call,
   createChannel,
   expect as $expect,
+  Operation,
+  resource,
   run,
   sleep,
   spawn,
   suspend,
 } from "../mod.ts";
+
+function defer(op: () => Operation<unknown>): Operation<void> {
+  return resource(function* (provide) {
+    try {
+      yield* provide();
+    } finally {
+      yield* op();
+    }
+  });
+}
 
 describe("run()", () => {
   it("can compose multiple promises via generator", async () => {
@@ -276,10 +287,13 @@ describe("run()", () => {
   it.only("should work", async () => {
     const channel = createChannel<{ type: string }>();
     let counter = 0;
+
     function* op(action: { type: string }) {
-      const { input } = channel;
-      if (counter == 0) {
-        yield* input.send({ type: action.type });
+      if (counter === 0) {
+        yield* defer(function*() {
+          const { input } = channel;
+          yield* input.send({ type: action.type });
+        });
       }
       counter += 1;
     }
@@ -298,20 +312,27 @@ describe("run()", () => {
     }
 
     await run(function* () {
-      yield* spawn(function* () {
+      const task = yield* spawn(function* () {
         while (true) {
+          if (counter === 2) {
+            break;
+          }
+
           const action = yield* take("test");
           if (!action) continue;
-          yield* spawn(function* () {
+          const tsk = yield* spawn(function* () {
             yield* op(action);
           });
+          yield* tsk;
         }
       });
 
       const { input } = channel;
       yield* input.send({ type: "test" });
+      yield* task;
     });
 
+    console.log(counter);
     expect(counter).toBe(2);
   });
 });

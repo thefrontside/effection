@@ -9,6 +9,7 @@
     "exclude": [
       "build",
       "website",
+      "www",
       "packages"
     ]
   },
@@ -16,6 +17,7 @@
     "exclude": [
       "build",
       "website",
+      "www",
       "packages",
       "CODE_OF_CONDUCT.md",
       "README.md"

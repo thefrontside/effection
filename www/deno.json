@@ -1,0 +1,22 @@
+{
+  "tasks": {
+    "dev": "deno run -A dev.ts"
+  },
+  "lint": {
+    "rules": {
+      "exclude": ["prefer-const", "require-yield"]
+    }
+  },
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "html"
+  },
+  "imports": {
+    "effection": "https://deno.land/x/effection@3.0.0-alpha.7/mod.ts",
+    "freejack/": "./lib/",
+    "html": "../../../@cowboyd/html/mod.ts",
+    "html/": "../../../@cowboyd/html/",
+    "html/jsx-runtime": "../../../@cowboyd/html/jsx-runtime.ts",
+    "dom": "https://deno.land/x/deno_dom@v0.1.38/deno-dom-wasm.ts"
+  }
+}

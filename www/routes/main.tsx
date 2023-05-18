@@ -19,6 +19,12 @@ export function* main(): Operation<JSX.Element> {
         <link rel="alternate" href="https://frontside.com/effection/docs/guides/introduction" hreflang="x-default"/>
       </head>
       <body>
+        <nav class="flex">
+          <a href="/guides">Guides</a>
+          <a href="/api">API Reference</a>
+          <a href="https://github.com/thefrontside/effection">GitHub</a>
+          <a href="https://discord.gg/r6AvtnU">Guides</a>
+        </nav>
         <h1>Hello World!</h1>
       </body>
     </html>

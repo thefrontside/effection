@@ -1,10 +1,12 @@
 import { getframe, type Operation, useScope } from "effection";
-import { type OakServer, useOak, Router } from "./oak.ts";
+import { type OakServer, useOak, Router } from "freejack/oak.ts";
+import { createRouteRecognizer, type Pattern } from "freejack/route-recognizer.ts";
+import { twind } from "freejack/twind.ts";
 import type { Route, ServerHandler } from "./types.ts";
 import type { Tag } from "html";
 import { render } from "html/render-incremental-dom.ts";
 import { Document } from "dom";
-import { createRouteRecognizer, type Pattern } from "./route-recognizer.ts";
+import staticFiles from "https://deno.land/x/static_files@1.1.6/mod.ts";
 
 export interface FreejackServerOptions {
   app: Route<void>;
@@ -22,6 +24,8 @@ export function useServer(
       let recognizer = createRecognizer(app, function*() {});
 
       let scope = yield* useScope();
+
+      http.use(staticFiles("assets/images", { prefix: "/assets/images" }));
 
       let router = new Router();
 
@@ -45,6 +49,7 @@ export function useServer(
               top = frame.context.outlet = view;
             }
 
+
             let doc = new Document().implementation.createHTMLDocument();
             if (!doc.documentElement) {
               throw new Error("null document element");
@@ -53,6 +58,8 @@ export function useServer(
             let element = doc.documentElement;
 
             render(top, element);
+
+            twind(top, doc);
 
             ctx.response.body = element.outerHTML;
           }

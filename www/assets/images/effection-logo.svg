@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="156.04" height="24.04" viewBox="0 0 156.04 24.04">
+  <defs>
+    <style>
+      .a {
+        fill: #fff;
+      }
+
+      .b {
+        fill: #1c305a;
+      }
+
+      .c {
+        fill: #26abe8;
+      }
+
+      .d {
+        fill: #f74d7b;
+      }
+    </style>
+  </defs>
+  <g>
+    <path class="a" d="M33.77,5.27H44.53V8.46h-7V10.9h6.82v3.22H37.56v2.64h7V20H33.77Z"/>
+    <path class="a" d="M47.28,5.27H58V8.46h-7V10.9h6.82v3.22H51.06V20H47.28Z"/>
+    <path class="a" d="M60.63,5.27H71.39V8.46h-7V10.9h6.82v3.22H64.42V20H60.63Z"/>
+    <path class="a" d="M74,5.27H84.75V8.46h-7V10.9h6.82v3.22H77.77v2.64h7V20H74Z"/>
+    <path class="a" d="M86.75,12.62A7.46,7.46,0,0,1,94.58,5,6.82,6.82,0,0,1,101.09,9l-3.25,1.54a3.57,3.57,0,0,0-3.26-2.14,4,4,0,0,0-4,4.25,4,4,0,0,0,4,4.25,3.57,3.57,0,0,0,3.26-2.14l3.25,1.54a6.86,6.86,0,0,1-6.51,3.94A7.47,7.47,0,0,1,86.75,12.62Z"/>
+    <path class="a" d="M106.55,8.57h-4.12V5.27h12v3.3h-4.09V20h-3.78Z"/>
+    <path class="a" d="M116.78,5.27h3.78V20h-3.78Z"/>
+    <path class="a" d="M130.86,5c4.49,0,7.83,3.12,7.83,7.59s-3.34,7.59-7.83,7.59S123,17.09,123,12.62,126.37,5,130.86,5Zm0,3.34a4,4,0,0,0-4,4.25,4,4,0,1,0,8,0A4,4,0,0,0,130.86,8.37Z"/>
+    <path class="a" d="M144.94,11.08V20h-3.79V5.27h3.9L151,13.72V5.27h3.8V20h-3.65Z"/>
+  </g>
+  <g>
+    <rect class="b" x="11.31" y="3.47" width="14.45" height="14.45" rx="1.65" transform="translate(-2.14 16.24) rotate(-45)"/>
+    <rect class="b" x="6.95" y="7.84" width="14.45" height="14.45" rx="1.65" transform="translate(-6.5 14.43) rotate(-45)"/>
+    <rect class="b" x="2.62" y="3.54" width="14.45" height="14.45" rx="1.65" transform="translate(-4.73 10.11) rotate(-45)"/>
+    <rect class="c" x="13.58" y="5.76" width="9.91" height="9.91" rx="1.9" transform="translate(-2.15 16.25) rotate(-45)"/>
+    <rect class="a" x="9.21" y="10.13" width="9.91" height="9.91" rx="1.9" transform="translate(-6.52 14.43) rotate(-45)"/>
+    <rect class="d" x="4.91" y="5.84" width="9.91" height="9.91" rx="1.9" transform="translate(-4.74 10.14) rotate(-45)"/>
+  </g>
+</svg>

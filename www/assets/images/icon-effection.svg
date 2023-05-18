@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 34 34">
+  <defs>
+    <style>
+      .a {
+        fill: #1c305a;
+      }
+
+      .b {
+        fill: #26abe8;
+      }
+
+      .c {
+        fill: #fff;
+      }
+
+      .d {
+        fill: #f74d7b;
+      }
+    </style>
+  </defs>
+  <g>
+    <rect class="a" x="13.58" y="6.89" width="17.18" height="17.18" rx="1.96" transform="translate(-4.46 20.21) rotate(-45)"/>
+    <rect class="a" x="8.39" y="12.08" width="17.18" height="17.18" rx="1.96" transform="translate(-9.64 18.06) rotate(-45)"/>
+    <rect class="a" x="3.24" y="6.97" width="17.18" height="17.18" rx="1.96" transform="translate(-7.53 12.92) rotate(-45)"/>
+    <rect class="b" x="16.28" y="9.61" width="11.78" height="11.78" rx="2.26" transform="translate(-4.47 20.21) rotate(-45)"/>
+    <rect class="c" x="11.07" y="14.81" width="11.78" height="11.78" rx="2.26" transform="translate(-9.67 18.06) rotate(-45)"/>
+    <rect class="d" x="5.97" y="9.71" width="11.78" height="11.78" rx="2.26" transform="translate(-7.56 12.95) rotate(-45)"/>
+  </g>
+</svg>

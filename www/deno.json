@@ -1,6 +1,6 @@
 {
   "tasks": {
-    "dev": "deno run -A dev.ts"
+    "dev": "deno run -A lib/watch.ts routes docs lib -- deno run -A dev.ts"
   },
   "lint": {
     "rules": {

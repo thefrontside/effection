@@ -1,6 +1,9 @@
 import { getframe, type Operation, useScope } from "effection";
-import { type OakServer, useOak, Router } from "freejack/oak.ts";
-import { createRouteRecognizer, type Pattern } from "freejack/route-recognizer.ts";
+import { type OakServer, Router, useOak } from "freejack/oak.ts";
+import {
+  createRouteRecognizer,
+  type Pattern,
+} from "freejack/route-recognizer.ts";
 import { twind } from "freejack/twind.ts";
 import type { Route, ServerHandler } from "./types.ts";
 import type { Tag } from "html";
@@ -21,7 +24,7 @@ export function useServer(
     *init(http) {
       let { app } = options;
 
-      let recognizer = createRecognizer(app, function*() {});
+      let recognizer = createRecognizer(app, function* () {});
 
       let scope = yield* useScope();
 
@@ -50,7 +53,6 @@ export function useServer(
                 top = frame.context.outlet = view;
               }
 
-
               let doc = new Document().implementation.createHTMLDocument();
               if (!doc.documentElement) {
                 throw new Error("null document element");
@@ -68,8 +70,9 @@ export function useServer(
             ctx.response.body = `${error.stack}`;
             ctx.response.status = 500;
           }
-        }));
-    }
+        })
+      );
+    },
   });
 }
 

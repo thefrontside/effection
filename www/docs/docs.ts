@@ -11,14 +11,13 @@ export interface Topic {
     title: string;
     MDXContent: () => JSX.Element;
     filename: string;
-  }[]
+  }[];
 }
-
 
 export function* loadDocs(): Operation<Topic[]> {
   let topics: Topic[] = [];
   for (let [topicName, files] of Object.entries(structure)) {
-    let topic = { name: topicName, items: [], } as Topic;
+    let topic = { name: topicName, items: [] } as Topic;
     topics.push(topic);
 
     for (let filename of files) {
@@ -44,8 +43,8 @@ export function* loadDocs(): Operation<Topic[]> {
       topic.items.push({
         id,
         title,
-        filename
-      })
+        filename,
+      });
     }
   }
   return topics;

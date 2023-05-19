@@ -1,4 +1,9 @@
-import { getframe, createContext as $createContext, resource, type Operation } from "./effection.ts";
+import {
+  createContext as $createContext,
+  getframe,
+  type Operation,
+  resource,
+} from "./effection.ts";
 
 export interface Context<T> extends Operation<T> {
   set(value: T): Operation<T>;
@@ -12,24 +17,24 @@ export function createContext<T>(name: string, defaultValue?: T): Context<T> {
       let original = frame.context[name];
       frame.context[name] = value;
 
-      yield* useFinally(function*() {
-        if (typeof original === 'undefined') {
+      yield* useFinally(function* () {
+        if (typeof original === "undefined") {
           delete frame.context[name];
         } else {
           frame.context[name] = original;
         }
       });
       return value;
-    }
-  }
+    },
+  };
 }
 
 export function useFinally(op: () => Operation<void>): Operation<void> {
-  return resource(function*(provide) {
+  return resource(function* (provide) {
     try {
       yield* provide();
     } finally {
       yield* op();
     }
-  })
+  });
 }

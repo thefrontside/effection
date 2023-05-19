@@ -16,7 +16,7 @@ export function twind(tag: Tag<string>, doc: Document): void {
   let template = doc.createElement("template") as HTMLTemplateElement;
   template.innerHTML = styleTag;
 
-  doc.head.appendChild(template.content.firstChild)
+  doc.head.appendChild(template.content.firstChild);
 }
 
 function visit(tag: Tag<string>): void {
@@ -25,7 +25,7 @@ function visit(tag: Tag<string>): void {
     tw(classnames);
   }
   for (let child of children) {
-    if (typeof child !== 'string') {
+    if (typeof child !== "string") {
       visit(child);
     }
   }

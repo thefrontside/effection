@@ -33,35 +33,40 @@ export function useServer(
 
       http.use((ctx) =>
         scope.run(function* (): Operation<void> {
-          let segments = recognizer.recognize(ctx.request.url.pathname);
+          try {
+            let segments = recognizer.recognize(ctx.request.url.pathname);
 
-          if (!segments) {
-            ctx.response.body = "Not Found";
-          } else {
-            let frame = yield* getframe();
-            let top: Tag<string> = ["html", {}, []];
+            if (!segments) {
+              ctx.response.body = "Not Found";
+            } else {
+              let frame = yield* getframe();
+              let top: Tag<string> = { name: "html", attrs: {}, children: [] };
 
-            for (let i = segments.length - 1; i >= 0; i--) {
-              let result = segments[i];
-              let handler = result.handler as ServerHandler<unknown>;
-              let model = yield* handler.model(result.params);
-              let view = yield* handler.view(model);
-              top = frame.context.outlet = view;
+              for (let i = segments.length - 1; i >= 0; i--) {
+                let result = segments[i];
+                let handler = result.handler as ServerHandler<unknown>;
+                let model = yield* handler.model(result.params);
+                let view = yield* handler.view(model);
+                top = frame.context.outlet = view;
+              }
+
+
+              let doc = new Document().implementation.createHTMLDocument();
+              if (!doc.documentElement) {
+                throw new Error("null document element");
+              }
+
+              let element = doc.documentElement;
+
+              render(top, element);
+
+              twind(top, doc);
+
+              ctx.response.body = element.outerHTML;
             }
-
-
-            let doc = new Document().implementation.createHTMLDocument();
-            if (!doc.documentElement) {
-              throw new Error("null document element");
-            }
-
-            let element = doc.documentElement;
-
-            render(top, element);
-
-            twind(top, doc);
-
-            ctx.response.body = element.outerHTML;
+          } catch (error) {
+            ctx.response.body = `${error.stack}`;
+            ctx.response.status = 500;
           }
         }));
     }

@@ -1,6 +1,6 @@
 {
   "tasks": {
-    "dev": "deno run --watch -A dev.ts"
+    "dev": "deno run -A dev.ts"
   },
   "lint": {
     "rules": {
@@ -12,7 +12,7 @@
     "jsxImportSource": "html"
   },
   "imports": {
-    "effection": "https://deno.land/x/effection@3.0.0-alpha.7/mod.ts",
+    "effection": "../mod.ts",
     "freejack/": "./lib/",
     "html": "../../../@cowboyd/html/mod.ts",
     "html/": "../../../@cowboyd/html/",

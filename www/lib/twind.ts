@@ -20,7 +20,7 @@ export function twind(tag: Tag<string>, doc: Document): void {
 }
 
 function visit(tag: Tag<string>): void {
-  let [, { class: classnames }, children] = tag;
+  let { attrs: { class: classnames }, children } = tag;
   if (classnames) {
     tw(classnames);
   }

@@ -1,6 +1,10 @@
 import type { Operation } from "effection";
 
+import { loadDocs } from "../docs/docs.ts";
+
 export function* main(): Operation<JSX.Element> {
+  let topics = yield* loadDocs();
+
   return (
     <html lang="en-US" dir="ltr">
       <head>
@@ -31,7 +35,18 @@ export function* main(): Operation<JSX.Element> {
             <li><a class="text-blue-500 hover:text-blue-800" href="/discord">Discord</a></li>
           </ul>
         </nav>
-        <h1>Hello World!</h1>
+        <section role="sidebar">
+          {topics.map(topic => (
+            <menu>
+              <li>
+                <b>{topic.name}</b>
+                <ul>
+                  {topic.items.map(doc => <li>{doc.title}</li>)}
+                </ul>
+              </li>
+            </menu>
+          ))}
+        </section>
       </body>
     </html>
   );

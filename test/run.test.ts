@@ -3,21 +3,16 @@ import {
   createChannel,
   expect as $expect,
   Operation,
-  resource,
   run,
   sleep,
   spawn,
+  Subscription,
   suspend,
 } from "../mod.ts";
 
-function defer(op: () => Operation<unknown>): Operation<void> {
-  return resource(function* (provide) {
-    try {
-      yield* provide();
-    } finally {
-      yield* op();
-    }
-  });
+interface Action {
+  type: string;
+  payload?: unknown;
 }
 
 describe("run()", () => {
@@ -284,41 +279,43 @@ describe("run()", () => {
     }
   });
 
-  it.only("should work", async () => {
+  it("should listen for actions inside an operation", async () => {
     const channel = createChannel<{ type: string }>();
     let counter = 0;
 
     function* op(action: { type: string }) {
       if (counter === 0) {
-        yield* defer(function*() {
-          const { input } = channel;
-          yield* input.send({ type: action.type });
-        });
+        const { input } = channel;
+        yield* input.send({ type: action.type });
       }
       counter += 1;
     }
 
-    function* take(pattern: string) {
-      const { output } = channel;
-      const msgList = yield* output;
-      let next = yield* msgList.next();
+    function* take(
+      subscription: Subscription<{ type: string }, void>,
+      pattern: string,
+    ) {
+      let next = yield* subscription.next();
       while (!next.done) {
         if (next.value.type === pattern) {
           return next.value;
         }
 
-        next = yield* msgList.next();
+        next = yield* subscription.next();
       }
     }
 
     await run(function* () {
+      const { output } = channel;
+      const subscription = yield* output;
+
       const task = yield* spawn(function* () {
         while (true) {
           if (counter === 2) {
             break;
           }
 
-          const action = yield* take("test");
+          const action = yield* take(subscription, "test");
           if (!action) continue;
           const tsk = yield* spawn(function* () {
             yield* op(action);
@@ -334,5 +331,66 @@ describe("run()", () => {
 
     console.log(counter);
     expect(counter).toBe(2);
+  });
+
+  it.only("should take every", async () => {
+    const channel = createChannel<Action>();
+    let actual: Action[] = [];
+
+    function* op(action: Action) {
+      actual.push(action);
+    }
+
+    function* take(
+      subscription: Subscription<Action, void>,
+      pattern: string,
+    ) {
+      let next = yield* subscription.next();
+      while (!next.done) {
+        console.log(next.value, pattern);
+        if (next.value.type === pattern) {
+          return next.value;
+        }
+
+        next = yield* subscription.next();
+      }
+    }
+
+    function* takeEvery(
+      subscription: Subscription<Action, void>,
+      pattern: string,
+      op: (action: Action) => Operation<void>,
+    ) {
+      return yield* spawn(function* () {
+        while (true) {
+          const action = yield* take(subscription, pattern);
+          if (!action) continue;
+          yield* spawn(() => op(action));
+        }
+      });
+    }
+
+    await run(function* () {
+      const { output } = channel;
+      const subscription = yield* output;
+
+      const task = yield* spawn(function* () {
+        const tsk = yield* takeEvery(subscription, 'test', op);
+        yield* take(subscription, 'CANCEL');
+        yield* tsk.halt();
+      });
+
+      const { input } = channel;
+      yield* input.send({ type: "test", payload: 1 });
+      yield* input.send({ type: "test", payload: 2 });
+      yield* input.send({ type: "test", payload: 3 });
+      yield* input.send({ type: "test", payload: 4 });
+      yield* input.send({ type: "CANCEL" });
+      yield* input.send({ type: "test", payload: 1 });
+      yield* input.send({ type: "test", payload: 2 });
+      yield* task;
+    });
+
+    expect(actual).toEqual([]);
   });
 });

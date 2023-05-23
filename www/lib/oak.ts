@@ -1,5 +1,5 @@
-import { Application } from "https://deno.land/x/oak@v12.1.0/mod.ts";
-import type { ApplicationListenEvent } from "https://deno.land/x/oak@v12.1.0/application.ts";
+import { Application } from "https://deno.land/x/oak@v12.5.0/mod.ts";
+import type { ApplicationListenEvent } from "https://deno.land/x/oak@v12.5.0/application.ts";
 import {
   action,
   expect,
@@ -12,8 +12,10 @@ import {
 export {
   type Context,
   type Middleware,
+  type RouterMiddleware,
+  type RouterContext,
   Router,
-} from "https://deno.land/x/oak@v12.1.0/mod.ts";
+} from "https://deno.land/x/oak@v12.5.0/mod.ts";
 
 export interface OakServer {
   url: string;

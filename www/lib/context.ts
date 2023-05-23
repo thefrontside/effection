@@ -1,40 +1,38 @@
 import {
-  createContext as $createContext,
   getframe,
   type Operation,
-  resource,
-} from "./effection.ts";
+} from "effection";
 
-export interface Context<T> extends Operation<T> {
+export interface Context<T> {
   set(value: T): Operation<T>;
+  get(): Operation<T | undefined>;
+  expect(): Operation<T>;
 }
 
 export function createContext<T>(name: string, defaultValue?: T): Context<T> {
   return {
-    ...$createContext(name, defaultValue),
     *set(value) {
       let frame = yield* getframe();
-      let original = frame.context[name];
+
       frame.context[name] = value;
 
-      yield* useFinally(function* () {
-        if (typeof original === "undefined") {
-          delete frame.context[name];
-        } else {
-          frame.context[name] = original;
-        }
-      });
       return value;
     },
-  };
-}
+    *get() {
+      let frame = yield* getframe();
 
-export function useFinally(op: () => Operation<void>): Operation<void> {
-  return resource(function* (provide) {
-    try {
-      yield* provide();
-    } finally {
-      yield* op();
+      return (frame.context[name] ?? defaultValue) as T;
+    },
+    *expect() {
+      let frame = yield* getframe();
+
+      let value = (frame.context[name] ?? defaultValue) as T;
+
+      if (value == null) {
+        throw new Error(`missing required context: '${name}'`)
+      }
+
+      return value;
     }
-  });
+  };
 }

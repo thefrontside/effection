@@ -6,46 +6,68 @@ import remarkMdxFrontmatter from "npm:remark-mdx-frontmatter";
 
 export interface Topic {
   name: string;
-  items: {
-    id: string;
-    title: string;
-    MDXContent: () => JSX.Element;
-    filename: string;
-  }[];
+  items: Doc[];
 }
 
-export function* loadDocs(): Operation<Topic[]> {
-  let topics: Topic[] = [];
-  for (let [topicName, files] of Object.entries(structure)) {
-    let topic = { name: topicName, items: [] } as Topic;
-    topics.push(topic);
+export interface Doc {
+  id: string;
+  title: string;
+  MDXContent: () => JSX.Element;
+  filename: string;
+}
 
-    for (let filename of files) {
-      let bytes = yield* expect(Deno.readFile(`docs/${filename}`));
-      let source = new TextDecoder().decode(bytes);
+export interface Docs {
+  getTopics(): Topic[];
+  getDoc(id: string): Doc | undefined;
+}
 
-      let mdx = yield* expect(compile(source, {
-        jsxImportSource: "html",
-        remarkPlugins: [
-          remarkFrontmatter,
-          remarkMdxFrontmatter,
-        ],
-      }));
+let cache: Docs | undefined = void 0;
 
-      let blob = new Blob([mdx.value], { type: "text/javascript" });
+export function* useDocs(): Operation<Docs> {
+  if (cache) {
+    return cache;
+  } else {
+    let topics: Topic[] = [];
+    let docs: Record<string, Doc> = {};
+    for (let [topicName, files] of Object.entries(structure)) {
+      let topic = { name: topicName, items: [] } as Topic;
 
-      let url = URL.createObjectURL(blob);
+      topics.push(topic);
 
-      let mod = yield* expect(import(url));
+      for (let filename of files) {
+        let bytes = yield* expect(Deno.readFile(`docs/${filename}`));
+        let source = new TextDecoder().decode(bytes);
 
-      let { id, title } = mod.frontmatter;
+        let mdx = yield* expect(compile(source, {
+          jsxImportSource: "html",
+          remarkPlugins: [
+            remarkFrontmatter,
+            remarkMdxFrontmatter,
+          ],
+        }));
 
-      topic.items.push({
-        id,
-        title,
-        filename,
-      });
+        let blob = new Blob([mdx.value], { type: "text/javascript" });
+
+        let url = URL.createObjectURL(blob);
+
+        let mod = yield* expect(import(url));
+
+        let { id, title } = mod.frontmatter;
+
+        let doc = {
+          id,
+          title,
+          filename,
+          MDXContent: mod.default,
+        } as Doc;
+
+        topic.items.push(doc);
+        docs[id] = doc;
+      }
+    }
+    return cache = {
+      getTopics: () => topics,
+      getDoc: (id) => docs[id],
     }
   }
-  return topics;
 }

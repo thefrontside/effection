@@ -75,7 +75,18 @@ function useCommand(
     try {
       yield* provide(process);
     } finally {
-      process.kill("SIGINT");
+      try {
+        process.kill("SIGINT");
+      } catch (error) {
+        // if the process already quit, then this error is expected.
+        // unfortunately there is no way (I know of) to check this
+        // before calling process.kill()
+
+        if (!!error && !error.message.includes("Child process has already terminated")) {
+          // deno-lint-ignore no-unsafe-finally
+          throw error;
+        }
+      }
     }
   });
 }

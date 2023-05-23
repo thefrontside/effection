@@ -1,12 +1,12 @@
 import { action, run, suspend } from "effection";
 
 import { useServer } from "freejack/server.ts";
-import { main } from "./routes/main.tsx";
+import serve from "./server.ts";
 
 await run(function* () {
   yield* action<void>(function* (resolve) {
     let server = yield* useServer({
-      app: main,
+      serve,
       port: 8088,
     });
 

@@ -1,9 +1,11 @@
 import type { Operation } from "effection";
+import { outlet } from "freejack/view.ts";
+import { useDocs } from "../docs/docs.ts";
 
-import { loadDocs } from "../docs/docs.ts";
+export default function* AppHtml(): Operation<JSX.Element> {
 
-export function* main(): Operation<JSX.Element> {
-  let topics = yield* loadDocs();
+  let docs = yield* useDocs();
+  let topics = docs.getTopics();
 
   return (
     <html lang="en-US" dir="ltr">
@@ -53,6 +55,9 @@ export function* main(): Operation<JSX.Element> {
         <nav>
           <ul class="flex justify-between">
             <li>
+              <a class="text-blue-500 hover:text-blue-800" href="/">Effection</a>
+            </li>
+            <li>
               <a class="text-blue-500 hover:text-blue-800" href="/api">
                 API Reference
               </a>
@@ -61,9 +66,6 @@ export function* main(): Operation<JSX.Element> {
               <a class="text-blue-500 hover:text-blue-800" href="/guides">
                 Guides
               </a>
-            </li>
-            <li>
-              <a class="text-blue-500 hover:text-blue-800" href="/">Guides</a>
             </li>
             <li>
               <a class="text-blue-500 hover:text-blue-800" href="/discord">
@@ -78,11 +80,14 @@ export function* main(): Operation<JSX.Element> {
               <li>
                 <b>{topic.name}</b>
                 <ul>
-                  {topic.items.map((doc) => <li>{doc.title}</li>)}
+                  {topic.items.map((doc) => <li><a href={`/docs/${doc.id}`}>{doc.title}</a></li>)}
                 </ul>
               </li>
             </menu>
           ))}
+        </section>
+        <section role="content">
+          {yield* outlet}
         </section>
       </body>
     </html>

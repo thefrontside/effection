@@ -2,7 +2,11 @@ import type { Operation } from "effection";
 import { outlet } from "freejack/view.ts";
 import { useDocs } from "../docs/docs.ts";
 
-export default function* AppHtml(): Operation<JSX.Element> {
+export interface Options {
+  title: string;
+}
+
+export default function* AppHtml({ title }: Options): Operation<JSX.Element> {
 
   let docs = yield* useDocs();
   let topics = docs.getTopics();
@@ -11,7 +15,7 @@ export default function* AppHtml(): Operation<JSX.Element> {
     <html lang="en-US" dir="ltr">
       <head>
         <meta charset="UTF-8" />
-        <title>Introduction | Effection</title>
+        <title>{title}</title>
         <meta property="og:image" content="/assets/images/meta-effection.png" />
         <meta
           property="og:title"

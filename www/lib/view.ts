@@ -2,10 +2,11 @@ import type { Operation } from "effection";
 
 import { createContext } from "./context.ts";
 
-export const Outlet = createContext<JSX.Element>("outlet");
+export const Outlet = createContext<Operation<JSX.Element>>("outlet");
 
 export const outlet: Operation<JSX.Element> = ({
   *[Symbol.iterator]() {
-    return yield* Outlet.expect();
+    let reify = yield* Outlet.expect();
+    return yield* reify;
   }
 })

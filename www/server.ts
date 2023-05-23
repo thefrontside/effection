@@ -9,20 +9,24 @@ export default serve({
 
   "/": html.get(function*() {
     let [appview, content] = view;
-    yield* Outlet.set(yield* content["/"]());
-    return yield* appview();
+
+    yield* Outlet.set(content["/"]());
+
+    return yield* appview({ title: "Effection" });
 
   }),
 
   "/docs/:id": html.get(function*({ id }) {
     let [appview, content] = view;
     let docs = yield* useDocs();
-    let doc = docs.getDoc(id);
+
+    const doc = docs.getDoc(id);
     if (!doc) {
       return { name: "h1", attrs: {}, children: ["Not Found"] };
     }
-    yield* Outlet.set(yield* content["/docs/:id"](doc));
-    return yield* appview();
 
+    yield* Outlet.set(content["/docs/:id"](doc));
+
+    return yield* appview({title: `${doc.title} | Effection`});
   })
 });

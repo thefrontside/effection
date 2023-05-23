@@ -284,7 +284,7 @@ describe("run()", () => {
     let counter = 0;
 
     function* op(action: { type: string }) {
-      if (counter === 0) {
+      if (counter < 2) {
         const { input } = channel;
         yield* input.send({ type: action.type });
       }
@@ -311,7 +311,7 @@ describe("run()", () => {
 
       const task = yield* spawn(function* () {
         while (true) {
-          if (counter === 2) {
+          if (counter === 3) {
             break;
           }
 
@@ -329,11 +329,10 @@ describe("run()", () => {
       yield* task;
     });
 
-    console.log(counter);
-    expect(counter).toBe(2);
+    expect(counter).toBe(3);
   });
 
-  it.only("should take every", async () => {
+  it("should take every", async () => {
     const channel = createChannel<Action>();
     let actual: Action[] = [];
 
@@ -347,7 +346,6 @@ describe("run()", () => {
     ) {
       let next = yield* subscription.next();
       while (!next.done) {
-        console.log(next.value, pattern);
         if (next.value.type === pattern) {
           return next.value;
         }
@@ -357,13 +355,13 @@ describe("run()", () => {
     }
 
     function* takeEvery(
-      subscription: Subscription<Action, void>,
       pattern: string,
       op: (action: Action) => Operation<void>,
     ) {
       return yield* spawn(function* () {
+        const sub = yield* channel.output;
         while (true) {
-          const action = yield* take(subscription, pattern);
+          const action = yield* take(sub, pattern);
           if (!action) continue;
           yield* spawn(() => op(action));
         }
@@ -375,8 +373,8 @@ describe("run()", () => {
       const subscription = yield* output;
 
       const task = yield* spawn(function* () {
-        const tsk = yield* takeEvery(subscription, 'test', op);
-        yield* take(subscription, 'CANCEL');
+        const tsk = yield* takeEvery("test", op);
+        yield* take(subscription, "CANCEL");
         yield* tsk.halt();
       });
 
@@ -391,6 +389,11 @@ describe("run()", () => {
       yield* task;
     });
 
-    expect(actual).toEqual([]);
+    expect(actual).toEqual([
+      { type: "test", payload: 1 },
+      { type: "test", payload: 2 },
+      { type: "test", payload: 3 },
+      { type: "test", payload: 4 },
+    ]);
   });
 });

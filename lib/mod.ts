@@ -14,3 +14,4 @@ export * from "./map.ts";
 export * from "./filter.ts";
 export * from "./pipe.ts";
 export * from "./op.ts";
+export * from "./events.ts";

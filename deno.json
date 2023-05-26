@@ -32,5 +32,12 @@
         "packages"
       ]
     }
+  },
+  "compilerOptions": {
+    "lib": [
+      "esnext",
+      "dom",
+      "dom.iterable"
+    ]
   }
 }

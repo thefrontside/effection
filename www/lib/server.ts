@@ -5,7 +5,7 @@ import type { ServeHandler } from "./types.ts";
 //import staticFiles from "https://deno.land/x/static_files@1.1.6/mod.ts";
 
 export interface FreejackServerOptions {
-  serve: Operation<Handler>;
+  serve(): Operation<Handler>;
   port: number;
 }
 
@@ -18,7 +18,7 @@ export function useServer(
   options: FreejackServerOptions,
 ): Operation<FreejackServer> {
   return resource(function*(provide) {
-    let handler = yield* options.serve;
+    let handler = yield* options.serve();
 
     let controller = new AbortController();
     let { signal } = controller;

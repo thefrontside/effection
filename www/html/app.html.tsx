@@ -7,7 +7,6 @@ export interface Options {
 }
 
 export default function* AppHtml({ title }: Options): Operation<JSX.Element> {
-
   let docs = yield* useDocs();
   let topics = docs.getTopics();
 

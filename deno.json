@@ -6,32 +6,26 @@
     "rules": {
       "exclude": ["prefer-const", "require-yield"]
     },
-    "files": {
-      "exclude": [
-        "build",
-        "website",
-        "packages"
-      ]
-    }
+    "exclude": [
+      "build",
+      "website",
+      "packages"
+    ]
   },
   "fmt": {
-    "files": {
-      "exclude": [
-        "build",
-        "website",
-        "packages",
-        "CODE_OF_CONDUCT.md",
-        "README.md"
-      ]
-    }
+    "exclude": [
+      "build",
+      "website",
+      "packages",
+      "CODE_OF_CONDUCT.md",
+      "README.md"
+    ]
   },
   "test": {
-    "files": {
-      "exclude": [
-        "build",
-        "packages"
-      ]
-    }
+    "exclude": [
+      "build",
+      "packages"
+    ]
   },
   "compilerOptions": {
     "lib": [

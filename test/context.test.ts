@@ -1,8 +1,8 @@
 import { describe, expect, it } from "./suite.ts";
 
-import { createContext, run } from "../mod.ts";
+import { call, createContext, run } from "../mod.ts";
 
-const numbers = createContext("numbers", [3]);
+const numbers = createContext("number", 3);
 
 describe("context", () => {
   it("has the initial value available at all times", async () => {
@@ -10,34 +10,33 @@ describe("context", () => {
       await run(function* () {
         return yield* numbers;
       }),
-    ).toEqual([3]);
+    ).toEqual(3);
   });
 
-  // it.only("can be refined, but it restores ater evaluation", async () => {
-  //   let before = [] as number[];
-  //   let after = [] as number[];
-  //   let beforeInner = [] as number[]
-  //   let afterInner = [] as number[]
-  //   let inner = [] as number[];
-  //   let result = await run(function* outer() {
-  //     before = yield* numbers;
-  //     let result = yield* numbers.refine(a => a.concat(2), function* middle() {
-  //       beforeInner = yield* numbers;
-  //       let result = yield* numbers.refine(b => b.concat(1), function* inside() {
-  //         inner = yield* numbers;
-  //         return "hi";
-  //       });
-  //       afterInner = yield* numbers;
-  //       return result;
-  //     });
-  //     after = yield* numbers;
-  //     return result;
-  //   });
-  //   expect(result).toEqual("hi");
-  //   expect(before).toEqual([3]);
-  //   expect(beforeInner).toEqual([3,2])
-  //   expect(inner).toEqual([3,2,1]);
-  //   expect(afterInner).toEqual([3,2])
-  //   expect(after).toEqual([3])
-  // })
+  it("can be set within a given scope, but reverts after", async () => {
+    let values = await run(function* () {
+      let before = yield* numbers;
+      let within = yield* call(function* () {
+        yield* numbers.set(22);
+        return yield* numbers;
+      });
+      let after = yield* numbers;
+      return [before, within, after];
+    });
+
+    expect(values).toEqual([3, 22, 3]);
+  });
+
+  it("is safe to get() when context is not defined", async () => {
+    let result = await run(function* () {
+      return yield* createContext("missing").get();
+    });
+    expect(result).toBeUndefined();
+  });
+
+  it("is an error to expect() when context is missing", async () => {
+    await expect(run(function* () {
+      yield* createContext("missing");
+    })).rejects.toHaveProperty("name", "MissingContextError");
+  });
 });

@@ -1,24 +1,32 @@
-import type { Operation } from "./types.ts";
+import type { Context } from "./types.ts";
 import { getframe } from "./instructions.ts";
 
-export function createContext<T>(name: string, defaultValue?: T): Operation<T> {
-  return {
-    [Symbol.toStringTag]: `Context(${name})`,
-    *[Symbol.iterator]() {
-      let frame = yield* getframe();
-      let context = frame.context[name] as T | undefined;
-      if (!context) {
-        if (typeof defaultValue !== "undefined") {
-          return defaultValue;
-        } else {
-          throw new MissingContextError(
-            `${context} '${name}' is not available`,
-          );
-        }
-      }
-      return context;
-    },
-  } as Operation<T>;
+export function createContext<T>(name: string, defaultValue?: T): Context<T> {
+  function* get() {
+    let frame = yield* getframe();
+
+    return (frame.context[name] ?? defaultValue) as T | undefined;
+  }
+
+  function* set(value: T) {
+    let frame = yield* getframe();
+
+    frame.context[name] = value;
+
+    return value;
+  }
+
+  function* expect() {
+    let value = yield* get();
+
+    if (typeof value === "undefined") {
+      throw new MissingContextError(`missing required context: '${name}'`);
+    } else {
+      return value;
+    }
+  }
+
+  return { get, set, [Symbol.iterator]: expect };
 }
 
 class MissingContextError extends Error {

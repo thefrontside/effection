@@ -27,7 +27,7 @@
     "src/**/*"
   ],
   "dependencies": {
-    "abort-controller": "^3.0.0"
+    "@chainsafe/abort-controller": "^3.0.1"
   },
   "devDependencies": {
     "rimraf": "^3.0.2"

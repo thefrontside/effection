@@ -38,6 +38,27 @@ export interface Channel<T, TClose> {
   output: Stream<T, TClose>;
 }
 
+/**
+ * `Context`` defines a value which is in effect for a given scope which is an
+ * (action, resource, call, or spawn).
+ *
+ * When used as an operation, it gets the value of the Context from
+ * the current scope. If it has not been set, and there is no default
+ * value, then a `MissingContextError` will be raised.
+ */
+export interface Context<T> extends Operation<T> {
+  /**
+   * Set the value of the Context for the current scope.
+   */
+  set(value: T): Operation<T>;
+
+  /**
+   * Get the value of the Context from the current scope. If it has not been
+   * set, and there is no default value, then this will return `undefined`.
+   */
+  get(): Operation<T | undefined>;
+}
+
 /* low-level interface Which you probably will not need */
 
 export type Result<T> = {

@@ -11,6 +11,12 @@ export default function* start() {
   yield* Docs.set(docs);
 
   return yield* serve({
+
+    // this is the kinda api we want to go for.
+    // "/": html.get(function*() {
+    //   return yield* renderHTML(view, "/", { title: "Effection" });
+    // },
+
     "/": html.get(function*() {
       let [appview, content] = view;
 
@@ -21,14 +27,15 @@ export default function* start() {
     }),
 
     "/docs/:id": html.get(function*({ id }) {
-      let [appview, content] = view;
       let docs = yield* useDocs();
 
-      const doc = docs.getDoc(id);
+      let doc = docs.getDoc(id);
+
       if (!doc) {
         return { name: "h1", attrs: {}, children: ["Not Found"] };
       }
 
+      let [appview, content] = view;
       yield* Outlet.set(content["/docs/:id"](doc));
 
       return yield* appview({title: `${doc.title} | Effection`});

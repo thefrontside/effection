@@ -1,20 +1,30 @@
 import type { Tag } from "html";
 import type { Document, HTMLTemplateElement } from "dom";
-import { setup, tw } from "https://esm.sh/twind@0.16.16";
-import { getStyleTag, virtualSheet } from "https://esm.sh/twind@0.16.16/sheets";
+import {
+  defineConfig,
+  setup,
+  stringify,
+  tw,
+  virtual,
+} from "https://esm.sh/@twind/core@1.1.3";
+import presetTailwind from "https://esm.sh/@twind/preset-tailwind@1.1.4";
 
-const sheet = virtualSheet();
-
-setup({ sheet });
+const config = defineConfig({
+  //@ts-expect-error the tailwind preset types are wiggity whack.
+  presets: [presetTailwind()],
+});
 
 export function twind(tag: Tag<string>, doc: Document): void {
-  sheet.reset();
+  let sheet = virtual();
+
+  setup(config, sheet);
+
   visit(tag);
 
-  let styleTag = getStyleTag(sheet);
+  let css = stringify(sheet.target);
 
   let template = doc.createElement("template") as HTMLTemplateElement;
-  template.innerHTML = styleTag;
+  template.innerHTML = `<style type="text/css">${css}</style>`;
 
   doc.head.appendChild(template.content.firstChild);
 }
@@ -22,7 +32,7 @@ export function twind(tag: Tag<string>, doc: Document): void {
 function visit(tag: Tag<string>): void {
   let { attrs: { class: classnames }, children } = tag;
   if (classnames) {
-    tw(classnames);
+    tw(String(classnames));
   }
   for (let child of children) {
     if (typeof child !== "string") {

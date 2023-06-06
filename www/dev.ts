@@ -10,7 +10,7 @@ await run(function* () {
       port: 8088,
     });
 
-    console.log(`freejack -> https://${server.hostname}:${server.port}`);
+    console.log(`freejack -> http://${server.hostname}:${server.port}`);
 
     Deno.addSignalListener("SIGINT", resolve);
     try {

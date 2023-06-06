@@ -22,7 +22,7 @@ await run(function* () {
   let [cmd, ...args] = scriptargs["--"];
 
   console.log(`watch: ${JSON.stringify(paths)}`);
-  console.log(`run: ${cmd} ${args.join(' ')}`);
+  console.log(`run: ${cmd} ${args.join(" ")}`);
 
   yield* action<void>(function* (resolve) {
     Deno.addSignalListener("SIGINT", resolve);
@@ -82,7 +82,10 @@ function useCommand(
         // unfortunately there is no way (I know of) to check this
         // before calling process.kill()
 
-        if (!!error && !error.message.includes("Child process has already terminated")) {
+        if (
+          !!error &&
+          !error.message.includes("Child process has already terminated")
+        ) {
           // deno-lint-ignore no-unsafe-finally
           throw error;
         }

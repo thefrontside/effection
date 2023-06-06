@@ -12,9 +12,9 @@ import {
 export {
   type Context,
   type Middleware,
-  type RouterMiddleware,
-  type RouterContext,
   Router,
+  type RouterContext,
+  type RouterMiddleware,
 } from "https://deno.land/x/oak@v12.5.0/mod.ts";
 
 export interface OakServer {

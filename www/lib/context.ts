@@ -1,7 +1,4 @@
-import {
-  getframe,
-  type Operation,
-} from "effection";
+import { getframe, type Operation } from "effection";
 
 export interface Context<T> {
   set(value: T): Operation<T>;
@@ -29,10 +26,10 @@ export function createContext<T>(name: string, defaultValue?: T): Context<T> {
       let value = (frame.context[name] ?? defaultValue) as T;
 
       if (value == null) {
-        throw new Error(`missing required context: '${name}'`)
+        throw new Error(`missing required context: '${name}'`);
       }
 
       return value;
-    }
+    },
   };
 }

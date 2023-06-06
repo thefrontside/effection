@@ -11,15 +11,15 @@ Using Effection provides many benefits over using plain Promises and
 `async/await` code:
 
 - **Cleanup:** Effection code cleans up after itself, and that means never having
-  to remember to manually close a resource or detach a listener.
+to remember to manually close a resource or detach a listener.
 - **Cancellation:** Any Effection task can be cancelled, which will completely
-  stop that task, as well as stopping any other tasks it has started.
+stop that task, as well as stopping any other tasks it has started.
 - **Synchronicity:** Unlike Promises and `async/await`, Effection is fundamentally
-  synchronous in nature, this means you have full control over the event loop
-  and operations requiring synchronous setup remain race condition free.
+synchronous in nature, this means you have full control over the event loop
+and operations requiring synchronous setup remain race condition free.
 - **Composition:** Since all Effection code is well behaved, it
-  composes easily, and there  are no nasty surprises when trying to
-  fit different pieces together.
+composes easily, and there  are no nasty surprises when trying to
+fit different pieces together.
 
 JavaScript has gone through multiple evolutionary steps in how to deal
 with concurrency: from callbacks and events, to promises, and then
@@ -54,7 +54,7 @@ To switch from async functions to generator functions, you can replace:
 
 For example, using `async/await` we could write something like this:
 
-``` javascript
+``` javascript {1,3-4} showLineNumbers
 import { fetch } from 'isomorphic-fetch';
 
 export async function fetchWeekDay(timezone) {

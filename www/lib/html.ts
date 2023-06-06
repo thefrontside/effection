@@ -29,8 +29,7 @@ export const html = {
             "Content-Type": "text/html",
           },
         });
-
-      }
-    }
-  }
-}
+      },
+    };
+  },
+};

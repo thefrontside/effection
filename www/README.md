@@ -2,6 +2,6 @@
 
 ### Development
 
-``` shellsession
+```shellsession
 $ deno task dev
 ```

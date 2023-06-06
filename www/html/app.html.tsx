@@ -53,13 +53,14 @@ export default function* AppHtml({ title }: Options): Operation<JSX.Element> {
           href="https://frontside.com/effection/docs/guides/introduction"
           hreflang="x-default"
         />
+        <link rel="stylesheet" href="/assets/prism-atom-one-dark.css" />
       </head>
       <body class="mx-auto max-w-screen-xl">
         <header class="bg-white px-4 sm:px-6 lg:px-8">
           <div class="flex h-16 items-center justify-between">
             <div class="flex-1 md:flex md:items-center md:gap-12">
               <a class="block text-teal-600" href="/">
-                <img src="/assets/images/effection-logo.svg"/>
+                <img src="/assets/images/effection-logo.svg" />
               </a>
             </div>
 
@@ -68,7 +69,10 @@ export default function* AppHtml({ title }: Options): Operation<JSX.Element> {
                 <ul class="flex items-center gap-6 text-sm">
                   <NavLink href="/docs/api" text="API" />
                   <NavLink href="/docs/guides" text="Guides" />
-                  <NavLink href="https://github.com/thefrontside/effection" text="Discord" />
+                  <NavLink
+                    href="https://github.com/thefrontside/effection"
+                    text="Discord"
+                  />
                   <NavLink href="https://discord.gg/r6AvtnU" text="Github" />
                 </ul>
               </nav>
@@ -76,18 +80,22 @@ export default function* AppHtml({ title }: Options): Operation<JSX.Element> {
           </div>
         </header>
         <main class="grid grid-cols-4">
-          <section role="sidebar">
+          <nav role="sidebar">
             {topics.map((topic) => (
               <menu>
                 <li>
                   <b>{topic.name}</b>
                   <ul>
-                    {topic.items.map((doc) => <li><a href={`/docs/${doc.id}`}>{doc.title}</a></li>)}
+                    {topic.items.map((doc) => (
+                      <li>
+                        <a href={`/docs/${doc.id}`}>{doc.title}</a>
+                      </li>
+                    ))}
                   </ul>
                 </li>
               </menu>
             ))}
-          </section>
+          </nav>
           <section class="col-span-3" role="content">
             {yield* outlet}
           </section>
@@ -97,7 +105,7 @@ export default function* AppHtml({ title }: Options): Operation<JSX.Element> {
   );
 }
 
-function NavLink({ href, text }: { href: string, text: string }) {
+function NavLink({ href, text }: { href: string; text: string }) {
   return (
     <li>
       <a

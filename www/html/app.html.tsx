@@ -54,45 +54,58 @@ export default function* AppHtml({ title }: Options): Operation<JSX.Element> {
           hreflang="x-default"
         />
       </head>
-      <body>
-        <nav>
-          <ul class="flex justify-between">
-            <li>
-              <a class="text-blue-500 hover:text-blue-800" href="/">Effection</a>
-            </li>
-            <li>
-              <a class="text-blue-500 hover:text-blue-800" href="/api">
-                API Reference
+      <body class="mx-auto max-w-screen-xl">
+        <header class="bg-white px-4 sm:px-6 lg:px-8">
+          <div class="flex h-16 items-center justify-between">
+            <div class="flex-1 md:flex md:items-center md:gap-12">
+              <a class="block text-teal-600" href="/">
+                <img src="/assets/images/effection-logo.svg"/>
               </a>
-            </li>
-            <li class="mr-6">
-              <a class="text-blue-500 hover:text-blue-800" href="/guides">
-                Guides
-              </a>
-            </li>
-            <li>
-              <a class="text-blue-500 hover:text-blue-800" href="/discord">
-                Discord
-              </a>
-            </li>
-          </ul>
-        </nav>
-        <section role="sidebar">
-          {topics.map((topic) => (
-            <menu>
-              <li>
-                <b>{topic.name}</b>
-                <ul>
-                  {topic.items.map((doc) => <li><a href={`/docs/${doc.id}`}>{doc.title}</a></li>)}
+            </div>
+
+            <div class="md:flex md:items-center md:gap-12">
+              <nav aria-label="Site Nav" class="hidden md:block">
+                <ul class="flex items-center gap-6 text-sm">
+                  <NavLink href="/docs/api" text="API" />
+                  <NavLink href="/docs/guides" text="Guides" />
+                  <NavLink href="https://github.com/thefrontside/effection" text="Discord" />
+                  <NavLink href="https://discord.gg/r6AvtnU" text="Github" />
                 </ul>
-              </li>
-            </menu>
-          ))}
-        </section>
-        <section role="content">
-          {yield* outlet}
-        </section>
+              </nav>
+            </div>
+          </div>
+        </header>
+        <main class="grid grid-cols-4">
+          <section role="sidebar">
+            {topics.map((topic) => (
+              <menu>
+                <li>
+                  <b>{topic.name}</b>
+                  <ul>
+                    {topic.items.map((doc) => <li><a href={`/docs/${doc.id}`}>{doc.title}</a></li>)}
+                  </ul>
+                </li>
+              </menu>
+            ))}
+          </section>
+          <section class="col-span-3" role="content">
+            {yield* outlet}
+          </section>
+        </main>
       </body>
     </html>
+  );
+}
+
+function NavLink({ href, text }: { href: string, text: string }) {
+  return (
+    <li>
+      <a
+        class="text-gray-500 transition hover:text-gray-500/75"
+        href={href}
+      >
+        {text}
+      </a>
+    </li>
   );
 }

@@ -1,8 +1,9 @@
 import { type Handler, serve as $serve } from "https://deno.land/std@0.188.0/http/server.ts";
+import { serveDir } from "https://deno.land/std@0.190.0/http/file_server.ts";
 import { type Operation, action, expect, resource, useScope } from "effection";
 import { createRouteRecognizer } from "freejack/route-recognizer.ts";
 import type { ServeHandler } from "./types.ts";
-//import staticFiles from "https://deno.land/x/static_files@1.1.6/mod.ts";
+
 
 export interface FreejackServerOptions {
   serve(): Operation<Handler>;
@@ -18,7 +19,16 @@ export function useServer(
   options: FreejackServerOptions,
 ): Operation<FreejackServer> {
   return resource(function*(provide) {
-    let handler = yield* options.serve();
+    let requestHandler = yield* options.serve();
+
+    let handler: Handler = async (request, info) => {
+      let pathname = new URL(request.url).pathname;
+      if (pathname.startsWith("/assets")) {
+        return serveDir(request);
+      } else {
+        return await requestHandler(request, info);
+      }
+    }
 
     let controller = new AbortController();
     let { signal } = controller;
@@ -60,14 +70,14 @@ export function serve(paths: Record<string, ServeHandler>): Operation<Handler>  
           let url = new URL(request.url);
 
           let result = recognizer.recognize(url.pathname);
-          let segment = result[0];
 
-          if (!segment) {
+          if (!result || !result[0]) {
             return new Response("Not Found", {
               status: 404,
               statusText: "Not Found",
             });
           } else {
+            let segment = result[0];
             let handler = segment.handler as ServeHandler;
             if (request.method.toUpperCase() === handler.method) {
               return yield* handler.middleware(segment.params, request);

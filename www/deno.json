@@ -14,9 +14,9 @@
   "imports": {
     "effection": "../mod.ts",
     "freejack/": "./lib/",
-    "html": "https://raw.githubusercontent.com/cowboyd/html/b3897648661759f6b4c81c54a1b0971e40dbdf12/mod.ts",
-    "html/": "https://raw.githubusercontent.com/cowboyd/html/b3897648661759f6b4c81c54a1b0971e40dbdf12/",
-    "html/jsx-runtime": "https://raw.githubusercontent.com/cowboyd/html/b3897648661759f6b4c81c54a1b0971e40dbdf12/jsx-runtime.ts",
+    "html": "https://raw.githubusercontent.com/cowboyd/html/ee272365218d68b68a993035162eb7afb2253168/mod.ts",
+    "html/": "https://raw.githubusercontent.com/cowboyd/html/ee272365218d68b68a993035162eb7afb2253168/",
+    "html/jsx-runtime": "https://raw.githubusercontent.com/cowboyd/html/ee272365218d68b68a993035162eb7afb2253168/jsx-runtime.ts",
     "dom": "https://deno.land/x/deno_dom@v0.1.38/deno-dom-wasm.ts"
   }
 }

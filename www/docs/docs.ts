@@ -1,9 +1,9 @@
 import { expect, type Operation } from "effection";
 import { createContext } from "freejack/context.ts";
 import structure from "./structure.json" assert { type: "json" };
-import { compile } from "npm:@mdx-js/mdx";
-import remarkFrontmatter from "npm:remark-frontmatter";
-import remarkMdxFrontmatter from "npm:remark-mdx-frontmatter";
+import { compile } from "https://esm.sh/@mdx-js/mdx@2.3.0";
+import remarkFrontmatter from "https://esm.sh/remark-frontmatter@4.0.1";
+import remarkMdxFrontmatter from "https://esm.sh/remark-mdx-frontmatter@3.0.0";
 import rehypePrismPlus from "https://esm.sh/rehype-prism-plus@1.5.1";
 import remarkGfm from "https://esm.sh/remark-gfm@3.0.1";
 import type { Tag } from "html";

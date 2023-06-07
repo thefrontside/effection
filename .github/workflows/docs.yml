@@ -9,8 +9,8 @@ on:
     branches: [v3]
 
 env:
-  APTIBLE_ENVIRONMENT: production
-  APTIBLE_APP: v3-www
+  APTIBLE_ENVIRONMENT: frontside-production
+  APTIBLE_APP: effection-v3-www
 
 jobs:
   deploy:

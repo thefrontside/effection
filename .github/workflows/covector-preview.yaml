@@ -12,11 +12,11 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           registry-url: "https://registry.npmjs.org"
-      - uses: volta-cli/action@v3
+      - uses: volta-cli/action@v4
       - run: yarn install --immutable
       - run: yarn prepack
       - name: covector preview
-        uses: jbolda/covector/packages/action@main
+        uses: jbolda/covector/packages/action@covector-v0.9
         id: covector
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}

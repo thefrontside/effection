@@ -1,5 +1,4 @@
-import { expect, type Operation } from "effection";
-import { createContext } from "freejack/context.ts";
+import { createContext, expect, type Operation } from "effection";
 import structure from "./structure.json" assert { type: "json" };
 import { compile } from "https://esm.sh/@mdx-js/mdx@2.3.0";
 import remarkFrontmatter from "https://esm.sh/remark-frontmatter@4.0.1";
@@ -9,7 +8,7 @@ import remarkGfm from "https://esm.sh/remark-gfm@3.0.1";
 import type { Tag } from "html";
 
 export const Docs = createContext<Docs>("docs");
-export const useDocs = Docs.expect;
+export const useDocs = () => Docs;
 
 export interface Docs {
   getTopics(): Topic[];
@@ -37,8 +36,8 @@ export function* loadDocs(): Operation<Docs> {
     topics.push(topic);
 
     for (let filename of files) {
-      let bytes = yield* expect(Deno.readFile(`docs/${filename}`));
-      let source = new TextDecoder().decode(bytes);
+      let location = new URL(`./${filename}`, import.meta.url);
+      let source = yield* expect(Deno.readTextFile(location));
 
       let mdx = yield* expect(compile(source, {
         jsxImportSource: "html",

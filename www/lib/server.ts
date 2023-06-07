@@ -10,6 +10,7 @@ import type { ServeHandler } from "./types.ts";
 export interface FreejackServerOptions {
   serve(): Operation<Handler>;
   port: number;
+  dir: string;
 }
 
 export interface FreejackServer {
@@ -26,7 +27,7 @@ export function useServer(
     let handler: Handler = async (request, info) => {
       let pathname = new URL(request.url).pathname;
       if (pathname.startsWith("/assets")) {
-        return serveDir(request);
+        return serveDir(request, { fsRoot: options.dir });
       } else {
         return await requestHandler(request, info);
       }

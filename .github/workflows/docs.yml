@@ -6,7 +6,7 @@ name: docs
 
 on:
   push:
-    branches: [main]
+    branches: [v3]
 
 env:
   APTIBLE_ENVIRONMENT: production

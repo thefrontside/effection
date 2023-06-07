@@ -1,0 +1,29 @@
+# if we want github releases to trigger deploy
+# on:
+#  release:
+#    types: [published]
+name: docs
+
+on:
+  push:
+    branches: [v3]
+
+env:
+  APTIBLE_ENVIRONMENT: frontside-production
+  APTIBLE_APP: effection-v3-www
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.APTIBLE_GIT_SSH_KEY }}
+      - name: Deploy to Aptible
+        run: |
+          ssh-keyscan beta.aptible.com >> ~/.ssh/known_hosts
+          git remote add aptible git@beta.aptible.com:${{ APTIBLE_ENVIRONMENT }}/${{ APTIBLE_APP }}.git
+          git push aptible ${{ github.sha }}:main

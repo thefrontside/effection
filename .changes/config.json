@@ -9,6 +9,12 @@
       ]
     }
   },
+  "changeTags": {
+    "feat": "New Features",
+    "enhance": "Enhancements",
+    "bug": "Bug Fixes",
+    "deps": "Dependencies"
+  },
   "packages": {
     "@effection/channel": {
       "path": "./packages/channel",
@@ -22,23 +28,17 @@
     "@effection/duplex-channel": {
       "path": "./packages/duplex-channel",
       "manager": "javascript",
-      "dependencies": [
-        "effection"
-      ]
+      "dependencies": ["effection"]
     },
     "@effection/dispatch": {
       "path": "./packages/dispatch",
       "manager": "javascript",
-      "dependencies": [
-        "effection"
-      ]
+      "dependencies": ["effection"]
     },
     "@effection/atom": {
       "path": "./packages/atom",
       "manager": "javascript",
-      "dependencies": [
-        "effection"
-      ]
+      "dependencies": ["effection"]
     },
     "@effection/core": {
       "path": "./packages/core",
@@ -60,24 +60,17 @@
     "@effection/events": {
       "path": "./packages/events",
       "manager": "javascript",
-      "dependencies": [
-        "@effection/core",
-        "@effection/stream"
-      ]
+      "dependencies": ["@effection/core", "@effection/stream"]
     },
     "@effection/fetch": {
       "path": "./packages/fetch",
       "manager": "javascript",
-      "dependencies": [
-        "@effection/core"
-      ]
+      "dependencies": ["@effection/core"]
     },
     "@effection/inspect": {
       "path": "./packages/inspect",
       "manager": "javascript",
-      "dependencies": [
-        "@effection/inspect-server"
-      ]
+      "dependencies": ["@effection/inspect-server"]
     },
     "@effection/inspect-server": {
       "path": "./packages/inspect-server",
@@ -93,75 +86,52 @@
     "@effection/inspect-utils": {
       "path": "./packages/inspect-utils",
       "manager": "javascript",
-      "dependencies": [
-        "@effection/atom",
-        "@effection/dispatch",
-        "effection"
-      ]
+      "dependencies": ["@effection/atom", "@effection/dispatch", "effection"]
     },
     "@effection/main": {
       "path": "./packages/main",
       "manager": "javascript",
-      "dependencies": [
-        "@effection/core"
-      ]
+      "dependencies": ["@effection/core"]
     },
     "@effection/mocha": {
       "path": "./packages/mocha",
       "manager": "javascript",
-      "dependencies": [
-        "effection"
-      ]
+      "dependencies": ["effection"]
     },
     "@effection/jest": {
       "path": "./packages/jest",
       "manager": "javascript",
-      "dependencies": [
-        "effection"
-      ]
+      "dependencies": ["effection"]
     },
     "@effection/process": {
       "path": "./packages/process",
       "manager": "javascript",
-      "dependencies": [
-        "effection"
-      ]
+      "dependencies": ["effection"]
     },
     "@effection/react": {
       "path": "./packages/react",
       "manager": "javascript",
-      "dependencies": [
-        "effection"
-      ]
+      "dependencies": ["effection"]
     },
     "@effection/subscription": {
       "path": "./packages/subscription",
       "manager": "javascript",
-      "dependencies": [
-        "@effection/core"
-      ]
+      "dependencies": ["@effection/core"]
     },
     "@effection/stream": {
       "path": "./packages/stream",
       "manager": "javascript",
-      "dependencies": [
-        "@effection/core",
-        "@effection/subscription"
-      ]
+      "dependencies": ["@effection/core", "@effection/subscription"]
     },
     "@effection/websocket-client": {
       "path": "./packages/websocket-client",
       "manager": "javascript",
-      "dependencies": [
-        "effection"
-      ]
+      "dependencies": ["effection"]
     },
     "@effection/websocket-server": {
       "path": "./packages/websocket-server",
       "manager": "javascript",
-      "dependencies": [
-        "effection"
-      ]
+      "dependencies": ["effection"]
     },
     "@effection/inspect-ui": {
       "path": "./packages/inspect-ui",
@@ -176,9 +146,7 @@
     "@effection/vitest": {
       "path": "./packages/vitest",
       "manager": "javascript",
-      "dependencies": [
-        "effection"
-      ]
+      "dependencies": ["effection"]
     }
   }
 }

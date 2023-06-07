@@ -25,11 +25,11 @@ jobs:
         run: |
           git config --global user.name "${{ github.event.pusher.name }}"
           git config --global user.email "${{ github.event.pusher.email }}"
-      - uses: volta-cli/action@v3
+      - uses: volta-cli/action@v4
       - run: yarn install --immutable
       - run: yarn prepack
       - name: covector version or publish (publish when no change files present)
-        uses: jbolda/covector/packages/action@covector-v0.7
+        uses: jbolda/covector/packages/action@covector-v0.9
         id: covector
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}

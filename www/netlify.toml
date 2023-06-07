@@ -1,2 +1,0 @@
-[build]
-command = "curl -fsSL https://deno.land/install.sh | sh -s v1.34.1 && deno -V && deno run --allow-net=0.0.0.0 --allow-read=assets,docs main.ts"

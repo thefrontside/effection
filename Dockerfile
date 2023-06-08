@@ -7,4 +7,4 @@ RUN deno cache main.ts
 
 EXPOSE 8000
 
-CMD ["deno", "run", "--allow-read=assets,docs", "--allow-net=0.0.0.0", "main.ts"]
+CMD ["deno", "run", "--allow-read=assets,docs", "--allow-net=0.0.0.0,deno.land", "main.ts"]

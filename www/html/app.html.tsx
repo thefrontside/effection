@@ -1,15 +1,11 @@
 import type { Operation } from "effection";
 import { outlet } from "freejack/view.ts";
-import { useDocs } from "../docs/docs.ts";
 
 export interface Options {
   title: string;
 }
 
 export default function* AppHtml({ title }: Options): Operation<JSX.Element> {
-  let docs = yield* useDocs();
-  let topics = docs.getTopics();
-
   return (
     <html lang="en-US" dir="ltr">
       <head>
@@ -68,38 +64,19 @@ export default function* AppHtml({ title }: Options): Operation<JSX.Element> {
               <nav aria-label="Site Nav" class="hidden md:block">
                 <ul class="flex items-center gap-6 text-sm">
                   <NavLink href="/docs/api" text="API" />
-                  <NavLink href="/docs/guides" text="Guides" />
+                  <NavLink href="/docs/introduction" text="Guides" />
                   <NavLink
                     href="https://github.com/thefrontside/effection"
-                    text="Discord"
+                    text="Github"
                   />
-                  <NavLink href="https://discord.gg/r6AvtnU" text="Github" />
+                  <NavLink href="https://discord.gg/r6AvtnU" text="Discord" />
                 </ul>
               </nav>
             </div>
           </div>
         </header>
-        <main class="grid grid-cols-4">
-          <nav role="sidebar">
-            {topics.map((topic) => (
-              <menu>
-                <li>
-                  <b>{topic.name}</b>
-                  <ul>
-                    {topic.items.map((doc) => (
-                      <li>
-                        <a href={`/docs/${doc.id}`}>{doc.title}</a>
-                      </li>
-                    ))}
-                  </ul>
-                </li>
-              </menu>
-            ))}
-          </nav>
-          <section class="col-span-3" role="content">
-            {yield* outlet}
-          </section>
-        </main>
+
+        {yield* outlet}
       </body>
     </html>
   );

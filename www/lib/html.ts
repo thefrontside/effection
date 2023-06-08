@@ -22,7 +22,9 @@ export const html = {
 
         twind(top, doc);
 
-        return new Response(element.outerHTML, {
+        let text = `<!DOCTYPE html>${element.outerHTML}`;
+
+        return new Response(text, {
           status: 200,
           statusText: "OK",
           headers: {

@@ -1,5 +1,5 @@
-import { main } from 'effection';
-import { fetch } from '@effection/fetch';
+import { main } from "effection";
+import { fetch } from "@effection/fetch";
 
 const pkgName = process.argv[2];
 const tag = process.argv[3];
@@ -12,11 +12,15 @@ main(function* () {
 function* packageExists(name, tag) {
   let request = yield fetch(`https://registry.npmjs.com/${name}`);
   if (request.status === 404) {
-    return 'not published';
+    return "package not published";
   } else if (request.status < 400) {
     let response = yield request.json();
-    return response['dist-tags'][tag];
+    if (tag in response.versions && "version" in response.versions[tag]) {
+      return response.versions[tag].version;
+    } else {
+      return "version not published";
+    }
   } else {
-    throw new Error('request error');
+    throw new Error("request error");
   }
 }

@@ -3,9 +3,9 @@
   "pkgManagers": {
     "javascript": {
       "version": true,
-      "getPublishedVersion": "node ../../.scripts/checkIfPublished.mjs ${ pkgFile.pkg.name } ${ pkg.tag ? pkg.tag : 'latest' }",
+      "getPublishedVersion": "node ../../.scripts/checkIfPublished.mjs ${ pkgFile.pkg.name } ${ pkgFile.version }",
       "publish": [
-        "npm publish --access public ${ pkg.tag ? '--tag ' + pkg.tag : '' }"
+        "npm publish --access public${ pkg.tag ? ' --tag ' + pkg.tag : '' }"
       ]
     }
   },

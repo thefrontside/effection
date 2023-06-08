@@ -1,5 +1,12 @@
 # @effection/websocket-client
 
+## \[2.0.7]
+
+### Dependencies
+
+- Updated to latest `@effection/core`
+- Updated to latest `effection`
+
 ## \[2.0.6]
 
 - delegate `error` and `name` properties to underlying `Error`. fixes  https://github.com/thefrontside/effection/issues/675)

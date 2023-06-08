@@ -1,5 +1,9 @@
 # @effection/main
 
+## \[2.1.2]
+
+- [`5d5a9ba`](https://github.com/thefrontside/effection/commit/5d5a9ba4c33c04531abd084c9fc4d1e12d430e8c) use AbortController polyfill that works in the browser
+
 ## \[2.1.1]
 
 - delegate `error` and `name` properties to underlying `Error`. fixes  https://github.com/thefrontside/effection/issues/675)

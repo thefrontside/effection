@@ -1,5 +1,13 @@
 # @effection/inspect
 
+## \[2.1.10]
+
+### Dependencies
+
+- Updated to latest `@effection/core`
+- Updated to latest `effection`
+- Updated to latest `@effection/inspect-server`
+
 ## \[2.1.9]
 
 - delegate `error` and `name` properties to underlying `Error`. fixes  https://github.com/thefrontside/effection/issues/675)

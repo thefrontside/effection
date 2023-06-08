@@ -1,6 +1,6 @@
 {
   "name": "@effection/core",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "main": "dist-cjs/index.js",
   "module": "dist-esm/index.js",
   "sideEffects": false,

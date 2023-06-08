@@ -1,6 +1,6 @@
 {
   "name": "@effection/stream",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "Effection Stream",
   "main": "dist-cjs/index.js",
   "module": "dist-esm/index.js",
@@ -28,8 +28,8 @@
     "mocha": "mocha -r ts-node/register"
   },
   "dependencies": {
-    "@effection/core": "2.2.1",
-    "@effection/subscription": "2.0.4"
+    "@effection/core": "2.2.2",
+    "@effection/subscription": "2.0.5"
   },
   "volta": {
     "extends": "../../package.json"

@@ -1,6 +1,6 @@
 {
   "name": "@effection/vitest",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Effection Integration for the Vitest framework",
   "types": "dist-esm/index.d.ts",
   "main": "dist-cjs/index.js",
@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "assert-ts": "^0.3.4",
-    "effection": "2.0.6"
+    "effection": "2.0.7"
   },
   "peerDependencies": {
     "vitest": "^0.25.0"

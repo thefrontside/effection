@@ -1,5 +1,12 @@
 # @effection/vitest
 
+## \[2.1.1]
+
+### Dependencies
+
+- Updated to latest `@effection/core`
+- Updated to latest `effection`
+
 ## \[2.1.0]
 
 - Add cjs support to @effection/vitest by adding require to package imports

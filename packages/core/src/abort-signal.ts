@@ -1,6 +1,6 @@
 import { spawn } from './operations/spawn';
 import { Resource } from "./operation";
-import { AbortController, AbortSignal } from 'abort-controller';
+import { AbortController, AbortSignal } from '@chainsafe/abort-controller';
 
 /**
  * Create an

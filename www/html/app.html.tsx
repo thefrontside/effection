@@ -63,7 +63,7 @@ export default function* AppHtml({ title }: Options): Operation<JSX.Element> {
             <div class="md:flex md:items-center md:gap-12">
               <nav aria-label="Site Nav" class="hidden md:block">
                 <ul class="flex items-center gap-6 text-sm">
-                  <NavLink href="/docs/api" text="API" />
+                  <NavLink href="/api" text="API" />
                   <NavLink href="/docs/introduction" text="Guides" />
                   <NavLink
                     href="https://github.com/thefrontside/effection"

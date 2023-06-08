@@ -8,7 +8,7 @@ import remarkGfm from "https://esm.sh/remark-gfm@3.0.1";
 import type { Tag } from "html";
 
 export const Docs = createContext<Docs>("docs");
-export const useDocs = () => Docs;
+export const useDocs: () => Operation<Docs> = () => Docs;
 
 export interface Docs {
   getTopics(): Topic[];
@@ -74,10 +74,10 @@ export function* loadDocs(): Operation<Docs> {
       docs[id] = doc;
     }
   }
-  return {
+  return yield* Docs.set({
     getTopics: () => topics,
     getDoc: (id) => docs[id],
-  };
+  });
 }
 
 /**
@@ -93,4 +93,36 @@ function reclassify(tag: Tag<string>) {
       reclassify(child);
     }
   }
+}
+
+import { doc } from "https://deno.land/x/deno_doc@0.62.0/mod.ts";
+import type { DocNodeInterface, DocNodeTypeAlias, DocNodeFunction } from "https://deno.land/x/deno_doc@0.62.0/types.d.ts";
+
+export interface APIDocs {
+  getTypes(): IterableIterator<DocNodeInterface | DocNodeTypeAlias>;
+  getFunctions(): IterableIterator<DocNodeFunction>;
+}
+
+const APIDocs = createContext<APIDocs>("apidocs");
+
+export function* loadAPIDocs() {
+  let entries = yield* expect(doc(new URL("../../mod.ts", import.meta.url).toString()));
+
+  return yield* APIDocs.set({
+    *getTypes() {
+      for (let entry of entries) {
+        if (entry.kind === "interface" || entry.kind === "typeAlias") {
+          yield entry;
+        }
+      }
+    },
+    *getFunctions() {
+      for (let entry of entries) {
+        if (entry.kind === "function") {
+          yield entry;
+        }
+      }
+    }
+  });
+
 }

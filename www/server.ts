@@ -1,13 +1,13 @@
 import { serve } from "freejack/server.ts";
 import { html } from "freejack/html.ts";
 import { Outlet } from "freejack/view.ts";
-import { Docs, loadDocs, useDocs } from "./docs/docs.ts";
+import { loadDocs, loadAPIDocs } from "./docs/docs.ts";
 
 import view from "./view.ts";
 
 export default function* start() {
   let docs = yield* loadDocs();
-  yield* Docs.set(docs);
+  let apidocs = yield* loadAPIDocs();
 
   return yield* serve({
     // this is the kinda api we want to go for.
@@ -24,8 +24,6 @@ export default function* start() {
     }),
 
     "/docs/:id": html.get(function* ({ id }) {
-      let docs = yield* useDocs();
-
       let doc = docs.getDoc(id);
 
       if (!doc) {
@@ -37,5 +35,13 @@ export default function* start() {
 
       return yield* appview({ title: `${doc.title} | Effection` });
     }),
+
+    "/api": html.get(function*() {
+      let [appview, content] = view;
+
+      yield* Outlet.set(content["/api"](apidocs));
+
+      return yield* appview({ title: `API Docs | Effection` });
+    })
   });
 }

@@ -1,6 +1,6 @@
 {
   "name": "@effection/subscription",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "Effection Subscriptions",
   "main": "dist-cjs/index.js",
   "module": "dist-esm/index.js",
@@ -28,7 +28,7 @@
     "mocha": "mocha -r ts-node/register"
   },
   "dependencies": {
-    "@effection/core": "2.2.1"
+    "@effection/core": "2.2.2"
   },
   "volta": {
     "extends": "../../package.json"

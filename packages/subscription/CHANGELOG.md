@@ -1,5 +1,11 @@
 # @effection/subscription
 
+## \[2.0.5]
+
+### Dependencies
+
+- Updated to latest `@effection/core`
+
 ## \[2.0.4]
 
 - delegate `error` and `name` properties to underlying `Error`. fixes  https://github.com/thefrontside/effection/issues/675)

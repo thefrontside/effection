@@ -11,13 +11,16 @@ type EventTypeFromEventTarget<T, K extends string> = `on${K}` extends keyof T
   ? Parameters<Extract<T[`on${K}`], FN>>[0]
   : Event;
 
-export type EventList<T> = T extends {
+type EventList<T> = T extends {
   addEventListener(type: infer P, ...args: any): void;
   // we basically ignore this but we need it so we always get the first override of addEventListener
   addEventListener(type: infer P2, ...args: any): void;
 } ? P & string
   : never;
 
+/**
+ * @signature once<T>(target: EventTarget<T>, name: String): Operation<T>
+ */
 export function once<
   T extends EventTarget,
   K extends EventList<T> | (string & {}),
@@ -25,6 +28,9 @@ export function once<
   return first(on(target, name));
 }
 
+/**
+ * @signature on<T>(target: EventTarget<T>, name: String): Stream<T, never>
+ */
 export function on<
   T extends EventTarget,
   K extends EventList<T> | (string & {}),

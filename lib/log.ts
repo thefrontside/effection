@@ -20,6 +20,9 @@ export function log(message: string): Operation<void> {
   return info(message);
 }
 
+/**
+ * @ignore
+ */
 export interface LogMessage {
   taskId: string;
   level: string;

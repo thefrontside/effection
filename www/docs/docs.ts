@@ -94,35 +94,3 @@ function reclassify(tag: Tag<string>) {
     }
   }
 }
-
-import { doc } from "https://deno.land/x/deno_doc@0.62.0/mod.ts";
-import type { DocNodeInterface, DocNodeTypeAlias, DocNodeFunction } from "https://deno.land/x/deno_doc@0.62.0/types.d.ts";
-
-export interface APIDocs {
-  getTypes(): IterableIterator<DocNodeInterface | DocNodeTypeAlias>;
-  getFunctions(): IterableIterator<DocNodeFunction>;
-}
-
-const APIDocs = createContext<APIDocs>("apidocs");
-
-export function* loadAPIDocs() {
-  let entries = yield* expect(doc(new URL("../../mod.ts", import.meta.url).toString()));
-
-  return yield* APIDocs.set({
-    *getTypes() {
-      for (let entry of entries) {
-        if (entry.kind === "interface" || entry.kind === "typeAlias") {
-          yield entry;
-        }
-      }
-    },
-    *getFunctions() {
-      for (let entry of entries) {
-        if (entry.kind === "function") {
-          yield entry;
-        }
-      }
-    }
-  });
-
-}

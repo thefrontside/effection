@@ -61,6 +61,10 @@ export interface Context<T> extends Operation<T> {
 
 /* low-level interface Which you probably will not need */
 
+/**
+ * @ignore
+ */
+
 export type Result<T> = {
   readonly ok: true;
   value: T;
@@ -69,10 +73,16 @@ export type Result<T> = {
   error: Error;
 };
 
+/**
+ * @ignore
+ */
 export interface Instruction {
   (frame: Frame, signal: AbortSignal): Computation<Result<unknown>>;
 }
 
+/**
+ * @ignore
+ */
 export interface Frame extends Computation<Result<void>> {
   id: number;
   context: Record<string, unknown>;
@@ -82,6 +92,9 @@ export interface Frame extends Computation<Result<void>> {
   destroy(): Computation<Result<void>>;
 }
 
+/**
+ * @ignore
+ */
 export type BlockResult<T> =
   | {
     readonly aborted: false;
@@ -92,6 +105,9 @@ export type BlockResult<T> =
     result: Result<T>;
   };
 
+/**
+ * @ignore
+ */
 export interface Block<T = unknown> extends Computation<BlockResult<T>> {
   name: string;
   enter(): void;

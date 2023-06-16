@@ -86,7 +86,6 @@ export function serve(paths: Record<string, ServeHandler>): Operation<Handler> {
             if (request.method.toUpperCase() === handler.method) {
               return yield* handler.middleware(segment.params, request);
             } else {
-              console.dir({ not: "found" });
               return new Response("Not Found", {
                 status: 404,
                 statusText: "Not Found",

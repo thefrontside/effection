@@ -1,0 +1,27 @@
+{
+  "tasks": {
+    "dev": "deno run -A lib/watch.ts --ignore=docs/esm html docs lib -- deno run -A dev.ts",
+    "build": "deno run -A docs/build.ts"
+  },
+  "lint": {
+    "exclude": ["docs/esm"],
+    "rules": {
+      "exclude": ["prefer-const", "require-yield"]
+    }
+  },
+  "fmt": {
+    "exclude": ["docs/esm"]
+  },
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "html"
+  },
+  "imports": {
+    "effection": "../mod.ts",
+    "freejack/": "./lib/",
+    "html": "https://raw.githubusercontent.com/cowboyd/html/ee272365218d68b68a993035162eb7afb2253168/mod.ts",
+    "html/": "https://raw.githubusercontent.com/cowboyd/html/ee272365218d68b68a993035162eb7afb2253168/",
+    "html/jsx-runtime": "https://raw.githubusercontent.com/cowboyd/html/ee272365218d68b68a993035162eb7afb2253168/jsx-runtime.ts",
+    "dom": "https://deno.land/x/deno_dom@v0.1.38/deno-dom-wasm.ts"
+  }
+}

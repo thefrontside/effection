@@ -1,0 +1,20 @@
+{
+  "Getting Started": [
+    "introduction.mdx",
+    "tasks.mdx",
+    "spawn.mdx",
+    "lifecycle.mdx",
+    "collections.mdx",
+    "events.mdx",
+    "errors.mdx",
+    "typescript.mdx"
+  ],
+  "Advanced": [
+    "resources.mdx",
+    "testing.mdx",
+    "inspector.mdx",
+    "processes.mdx",
+    "react.mdx",
+    "websockets.mdx"
+  ]
+}

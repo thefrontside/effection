@@ -1,6 +1,6 @@
 {
   "tasks": {
-    "dev": "deno run -A lib/watch.ts --ignore=docs/esm html docs lib -- deno run -A dev.ts",
+    "dev": "deno run -A lib/watch.ts html docs lib -- deno run -A main.ts",
     "build": "deno run -A docs/build.ts"
   },
   "lint": {

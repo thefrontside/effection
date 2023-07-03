@@ -1,5 +1,7 @@
 {
+  "lock": false,
   "tasks": {
+    "test": "deno test --allow-run=deno",
     "build:npm": "deno run -A tasks/build-npm.ts"
   },
   "lint": {
@@ -31,6 +33,7 @@
   },
   "compilerOptions": {
     "lib": [
+      "deno.ns",
       "esnext",
       "dom",
       "dom.iterable"

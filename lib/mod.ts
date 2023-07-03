@@ -15,3 +15,4 @@ export * from "./filter.ts";
 export * from "./pipe.ts";
 export * from "./op.ts";
 export * from "./events.ts";
+export * from "./main.ts";

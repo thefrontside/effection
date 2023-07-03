@@ -1,8 +1,6 @@
 import { createContext, expect, type Operation } from "effection";
 import structure from "./structure.json" assert { type: "json" };
 
-import type { Tag } from "html";
-
 import remarkFrontmatter from "https://esm.sh/remark-frontmatter@4.0.1";
 import remarkMdxFrontmatter from "https://esm.sh/remark-mdx-frontmatter@3.0.0";
 import remarkGfm from "https://esm.sh/remark-gfm@3.0.1";
@@ -15,7 +13,7 @@ import rehypeToc from "https://esm.sh/@jsdevtools/rehype-toc@3.0.2";
 
 import { evaluate } from "https://esm.sh/@mdx-js/mdx@2.3.0";
 
-import { Fragment, jsx, jsxs } from "html/jsx-runtime";
+import { Fragment, jsx, jsxs } from "hastx/jsx-runtime";
 
 export const Docs = createContext<Docs>("docs");
 export const useDocs = () => Docs;
@@ -99,11 +97,7 @@ export function* loadDocs(): Operation<Docs> {
         id,
         title,
         filename,
-        MDXContent: () => {
-          let tag: Tag<string> = mod.default({});
-          reclassify(tag);
-          return tag;
-        },
+        MDXContent: () => mod.default({}),
         previous,
       } as Doc;
 
@@ -118,19 +112,4 @@ export function* loadDocs(): Operation<Docs> {
     getTopics: () => topics,
     getDoc: (id) => docs[id],
   };
-}
-
-/**
- * Rewrite React `className` attrs to HTML `class`
- */
-function reclassify(tag: Tag<string>) {
-  if (tag.attrs && tag.attrs.className) {
-    tag.attrs["class"] = tag.attrs.className;
-    delete tag.attrs.className;
-  }
-  for (let child of tag.children) {
-    if (typeof child !== "string") {
-      reclassify(child);
-    }
-  }
 }

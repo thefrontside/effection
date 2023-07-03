@@ -1,5 +1,3 @@
-import type { Tag } from "html";
-import type { Document, HTMLTemplateElement } from "dom";
 import {
   defineConfig,
   setup,
@@ -7,6 +5,8 @@ import {
   tw,
   virtual,
 } from "https://esm.sh/@twind/core@1.1.3";
+
+import type { Element } from "https://esm.sh/@types/hast-format@2.3.0";
 import presetTailwind from "https://esm.sh/@twind/preset-tailwind@1.1.4";
 import presetTypography from "https://esm.sh/@twind/preset-typography@1.0.7";
 
@@ -27,28 +27,34 @@ const config = defineConfig({
   presets: [presetTailwind(), presetTypography(), presetFrontside()],
 });
 
-export function twind(tag: Tag<string>, doc: Document): void {
+export function twind(document: Element): void {
   let sheet = virtual();
 
   setup(config, sheet);
 
-  visit(tag);
+  visit(document);
 
   let css = stringify(sheet.target);
 
-  let template = doc.createElement("template") as HTMLTemplateElement;
-  template.innerHTML = `<style type="text/css">${css}</style>`;
+  let head = document.children.find((child) =>
+    child.type === "element" && child.tagName === "head"
+  ) as Element;
 
-  doc.head.appendChild(template.content.firstChild);
+  head?.children.push({
+    type: "element",
+    tagName: "style",
+    properties: { type: "text/css" },
+    children: [{ type: "text", value: css }],
+  });
 }
 
-function visit(tag: Tag<string>): void {
-  let { attrs: { class: classnames }, children } = tag;
+function visit(element: Element): void {
+  let { properties: { className: classnames } = {}, children } = element;
   if (classnames) {
     tw(String(classnames));
   }
   for (let child of children) {
-    if (typeof child !== "string") {
+    if (!!child && child.type === "element") {
       visit(child);
     }
   }

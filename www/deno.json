@@ -14,14 +14,12 @@
   },
   "compilerOptions": {
     "jsx": "react-jsx",
-    "jsxImportSource": "html"
+    "jsxImportSource": "hastx"
   },
   "imports": {
     "effection": "../mod.ts",
     "freejack/": "./lib/",
-    "html": "https://raw.githubusercontent.com/cowboyd/html/ee272365218d68b68a993035162eb7afb2253168/mod.ts",
-    "html/": "https://raw.githubusercontent.com/cowboyd/html/ee272365218d68b68a993035162eb7afb2253168/",
-    "html/jsx-runtime": "https://raw.githubusercontent.com/cowboyd/html/ee272365218d68b68a993035162eb7afb2253168/jsx-runtime.ts",
-    "dom": "https://deno.land/x/deno_dom@v0.1.38/deno-dom-wasm.ts"
+    "hastx/": "https://deno.land/x/hastx@0.0.1/",
+    "hastx/jsx-runtime": "https://deno.land/x/hastx@v0.0.1/jsx-runtime.ts"
   }
 }

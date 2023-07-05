@@ -1,9 +1,9 @@
 {
   "Getting Started": [
     "introduction.mdx",
-    "tasks.mdx",
+    "operations.mdx",
+    "scope.mdx",
     "spawn.mdx",
-    "lifecycle.mdx",
     "collections.mdx",
     "events.mdx",
     "errors.mdx",

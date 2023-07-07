@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.0.0-alpha.9
+
+- add `main()` method for setting up Effection to work properly in working in
+  deno, browser, and node
+- add `Context.set()` and `Context.get()` operations to make working with
+  Context convenient
+
 ## 3.0.0-alpha.8
 
 - convert `Subscription` interface from a bare operation to an "iterator" style

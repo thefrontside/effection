@@ -63,7 +63,7 @@ export async function main(
 
       try {
         let interrupt = () => resolve({ status: 130, signal: "SIGINT" });
-        return yield* withHost({
+        yield* withHost({
           *deno() {
             hardexit = (status) => Deno.exit(status);
             try {
@@ -95,11 +95,11 @@ export async function main(
             }
           },
         });
+
+        yield* exit(0);
       } catch (error) {
         resolve({ status: 1, error });
       }
-
-      yield* exit(0);
     })
   );
 

@@ -34,6 +34,21 @@ describe("main", () => {
     });
   });
 
+  it("exits gracefully with 0 on implicit exit", async () => {
+    await run(function* () {
+      let cmd = yield* useCommand("deno", {
+        stdout: "piped",
+        args: ["run", "test/main/ok.implicit.ts"],
+      });
+
+      let stdout = yield* buffer(cmd.stdout);
+      let status = yield* cmd.status;
+
+      yield* detect(stdout, "goodbye.");
+      expect(status.code).toEqual(0);
+    });
+  });
+
   it("exits gracefully on explicit exit failure exit()", async () => {
     await run(function* () {
       let cmd = yield* useCommand("deno", {

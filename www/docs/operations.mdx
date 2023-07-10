@@ -68,9 +68,9 @@ existing `async/await` code.
 import { run } from 'effection';
 
 try {
-await run(function*() {
-  throw new Error('oh no!');
-})
+  await run(function*() {
+    throw new Error('oh no!');
+  });
 } catch (error) {
   console.error(error);
 }
@@ -171,35 +171,30 @@ await main();
 This logs `"Hello World!"` to the console after a delay of 1s, and so it works
 as expected when we run it... sort of.
 
-But what happens when you want to halt your sleep operation? Or more commonly,
-what happens when you no longer care about the outcome of your sleep operation?
+But what happens when you no longer care about the outcome of your sleep
+operation?
 
-To understand why this might be, let's ask ourselves how long the program should
-take to execute in Node JS?
+Let's take a hypothetical example of racing two sleep operations against each
+other. How long do you think this program takes to execute in Node.js?
 
 ```js
 async function sleep(milliseconds) {
   await new Promise(resolve => setTimeout(resolve, milliseconds));
 }
 
-await Promise.race([sleep(10), sleep(10_000)]);
+await Promise.race([sleep(10), sleep(1000)]);
 ```
 
-If you guessed 10 seconds, then you are technically correct! But if your
-intuition told you that the answer _should_ be 10 milliseconds, then
-congratulations, you are also correct!
+The anwser is 1000ms even though our intuition tells us that it
+should be 10ms. It takes 1000ms because `setTimeout` installs a
+callback onto the Node run loop, and our process cannot exit until it is
+removed.
 
-Our intuition tells us that the answer should be 10 milliseconds because when
-we race two promises against each other, and one of them wins, we don't care
-what happens to the other one. The result is now definitively known and so we
-can safely ignore all the other also-rans because they have absolutely no
-bearing on the outcome of the computation. But in this case, because the 10
-second sleep still has a pending `setTimeout()` callback installed, the run loop
-cannot exit, and even though we have absolutely nothing else to do, we're forced
-to wait around twiddling our thumbs until the timeout expires.
+While our program will move past the `await` statement after 10ms, it will not
+be allowed to exit for another 990ms until the `setTimeout` callback is cleared.
 
 By contrast, the equivalent code in Effection will exit immediately after 10ms
-as we expect.
+as expected because every operation can be interrupted at any time.
 
 ```js
 import { sleep, race, main } from "effection";
@@ -208,10 +203,6 @@ await main(function*() {
   yield* race([sleep(10), sleep(10_000)]);
 });
 ```
-
-This is because every operation in Effection can be interrupted at any moment
-and as a result any cleanup code associated with that operation will be executed
-immediately.
 
 If we look at the implementation of the `sleep()` operation in Effection, we can
 see how this works. It uses two of the fundamental operations:

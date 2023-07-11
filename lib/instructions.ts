@@ -12,6 +12,31 @@ import { reset, shift } from "./deps.ts";
 import { createFrameTask } from "./run/frame.ts";
 import { Err, Ok } from "./result.ts";
 
+/**
+ * Indefinitely pause execution of the current operation. It is typically
+ * used in conjunction with an {@link action} to mark the boundary
+ * between setup and teardown.
+ *
+ * ```js
+ * function onEvent(listener, name) {
+ *   return action(function* (resolve) {
+ *     try {
+ *       listener.addEventListener(name, resolve);
+ *       yield* suspend();
+ *     } finally {
+ *       listener.removeEventListener(name, resolve);
+ *     }
+ *   });
+ * }
+ * ```
+ *
+ * An operation will remain suspended until its enclosing scope is destroyed,
+ * at which point it proceeds as though return had been called from the point
+ * of suspension. Once an operation suspends once, further suspend operations
+ * are ignored.
+ *
+ * @returns an operation that suspends the current operation
+ */
 export function suspend(): Operation<void> {
   return {
     *[Symbol.iterator]() {
@@ -26,6 +51,54 @@ export function suspend(): Operation<void> {
   };
 }
 
+/**
+ * Create an {@link Operation} that can be either resolved (or rejected) with
+ * a synchronous callback. This is the Effection equivalent of `new Promise()`.
+ *
+ * The action body is itself an operation that runs in a new scope that is
+ * destroyed completely before program execution returns to the point where the
+ * action was yielded to.
+ *
+ * For example:
+ *
+ * ```js
+ * let five = yield* action(function*(resolve, reject) {
+ *   setTimeout(() => {
+ *     if (Math.random() > 5) {
+ *       resolve(5)
+ *     } else {
+ *       reject(new Error("bad luck!"));
+ *     }
+ *   }, 1000);
+ * });
+ *
+ * ```
+ *
+ * However, it is customary to explicitly {@link suspend} inside the body of the
+ * action so that whenever the action resolves, appropriate cleanup code can
+ * run. The preceeding example would be more correctly written as:
+ *
+ * ```js
+ * let five = yield* action(function*(resolve) {
+ *   let timeoutId = setTimeout(() => {
+ *     if (Math.random() > 5) {
+ *       resolve(5)
+ *     } else {
+ *       reject(new Error("bad luck!"));
+ *     }
+ *   }, 1000);
+ *   try {
+ *     yield* suspend();
+ *   } finally {
+ *     clearTimout(timeoutId);
+ *   }
+ * });
+ * ```
+ *
+ * @typeParam T - type of the action's result.
+ * @param operation - body of the action
+ * @returns an operation producing the resolved value, or throwing the rejected error
+ */
 export function action<T>(
   operation: (resolve: Resolve<T>, reject: Reject) => Operation<void>,
 ): Operation<T> {

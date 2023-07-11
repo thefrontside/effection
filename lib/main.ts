@@ -12,6 +12,9 @@ import { run } from "./run.ts";
  *   yield* exit(5, "invalid arguments")
  * }
  * ```
+ * @param status - the exit code to use for the process exit
+ * @param message - message to print to the console before exiting.
+ * @param returns an operation that exits the program
  */
 export function* exit(status: number, message?: string): Operation<void> {
   let escape = yield* ExitContext;
@@ -48,10 +51,13 @@ export function* exit(status: number, message?: string): Operation<void> {
  *
  * When running in a browser, The `main` operation gets shut down on the
  * `unload` event.
+ *
+ * @param body - an operation to run as the body of the program
+ * @returns a promise that resolves right after the program exits
  */
 
 export async function main(
-  op: (args: string[]) => Operation<void>,
+  body: (args: string[]) => Operation<void>,
 ): Promise<void> {
   let hardexit = (_status: number) => {};
 
@@ -68,7 +74,7 @@ export async function main(
             hardexit = (status) => Deno.exit(status);
             try {
               Deno.addSignalListener("SIGINT", interrupt);
-              yield* op(Deno.args.slice());
+              yield* body(Deno.args.slice());
             } finally {
               Deno.removeSignalListener("SIGINT", interrupt);
             }
@@ -80,7 +86,7 @@ export async function main(
               //@ts-expect-error type-checked by Deno, run on Node
               process.on("SIGINT", interrupt);
               //@ts-expect-error type-checked by Deno, run on Node
-              yield* op(global.process.args.slice());
+              yield* body(global.process.args.slice());
             } finally {
               //@ts-expect-error this runs on Node
               process.off("SIGINT", interrupt);
@@ -89,7 +95,7 @@ export async function main(
           *browser() {
             try {
               self.addEventListener("unload", interrupt);
-              yield* op([]);
+              yield* body([]);
             } finally {
               self.removeEventListener("unload", interrupt);
             }

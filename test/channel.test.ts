@@ -17,7 +17,6 @@ function* each<T>(stream: Stream<T, void>) {
   yield* IterContext.set(sub);
   return {
     *[Symbol.iterator]() {
-      yield* IterContext.set(sub);
       const result = yield* IterResultContext;
       return result;
     }

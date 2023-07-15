@@ -6,8 +6,28 @@ import {
   it as $it,
 } from "./suite.ts";
 
-import type { Operation, Port, Stream } from "../mod.ts";
+import { Operation, Port, Stream, createContext } from "../mod.ts";
 import { createChannel, createScope, sleep, spawn } from "../mod.ts";
+
+const IterContext = createContext<any>("iter-ctx");
+const IterResultContext = createContext<any>("iter-result-ctx");
+
+function* each<T>(stream: Stream<T, void>) {
+  const sub = yield* stream;
+  yield* IterContext.set(sub);
+  return {
+    *[Symbol.iterator]() {
+      yield* IterContext.set(sub);
+      const result = yield* IterResultContext;
+      return result;
+    }
+  }
+}
+function* next() {
+  const sub = yield* IterContext;
+  const value = yield* sub.next();
+  yield* IterResultContext.set(value);
+}
 
 let scope = createScope();
 describe("Channel", () => {
@@ -15,6 +35,28 @@ describe("Channel", () => {
     scope = createScope();
   });
   $afterEach(() => scope.close());
+
+  it("each()", function*(){
+    const actual: any[] = [];
+    let { input, output } = createChannel<string, void>();
+    function* chan() {
+      yield* sleep(10);
+      yield* input.send("one");
+      yield* input.send("two");
+    }
+
+    function* root() {
+      yield* spawn(chan);
+      const emitter = yield* each(output);
+      for (let event of emitter) {
+        console.log(event);
+        actual.push(event);
+        yield* next();
+      }
+    }
+    yield* root();
+    expect(actual).toEqual(["one", "two"]);
+  });
 
   it("does not use the same event twice when serially subscribed to a channel", function* () {
     let { input, output } = createChannel<string, void>();

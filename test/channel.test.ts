@@ -6,26 +6,49 @@ import {
   it as $it,
 } from "./suite.ts";
 
-import { Operation, Port, Stream, createContext } from "../mod.ts";
+import {
+  createContext,
+  Operation,
+  Port,
+  Stream,
+  Subscription,
+} from "../mod.ts";
 import { createChannel, createScope, sleep, spawn } from "../mod.ts";
 
-const IterContext = createContext<any>("iter-ctx");
-const IterResultContext = createContext<any>("iter-result-ctx");
-
-function* each<T>(stream: Stream<T, void>) {
-  const sub = yield* stream;
-  yield* IterContext.set(sub);
-  return {
-    *[Symbol.iterator]() {
-      const result = yield* IterResultContext;
-      return result;
-    }
-  }
+interface IterationContext<T> {
+  subscription: Subscription<T, unknown>;
+  current: IteratorResult<T>;
 }
-function* next() {
-  const sub = yield* IterContext;
-  const value = yield* sub.next();
-  yield* IterResultContext.set(value);
+
+const IterContext = createContext<IterationContext<unknown>[]>("iter-ctx");
+
+function* each<T>(stream: Stream<T, unknown>): Operation<Iterable<T>> {
+  let subscription = yield* stream;
+  let current = yield* subscription.next();
+  let stack = yield* IterContext.get();
+  if (!stack) {
+    stack = yield* IterContext.set([]);
+  }
+  let context = { subscription, current };
+  stack.push(context);
+
+  let iterator = { next: () => context.current };
+
+  return {
+    [Symbol.iterator]: () => iterator,
+  };
+}
+function* next(): Operation<void> {
+  let stack = yield* IterContext;
+  let context = stack[stack.length - 1];
+  if (!context) {
+    throw new Error(`cannot call next() outside of an iteration`);
+  }
+  let current = yield* context.subscription.next();
+  context.current = current;
+  if (current.done) {
+    stack.pop();
+  }
 }
 
 let scope = createScope();
@@ -35,13 +58,15 @@ describe("Channel", () => {
   });
   $afterEach(() => scope.close());
 
-  it("each()", function*(){
-    const actual: any[] = [];
+  it("each()", function* () {
+    const actual: string[] = [];
     let { input, output } = createChannel<string, void>();
     function* chan() {
       yield* sleep(10);
       yield* input.send("one");
       yield* input.send("two");
+      yield* sleep(10);
+      yield* input.close();
     }
 
     function* root() {

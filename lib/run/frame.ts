@@ -1,4 +1,4 @@
-import type { Block, Frame, Result, Task } from "../types.ts";
+import type { Frame, Operation, Result, Task } from "../types.ts";
 
 import { futurize } from "../future.ts";
 import { evaluate } from "../deps.ts";
@@ -8,38 +8,17 @@ import { createBlock } from "./block.ts";
 import { create } from "./create.ts";
 import { Err, Ok } from "../result.ts";
 
-export function createFrameTask<T>(frame: Frame, block: Block<T>): Task<T> {
-  let future = futurize<T>(function* () {
-    let blockResult = yield* block;
-    let teardown = yield* frame.destroy();
-    if (!teardown.ok) {
-      return teardown;
-    } else if (blockResult.aborted) {
-      return Err(new Error("halted"));
-    } else {
-      return blockResult.result;
-    }
-  });
+let ids = 0;
 
-  return {
-    ...future,
-    halt: () =>
-      futurize(function* () {
-        let killblock = yield* block.abort();
-        let killframe = yield* frame.destroy();
-        if (!killframe.ok) {
-          return killframe;
-        } else {
-          return killblock;
-        }
-      }),
-  };
+export interface FrameOptions<T> {
+  operation(): Operation<T>;
+  parent?: Frame;
 }
 
-let ids = 0;
-export function createFrame(parent?: Frame): Frame {
+export function createFrame<T>(options: FrameOptions<T>): Frame<T> {
+  let { operation, parent } = options;
   let children = new Set<Frame>();
-  let running = new Set<Block>();
+  let block = createBlock(operation);
   let context = Object.create(parent?.context ?? {});
   let results = createEventStream<void, Result<void>>();
 
@@ -47,11 +26,9 @@ export function createFrame(parent?: Frame): Frame {
 
   evaluate(function* () {
     let current = yield* teardown;
-    for (let block of running) {
-      let teardown = yield* block.abort();
-      if (!teardown.ok) {
-        current = teardown;
-      }
+    let result = yield* block.abort();
+    if (!result.ok) {
+      current = result;
     }
 
     while (children.size !== 0) {
@@ -66,9 +43,9 @@ export function createFrame(parent?: Frame): Frame {
     results.close(current);
   });
 
-  let frame: Frame = create<Frame>("Frame", { id: ids++, context }, {
-    createChild() {
-      let child = createFrame(frame);
+  let frame: Frame<T> = create<Frame<T>>("Frame", { id: ids++, context }, {
+    createChild<X>(operation: () => Operation<X>) {
+      let child = createFrame<X>({ operation, parent: frame });
       children.add(child);
       evaluate(function* () {
         yield* child;
@@ -76,14 +53,33 @@ export function createFrame(parent?: Frame): Frame {
       });
       return child;
     },
-    run(operation) {
-      let block = createBlock(frame, operation);
-      running.add(block);
-      evaluate(function* () {
-        yield* block;
-        running.delete(block);
+    enter(): Task<T> {
+      let task = create<Task<T>>("Task", {}, {
+        ...futurize<T>(function* () {
+          let blockResult = yield* block;
+          let destruction = yield* frame.destroy();
+
+          if (!destruction.ok) {
+            return destruction;
+          } else if (blockResult.aborted) {
+            return Err(new Error("halted"));
+          } else {
+            return blockResult.result;
+          }
+        }),
+        halt: () =>
+          futurize<void>(function* () {
+            let killblock = yield* block.abort();
+            let killframe = yield* frame.destroy();
+            if (!killframe.ok) {
+              return killframe;
+            } else {
+              return killblock;
+            }
+          }),
       });
-      return block;
+      block.enter(frame);
+      return task;
     },
     *crash(error: Error) {
       teardown.close(Err(error));

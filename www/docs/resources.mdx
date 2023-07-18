@@ -3,33 +3,26 @@ id: resources
 title: Resources
 ---
 
-As we discussed in the chapter on [tasks][], an [Operation][] can be one of
-several things, one of which is a [Resource][]. In this chapter we will explain
-what a resource is and why you might want to use one.
-
-## The resource criteria
-
-Resources can seem a little complicated, but the reason for their existence is
+The third fundamental Effection operation is [`resource()`][resource]. It can
+seem a little complicated at first, but the reason for its existence is
 rather simple. Sometimes there are operations which meet the following criteria:
 
 1. They are long running
 1. We want to be able to interact with them while they are running
 
-## Why resources?
-
-As an example, let's consider that our program opens a Socket, and we want to be
-able to send messages to this socket while it is open. This is fairly simple
-to write using regular operations like this:
+As an example, let's consider a program that creates a Socket and sends
+messages to it while it is open. This is fairly simple to write using regular
+operations like this:
 
 ``` javascript
-import { main } from 'effection';
+import { main, once } from 'effection';
 import { Socket } from 'net';
 
-main(function*() {
+await main(function*() {
   let socket = new Socket();
   socket.connect(1337, '127.0.0.1');
 
-  yield once(socket, 'connect');
+  yield* once(socket, 'connect');
 
   socket.write('hello');
 
@@ -37,24 +30,23 @@ main(function*() {
 });
 ```
 
-This works, but there are a lot of details we need to remember to use the socket
-safely. It would be nice if we could create a friendly abstraction that we could
-reuse in all of our code that uses socket.
-
-We know we want to close this socket once we're done, so our first attempt might
-look something like this:
+This works, but there are a lot of details we need to remember in order to use
+the socket safely. For example, whenever we use a socket, we don't want to have
+to remember to close it once we're done. Instead, we'd like that to happen
+automatically. Our first attempt to do so might look something like this:
 
 ``` javascript
-import { once } from 'effection';
+import { once, suspend } from 'effection';
+import { Socket } from 'net';
 
-export function *createSocket(port, host) {
+export function *useSocket(port, host) {
   let socket = new Socket();
   socket.connect(port, host);
 
-  yield once(socket, 'connect');
+  yield* once(socket, 'connect');
 
   try {
-    yield
+    yield* suspend();
     return socket;
   } finally {
     socket.close();
@@ -62,151 +54,115 @@ export function *createSocket(port, host) {
 }
 ```
 
-But when we actually try to use our `createSocket` operation, we run into a problem:
+But when we actually try to call our `useSocket` operation, we run into a
+problem: because our `useSocket()` operation suspends, it will wait around
+forever and never return control back to our main.
 
 ``` javascript
 import { main } from 'effection';
-import { createSocket } from './create-socket';
+import { useSocket } from './use-socket';
 
-main(function*() {
-  let socket = yield createSocket(1337, '127.0.0.1'); // this blocks forever
+await main(function*() {
+  let socket = yield* useSocket(1337, '127.0.0.1'); // blocks forever
   socket.write('hello'); // we never get here
 });
 ```
 
-## Using resources
-
 Remember our criteria from before:
 
 1. Socket is a long running process
-1. We want to interact with the socket while it is running by sending messages to it
+1. We want to interact with the socket while it is running by sending messages
+to it
 
-This is a good use-case for using a Resource. Let's look at how we can rewrite
-`createSocket` using resources. Effection considers any object which has an
-`init` function a Resource. The `init` function initializes the Resource, and
-an implementation of `createSocket` could look like this:
+This is a good use-case for using a resource operation. Let's look at how we can
+rewrite `useSocket()` as a resource.
 
 ``` javascript
-import { once, spawn } from 'effection';
+import { once, resource } from 'effection';
 
-export function createSocket(port, host) {
-  return {
-    *init() {
-      let socket = new Socket();
-      socket.connect(port, host);
+export function useSocket(port, host) {
+  return resource(function* (provide) {
+    let socket = new Socket();
+    socket.connect(port, host);
 
-      yield spawn(function* closeSocket() {
-        try {
-          yield
-        } finally {
-          socket.close();
-        }
-      });
+    yield* once(socket, 'connect');
 
-      yield once(socket, 'connect');
-
-      return socket;
+    try {
+      yield* provide(socket);
+    } finally {
+      socket.close();
     }
   }
 }
 ```
 
-Before we unpack what's going on, let's just note that how we use `createSocket` has
-not changed at all, only it now works as we expect!
+Before we unpack what's going on, let's just note that how we call `useSocket()`
+has not changed at all, only it now works as expected!
 
 ``` javascript
 import { main } from 'effection';
-import { createSocket } from './create-socket';
+import { useSocket } from './use-socket';
 
-main(function*() {
-  let socket = yield createSocket(1337, '127.0.0.1'); // waits for the socket to connect
+await main(function*() {
+  let socket = yield* useSocket(1337, '127.0.0.1'); // waits for the socket to connect
   socket.write('hello'); // this works
   // once `main` finishes, the socket is closed
 });
 ```
 
-## How resources work
+The body of a resource is used to *initialize* a value and make it
+available to the operation from which it was called. It can do any
+preparation it needs to, and take as long as it wants, but at some
+point, it has to "provide" the value back to the caller. This is done
+with the `provide()` function that is passed as an argument into each
+resource constructor. This special operation, when yielded to, passes
+control _back_ to the caller with our newly minted value as its result.
 
-The `init` function is used to *initialize* the resource. Once the `init`
-function is done, we can proceed past the `yield` point where we called
-`createSocket` in `main`. You can see why we call `once` from `init`, so we
-wait for the socket to open before proceeding.
 
-But what about the call to `spawn`? We have previously established that a
-spawned Task cannot outlive its parent, and so the Task that we spawned really
-*should* be halted when the `init` function is finished. But the rules within
-`init` are slightly different, and this is what gives resources their power. If
-we use `spawn` in `init` then the spawned Task is actually spawned under the
-Task that created the resource, which in this case is the `main` task. The Task
-still cannot outlive its parent, which is `main`, but its able to outlive the
-`init` function.
+However, its work is not done yet. The `provide()` operation will remain
+suspended until the resource passes out of scope, thus making sure that
+cleanup is guaranteed.
 
-You can think of this as creating a task hierarchy which looks something like this:
+>💡A simple mantra to repeat to yourself so that you rember how resources work
+> is this: resources ___provide___ values.
 
-```
-+-- main
-  |
-  +-- init
-    |
-    +-- once(socket, 'connect')
-  |
-  +-- closeSocket
-```
-
-As you can see, `closeSocket` and `init` are *siblings* rather than `closeSocket`
-being a child of `init`.
-
-## Nested resources
-
-Other resources created within `init` behave the same way and are created as
-siblings. We can use this to make a socket which serializes anything written
-to it as JSON:
+Resources can depend on other resources, so we could use this to make a socket
+which sends a heart-beat every 10 seconds.
 
 ``` javascript
-import { main, once, spawn } from 'effection';
-import { createSocket } from './create-socket';
+import { main, resource } from 'effection';
+import { useSocket } from './use-socket';
 
-function createJSONSocket(port, host) {
-  return {
-    *init() {
-      let socket = yield createSocket(port, host); // outlives the `init` function
+function useHeartSocket(port, host) {
+  return resource(function* (provide) {
+    let socket = yield* useSocket(port, host);
 
-      return {
-        write: (value) => socket.write(JSON.stringify(value));
+    yield* spawn(function*() {
+      while (true) {
+        yield* sleep(10_000);
+        socket.send(JSON.stringify({ type: "heartbeat" }));
       }
-    }
-  }
+    });
+
+    yield* provide(socket);
+  });
 }
 
-main(function*() {
-  let socket = yield createJSONSocket(1337, '127.0.0.1'); // waits for the socket to connect
+await main(function*() {
+  let socket = yield* useHeartSocket(1337, '127.0.0.1'); // waits for the socket to connect
   socket.write({ hello: 'world' }); // this works
-  // once `main` finishes, the socket is closed
+  // once `main` finishes:
+  // 1. the heartbea is stopped
+  // 2. the socket is closed
 });
 ```
 
-Here we're able to reuse our `createSocket` operation. Resources allow us
-to create powerful, reusable abstractions which are also able to clean up
-after themselves.
+The original socket is created, connected, and set up to pulse every ten
+seconds, and it's cleaned up just as easily as it was created.
 
-If we used a regular operation here and not a Resource, the socket would be
-closed before we could ever send a message to it.
-
-``` javascript
-// THIS DOESN'T WORK
-import { once, spawn } from 'effection';
-import { createSocket } from './create-socket';
-
-export function *createJSONSocket(port, host) {
-  let socket = yield createSocket(port, host);
-
-  return {
-    write: (value) => socket.write(JSON.stringify(value));
-  }
-  // socket gets closed here!
-}
-```
+Resources allow us to create powerful, reusable abstractions which are also able
+to clean up after themselves.
 
 [tasks]: /docs/guides/tasks
-[operation]: https://frontside.com/effection/api
-[resource]: https://frontside.com/effection/api
+[operation]: https://deno.land/x/effection/mod.ts?s=Operation
+[resource]: https://deno.land/x/effection/mod.ts?s=resource

@@ -2,6 +2,8 @@
   "Getting Started": [
     "introduction.mdx",
     "operations.mdx",
+    "actions.mdx",
+    "resources.mdx",
     "scope.mdx",
     "spawn.mdx",
     "collections.mdx",
@@ -10,7 +12,6 @@
     "typescript.mdx"
   ],
   "Advanced": [
-    "resources.mdx",
     "testing.mdx",
     "inspector.mdx",
     "processes.mdx",

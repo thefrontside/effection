@@ -221,7 +221,9 @@ export function sleep(duration) {
       yield* suspend();
     } finally {
       clearTimeout(timeoutId);
-
+    }
+  });
+}
 ```
 
 However, there is a key difference between this version of `sleep()` and the
@@ -234,434 +236,36 @@ Furthermore, the operation is crystal clear about the order of its execution.
 The steps are:
 
 1. install the timeout callback
-2. suspend.
+2. suspend until resolved or discarded.
 3. uninstall the timeout callback
 
-And it works due to the simple wonder that is the `suspend()` operation.
-
-### Suspend
-
-Simple in concept, yet bearing enormous practical weight, the `suspend()`
-operation is fundamental to Effection. It pauses the current
-operation until it [passes out of scope][scope], at which point it will return
-immediately. In the case of our sleep operation, it means that it executes the
-`finally {}` block on its way out; thereby clearing out the `setTimeout`
-callback.
-
-If we wanted to replicate this functionality with promises, we'd need to do
-something like accept an [`AbortSignal`][abort-signal] as a second argument to
-`sleep()`, and then use it to prevent our event-loop callback from leaking:
-
-```js
-export function sleep(duration, signal) {
-  return new Promise((resolve) => {
-    if (signal.aborted) {
-      resolve();
-    } else {
-      let timeoutId = setTimeout(resolve, duration);
-      signal.addEventListener("abort", () => clearTimeout(timeoutId));
-    }
-  });
-}
-```
-
-This functions properly,  but is ham-fisted. Not only is the
-implementation non-obvious, but it's also cumbersome to use in
-practice because it involves first creating a signal, passing it
-around explicitly to everything, and then finally firing it manually when the
-program is over:
-
-```js
-let controller = new AbortController();
-let { signal } = controller;
-
-await Promise.all([sleep(10, signal), sleep(1000, signal)]);
-
-controller.abort();
-```
-
-With a suspended action on the other hand, we get all the benefit as if
-an abort signal was there without sacrificing any clarity in achieving it.
-
-> 💡Fun Fact: `suspend()` is the only true 'async' operation in Effection. If an
->  operation does not include a call to `suspend()`, either by itself or via a
->  sub-operation, then that operation is synchronous.
-
-Most often, [but not always][spawn-suspend], you encounter `suspend()` in the
-context of an action as the pivot between that action's setup and teardown.
-
-### Action
-
-The second fundamental operation, [`action()`][action], serves two
-purposes. The first is to adapt callback-based APIs and make them available as
-operations. In this regard, it is very much like the
-[promise constructor][promise-constructor]. To see this correspondance, let's
-use [one of the examples from MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/Promise#examples)
-that uses promises to make a crude replica of the global [`fetch()`][fetch]
-function. It manually creates an XHR, and hooks up the `load` and `error` events
-to the `resolve` and `reject` functions respectively.
-
-```js
-async function fetch(url) {
-  return await new Promise((resolve, reject) => {
-    let xhr = new XMLHttpRequest();
-    xhr.open("GET", url);
-    xhr.onload = () => resolve(xhr.responseText);
-    xhr.onerror = () => reject(xhr.statusText);
-    xhr.send();
-  });
-}
-```
-
-Consulting the "async rosetta stone" below, we can substitute the async
-constructs for their Effection counterparts to arrive at a line for line
-translation.
-
-|    Async        |     Effection         |
-|-----------------|-----------------------|
-|`Promise`        | `Operation`           |
-|`new Promise()`  | `action()`            |
-|`await`          | `yield*`              |
-|`async function` | `function*`           |
-|`AsyncIterable`  | `Stream`              |
-|`AsyncIterator`  | `Subscription`        |
-|`for await`      | `for yield* each`  |
-
-
-```js
-function* fetch(url) {
-  return yield* action(function*(resolve, reject) {
-    let xhr = new XMLHttpRequest();
-    xhr.open("GET", url);
-    xhr.onload = () => resolve(xhr.responseText);
-    xhr.onerror = () => reject(xhr.statusText);
-    xhr.send();
-  });
-}
-```
-
-While this works works every bit as well as the promise based implementation, it
-turns out that the example from MDN has a subtle bug. In fact, it's the same
-subtle bug that afflicted the racing sleep examples above. If we no longer care
-about the outcome of our `fetch` operation, we will "leak" its http request
-which will remain in flight until a response is received. Regardles of which
-web api "wins" the race to get the current weather, our process cannot exit
-until _both_ requests are have received a response.
-
-```js
-await Promise.race([
-  fetch("https://openweathermap.org"),
-  fetch("https://open-meteo.org")
-])
-```
-
-With Effection, this is easily fixed by suspending the operation, and making
-sure that the request is cancelled when it is either resolved, rejected, or
-passes out of scope.
-
-```js {8-12} showLineNumbers
-function* fetch(url) {
-  return yield* action(function*(resolve, reject) {
-    let xhr = new XMLHttpRequest();
-    xhr.open("GET", url);
-    xhr.onload = () => resolve(xhr.responseText);
-    xhr.onerror = () => reject(xhr.statusText);
-    xhr.send();
-    try {
-      yield* suspend();
-    } finally {
-      xhr.abort();
-    }
-  });
-}
-```
-
->💡Almost every usage of [promise concurrency primitives][promise-concurrency]
-> will contain bugs that leak effects.
-
-As we've seen, actions can do anything that a promise can do (and more safely
-at that), but they also have a super power that promises do not. If you recall
-from the very beginning of this article, a key difference in Effection is that
-operations are values which, unlike promises, do not represent runtime state.
-Rather, they are "recipes" of what to do, and in order to do them, they need to
-be run either explicitly with `run()` or by including them with `yield*`.
-
-This means that when every operation runs, it is bound to an explicit
-lexical context; which is a fancy way of saying that ___running an
-operation can only ever return control to a single location___. A
-promise on the other hand, because it accepts an unlimited number of
-callbacks via `then()`, `catch()`, and `finally()`, can return control
-to an unlimited number of locations. This may seem a small thing, but
-it is very powerful. To demonstrate, consider the following set of
-nested actions.
-
-```js
-await run(function* () {
-  yield* action(function* (resolve) {
-    try {
-      yield* action(function*() {
-        try {
-          yield* action(function*() { resolve() });
-        } finally {
-          console.log('inner')
-        }
-      });
-    } finally {
-      console.log('middle');
-    }
-  });
-  console.log('outer');
-});
-```
-
-When we run it, it outputs the strings `inner`, `middle`, and `outer` in order.
-Notice however, that we never actually resolved the inner actions, only the
-outer one, and yet every single piece of teardown code is executed as expected
-as the call stack unwinds and it proceeds back to line 2. This means you can use
-actions to "capture" a specific location in your code as an "escape point" and
-return to it an any moment, but still feel confident that you won't leak any
-effects when you do.
-
-Let's consider a slightly more practical example of when this functionality
-could come in handy. Let's say we have a bunch of numbers scattered across the
-network that we want to fetch and multiply together. We want to write an
-to muliply these numbers that will use a list of operations that retreive the
-numbers for us.
-
-In order to be time efficient we want to fetch all the numbers
-concurrently so we use the [`all()`][all] operation. However, because
-this is multiplication, if any one of the numbers is zero, then the
-entire result is zero, so if at any point we discover that there is a
-`0` in any of the inputs to the computation, , there really is no
-further point in continuing because the answer will be zero no matter
-how we slice it. It would save us time and money if there were a
-mechanism to "short-circuit" the operation and proceed directly to
-zero, and in fact there is!
-
-The answer is with an action.
-
-```ts
-import { action, all } from "effection";
-
-export function multiply(...operations) {
-  return action(function* (resolve) {
-    let fetchNumbers = operations.map(operation => function* () {
-      let num = yield* operation;
-      if (num === 0) {
-        resolve(0);
-      }
-      return num;
-    });
-
-    let values = yield* all(fetchNumbers);
-
-    let result = values.reduce((current, value) => current * value, 1);
-
-    resolve(result);
-  });
-}
-```
-
-We wrap each operation that retrieves a number into one that _immediately_
-ejects from the entire action with a result of zero the _moment_ that any zero
-is detected in _any_ of the results. The action will yield zero, but before
-returning control back to its caller, it will ensure that all outstanding
-requests are completely shutdown so that we can be guaranteed not to leak any
-effects.
-
-
-### Resource
-
-The third fundamental Effection operation is [`resource()`][resource]. It can
-seem a little complicated at first, but the reason for its existence is
-rather simple. Sometimes there are operations which meet the following criteria:
-
-1. They are long running
-1. We want to be able to interact with them while they are running
-
-As an example, let's consider a program that creates a Socket and sends
-messages to it while it is open. This is fairly simple to write using regular
-operations like this:
-
-``` javascript
-import { main, once } from 'effection';
-import { Socket } from 'net';
-
-await main(function*() {
-  let socket = new Socket();
-  socket.connect(1337, '127.0.0.1');
-
-  yield* once(socket, 'connect');
-
-  socket.write('hello');
-
-  socket.close();
-});
-```
-
-This works, but there are a lot of details we need to remember in order to use
-the socket safely. For example, whenever we use a socket, we don't want to have
-to remember to close it once we're done. Instead, we'd like that to happen
-automatically. Our first attempt to do so might look something like this:
-
-``` javascript
-import { once, suspend } from 'effection';
-import { Socket } from 'net';
-
-export function *useSocket(port, host) {
-  let socket = new Socket();
-  socket.connect(port, host);
-
-  yield* once(socket, 'connect');
-
-  try {
-    yield* suspend();
-    return socket;
-  } finally {
-    socket.close();
-  }
-}
-```
-
-But when we actually try to call our `useSocket` operation, we run into a
-problem: because our `useSocket()` operation suspends, it will wait around
-forever and never return control back to our main.
-
-``` javascript
-import { main } from 'effection';
-import { useSocket } from './use-socket';
-
-await main(function*() {
-  let socket = yield* useSocket(1337, '127.0.0.1'); // blocks forever
-  socket.write('hello'); // we never get here
-});
-```
-
-Remember our criteria from before:
-
-1. Socket is a long running process
-1. We want to interact with the socket while it is running by sending messages
-to it
-
-This is a good use-case for using a resource operation. Let's look at how we can
-rewrite `useSocket()` as a resource.
-
-``` javascript
-import { once, resource } from 'effection';
-
-export function useSocket(port, host) {
-  return resource(function* (provide) {
-    let socket = new Socket();
-    socket.connect(port, host);
-
-    yield* once(socket, 'connect');
-
-    try {
-      yield* provide(socket);
-    } finally {
-      socket.close();
-    }
-  }
-}
-```
-
-Before we unpack what's going on, let's just note that how we call `useSocket()`
-has not changed at all, only it now works as expected!
-
-``` javascript
-import { main } from 'effection';
-import { useSocket } from './use-socket';
-
-await main(function*() {
-  let socket = yield* useSocket(1337, '127.0.0.1'); // waits for the socket to connect
-  socket.write('hello'); // this works
-  // once `main` finishes, the socket is closed
-});
-```
-
-The body of a resource is used to *initialize* a value and make it
-available to the operation from which it was called. It can do any
-preparation it needs to, and take as long as it wants, but at some
-point, it has to "provide" the value back to the caller. This is done
-with the `provide()` function that is passed as an argument into each
-resource constructor. This special operation, when yielded to, passes
-control _back_ to the caller with our newly minted value as its result.
-
-
-However, its work is not done yet. The `provide()` operation will remain
-suspended until the resource passes out of scope, thus making sure that
-cleanup is guaranteed.
-
->💡A simple mantra to help you rember how resources work is to repeat
-> to your self "resource provide values" three times
-
-Resources can depend on other resources, so we could use this to make a socket
-which sends a heart-beat every 10 seconds.
-
-``` javascript
-import { main, resource } from 'effection';
-import { useSocket } from './use-socket';
-
-function useHeartSocket(port, host) {
-  return resource(function* (provide) {
-    let socket = yield* useSocket(port, host);
-
-    yield* spawn(function*() {
-      while (true) {
-        yield* sleep(10_000);
-        socket.send(JSON.stringify({ type: "heartbeat" }));
-      }
-    });
-
-    yield* provide(socket);
-  });
-}
-
-await main(function*() {
-  let socket = yield* useHeartSocket(1337, '127.0.0.1'); // waits for the socket to connect
-  socket.write({ hello: 'world' }); // this works
-  // once `main` finishes:
-  // 1. the heartbea is stopped
-  // 2. the socket is closed
-});
-```
-
-The original socket is created, connected, and set up to pulse every ten
-seconds, and it's cleaned up just as easily as it was created.
-
-Resources allow us to create powerful, reusable abstractions which are also able
-to clean up after themselves.
+If we always follow those steps, then we'll always resume at the right point,
+and we'll never leak a timeout effect.
 
 ## Computational Components
 
-It's amazing to think how so many operations in the Effection ecosystem can be
-broken down into a combination of these three fundamentals:
-`action()`, `resource()`, and `suspend()`. Composability is the key to
-everything.
+It's amazing to think how so many operations in the Effection
+ecosystem can be broken down into a combination of the fundamental:
+`action()`, `resource()`, and `suspend()` operations.  Composability
+is the key to everything.
 
-In fact, the manner in which operations compose resembles in a large part the
+Once you become accustomed to programming with Effection, you'll come to realize
+that the manner in which operations compose resembles in a large part the
 way UI components click together in a frontend framework. In a frontend
 framework, when a parent component is un-rendered, it is understood that it is
 not the programmer's responsibility to un-render the children, only that they
 ensure each child is written to take whatever steps necessary to un-render
 itself.
 
-By the same token, Effection Operations seemlessly bundle setup and teardown together into
-composable units so that when any operation passes out of scope (or is
-un-rendered to use the parlance of the UI world) all subordinate operations also
-pass out of scope. This in turn allows cleanup to happen both automatically and
-relentlessly; leaving the programmer free to not worry about it.
+By the same token, Effection Operations seemlessly bundle setup and
+teardown together into composable units so that when any operation
+passes out of scope (or is un-rendered to use the parlance of the UI
+world) all subordinate operations also pass out of scope. This in turn
+allows cleanup to happen both automatically and relentlessly; leaving
+the programmer free to not worry about it.
 
 [async function]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function
 [promise]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise
-[promise-constructor]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/Promise
-[promise-concurrency]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise#promise_concurrency
-[abort-signal]: https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal
-[fetch]: https://developer.mozilla.org/en-US/docs/Web/API/fetch
-[scope]: ./scope
 [spawn-suspend]: ./spawn#suspend
-[action]: https://deno.land/x/effection/mod.ts?s=action
 [run]: https://deno.land/x/effection/mod.ts?s=run
 [suspend]: https://deno.land/x/effection/mod.ts?s=suspend
-[resource]: https://deno.land/x/effection/mod.ts?s=resource
-[all]: https://deno.land/x/effection/mod.ts?s=all

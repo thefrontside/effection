@@ -1,6 +1,6 @@
 ---
-id: lifecycle
-title: Task Lifecycle
+id: scope
+title: Scope
 ---
 
 We have talked about how Effection operations are able to clean up after
@@ -15,21 +15,21 @@ concept of halting a Task.
 In Effection, any task can be halted:
 
 ``` javascript
-import { main } from 'effection';
+import { run } from 'effection';
 
-let task = main(function*() {
-  yield
+let task = run(function*() {
+  yield* suspend();
 });
 
-task.halt();
+await task.halt();
 ```
 
 Or:
 
 ``` javascript
-main(function*() {
-  let task = yield spawn();
-  yield task.halt();
+await main(function*() {
+  let task = yield spawn(suspend);
+  yield* task.halt();
 });
 ```
 

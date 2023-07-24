@@ -85,7 +85,9 @@ export function* loadDocs(): Operation<Docs> {
               toc: "fixed top-0 right-0",
             },
           }],
-          rehypePrismPlus,
+          [rehypePrismPlus, {
+            showLineNumbers: true,
+          }],
         ],
       }));
 

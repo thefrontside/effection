@@ -3,11 +3,102 @@ id: scope
 title: Scope
 ---
 
-We have talked about how Effection operations are able to clean up after
-themselves, but how are they able to do this, and how can you implement your
-own operations which clean up after themselves?
+We have talked about how Effection operations allow you to bundle setup and
+teardown as a unit so that automatic cleanup is _guaranteed_, but how are
+they able to do this, and how can you implement your own operations which clean
+up after themselves?
 
-### Halt
+### Scope of a lifetime
+
+Every operation in Effection runs in the context of an associated scope which
+places a hard limit on how long it will live. For example, the script below uses
+the [`spawn()`][spawn] operation to run an operation concurrently that counts to
+ten, outputting one number every second. It then sleeps for five seconds before
+returning;
+
+```js
+import { main, sleep, spawn } from "effection";
+
+await main(function* () { // <- parent scope
+  yield* spawn(function* () { // <- child scope
+    for (let i = 1; i = 10; i++) {
+      yield* sleep(1000);
+      console.log(i);
+    }
+  });
+
+  yield* sleep(5000);
+});
+```
+
+It may suprise you to learn that this script will only output _five_
+numbers, not ten. This is because the main operation completes after
+just five seconds, and as a result its scope, and every scope it
+contains, is halted. This in turn means that our counting operation is
+shutdown and outputs nothing more.
+
+>💡Key Concept: _no operation may outlive its scope_.
+
+This simple rule is incredibly powerful! It means that you can create all kinds
+of dynamic, concurrent processes, but the moment that they pass out of scope and
+are no longer needed, they are immediately stopped. If we think about it, this
+is very similar to the concept of lexical scope in JavaScript with which we're
+already familiar.
+
+```js
+{
+  let left = 1;
+  let right = 2;
+  console.log(`${left} + ${right} = ${left + right}`)
+}
+
+console.log(left) // <= ReferenceError left is not defined
+```
+
+In the snippet above, we allocate two number variables: `left` and `right`.
+Inside the "curlys" we can read and write from them all we want, but once we
+leave, JavaScript is going to deallocate them and the memory they hold
+automatically for us and because of that, we aren't allowed to touch
+them ever again. We describe this situation saying that the variables
+have "passed out of scope" and so any resources they hold (in this case
+computer memory) can be automatically reclaimed.
+
+Effection applies this very same principle to entire operations, not just
+variable references. Because of this, once the outcome of an operation becomes
+known, or it is no longer needed, that operation and all of the operations it
+contains can be safely shut down.
+
+### The Three Outcomes
+
+There are only three ways an operation may pass out of scope.
+
+1. **return** the operation completes to produce a value.
+2. **error** the operation fails and exits with an exception.
+3. **halt** due to a return, error or a halt of a related operation, an
+operation is halted.
+
+No matter which one of these happens, We'll consider each of these .
+
+```ts
+import { sleep } from "effection";
+
+function* slowly(value) {
+  yield* sleep(1_000);
+  return value;
+}
+
+let message = await run(function* add() {
+  let left = yield* call(function*() {
+    yield* sleep(1_000);
+    return 1;
+  });
+
+  let right = yield* call(function*() {})
+  return left + right;
+});
+```
+
+### Suspend (it's not the end)
 
 In order to understand the lifecycle of a Task, we must first understand the
 concept of halting a Task.
@@ -215,27 +306,4 @@ function* request(url) {
 Now, no matter what happens, when the `request` operation is completed (or
 cancelled), the HTTP request is guaranteed to be shut down.
 
-### Lifecycle
-
-The current state of a Task can be accesses through the `state` property:
-
-``` javascript
-import { main } from 'effection';
-
-let task = main(function*() {
-  yield;
-});
-
-console.log(`task is ${task.state}`) // prints "task is running"
-```
-
-The `state` can be any of:
-
-- **pending:** the Task has not yet been started
-- **running:** the Task is currently running
-- **completing:** the Task has completed and is in the process of halting its children
-- **halting:** `halt` has been called on the Task and it is in the process of halting itself and its children
-- **erroring:** an error has occurred in the Task or any of its children. The task is being halted, as well as its children.
-- **completed:** the Task is fully complete and all of its children have been halted
-- **halted:** the Task is fully halted and all of its children have been halted as well
-- **errored:** an error has occurred in the Task or any of its children. The task is fully halted and all of its children have been halted as well.
+[spawn]: https://deno.land/x/effection/mod.ts?s=spawn

@@ -1,0 +1,271 @@
+---
+id: operations
+title: Operations
+---
+
+In the introduction, we saw how to replace `async/await` by writing equivalent
+code in Effection. We can do this because there are strong analogues between the
+way both systems work. However, there are also two key differences that
+ultimately make Effection far more robust at handling asynchrony, and in this
+section we'll unpack these differences in more detail. In summary: operations
+are stateless, and they can be cancelled with grace.
+
+### Stateless
+
+The fundamental unit of abstraction for `async/await` is the `Promise`. They can
+be created independently or with an [async function][], but either way,
+`Promise` is stateful and will make progress on its own.
+
+If you run the following snippet, it will immediately print `Hello World!` to
+the console whether we `await` the result of `sayHello()` or not.
+
+```javascript
+async function sayHello() {
+  console.log("Hello World!");
+};
+
+sayHello();
+```
+
+By contrast, the following will never print anything no matter how long we wait:
+
+```javascript
+function *sayHello() {
+  console.log("Hello World!");
+};
+
+sayHello();
+```
+
+This is because unlike promises, Operations do not do anything by themselves.
+Instead, they describe what should be done when the operation is run.
+
+### Running Operations
+
+In the example above, the generator function contains a recipe that says "log
+'Hello World' to the console", but it does not actually execute that recipe
+itself. We need something else to actually do that.
+
+The simplest way is with the aptly named
+[`run()`][run] function. Here it's used to execute the example above:
+
+```javascript
+import { run } from 'effection';
+
+run(function* sayHello() {
+  console.log("Hello World!");
+});
+```
+
+This will print `Hello World!` to the console, just as you'd
+expect.
+
+The return value we get from `run` is a `Task`. A `Task` is both an operation
+and a promise, so we can use it with `await` to integrate Effection into
+existing `async/await` code.
+
+```javascript
+import { run } from 'effection';
+
+try {
+  await run(function*() {
+    throw new Error('oh no!');
+  });
+} catch (error) {
+  console.error(error);
+}
+```
+
+In addition to `run()`, there is the `main()` function which we
+already met in the introduction.  It takes care of a few critical
+things for you like ensuring that the operation it's running is halted
+when the process or browser shuts down, and printing errors to the
+console in case anything goes wrong. If you're writing a program with
+Effection from scratch, you should most likely use `main()` as the
+entry point. `run()` is more bare-bones, and should only be used when
+you need more fine grained control.
+
+Using `main()`, our example looks like this:
+
+```javascript
+import { main } from 'effection';
+
+await main(function*() {
+  throw new Error('oh no!');
+});
+```
+
+Instead of needing to catch the error like we did before, `main()`
+will handle it for us, including printing it to the console.
+
+### Composing Operations
+
+Entry points like `run()` and `main()` are used usually once at the very
+beginning of an Effection program, but the easiest and most common way to
+run an operation is to include it in the body of another operation. To do this,
+we use the `yield*` keyword, which is the Effection equivalent of `await`.
+
+For example, the `sleep()` operation pauses execution for a specified duration
+before resuming. We can call it from any operation using `yield*`;
+
+```javascript
+import { main, sleep } from 'effection';
+
+await main(function*() {
+  yield* sleep(1000);
+  console.log("Hello World!");
+});
+```
+
+Or, it can be embeded in an operation which itself is embedded in another
+operation:
+
+```javascript
+import { main, sleep } from 'effection';
+
+function* makeSlow(value) {
+  yield* sleep(1000);
+  return value;
+}
+
+await main(function*() {
+  let text = yield* makeSlow('Hello World!');
+  console.log(text);
+});
+```
+
+There is no limit to the number of operations that can be nested within
+each other, and in fact, composition is so core to how operations work that
+_every operation in Effection eventually boils down to a combination of
+just three primitive operations_: `action()`, `resource()`, and `suspend()`.
+
+### Cleanup
+
+Perhaps the most critical difference between promises and operations is that
+once started, a promise will always run to completion no matter how long that
+takes. Unfortunately, this makes the guarantees of structured concurrency
+impossible to provide automatically. Operations, on the other hand, can be
+interrupted at any time which means that we never have to worry about them
+staying longer than they are absolutely needed.
+
+Let's consider a hypothetical sleep function implemented using `async/await`. It
+uses `setTimeout()` to resolve a promise once the sleep time has elapsed.
+
+```js
+async function sleep(duration) {
+  await new Promise(resolve => setTimeout(resolve, duration));
+}
+```
+
+We can now write our slow hello world program using this version:
+
+```js
+async function main() {
+  await sleep(1000);
+  console.log("Hello World!");
+}
+
+await main();
+```
+
+This logs `"Hello World!"` to the console after a delay of 1s, and so it works
+as expected when we run it... sort of.
+
+But what happens when you no longer care about the outcome of your sleep
+operation?
+
+Let's take a hypothetical example of racing two sleep operations against each
+other. How long do you think this program takes to execute in Node.js?
+
+```js
+async function sleep(milliseconds) {
+  await new Promise(resolve => setTimeout(resolve, milliseconds));
+}
+
+await Promise.race([sleep(10), sleep(1000)]);
+```
+
+The anwser is 1000ms even though our intuition tells us that it
+should be 10ms. It takes 1000ms because `setTimeout` installs a
+callback onto the Node run loop, and our process cannot exit until it is
+removed.
+
+While our program will move past the `await` statement after 10ms, it will not
+be allowed to exit for another 990ms until the `setTimeout` callback is fired.
+
+>💡When something like a run-loop callback outlives its purpose, we
+> call that thing a "leaked effect". Effection was built to take loving care of
+> your effects, and make sure they are never left lying around where someone
+> could step on them and hurt themselves.
+
+By contrast, the equivalent code in Effection will exit immediately after 10ms
+as expected because every operation can be interrupted at any time.
+
+```js
+import { sleep, race, main } from "effection";
+
+await main(function*() {
+  yield* race([sleep(10), sleep(1000)]);
+});
+```
+
+If we look at the implementation of the `sleep()` operation in Effection, we can
+see how this works. It uses two of the fundamental operations:
+`action()`, and `suspend()`, to wait until the duration has elapsed.
+
+```js {6-8} showLineNumbers
+export function sleep(duration) {
+  return action(function* (resolve) {
+    let timeoutId = setTimeout(resolve, duration);
+    try {
+      yield* suspend();
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  });
+}
+```
+
+However, there is a key difference between this version of `sleep()` and the
+earlier one we wrote using promises. In this `Operation` based implementation,
+there is a `finally {}` block which clears the timeout callback, and it is
+because of this that the Effection `sleep()` does not cause the process to hang,
+whereas the promise-`sleep()` does.
+
+Furthermore, the operation is crystal clear about the order of its execution.
+The steps are:
+
+1. install the timeout callback
+2. suspend until resolved or discarded.
+3. uninstall the timeout callback
+
+If we always follow those steps, then we'll always resume at the right point,
+and we'll never leak a timeout effect.
+
+## Computational Components
+
+It's amazing to think how so many operations in the Effection
+ecosystem can be broken down into a combination of the fundamental:
+`action()`, `resource()`, and `suspend()` operations.  Composability
+is the key to everything.
+
+Once you become accustomed to programming with Effection, you'll come to realize
+that the manner in which operations compose resembles in a large part the
+way UI components click together in a frontend framework. In a frontend
+framework, when a parent component is un-rendered, it is understood that it is
+not the programmer's responsibility to un-render the children, only that they
+ensure each child is written to take whatever steps necessary to un-render
+itself.
+
+By the same token, Effection Operations seemlessly bundle setup and
+teardown together into composable units so that when any operation
+passes out of scope (or is un-rendered to use the parlance of the UI
+world) all subordinate operations also pass out of scope. This in turn
+allows cleanup to happen both automatically and relentlessly; leaving
+the programmer free to not worry about it.
+
+[async function]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function
+[promise]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise
+[spawn-suspend]: ./spawn#suspend
+[run]: https://deno.land/x/effection/mod.ts?s=run
+[suspend]: https://deno.land/x/effection/mod.ts?s=suspend

@@ -73,11 +73,11 @@ export interface Instruction {
   (frame: Frame, signal: AbortSignal): Computation<Result<unknown>>;
 }
 
-export interface Frame extends Computation<Result<void>> {
+export interface Frame<T = unknown> extends Computation<Result<void>> {
   id: number;
   context: Record<string, unknown>;
-  createChild(): Frame;
-  run<T>(operation: () => Operation<T>): Block<T>;
+  createChild<C>(operation: () => Operation<C>): Frame<C>;
+  enter(): Task<T>;
   crash(error: Error): Computation<Result<void>>;
   destroy(): Computation<Result<void>>;
 }
@@ -94,6 +94,6 @@ export type BlockResult<T> =
 
 export interface Block<T = unknown> extends Computation<BlockResult<T>> {
   name: string;
-  enter(): void;
+  enter(frame: Frame<T>): void;
   abort(): Computation<Result<void>>;
 }

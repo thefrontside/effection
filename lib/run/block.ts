@@ -23,7 +23,6 @@ type InstructionResult =
   };
 
 export function createBlock<T>(
-  frame: Frame,
   operation: () => Operation<T>,
 ): Block<T> {
   let results = createEventStream<void, BlockResult<T>>();
@@ -34,8 +33,14 @@ export function createBlock<T>(
 
   signal.addEventListener("abort", () => interrupt.close());
 
-  let enter = evaluate<() => void>(function* () {
-    yield* shift<void>(function* (k) {
+  let result: BlockResult<T> | undefined = void 0;
+
+  let enter = evaluate<(frame: Frame<T>) => void>(function* () {
+    yield* reset(function* () {
+      result = yield* results;
+    });
+
+    let frame = yield* shift<Frame<T>>(function* (k) {
       return k.tail;
     });
 
@@ -111,7 +116,7 @@ export function createBlock<T>(
       });
     },
     *[Symbol.iterator]() {
-      return yield* results;
+      return result ?? (yield* results);
     },
   });
   return block;

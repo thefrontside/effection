@@ -1,51 +1,51 @@
-import type { Operation, Scope } from "../types.ts";
-import { createFrame } from "./frame.ts";
+import type { Frame, Operation, Scope } from "../types.ts";
 import { create } from "./create.ts";
+import { createFrame } from "./frame.ts";
+import { getframe, suspend } from "../instructions.ts";
 import { futurize } from "../future.ts";
-import { getframe } from "../instructions.ts";
-import { Err } from "../result.ts";
+import { Ok } from "../result.ts";
+import { evaluate } from "../deps.ts";
 
 export function* useScope(): Operation<Scope> {
   let frame = yield* getframe();
   return createScope(frame);
 }
 
-export function createScope(frame = createFrame()): Scope {
+export function createScope(frame?: Frame): Scope {
+  let children = new Set<Frame>();
+  let parent = frame ?? createFrame({ operation: suspend });
+
   return create<Scope>("Scope", {}, {
     run<T>(operation: () => Operation<T>) {
-      let block = frame.run(operation);
-      let future = futurize<T>(function* () {
-        let blockResult = yield* block;
-        if (blockResult.aborted) {
-          if (blockResult.result.ok) {
-            return Err(new Error("halted"));
-          } else {
-            return blockResult.result;
-          }
-        }
-
-        if (blockResult.result.ok) {
-          return blockResult.result;
-        } else {
-          let teardown = yield* frame.crash(blockResult.result.error);
-          if (teardown.ok) {
-            return blockResult.result;
-          } else {
-            return teardown;
-          }
-        }
+      let child = parent.createChild(operation);
+      children.add(child);
+      evaluate(function* () {
+        yield* child;
+        children.delete(child);
       });
-
-      let task = create("Task", {}, {
-        ...future,
-        halt: () => futurize(() => block.abort()),
-      });
-
-      block.enter();
-
-      return task;
+      return child.enter();
     },
-    close: () => futurize(() => frame.destroy()),
-    [Symbol.iterator]: () => futurize(() => frame)[Symbol.iterator](),
+    close: () =>
+      futurize(function* () {
+        let result = Ok<void>(void 0);
+        for (let child of [...children]) {
+          let destruction = yield* child.destroy();
+          if (!destruction.ok) {
+            result = destruction;
+          }
+        }
+        return result;
+      }),
+    [Symbol.iterator]: () =>
+      futurize(function* () {
+        let result = Ok<void>(void 0);
+        for (let child of [...children]) {
+          let end = yield* child;
+          if (!end.ok) {
+            result = end;
+          }
+        }
+        return result;
+      })[Symbol.iterator](),
   });
 }

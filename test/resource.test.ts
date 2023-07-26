@@ -44,6 +44,21 @@ describe("resource", () => {
     await expect(task).rejects.toHaveProperty("message", "moo");
   });
 
+  it("raises an error if an error occurs after init", async () => {
+    let task = run(function* () {
+      yield* spawn(function* () {
+        yield* sleep(5);
+        throw new Error("moo");
+      });
+      try {
+        yield* sleep(10);
+      } catch (error) {
+        return error;
+      }
+    });
+    await expect(task).rejects.toHaveProperty("message", "moo");
+  });
+
   it("terminates resource when task completes", async () => {
     let result = await run(function* () {
       return yield* createResource({ status: "pending" });

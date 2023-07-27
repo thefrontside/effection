@@ -1,6 +1,6 @@
 {
   "tasks": {
-    "dev": "deno run -A lib/watch.ts html docs lib -- deno run -A main.ts",
+    "dev": "deno run -A lib/watch.ts html docs lib -- deno run -A --lock-write main.ts",
     "build": "deno run -A docs/build.ts"
   },
   "lint": {
@@ -19,7 +19,7 @@
   "imports": {
     "effection": "../mod.ts",
     "freejack/": "./lib/",
-    "hastx/": "https://deno.land/x/hastx@0.0.1/",
-    "hastx/jsx-runtime": "https://deno.land/x/hastx@v0.0.1/jsx-runtime.ts"
+    "hastx/": "https://deno.land/x/hastx@0.0.4/",
+    "hastx/jsx-runtime": "https://deno.land/x/hastx@v0.0.4/jsx-runtime.ts"
   }
 }

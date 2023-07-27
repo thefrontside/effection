@@ -1,6 +1,43 @@
 // deno-lint-ignore-file no-explicit-any
 import type { Computation } from "./deps.ts";
 
+/**
+ * An `Operation` in Effection describes an abstract computation. An operation
+ * does not do anything on its own. Rather, it only describes the steps it will
+ * take when it runs.
+ *
+ * In the Effection world, `Operation` occupies the same position as `Promise`
+ * does the world of async/await.
+ *
+ * An operation can be created with a generator function that only does `yield*`
+ * to other operations:
+ *
+ * ```js
+ * import { sleep } from "effection";
+
+ * function* slow5(seconds) {
+ *   yield* sleep(seconds * 1000);
+ *   return 5;
+ * }
+ * ```
+ *
+ * Operations can also be created using `Symbol.iterator`. The following
+ * operation is the same as above:
+ *
+ * ```js
+ * import { sleep } from "effection";
+ *
+ * const slow5 = (seconds) => ({
+ *   *[Symbol.iterator]() {
+ *     yield* sleep(seconds * 1000);
+ *     return 5;
+ *   }
+ * })
+ * ```
+ *
+ * See [Operations guide](https://frontside.com/effection/v3/docs/operations) for more information.
+ *
+ */
 export interface Operation<T> {
   [Symbol.iterator](): Iterator<Instruction, T, any>;
 }

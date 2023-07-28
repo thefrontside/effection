@@ -4,6 +4,7 @@ import structure from "./structure.json" assert { type: "json" };
 import remarkFrontmatter from "https://esm.sh/remark-frontmatter@4.0.1";
 import remarkMdxFrontmatter from "https://esm.sh/remark-mdx-frontmatter@3.0.0";
 import remarkGfm from "https://esm.sh/remark-gfm@3.0.1";
+import rehypePrismPlus from "https://esm.sh/rehype-prism-plus@1.5.1";
 
 import { evaluate } from "https://esm.sh/@mdx-js/mdx@2.3.0";
 
@@ -61,6 +62,9 @@ export function* loadDocs(): Operation<Docs> {
           remarkFrontmatter,
           remarkMdxFrontmatter,
           remarkGfm,
+        ],
+        rehypePlugins: [
+          [rehypePrismPlus, { showLineNumbers: true }],
         ],
       }));
 

@@ -4,7 +4,6 @@
     "operations.mdx",
     "actions.mdx",
     "resources.mdx",
-    "scope.mdx",
     "spawn.mdx",
     "collections.mdx",
     "events.mdx",
@@ -12,6 +11,7 @@
     "typescript.mdx"
   ],
   "Advanced": [
+    "scope.mdx",
     "testing.mdx",
     "inspector.mdx",
     "processes.mdx"

@@ -8,14 +8,13 @@ import rehypeSlug from "https://esm.sh/rehype-slug@5.1.0";
 import rehypeAutolinkHeadings from "https://esm.sh/rehype-autolink-headings@6.1.1";
 import rehypeAddClasses from "https://esm.sh/rehype-add-classes@1.0.0";
 import rehypeToc from "https://esm.sh/@jsdevtools/rehype-toc@3.0.2";
-import rehypePrismPlus from "https://esm.sh/rehype-prism-plus@1.5.1";
 
 export default function* (doc: Doc): Operation<JSX.Element> {
   let docs = yield* useDocs();
   let topics = docs.getTopics();
 
   return (
-    <section class="mx-auto md:pt-8 max-w-5xl lg:max-w-6xl justify-items-normal md:grid md:grid-cols-[200px_minmax(auto,60ch)_1fr] md:gap-4">
+    <section class="mx-auto md:pt-8 max-w-5xl justify-items-normal md:grid md:grid-cols-[200px_minmax(auto,60ch)_1fr] md:gap-4">
       <p class="text-right mr-4 md:hidden">
         <label class="cursor-pointer" for="nav-toggle">
           <Navburger />
@@ -84,9 +83,6 @@ export default function* (doc: Doc): Operation<JSX.Element> {
                     "hidden text-sm tracking-wide leading-loose lg:block relative whitespace-nowrap",
                   list: "fixed",
                 },
-              }],
-              [rehypePrismPlus, {
-                showLineNumbers: true,
               }],
             ]}
           >

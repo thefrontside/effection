@@ -14,7 +14,7 @@ export default function* (doc: Doc): Operation<JSX.Element> {
   let topics = docs.getTopics();
 
   return (
-    <section class="mx-auto md:pt-8 max-w-5xl justify-items-normal md:grid md:grid-cols-[200px_minmax(auto,60ch)_1fr] md:gap-4">
+    <section class="mx-auto md:pt-8 w-full justify-items-normal md:grid md:grid-cols-[200px_auto] lg:grid-cols-[200px_auto_200px] md:gap-4">
       <p class="text-right mr-4 md:hidden">
         <label class="cursor-pointer" for="nav-toggle">
           <Navburger />
@@ -62,7 +62,7 @@ export default function* (doc: Doc): Operation<JSX.Element> {
         </nav>
       </aside>
       <Transform fn={liftTOC}>
-        <article class="prose px-4">
+        <article class="prose px-4 min-w-full">
           <h1>{doc.title}</h1>
           <Rehype
             plugins={[

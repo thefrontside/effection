@@ -16,7 +16,7 @@ The simplest operation for working with events that Effection provides
 is the [`once()`][once] operation.  This operation works with any
 [`EventTarget`][event-target] and blocks until one of its events
 occurs. For example, consider that we wanted to wait for the `open`
-even on a `WebSocket`, we could do something like this:
+event on a `WebSocket`, we could do something like this:
 
 ``` javascript
 import { main, once } from 'effection';
@@ -114,3 +114,4 @@ As a result, `start` is an operation that will yield the payload from the first
 [on]: https://deno.land/x/effection/mod.ts?s=on
 [map]: https://deno.land/x/effection/mod.ts?s=map
 [filter]: https://deno.land/x/effection/mod.ts?s=filter
+[event-target]: https://developer.mozilla.org/en-US/docs/Web/API/EventTarget

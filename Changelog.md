@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.0.0-alpha.10
+
+- [fix] bug where `main()` was failing without explicit exit
+  https://github.com/thefrontside/effection/pull/722
+- [feat] Make each task run in its own Frame.
+  https://github.com/thefrontside/effection/pull/729
+
 ## 3.0.0-alpha.9
 
 - add `main()` method for setting up Effection to work properly in working in

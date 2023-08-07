@@ -68,7 +68,7 @@ import { main, once, next } from 'effection';
 await main(function*() {
   let socket = new WebSocket('ws://localhost:1234');
 
-  for (let value of yield* next(on(socket('message')))) {
+  for (let value of yield* next(on(socket, 'message'))) {
     console.log('message:', message.data);
     yield* next;
   }

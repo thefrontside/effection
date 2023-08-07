@@ -54,24 +54,38 @@ nor will it ever raise an error. And, because it will produce neither
 a positive nor negative outcome, it is an error to `await` the result
 of a halted operation.
 
-When  this happens, the promise is rejected with a special halt error:
+When  this happens, the promise is rejected with a special halt error.
+In this example, we show a very long running task that is stopped in the
+middle of its work even though it would eventually return a value if we
+waited long enough.
 
 ``` typescript
-import { run, suspend } from 'effection';
+import { run, sleep } from 'effection';
 
 async function runExample() {
+  // this task takes a long time to return
+  let task = run(function*() {
+    yield* sleep(10_000_000);
+    return "hello world";
+  });
+
+  await task.halt();
+
   try {
-    let task = run(supsend);
-    await task.halt();
-    await task;
+    let value = await task // 💥 throws "halted" error;
+
+    // will never reach here because halted tasks do not produce values
+    console.log(value);
   } catch(err) {
-    console.log("got error", err.message) // => "got error halted"
+    console.log(err.message) // => "halted"
   }
 }
 ```
 
-Notice how it is not an error to `await` the halt operation itself, only to
-`await` the outcome of a halted operation.
+An important point is that `task.halt()` is an operation in its own
+right and will only fail if there is a failure in the teardown. Thus
+it is not an error to await the `task.halt()` operation; it is only an
+error to await the outcome of the operation which has been halted.
 
 ## Error propagation
 

@@ -14,8 +14,6 @@
   "Advanced": [
     "testing.mdx",
     "inspector.mdx",
-    "processes.mdx",
-    "react.mdx",
-    "websockets.mdx"
+    "processes.mdx"
   ]
 }

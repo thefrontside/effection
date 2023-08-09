@@ -3,6 +3,10 @@ id: testing
 title: Testing
 ---
 
+>⚠️ These docs have not been updated from version 2 of Effection, and do not
+> apply to version 3. The information you find here may be of use, but may
+> also be outdated or misleading.
+
 Effection not only simplifies the process of writing tests, but by
 managing all the timing complexity of your setup and teardown, it can
 often make new kinds of tests possible that beforehand may have seemed
@@ -89,12 +93,7 @@ express all of your test operations.
 
 Once we make those changes, our test case now looks like this.
 
-<Tabs
-  groupId="jest-and-mocha-replacement"
-  defaultValue="jest"
-  values={[{label: 'Jest', value: 'jest'}, {label: 'Mocha', value: 'mocha'}]}>
-
-  <TabItem value="jest">
+> TODO: tab item
 
 ``` javascript
 import { beforeEach, afterEach, it } from '@effection/jest';
@@ -116,8 +115,7 @@ describe("a server", () => {
 });
 ```
 
-  </TabItem>
-  <TabItem value="mocha">
+> TODO: tab item
 
 ``` javascript
 import { beforeEach, afterEach, it } from '@effection/mocha';
@@ -139,9 +137,6 @@ describe("a server", () => {
 });
 ```
 
-  </TabItem>
-</Tabs>
-
 But so far, we've only traded one syntax for another. Now however, we can
 begin to leverage the power of Effection to make our test cases not only more
 concise, but also more flexible. To do this, we use the fact that each test
@@ -152,12 +147,7 @@ child of our test-scoped task, then when the test task goes away, so
 will our server.
 
 
-<Tabs
-  groupId="jest-and-mocha-resource"
-  defaultValue="jest"
-  values={[{label: 'Jest', value: 'jest'}, {label: 'Mocha', value: 'mocha'}]}>
-
-  <TabItem value="jest">
+> TODO: tab item
 
 ``` javascript
 import { ensure } from 'effection';
@@ -181,8 +171,7 @@ describe("a server", () => {
 });
 ```
 
-  </TabItem>
-  <TabItem value="mocha">
+> TODO: tab item
 
 ``` javascript
 import { ensure } from 'effection';
@@ -206,9 +195,6 @@ describe("a server", () => {
 });
 ```
 
-  </TabItem>
-</Tabs>
-
 We don't have to write an `afterEach()` _at all_ anymore, because the resource
 knows how to tear itself down no matter where it ends up running.
 
@@ -218,11 +204,7 @@ start it once before all of the tests run, so we move it to a _suite_ level
 hook. Before, we would have had to remember to convert our teardown hook as
 well, but with Effection, we can just move our resource to its new location.
 
-<Tabs
-  groupId="jest-and-mocha-resource"
-  defaultValue="jest"
-  values={[{label: 'Jest', value: 'jest'}, {label: 'Mocha', value: 'mocha'}]}>
-  <TabItem value="jest">
+> TODO: tab item
 
 ``` javascript
 import { ensure } from 'effection';
@@ -246,8 +228,7 @@ describe("a server", () => {
 });
 ```
 
-  </TabItem>
-  <TabItem value="mocha">
+> TODO: tab item
 
 ``` javascript
 import { ensure } from 'effection';
@@ -270,9 +251,6 @@ describe("a server", () => {
   });
 });
 ```
-
-  </TabItem>
-</Tabs>
 
 It is common to extract such resources into re-usable functions that can be
 embedded anywhere into your test suite, and you never have to worry about them
@@ -297,11 +275,7 @@ export function createServer(options) {
 
 Then we can use it easily in any test case:
 
-<Tabs
-  groupId="jest-and-mocha-reuse"
-  defaultValue="jest"
-  values={[{label: 'Jest', value: 'jest'}, {label: 'Mocha', value: 'mocha'}]}>
-  <TabItem value="jest">
+> TODO: tab item
 
 ``` javascript
 import { beforeAll, it } from '@effection/jest';
@@ -317,10 +291,9 @@ describe("a server", () => {
     expect(response.ok).toBe(true);
   });
 });
-```
+``
 
-  </TabItem>
-  <TabItem value="mocha">
+> TODO: tab item
 
 ``` javascript
 import { before, it } from '@effection/mocha';
@@ -338,9 +311,6 @@ describe("a server", () => {
 });
 ```
 
-  </TabItem>
-</Tabs>
-
 ### Test Scope
 
 As hinted at above, there are two separate levels of task in
@@ -352,11 +322,7 @@ and halted after every single test. Any tasks spawned within it will
 be halted immediately after the test is finished. For example:
 
 
-<Tabs
-  groupId="jest-and-mocha-reuse"
-  defaultValue="jest"
-  values={[{label: 'Jest', value: 'jest'}, {label: 'Mocha', value: 'mocha'}]}>
-  <TabItem value="jest">
+> TODO: tab item
 
 ``` javascript
 import { beforeAll, beforeEach, it } from '@effection/jest';
@@ -393,8 +359,7 @@ describe("a server", () => {
 });
 ```
 
-  </TabItem>
-  <TabItem value="mocha">
+> TODO: tab item
 
 ``` javascript
 import { before, beforeEach, it } from '@effection/mocha';
@@ -430,9 +395,6 @@ describe("a server", () => {
   });
 });
 ```
-
-  </TabItem>
-</Tabs>
 
 ### Caveats
 

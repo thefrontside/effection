@@ -242,6 +242,10 @@ The steps are:
 If we always follow those steps, then we'll always resume at the right point,
 and we'll never leak a timeout effect.
 
+>💡As an alternative to using a `finally {}` block to express your cleanup, you
+> can also use the [`ensure()`][ensure] operation which in some cases can add
+> clarity. Which method you use is up to you!
+
 ## Computational Components
 
 It's amazing to think how so many operations in the Effection
@@ -269,3 +273,4 @@ the programmer free to not worry about it.
 [spawn-suspend]: ./spawn#suspend
 [run]: https://deno.land/x/effection/mod.ts?s=run
 [suspend]: https://deno.land/x/effection/mod.ts?s=suspend
+[ensure]: https://deno.land/x/effection/mod.ts?s=ensure

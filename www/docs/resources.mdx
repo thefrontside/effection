@@ -160,9 +160,30 @@ await main(function*() {
 The original socket is created, connected, and set up to pulse every ten
 seconds, and it's cleaned up just as easily as it was created.
 
+Note that the [`ensure()`][ensure] operation is an appropriate mechanism to
+enact cleanup within resources as well. While a matter of preference, the
+`useSocket()` resource above could also have been written as:
+
+``` javascript
+import { once, resource } from 'effection';
+
+export function useSocket(port, host) {
+  return resource(function* (provide) {
+    let socket = new Socket();
+    yield* ensure(() => { socket.close(); });
+
+    socket.connect(port, host);
+
+    yield* once(socket, 'connect');
+    yield* provide(socket);
+  }
+}
+```
+
 Resources allow us to create powerful, reusable abstractions which are also able
 to clean up after themselves.
 
 [tasks]: /docs/guides/tasks
 [operation]: https://deno.land/x/effection/mod.ts?s=Operation
 [resource]: https://deno.land/x/effection/mod.ts?s=resource
+[ensure]: https://deno.land/x/effection/mod.ts?s=ensure

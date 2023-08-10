@@ -10,8 +10,8 @@ import { main } from 'effection';
 import { fetchWeekDay } from './fetch-week-day';
 
 main(function*() {
-  let dayUS = yield fetchWeekDay('est');
-  let daySweden = yield fetchWeekDay('cet');
+  let dayUS = yield* fetchWeekDay('est');
+  let daySweden = yield* fetchWeekDay('cet');
   console.log(`It is ${dayUS}, in the US and ${daySweden} in Sweden!`);
 });
 ```
@@ -41,7 +41,7 @@ async function() {
 }
 ```
 
-### Cancellation
+### Dangling Promises
 
 This works fine as long as both fetches complete successfully, but what happens
 when one of them fails? Since there is no connection between the two tasks, a
@@ -53,7 +53,7 @@ that we have a request which is running longer than necessary, but you can imagi
 that the more complex the operations we're trying to combine, the more opportunity
 for problems there are.
 
-We are calling these situations "dangling promises", and most significantly complex
+We call these situations "dangling promises", and most significantly complex
 JavaScript applications suffer from this problem. `async/await` fundamentally does
 not handle cancellation very well when running multiple operations concurrently.
 
@@ -70,17 +70,18 @@ import { fetchWeekDay } from './fetch-week-day';
 main(function*() {
   let dayUS = fetchWeekDay('est');
   let daySweden = fetchWeekDay('cet');
-  console.log(`It is ${yield dayUS}, in the US and ${yield daySweden} in Sweden!`);
+  console.log(`It is ${yield* dayUS}, in the US and ${yield* daySweden} in Sweden!`);
 });
 ```
 
 This is still running one fetch after the other, and is not fetching both at
 the same time!
 
-To understand why, remember that calling a generator function does not do
-anything by itself, only by passing the generator to `yield` or `run` do we
-actually run the generator. So only when we `yield` to we actually start
-fetching the dates.
+To understand why, remember that unlike calling an async function to
+create a `Promise`, calling a generator function to create an
+[`Operation`][Operation] does not do anything by itself. An `Operation` is
+is only evaluated when passed to `yield*` or to `run()`. Therefore it isn't
+until we `yield*` do we actually start to fetch the dates.
 
 We could use `run` here to run our operations, and then wait for them, but this
 is not the correct way:
@@ -93,7 +94,7 @@ import { fetchWeekDay } from './fetch-week-day';
 main(function*() {
   let dayUS = run(fetchWeekDay('est'));
   let daySweden = run(fetchWeekDay('cet'));
-  console.log(`It is ${yield dayUS}, in the US and ${yield daySweden} in Sweden!`);
+  console.log(`It is ${yield* dayUS}, in the US and ${yield* daySweden} in Sweden!`);
 });
 ```
 
@@ -109,9 +110,9 @@ import { main, spawn } from 'effection';
 import { fetchWeekDay } from './fetch-week-day';
 
 main(function*() {
-  let dayUS = yield spawn(fetchWeekDay('est'));
-  let daySweden = yield spawn(fetchWeekDay('cet'));
-  console.log(`It is ${yield dayUS}, in the US and ${yield daySweden} in Sweden!`);
+  let dayUS = yield* spawn(() => fetchWeekDay('est'));
+  let daySweden = yield* spawn(() => fetchWeekDay('cet'));
+  console.log(`It is ${yield* dayUS}, in the US and ${yield* daySweden} in Sweden!`);
 });
 ```
 
@@ -144,7 +145,7 @@ up with a situation like this:
 ```
 
 Effection tasks are tied to the lifetime of their parent, and it becomes
-impossible to create a task whose lifetime is undefined. Additionally, the
+impossible to create a task whose lifetime is undefined. Because of this, the
 behaviour of errors is very clearly defined. An error in a child will also
 cause the parent to error, which in turn halts any siblings.
 
@@ -161,34 +162,52 @@ we can use the `all` combinator:
 import { all, main } from 'effection';
 
 main(function *() {
-  let [dayUS, daySweden] = yield all([fetchWeekDay('est'), fetchWeekDay('cet')]);
+  let [dayUS, daySweden] = yield* all([fetchWeekDay('est'), fetchWeekDay('cet')]);
   console.log(`It is ${dayUS}, in the US and ${daySweden} in Sweden!`);
 });
 ```
 
-### Direct spawning
+### Spawning in a Scope.
 
-Another way of spawning tasks is to call the `spawn` method on a task:
-
-``` javascript
-let task = run();
-task.spawn(fetchWeekDay('est'));
-task.spawn(fetchWeekDay('cet'));
-```
+The `spawn()` operation always runs its operation as a child of the current
+operation. Sometimes however, you might want to run an operation as a child of a
+_different_ operation. To do this we can use the [`Scope#run()`][scope.run]
+method.
 
 This is often useful when integrating Effection into existing promise or
-callback based frameworks.
+callback based frameworks. The following example creates a trivial
+[`express`][express] server that runs each request as an operation that is
+a child of the main operation.
 
-When an Operation is a generator function, the first argument to the generator
-function is the current task. We can use this to spawn tasks:
 
-``` javascript
-run(function*(task) {
-  task.spawn(fetchWeekDay('est'));
-  task.spawn(fetchWeekDay('cet'));
+```javascript {5,8}
+import express from 'express';
+import { main, suspend, useScope } from "effection";
+
+await main(function*() {
+  let scope = yield* useScope();
+  let app = express();
+  app.get("/", async (_, res) => {
+    await scope.run(function*() {
+      res.send("Hello World!");
+    })
+  });
+  let server = app.listen();
+  try {
+    yield* suspend()
+  } finally {
+    server.close();
+  }
 });
 ```
 
-This is basically the same as the previous example.
+We capture a reference to the main operation's scope in line **(5)**
+and then use that scope to run the request as an async function on
+line **(8)**.
+
+You can learn more about this in the [scope guide](./scope).
 
 [structured concurrency]: https://vorpus.org/blog/notes-on-structured-concurrency-or-go-statement-considered-harmful/
+[express]: https://expressjs.org
+[scope.run]: https://deno.land/x/effection/mod.ts?s=Scope#method_run_0
+[Operation]: https://deno.land/x/effection/mod.ts?s=Operation

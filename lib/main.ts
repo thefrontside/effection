@@ -144,7 +144,13 @@ function* withHost<T>(op: HostOperation<T>): Operation<T> {
 
   if (typeof global.Deno !== "undefined") {
     return yield* op.deno();
-  } else if (typeof global.require === "function") {
+    // this snippet is from the node-detect npm package
+  } else if (
+    Object.prototype.toString.call(
+      //@ts-expect-error dev env is deno, but this is safe to run.
+      typeof process !== "undefined" ? process : 0,
+    ) === "[object process]"
+  ) {
     return yield* op.node();
   } else {
     return yield* op.browser();

@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.0-alpha.11
+
+- 🐞fix NodeJS detection https://github.com/thefrontside/effection/pull/744
+- ✨for yield* each() loops https://github.com/thefrontside/effection/pull/741
+
 ## 3.0.0-alpha.10
 
 - [fix] bug where `main()` was failing without explicit exit

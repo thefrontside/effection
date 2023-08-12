@@ -2,6 +2,7 @@
   "lock": false,
   "tasks": {
     "test": "deno test --allow-run=deno",
+    "test:node": "deno task build:npm 0.0.0 && node test/main/node.mjs",
     "build:npm": "deno run -A tasks/build-npm.ts"
   },
   "lint": {

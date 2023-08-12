@@ -22,6 +22,12 @@ jobs:
         with:
           deno-version: v1.x
 
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 18.x
+          registry-url: https://registry.npmjs.com
+
       - name: format
         run: deno fmt --check
 
@@ -30,3 +36,5 @@ jobs:
 
       - name: test
         run: deno task test
+      - name: test:node
+        run: deno task test:node

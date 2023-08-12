@@ -1,8 +1,9 @@
 import { describe, expect, it } from "./suite.ts";
 
-import { call, createContext, run } from "../mod.ts";
+import { call, createContext, createScope, run, suspend } from "../mod.ts";
 
 const numbers = createContext("number", 3);
+const emptyNumber = createContext("empty-number");
 
 describe("context", () => {
   it("has the initial value available at all times", async () => {
@@ -38,5 +39,18 @@ describe("context", () => {
     await expect(run(function* () {
       yield* createContext("missing");
     })).rejects.toHaveProperty("name", "MissingContextError");
+  });
+
+  it('should inherit context', async () => {
+    const scope = createScope();
+    scope.run(function*() {
+      yield* emptyNumber.set(2)
+      yield* suspend();
+    })
+
+    const result = await scope.run(function*() {
+      return yield* emptyNumber;
+    });
+    expect(result).toEqual(2);
   });
 });

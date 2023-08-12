@@ -1,6 +1,7 @@
 import { describe, expect, it } from "./suite.ts";
 
 import { call, createContext, createScope, run, suspend } from "../mod.ts";
+import { createFrame } from "../lib/run/frame.ts";
 
 const numbers = createContext("number", 3);
 const emptyNumber = createContext("empty-number");
@@ -42,11 +43,8 @@ describe("context", () => {
   });
 
   it('should inherit context', async () => {
-    const scope = createScope();
-    scope.run(function*() {
-      yield* emptyNumber.set(2)
-      yield* suspend();
-    })
+    const frame = createFrame({ operation: suspend, context: { 'empty-number': 2 } });
+    const scope = createScope(frame);
 
     const result = await scope.run(function*() {
       return yield* emptyNumber;

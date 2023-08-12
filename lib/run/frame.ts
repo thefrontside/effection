@@ -12,6 +12,7 @@ let ids = 0;
 
 export interface FrameOptions<T> {
   operation(): Operation<T>;
+  context?: Record<string, unknown>;
   parent?: Frame;
 }
 
@@ -19,7 +20,7 @@ export function createFrame<T>(options: FrameOptions<T>): Frame<T> {
   let { operation, parent } = options;
   let children = new Set<Frame>();
   let block = createBlock(operation);
-  let context = Object.create(parent?.context ?? {});
+  let context = Object.create(options.context ?? parent?.context ?? {});
   let results = createEventStream<void, Result<void>>();
 
   let teardown = createEventStream<void, Result<void>>();

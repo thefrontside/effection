@@ -42,11 +42,14 @@ describe("context", () => {
     })).rejects.toHaveProperty("name", "MissingContextError");
   });
 
-  it('should inherit context', async () => {
-    const frame = createFrame({ operation: suspend, context: { 'empty-number': 2 } });
+  it("should inherit context", async () => {
+    const frame = createFrame({
+      operation: suspend,
+      context: { "empty-number": 2 },
+    });
     const scope = createScope(frame);
 
-    const result = await scope.run(function*() {
+    const result = await scope.run(function* () {
       return yield* emptyNumber;
     });
     expect(result).toEqual(2);

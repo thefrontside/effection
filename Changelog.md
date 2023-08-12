@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.0-alpha.12
+
+- 🐞fix typo in main for NodeJS
+  https://github.com/thefrontside/effection/pull/746
+
 ## 3.0.0-alpha.11
 
 - 🐞fix NodeJS detection https://github.com/thefrontside/effection/pull/744

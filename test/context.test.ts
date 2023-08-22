@@ -42,7 +42,7 @@ describe("context", () => {
     })).rejects.toHaveProperty("name", "MissingContextError");
   });
 
-  it("should inherit context", async () => {
+  it("inherits context from root scope frame", async () => {
     const frame = createFrame({
       operation: suspend,
       context: { "empty-number": 2 },

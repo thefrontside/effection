@@ -18,3 +18,4 @@ export * from "./events.ts";
 export * from "./main.ts";
 export * from "./all.ts";
 export * from "./each.ts";
+export { createFrame } from './run/frame.ts';

@@ -20,7 +20,10 @@ export function createFrame<T>(options: FrameOptions<T>): Frame<T> {
   let { operation, parent } = options;
   let children = new Set<Frame>();
   let block = createBlock(operation);
-  let context = Object.create(options.context ?? parent?.context ?? {});
+  let context = Object.create(
+    parent?.context ?? {},
+    Object.getOwnPropertyDescriptors(options.context ?? {}),
+  );
   let results = createEventStream<void, Result<void>>();
 
   let teardown = createEventStream<void, Result<void>>();

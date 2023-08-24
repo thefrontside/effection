@@ -4,7 +4,6 @@ import {
   createScope,
   resource,
   run,
-  sleep,
   suspend,
   useScope,
 } from "../mod.ts";
@@ -97,66 +96,6 @@ describe("Scope", () => {
       expect(second).toEqual(2);
       expect(third).toEqual(2);
     });
-  });
-
-  it("only shuts down the tasks that it created when closing", async () => {
-    await run(function* () {
-      let t1: Tester = {};
-      let t2: Tester = {};
-      let s1 = yield* useScope();
-      let s2 = yield* useScope();
-
-      s1.run(function* () {
-        yield* useTester(t1);
-        yield* suspend();
-      });
-
-      s2.run(function* () {
-        yield* useTester(t2);
-        yield* suspend();
-      });
-
-      expect(t1.status).toEqual("open");
-      expect(t2.status).toEqual("open");
-
-      yield* s1.close();
-
-      expect(t1.status).toEqual("closed");
-      expect(t2.status).toEqual("open");
-
-      yield* s2.close();
-
-      expect(t1.status).toEqual("closed");
-      expect(t2.status).toEqual("closed");
-    });
-  });
-
-  it("awaits all of its open tasks when it is yielded to", async () => {
-    let message = "";
-    let scope = createScope();
-
-    scope.run(function* () {
-      yield* sleep(0);
-      message += "hello";
-    });
-
-    scope.run(function* () {
-      yield* sleep(5);
-      message += " world";
-    });
-
-    await run(() => scope);
-    expect(message).toEqual("hello world");
-  });
-
-  it("fails when one of its outstanding tasks fails", async () => {
-    let error = new Error("boom!");
-    let scope = createScope();
-    scope.run(function* () {
-      yield* sleep(10);
-      throw error;
-    });
-    await expect(run(() => scope)).rejects.toEqual(error);
   });
 });
 

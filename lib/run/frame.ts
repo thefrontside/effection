@@ -2,6 +2,7 @@ import type { Frame, Operation, Result, Task } from "../types.ts";
 
 import { futurize } from "../future.ts";
 import { evaluate } from "../deps.ts";
+import { lazy } from "../lazy.ts";
 
 import { createEventStream } from "./event-stream.ts";
 import { createBlock } from "./block.ts";
@@ -53,7 +54,7 @@ export function createFrame<T>(options: FrameOptions<T>): Frame<T> {
       });
       return child;
     },
-    enter(): Task<T> {
+    enter: lazy(() => {
       let task = create<Task<T>>("Task", {}, {
         ...futurize<T>(function* () {
           let blockResult = yield* block;
@@ -80,7 +81,7 @@ export function createFrame<T>(options: FrameOptions<T>): Frame<T> {
       });
       block.enter(frame);
       return task;
-    },
+    }),
     *crash(error: Error) {
       teardown.close(Err(error));
       return yield* frame;

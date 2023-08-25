@@ -71,8 +71,24 @@ export interface Port<T, R> {
   close(value: R): Operation<void>;
 }
 
+/**
+ * A broadcast channel that multiple consumers can subscribe to the
+ * via same {@link `Stream`}, and messages sent to the channel are
+ * received by all consumers. The channel is not buffered, so if there
+ * are no consumers, the message is dropped.
+ *
+ * @typeParam T - type of channel messages
+ * @typeParam TClose - type of final channel value
+ */
 export interface Channel<T, TClose> {
+  /**
+   * The port through which messages to the channel are sent.
+   */
   input: Port<T, TClose>;
+
+  /**
+   * The stream through which all messages to the channel are read.
+   */
   output: Stream<T, TClose>;
 }
 

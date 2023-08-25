@@ -56,6 +56,8 @@ export type Provide<T> = (value: T) => Operation<void>;
 
 export interface Scope {
   run<T>(operation: () => Operation<T>): Task<T>;
+  get<T>(context: Context<T>): T | undefined;
+  set<T>(context: Context<T>, value: T): T;
 }
 
 export type Stream<T, TReturn> = Operation<Subscription<T, TReturn>>;
@@ -83,6 +85,16 @@ export interface Channel<T, TClose> {
  * value, then a `MissingContextError` will be raised.
  */
 export interface Context<T> extends Operation<T> {
+  /**
+   * A unique identifier for this context.
+   */
+  readonly key: string;
+
+  /**
+   * The value of the context if has not been defined for the current operation.
+   */
+  readonly defaultValue?: T;
+
   /**
    * Set the value of the Context for the current scope.
    */

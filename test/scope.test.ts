@@ -97,6 +97,15 @@ describe("Scope", () => {
       expect(third).toEqual(2);
     });
   });
+
+  it("can get and set a context programatically", async () => {
+    let context = createContext<string>("aString");
+    let [scope] = createScope();
+    expect(scope.get(context)).toEqual(void 0);
+    expect(scope.set(context, "Hello World!")).toEqual("Hello World!");
+    expect(scope.get(context)).toEqual("Hello World!");
+    await expect(scope.run(() => context)).resolves.toEqual("Hello World!");
+  });
 });
 
 interface Tester {

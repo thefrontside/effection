@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.0-alpha.13
+
+- Make `Scope` API to make it more friendly for embedders
+  https://github.com/thefrontside/effection/issues/751
+
 ## 3.0.0-alpha.12
 
 - 🐞fix typo in main for NodeJS

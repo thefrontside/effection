@@ -9,12 +9,13 @@ import {
 import type { Operation, Port, Stream } from "../mod.ts";
 import { createChannel, createScope, sleep, spawn } from "../mod.ts";
 
-let scope = createScope();
+let [scope, close] = createScope();
+
 describe("Channel", () => {
   $beforeEach(() => {
-    scope = createScope();
+    [scope, close] = createScope();
   });
-  $afterEach(() => scope.close());
+  $afterEach(() => close());
 
   it("does not use the same event twice when serially subscribed to a channel", function* () {
     let { input, output } = createChannel<string, void>();

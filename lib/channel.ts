@@ -1,67 +1,52 @@
-import type { Channel, Resolve, Stream, Subscription } from "./types.ts";
-import { action, resource } from "./instructions.ts";
+import type { Channel, Operation } from "./types.ts";
+import { createSignal } from "./signal.ts";
 
+/**
+ * Create a new {@link Channel}. Use channels to communicate between operations.
+ * In order to dispatch messages from outside an operation such as from a
+ * callback, use {@link Signal}.
+ *
+ * See [the guide on Streams and
+ * Subscriptions](https://frontside.com/effection/docs/guides/collections)
+ * for more details.
+ *
+ * @example
+ *
+ * ``` javascript
+ * import { main, createChannel } from 'effection';
+ *
+ * await main(function*() {
+ *   let { input, output } = createChannel();
+ *
+ *   yield* input.send('too early'); // the channel has no subscribers yet!
+ *
+ *   let subscription1 = yield* channel;
+ *   let subscription2 = yield* channel;
+ *
+ *   yield* input.send('hello');
+ *   yield* input.send('world');
+ *
+ *   console.log(yield* subscription1.next()); //=> { done: false, value: 'hello' }
+ *   console.log(yield* subscription1.next()); //=> { done: false, value: 'world' }
+ *   console.log(yield* subscription2.next()); //=> { done: false, value: 'hello' }
+ *   console.log(yield* subscription2.next()); //=> { done: false, value: 'world' }
+ * });
+ * ```
+ *
+ * @typeParam T - the type of each value sent to the channel
+ * @typeParam TClose - the type of the channel's final value.
+ */
 export function createChannel<T, TClose = void>(): Channel<T, TClose> {
-  let subscribers = new Set<ChannelSubscriber<T, TClose>>();
-
-  let output: Stream<T, TClose> = resource(function* Subscription(provide) {
-    let subscriber = createSubscriber<T, TClose>();
-    subscribers.add(subscriber);
-
-    try {
-      yield* provide(subscriber.subscription);
-    } finally {
-      subscribers.delete(subscriber);
-    }
-  });
-
-  let send = (item: IteratorResult<T, TClose>) => ({
-    *[Symbol.iterator]() {
-      for (let subscriber of [...subscribers]) {
-        subscriber.deliver(item);
-      }
-    },
-  });
+  let signal = createSignal<T, TClose>();
 
   let input = {
-    send: (value: T) => send({ done: false, value }),
-    close: (value: TClose) => send({ done: true, value }),
-  };
-
-  return { input, output };
-}
-
-interface ChannelSubscriber<T, TClose> {
-  deliver(item: IteratorResult<T, TClose>): void;
-  subscription: Subscription<T, TClose>;
-}
-
-function createSubscriber<T, TClose>(): ChannelSubscriber<T, TClose> {
-  type Item = IteratorResult<T, TClose>;
-
-  let items: Item[] = [];
-  let consumers: Resolve<Item>[] = [];
-
-  return {
-    deliver(item) {
-      items.unshift(item);
-      while (items.length > 0 && consumers.length > 0) {
-        let consume = consumers.pop() as Resolve<Item>;
-        let message = items.pop() as Item;
-        consume(message);
-      }
+    *send(value: T): Operation<void> {
+      signal.send(value);
     },
-    subscription: {
-      *next() {
-        let message = items.pop();
-        if (message) {
-          return message;
-        } else {
-          return yield* action<Item>(function* (resolve) {
-            consumers.unshift(resolve);
-          });
-        }
-      },
+    *close(value: TClose) {
+      signal.close(value);
     },
   };
+
+  return { input, output: signal.stream };
 }

@@ -21,3 +21,4 @@ export * from "./each.ts";
 export * from "./queue.ts";
 export * from "./signal.ts";
 export * from "./ensure.ts";
+export * from "./race.ts";

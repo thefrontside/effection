@@ -86,7 +86,7 @@ export async function main(
               //@ts-expect-error type-checked by Deno, run on Node
               process.on("SIGINT", interrupt);
               //@ts-expect-error type-checked by Deno, run on Node
-              yield* body(global.process.argv.slice());
+              yield* body(global.process.argv.slice(2));
             } finally {
               //@ts-expect-error this runs on Node
               process.off("SIGINT", interrupt);

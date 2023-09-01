@@ -1,5 +1,16 @@
 # Changelog
 
+## 3.0.0-alpha.14
+
+- ✨Port `race()` operation from `v2`
+  https://github.com/thefrontside/effection/pull/757
+- ✨Port `ensure()` operation from `v2`
+  https://github.com/thefrontside/effection/pull/761
+- ✨Add `Signal` interface for creating streams out of JavaScript callbacks
+  https://github.com/thefrontside/effection/pull/756
+- 🐞arguments were not being properly passed to NodeJS `main()`
+  https://github.com/thefrontside/effection/pull/760
+
 ## 3.0.0-alpha.13
 
 - Make `Scope` API to make it more friendly for embedders

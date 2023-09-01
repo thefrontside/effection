@@ -449,8 +449,138 @@ because the body of the loop only executes for iterator result where the `done`
 property is `false`. It does _not_ execute for the last iterator result where
 `done` is true.
 
+## Creating your own streams
+
+Most of the examples thus far have shown how to consume streams that
+are originated from within an operation, and so have used the
+preferred mechanism for that which is the [Channel][channel]. To do
+this, we run the channel's `send()` operation. But because `send()` is
+an operation, it means that in order to send a message to the stream,
+we must already have to be inside an operation. However, this poses a
+problem for events that originate from _outside_ of an operation such
+as an event listener. In this case, we need to be able to call a plain
+vanilla javascript function which is not an operation, and still
+notify any subscribers to a stream. For these cases there is the
+[`Signal`][signal] interface which can be created with
+[`createSignal`](createSignal) function.
+
+In the following example, we use a signal as an event callback to log
+all of the events
+
+
+```javascript
+import { createSignal, each } from "effection";
+
+export function* logClicks(button) {
+  let { send, stream } = createSignal();
+  try {
+    button.addEventListener("click", send);
+
+    for (let click of yield* each(stream)) {
+      console.dir({ click });
+      yield* each.next;
+    }
+  } finally {
+    button.removeEventListener("click", send);
+  }
+}
+```
+
+First, we create the signal, then attach its `send()` function to the
+event target's callback. It then loops over every click event received
+in this way and logs out its contents to the console. Notice that,
+like a well-behaved operation, we make sure to uninstall the listener
+on the button so that we left it in the same state we found it.
+
+This is a good demonstration of the concept, but it isn't as useful as
+it could be because any time we want to do something like the above to
+consume a stream of clicks, we'd first need to create a signal, attach
+the signal's callback, and then iterate over its content. For example,
+if we wanted to make an operation that disabled a button by preventing
+the default action every time, we would have to regurgitate the same
+boilerplate code as in our click logger:
+
+```javascript
+import { createSignal, each } from "effection";
+
+export function* cancelClicks(button) {
+  let { send, stream } = createSignal();
+  try {
+    button.addEventListener("click", send);
+
+    for (let click of yield* each(stream)) {
+      click.preventDefault();
+      yield* each.next;
+    }
+  } finally {
+    button.removeEventListener("click", send);
+  }
+}
+```
+
+In other words, the problem with this method, is that you have to
+define the stream and consume it in the same place. But what we'd like
+to do instead is to define the stream in one place, but consume it in
+another. That way, we could specify the setup and teardown logic once,
+but utilize it multiple times. If we had a way to do that, say a `clicksOn()`
+function that could take any html element and return a stream of clicks on that
+element, then we could write something like the following:
+
+```javascript
+function* logAndCancel(button) {
+  let clicks = clicksOn(button);
+
+  yield* spawn(function*() {
+    for (let click of yield* each(clicks)) {
+      console.log(click);
+      yield* each.next;
+    }
+  })
+
+  yield* spawn(function*() {
+    for (let click of yield* each(clicks)) {
+    click.preventDefault();
+    yield* each.next;
+  }
+})
+}
+```
+
+It turns out that [resources][resources] are just what we need to make this
+happen. If you recall, a [`Stream`][stream] is just an [`Operation`][operation]
+that returns a [`Subscription`][subscription]. So the simplest way to implement
+such an operation is as a _resource that provides a subscription_.
+
+>💡Most of the time, you won't need to implement your own streams, but when you
+> do, a resource is the easiest way to do it.
+
+Armed with resources, we can now implement our hypothetical `clicksOn` utility.
+
+```javascript
+import { resource } from "effection"
+
+export function clicksOn(button) {
+  return resource(function*(provide) {
+    let { send, stream } = createSignal();
+    try {
+      button.addEventListener("click", send);
+
+      let subscription = yield* stream;
+      yield* provide(subscription);
+
+    } finally {
+      button.removeEventListener("click", send);
+    }
+  });
+}
+```
+
+We have now encapsulated the setup and teardown of our listener in a single
+place, but the actual consuming of the stream of clicks can happen anywhere.
+
 [rx]: https://rxjs.dev
 [introduction]: ./introduction
+[resources]: ./docs/resources
 [async-iterator]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/AsyncIterator
 [async-iteration-protocols]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols#the_async_iterator_and_async_iterable_protocols
 [asynchronous iterators]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for-await...of
@@ -458,6 +588,8 @@ property is `false`. It does _not_ execute for the last iterator result where
 [subscription]: https://deno.land/x/effection/mod.ts?s=Subscription
 [stream]: https://deno.land/x/effection/mod.ts?s=Stream
 [channel]: https://deno.land/x/effection/mod.ts?s=Channel
+[signal]: https://deno.land/x/effection/mod.ts?s=Signal
+[createSignal]: https://deno.land/x/effection/mod.ts?s=createSignal
 [filter]: https://deno.land/x/effection/mod.ts?s=filter
 [map]: https://deno.land/x/effection/mod.ts?s=map
 [pipe]: https://deno.land/x/effection/mod.ts?s=pipe

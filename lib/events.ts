@@ -1,8 +1,7 @@
 // deno-lint-ignore-file no-explicit-any ban-types
-import { createChannel } from "./channel.ts";
+import { createSignal } from "./signal.ts";
 import { resource } from "./instructions.ts";
 import { first } from "./mod.ts";
-import { useScope } from "./run/scope.ts";
 import type { Operation, Stream } from "./types.ts";
 
 type FN = (...any: any[]) => any;
@@ -30,18 +29,16 @@ export function on<
   K extends EventList<T> | (string & {}),
 >(target: T, name: K): Stream<EventTypeFromEventTarget<T, K>, never> {
   return resource(function* (provide) {
-    let { input, output } = createChannel<Event, never>();
-    let scope = yield* useScope();
-    let listener = (event: Event) => scope.run(() => input.send(event));
+    let { send, stream } = createSignal<Event>();
 
-    target.addEventListener(name, listener);
+    target.addEventListener(name, send);
 
     try {
       yield* provide(
-        yield* output as Stream<EventTypeFromEventTarget<T, K>, never>,
+        yield* stream as Stream<EventTypeFromEventTarget<T, K>, never>,
       );
     } finally {
-      target.removeEventListener(name, listener);
+      target.removeEventListener(name, send);
     }
   });
 }

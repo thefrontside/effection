@@ -29,8 +29,10 @@ export interface Queue<T, TClose> {
    * will be available soonest. Any callers awaiting the `next()` value of the
    * subscription will contend for the same buffer of values.
    */
-  subscription: Subscription<T, TClose>;
+  subscription(predicate?: (v: T | TClose) => boolean): Subscription<T, TClose>;
 }
+
+let invariant = () => true;
 
 /**
  * Creates a new queue. Queues are unlimited in size and sending a message to a
@@ -62,36 +64,43 @@ export function createQueue<T, TClose>(): Queue<T, TClose> {
   type Item = IteratorResult<T, TClose>;
 
   let items: Item[] = [];
-  let consumers = new Set<Resolve<Item>>();
+  let consumers = new Set<{ resolve: Resolve<Item>, predicate: (v: T | TClose) => boolean }>();
 
   function enqueue(item: Item) {
     items.unshift(item);
     while (items.length > 0 && consumers.size > 0) {
-      let [consume] = consumers;
       let top = items.pop() as Item;
-      consume(top);
+      for (let consumer of consumers) {
+        if (consumer.predicate(top.value)) {
+          consumer.resolve(top);
+          return;
+        }
+      }
     }
   }
 
   return {
     add: (value) => enqueue({ done: false, value }),
     close: (value) => enqueue({ done: true, value }),
-    subscription: {
-      *next() {
-        let item = items.pop();
-        if (item) {
-          return item;
-        } else {
-          return yield* action<Item>(function* (resolve) {
-            try {
-              consumers.add(resolve);
-              yield* suspend();
-            } finally {
-              consumers.delete(resolve);
-            }
-          });
-        }
-      },
+    subscription(predicate = invariant) {
+      return {
+        *next() {
+          let item = items.pop();
+          if (item) {
+            return item;
+          } else {
+            return yield* action<Item>(function* (resolve) {
+              let consumer = { resolve, predicate };
+              try {
+                consumers.add(consumer);
+                yield* suspend();
+              } finally {
+                consumers.delete(consumer);
+              }
+            });
+          }
+        },
+      };
     },
   };
 }

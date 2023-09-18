@@ -47,10 +47,14 @@ interface EachLoop<T> {
 
 const EachStack = createContext<EachLoop<unknown>[]>("each");
 
-function iterate<T>(stream: Stream<T, unknown>): Operation<Iterable<T>> {
+function iterate<T>(
+  stream: Stream<T, unknown>,
+  predicate?: (v: T | unknown) => boolean,
+): Operation<Iterable<T>> {
   return {
     *[Symbol.iterator]() {
-      let subscription = yield* stream;
+      let sub = yield* stream;
+      let subscription = sub(predicate);
       let current = yield* subscription.next();
       let stack = yield* EachStack.get();
       if (!stack) {

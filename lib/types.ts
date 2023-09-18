@@ -60,7 +60,9 @@ export interface Scope {
   set<T>(context: Context<T>, value: T): T;
 }
 
-export type Stream<T, TReturn> = Operation<Subscription<T, TReturn>>;
+export type Stream<T, TReturn> = Operation<
+  (predicate?: (v: T | TReturn) => boolean) => Subscription<T, TReturn>
+>;
 
 export interface Subscription<T, R> {
   next(): Operation<IteratorResult<T, R>>;

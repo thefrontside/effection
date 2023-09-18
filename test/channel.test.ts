@@ -30,11 +30,11 @@ describe("Channel", () => {
       yield* spawn(channel);
 
       let subscription = yield* output;
-      let result = yield* subscription.next();
+      let result = yield* subscription().next();
       actual.push(result.value as string);
 
       subscription = yield* output;
-      result = yield* subscription.next();
+      result = yield* subscription().next();
       actual.push(result.value as string);
     }
 
@@ -54,7 +54,7 @@ describe("Channel", () => {
       it("receives message on subscription", function* () {
         let subscription = yield* output;
         yield* input.send("hello");
-        let result = yield* subscription.next();
+        let result = yield* subscription().next();
         expect(result.done).toEqual(false);
         expect(result.value).toEqual("hello");
       });
@@ -62,7 +62,8 @@ describe("Channel", () => {
 
     describe("blocking on next", () => {
       it("receives message on subscription done", function* () {
-        let subscription = yield* output;
+        let sub = yield* output;
+        let subscription = sub();
         let result = yield* spawn(() => subscription.next());
         yield* sleep(10);
         yield* input.send("hello");
@@ -77,9 +78,9 @@ describe("Channel", () => {
         yield* send("hello");
         yield* send("foo");
         yield* send("bar");
-        expect(yield* subscription.next()).toHaveProperty("value", "hello");
-        expect(yield* subscription.next()).toHaveProperty("value", "foo");
-        expect(yield* subscription.next()).toHaveProperty("value", "bar");
+        expect(yield* subscription().next()).toHaveProperty("value", "hello");
+        expect(yield* subscription().next()).toHaveProperty("value", "foo");
+        expect(yield* subscription().next()).toHaveProperty("value", "bar");
       });
     });
 
@@ -91,7 +92,7 @@ describe("Channel", () => {
 
         yield* input.send("hello");
 
-        expect(yield* subscription.next()).toEqual({
+        expect(yield* subscription().next()).toEqual({
           done: false,
           value: "hello",
         });
@@ -105,11 +106,11 @@ describe("Channel", () => {
           let subscription = yield* output;
           yield* input.send("foo");
           yield* input.close();
-          expect(yield* subscription.next()).toEqual({
+          expect(yield* subscription().next()).toEqual({
             done: false,
             value: "foo",
           });
-          expect(yield* subscription.next()).toEqual({
+          expect(yield* subscription().next()).toEqual({
             done: true,
             value: undefined,
           });
@@ -123,11 +124,14 @@ describe("Channel", () => {
           yield* input.send("foo");
           yield* input.close(12);
 
-          expect(yield* subscription.next()).toEqual({
+          expect(yield* subscription().next()).toEqual({
             done: false,
             value: "foo",
           });
-          expect(yield* subscription.next()).toEqual({ done: true, value: 12 });
+          expect(yield* subscription().next()).toEqual({
+            done: true,
+            value: 12,
+          });
         });
       });
     });

@@ -64,7 +64,9 @@ export function createQueue<T, TClose>(): Queue<T, TClose> {
   type Item = IteratorResult<T, TClose>;
 
   let items: Item[] = [];
-  let consumers = new Set<{ resolve: Resolve<Item>, predicate: (v: T | TClose) => boolean }>();
+  let consumers = new Set<
+    { resolve: Resolve<Item>; predicate: (v: T | TClose) => boolean }
+  >();
 
   function enqueue(item: Item) {
     items.unshift(item);
@@ -86,7 +88,7 @@ export function createQueue<T, TClose>(): Queue<T, TClose> {
       return {
         *next() {
           let item = items.pop();
-          if (item) {
+          if (item && predicate(item.value)) {
             return item;
           } else {
             return yield* action<Item>(function* (resolve) {

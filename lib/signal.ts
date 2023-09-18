@@ -53,6 +53,10 @@ export interface Signal<T, TClose> {
   stream: Stream<T, TClose>;
 }
 
+function predicateTrue<T>(_: T) {
+  return true;
+}
+
 /**
  * Create a new {@link Signal}
  *
@@ -80,7 +84,7 @@ export interface Signal<T, TClose> {
  * result in out-of-scope code being executed. In those cases, you should use a
  * {@link Channel}.
  */
-export function createSignal<T, TClose = never>(): Signal<T, TClose> {
+export function createSignal<T, TClose = never>(predicate: (inp: T) => boolean = predicateTrue): Signal<T, TClose> {
   let subscribers = new Set<Queue<T, TClose>>();
 
   let stream: Stream<T, TClose> = resource(function* Subscription(provide) {
@@ -96,7 +100,9 @@ export function createSignal<T, TClose = never>(): Signal<T, TClose> {
 
   function send(value: T) {
     for (let queue of [...subscribers]) {
-      queue.add(value);
+      if (predicate(value)) {
+        queue.add(value);
+      }
     }
   }
 

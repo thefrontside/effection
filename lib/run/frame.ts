@@ -24,7 +24,6 @@ export function createFrame<T>(options: FrameOptions<T>): Frame<T> {
 
   let teardown = createEventStream<void, Result<void>>();
 
-
   let frame: Frame<T>;
 
   evaluate(function* () {

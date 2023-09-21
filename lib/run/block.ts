@@ -27,22 +27,20 @@ export function* createBlock<T>(
   operation: () => Operation<T>,
 ): Computation<Block<T>> {
   let [setResults, results] = yield* createValue<BlockResult<T>>();
-  let interrupt = createEventStream<void>();
+  let interrupt = () => {};
   let thunks = createEventStream<ReturnType<typeof $next>, Result<T>>();
   let controller = new AbortController();
   let { signal } = controller;
 
-  signal.addEventListener("abort", () => interrupt.close());
+  signal.addEventListener("abort", () => {
+    thunks.push($abort());
+    interrupt();
+  });
 
   let enter = yield* reset<(frame: Frame<T>) => void>(function* () {
 
     let frame = yield* shift<Frame<T>>(function* (k) {
       return k.tail;
-    });
-
-    yield* reset(function* () {
-      yield* interrupt;
-      thunks.push($abort());
     });
 
     yield* reset(function* () {
@@ -63,10 +61,7 @@ export function* createBlock<T>(
         let instruction = next.value;
 
         let outcome = yield* shift<InstructionResult>(function* (k) {
-          yield* reset(function* () {
-            yield* interrupt;
-            k.tail({ type: "interrupted" });
-          });
+          interrupt = () => k.tail({ type: "interrupted" });
 
           try {
             k.tail({

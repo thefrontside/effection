@@ -4,7 +4,7 @@ import { futurize } from "../future.ts";
 import { evaluate } from "../deps.ts";
 import { lazy } from "../lazy.ts";
 
-import { createEventStream } from "./event-stream.ts";
+import { createValue } from "./value.ts";
 import { createBlock } from "./block.ts";
 import { create } from "./create.ts";
 import { Err, Ok } from "../result.ts";
@@ -20,14 +20,13 @@ export function createFrame<T>(options: FrameOptions<T>): Frame<T> {
   let { operation, parent } = options;
   let children = new Set<Frame>();
   let context = Object.create(parent?.context ?? {});
-  let results = createEventStream<void, Result<void>>();
-
-  let teardown = createEventStream<void, Result<void>>();
 
   let frame: Frame<T>;
 
   evaluate(function* () {
     let block = yield* createBlock(operation);
+    let [setResults, results] = yield* createValue<Result<void>>();
+    let [setTeardown, teardown] = yield* createValue<Result<void>>();
 
     frame = create<Frame<T>>("Frame", { id: ids++, context }, {
       createChild<X>(operation: () => Operation<X>) {
@@ -68,11 +67,11 @@ export function createFrame<T>(options: FrameOptions<T>): Frame<T> {
         return task;
       }),
       *crash(error: Error) {
-        teardown.close(Err(error));
+        setTeardown(Err(error));
         return yield* frame;
       },
       *destroy() {
-        teardown.close(Ok(void 0));
+        setTeardown(Ok(void 0));
         return yield* frame;
       },
       *[Symbol.iterator]() {
@@ -95,7 +94,7 @@ export function createFrame<T>(options: FrameOptions<T>): Frame<T> {
       }
     }
 
-    results.close(current);
+    setResults(current);
   });
 
   return frame!;

@@ -106,7 +106,7 @@ function buffer(stream: ReadableStream<Uint8Array>): Operation<Buffer> {
           next = yield* reader.read();
         }
       } finally {
-        reader.releaseLock();
+        yield* reader.cancel();
       }
     });
 

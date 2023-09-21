@@ -76,6 +76,7 @@ export function useCommand(
     } finally {
       try {
         process.kill("SIGINT");
+        yield* process.status;
       } catch (error) {
         // if the process already quit, then this error is expected.
         // unfortunately there is no way (I know of) to check this

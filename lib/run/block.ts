@@ -7,7 +7,6 @@ import type {
   Result,
 } from "../types.ts";
 
-import { createEventStream, forEach } from "./event-stream.ts";
 import { type Computation, reset, shift } from "../deps.ts";
 import { lazy } from "../lazy.ts";
 import { create } from "./create.ts";

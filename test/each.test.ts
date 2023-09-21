@@ -1,5 +1,5 @@
 import { describe, expect, it } from "./suite.ts";
-import { createChannel, each, run, spawn } from "../mod.ts";
+import { createChannel, each, run, spawn, suspend } from "../mod.ts";
 
 describe("each", () => {
   it("can be used to iterate a stream", async () => {
@@ -51,6 +51,7 @@ describe("each", () => {
     });
   });
 
+
   it("handles context correctly if you break out of a loop", async () => {
     await expect(run(function* () {
       let { input, output } = createChannel<string>();
@@ -61,9 +62,11 @@ describe("each", () => {
         }
         // we're out of the loop, each.next should be invalid.
         yield* each.next;
+
       });
 
       yield* input.send("hello");
+      yield* suspend();
     })).rejects.toHaveProperty("name", "IterationError");
   });
 
@@ -76,6 +79,7 @@ describe("each", () => {
         }
       });
       yield* input.send("hello");
+      yield* suspend();
     })).rejects.toHaveProperty("name", "IterationError");
   });
 

@@ -11,7 +11,7 @@ import { type Computation, reset, shift } from "../deps.ts";
 import { lazy } from "../lazy.ts";
 import { create } from "./create.ts";
 import { Err, Ok } from "../result.ts";
-import { createValue, createQueue } from "./value.ts";
+import { createValue } from "./value.ts";
 
 type InstructionResult =
   | {
@@ -32,10 +32,12 @@ export function* createBlock<T>(
 
   let enter = yield* reset<(frame: Frame<T>) => void>(function* () {
 
-    let thunks = yield* createQueue<IteratorResult<Thunk, Result<T>>>();
+    let thunks: IteratorResult<Thunk, Result<T>>[] = [{
+      done: false, value: $next(void 0)
+    }];
 
     signal.addEventListener("abort", () => {
-      thunks.add({ done: false, value: $abort() });
+      thunks.unshift({ done: false, value: $abort() });
       interrupt();
     });
 
@@ -43,61 +45,57 @@ export function* createBlock<T>(
       return k.tail;
     });
 
-    yield* reset(function* () {
-      let iterator = lazy(() => operation()[Symbol.iterator]());
+    let iterator = lazy(() => operation()[Symbol.iterator]());
 
-      let thunk = yield* thunks.next();
+    let thunk = thunks.pop()!;
 
-      while (!thunk.done) {
-        let getNext = thunk.value;
-        try {
-          let next: IteratorResult<Instruction> = getNext(iterator());
+    while (!thunk.done) {
+      let getNext = thunk.value;
+      try {
+        let next: IteratorResult<Instruction> = getNext(iterator());
 
-          if (next.done) {
-            thunks.add({ done: true, value: Ok(next.value) });
-          } else {
-            let instruction = next.value;
+        if (next.done) {
+          thunks.unshift({ done: true, value: Ok(next.value) });
+        } else {
+          let instruction = next.value;
 
-            let outcome = yield* shift<InstructionResult>(function* (k) {
-              interrupt = () => k.tail({ type: "interrupted" });
+          let outcome = yield* shift<InstructionResult>(function* (k) {
+            interrupt = () => k.tail({ type: "interrupted" });
 
-              try {
-                k.tail({
-                  type: "settled",
-                  result: yield* instruction(frame, signal),
-                });
-              } catch (error) {
-                k.tail({ type: "settled", result: Err(error) });
-              }
-            });
+            try {
+              k.tail({
+                type: "settled",
+                result: yield* instruction(frame, signal),
+              });
+            } catch (error) {
+              k.tail({ type: "settled", result: Err(error) });
+            }
+          });
 
-            if (outcome.type === "settled") {
-              if (outcome.result.ok) {
-                thunks.add({done: false, value: $next(outcome.result.value) });
-              } else {
-                thunks.add({done: false, value: $throw(outcome.result.error) });
-              }
+          if (outcome.type === "settled") {
+            if (outcome.result.ok) {
+              thunks.unshift({done: false, value: $next(outcome.result.value) });
+            } else {
+              thunks.unshift({done: false, value: $throw(outcome.result.error) });
             }
           }
-        } catch (error) {
-          thunks.add({ done: true, value: Err(error) });
         }
-        thunk = yield* thunks.next();
-      };
-
-      let result = thunk.value;
-
-      if (signal.aborted) {
-        setResults({
-          aborted: true,
-          result: result as Result<T>,
-        });
-      } else {
-        setResults({ aborted: false, result });
+      } catch (error) {
+        thunks.unshift({ done: true, value: Err(error) });
       }
-    });
+      thunk = thunks.pop()!;
+    };
 
-    thunks.add({ done: false, value: $next(void 0) });
+    let result = thunk.value;
+
+    if (signal.aborted) {
+      setResults({
+        aborted: true,
+        result: result as Result<T>,
+      });
+    } else {
+      setResults({ aborted: false, result });
+    }
   });
 
   let block: Block<T> = create<Block<T>>("Block", { name: operation.name }, {

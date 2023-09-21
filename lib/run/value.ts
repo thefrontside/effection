@@ -37,37 +37,3 @@ export interface Queue<T> {
   add(item: T): void;
   next(): Computation<T>;
 }
-
-export function* createQueue<T>(): Computation<Queue<T>> {
-  let buffer: T[] = [];
-  let consume: Resolve<T> | void = void 0;
-
-  let unshift: Resolve<T>;
-  yield* reset<Resolve<T>>(function*() {
-    while (true) {
-      let item = yield* shift<T>(function*(k) {
-        unshift = k.tail;
-      });
-      buffer.unshift(item);
-      if (consume) {
-        consume(buffer.pop() as T);
-      }
-    }
-  });
-
-  return {
-    add: (item) => unshift(item),
-    *next() {
-      let top = buffer.pop();
-      if (top) {
-        return top;
-      } else {
-        let item = yield* shift<T>(function*(k) {
-          consume = k.tail;
-        });
-        consume = void(0);
-        return item;
-      }
-    }
-  };
-}

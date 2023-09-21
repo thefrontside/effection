@@ -100,18 +100,12 @@ export function* createBlock<T>(
 
   let block: Block<T> = create<Block<T>>("Block", { name: operation.name }, {
     enter,
-    *abort() {
-      return yield* shift<Result<void>>(function* (k) {
-        yield* reset(function* () {
-          let blockResult = yield* block;
-          k.tail(blockResult.result as Result<void>);
-        });
-        controller.abort();
-      });
-    },
-    *[Symbol.iterator]() {
-      return yield* results;
-    },
+    abort: () => shift<Result<void>>((k) => reset(function* () {
+      controller.abort();
+      let blockResult = yield* block;
+      k.tail(blockResult.result as Result<void>);
+    })),
+    [Symbol.iterator]: results[Symbol.iterator],
   });
   return block;
 }

@@ -12,7 +12,7 @@ import { type Computation, reset, shift } from "../deps.ts";
 import { lazy } from "../lazy.ts";
 import { create } from "./create.ts";
 import { Err, Ok } from "../result.ts";
-import { createValue } from "./value.ts";
+import { createValue, createQueue } from "./value.ts";
 
 type InstructionResult =
   | {
@@ -28,16 +28,18 @@ export function* createBlock<T>(
 ): Computation<Block<T>> {
   let [setResults, results] = yield* createValue<BlockResult<T>>();
   let interrupt = () => {};
-  let thunks = createEventStream<ReturnType<typeof $next>, Result<T>>();
   let controller = new AbortController();
   let { signal } = controller;
 
-  signal.addEventListener("abort", () => {
-    thunks.push($abort());
-    interrupt();
-  });
 
   let enter = yield* reset<(frame: Frame<T>) => void>(function* () {
+
+    let thunks = yield* createQueue<IteratorResult<Thunk, Result<T>>>();
+
+    signal.addEventListener("abort", () => {
+      thunks.add({ done: false, value: $abort() });
+      interrupt();
+    });
 
     let frame = yield* shift<Frame<T>>(function* (k) {
       return k.tail;
@@ -46,16 +48,23 @@ export function* createBlock<T>(
     yield* reset(function* () {
       let iterator = lazy(() => operation()[Symbol.iterator]());
 
-      let result = yield* forEach(thunks, function* (getNext) {
+      let thunk = yield* thunks.next();
+      while (!thunk.done) {
+        let getNext = thunk.value;
+      //let result = yield* forEach(thunks, function* (getNext) {
         let next: IteratorResult<Instruction>;
         try {
           next = getNext(iterator());
         } catch (error) {
-          return thunks.close(Err(error));
+          thunks.add({ done: true, value: Err(error) });
+          thunk = yield* thunks.next();
+          continue;
         }
 
         if (next.done) {
-          return thunks.close(Ok(next.value));
+          thunks.add({ done: true, value: Ok(next.value) });
+          thunk = yield* thunks.next();
+          continue;
         }
 
         let instruction = next.value;
@@ -75,12 +84,15 @@ export function* createBlock<T>(
 
         if (outcome.type === "settled") {
           if (outcome.result.ok) {
-            thunks.push($next(outcome.result.value));
+            thunks.add({done: false, value: $next(outcome.result.value) });
           } else {
-            thunks.push($throw(outcome.result.error));
+            thunks.add({done: false, value: $throw(outcome.result.error) });
           }
         }
-      });
+        thunk = yield* thunks.next();
+      };
+
+      let result = thunk.value;
 
       if (signal.aborted) {
         setResults({
@@ -92,7 +104,7 @@ export function* createBlock<T>(
       }
     });
 
-    thunks.push($next(void 0));
+    thunks.add({ done: false, value: $next(void 0) });
   });
 
   let block: Block<T> = create<Block<T>>("Block", { name: operation.name }, {
@@ -112,6 +124,8 @@ export function* createBlock<T>(
   });
   return block;
 }
+
+type Thunk = ReturnType<typeof $next>;
 
 // deno-lint-ignore no-explicit-any
 const $next = <T>(value: any) =>

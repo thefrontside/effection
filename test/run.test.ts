@@ -2,6 +2,11 @@ import { blowUp, createNumber, describe, expect, it } from "./suite.ts";
 import { expect as $expect, run, sleep, spawn, suspend } from "../mod.ts";
 
 describe("run()", () => {
+  it("can run an operation", async () => {
+    await expect(run(function*() {
+      return "hello";
+    })).resolves.toEqual("hello");
+  });
   it("can compose multiple promises via generator", async () => {
     let result = await run(function* () {
       let one = yield* $expect(Promise.resolve(12));

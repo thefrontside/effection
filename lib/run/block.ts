@@ -8,10 +8,11 @@ import type {
 } from "../types.ts";
 
 import { createEventStream, forEach } from "./event-stream.ts";
-import { evaluate, reset, shift } from "../deps.ts";
+import { type Computation, reset, shift } from "../deps.ts";
 import { lazy } from "../lazy.ts";
 import { create } from "./create.ts";
 import { Err, Ok } from "../result.ts";
+import { createValue } from "./value.ts";
 
 type InstructionResult =
   | {
@@ -22,10 +23,10 @@ type InstructionResult =
     type: "interrupted";
   };
 
-export function createBlock<T>(
+export function* createBlock<T>(
   operation: () => Operation<T>,
-): Block<T> {
-  let results = createEventStream<void, BlockResult<T>>();
+): Computation<Block<T>> {
+  let [setResults, results] = yield* createValue<BlockResult<T>>();
   let interrupt = createEventStream<void>();
   let thunks = createEventStream<ReturnType<typeof $next>, Result<T>>();
   let controller = new AbortController();
@@ -33,12 +34,7 @@ export function createBlock<T>(
 
   signal.addEventListener("abort", () => interrupt.close());
 
-  let result: BlockResult<T> | undefined = void 0;
-
-  let enter = evaluate<(frame: Frame<T>) => void>(function* () {
-    yield* reset(function* () {
-      result = yield* results;
-    });
+  let enter = yield* reset<(frame: Frame<T>) => void>(function* () {
 
     let frame = yield* shift<Frame<T>>(function* (k) {
       return k.tail;
@@ -92,12 +88,12 @@ export function createBlock<T>(
       });
 
       if (signal.aborted) {
-        results.close({
+        setResults({
           aborted: true,
           result: result as Result<T>,
         });
       } else {
-        results.close({ aborted: false, result });
+        setResults({ aborted: false, result });
       }
     });
 
@@ -116,7 +112,7 @@ export function createBlock<T>(
       });
     },
     *[Symbol.iterator]() {
-      return result ?? (yield* results);
+      return yield* results;
     },
   });
   return block;

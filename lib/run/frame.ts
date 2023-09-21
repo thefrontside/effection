@@ -1,7 +1,7 @@
-import type { Frame, Operation, Result, Task } from "../types.ts";
+import type { Frame, Operation, Resolve, Result, Task } from "../types.ts";
 
 import { futurize } from "../future.ts";
-import { evaluate } from "../deps.ts";
+import { evaluate, shift } from "../deps.ts";
 import { lazy } from "../lazy.ts";
 
 import { createValue } from "./value.ts";
@@ -26,7 +26,8 @@ export function createFrame<T>(options: FrameOptions<T>): Frame<T> {
   evaluate(function* () {
     let block = yield* createBlock(operation);
     let [setResults, results] = yield* createValue<Result<void>>();
-    let [setTeardown, teardown] = yield* createValue<Result<void>>();
+
+    let exit: Resolve<Result<void>> = () => {};
 
     frame = create<Frame<T>>("Frame", { id: ids++, context }, {
       createChild<X>(operation: () => Operation<X>) {
@@ -66,20 +67,21 @@ export function createFrame<T>(options: FrameOptions<T>): Frame<T> {
         block.enter(frame);
         return task;
       }),
-      *crash(error: Error) {
-        setTeardown(Err(error));
-        return yield* frame;
+      crash(error: Error) {
+        exit(Err(error));
+        return frame;
       },
-      *destroy() {
-        setTeardown(Ok(void 0));
-        return yield* frame;
+      destroy() {
+        exit(Ok(void 0));
+        return frame;
       },
-      *[Symbol.iterator]() {
-        return yield* results;
-      },
+      [Symbol.iterator]: results[Symbol.iterator],
     });
 
-    let current = yield* teardown;
+    let current = yield* shift<Result<void>>(function*(k) {
+      exit = k.tail;
+    })
+
     let result = yield* block.abort();
     if (!result.ok) {
       current = result;

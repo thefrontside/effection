@@ -30,7 +30,6 @@ export function* createBlock<T>(
   let controller = new AbortController();
   let { signal } = controller;
 
-
   let enter = yield* reset<(frame: Frame<T>) => void>(function* () {
 
     let thunks = yield* createQueue<IteratorResult<Thunk, Result<T>>>();
@@ -48,45 +47,40 @@ export function* createBlock<T>(
       let iterator = lazy(() => operation()[Symbol.iterator]());
 
       let thunk = yield* thunks.next();
+
       while (!thunk.done) {
         let getNext = thunk.value;
-      //let result = yield* forEach(thunks, function* (getNext) {
-        let next: IteratorResult<Instruction>;
         try {
-          next = getNext(iterator());
+          let next: IteratorResult<Instruction> = getNext(iterator());
+
+          if (next.done) {
+            thunks.add({ done: true, value: Ok(next.value) });
+          } else {
+            let instruction = next.value;
+
+            let outcome = yield* shift<InstructionResult>(function* (k) {
+              interrupt = () => k.tail({ type: "interrupted" });
+
+              try {
+                k.tail({
+                  type: "settled",
+                  result: yield* instruction(frame, signal),
+                });
+              } catch (error) {
+                k.tail({ type: "settled", result: Err(error) });
+              }
+            });
+
+            if (outcome.type === "settled") {
+              if (outcome.result.ok) {
+                thunks.add({done: false, value: $next(outcome.result.value) });
+              } else {
+                thunks.add({done: false, value: $throw(outcome.result.error) });
+              }
+            }
+          }
         } catch (error) {
           thunks.add({ done: true, value: Err(error) });
-          thunk = yield* thunks.next();
-          continue;
-        }
-
-        if (next.done) {
-          thunks.add({ done: true, value: Ok(next.value) });
-          thunk = yield* thunks.next();
-          continue;
-        }
-
-        let instruction = next.value;
-
-        let outcome = yield* shift<InstructionResult>(function* (k) {
-          interrupt = () => k.tail({ type: "interrupted" });
-
-          try {
-            k.tail({
-              type: "settled",
-              result: yield* instruction(frame, signal),
-            });
-          } catch (error) {
-            k.tail({ type: "settled", result: Err(error) });
-          }
-        });
-
-        if (outcome.type === "settled") {
-          if (outcome.result.ok) {
-            thunks.add({done: false, value: $next(outcome.result.value) });
-          } else {
-            thunks.add({done: false, value: $throw(outcome.result.error) });
-          }
         }
         thunk = yield* thunks.next();
       };

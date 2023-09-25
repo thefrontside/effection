@@ -51,7 +51,6 @@ describe("each", () => {
     });
   });
 
-
   it("handles context correctly if you break out of a loop", async () => {
     await expect(run(function* () {
       let { input, output } = createChannel<string>();
@@ -62,7 +61,6 @@ describe("each", () => {
         }
         // we're out of the loop, each.next should be invalid.
         yield* each.next;
-
       });
 
       yield* input.send("hello");

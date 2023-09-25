@@ -145,19 +145,3 @@ export interface Frame<T = unknown> extends Computation<Result<void>> {
   crash(error: Error): Computation<Result<void>>;
   destroy(): Computation<Result<void>>;
 }
-
-export type BlockResult<T> =
-  | {
-    readonly aborted: false;
-    result: Result<T>;
-  }
-  | {
-    readonly aborted: true;
-    result: Result<T>;
-  };
-
-export interface Block<T = unknown> extends Computation<BlockResult<T>> {
-  name: string;
-  enter(frame: Frame<T>): void;
-  abort(): Computation<Result<void>>;
-}

@@ -3,7 +3,7 @@ import { expect as $expect, run, sleep, spawn, suspend } from "../mod.ts";
 
 describe("run()", () => {
   it("can run an operation", async () => {
-    await expect(run(function*() {
+    await expect(run(function* () {
       return "hello";
     })).resolves.toEqual("hello");
   });

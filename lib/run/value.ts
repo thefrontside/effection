@@ -1,14 +1,13 @@
-import { type Computation, shift, reset } from "../deps.ts";
+import { type Computation, reset, shift } from "../deps.ts";
 import { type Resolve } from "../types.ts";
+import { shiftSync } from "../shift-sync.ts";
 
 export function* createValue<T>(): Computation<[Resolve<T>, Computation<T>]> {
   let result: { value: T } | void = void 0;
   let listeners = new Set<Resolve<T>>();
 
-  let resolve = yield* reset<Resolve<T>>(function*() {
-    let value = yield* shift<T>(function*(k) {
-      return k.tail;
-    });
+  let resolve = yield* reset<Resolve<T>>(function* () {
+    let value = yield* shiftSync<T>((k) => k.tail);
 
     result = { value };
 
@@ -18,22 +17,27 @@ export function* createValue<T>(): Computation<[Resolve<T>, Computation<T>]> {
     }
   });
 
-  let event = {
-    *[Symbol.iterator]() {
+  let event: Computation<T> = {
+    [Symbol.iterator]() {
       if (result) {
-        return result.value;
+        return sync(result.value);
       } else {
-        return yield* shift<T>(function*(k) {
+        return shiftSync<T>((k) => {
           listeners.add(k.tail);
-        })
+        })[Symbol.iterator]();
       }
     },
   };
-
   return [resolve, event];
 }
 
 export interface Queue<T> {
   add(item: T): void;
   next(): Computation<T>;
+}
+
+export function sync<T>(value: T) {
+  return {
+    next() { return { done: true, value } as const }
+  };
 }

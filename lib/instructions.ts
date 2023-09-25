@@ -1,4 +1,5 @@
 import type {
+  Instruction,
   Frame,
   Operation,
   Provide,
@@ -9,6 +10,7 @@ import type {
 } from "./types.ts";
 
 import { reset, shift } from "./deps.ts";
+import { shiftSync } from "./shift-sync.ts";
 import { Err, Ok } from "./result.ts";
 
 /**
@@ -37,17 +39,15 @@ import { Err, Ok } from "./result.ts";
  * @returns an operation that suspends the current operation
  */
 export function suspend(): Operation<void> {
-  return {
-    *[Symbol.iterator]() {
-      return yield function Suspend(_, signal) {
-        return shift<Result<void>>(function* (k) {
-          if (signal.aborted) {
-            k.tail(Ok(void 0));
-          }
-        });
-      };
-    },
-  };
+  return instruction(Suspend);
+}
+
+function Suspend(_: Frame, signal: AbortSignal) {
+  return shiftSync<Result<void>>((k) => {
+    if (signal.aborted) {
+      k.tail(Ok(void 0));
+    }
+  });
 }
 
 /**
@@ -101,44 +101,38 @@ export function suspend(): Operation<void> {
 export function action<T>(
   operation: (resolve: Resolve<T>, reject: Reject) => Operation<void>,
 ): Operation<T> {
-  return {
-    *[Symbol.iterator]() {
-      return yield function Action(frame) {
-        return shift<Result<T>>(function* (k) {
-          let settle = yield* reset<Resolve<Result<T>>>(function* () {
-            let result = yield* shift<Result<T>>(function* (k) {
-              return k.tail;
-            });
+  return instruction(function Action(frame) {
+    return shift<Result<T>>(function* (k) {
+      let settle = yield* reset<Resolve<Result<T>>>(function* () {
+        let result = yield* shiftSync<Result<T>>((k) => k.tail);
 
-            let destruction = yield* child.destroy();
+        let destruction = yield* child.destroy();
 
-            if (!destruction.ok) {
-              k.tail(destruction);
-            } else {
-              k.tail(result);
-            }
-          });
+        if (!destruction.ok) {
+          k.tail(destruction);
+        } else {
+          k.tail(result);
+        }
+      });
 
-          let resolve: Resolve<T> = (value) => settle(Ok(value));
-          let reject: Reject = (error) => settle(Err(error));
+      let resolve: Resolve<T> = (value) => settle(Ok(value));
+      let reject: Reject = (error) => settle(Err(error));
 
-          let child = frame.createChild(function* () {
-            yield* operation(resolve, reject);
-            yield* suspend();
-          });
+      let child = frame.createChild(function* () {
+        yield* operation(resolve, reject);
+        yield* suspend();
+      });
 
-          yield* reset(function* () {
-            let result = yield* child;
-            if (!result.ok) {
-              k.tail(result);
-            }
-          });
+      yield* reset(function* () {
+        let result = yield* child;
+        if (!result.ok) {
+          k.tail(result);
+        }
+      });
 
-          child.enter();
-        });
-      };
-    },
-  };
+      child.enter();
+    });
+  });
 }
 
 /**
@@ -193,61 +187,77 @@ export function action<T>(
  * @returns a {@link Task} representing a handle to the running operation
  */
 export function spawn<T>(operation: () => Operation<T>): Operation<Task<T>> {
-  return {
-    *[Symbol.iterator]() {
-      return yield function Spawn(frame) {
-        return shift<Result<Task<T>>>(function* (k) {
-          let child = frame.createChild<T>(operation);
+  return instruction(function Spawn(frame) {
+    return shift<Result<Task<T>>>(function (k) {
+      let child = frame.createChild<T>(operation);
 
-          yield* reset(function* () {
-            let result = yield* child;
-            if (!result.ok) {
-              yield* frame.crash(result.error);
-            }
-          });
+      let task = child.enter();
 
-          let task = child.enter();
+      k.tail(Ok(task));
 
-          k.tail(Ok(task));
-        });
-      };
-    },
-  };
+      return reset(function* () {
+        let result = yield* child;
+        if (!result.ok) {
+          yield* frame.crash(result.error);
+        }
+      });
+    });
+  });
 }
 
 export function resource<T>(
   operation: (provide: Provide<T>) => Operation<void>,
 ): Operation<T> {
-  return {
-    *[Symbol.iterator]() {
-      return yield (frame) =>
-        shift<Result<T>>(function* (k) {
-          function* provide(value: T) {
-            k.tail(Ok(value));
-            yield* suspend();
-          }
+  return instruction((frame) =>
+    shift<Result<T>>(function(k) {
+      function provide(value: T) {
+        k.tail(Ok(value));
+        return suspend();
+      }
 
-          let child = frame.createChild(() => operation(provide));
-          yield* reset(function* () {
-            let result = yield* child;
-            if (!result.ok) {
-              k.tail(result);
-              yield* frame.crash(result.error);
-            }
-          });
-          child.enter();
-        });
-    },
-  };
+      let child = frame.createChild(() => operation(provide));
+
+      child.enter();
+
+      return reset(function* () {
+        let result = yield* child;
+        if (!result.ok) {
+          k.tail(result);
+          yield* frame.crash(result.error);
+        }
+      });
+    }));
 }
 
 export function getframe(): Operation<Frame> {
+  return instruction((frame) =>
+    shiftSync<Result<Frame>>((k) => k.tail(Ok(frame))))
+
+}
+
+
+ // An optimized iterator that yields the instruction on the first call
+ // to next, then returns its value on the second. Equivalent to:
+ // {
+ //  *[Symbol.iterator]() { return yield instruction; }
+ // }
+function instruction<T>(i: Instruction): Operation<T> {
   return {
-    *[Symbol.iterator]() {
-      return yield (frame) =>
-        shift<Result<Frame>>(function* (k) {
-          k.tail(Ok(frame));
-        });
-    },
-  };
+    [Symbol.iterator]() {
+      let entered = false;
+      return {
+        next(value) {
+          if (!entered) {
+            entered = true;
+            return { done: false, value: i };
+          } else {
+            return { done: true, value };
+          }
+        },
+        throw(error) {
+          throw error;
+        }
+      }
+    }
+  }
 }

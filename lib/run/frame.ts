@@ -42,11 +42,19 @@ export function createFrame<T>(options: FrameOptions<T>): Frame<T> {
 
     let crash: Error | void = void 0;
 
-    let controller = new AbortController();
+    let interrupt = () => {};
+
+    let signal = {
+      aborted: false,
+    };
 
     let abort = (reason?: Error) => {
-      crash = reason;
-      controller.abort();
+      if (!signal.aborted) {
+        signal.aborted = true;
+        crash = reason;
+        thunks.unshift({ done: false, value: $abort() });
+        interrupt();
+      }
     };
 
     let [start, settled, destroyed] = yield* reset<
@@ -56,14 +64,6 @@ export function createFrame<T>(options: FrameOptions<T>): Frame<T> {
       let destroyed = createFuture<void>();
 
       yield* shiftSync((k) => [k.tail, settled, destroyed]);
-
-      let interrupt = () => {};
-      let { signal } = controller;
-
-      signal.addEventListener("abort", () => {
-        thunks.unshift({ done: false, value: $abort() });
-        interrupt();
-      });
 
       let iterator = lazy(() => operation()[Symbol.iterator]());
 
@@ -85,7 +85,10 @@ export function createFrame<T>(options: FrameOptions<T>): Frame<T> {
               try {
                 k.tail({
                   type: "settled",
-                  result: yield* instruction(frame, signal),
+                  result: yield* instruction(
+                    frame,
+                    signal as unknown as AbortSignal,
+                  ),
                 });
               } catch (error) {
                 k.tail({ type: "settled", result: Err(error) });
@@ -139,7 +142,7 @@ export function createFrame<T>(options: FrameOptions<T>): Frame<T> {
         let task = create<Task<T>>("Task", {}, {
           ...settled.future,
           halt: () => {
-            controller.abort();
+            abort();
             return destroyed.future;
           },
         });

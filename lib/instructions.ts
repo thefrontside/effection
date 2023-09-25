@@ -1,6 +1,6 @@
 import type {
-  Instruction,
   Frame,
+  Instruction,
   Operation,
   Provide,
   Reject,
@@ -209,7 +209,7 @@ export function resource<T>(
   operation: (provide: Provide<T>) => Operation<void>,
 ): Operation<T> {
   return instruction((frame) =>
-    shift<Result<T>>(function(k) {
+    shift<Result<T>>(function (k) {
       function provide(value: T) {
         k.tail(Ok(value));
         return suspend();
@@ -226,21 +226,21 @@ export function resource<T>(
           yield* frame.crash(result.error);
         }
       });
-    }));
+    })
+  );
 }
 
 export function getframe(): Operation<Frame> {
   return instruction((frame) =>
-    shiftSync<Result<Frame>>((k) => k.tail(Ok(frame))))
-
+    shiftSync<Result<Frame>>((k) => k.tail(Ok(frame)))
+  );
 }
 
-
- // An optimized iterator that yields the instruction on the first call
- // to next, then returns its value on the second. Equivalent to:
- // {
- //  *[Symbol.iterator]() { return yield instruction; }
- // }
+// An optimized iterator that yields the instruction on the first call
+// to next, then returns its value on the second. Equivalent to:
+// {
+//  *[Symbol.iterator]() { return yield instruction; }
+// }
 function instruction<T>(i: Instruction): Operation<T> {
   return {
     [Symbol.iterator]() {
@@ -256,8 +256,8 @@ function instruction<T>(i: Instruction): Operation<T> {
         },
         throw(error) {
           throw error;
-        }
-      }
-    }
-  }
+        },
+      };
+    },
+  };
 }

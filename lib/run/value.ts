@@ -1,4 +1,4 @@
-import { type Computation, reset, shift } from "../deps.ts";
+import { type Computation, reset } from "../deps.ts";
 import { type Resolve } from "../types.ts";
 import { shiftSync } from "../shift-sync.ts";
 
@@ -38,6 +38,8 @@ export interface Queue<T> {
 
 export function sync<T>(value: T) {
   return {
-    next() { return { done: true, value } as const }
+    next() {
+      return { done: true, value } as const;
+    },
   };
 }

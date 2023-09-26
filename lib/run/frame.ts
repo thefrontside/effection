@@ -314,6 +314,7 @@ function createTask<T>(
           } else {
             yield* action<void>(function* (resolve, reject) {
               awaitHaltResult(resolve, reject);
+              frame.destroy();
             });
           }
         },

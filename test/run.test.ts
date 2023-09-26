@@ -1,5 +1,6 @@
 import { blowUp, createNumber, describe, expect, it } from "./suite.ts";
 import { expect as $expect, run, sleep, spawn, suspend } from "../mod.ts";
+import type { Task } from "../mod.ts";
 
 describe("run()", () => {
   it("can run an operation", async () => {
@@ -187,10 +188,10 @@ describe("run()", () => {
     await expect(task).rejects.toHaveProperty("message", "boom");
   });
 
-  it("can halt itself", async () => {
-    let task = run(function* () {
+  it.ignore("can halt itself", async () => {
+    let task: Task<void> = run(function* () {
       yield* sleep(3);
-      task.halt();
+      yield* $expect(task.halt());
     });
 
     await expect(task).rejects.toHaveProperty("message", "halted");

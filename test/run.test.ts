@@ -188,21 +188,21 @@ describe("run()", () => {
     await expect(task).rejects.toHaveProperty("message", "boom");
   });
 
-  it.ignore("can halt itself", async () => {
+  it("can halt itself", async () => {
     let task: Task<void> = run(function* () {
       yield* sleep(3);
-      yield* $expect(task.halt());
+      yield* task.halt();
     });
 
     await expect(task).rejects.toHaveProperty("message", "halted");
   });
 
   it("can halt itself between yield points", async () => {
-    let task = run(function* () {
+    let task: Task<void> = run(function* () {
       yield* sleep(1);
 
       yield* spawn(function* () {
-        task.halt();
+        yield* task.halt();
       });
 
       yield* suspend();

@@ -1,14 +1,15 @@
 import type {
   Frame,
+  Future,
   Instruction,
   Operation,
+  Reject,
   Resolve,
   Result,
   Task,
 } from "../types.ts";
 
-import { createFuture, type NewFuture } from "../future.ts";
-import { evaluate, reset, shift } from "../deps.ts";
+import { type Computation, evaluate, reset, shift } from "../deps.ts";
 import { shiftSync } from "../shift-sync.ts";
 import { lazy } from "../lazy.ts";
 
@@ -31,7 +32,7 @@ export function createFrame<T>(options: FrameOptions<T>): Frame<T> {
   let frame: Frame<T>;
 
   evaluate(function* () {
-    let [setResults, results] = yield* createValue<Result<void>>();
+    let [setResults, results] = yield* createValue<FrameResult<T>>();
 
     let exit: Resolve<Exit<T>> = () => {};
 
@@ -57,13 +58,8 @@ export function createFrame<T>(options: FrameOptions<T>): Frame<T> {
       }
     };
 
-    let [start, settled, destroyed] = yield* reset<
-      [Resolve<void>, NewFuture<T>, NewFuture<void>]
-    >(function* () {
-      let settled = createFuture<T>();
-      let destroyed = createFuture<void>();
-
-      yield* shiftSync((k) => [k.tail, settled, destroyed]);
+    let start = yield* reset<Resolve<void>>(function* () {
+      yield* shiftSync((k) => k.tail);
 
       let iterator = lazy(() => operation()[Symbol.iterator]());
 
@@ -139,15 +135,9 @@ export function createFrame<T>(options: FrameOptions<T>): Frame<T> {
         return child;
       },
       enter: () => {
-        let task = create<Task<T>>("Task", {}, {
-          ...settled.future,
-          halt: () => {
-            abort();
-            return destroyed.future;
-          },
-        });
-        start();
+        let task = createTask(frame, results);
         frame.enter = () => task;
+        start();
         return task;
       },
       crash(error: Error) {
@@ -175,27 +165,21 @@ export function createFrame<T>(options: FrameOptions<T>): Frame<T> {
         }
       }
     }
+
     if (!destruction.ok) {
-      destroyed.reject(destruction.error);
-      settled.reject(destruction.error);
-      setResults(destruction);
+      setResults({ ok: false, error: destruction.error, exit: exitValue });
     } else {
-      destroyed.resolve();
       if (exitValue.type === "aborted") {
-        setResults(Ok(void 0));
-        settled.reject(new Error("halted"));
+        setResults({ ok: true, value: void 0, exit: exitValue });
       } else if (exitValue.type === "result") {
         let { result } = exitValue;
         if (result.ok) {
-          setResults(Ok(void 0));
-          settled.resolve(result.value);
+          setResults({ ok: true, value: void 0, exit: exitValue });
         } else {
-          setResults(result);
-          settled.reject(result.error);
+          setResults({ ok: false, error: result.error, exit: exitValue });
         }
       } else {
-        setResults(Err(exitValue.error));
-        settled.reject(exitValue.error);
+        setResults({ ok: false, error: exitValue.error, exit: exitValue });
       }
     }
   });
@@ -247,3 +231,109 @@ type InstructionResult =
   | {
     type: "interrupted";
   };
+
+type FrameResult<T> = Result<void> & {
+  exit: Exit<T>;
+};
+
+import { action } from "../instructions.ts";
+
+function createTask<T>(
+  frame: Frame<T>,
+  results: Computation<FrameResult<T>>,
+): Task<T> {
+  let promise: Promise<T>;
+
+  let awaitResult = (resolve: Resolve<T>, reject: Reject) => {
+    evaluate(function* () {
+      let result = getResult(yield* results);
+
+      if (result.ok) {
+        resolve(result.value);
+      } else {
+        reject(result.error);
+      }
+    });
+  };
+
+  let getPromise = () => {
+    promise = new Promise<T>((resolve, reject) => {
+      awaitResult(resolve, reject);
+    });
+    getPromise = () => promise;
+    return promise;
+  };
+
+  let task = create<Task<T>>("Task", {}, {
+    *[Symbol.iterator]() {
+      let frameResult = evaluate<FrameResult<T> | void>(() => results);
+      if (frameResult) {
+        let result = getResult(frameResult);
+        if (result.ok) {
+          return result.value;
+        } else {
+          throw result.error;
+        }
+      } else {
+        return yield* action<T>(function* (resolve, reject) {
+          awaitResult(resolve, reject);
+        });
+      }
+    },
+    then: (...args) => getPromise().then(...args),
+    catch: (...args) => getPromise().catch(...args),
+    finally: (...args) => getPromise().finally(...args),
+    halt() {
+      let haltPromise: Promise<void>;
+      let getHaltPromise = () => {
+        haltPromise = new Promise((resolve, reject) => {
+          awaitHaltResult(resolve, reject);
+        });
+        getHaltPromise = () => haltPromise;
+        frame.destroy();
+        return haltPromise;
+      };
+      let awaitHaltResult = (resolve: Resolve<void>, reject: Reject) => {
+        evaluate(function* () {
+          let result = yield* results;
+          if (result.ok) {
+            resolve(result.value);
+          } else {
+            reject(result.error);
+          }
+        });
+      };
+      return create<Future<void>>("Future", {}, {
+        *[Symbol.iterator]() {
+          let result = evaluate<FrameResult<T> | void>(() => results);
+
+          if (result) {
+            if (!result.ok) {
+              throw result.error;
+            }
+          } else {
+            yield* action<void>(function* (resolve, reject) {
+              awaitHaltResult(resolve, reject);
+            });
+          }
+        },
+        then: (...args) => getHaltPromise().then(...args),
+        catch: (...args) => getHaltPromise().catch(...args),
+        finally: (...args) => getHaltPromise().finally(...args),
+      });
+    },
+  });
+  return task;
+}
+
+function getResult<T>(result: FrameResult<T>): Result<T> {
+  if (!result.ok) {
+    return result;
+  } else if (result.exit.type === "aborted") {
+    return Err(Error("halted"));
+  } else if (result.exit.type === "crashed") {
+    return Err(result.exit.error);
+  } else {
+    return result.exit.result;
+  }
+}

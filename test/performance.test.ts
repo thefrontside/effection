@@ -1,8 +1,8 @@
-import { describe, it, expect } from "./suite.ts";
-import { run, spawn, createSignal } from "../mod.ts";
+import { describe, expect, it } from "./suite.ts";
+import { createSignal, run, spawn } from "../mod.ts";
 
 describe("performance", () => {
-  it("does degrade beyond an acceptable performance threshold", async() => {
+  it("does degrade beyond an acceptable performance threshold", async () => {
     await run(function* () {
       let perf = globalThis.performance;
 
@@ -21,8 +21,8 @@ describe("performance", () => {
         baselines.push(perf.now() - start);
       }
 
-      let baseline = baselines.reduce((sum, amount) => sum + amount, 0) / baselines.length;
-
+      let baseline = baselines.reduce((sum, amount) => sum + amount, 0) /
+        baselines.length;
 
       let signal = createSignal<string>();
 
@@ -54,7 +54,6 @@ describe("performance", () => {
       //console.dir({  measure, baseline, coefficient });
 
       expect(coefficient).toBeLessThan(60);
-
     });
   });
-})
+});

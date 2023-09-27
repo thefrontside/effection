@@ -1,5 +1,4 @@
 import type { Frame, Future, Reject, Resolve, Result, Task } from "../types.ts";
-import type { Computation } from "../deps.ts";
 
 import { evaluate } from "../deps.ts";
 import { Err } from "../result.ts";
@@ -10,13 +9,12 @@ import { create } from "./create.ts";
 
 export function createTask<T>(
   frame: Frame<T>,
-  results: Computation<FrameResult<T>>,
 ): Task<T> {
   let promise: Promise<T>;
 
   let awaitResult = (resolve: Resolve<T>, reject: Reject) => {
     evaluate(function* () {
-      let result = getResult(yield* results);
+      let result = getResult(yield* frame);
 
       if (result.ok) {
         resolve(result.value);
@@ -36,7 +34,7 @@ export function createTask<T>(
 
   let task = create<Task<T>>("Task", {}, {
     *[Symbol.iterator]() {
-      let frameResult = evaluate<FrameResult<T> | void>(() => results);
+      let frameResult = evaluate<FrameResult<T> | void>(() => frame);
       if (frameResult) {
         let result = getResult(frameResult);
         if (result.ok) {
@@ -65,7 +63,7 @@ export function createTask<T>(
       };
       let awaitHaltResult = (resolve: Resolve<void>, reject: Reject) => {
         evaluate(function* () {
-          let result = yield* results;
+          let result = yield* frame;
           if (result.ok) {
             resolve(result.value);
           } else {
@@ -75,7 +73,7 @@ export function createTask<T>(
       };
       return create<Future<void>>("Future", {}, {
         *[Symbol.iterator]() {
-          let result = evaluate<FrameResult<T> | void>(() => results);
+          let result = evaluate<FrameResult<T> | void>(() => frame);
 
           if (result) {
             if (!result.ok) {

@@ -1,12 +1,6 @@
-import type {
-  Frame,
-  Instruction,
-  Operation,
-  Resolve,
-  Result,
-} from "../types.ts";
+import type { Frame, Instruction, Operation, Result } from "../types.ts";
 
-import { evaluate, reset, shift } from "../deps.ts";
+import { evaluate, shift } from "../deps.ts";
 import { shiftSync } from "../shift-sync.ts";
 import { lazy } from "../lazy.ts";
 import { Err, Ok } from "../result.ts";
@@ -24,23 +18,16 @@ export interface FrameOptions<T> {
 }
 
 export function createFrame<T>(options: FrameOptions<T>): Frame<T> {
-  let { operation, parent } = options;
-  let children = new Set<Frame>();
-  let context = Object.create(parent?.context ?? {});
-
-  let frame: Frame<T>;
-
-  evaluate(function* () {
-    let [setResults, results] = yield* createValue<FrameResult<T>>();
-
-    let exit: Resolve<Exit<T>> = () => {};
-
+  return evaluate<Frame<T>>(function* () {
+    let { operation, parent } = options;
+    let children = new Set<Frame>();
+    let context = Object.create(parent?.context ?? {});
     let thunks: IteratorResult<Thunk, Result<T>>[] = [{
       done: false,
       value: $next(void 0),
     }];
 
-    let crash: Error | void = void 0;
+    let crash: Error | undefined = void 0;
 
     let interrupt = () => {};
 
@@ -57,102 +44,101 @@ export function createFrame<T>(options: FrameOptions<T>): Frame<T> {
       }
     };
 
-    let start = yield* reset<Resolve<void>>(function* () {
-      yield* shiftSync((k) => k.tail);
+    let [setResults, results] = yield* createValue<FrameResult<T>>();
 
-      let iterator = lazy(() => operation()[Symbol.iterator]());
+    let frame = yield* shiftSync<Frame<T>>((k) => {
+      let self: Frame<T> = create<Frame<T>>("Frame", { id: ids++, context }, {
+        createChild<X>(operation: () => Operation<X>) {
+          let child = createFrame<X>({ operation, parent: frame });
+          children.add(child);
+          evaluate(function* () {
+            yield* child;
+            children.delete(child);
+          });
+          return child;
+        },
+        enter: () => {
+          let task = createTask(self);
+          self.enter = () => task;
+          k.tail(self);
+          return task;
+        },
+        crash(error: Error) {
+          abort(error);
+          return frame;
+        },
+        destroy() {
+          abort();
+          return frame;
+        },
+        [Symbol.iterator]: results[Symbol.iterator],
+      });
+      return self;
+    });
 
-      let thunk = thunks.pop()!;
+    let iterator = lazy(() => operation()[Symbol.iterator]());
 
-      while (!thunk.done) {
-        let getNext = thunk.value;
-        try {
-          let next: IteratorResult<Instruction> = getNext(iterator());
+    let thunk = thunks.pop()!;
 
-          if (next.done) {
-            thunks.unshift({ done: true, value: Ok(next.value) });
-          } else {
-            let instruction = next.value;
+    while (!thunk.done) {
+      let getNext = thunk.value;
+      try {
+        let next: IteratorResult<Instruction> = getNext(iterator());
 
-            let outcome = yield* shift<InstructionResult>(function* (k) {
-              interrupt = () => k.tail({ type: "interrupted" });
+        if (next.done) {
+          thunks.unshift({ done: true, value: Ok(next.value) });
+        } else {
+          let instruction = next.value;
 
-              try {
-                k.tail({
-                  type: "settled",
-                  result: yield* instruction(
-                    frame,
-                    signal as unknown as AbortSignal,
-                  ),
-                });
-              } catch (error) {
-                k.tail({ type: "settled", result: Err(error) });
-              }
-            });
+          let outcome = yield* shift<InstructionResult>(function* (k) {
+            interrupt = () => k.tail({ type: "interrupted" });
 
-            if (outcome.type === "settled") {
-              if (outcome.result.ok) {
-                thunks.unshift({
-                  done: false,
-                  value: $next(outcome.result.value),
-                });
-              } else {
-                thunks.unshift({
-                  done: false,
-                  value: $throw(outcome.result.error),
-                });
-              }
+            try {
+              k.tail({
+                type: "settled",
+                result: yield* instruction(
+                  frame,
+                  signal as unknown as AbortSignal,
+                ),
+              });
+            } catch (error) {
+              k.tail({ type: "settled", result: Err(error) });
+            }
+          });
+
+          if (outcome.type === "settled") {
+            if (outcome.result.ok) {
+              thunks.unshift({
+                done: false,
+                value: $next(outcome.result.value),
+              });
+            } else {
+              thunks.unshift({
+                done: false,
+                value: $throw(outcome.result.error),
+              });
             }
           }
-        } catch (error) {
-          thunks.unshift({ done: true, value: Err(error) });
         }
-        thunk = thunks.pop()!;
+      } catch (error) {
+        thunks.unshift({ done: true, value: Err(error) });
       }
+      thunk = thunks.pop()!;
+    }
 
-      let result = thunk.value;
+    let result = thunk.value;
 
-      if (!result.ok) {
-        exit({ type: "result", result });
-      } else if (crash) {
-        exit({ type: "crashed", error: crash });
-      } else if (signal.aborted) {
-        exit({ type: "aborted" });
-      } else {
-        exit({ type: "result", result });
-      }
-    });
+    let exit: Exit<T>;
 
-    frame = create<Frame<T>>("Frame", { id: ids++, context }, {
-      createChild<X>(operation: () => Operation<X>) {
-        let child = createFrame<X>({ operation, parent: frame });
-        children.add(child);
-        evaluate(function* () {
-          yield* child;
-          children.delete(child);
-        });
-        return child;
-      },
-      enter: () => {
-        let task = createTask(frame, results);
-        frame.enter = () => task;
-        start();
-        return task;
-      },
-      crash(error: Error) {
-        abort(error);
-        return frame;
-      },
-      destroy() {
-        abort();
-        return frame;
-      },
-      [Symbol.iterator]: results[Symbol.iterator],
-    });
-
-    let exitValue = yield* shiftSync<Exit<T>>((k) => {
-      exit = k.tail;
-    });
+    if (!result.ok) {
+      exit = { type: "result", result };
+    } else if (crash) {
+      exit = { type: "crashed", error: crash };
+    } else if (signal.aborted) {
+      exit = { type: "aborted" };
+    } else {
+      exit = { type: "result", result };
+    }
 
     let destruction = Ok(void 0);
 
@@ -166,24 +152,22 @@ export function createFrame<T>(options: FrameOptions<T>): Frame<T> {
     }
 
     if (!destruction.ok) {
-      setResults({ ok: false, error: destruction.error, exit: exitValue });
+      setResults({ ok: false, error: destruction.error, exit });
     } else {
-      if (exitValue.type === "aborted") {
-        setResults({ ok: true, value: void 0, exit: exitValue });
-      } else if (exitValue.type === "result") {
-        let { result } = exitValue;
+      if (exit.type === "aborted") {
+        setResults({ ok: true, value: void 0, exit });
+      } else if (exit.type === "result") {
+        let { result } = exit;
         if (result.ok) {
-          setResults({ ok: true, value: void 0, exit: exitValue });
+          setResults({ ok: true, value: void 0, exit });
         } else {
-          setResults({ ok: false, error: result.error, exit: exitValue });
+          setResults({ ok: false, error: result.error, exit });
         }
       } else {
-        setResults({ ok: false, error: exitValue.error, exit: exitValue });
+        setResults({ ok: false, error: exit.error, exit });
       }
     }
   });
-
-  return frame!;
 }
 
 type Thunk = ReturnType<typeof $next>;

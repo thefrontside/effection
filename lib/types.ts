@@ -137,7 +137,9 @@ export interface Instruction {
   (frame: Frame, signal: AbortSignal): Computation<Result<unknown>>;
 }
 
-export interface Frame<T = unknown> extends Computation<Result<void>> {
+import type { FrameResult } from "./run/types.ts";
+
+export interface Frame<T = unknown> extends Computation<FrameResult<T>> {
   id: number;
   context: Record<string, unknown>;
   createChild<C>(operation: () => Operation<C>): Frame<C>;

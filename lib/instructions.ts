@@ -42,9 +42,9 @@ export function suspend(): Operation<void> {
   return instruction(Suspend);
 }
 
-function Suspend(_: Frame, signal: AbortSignal) {
+function Suspend(frame: Frame) {
   return shiftSync<Result<void>>((k) => {
-    if (signal.aborted) {
+    if (frame.aborted) {
       k.tail(Ok(void 0));
     }
   });

@@ -31,13 +31,9 @@ export function createFrame<T>(options: FrameOptions<T>): Frame<T> {
 
     let interrupt = () => {};
 
-    let signal = {
-      aborted: false,
-    };
-
     let abort = (reason?: Error) => {
-      if (!signal.aborted) {
-        signal.aborted = true;
+      if (!frame.aborted) {
+        frame.aborted = true;
         crash = reason;
         thunks.unshift({ done: false, value: $abort() });
         interrupt();
@@ -96,10 +92,7 @@ export function createFrame<T>(options: FrameOptions<T>): Frame<T> {
             try {
               k.tail({
                 type: "settled",
-                result: yield* instruction(
-                  frame,
-                  signal as unknown as AbortSignal,
-                ),
+                result: yield* instruction(frame),
               });
             } catch (error) {
               k.tail({ type: "settled", result: Err(error) });
@@ -134,7 +127,7 @@ export function createFrame<T>(options: FrameOptions<T>): Frame<T> {
       exit = { type: "result", result };
     } else if (crash) {
       exit = { type: "crashed", error: crash };
-    } else if (signal.aborted) {
+    } else if (frame.aborted) {
       exit = { type: "aborted" };
     } else {
       exit = { type: "result", result };

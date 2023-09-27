@@ -134,7 +134,7 @@ export type Result<T> = {
 };
 
 export interface Instruction {
-  (frame: Frame, signal: AbortSignal): Computation<Result<unknown>>;
+  (frame: Frame): Computation<Result<unknown>>;
 }
 
 import type { FrameResult } from "./run/types.ts";
@@ -142,6 +142,7 @@ import type { FrameResult } from "./run/types.ts";
 export interface Frame<T = unknown> extends Computation<FrameResult<T>> {
   id: number;
   context: Record<string, unknown>;
+  aborted?: boolean;
   createChild<C>(operation: () => Operation<C>): Frame<C>;
   enter(): Task<T>;
   crash(error: Error): Computation<Result<void>>;

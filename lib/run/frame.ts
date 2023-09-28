@@ -14,14 +14,14 @@ let ids = 0;
 
 export interface FrameOptions<T> {
   operation(): Operation<T>;
-  parent?: Frame;
+  parent?: Frame["context"];
 }
 
 export function createFrame<T>(options: FrameOptions<T>): Frame<T> {
   return evaluate<Frame<T>>(function* () {
     let { operation, parent } = options;
     let children = new Set<Frame>();
-    let context = Object.create(parent?.context ?? {});
+    let context = Object.create(parent ?? {});
     let thunks: IteratorResult<Thunk, Result<T>>[] = [{
       done: false,
       value: $next(void 0),
@@ -45,7 +45,7 @@ export function createFrame<T>(options: FrameOptions<T>): Frame<T> {
     let frame = yield* shiftSync<Frame<T>>((k) => {
       let self: Frame<T> = create<Frame<T>>("Frame", { id: ids++, context }, {
         createChild<X>(operation: () => Operation<X>) {
-          let child = createFrame<X>({ operation, parent: frame });
+          let child = createFrame<X>({ operation, parent: frame.context });
           children.add(child);
           evaluate(function* () {
             yield* child;

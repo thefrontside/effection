@@ -36,7 +36,7 @@ export function createFrame<T>(options: FrameOptions<T>): Frame<T> {
     let frame = yield* shiftSync<Frame<T>>((k) => {
       let self: Frame<T> = create<Frame<T>>("Frame", { id: ids++, context }, {
         createChild<X>(operation: () => Operation<X>) {
-          let child = createFrame<X>({ operation, parent: frame.context });
+          let child = createFrame<X>({ operation, parent: self.context });
           children.add(child);
           evaluate(function* () {
             yield* child;
@@ -44,7 +44,7 @@ export function createFrame<T>(options: FrameOptions<T>): Frame<T> {
           });
           return child;
         },
-        enter: () => {
+        enter() {
           let task = createTask(self);
           self.enter = () => task;
           k.tail(self);
@@ -52,11 +52,11 @@ export function createFrame<T>(options: FrameOptions<T>): Frame<T> {
         },
         crash(error: Error) {
           abort(error);
-          return self;
+          return results;
         },
         destroy() {
           abort();
-          return self;
+          return results;
         },
         [Symbol.iterator]: results[Symbol.iterator],
       });

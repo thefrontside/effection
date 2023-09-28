@@ -191,9 +191,9 @@ export function spawn<T>(operation: () => Operation<T>): Operation<Task<T>> {
     return shift<Result<Task<T>>>(function (k) {
       let child = frame.createChild<T>(operation);
 
-      let task = child.enter();
+      child.enter();
 
-      k.tail(Ok(task));
+      k.tail(Ok(child.getTask()));
 
       return reset(function* () {
         let result = yield* child;

@@ -44,11 +44,13 @@ export function createFrame<T>(options: FrameOptions<T>): Frame<T> {
           });
           return child;
         },
-        enter() {
+        getTask() {
           let task = createTask(self);
-          self.enter = () => task;
-          k.tail(self);
+          self.getTask = () => task;
           return task;
+        },
+        enter() {
+          k.tail(self);
         },
         crash(error: Error) {
           abort(error);

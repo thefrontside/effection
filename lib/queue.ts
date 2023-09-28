@@ -32,6 +32,10 @@ export interface Queue<T, TClose> {
   subscription: Subscription<T, TClose>;
 }
 
+function invariant<T>(_: T) {
+  return true;
+}
+
 /**
  * Creates a new queue. Queues are unlimited in size and sending a message to a
  * queue is always synchronous.
@@ -62,32 +66,41 @@ export function createQueue<T, TClose>(): Queue<T, TClose> {
   type Item = IteratorResult<T, TClose>;
 
   let items: Item[] = [];
-  let consumers = new Set<Resolve<Item>>();
+  let consumers = new Set<
+    { resolve: Resolve<Item>; predicate: (item: T | TClose) => boolean }
+  >();
 
   function enqueue(item: Item) {
     items.unshift(item);
     while (items.length > 0 && consumers.size > 0) {
-      let [consume] = consumers;
       let top = items.pop() as Item;
-      consume(top);
+      for (let consumer of consumers) {
+        if (consumer.predicate(top.value)) {
+          consumer.resolve(top);
+          return;
+        }
+      }
     }
   }
 
   return {
     add: (value) => enqueue({ done: false, value }),
     close: (value) => enqueue({ done: true, value }),
-    subscription: {
-      *next() {
-        let item = items.pop();
-        if (item) {
-          return item;
-        } else {
-          return yield* pause<Item>((resolve) => {
-            consumers.add(resolve);
-            return () => consumers.delete(resolve);
-          });
-        }
-      },
+    subscription: (predicate = invariant) => {
+      return {
+        *next() {
+          let item = items.pop();
+          if (item && predicate(item.value)) {
+            return item;
+          } else {
+            return yield* pause<Item>((resolve) => {
+              let consumer = { resolve, predicate };
+              consumers.add(consumer);
+              return () => consumers.delete(consumer);
+            });
+          }
+        },
+      };
     },
   };
 }

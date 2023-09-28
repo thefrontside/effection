@@ -6,9 +6,9 @@ export function map<A, B>(op: (a: A) => Operation<B>) {
       *[Symbol.iterator]() {
         let subscription = yield* stream;
 
-        return {
+        return () => ({
           *next() {
-            let next = yield* subscription.next();
+            let next = yield* subscription().next();
 
             if (next.done) {
               return next;
@@ -16,7 +16,7 @@ export function map<A, B>(op: (a: A) => Operation<B>) {
               return { ...next, value: yield* op(next.value) };
             }
           },
-        };
+        });
       },
     };
   };

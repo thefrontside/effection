@@ -9,9 +9,9 @@ export function expect<T>(promise: Promise<T>): Operation<T> {
 }
 
 export function subscribe<T, R>(iter: AsyncIterator<T, R>): Subscription<T, R> {
-  return {
+  return () => ({
     next: () => expect(iter.next()),
-  };
+  });
 }
 
 export function stream<T, R>(iterable: AsyncIterable<T, R>): Stream<T, R> {

@@ -229,7 +229,11 @@ export type Stream<T, TReturn> = Operation<Subscription<T, TReturn>>;
  *
  * @see https://effection.deno.dev/docs/collections#subscription
  */
-export interface Subscription<T, R> {
+export type Subscription<T, R> = (
+  predicate?: (item: T | R) => boolean,
+) => SubscriptionOut<T, R>;
+
+export interface SubscriptionOut<T, R> {
   next(): Operation<IteratorResult<T, R>>;
 }
 

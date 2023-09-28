@@ -43,23 +43,27 @@ interface EachLoop<T> {
   subscription: Subscription<T, unknown>;
   current: IteratorResult<T>;
   stale?: true;
+  predicate?: (value: T) => boolean;
 }
 
 const EachStack = createContext<EachLoop<unknown>[]>("each");
 
-function iterate<T>(stream: Stream<T, unknown>): Operation<Iterable<T>> {
+function iterate<T>(
+  stream: Stream<T, unknown>,
+  predicate?: (item: T) => boolean,
+): Operation<Iterable<T>> {
   return {
     *[Symbol.iterator]() {
       let subscription = yield* stream;
-      let current = yield* subscription.next();
+      let current = yield* subscription(predicate as any).next();
       let stack = yield* EachStack.get();
       if (!stack) {
         stack = yield* EachStack.set([]);
       }
 
-      let context: EachLoop<T> = { subscription, current };
+      let context: EachLoop<T> = { subscription, current, predicate };
 
-      stack.push(context);
+      stack.push(context as any);
 
       let iterator: Iterator<T> = {
         next() {
@@ -98,7 +102,7 @@ iterate.next = function next() {
         error.name = "IterationError";
         throw error;
       }
-      let current = yield* context.subscription.next();
+      let current = yield* context.subscription().next();
       delete context.stale;
       context.current = current;
       if (current.done) {

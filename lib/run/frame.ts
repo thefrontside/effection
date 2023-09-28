@@ -31,15 +31,6 @@ export function createFrame<T>(options: FrameOptions<T>): Frame<T> {
 
     let interrupt = () => {};
 
-    let abort = (reason?: Error) => {
-      if (!frame.aborted) {
-        frame.aborted = true;
-        crash = reason;
-        thunks.unshift({ done: false, value: $abort() });
-        interrupt();
-      }
-    };
-
     let [setResults, results] = yield* createValue<FrameResult<T>>();
 
     let frame = yield* shiftSync<Frame<T>>((k) => {
@@ -61,14 +52,24 @@ export function createFrame<T>(options: FrameOptions<T>): Frame<T> {
         },
         crash(error: Error) {
           abort(error);
-          return frame;
+          return self;
         },
         destroy() {
           abort();
-          return frame;
+          return self;
         },
         [Symbol.iterator]: results[Symbol.iterator],
       });
+
+      let abort = (reason?: Error) => {
+        if (!self.aborted) {
+          self.aborted = true;
+          crash = reason;
+          thunks.unshift({ done: false, value: $abort() });
+          interrupt();
+        }
+      };
+
       return self;
     });
 

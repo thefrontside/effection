@@ -143,8 +143,9 @@ export interface Frame<T = unknown> extends Computation<FrameResult<T>> {
   id: number;
   context: Record<string, unknown>;
   aborted?: boolean;
+  getTask(): Task<T>;
   createChild<C>(operation: () => Operation<C>): Frame<C>;
-  enter(): Task<T>;
+  enter(): void;
   crash(error: Error): Computation<Result<void>>;
   destroy(): Computation<Result<void>>;
 }

@@ -14,7 +14,9 @@ export function createScope(frame?: Frame): [Scope, () => Future<void>] {
 
   let scope = create<Scope>("Scope", {}, {
     run<T>(operation: () => Operation<T>) {
-      return parent.createChild(operation).enter();
+      let frame = parent.createChild(operation);
+      frame.enter();
+      return frame.getTask();
     },
     get<T>(context: Context<T>) {
       let { key, defaultValue } = context;
@@ -27,5 +29,7 @@ export function createScope(frame?: Frame): [Scope, () => Future<void>] {
     },
   });
 
-  return [scope, parent.enter().halt];
+  parent.enter();
+
+  return [scope, parent.getTask().halt];
 }

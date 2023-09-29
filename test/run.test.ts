@@ -1,7 +1,13 @@
 import { blowUp, createNumber, describe, expect, it } from "./suite.ts";
 import { expect as $expect, run, sleep, spawn, suspend } from "../mod.ts";
+import type { Task } from "../mod.ts";
 
 describe("run()", () => {
+  it("can run an operation", async () => {
+    await expect(run(function* () {
+      return "hello";
+    })).resolves.toEqual("hello");
+  });
   it("can compose multiple promises via generator", async () => {
     let result = await run(function* () {
       let one = yield* $expect(Promise.resolve(12));
@@ -183,20 +189,20 @@ describe("run()", () => {
   });
 
   it("can halt itself", async () => {
-    let task = run(function* () {
+    let task: Task<void> = run(function* () {
       yield* sleep(3);
-      task.halt();
+      yield* task.halt();
     });
 
     await expect(task).rejects.toHaveProperty("message", "halted");
   });
 
   it("can halt itself between yield points", async () => {
-    let task = run(function* () {
+    let task: Task<void> = run(function* () {
       yield* sleep(1);
 
       yield* spawn(function* () {
-        task.halt();
+        yield* task.halt();
       });
 
       yield* suspend();

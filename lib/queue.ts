@@ -58,6 +58,10 @@ export interface Queue<T, TClose> {
  * @typeParam T the type of the items in the queue
  * @typeParam TClose the type of the value that the queue is closed with
  */
+import { shift } from "./deps.ts";
+import { Ok } from "./result.ts";
+import { Result } from "./types.ts";
+
 export function createQueue<T, TClose>(): Queue<T, TClose> {
   type Item = IteratorResult<T, TClose>;
 
@@ -82,14 +86,17 @@ export function createQueue<T, TClose>(): Queue<T, TClose> {
         if (item) {
           return item;
         } else {
-          return yield* action<Item>(function* (resolve) {
-            try {
-              consumers.add(resolve);
-              yield* suspend();
-            } finally {
-              consumers.delete(resolve);
+          let resume: Resolve<Item> = () => {}
+          try {
+            return yield function* pause_instruction() {
+              return yield* shift<Result<Item>>(function*(k) {
+                consumers.add(resume = (item) => k.tail(Ok(item)));
+              });
             }
-          });
+          }
+          finally {
+            consumers.delete(resume);
+          }
         }
       },
     },

@@ -198,7 +198,7 @@ export function spawn<T>(operation: () => Operation<T>): Operation<Task<T>> {
       return reset(function* () {
         let result = yield* child;
         if (!result.ok) {
-          yield* frame.crash(result.error);
+          yield* frame.destroy(result.error);
         }
       });
     });
@@ -223,7 +223,7 @@ export function resource<T>(
         let result = yield* child;
         if (!result.ok) {
           k.tail(result);
-          yield* frame.crash(result.error);
+          yield* frame.destroy(result.error);
         }
       });
     })

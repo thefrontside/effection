@@ -8,9 +8,6 @@ import { Err, Ok } from "../result.ts";
 import type { Exit, FrameResult } from "./types.ts";
 import { createValue } from "./value.ts";
 import { createTask } from "./task.ts";
-import { create } from "./create.ts";
-
-let ids = 0;
 
 export interface FrameOptions<T> {
   operation(): Operation<T>;
@@ -20,60 +17,16 @@ export interface FrameOptions<T> {
 export function createFrame<T>(options: FrameOptions<T>): Frame<T> {
   return evaluate<Frame<T>>(function* () {
     let { operation, parent } = options;
-    let children = new Set<Frame>();
-    let context = Object.create(parent ?? {});
-    let thunks: IteratorResult<Thunk, Result<T>>[] = [{
-      done: false,
-      value: $next(void 0),
-    }];
-
-    let crash: Error | undefined = void 0;
-
-    let interrupt = () => {};
 
     let [setResults, results] = yield* createValue<FrameResult<T>>();
 
-    let frame = yield* shiftSync<Frame<T>>((k) => {
-      let self: Frame<T> = create<Frame<T>>("Frame", { id: ids++, context }, {
-        createChild<X>(operation: () => Operation<X>) {
-          let child = createFrame<X>({ operation, parent: self.context });
-          children.add(child);
-          evaluate(function* () {
-            yield* child;
-            children.delete(child);
-          });
-          return child;
-        },
-        getTask() {
-          let task = createTask(self);
-          self.getTask = () => task;
-          return task;
-        },
-        enter() {
-          k.tail(self);
-        },
-        crash(error: Error) {
-          abort(error);
-          return results;
-        },
-        destroy() {
-          abort();
-          return results;
-        },
-        [Symbol.iterator]: results[Symbol.iterator],
-      });
+    let context = Object.create(parent ?? {});
 
-      let abort = (reason?: Error) => {
-        if (!self.aborted) {
-          self.aborted = true;
-          crash = reason;
-          thunks.unshift({ done: false, value: $abort() });
-          interrupt();
-        }
-      };
+    let frame = yield* shiftSync<Frame<T>>((k) =>
+      new FrameImpl(context, results, k.tail)
+    );
 
-      return self;
-    });
+    let { children, thunks } = frame;
 
     let iterator = lazy(() => operation()[Symbol.iterator]());
 
@@ -90,7 +43,7 @@ export function createFrame<T>(options: FrameOptions<T>): Frame<T> {
           let instruction = next.value;
 
           let outcome = yield* shift<InstructionResult>(function* (k) {
-            interrupt = () => k.tail({ type: "interrupted" });
+            frame.interrupt = () => k.tail({ type: "interrupted" });
 
             try {
               k.tail({
@@ -128,8 +81,8 @@ export function createFrame<T>(options: FrameOptions<T>): Frame<T> {
 
     if (!result.ok) {
       exit = { type: "result", result };
-    } else if (crash) {
-      exit = { type: "crashed", error: crash };
+    } else if (frame.crash) {
+      exit = { type: "crashed", error: frame.crash };
     } else if (frame.aborted) {
       exit = { type: "aborted" };
     } else {
@@ -166,7 +119,55 @@ export function createFrame<T>(options: FrameOptions<T>): Frame<T> {
   });
 }
 
-type Thunk = ReturnType<typeof $next>;
+class FrameImpl<T> implements Frame<T> {
+  static ids = 0;
+
+  id = FrameImpl.ids++;
+  children = new Set<Frame>();
+  thunks = [{ done: false, value: $next(void 0) } as const];
+  interrupt = () => {};
+  enter: () => void;
+  aborted?: boolean;
+  crash?: Error;
+  //@ts-expect-error I cannot figure this out.
+  [Symbol.iterator]: Frame<T>[typeof Symbol.iterator];
+
+  constructor(
+    public readonly context: Frame["context"],
+    public readonly result: Frame<T>["result"],
+    enter: (frame: Frame<T>) => void,
+  ) {
+    this.enter = () => enter(this);
+    this[Symbol.iterator] = result[Symbol.iterator];
+  }
+
+  createChild<X>(operation: () => Operation<X>) {
+    let { children } = this;
+    let child = createFrame<X>({ operation, parent: this.context });
+    children.add(child);
+    evaluate(function* () {
+      yield* child;
+      children.delete(child);
+    });
+    return child;
+  }
+
+  getTask() {
+    let task = createTask<T>(this as Frame<T>);
+    this.getTask = () => task;
+    return task;
+  }
+
+  destroy(reason?: Error) {
+    if (!this.aborted) {
+      this.aborted = true;
+      this.crash = reason;
+      this.thunks.unshift({ done: false, value: $abort() });
+      this.interrupt();
+    }
+    return this;
+  }
+}
 
 // deno-lint-ignore no-explicit-any
 const $next = <T>(value: any) =>

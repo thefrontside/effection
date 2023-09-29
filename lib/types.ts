@@ -140,12 +140,20 @@ export interface Instruction {
 import type { FrameResult } from "./run/types.ts";
 
 export interface Frame<T = unknown> extends Computation<FrameResult<T>> {
-  id: number;
-  context: Record<string, unknown>;
+  readonly id: number;
+  readonly context: Record<string, unknown>;
+  readonly children: Set<Frame>;
+  readonly thunks: IteratorResult<Thunk, Result<T>>[];
+  readonly result: Computation<FrameResult<T>>;
   aborted?: boolean;
+  crash?: Error;
   getTask(): Task<T>;
   createChild<C>(operation: () => Operation<C>): Frame<C>;
   enter(): void;
-  crash(error: Error): Computation<Result<void>>;
-  destroy(): Computation<Result<void>>;
+  destroy(crash?: Error): Computation<FrameResult<T>>;
+  interrupt(): void;
+}
+
+interface Thunk {
+  (iter: Iterator<Instruction, unknown>): IteratorResult<Instruction, unknown>;
 }

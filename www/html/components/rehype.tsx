@@ -1,5 +1,5 @@
-import type { PluggableList } from "https://esm.sh/unified@10.1.2";
-import { unified } from "https://esm.sh/unified@10.1.2";
+import type { PluggableList } from "npm:unified@10.1.2";
+import { unified } from "npm:unified@10.1.2";
 
 export interface RehypeOptions {
   children: JSX.Element;

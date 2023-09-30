@@ -1,7 +1,7 @@
 import type { Params, ServeHandler } from "./types.ts";
 import type { Operation } from "effection";
 
-import { toHtml } from "https://esm.sh/hast-util-to-html@8.0.4";
+import { toHtml } from "npm:hast-util-to-html@9.0.0";
 
 import { twind } from "freejack/twind.ts";
 

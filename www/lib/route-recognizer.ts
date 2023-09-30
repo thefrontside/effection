@@ -1,4 +1,4 @@
-import { default as _RouteRecognizer } from "https://esm.sh/route-recognizer@0.3.4";
+import { default as _RouteRecognizer } from "npm:route-recognizer@0.3.4";
 
 export interface RouteRecognizer {
   add(segments: Pattern[]): void;

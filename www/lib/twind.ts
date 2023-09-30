@@ -4,11 +4,11 @@ import {
   stringify,
   tw,
   virtual,
-} from "https://esm.sh/@twind/core@1.1.3";
+} from "npm:@twind/core@1.1.3";
 
-import type { Element } from "https://esm.sh/@types/hast-format@2.3.0";
-import presetTailwind from "https://esm.sh/@twind/preset-tailwind@1.1.4";
-import presetTypography from "https://esm.sh/@twind/preset-typography@1.0.7";
+import type { Element } from "npm:@types/hast-format@2.3.0";
+import presetTailwind from "npm:@twind/preset-tailwind@1.1.4";
+import presetTypography from "npm:@twind/preset-typography@1.0.7";
 
 function presetFrontside() {
   return {

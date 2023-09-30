@@ -4,10 +4,10 @@ import { useDocs } from "../docs/docs.ts";
 import { Navburger } from "./components/navburger.tsx";
 import { Rehype } from "./components/rehype.tsx";
 
-import rehypeSlug from "https://esm.sh/rehype-slug@5.1.0";
-import rehypeAutolinkHeadings from "https://esm.sh/rehype-autolink-headings@6.1.1";
-import rehypeAddClasses from "https://esm.sh/rehype-add-classes@1.0.0";
-import rehypeToc from "https://esm.sh/@jsdevtools/rehype-toc@3.0.2";
+import rehypeSlug from "npm:rehype-slug@5.1.0";
+import rehypeAutolinkHeadings from "npm:rehype-autolink-headings@6.1.1";
+import rehypeAddClasses from "npm:rehype-add-classes@1.0.0";
+import rehypeToc from "npm:@jsdevtools/rehype-toc@3.0.2";
 
 export default function* (doc: Doc): Operation<JSX.Element> {
   let docs = yield* useDocs();

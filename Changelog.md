@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.0.0-alpha.15
+
+- ⚡️eliminate excess memory around the `Frame` class by consolidating `Block`
+  and `Frame` into a single concept.
+  https://github.com/thefrontside/effection/pull/768
+
+- ⚡️improve performance of queues (and by proxy signals and channels) by making
+  the entire lifetime of the subscription live the same frame.
+  https://github.com/thefrontside/effection/pull/771
+
 ## 3.0.0-alpha.14
 
 - ✨Port `race()` operation from `v2`

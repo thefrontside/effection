@@ -1,12 +1,12 @@
 import { createContext, expect, type Operation } from "effection";
 import structure from "./structure.json" assert { type: "json" };
 
-import remarkFrontmatter from "https://esm.sh/remark-frontmatter@4.0.1";
-import remarkMdxFrontmatter from "https://esm.sh/remark-mdx-frontmatter@3.0.0";
-import remarkGfm from "https://esm.sh/remark-gfm@3.0.1";
-import rehypePrismPlus from "https://esm.sh/rehype-prism-plus@1.5.1";
+import remarkFrontmatter from "npm:remark-frontmatter@4.0.1";
+import remarkMdxFrontmatter from "npm:remark-mdx-frontmatter@3.0.0";
+import remarkGfm from "npm:remark-gfm@3.0.1";
+import rehypePrismPlus from "npm:rehype-prism-plus@1.5.1";
 
-import { evaluate } from "https://esm.sh/@mdx-js/mdx@2.3.0";
+import { evaluate } from "npm:@mdx-js/mdx@2.3.0";
 
 import { Fragment, jsx, jsxs } from "hastx/jsx-runtime";
 

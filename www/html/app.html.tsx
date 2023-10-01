@@ -50,9 +50,13 @@ export default function* AppHtml({ title }: Options): Operation<JSX.Element> {
           hreflang="x-default"
         />
         <link rel="stylesheet" href="/assets/prism-atom-one-dark.css" />
+        <link
+          href="https://fonts.googleapis.com/css?family=Inter&display=swap"
+          rel="stylesheet"
+        />
       </head>
       <body>
-        <header class="header fixed w-full top-0">
+        <header class="header w-full top-0 p-6 sticky tracking-wide">
           <div class="flex items-center justify-between">
             <div>
               <a href="/">
@@ -63,11 +67,11 @@ export default function* AppHtml({ title }: Options): Operation<JSX.Element> {
               </a>
             </div>
 
-            <nav aria-label="Site Nav" class="hidden md:block">
-              <ul class="flex items-center gap-6">
+            <nav aria-label="Site Nav" class="text-sm">
+              <ul class="flex items-center gap-6 md:gap-16">
                 <NavLink
                   href="https://deno.land/x/effection/mod.ts"
-                  text="API"
+                  text="API Reference"
                 />
                 <NavLink href="/docs/introduction" text="Guides" />
                 <NavLink
@@ -79,7 +83,7 @@ export default function* AppHtml({ title }: Options): Operation<JSX.Element> {
             </nav>
           </div>
         </header>
-        <main class="mt-5">
+        <main>
           {yield* outlet}
         </main>
         <footer class="grid grid-cols-3 text-center bg-gray-100">

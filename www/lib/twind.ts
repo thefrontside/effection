@@ -19,6 +19,12 @@ function presetFrontside() {
         color: "#fff",
       }],
     ],
+    theme: {
+      fontFamily: {
+        sans: ["Proxima Nova", "proxima-nova", "sans-serif"],
+        inter: ["Inter", "inter", "san-serif"],
+      },
+    },
   };
 }
 

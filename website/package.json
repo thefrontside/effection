@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "docusaurus start --no-open",
-    "build": "docusaurus build --out-dir public/effection",
+    "build": "docusaurus build --out-dir public/effection/v2",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
     "serve": "docusaurus serve --dir public"
@@ -37,6 +37,6 @@
     ]
   },
   "volta": {
-    "extends": "../../package.json"
+    "extends": "../package.json"
   }
 }

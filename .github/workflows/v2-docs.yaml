@@ -1,0 +1,31 @@
+name: Publish V2 Docs
+
+on:
+  push:
+    tags:
+      - "docs-v2-r*"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: volta-cli/action@v4
+      - run: |
+          yarn install
+          yarn prepack
+          yarn docs
+          tar czvf ${{ github.ref }}.apidocs.tgz -C docs api
+
+      - run: |
+          cd website
+          yarn install
+          yarn build
+          tar czvf ${{ github.ref }}.website.tgz -C public effection
+
+      - uses: ncipollo/release-action@v1
+        with:
+          artifacts:
+            - "${{ github.ref }}.website.tgz"
+            - "${{ github.ref }}.apidocs.tgz"
+          token: ${{ secrets.FRONTSIDEJACK_GITHUB_TOKEN }}

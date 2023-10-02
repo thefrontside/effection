@@ -2,7 +2,7 @@ module.exports = {
   title: 'Effection',
   tagline: 'Structured Concurrency for JavaScript',
   url: 'https://frontside.com',
-  baseUrl: '/effection/',
+  baseUrl: '/effection/v2/',
   onBrokenLinks: 'throw',
   favicon: 'images/favicon-effection.png',
   organizationName: 'thefrontside',

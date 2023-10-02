@@ -15,7 +15,7 @@ jobs:
           yarn install
           yarn prepack
           yarn docs
-          tar czvf ${{ github.ref }}.apidocs.tgz -C docs api
+          tar czvf ${{ github.ref_name }}.apidocs.tgz -C docs api
         env:
           NODE_OPTIONS: --max_old_space_size=8192
 
@@ -23,7 +23,7 @@ jobs:
           cd website
           yarn install
           yarn build
-          tar czvf ${{ github.ref }}.website.tgz -C public effection
+          tar czvf ${{ github.ref_name }}.website.tgz -C public effection
           cp *.website.tgz ..
 
       - uses: ncipollo/release-action@v1

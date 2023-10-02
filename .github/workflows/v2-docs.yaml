@@ -26,7 +26,12 @@ jobs:
           tar czvf ${{ github.ref_name }}.website.tgz -C public effection
           cp *.website.tgz ..
 
+      - run: node -pe '`relnum=${"${{ github.ref_name }}".substring("docs-v2-r".length)}`' >> $GITHUB_OUTPUT
+        id: relnum
+
       - uses: ncipollo/release-action@v1
         with:
+          name: V2 Documentation R${{ steps.relnum.outputs.relnum }}
+          body: Website and API documentation for Effection V2 (R${{ steps.relnum.outputs.relnum  }})
           artifacts: "*.tgz"
           token: ${{ secrets.FRONTSIDEJACK_GITHUB_TOKEN }}

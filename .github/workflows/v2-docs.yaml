@@ -16,6 +16,8 @@ jobs:
           yarn prepack
           yarn docs
           tar czvf ${{ github.ref }}.apidocs.tgz -C docs api
+        env:
+          NODE_OPTIONS:--max_old_space_size=8192
 
       - run: |
           cd website

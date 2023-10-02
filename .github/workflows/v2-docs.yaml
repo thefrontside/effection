@@ -22,10 +22,9 @@ jobs:
           yarn install
           yarn build
           tar czvf ${{ github.ref }}.website.tgz -C public effection
+          cp *.website.tgz ..
 
       - uses: ncipollo/release-action@v1
         with:
-          artifacts:
-            - "${{ github.ref }}.website.tgz"
-            - "${{ github.ref }}.apidocs.tgz"
+          artifacts: "*.tgz"
           token: ${{ secrets.FRONTSIDEJACK_GITHUB_TOKEN }}

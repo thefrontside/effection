@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "docusaurus start --no-open",
-    "build": "docusaurus build --out-dir public/effection/v2",
+    "build": "docusaurus build --out-dir public/effection",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
     "serve": "docusaurus serve --dir public"

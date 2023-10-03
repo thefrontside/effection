@@ -22,9 +22,11 @@ jobs:
       - run: |
           cd website
           yarn install
-          yarn build
-          tar czvf ${{ github.ref_name }}.website.tgz -C public effection
-          cp *.website.tgz ..
+          yarn docusaurus build --config ./docusaurus.config.local.js --out-dir build/local
+          tar czvf ${{ github.ref_name }}.website.local.tgz -C build/local .
+          yarn docusaurus build --config ./docusaurus.config.prod.js --out-dir build/prod
+          tar czvf ${{ github.ref_name }}.website.prod.tgz -C build/prod .
+          cp *.tgz ..
 
       - run: node -pe '`relnum=${"${{ github.ref_name }}".substring("docs-v2-r".length)}`' >> $GITHUB_OUTPUT
         id: relnum

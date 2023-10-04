@@ -6,19 +6,6 @@ on:
       - "docs-v2-r*"
 
 jobs:
-  v2-docs-local:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: volta-cli/action@v4
-      - run: |
-          cd website
-          yarn install
-          # rm -rf docusaurus.config.js # ensure we don't pick up legacy config
-          # yarn build:local
-          # rm -rf .docusaurus
-          # yarn build:prod
-      - uses: mxschmitt/action-tmate@v3
   release:
     runs-on: ubuntu-latest
     steps:
@@ -35,9 +22,10 @@ jobs:
       - run: |
           cd website
           yarn install
-          yarn docusaurus build --config ./docusaurus.config.local.js --out-dir build/local/site
+          yarn build:local
           tar czvf ${{ github.ref_name }}.website.local.tgz -C build/local site
-          yarn docusaurus build --config ./docusaurus.config.prod.js --out-dir build/prod/site
+          rm -rf .docusaurus
+          yarn build:prod
           tar czvf ${{ github.ref_name }}.website.prod.tgz -C build/prod site
           cp *.tgz ..
 

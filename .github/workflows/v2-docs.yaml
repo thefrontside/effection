@@ -14,7 +14,8 @@ jobs:
       - run: |
           cd website
           yarn install
-          yarn docusaurus build --config ./docusaurus.config.local.js --out-dir build/local/site
+          yarn build
+      - uses: mxschmitt/action-tmate@v3
   release:
     runs-on: ubuntu-latest
     steps:

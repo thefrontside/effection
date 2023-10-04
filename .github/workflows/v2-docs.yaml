@@ -6,6 +6,15 @@ on:
       - "docs-v2-r*"
 
 jobs:
+  v2-docs-local:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: volta-cli/action@v4
+      - run: |
+          cd website
+          yarn install
+          yarn docusaurus build --config ./docusaurus.config.local.js --out-dir build/local/site
   release:
     runs-on: ubuntu-latest
     steps:

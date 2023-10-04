@@ -14,7 +14,10 @@ jobs:
       - run: |
           cd website
           yarn install
-          yarn build
+          rm -rf docusaurus.config.js # ensure we don't pick up legacy config
+          yarn build:local
+          rm -rf .docusaurus
+          yarn build:prod
       - uses: mxschmitt/action-tmate@v3
   release:
     runs-on: ubuntu-latest

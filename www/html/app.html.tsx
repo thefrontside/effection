@@ -31,7 +31,7 @@ export default function* AppHtml({ title }: Options): Operation<JSX.Element> {
         />
         <meta
           name="twitter:image"
-          content="/assets/images/meta-effection.png"
+          content={yield* useUrl("/assets/images/meta-effection.png")}
         />
         <link rel="icon" href="/assets/images/favicon-effection.png" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />

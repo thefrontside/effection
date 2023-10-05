@@ -1,5 +1,6 @@
-import type { Operation } from "effection";
-import { each, expect, resource, spawn, stream } from "effection";
+import { useAbortSignal } from "effection";
+import type { Operation, Task } from "effection";
+import { each, expect, resource, spawn, stream, useScope } from "effection";
 import { Foras, GzDecoder } from "npm:@hazae41/foras@2.1.1";
 import { Untar } from "https://deno.land/std@0.203.0/archive/untar.ts";
 import { serveTar, type TarEntry } from "freejack/serve-tar.ts";
@@ -11,29 +12,30 @@ export interface V2Docs {
 }
 
 export interface UseV2DocsOptions {
+  fetchEagerly?: boolean;
   revision: number | {
-    website: string;
-    apidocs: string;
+    website: number | {
+      local: number | string;
+      prod: number | string;
+    };
+    apidocs: number | string;
   };
 }
 
-const variant = Deno.env.get("V2_WEBSITE_VARIENT_PROD") ?? "local";
-
 export function useV2Docs(options: UseV2DocsOptions): Operation<V2Docs> {
   return resource(function* (provide) {
-    let { revision } = options;
-
-    let websiteArchiveUrl = typeof revision === "number"
-      ? `https://github.com/thefrontside/effection/releases/download/docs-v2-r${revision}/docs-v2-r${revision}.website.${variant}.tgz`
-      : revision.website;
-    let apidocsArchiveUrl = typeof revision === "number"
-      ? `https://github.com/thefrontside/effection/releases/download/docs-v2-r${revision}/docs-v2-r${revision}.apidocs.tgz`
-      : revision.apidocs;
+    let urls = getUrls(options);
 
     yield* expect(Foras.initBundledOnce());
 
-    let website = yield* spawn(() => loadTar(websiteArchiveUrl));
-    let apidocs = yield* spawn(() => loadTar(apidocsArchiveUrl));
+    let start = options.fetchEagerly ? spawn : lazy;
+
+    let website = {
+      prod: yield* start(() => loadTar(urls.website.prod)),
+      local: yield* start(() => loadTar(urls.website.local)),
+    };
+
+    let apidocs = yield* start(() => loadTar(urls.apidocs));
 
     yield* provide({
       serveWebsite: {
@@ -41,7 +43,9 @@ export function useV2Docs(options: UseV2DocsOptions): Operation<V2Docs> {
           return yield* expect(serveTar(request, {
             tarRoot: "site",
             urlRoot: "V2",
-            entries: yield* website,
+            entries: yield* request.headers.has("X-Base-Url")
+              ? website.prod
+              : website.local,
           }));
         },
       },
@@ -58,8 +62,67 @@ export function useV2Docs(options: UseV2DocsOptions): Operation<V2Docs> {
   });
 }
 
+interface TarUrls {
+  website: {
+    local: string;
+    prod: string;
+  };
+  apidocs: string;
+}
+
+// supports using a version number, or a hard-coded custom url for dev purposes
+function getUrls({ revision }: UseV2DocsOptions): TarUrls {
+  if (typeof revision === "number") {
+    return {
+      website: {
+        local: getWebsiteUrl(revision, "local"),
+        prod: getWebsiteUrl(revision, "prod"),
+      },
+      apidocs: getApiUrl(revision),
+    };
+  } else {
+    let { website, apidocs } = revision;
+    if (typeof website === "number") {
+      return {
+        website: {
+          local: getWebsiteUrl(website, "local"),
+          prod: getWebsiteUrl(website, "prod"),
+        },
+        apidocs: getApiUrl(apidocs),
+      };
+    } else {
+      let { local, prod } = website;
+      return {
+        website: {
+          local: getWebsiteUrl(local, "local"),
+          prod: getWebsiteUrl(prod, "prod"),
+        },
+        apidocs: getApiUrl(apidocs),
+      };
+    }
+  }
+}
+
+function getWebsiteUrl(revision: number | string, variant: "prod" | "local") {
+  if (typeof revision === "number") {
+    return `https://github.com/thefrontside/effection/releases/download/docs-v2-r${revision}/docs-v2-r${revision}.website.${variant}.tgz`;
+  } else {
+    return revision;
+  }
+}
+
+function getApiUrl(revision: string | number): string {
+  if (typeof revision === "number") {
+    return `https://github.com/thefrontside/effection/releases/download/docs-v2-r${revision}/docs-v2-r${revision}.apidocs.tgz`;
+  } else {
+    return revision;
+  }
+}
+
 function* loadTar(url: string) {
-  let response = yield* expect(fetch(url));
+  console.dir({ url });
+  let signal = yield* useAbortSignal();
+  let response = yield* expect(fetch(url, { signal }));
   if (response.ok) {
     let website = new Map<string, TarEntry>();
     if (response.body) {
@@ -91,13 +154,11 @@ function* loadTar(url: string) {
           bytesRead += length;
           return Promise.resolve(length);
         },
-      });
+      }) as AsyncIterable<TarEntry>;
 
       for (let entry of yield* each(stream(untar))) {
         if (entry.type === "directory" && entry.fileName.endsWith("/")) {
-          //@ts-expect-error shut up
           entry.content = new Blob();
-          //@ts-expect-error shut up
           website.set(entry.fileName.slice(0, -1), entry);
         } else {
           let parts: BlobPart[] = [];
@@ -114,9 +175,7 @@ function* loadTar(url: string) {
           } finally {
             yield* expect(entry.discard());
           }
-          //@ts-expect-error shut up
           entry.content = new Blob(parts);
-          //@ts-expect-error shut up
           website.set(entry.fileName, entry);
         }
         yield* each.next;
@@ -126,4 +185,24 @@ function* loadTar(url: string) {
   } else {
     throw new Error(`${response.status}: ${response.statusText}`);
   }
+}
+
+// spawn a task to evaluate the opertaion, but only when you first ask for the
+// value
+function lazy<T>(operation: () => Operation<T>): Operation<Operation<T>> {
+  let task: Task<T> | void = void 0;
+
+  return {
+    *[Symbol.iterator]() {
+      let scope = yield* useScope();
+      return {
+        *[Symbol.iterator]() {
+          if (!task) {
+            task = scope.run(operation);
+          }
+          return yield* task;
+        },
+      };
+    },
+  };
 }

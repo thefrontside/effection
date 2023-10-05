@@ -7,7 +7,10 @@ import { useV2Docs } from "./hooks/use-v2-docs.ts";
 import { AppHtml, DocumentHtml, IndexHtml } from "./html/templates.ts";
 
 export default function* start() {
-  let v2docs = yield* useV2Docs({ revision: 3 });
+  let v2docs = yield* useV2Docs({
+    fetchEagerly: !!Deno.env.get("V2_DOCS_FETCH_EAGERLY"),
+    revision: 3,
+  });
 
   let docs = yield* loadDocs();
   yield* Docs.set(docs);

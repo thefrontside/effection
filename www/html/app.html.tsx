@@ -1,5 +1,5 @@
 import type { Operation } from "effection";
-import { outlet } from "freejack/view.ts";
+import { outlet, useUrl } from "freejack/view.ts";
 
 export interface Options {
   title: string;
@@ -19,7 +19,7 @@ export default function* AppHtml({ title }: Options): Operation<JSX.Element> {
         />
         <meta
           property="og:url"
-          content="https://frontside.com/effection/docs/guides/introduction"
+          content={yield* useUrl("/")}
         />
         <meta
           property="og:description"
@@ -31,22 +31,22 @@ export default function* AppHtml({ title }: Options): Operation<JSX.Element> {
         />
         <meta
           name="twitter:image"
-          content="/assets/images/meta-effection.png"
+          content={yield* useUrl("/assets/images/meta-effection.png")}
         />
         <link rel="icon" href="/assets/images/favicon-effection.png" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link
           rel="canonical"
-          href="https://frontside.com/effection/docs/guides/introduction"
+          href={yield* useUrl("/")}
         />
         <link
           rel="alternate"
-          href="https://frontside.com/effection/docs/guides/introduction"
+          href={yield* useUrl("/")}
           hreflang="en"
         />
         <link
           rel="alternate"
-          href="https://frontside.com/effection/docs/guides/introduction"
+          href={yield* useUrl("/")}
           hreflang="x-default"
         />
         <link rel="stylesheet" href="/assets/prism-atom-one-dark.css" />
@@ -59,7 +59,10 @@ export default function* AppHtml({ title }: Options): Operation<JSX.Element> {
         <header class="header w-full top-0 p-6 sticky tracking-wide">
           <div class="flex items-center justify-between">
             <div>
-              <a href="/">
+              <a
+                href="/"
+                class="flex items-end gap-x-2 after:content-['v3'] after:inline after:relative after:top-0 after:text-sm"
+              >
                 <img
                   src="/assets/images/effection-logo.svg"
                   alt="Effection Logo"

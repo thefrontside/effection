@@ -230,6 +230,9 @@ export function resource<T>(
   );
 }
 
+/**
+ * @ignore
+ */
 export function getframe(): Operation<Frame> {
   return instruction((frame) =>
     shiftSync<Result<Frame>>((k) => k.tail(Ok(frame)))

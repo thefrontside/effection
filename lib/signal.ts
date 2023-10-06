@@ -4,7 +4,7 @@ import { createQueue, type Queue } from "./queue.ts";
 import { resource } from "./instructions.ts";
 
 /**
- * Convert plain JavaScript function calls into a {link @Stream} that can
+ * Convert plain JavaScript function calls into a {@link Stream} that can
  * be consumed within an operation. If no operation is subscribed to a signal's
  * stream, then sending messages to it is a no-op.
  *

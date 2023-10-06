@@ -24,6 +24,13 @@ function presetFrontside() {
         sans: ["Proxima Nova", "proxima-nova", "sans-serif"],
         inter: ["Inter", "inter", "san-serif"],
       },
+      extend: {
+        colors: {
+          "blue-primary": "#14315D",
+          "blue-secondary": "#26ABE8",
+          "pink-secondary": "#F74D7B",
+        },
+      }
     },
   };
 }

@@ -1,5 +1,6 @@
 import type { Operation } from "effection";
 import { outlet, useUrl } from "freejack/view.ts";
+import { ProjectSelect } from "./components/project-select.tsx";
 
 export interface Options {
   title: string;
@@ -71,17 +72,20 @@ export default function* AppHtml({ title }: Options): Operation<JSX.Element> {
             </div>
 
             <nav aria-label="Site Nav" class="text-sm">
-              <ul class="flex items-center gap-6 md:gap-16">
+              <ul class="flex items-center gap-4 md:gap-16">
+                <NavLink href="/docs/introduction" text="Guides" />
                 <NavLink
                   href="https://deno.land/x/effection/mod.ts"
-                  text="API Reference"
+                  text="API"
                 />
-                <NavLink href="/docs/introduction" text="Guides" />
                 <NavLink
                   href="https://github.com/thefrontside/effection"
                   text="Github"
                 />
                 <NavLink href="https://discord.gg/r6AvtnU" text="Discord" />
+                <li>
+                  <ProjectSelect/>
+                </li>
               </ul>
             </nav>
           </div>

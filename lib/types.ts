@@ -76,9 +76,6 @@ export interface Port<T, R> {
  * via same {@link `Stream`}, and messages sent to the channel are
  * received by all consumers. The channel is not buffered, so if there
  * are no consumers, the message is dropped.
- *
- * @typeParam T - type of channel messages
- * @typeParam TClose - type of final channel value
  */
 export interface Channel<T, TClose> {
   /**
@@ -125,6 +122,9 @@ export interface Context<T> extends Operation<T> {
 
 /* low-level interface Which you probably will not need */
 
+/**
+ * @ignore
+ */
 export type Result<T> = {
   readonly ok: true;
   value: T;
@@ -133,12 +133,18 @@ export type Result<T> = {
   error: Error;
 };
 
+/**
+ * @ignore
+ */
 export interface Instruction {
   (frame: Frame): Computation<Result<unknown>>;
 }
 
 import type { FrameResult } from "./run/types.ts";
 
+/**
+ * @ignore
+ */
 export interface Frame<T = unknown> extends Computation<FrameResult<T>> {
   id: number;
   context: Record<string, unknown>;

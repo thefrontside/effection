@@ -10,6 +10,9 @@ export type Exit<T> = {
   result: Result<T>;
 };
 
+/**
+ * @ignore
+ */
 export type FrameResult<T> = Result<void> & {
   exit: Exit<T>;
 };

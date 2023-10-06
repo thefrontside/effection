@@ -10,6 +10,9 @@ type EventTypeFromEventTarget<T, K extends string> = `on${K}` extends keyof T
   ? Parameters<Extract<T[`on${K}`], FN>>[0]
   : Event;
 
+/**
+ * @ignore
+ */
 export type EventList<T> = T extends {
   addEventListener(type: infer P, ...args: any): void;
   // we basically ignore this but we need it so we always get the first override of addEventListener

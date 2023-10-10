@@ -18,12 +18,7 @@ export function ProjectSelect() {
         #${toggleId} ~ label#${closerId} {
           display: block;
         }
-        #${openerId} > aside {
-          background-color: white;
-          box-shadow: 0 2px 15px rgba(0,0,0,.1);
-          width: 200%;
-          left: -50%;
-        }
+
         #${toggleId} ~ #${openerId} li:hover {
           background: rgba(38,171,232,.1);
         }
@@ -39,9 +34,12 @@ export function ProjectSelect() {
         `}
       </style>
       <input type="checkbox" class="hidden" id={toggleId} checked />
-      <label id={openerId} class="relative" for={toggleId}>
-        OSS
-        <aside class="absolute m-4 rounded-md min-w-max z-50 text-blue-primary" style="left: -550%">
+      <label id={openerId} class="cursor-pointer" for={toggleId}>
+        <span class="sm:hidden">OSS</span>
+        <aside
+          class="absolute m-4 rounded-md text-blue-primary bg-white shadow-lg right-0 z-50"
+
+        >
           <h4 class="p-2.5 uppercase text-sm text-center font-normal min-w-max">
             Frontside Open Source
           </h4>

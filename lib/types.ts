@@ -89,6 +89,27 @@ export interface Future<T> extends Promise<T>, Operation<T> {}
  *   });
  *   console.log(yield* task;) //=> "hello world"
  * });
+ * ```
+ *
+ * Note tasks are subject to the strict guarantees of structured concurrency
+ * and will never outlive their parent. For example, the following spawned task
+ * will never log any output to the console.
+ *
+ * @example
+ * ```javascript
+ * import { run, spawn, sleep } from "effection";
+ *
+ * await run(function*() {
+ *   yield* spawn(function*() {
+ *     yield* sleep(100);
+ *     console.log("hello world");
+ *   });
+ *   // <--- returns here, so spawned task is shut down as it sleeps.
+ * });
+ * ```
+ *
+ * See the guide on [Scopes](https://frontside.com/effection/docs/scope) for
+ * more detail.
  *
  * If a `Task` is halted before it finishes executing, then consuming it's
  * result is an Error.

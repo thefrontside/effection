@@ -9,7 +9,7 @@ import { AppHtml, DocumentHtml, IndexHtml } from "./html/templates.ts";
 export default function* start() {
   let v2docs = yield* useV2Docs({
     fetchEagerly: !!Deno.env.get("V2_DOCS_FETCH_EAGERLY"),
-    revision: 3,
+    revision: Number(Deno.env.get("V2_DOCS_REVISION")) ?? 4,
   });
 
   let docs = yield* loadDocs();

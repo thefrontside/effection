@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.0-beta.0
+
+- 📄Fill out type documentation to make more coherent
+  https://github.com/thefrontside/effection/pull/789
+
 ## 3.0.0-alpha.15
 
 - ⚡️eliminate excess memory around the `Frame` class by consolidating `Block`

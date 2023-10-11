@@ -9,6 +9,7 @@ import {
 import type { Element } from "npm:@types/hast-format@2.3.0";
 import presetTailwind from "npm:@twind/preset-tailwind@1.1.4";
 import presetTypography from "npm:@twind/preset-typography@1.0.7";
+import defaultTheme from "npm:@twind/preset-tailwind@1.1.4/defaultTheme";
 
 function presetFrontside() {
   return {
@@ -30,7 +31,11 @@ function presetFrontside() {
           "blue-secondary": "#26ABE8",
           "pink-secondary": "#F74D7B",
         },
-      }
+        screens: {
+          ...defaultTheme.screens,
+          sm: { max : "540px" },
+        }
+      },
     },
   };
 }

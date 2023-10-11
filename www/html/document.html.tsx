@@ -14,7 +14,7 @@ export default function* (doc: Doc): Operation<JSX.Element> {
   let topics = docs.getTopics();
 
   return (
-    <section class="mx-auto md:pt-8 w-full justify-items-normal md:grid md:grid-cols-[200px_auto] lg:grid-cols-[200px_auto_200px] md:gap-4">
+    <section class="mx-auto md:pt-8 w-full justify-items-normal md:grid md:grid-cols-[225px_auto] lg:grid-cols-[225px_auto_200px] md:gap-4">
       <p class="text-right mr-4 md:hidden">
         <label class="cursor-pointer" for="nav-toggle">
           <Navburger />
@@ -29,14 +29,27 @@ export default function* (doc: Doc): Operation<JSX.Element> {
       </style>
       <input class="hidden" id="nav-toggle" type="checkbox" checked />
       <aside id="docbar" class="fixed top-0 h-full w-full grid grid-cols-2">
-        <nav class="bg-white pr-4 border-r-2 h-full">
+        <nav class="bg-white px-2 border-r-2 h-full pt-20">
           {topics.map((topic) => (
-            <hgroup class="prose text-sm">
-              <h3>{topic.name}</h3>
-              <menu class="pl-4">
-                {topic.items.map((doc) => (
-                  <li class="whitespace-nowrap">
-                    <a href={`/docs/${doc.id}`}>{doc.title}</a>
+            <hgroup>
+              <h3 class="text-lg">{topic.name}</h3>
+              <menu class="text-gray-700">
+                {topic.items.map((item) => (
+                  <li class="mt-1">
+                    {doc.id !== item.id
+                      ? (
+                        <a
+                          class="rounded px-4 block w-full h-full py-2 hover:bg-gray-100"
+                          href={`/docs/${item.id}`}
+                        >
+                          {item.title}
+                        </a>
+                      )
+                      : (
+                        <a class="rounded px-4 block w-full h-full py-2 bg-gray-100 cursor-default">
+                          {item.title}
+                        </a>
+                      )}
                   </li>
                 ))}
               </menu>
@@ -48,12 +61,25 @@ export default function* (doc: Doc): Operation<JSX.Element> {
       <aside>
         <nav class="hidden md:block fixed pl-4">
           {topics.map((topic) => (
-            <hgroup class="prose text-sm">
-              <h3>{topic.name}</h3>
-              <menu class="pl-4">
-                {topic.items.map((doc) => (
-                  <li class="">
-                    <a href={`/docs/${doc.id}`}>{doc.title}</a>
+            <hgroup>
+              <h3 class="text-lg">{topic.name}</h3>
+              <menu class="text-gray-700">
+                {topic.items.map((item) => (
+                  <li class="mt-1">
+                    {doc.id !== item.id
+                      ? (
+                        <a
+                          class="rounded px-4 block w-full h-full py-2 hover:bg-gray-100"
+                          href={`/docs/${item.id}`}
+                        >
+                          {item.title}
+                        </a>
+                      )
+                      : (
+                        <a class="rounded px-4 block w-full h-full py-2 bg-gray-100 cursor-default">
+                          {item.title}
+                        </a>
+                      )}
                   </li>
                 ))}
               </menu>
@@ -62,7 +88,7 @@ export default function* (doc: Doc): Operation<JSX.Element> {
         </nav>
       </aside>
       <Transform fn={liftTOC}>
-        <article class="prose px-4 min-w-full">
+        <article class="prose px-6 min-w-full">
           <h1>{doc.title}</h1>
           <Rehype
             plugins={[
@@ -80,7 +106,7 @@ export default function* (doc: Doc): Operation<JSX.Element> {
               [rehypeToc, {
                 cssClasses: {
                   toc:
-                    "hidden text-sm tracking-wide leading-loose lg:block relative whitespace-nowrap",
+                    "hidden text-sm font-light tracking-wide leading-loose lg:block relative whitespace-nowrap",
                   list: "fixed",
                 },
               }],
@@ -97,25 +123,33 @@ export default function* (doc: Doc): Operation<JSX.Element> {
 
 function NextPrevLinks({ doc }: { doc: Doc }): JSX.Element {
   return (
-    <menu class="grid grid-cols-2">
+    <menu class="grid grid-cols-2 my-10 gap-x-2 xl:gap-x-20 2xl:gap-x-40 text-lg">
       {doc.previous
         ? (
-          <li class="col-start-1 text-left">
+          <li class="col-start-1 text-left font-light border-1 rounded-lg p-4">
             Previous
-            <a class="block" href={`/docs/${doc.previous.id}`}>
-              ‹‹{doc.previous.title}
+            <a
+              class="py-2 block text-xl font-bold text-blue-primary no-underline tracking-wide leading-5 before:content-['«&nbsp;'] before:font-normal"
+              href={`/docs/${doc.previous.id}`}
+            >
+              {doc.previous.title}
             </a>
           </li>
         )
-        : ""}
+        : <li />}
       {doc.next
         ? (
-          <li class="col-start-2 text-right">
+          <li class="col-start-2 text-right font-light border-1 rounded-lg p-4">
             Next
-            <a class="block" href={`/docs/${doc.next.id}`}>{doc.next.title}</a>
+            <a
+              class="py-2 block text-xl font-bold text-blue-primary no-underline tracking-wide leading-5 after:content-['&nbsp;»'] after:font-normal"
+              href={`/docs/${doc.next.id}`}
+            >
+              {doc.next.title}
+            </a>
           </li>
         )
-        : ""}
+        : <li />}
     </menu>
   );
 }

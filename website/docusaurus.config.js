@@ -2,12 +2,20 @@ module.exports = {
   title: 'Effection',
   tagline: 'Structured Concurrency for JavaScript',
   url: 'https://frontside.com',
-  baseUrl: '/effection/',
+  baseUrl: '/effection/V2/',
   onBrokenLinks: 'throw',
   favicon: 'images/favicon-effection.png',
   organizationName: 'thefrontside',
   projectName: 'effection',
   themeConfig: {
+    announcementBar: {
+      id: 'effection_v3_announce',
+      content:
+      '📣 These docs are for Effection V2. Check out the <a href="https://frontside.com/effection/">latest release here</a>',
+      backgroundColor: '#fafbfc',
+      textColor: '#091E42',
+      isCloseable: false,
+    },
     colorMode: {
       disableSwitch: true,
       respectPrefersColorScheme: true,
@@ -28,7 +36,7 @@ module.exports = {
           position: "right",
         },
         {
-          href: 'https://frontside.com/effection/api/index.html',
+          href: 'https://frontside.com/effection/V2/api/index.html',
           label: 'API Reference',
           position: 'right',
         },
@@ -61,15 +69,15 @@ module.exports = {
           items: [
             {
               label: "Interactors",
-              href: "https://frontside.com/effection",
+              href: "https://frontside.com/interactors",
             },
             {
               label: "Bigtest",
               href: "https://frontside.com/bigtest",
             },
             {
-              label: "Effection",
-              to: "/",
+              label: "Effection v3",
+              to: "/effection/",
             },
           ],
         },

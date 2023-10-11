@@ -120,7 +120,6 @@ function getApiUrl(revision: string | number): string {
 }
 
 function* loadTar(url: string) {
-  console.dir({ url });
   let signal = yield* useAbortSignal();
   let response = yield* expect(fetch(url, { signal }));
   if (response.ok) {

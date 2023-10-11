@@ -3,6 +3,11 @@ import { create } from "./create.ts";
 import { createFrame } from "./frame.ts";
 import { getframe, suspend } from "../instructions.ts";
 
+/**
+ * Get the scope of the currently running {@link Operation}.
+ *
+ * @returns an operation that yields the current scope
+ */
 export function* useScope(): Operation<Scope> {
   let frame = yield* getframe();
   let [scope] = createScope(frame);

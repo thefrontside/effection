@@ -136,7 +136,7 @@ export function action<T>(
 }
 
 /**
- * An operation that runs another operation concurrently as a child.
+ * Run another operation concurrently as a child of the current one.
  *
  * The spawned operation will begin executing immediately and control will
  * return to the caller when it reaches its first suspend point.

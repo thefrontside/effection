@@ -32,7 +32,7 @@ const items = [
   {
     title: 'Effection',
     description: 'Structured Concurrency for JavaScript',
-    url: 'https://frontside.com/effection',
+    url: 'https://frontside.com/effection/V2/',
     version: 'v2',
     img: '/images/icon-effection.svg',
   },

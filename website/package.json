@@ -6,7 +6,7 @@
     "start": "docusaurus start --no-open",
     "build": "docusaurus build --out-dir public/effection",
     "build:local": "docusaurus build --config ./docusaurus.config.local.js --out-dir build/local/site",
-    "build:prod": "docusaurus build --config ./docusaurus.config.prod.js --out-dir build/prod/site",
+    "build:prod": "docusaurus build --config ./docusaurus.config.js --out-dir build/prod/site",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
     "serve": "docusaurus serve --dir public"

@@ -77,7 +77,7 @@ module.exports = {
             },
             {
               label: "Effection v3",
-              to: "/effection/",
+              to: "https://frontside.com/effection",
             },
           ],
         },

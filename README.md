@@ -11,70 +11,55 @@ Structured concurrency and effects for JavaScript.
 
 ## Why use Effection?
 
-Using Effection provides many benefits over using plain Promises and
-`async/await` code:
-
-- **Cleanup:** Effection code cleans up after itself, and that means never having
-  to remember to manually close a resource or detach a listener.
-- **Cancellation:** Any Effection task can be cancelled, which will completely
-  stop that task, as well as stopping any other tasks this operation itself has
-  started.
-- **Synchronicity:** Unlike Promises and `async/await`, Effection is fundamentally
-  synchronous in nature, this means you have full control over the event loop
-  and operations requiring synchronous setup remain race condition free.
-- **Composition:** Since all Effection code is well behaved, it
-  composes easily, and there are no nasty surprises when trying to
-  fit different pieces together.
-
 Effection leverages the idea of [structured concurrency][structured concurrency]
-to ensure that you don't leak any resources, and that cancellation is
-properly handled. It helps you build concurrent code that feels rock
-solid and behaves well under all failure conditions. In essence,
-Effection allows you to compose concurrent code so that you can reason
-about its behavior.
+to ensure that you don't leak any resources, effects, and that cancellation is
+always properly handled. It helps you build concurrent code that feels rock
+solid _at scale_, and it does all of this while feeling like normal JavaScript.
 
 [Learn how to use Effection in your own project](https://frontside.com/effection)
 
-## Contributing
+## Platforms
 
-Currently, Effection development happens using `yarn`. While `npm` may
-work, it is not tested so your mileage may vary.
+Effection runs on all major JavaScript platforms including NodeJs, Browser, and
+Deno. It is published on both [npm][npm-effection] and [deno.land][deno-land-effection].
 
-To build, run the `prepack` command from the root directory.
+## Development
 
-```text
-$ yarn prepack
-```
-
-You can also run the `prepack` command within each sub directory to
-only build that package.
-
-Don't forget describe changes that you made.
-For that you need to create `*.md` file in `.changes` directory with
-list of changed packages, each package should be versioned by semver, and
-on the last line briefly describe your changes. Like this:
-
-```md
----
-"package-name1": "patch"
-"package-name2": "minor"
----
-
-Added new awesome feature
-```
-
-The more information about this format you can find in [`covector` docs](https://github.com/jbolda/covector/tree/main/packages/covector#applying-changes)
+[Deno][] is the primary tool used for development, testing, and packaging.
 
 ### Testing
 
 To run tests:
 
 ```text
-$ yarn test
+$ deno task test
 ```
 
-Most test suites use the [`@effection/mocha`](packages/mocha) to
-leverage Effection to test itself.
+### Building NPM Packages
+
+If you want to build a development version of the NPM package so that you can
+link it locally, you can use the `build:npm` script and passing it a version
+number. for example:
+
+``` text
+$ deno task build:npm 3.0.0-mydev-snapshot.0
+Task build:npm deno run -A tasks/build-npm.ts "3.0.0-mydev-snapshot.0"
+[dnt] Transforming...
+[dnt] Running npm install...
+
+up to date, audited 1 package in 162ms
+
+found 0 vulnerabilities
+[dnt] Building project...
+[dnt] Emitting ESM package...
+[dnt] Emitting script package...
+[dnt] Complete!
+```
+
+Now, the built npm package can be found in the `build/npm` directory.
 
 [structured concurrency]: https://vorpus.org/blog/notes-on-structured-concurrency-or-go-statement-considered-harmful/
 [discord]: https://discord.gg/Ug5nWH8
+[Deno]: https://deno.land
+[npm-effection]: https://www.npmjs.com/package/effection
+[deno-land-effection]: https://deno.land/x/effection

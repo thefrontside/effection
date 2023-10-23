@@ -24,6 +24,10 @@ export function addTrace(error: Error & Partial<HasEffectionTrace>, task: Task):
       get: () => error.message,
       enumerable: true,
     },
+    cause: {
+      get: () => error,
+      enumerable: true,
+    },
     effectionTrace: {
       value: [...(error.effectionTrace || []), info],
       enumerable: true,

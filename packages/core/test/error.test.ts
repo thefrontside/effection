@@ -10,14 +10,16 @@ class ExplodeError extends Error {
 
 describe('error', () => {
   it('wraps the error in an effection error', async () => {
+    let explosion = new ExplodeError('boom');
     let error = await run(function *root() {
       yield function *child() {
-        throw new ExplodeError('boom');
+        throw explosion;
       };
     }).then(null, (err) => err);
 
     expect(error.name).toEqual('ExplodeError');
     expect(error.message).toEqual('boom');
+    expect(error.cause).toStrictEqual(explosion);
     expect(error.effectionTrace.length).toEqual(2);
     expect(error.effectionTrace[0].labels.name).toEqual('child');
     expect(error.effectionTrace[1].labels.name).toEqual('root');

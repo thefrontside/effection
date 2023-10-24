@@ -14,7 +14,8 @@ jobs:
       - run: yarn install --immutable
       - run: yarn prepack
       - name: covector status
-        uses: jbolda/covector/packages/action@covector-v0.9
+        uses: jbolda/covector/packages/action@main
         id: covector
         with:
           command: "status"
+          comment: true

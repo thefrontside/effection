@@ -1,5 +1,13 @@
 # @effection/inspect-utils
 
+## \[2.1.8]
+
+### Dependencies
+
+- Upgraded to `effection@2.0.8`
+- Upgraded to `@effection/dispatch@2.0.8`
+- Upgraded to `@effection/atom@2.0.8`
+
 ## \[2.1.7]
 
 ### Dependencies

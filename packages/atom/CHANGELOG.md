@@ -1,5 +1,11 @@
 # @effection/atom
 
+## \[2.0.8]
+
+### Dependencies
+
+- Upgraded to `effection@2.0.8`
+
 ## \[2.0.7]
 
 ### Dependencies

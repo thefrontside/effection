@@ -1,5 +1,9 @@
 # @effection/core
 
+## \[2.2.3]
+
+- [`96b0ce0`](https://github.com/thefrontside/effection/commit/96b0ce039445d5831e96e0f0ced96537a111b9cb) Add the `cause` property to all wrapped errors
+
 ## \[2.2.2]
 
 - [`5d5a9ba`](https://github.com/thefrontside/effection/commit/5d5a9ba4c33c04531abd084c9fc4d1e12d430e8c) use AbortController polyfill that works in the browser

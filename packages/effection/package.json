@@ -1,6 +1,6 @@
 {
   "name": "effection",
-  "version": "2.0.7",
+  "version": "2.0.8",
   "description": "Structured concurrency and effects for JavaScript",
   "homepage": "https://frontside.com/effection",
   "repository": {
@@ -28,13 +28,13 @@
     "prepack": "tsc --build tsconfig.esm.json && tsc --build tsconfig.cjs.json && cpy ../../README.md ."
   },
   "dependencies": {
-    "@effection/channel": "2.0.5",
-    "@effection/core": "2.2.2",
-    "@effection/events": "2.0.5",
-    "@effection/fetch": "2.0.6",
+    "@effection/channel": "2.0.6",
+    "@effection/core": "2.2.3",
+    "@effection/events": "2.0.6",
+    "@effection/fetch": "2.0.7",
     "@effection/main": "2.1.2",
-    "@effection/stream": "2.0.5",
-    "@effection/subscription": "2.0.5"
+    "@effection/stream": "2.0.6",
+    "@effection/subscription": "2.0.6"
   },
   "devDependencies": {
     "@babel/core": "^7.14.8",

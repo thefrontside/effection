@@ -1,6 +1,6 @@
 {
   "name": "@effection/inspect-ui",
-  "version": "2.3.3",
+  "version": "2.3.4",
   "description": "Web interface for inspecting effection applications",
   "main": "app/index.ts",
   "types": "dist-esm/index.d.ts",
@@ -31,7 +31,7 @@
     "mocha": "mocha -r ts-node/register --timeout 5000"
   },
   "dependencies": {
-    "@effection/react": "2.2.3",
+    "@effection/react": "2.2.4",
     "@material-ui/core": "^4.12.2",
     "@material-ui/icons": "^4.9.1",
     "@material-ui/lab": "^4.0.0-alpha.57",
@@ -45,8 +45,8 @@
     "react-router-dom": "^6.3.0"
   },
   "devDependencies": {
-    "@effection/inspect-utils": "2.1.7",
-    "@effection/websocket-client": "2.0.7",
+    "@effection/inspect-utils": "2.1.8",
+    "@effection/websocket-client": "2.0.8",
     "@interactors/material-ui": "^4.1.0",
     "@types/jsdom-global": "^3.0.2",
     "@types/react": "^17.0.50",
@@ -54,7 +54,7 @@
     "@types/react-router": "^5.1.17",
     "@types/react-router-dom": "^5.3.1",
     "copyfiles": "^2.4.1",
-    "effection": "2.0.7",
+    "effection": "2.0.8",
     "eslint-plugin-react": "^7.31.8",
     "eslint-plugin-react-hooks": "^4.6.0",
     "events": "^3.3.0",

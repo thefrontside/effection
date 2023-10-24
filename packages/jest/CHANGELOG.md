@@ -1,5 +1,11 @@
 # @effection/jest
 
+## \[2.0.6]
+
+### Dependencies
+
+- Upgraded to `effection@2.0.8`
+
 ## \[2.0.5]
 
 ### Dependencies

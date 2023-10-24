@@ -1,5 +1,15 @@
 # @effection/inspect-server
 
+## \[2.2.5]
+
+### Dependencies
+
+- Upgraded to `effection@2.0.8`
+- Upgraded to `@effection/atom@2.0.8`
+- Upgraded to `@effection/inspect-utils@2.1.8`
+- Upgraded to `@effection/websocket-server@2.0.8`
+- Upgraded to `@effection/inspect-ui@2.3.4`
+
 ## \[2.2.4]
 
 ### Dependencies

@@ -1,6 +1,6 @@
 {
   "name": "@effection/inspect-utils",
-  "version": "2.1.7",
+  "version": "2.1.8",
   "description": "Helper functions and types for inspecting effection applications",
   "main": "dist-cjs/index.js",
   "types": "dist-esm/index.d.ts",
@@ -28,9 +28,9 @@
     "mocha": "mocha -r ts-node/register"
   },
   "dependencies": {
-    "@effection/atom": "2.0.7",
-    "@effection/dispatch": "2.0.7",
-    "effection": "2.0.7"
+    "@effection/atom": "2.0.8",
+    "@effection/dispatch": "2.0.8",
+    "effection": "2.0.8"
   },
   "volta": {
     "extends": "../../package.json"

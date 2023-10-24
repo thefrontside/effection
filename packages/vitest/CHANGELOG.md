@@ -1,5 +1,11 @@
 # @effection/vitest
 
+## \[2.1.2]
+
+### Dependencies
+
+- Upgraded to `effection@2.0.8`
+
 ## \[2.1.1]
 
 ### Dependencies

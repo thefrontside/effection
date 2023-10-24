@@ -1,5 +1,11 @@
 # @effection/process
 
+## \[2.1.4]
+
+### Dependencies
+
+- Upgraded to `effection@2.0.8`
+
 ## \[2.1.3]
 
 ### Dependencies

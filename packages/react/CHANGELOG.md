@@ -1,5 +1,11 @@
 # @effection/react
 
+## \[2.2.4]
+
+### Dependencies
+
+- Upgraded to `effection@2.0.8`
+
 ## \[2.2.3]
 
 ### Dependencies

@@ -1,5 +1,12 @@
 # Changelog
 
+## \[2.0.6]
+
+### Dependencies
+
+- Upgraded to `@effection/core@2.2.3`
+- Upgraded to `@effection/subscription@2.0.6`
+
 ## \[2.0.5]
 
 ### Dependencies

@@ -1,5 +1,14 @@
 # @effection/inspect-ui
 
+## \[2.3.4]
+
+### Dependencies
+
+- Upgraded to `effection@2.0.8`
+- Upgraded to `@effection/inspect-utils@2.1.8`
+- Upgraded to `@effection/react@2.2.4`
+- Upgraded to `@effection/websocket-client@2.0.8`
+
 ## \[2.3.3]
 
 ### Dependencies

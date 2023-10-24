@@ -1,6 +1,6 @@
 {
   "name": "@effection/channel",
-  "version": "2.0.5",
+  "version": "2.0.6",
   "description": "MPMC Channel implementation for effection",
   "main": "dist-cjs/index.js",
   "module": "dist-esm/index.js",
@@ -31,8 +31,8 @@
     "extends": "../../package.json"
   },
   "dependencies": {
-    "@effection/core": "2.2.2",
-    "@effection/events": "2.0.5",
-    "@effection/stream": "2.0.5"
+    "@effection/core": "2.2.3",
+    "@effection/events": "2.0.6",
+    "@effection/stream": "2.0.6"
   }
 }

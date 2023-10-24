@@ -1,5 +1,11 @@
 # @effection/inspect
 
+## \[2.1.11]
+
+### Dependencies
+
+- Upgraded to `@effection/inspect-server@2.2.5`
+
 ## \[2.1.10]
 
 ### Dependencies

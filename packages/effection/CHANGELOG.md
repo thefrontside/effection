@@ -1,5 +1,16 @@
 # Changelog
 
+## \[2.0.8]
+
+### Dependencies
+
+- Upgraded to `@effection/core@2.2.3`
+- Upgraded to `@effection/channel@2.0.6`
+- Upgraded to `@effection/events@2.0.6`
+- Upgraded to `@effection/fetch@2.0.7`
+- Upgraded to `@effection/subscription@2.0.6`
+- Upgraded to `@effection/stream@2.0.6`
+
 ## \[2.0.7]
 
 ### Dependencies

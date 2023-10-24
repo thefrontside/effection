@@ -1,5 +1,11 @@
 # @effection/fetch
 
+## \[2.0.7]
+
+### Dependencies
+
+- Upgraded to `@effection/core@2.2.3`
+
 ## \[2.0.6]
 
 ### Dependencies

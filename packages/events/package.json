@@ -1,6 +1,6 @@
 {
   "name": "@effection/events",
-  "version": "2.0.5",
+  "version": "2.0.6",
   "description": "Helpers for listening to events with effection",
   "main": "dist-cjs/index.js",
   "module": "dist-esm/index.js",
@@ -28,8 +28,8 @@
     "mocha": "mocha -r ts-node/register"
   },
   "dependencies": {
-    "@effection/core": "2.2.2",
-    "@effection/stream": "2.0.5"
+    "@effection/core": "2.2.3",
+    "@effection/stream": "2.0.6"
   },
   "volta": {
     "extends": "../../package.json"

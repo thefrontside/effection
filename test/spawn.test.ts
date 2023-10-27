@@ -1,19 +1,12 @@
 import { describe, expect, it } from "./suite.ts";
-import {
-  action,
-  expect as $expect,
-  run,
-  sleep,
-  spawn,
-  suspend,
-} from "../mod.ts";
+import { action, run, sleep, spawn, suspend } from "../mod.ts";
 
 describe("spawn", () => {
   it("can spawn a new child task", async () => {
     let root = run(function* () {
       let child = yield* spawn(function* () {
-        let one = yield* $expect(Promise.resolve(12));
-        let two = yield* $expect(Promise.resolve(55));
+        let one = yield* Promise.resolve(12);
+        let two = yield* Promise.resolve(55);
 
         return one + two;
       });

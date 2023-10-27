@@ -1,5 +1,5 @@
 import { blowUp, createNumber, describe, expect, it } from "./suite.ts";
-import { expect as $expect, run, sleep, spawn, suspend } from "../mod.ts";
+import { run, sleep, spawn, suspend } from "../mod.ts";
 import type { Task } from "../mod.ts";
 
 describe("run()", () => {
@@ -8,10 +8,11 @@ describe("run()", () => {
       return "hello";
     })).resolves.toEqual("hello");
   });
+
   it("can compose multiple promises via generator", async () => {
     let result = await run(function* () {
-      let one = yield* $expect(Promise.resolve(12));
-      let two = yield* $expect(Promise.resolve(55));
+      let one = yield* Promise.resolve(12);
+      let two = yield* Promise.resolve(55);
       return one + two;
     });
     expect(result).toEqual(67);
@@ -46,16 +47,16 @@ describe("run()", () => {
   it("can recover from errors in promise", async () => {
     let error = new Error("boom");
     let task = run(function* () {
-      let one = yield* $expect(Promise.resolve(12));
+      let one = yield* Promise.resolve(12);
       let two;
       try {
-        yield* $expect(Promise.reject(error));
+        yield* Promise.reject(error);
         two = 9;
       } catch (_) {
         // swallow error and yield in catch block
-        two = yield* $expect(Promise.resolve(8));
+        two = yield* Promise.resolve(8);
       }
-      let three = yield* $expect(Promise.resolve(55));
+      let three = yield* Promise.resolve(55);
       return one + two + three;
     });
     await expect(task).resolves.toEqual(75);
@@ -63,16 +64,16 @@ describe("run()", () => {
 
   it("can recover from errors in operation", async () => {
     let task = run(function* () {
-      let one = yield* $expect(Promise.resolve(12));
+      let one = yield* Promise.resolve(12);
       let two;
       try {
         yield* blowUp();
         two = 9;
       } catch (_e) {
         // swallow error and yield in catch block
-        two = yield* $expect(Promise.resolve(8));
+        two = yield* Promise.resolve(8);
       }
-      let three = yield* $expect(Promise.resolve(55));
+      let three = yield* Promise.resolve(55);
       return one + two + three;
     });
     await expect(task).resolves.toEqual(75);
@@ -263,7 +264,7 @@ describe("run()", () => {
   it("propagates errors from promises", async () => {
     try {
       await run(function* () {
-        yield* $expect(Promise.reject(new Error("boom")));
+        yield* Promise.reject(new Error("boom"));
       });
       throw new Error("expected error to propagate");
     } catch (error) {

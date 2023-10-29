@@ -6,7 +6,7 @@ import { getframe, suspend } from "../instructions.ts";
 /**
  * Get the scope of the currently running {@link Operation}.
  *
- * @returns an operation that yields the current scope
+ * @returns an operation yielding the current scope
  */
 export function* useScope(): Operation<Scope> {
   let frame = yield* getframe();
@@ -14,6 +14,27 @@ export function* useScope(): Operation<Scope> {
   return scope;
 }
 
+/**
+ * Create a new scope to serve as an entry point from normal
+ * JavaScript execution into Effection.
+ *
+ * When creating a fresh scope (as opposed to capturing a reference to
+ * an existing one via {@link useScope}) it is the responsibility of
+ * the creator of the new scope to destroy it when it is no longer needed.
+ *
+ * @example
+ * ```js
+ * let [scope, destroy] = createScope();
+ * let task = scope.run(function*() {
+ *   //do some long running work
+ * });
+ *
+ * //... later
+ * await destroy();
+ *
+ * ```
+ * @returns a tuple containing the new scope, and a function to destroy it.
+ */
 export function createScope(frame?: Frame): [Scope, () => Future<void>] {
   let parent = frame ?? createFrame({ operation: suspend });
 

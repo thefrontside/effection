@@ -287,7 +287,7 @@ Sometimes however, it is necessary to interact with the scope of an operation
 from outside of Effection in normal JavaScript execution. To do this we use the
 [Scope][scope] API. Once we have a reference to a `Scope`, we can use it to run
 operations as though they were being spawned directly from an operation running
-in that scope. En example of this might be to spawn a new operation for each
+in that scope. An example of this might be to spawn a new operation for each
 request to an express server.
 
 Express handles the http request, but it does not know anything about Effection
@@ -336,7 +336,7 @@ let scope;
 let destroy;
 
 beforeEach(() => {
-  [scope destroy] = createScope();
+  [scope, destroy] = createScope();
 });
 
 it("does something", async () => {
@@ -350,8 +350,8 @@ afterEach(async () => {
 });
 ```
 
-WHenever you use `createScope()`, it is important that you `await` the
-destruction operation when the scope is no longer needed, since the it will not
+Whenever you use `createScope()`, it is important that you `await` the
+destruction operation when the scope is no longer needed, since it will not
 be destroyed implicitly.
 
 [spawn]: https://deno.land/x/effection/mod.ts?s=spawn

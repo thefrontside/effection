@@ -2,7 +2,7 @@
 import { createSignal } from "./signal.ts";
 import { resource } from "./instructions.ts";
 import { first } from "./mod.ts";
-import type { Operation, Stream } from "./types.ts";
+import type { Operation, Stream, Subscription } from "./types.ts";
 
 type FN = (...any: any[]) => any;
 
@@ -50,17 +50,23 @@ export function on<
   T extends EventTarget,
   K extends EventList<T> | (string & {}),
 >(target: T, name: K): Stream<EventTypeFromEventTarget<T, K>, never> {
-  return resource(function* (provide) {
-    let { send, stream } = createSignal<Event>();
+  return {
+    subscribe() {
+      return resource(function* (provide) {
+        let { send, subscribe } = createSignal<Event>();
 
-    target.addEventListener(name, send);
+        target.addEventListener(name, send);
 
-    try {
-      yield* provide(
-        yield* stream as Stream<EventTypeFromEventTarget<T, K>, never>,
-      );
-    } finally {
-      target.removeEventListener(name, send);
-    }
-  });
+        try {
+          yield* provide(
+            yield* subscribe() as Operation<
+              Subscription<EventTypeFromEventTarget<T, K>, never>
+            >,
+          );
+        } finally {
+          target.removeEventListener(name, send);
+        }
+      });
+    },
+  };
 }

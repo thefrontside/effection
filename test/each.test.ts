@@ -4,10 +4,10 @@ import { createChannel, each, run, spawn, suspend } from "../mod.ts";
 describe("each", () => {
   it("can be used to iterate a stream", async () => {
     await run(function* () {
-      let { input, output } = createChannel<string, void>();
+      let { input, subscribe } = createChannel<string, void>();
       let actual = [] as string[];
       yield* spawn(function* () {
-        for (let value of yield* each(output)) {
+        for (let value of yield* each({ subscribe })) {
           actual.push(value);
           yield* each.next();
         }
@@ -28,9 +28,9 @@ describe("each", () => {
       let inner = createChannel<string>();
 
       yield* spawn(function* () {
-        for (let value of yield* each(outer.output)) {
+        for (let value of yield* each(outer)) {
           actual.push(value);
-          for (let value of yield* each(inner.output)) {
+          for (let value of yield* each(inner)) {
             actual.push(value);
             yield* each.next();
           }
@@ -53,10 +53,10 @@ describe("each", () => {
 
   it("handles context correctly if you break out of a loop", async () => {
     await expect(run(function* () {
-      let { input, output } = createChannel<string>();
+      let { input, subscribe } = createChannel<string>();
 
       yield* spawn(function* () {
-        for (let _ of yield* each(output)) {
+        for (let _ of yield* each({ subscribe })) {
           break;
         }
         // we're out of the loop, each.next() should be invalid.
@@ -70,9 +70,9 @@ describe("each", () => {
 
   it("throws an error if you forget to invoke each.next()", async () => {
     await expect(run(function* () {
-      let { input, output } = createChannel<string>();
+      let { input, subscribe } = createChannel<string>();
       yield* spawn(function* () {
-        for (let _ of yield* each(output)) {
+        for (let _ of yield* each({ subscribe })) {
           _;
         }
       });

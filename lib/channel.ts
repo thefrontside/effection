@@ -48,5 +48,5 @@ export function createChannel<T, TClose = void>(): Channel<T, TClose> {
     },
   };
 
-  return { input, output: signal.stream };
+  return { input, subscribe: signal.subscribe };
 }

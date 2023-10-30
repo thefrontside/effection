@@ -163,7 +163,7 @@ export type Provide<T> = (value: T) => Operation<void>;
  * using it to call back into itself from a callback.
  *
  * The following example calls into Effection to implement a proxy around a
- * google search by using {@link express.js https://expressjs.com}.
+ * google search by using [express.js](https://expressjs.com).
  *
  * @example
  * ```javascript
@@ -211,7 +211,7 @@ export interface Scope {
 }
 
 /**
- * The Effection equivalent of an {@link AsyncIterable https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols#the_async_iterator_and_async_iterable_protocols}.
+ * The Effection equivalent of an [`AsyncIterable`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols#the_async_iterator_and_async_iterable_protocols).
  *
  * Like async iterables, streams do not actually have state themselves, but
  * contain the recipe for how to create a {@link Subscription}
@@ -221,7 +221,7 @@ export interface Scope {
 export type Stream<T, TReturn> = Operation<Subscription<T, TReturn>>;
 
 /**
- * The Effection equivalent of an {@link AsyncIterator https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/AsyncIterator}
+ * The Effection equivalent of an [`AsyncIterator`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/AsyncIterator)
  *
  * A subscription acts like a stateful queue that provides a sequence of values
  * via the next() method. Normally a subscription is created via a
@@ -240,7 +240,7 @@ export interface Port<T, R> {
 
 /**
  * A broadcast channel that multiple consumers can subscribe to the
- * via same {@link `Stream`}, and messages sent to the channel are
+ * via the same {@link Stream}, and messages sent to the channel are
  * received by all consumers. The channel is not buffered, so if there
  * are no consumers, the message is dropped.
  */

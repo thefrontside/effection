@@ -5,7 +5,7 @@ title: Scope
 
 We have talked about how Effection operations allow you to bundle setup and
 teardown as a unit so that automatic cleanup is _guaranteed_, but how are
-they able to do this, and how can you implement your own operations which clean
+they able to do this, and how can you implement your operations that clean
 up after themselves?
 
 ### Scope of a lifetime
@@ -31,7 +31,7 @@ await main(function* () { // <- parent scope
 });
 ```
 
-It may suprise you to learn that this script will only output _five_
+It may surprise you to learn that this script will only output _five_
 numbers, not ten. This is because the main operation completes after
 just five seconds, and as a result its scope, and every scope it
 contains, is halted. This in turn means that our counting operation is
@@ -59,7 +59,7 @@ In the snippet above, we allocate two number variables: `left` and `right`.
 Inside the "curlys" we can read and write from them all we want, but once we
 leave, JavaScript is going to deallocate them and the memory they hold
 automatically for us and because of that, we aren't allowed to touch
-them ever again. We describe this situation saying that the variables
+them ever again. We describe this situation by saying that the variables
 have "passed out of scope" and so any resources they hold (in this case
 computer memory) can be automatically reclaimed.
 
@@ -77,8 +77,8 @@ There are only three ways an operation may pass out of scope.
 3. **halt** due to a return, error or a halt of a related operation, an
 operation is halted.
 
-No matter which one of these happens, every sub operation associated with that
-operation will be automatically destroyed.
+No matter which one of these happens, every sub-operation associated with that
+the operation will be automatically destroyed.
 
 ### Suspend (it's not the end)
 
@@ -97,8 +97,8 @@ let task = run(function*() {
 await task.halt();
 ```
 
-Halting a Task means that its operation is cancelled, and it also causes any
-operation created by that operation to be halted.
+Halting a Task means that its operation is canceled, and it also causes any
+the operation created by that operation to be halted.
 
 ### immediate return
 
@@ -152,11 +152,11 @@ await task.halt();
 ### Cleaning up
 
 We can use this mechanism to run code as an Operation is shutting
-down, whether it happens because it completes successfully, it becomes
+down, whether it happens because it is completed successfully, it becomes
 halted, or it is rejected due to an error.
 
 Imagine that we're doing something with an HTTP server, and we're using node's
-`createServer` function. In order to properly clean up after ourselves, we
+`createServer` function. To properly clean up after ourselves, we
 should call `close()` on the server when we're done.
 
 Using Effection and `try/finally`, we could do something like this:
@@ -180,7 +180,7 @@ await task.halt();
 
 ### Asynchronous halt
 
-You might be wondering what happens when we `yield*` in a finally block. In
+You might be wondering what happens when we `yield*` in the _finally_ block. In
 fact, Effection handles this case for you:
 
 ``` javascript
@@ -228,12 +228,12 @@ await task.halt();
 
 ### Abort Signal
 
-While cancellation and teardown is handled automatically for us as long as we
+While cancellation and teardown are handled automatically for us as long as we
 are using Effection operations, what do we do when we want to integrate with a
 3rd party API? One very common answer is to use the JavaScript standard
 [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal)
 which can broadcast an event whenever it is time for an operation to be
-cancelled. Effection makes it easy to create abort signals, and pass them around
+canceled. Effection makes it easy to create abort signals and pass them around
 so that they can notify dependencies whenever an operation terminates.
 
 To create an abort signal, we can invoke the
@@ -258,8 +258,8 @@ await main(function*() {
 });
 ```
 
-It is very common (though not universal) that APIs which perform
-asynchronous operations will accept an `AbortSignal` in order to make
+It is very common (though not universal) that APIs that perform
+asynchronous operations will accept an `AbortSignal` to make
 sure those operations go away if needed. For example, the standard
 [`fetch`](https://developer.mozilla.org/en-US/docs/Web/API/Fetch) function
 accepts an abort signal to cancel itself when needed.
@@ -277,13 +277,13 @@ function* request(url) {
 ```
 
 Now, no matter what happens, when the `request` operation is completed (or
-cancelled), the HTTP request is guaranteed to be shut down.
+canceled), the HTTP request is guaranteed to be shut down.
 
 ### Embedding API
 
 The nice thing about scope is that you don't need to worry about it. It's just
 there, ensuring that things get cleaned up as soon as they are no longer needed.
-Sometimes however, it is necessary to interact with the scope of an operation
+Sometimes, however, it is necessary to interact with the scope of an operation
 from outside of Effection in normal JavaScript execution. To do this we use the
 [Scope][scope] API. Once we have a reference to a `Scope`, we can use it to run
 operations as though they were being spawned directly from an operation running
@@ -291,7 +291,7 @@ in that scope. An example of this might be to spawn a new operation for each
 request to an express server.
 
 Express handles the http request, but it does not know anything about Effection
-or effection operations, and so we have to explicity connect each request to an
+or operations, and so we have to explicitly connect each request to an
 operation.
 
 ```js
@@ -319,9 +319,9 @@ await main(function*() {
 });
 ```
 
-And, because every request runs inside of our main scope, when that scope
-exits because someone hit `CTRL-C`, then any in-flight requests will be
-cancelled.
+And, because every request runs inside of our main scope when that scope
+exits because someone hits `CTRL-C`, then any in-flight requests will be
+canceled.
 
 The other way to get a reference to a [`Scope`][scope] is to create a completely
 new one from scratch. This can be done with the [`createScope()`][create-scope]
@@ -351,7 +351,7 @@ afterEach(async () => {
 ```
 
 Whenever you use `createScope()`, it is important that you `await` the
-destruction operation when the scope is no longer needed, since it will not
+destruction operation when the scope is no longer needed since it will not
 be destroyed implicitly.
 
 [spawn]: https://deno.land/x/effection/mod.ts?s=spawn

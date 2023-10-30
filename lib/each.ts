@@ -87,21 +87,23 @@ function iterate<T>(stream: Stream<T, unknown>): Operation<Iterable<T>> {
   };
 }
 
-iterate.next = {
-  name: "each.next",
-  *[Symbol.iterator]() {
-    let stack = yield* EachStack;
-    let context = stack[stack.length - 1];
-    if (!context) {
-      let error = new Error(`cannot call next() outside of an iteration`);
-      error.name = "IterationError";
-      throw error;
-    }
-    let current = yield* context.subscription.next();
-    delete context.stale;
-    context.current = current;
-    if (current.done) {
-      stack.pop();
-    }
-  },
-} as Operation<void>;
+iterate.next = function next() {
+  return {
+    name: "each.next()",
+    *[Symbol.iterator]() {
+      let stack = yield* EachStack;
+      let context = stack[stack.length - 1];
+      if (!context) {
+        let error = new Error(`cannot call next() outside of an iteration`);
+        error.name = "IterationError";
+        throw error;
+      }
+      let current = yield* context.subscription.next();
+      delete context.stale;
+      context.current = current;
+      if (current.done) {
+        stack.pop();
+      }
+    },
+  } as Operation<void>;
+};

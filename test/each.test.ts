@@ -4,7 +4,7 @@ import { createChannel, each, run, spawn, suspend } from "../mod.ts";
 describe("each", () => {
   it("can be used to iterate a stream", async () => {
     await run(function* () {
-      let { input, subscribe } = createChannel<string, void>();
+      let { subscribe, ...input } = createChannel<string, void>();
       let actual = [] as string[];
       yield* spawn(function* () {
         for (let value of yield* each({ subscribe })) {
@@ -38,14 +38,14 @@ describe("each", () => {
         }
       });
 
-      yield* outer.input.send("one");
-      yield* inner.input.send("two");
-      yield* inner.input.send("two and a half");
-      yield* inner.input.close();
-      yield* outer.input.send("three");
-      yield* inner.input.send("four");
-      yield* inner.input.close();
-      yield* outer.input.close();
+      yield* outer.send("one");
+      yield* inner.send("two");
+      yield* inner.send("two and a half");
+      yield* inner.close();
+      yield* outer.send("three");
+      yield* inner.send("four");
+      yield* inner.close();
+      yield* outer.close();
 
       expect(actual).toEqual(["one", "two", "two and a half", "three", "four"]);
     });
@@ -53,7 +53,7 @@ describe("each", () => {
 
   it("handles context correctly if you break out of a loop", async () => {
     await expect(run(function* () {
-      let { input, subscribe } = createChannel<string>();
+      let { subscribe, ...input } = createChannel<string>();
 
       yield* spawn(function* () {
         for (let _ of yield* each({ subscribe })) {
@@ -70,7 +70,7 @@ describe("each", () => {
 
   it("throws an error if you forget to invoke each.next()", async () => {
     await expect(run(function* () {
-      let { input, subscribe } = createChannel<string>();
+      let { subscribe, ...input } = createChannel<string>();
       yield* spawn(function* () {
         for (let _ of yield* each({ subscribe })) {
           _;

@@ -1,15 +1,15 @@
 import { type Operation } from "./types.ts";
 
-type AnyFunction<Args extends unknown[], R> = (...args: Args) => R;
+type Fn<TArgs extends unknown[], TReturn> = (...args: TArgs) => TReturn;
 
-type OperationFunction<Args extends unknown[], R> = (
-  ...args: Args
-) => Operation<R>;
+type LiftedFn<TArgs extends unknown[], TReturn> = (
+  ...args: TArgs
+) => Operation<TReturn>;
 
-export function op<Args extends unknown[], R>(
-  fn: AnyFunction<Args, R>,
-): OperationFunction<Args, R> {
-  return (...args: Args) => {
+export function op<TArgs extends unknown[], TReturn>(
+  fn: Fn<TArgs, TReturn>,
+): LiftedFn<TArgs, TReturn> {
+  return (...args: TArgs) => {
     let value = fn(...args);
     let next = () => ({ done: true, value } as const);
     return ({

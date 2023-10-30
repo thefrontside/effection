@@ -15,17 +15,17 @@ import { resource } from "./instructions.ts";
  * import { createSignal, each } from "effection";
  *
  * export function* logClicks(function*(button) {
- *   let { send, stream } = createSignal<MouseEvent>();
+ *   let clicks = createSignal<MouseEvent>();
  *
- *   button.addEventListener("click", send);
+ *   button.addEventListener("click", clicks.send);
  *
  *   try {
- *     for (let click of yield* each(stream)) {
+ *     for (let click of yield* each(clicks)) {
  *       console.log(`click:`, click);
  *       yield* each.next();
  *     }
  *   } finally {
- *     button.removeEventListener("click", send);
+ *     button.removeEventListener("click", clicks.send);
  *   }
  * })
  * ````

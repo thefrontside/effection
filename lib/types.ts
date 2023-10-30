@@ -236,24 +236,6 @@ export interface Subscription<T, R> {
   next(): Operation<IteratorResult<T, R>>;
 }
 
-export interface Port<T, R> {
-  send(message: T): Operation<void>;
-  close(value: R): Operation<void>;
-}
-
-/**
- * A broadcast channel that multiple consumers can subscribe to the
- * via the same {@link Stream}, and messages sent to the channel are
- * received by all consumers. The channel is not buffered, so if there
- * are no consumers, the message is dropped.
- */
-export interface Channel<T, TClose> extends Stream<T, TClose> {
-  /**
-   * The port through which messages to the channel are sent.
-   */
-  input: Port<T, TClose>;
-}
-
 /**
  * `Context`` defines a value which is in effect for a given scope which is an
  * (action, resource, call, or spawn).

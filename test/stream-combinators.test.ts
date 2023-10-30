@@ -21,14 +21,14 @@ describe("Stream combinators", () => {
 
       expectType<Subscription<string, string>>(subscription);
 
-      yield* channel.input.send("foo");
+      yield* channel.send("foo");
 
       let next = yield* subscription.next();
 
       expect(next.done).toBe(false);
       expect(next.value).toBe("FOO");
 
-      yield* channel.input.close("var");
+      yield* channel.close("var");
 
       expect(yield* subscription.next()).toEqual({
         done: true,
@@ -46,16 +46,16 @@ describe("Stream combinators", () => {
 
       expectType<Subscription<string, string>>(subscription);
 
-      yield* channel.input.send("no");
-      yield* channel.input.send("way");
-      yield* channel.input.send("good");
+      yield* channel.send("no");
+      yield* channel.send("way");
+      yield* channel.send("good");
 
       let next = yield* subscription.next();
 
       expect(next.done).toBe(false);
       expect(next.value).toBe("good");
 
-      yield* channel.input.close("var");
+      yield* channel.close("var");
 
       expect(yield* subscription.next()).toEqual({
         done: true,
@@ -77,17 +77,17 @@ describe("Stream combinators", () => {
 
       expectType<Subscription<number, string>>(subscription);
 
-      yield* channel.input.send("too long");
-      yield* channel.input.send("too long 2");
-      yield* channel.input.send("too long 3");
-      yield* channel.input.send("foo");
+      yield* channel.send("too long");
+      yield* channel.send("too long 2");
+      yield* channel.send("too long 3");
+      yield* channel.send("foo");
 
       let next = yield* subscription.next();
 
       expect(next.done).toBe(false);
       expect(next.value).toBe("foo".length);
 
-      yield* channel.input.close("var");
+      yield* channel.close("var");
 
       expect(yield* subscription.next()).toEqual({
         done: true,
@@ -109,17 +109,17 @@ describe("Stream combinators", () => {
 
       expectType<Subscription<string, string>>(subscription);
 
-      yield* channel.input.send("too long");
-      yield* channel.input.send("too long 2");
-      yield* channel.input.send("too long 3");
-      yield* channel.input.send("foo");
+      yield* channel.send("too long");
+      yield* channel.send("too long 2");
+      yield* channel.send("too long 3");
+      yield* channel.send("foo");
 
       let next = yield* subscription.next();
 
       expect(next.done).toBe(false);
       expect(next.value).toBe("FOO");
 
-      yield* channel.input.close("var");
+      yield* channel.close("var");
 
       expect(yield* subscription.next()).toEqual({
         done: true,

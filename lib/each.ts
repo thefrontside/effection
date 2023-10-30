@@ -50,7 +50,7 @@ const EachStack = createContext<EachLoop<unknown>[]>("each");
 function iterate<T>(stream: Stream<T, unknown>): Operation<Iterable<T>> {
   return {
     *[Symbol.iterator]() {
-      let subscription = yield* stream;
+      let subscription = yield* stream.subscribe();
       let current = yield* subscription.next();
       let stack = yield* EachStack.get();
       if (!stack) {

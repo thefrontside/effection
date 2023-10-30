@@ -6,7 +6,7 @@ import {
   it as $it,
 } from "./suite.ts";
 
-import type { Operation, Port, Stream } from "../mod.ts";
+import type { Operation, Port, Subscription } from "../mod.ts";
 import { createChannel, createScope, sleep, spawn } from "../mod.ts";
 
 let [scope, close] = createScope();
@@ -18,7 +18,7 @@ describe("Channel", () => {
   $afterEach(() => close());
 
   it("does not use the same event twice when serially subscribed to a channel", function* () {
-    let { input, output } = createChannel<string, void>();
+    let { input, subscribe } = createChannel<string, void>();
     let actual: string[] = [];
     function* channel() {
       yield* sleep(10);
@@ -29,11 +29,11 @@ describe("Channel", () => {
     function* root() {
       yield* spawn(channel);
 
-      let subscription = yield* output;
+      let subscription = yield* subscribe();
       let result = yield* subscription.next();
       actual.push(result.value as string);
 
-      subscription = yield* output;
+      subscription = yield* subscribe();
       result = yield* subscription.next();
       actual.push(result.value as string);
     }
@@ -44,15 +44,15 @@ describe("Channel", () => {
 
   describe("subscribe", () => {
     let input: Port<string, void>;
-    let output: Stream<string, void>;
+    let subscribe: () => Operation<Subscription<string, void>>;
 
     beforeEach(function* () {
-      ({ input, output } = createChannel<string, void>());
+      ({ input, subscribe } = createChannel<string, void>());
     });
 
     describe("sending a message", () => {
       it("receives message on subscription", function* () {
-        let subscription = yield* output;
+        let subscription = yield* subscribe();
         yield* input.send("hello");
         let result = yield* subscription.next();
         expect(result.done).toEqual(false);
@@ -62,7 +62,7 @@ describe("Channel", () => {
 
     describe("blocking on next", () => {
       it("receives message on subscription done", function* () {
-        let subscription = yield* output;
+        let subscription = yield* subscribe();
         let result = yield* spawn(() => subscription.next());
         yield* sleep(10);
         yield* input.send("hello");
@@ -72,7 +72,7 @@ describe("Channel", () => {
 
     describe("sending multiple messages", () => {
       it("receives messages in order", function* () {
-        let subscription = yield* output;
+        let subscription = yield* subscribe();
         let { send } = input;
         yield* send("hello");
         yield* send("foo");
@@ -85,9 +85,9 @@ describe("Channel", () => {
 
     describe("with split ends", () => {
       it("receives message on subscribable end", function* () {
-        let { input, output } = createChannel();
+        let { input, subscribe } = createChannel();
 
-        let subscription = yield* output;
+        let subscription = yield* subscribe();
 
         yield* input.send("hello");
 
@@ -101,8 +101,8 @@ describe("Channel", () => {
     describe("close", () => {
       describe("without argument", () => {
         it("closes subscriptions", function* () {
-          let { input, output } = createChannel();
-          let subscription = yield* output;
+          let { input, subscribe } = createChannel();
+          let subscription = yield* subscribe();
           yield* input.send("foo");
           yield* input.close();
           expect(yield* subscription.next()).toEqual({
@@ -118,8 +118,8 @@ describe("Channel", () => {
 
       describe("with close argument", () => {
         it("closes subscriptions with the argument", function* () {
-          let { input, output } = createChannel<string, number>();
-          let subscription = yield* output;
+          let { input, subscribe } = createChannel<string, number>();
+          let subscription = yield* subscribe();
           yield* input.send("foo");
           yield* input.close(12);
 

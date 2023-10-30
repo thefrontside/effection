@@ -17,7 +17,7 @@ describe("Stream combinators", () => {
         return item.toUpperCase();
       });
 
-      let subscription = yield* upCase(channel.output);
+      let subscription = yield* upCase(channel).subscribe();
 
       expectType<Subscription<string, string>>(subscription);
 
@@ -42,7 +42,7 @@ describe("Stream combinators", () => {
         return a.length > 3;
       });
 
-      let subscription = yield* longs(channel.output);
+      let subscription = yield* longs(channel).subscribe();
 
       expectType<Subscription<string, string>>(subscription);
 
@@ -73,7 +73,7 @@ describe("Stream combinators", () => {
         return item.length;
       });
 
-      let subscription = yield* pipe(channel.output, shorts, length);
+      let subscription = yield* pipe(channel, shorts, length).subscribe();
 
       expectType<Subscription<number, string>>(subscription);
 
@@ -105,7 +105,7 @@ describe("Stream combinators", () => {
         return a.length < 4;
       }));
 
-      let subscription = yield* pipe(channel.output, shorts, upCase);
+      let subscription = yield* pipe(channel, shorts, upCase).subscribe();
 
       expectType<Subscription<string, string>>(subscription);
 

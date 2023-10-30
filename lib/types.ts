@@ -218,7 +218,10 @@ export interface Scope {
  *
  * @see https://frontside.com/effection/docs/collections#stream
  */
-export type Stream<T, TReturn> = Operation<Subscription<T, TReturn>>;
+//export type Stream<T, TReturn> = Operation<Subscription<T, TReturn>>;
+export interface Stream<T, TReturn> {
+  subscribe(): Operation<Subscription<T, TReturn>>;
+}
 
 /**
  * The Effection equivalent of an [`AsyncIterator`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/AsyncIterator)
@@ -244,16 +247,11 @@ export interface Port<T, R> {
  * received by all consumers. The channel is not buffered, so if there
  * are no consumers, the message is dropped.
  */
-export interface Channel<T, TClose> {
+export interface Channel<T, TClose> extends Stream<T, TClose> {
   /**
    * The port through which messages to the channel are sent.
    */
   input: Port<T, TClose>;
-
-  /**
-   * The stream through which all messages to the channel are read.
-   */
-  output: Stream<T, TClose>;
 }
 
 /**

@@ -5,7 +5,7 @@ title: Scope
 
 We have talked about how Effection operations allow you to bundle setup and
 teardown as a unit so that automatic cleanup is _guaranteed_, but how are
-they able to do this, and how can you implement your operations that clean
+they able to do this, and how can you implement your own operations that clean
 up after themselves?
 
 ### Scope of a lifetime
@@ -78,7 +78,7 @@ There are only three ways an operation may pass out of scope.
 operation is halted.
 
 No matter which one of these happens, every sub-operation associated with that
-the operation will be automatically destroyed.
+operation will be automatically destroyed.
 
 ### Suspend (it's not the end)
 
@@ -98,7 +98,7 @@ await task.halt();
 ```
 
 Halting a Task means that its operation is canceled, and it also causes any
-the operation created by that operation to be halted.
+operation created by that operation to be halted.
 
 ### immediate return
 
@@ -152,8 +152,8 @@ await task.halt();
 ### Cleaning up
 
 We can use this mechanism to run code as an Operation is shutting
-down, whether it happens because it is completed successfully, it becomes
-halted, or it is rejected due to an error.
+down regardless of whether it completes successfully, is halted, or
+results in an error.
 
 Imagine that we're doing something with an HTTP server, and we're using node's
 `createServer` function. To properly clean up after ourselves, we
@@ -180,8 +180,8 @@ await task.halt();
 
 ### Asynchronous halt
 
-You might be wondering what happens when we `yield*` in the _finally_ block. In
-fact, Effection handles this case for you:
+You might be wondering what happens when we `yield*` inside the
+_finally_ block. In fact, Effection handles this case for you:
 
 ``` javascript
 import { run, sleep, suspend } from 'effection';
@@ -206,8 +206,9 @@ errors during halting.
 
 ### Ensure
 
-Sometimes you want to avoid the rightward drift of using lots of `try/finally` blocks.
-The `ensure` operation that ships with Effection can help you clean up this type of code.
+Sometimes you want to avoid the rightward drift of using lots of
+`try/finally` blocks.  The `ensure` operation that ships with
+Effection can help you clean up this type of code.
 
 The following behaves identically to our `try/finally` implementation above:
 
@@ -258,8 +259,8 @@ await main(function*() {
 });
 ```
 
-It is very common (though not universal) that APIs that perform
-asynchronous operations will accept an `AbortSignal` to make
+It is very common (though not universal) for APIs that perform
+asynchronous operations to accept an `AbortSignal` to make
 sure those operations go away if needed. For example, the standard
 [`fetch`](https://developer.mozilla.org/en-US/docs/Web/API/Fetch) function
 accepts an abort signal to cancel itself when needed.
@@ -290,8 +291,8 @@ operations as though they were being spawned directly from an operation running
 in that scope. An example of this might be to spawn a new operation for each
 request to an express server.
 
-Express handles the http request, but it does not know anything about Effection
-or operations, and so we have to explicitly connect each request to an
+Express handles the http request, but it does not know anything about
+Effection, and so we have to explicitly connect each request to an
 operation.
 
 ```js
@@ -320,7 +321,7 @@ await main(function*() {
 ```
 
 And, because every request runs inside of our main scope when that scope
-exits because someone hits `CTRL-C`, then any in-flight requests will be
+exits because someone hit `CTRL-C`, then any in-flight requests will be
 canceled.
 
 The other way to get a reference to a [`Scope`][scope] is to create a completely

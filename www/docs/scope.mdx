@@ -5,7 +5,7 @@ title: Scope
 
 We have talked about how Effection operations allow you to bundle setup and
 teardown as a unit so that automatic cleanup is _guaranteed_, but how are
-they able to do this, and how can you implement your own operations which clean
+they able to do this, and how can you implement your own operations that clean
 up after themselves?
 
 ### Scope of a lifetime
@@ -31,7 +31,7 @@ await main(function* () { // <- parent scope
 });
 ```
 
-It may suprise you to learn that this script will only output _five_
+It may surprise you to learn that this script will only output _five_
 numbers, not ten. This is because the main operation completes after
 just five seconds, and as a result its scope, and every scope it
 contains, is halted. This in turn means that our counting operation is
@@ -59,7 +59,7 @@ In the snippet above, we allocate two number variables: `left` and `right`.
 Inside the "curlys" we can read and write from them all we want, but once we
 leave, JavaScript is going to deallocate them and the memory they hold
 automatically for us and because of that, we aren't allowed to touch
-them ever again. We describe this situation saying that the variables
+them ever again. We describe this situation by saying that the variables
 have "passed out of scope" and so any resources they hold (in this case
 computer memory) can be automatically reclaimed.
 
@@ -77,30 +77,12 @@ There are only three ways an operation may pass out of scope.
 3. **halt** due to a return, error or a halt of a related operation, an
 operation is halted.
 
-No matter which one of these happens, We'll consider each of these .
-
-```ts
-import { sleep } from "effection";
-
-function* slowly(value) {
-  yield* sleep(1_000);
-  return value;
-}
-
-let message = await run(function* add() {
-  let left = yield* call(function*() {
-    yield* sleep(1_000);
-    return 1;
-  });
-
-  let right = yield* call(function*() {})
-  return left + right;
-});
-```
+No matter which one of these happens, every sub-operation associated with that
+operation will be automatically destroyed.
 
 ### Suspend (it's not the end)
 
-In order to understand the lifecycle of a Task, we must first understand the
+In order to understand the lifecycle of an Operation, we must first understand the
 concept of halting a Task.
 
 In Effection, any task can be halted:
@@ -115,40 +97,28 @@ let task = run(function*() {
 await task.halt();
 ```
 
-Or:
+Halting a Task means that its operation is canceled, and it also causes any
+operation created by that operation to be halted.
 
-``` javascript
-await main(function*() {
-  let task = yield spawn(suspend);
-  yield* task.halt();
-});
-```
+### immediate return
 
-Halting a Task means that the task itself is cancelled, it also causes any Task
-that has been spawned from the Task to be halted.
+If an Operation is expressed as a generator (most are), we call `return()`
+on the generator when that operation is halted. This
+behaves somewhat similarly to if you would replace the current `yield*`
+statement with a `return` statement.
 
-We have previously mentioned that when an error occurs in a Task, the task
-becomes errored, and also causes its parent to become errored. However, if a
-Task is halted, the parent task is unaffected.
-
-### Return
-
-If a Task is driving a generator, we call `return()` on the generator. This
-behaves somewhat similarly to if you would replace the `yield` statement with a
-`return` statement.
-
-Let's look at an example where a task is suspended using `yield` with no
+Let's look at an example where a task is suspended using `yield*` with no
 arguments and what happens when we call `halt` on it:
 
 ``` javascript
-import { main } from 'effection';
+import { main, suspend } from 'effection';
 
 let task = main(function*() {
-  yield; // we will "return" from here
+  yield* suspend(); // we will "return" from here
   console.log('we will never get here');
 });
 
-task.halt();
+await task.halt();
 ```
 
 This would behave somewhat similarly to the following:
@@ -162,70 +132,71 @@ main(function*() {
 });
 ```
 
-Crucially, when this happens, just like with a regular `return`, we can use `try/finally`:
+Crucially, when this happens, just like with a regular `return`, we can use
+`try/finally`:
 
 ``` javascript
-import { main, sleep } from 'effection';
+import { run, sleep, suspend } from 'effection';
 
-let task = main(function*() {
+let task = run(function*() {
   try {
-    yield // we will "return" from here
+    yield* suspend() // we will "return" from here
   } finally {
     console.log('yes, this will be printed!');
   }
 });
 
-task.halt();
+await task.halt();
 ```
 
 ### Cleaning up
 
-We can use this mechanism to run code as a Task is shutting down, whether it
-happens because the Task completes successfully, it becomes halted, or it is
-rejected due to an error.
+We can use this mechanism to run code as an Operation is shutting
+down regardless of whether it completes successfully, is halted, or
+results in an error.
 
 Imagine that we're doing something with an HTTP server, and we're using node's
-`createServer` function. In order to properly clean up after ourselves, we
+`createServer` function. To properly clean up after ourselves, we
 should call `close()` on the server when we're done.
 
 Using Effection and `try/finally`, we could do something like this:
 
 ``` javascript
-import { main } from 'effection';
+import { run, suspend } from 'effection';
 import { createServer } from 'http';
 
-let task = main(function*() {
+let task = run(function*() {
   let server = createServer();
   try {
     // in real code we would do something more interesting here
-    yield;
+    yield* suspend();
   } finally {
     server.close();
   }
 });
 
-task.halt();
+await task.halt();
 ```
 
 ### Asynchronous halt
 
-You might be wondering what happens when we `yield` in a finally block. In
-fact, Effection handles this case for you:
+You might be wondering what happens when we `yield*` inside the
+_finally_ block. In fact, Effection handles this case for you:
 
 ``` javascript
-import { main, sleep } from 'effection';
+import { run, sleep, suspend } from 'effection';
 
-let task = main(function*() {
+let task = run(function*() {
   try {
-    yield;
+    yield* suspend();
   } finally {
     console.log('this task is slow to halt');
-    yield sleep(2000);
+    yield* sleep(2000);
     console.log('now it has been halted');
   }
 });
 
-task.halt();
+await task.halt();
 ```
 
 While performing asynchronous operations while halting is sometimes necessary,
@@ -235,48 +206,51 @@ errors during halting.
 
 ### Ensure
 
-Sometimes you want to avoid the rightward drift of using lots of `try/finally` blocks.
-The `ensure` operation that ships with Effection can help you clean up this type of code.
+Sometimes you want to avoid the rightward drift of using lots of
+`try/finally` blocks.  The `ensure` operation that ships with
+Effection can help you clean up this type of code.
 
 The following behaves identically to our `try/finally` implementation above:
 
 ``` javascript
-import { main, ensure } from 'effection';
+import { run, ensure } from 'effection';
 import { createServer } from 'http';
 
-let task = main(function*() {
+let task = run(function*() {
   let server = createServer();
-  yield ensure(() => server.close());
+  yield* ensure(() => server.close());
 
   // in real code we would do something more interesting here
-  yield;
+  yield* suspend();
 });
 
-task.halt();
+await task.halt();
 ```
 
 ### Abort Signal
 
-While cancellation and teardown is handled automatically for us as long as we
+While cancellation and teardown are handled automatically for us as long as we
 are using Effection operations, what do we do when we want to integrate with a
 3rd party API? One very common answer is to use the JavaScript standard
 [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal)
 which can broadcast an event whenever it is time for an operation to be
-cancelled. Effection makes it easy to create abort signals, and pass them around
+canceled. Effection makes it easy to create abort signals and pass them around
 so that they can notify dependencies whenever an operation terminates.
 
-To create an abort signal, we use the `createAbortSignal` that comes with
+To create an abort signal, we can invoke the
+[`useAbortSignal()`][use-abort-signal] operation that comes with
 Effection.
 
-`AbortSignal`s instantiated with the `createAbortSignal()` operation are
-implicitly bound to the task in which they were created, and whenever that task
-ceases running, they will emit an `abort` event.
+`AbortSignal`s instantiated with the
+[`useAbortSignal()`][use-abort-signal] operation are implicitly bound
+to the scope in which they were created, and whenever that task ceases
+running, they will emit an `abort` event.
 
 ``` javascript
-import { main, sleep, createAbortSignal } from 'effection';
+import { main, sleep, useAbortSignal } from 'effection';
 
-main(function*() {
-  let signal = yield createAbortSignal();
+await main(function*() {
+  let signal = yield* useAbortSignal();
 
   signal.addEventListener('abort', () => console.log('done!'));
 
@@ -285,16 +259,16 @@ main(function*() {
 });
 ```
 
-It is very common (though not universal) that APIs which perform
-asynchronous operations will accept an `AbortSignal` in order to make
+It is very common (though not universal) for APIs that perform
+asynchronous operations to accept an `AbortSignal` to make
 sure those operations go away if needed. For example, the standard
 [`fetch`](https://developer.mozilla.org/en-US/docs/Web/API/Fetch) function
 accepts an abort signal to cancel itself when needed.
 
 ``` javascript
 function* request(url) {
-  let signal = yield createAbortSignal();
-  let response = yield fetch('/some/url', { signal });
+  let signal = yield* useAbortSignal();
+  let response = yield* fetch('/some/url', { signal });
   if (response.ok) {
     return yield response.text();
   } else {
@@ -304,6 +278,84 @@ function* request(url) {
 ```
 
 Now, no matter what happens, when the `request` operation is completed (or
-cancelled), the HTTP request is guaranteed to be shut down.
+canceled), the HTTP request is guaranteed to be shut down.
+
+### Embedding API
+
+The nice thing about scope is that you don't need to worry about it. It's just
+there, ensuring that things get cleaned up as soon as they are no longer needed.
+Sometimes, however, it is necessary to interact with the scope of an operation
+from outside of Effection in normal JavaScript execution. To do this we use the
+[Scope][scope] API. Once we have a reference to a `Scope`, we can use it to run
+operations as though they were being spawned directly from an operation running
+in that scope. An example of this might be to spawn a new operation for each
+request to an express server.
+
+Express handles the http request, but it does not know anything about
+Effection, and so we have to explicitly connect each request to an
+operation.
+
+```js
+import { call, ensure, main, useScope, useAbortSignal, suspend } from "effection";
+import express from "express";
+
+await main(function*() {
+  // capture a reference to the current scope.
+  let scope = yield* useScope();
+
+  express().get("/", async (req, res) => {
+    // use the scope to spawn an operation within it.
+    return await scope.run(function*() {
+      let signal = yield* useAbortSignal();
+      let response = yield* call(fetch(`https://google.com?q=${req.params.q}`, { signal }));
+      res.send(yield* call(response.text()));
+    });
+  });
+
+  let server = express.listen();
+
+  yield* ensure(() => server.close());
+
+  yield* suspend();
+});
+```
+
+And, because every request runs inside of our main scope when that scope
+exits because someone hit `CTRL-C`, then any in-flight requests will be
+canceled.
+
+The other way to get a reference to a [`Scope`][scope] is to create a completely
+new one from scratch. This can be done with the [`createScope()`][create-scope]
+function. This will create a fresh scope that is completely disconnected from
+any other scope.
+
+One common use of [`createScope()`][create-scope] is for running operations in
+test cases.
+
+```js
+let scope;
+let destroy;
+
+beforeEach(() => {
+  [scope, destroy] = createScope();
+});
+
+it("does something", async () => {
+  await scope.run(function* () {
+   // run operations in test case
+  });
+});
+
+afterEach(async () => {
+  await destroy();
+});
+```
+
+Whenever you use `createScope()`, it is important that you `await` the
+destruction operation when the scope is no longer needed since it will not
+be destroyed implicitly.
 
 [spawn]: https://deno.land/x/effection/mod.ts?s=spawn
+[use-abort-signal]: https://deno.land/x/effection/mod.ts?s=useAbortSignal
+[scope]: https://deno.land/x/effection/mod.ts?s=Scope
+[create-scope]: https://deno.land/x/effection/mod.ts?s=createScope

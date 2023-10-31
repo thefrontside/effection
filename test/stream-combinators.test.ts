@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, expectType, it } from "./suite.ts";
 
 import type { Channel } from "../mod.ts";
-import { createChannel, filter, map, op, pipe, run } from "../mod.ts";
+import { createChannel, filter, lift, map, pipe, run } from "../mod.ts";
 import type { Subscription } from "../lib/types.ts";
 
 describe("Stream combinators", () => {
@@ -97,11 +97,11 @@ describe("Stream combinators", () => {
 
   it("lets you pass an ordinary function for a predicate", () =>
     run(function* () {
-      let upCase = map(op((item: string) => {
+      let upCase = map(lift((item: string) => {
         return item.toUpperCase();
       }));
 
-      let shorts = filter(op((a: string) => {
+      let shorts = filter(lift((a: string) => {
         return a.length < 4;
       }));
 

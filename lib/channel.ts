@@ -1,6 +1,6 @@
 import type { Operation, Stream } from "./types.ts";
 import { createSignal } from "./signal.ts";
-import { op as lift } from "./op.ts";
+import { lift } from "./lift.ts";
 
 /**
  * A broadcast channel that multiple consumers can subscribe to the

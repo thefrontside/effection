@@ -83,7 +83,7 @@ export function createSignal<T, TClose = never>(): Signal<T, TClose> {
     subscribers.add(queue);
 
     try {
-      yield* provide(queue.subscription);
+      yield* provide({ next: queue.next });
     } finally {
       subscribers.delete(queue);
     }

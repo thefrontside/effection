@@ -258,7 +258,7 @@ await main(function*() {
 
   for (let value of yield* each(stream)) {
     console.log('got value:', value);
-    yield* each.next;
+    yield* each.next();
   }
 ```
 
@@ -282,7 +282,7 @@ await main(function*() {
   yield* spawn(function*() {
     for (let value of yield* each(stream)) {
       console.log('got value:', value);
-      yield* each.next;
+      yield* each.next();
     }
   });
 
@@ -478,7 +478,7 @@ export function* logClicks(button) {
 
     for (let click of yield* each(stream)) {
       console.dir({ click });
-      yield* each.next;
+      yield* each.next();
     }
   } finally {
     button.removeEventListener("click", send);
@@ -510,7 +510,7 @@ export function* cancelClicks(button) {
 
     for (let click of yield* each(stream)) {
       click.preventDefault();
-      yield* each.next;
+      yield* each.next();
     }
   } finally {
     button.removeEventListener("click", send);
@@ -533,14 +533,14 @@ function* logAndCancel(button) {
   yield* spawn(function*() {
     for (let click of yield* each(clicks)) {
       console.log(click);
-      yield* each.next;
+      yield* each.next();
     }
   })
 
   yield* spawn(function*() {
     for (let click of yield* each(clicks)) {
     click.preventDefault();
-    yield* each.next;
+    yield* each.next();
   }
 })
 }

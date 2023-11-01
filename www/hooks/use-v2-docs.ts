@@ -177,7 +177,7 @@ function* loadTar(url: string) {
           entry.content = new Blob(parts);
           website.set(entry.fileName, entry);
         }
-        yield* each.next;
+        yield* each.next();
       }
     }
     return website;

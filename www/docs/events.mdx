@@ -63,14 +63,14 @@ an event, and returns a Stream of values corresponding to the occurences of
 that event.
 
 ``` javascript
-import { main, once, next } from 'effection';
+import { main, once, each } from 'effection';
 
 await main(function*() {
   let socket = new WebSocket('ws://localhost:1234');
 
-  for (let value of yield* next(on(socket, 'message'))) {
+  for (let value of yield* each(on(socket, 'message'))) {
     console.log('message:', message.data);
-    yield* next;
+    yield* each.next();
   }
 });
 ```

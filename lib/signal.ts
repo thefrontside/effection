@@ -22,7 +22,7 @@ import { resource } from "./instructions.ts";
  *   try {
  *     for (let click of yield* each(stream)) {
  *       console.log(`click:`, click);
- *       yield* each.next;
+ *       yield* each.next();
  *     }
  *   } finally {
  *     button.removeEventListener("click", send);

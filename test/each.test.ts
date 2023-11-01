@@ -9,7 +9,7 @@ describe("each", () => {
       yield* spawn(function* () {
         for (let value of yield* each(output)) {
           actual.push(value);
-          yield* each.next;
+          yield* each.next();
         }
       });
 
@@ -32,9 +32,9 @@ describe("each", () => {
           actual.push(value);
           for (let value of yield* each(inner.output)) {
             actual.push(value);
-            yield* each.next;
+            yield* each.next();
           }
-          yield* each.next;
+          yield* each.next();
         }
       });
 
@@ -59,8 +59,8 @@ describe("each", () => {
         for (let _ of yield* each(output)) {
           break;
         }
-        // we're out of the loop, each.next should be invalid.
-        yield* each.next;
+        // we're out of the loop, each.next() should be invalid.
+        yield* each.next();
       });
 
       yield* input.send("hello");
@@ -68,7 +68,7 @@ describe("each", () => {
     })).rejects.toHaveProperty("name", "IterationError");
   });
 
-  it("throws an error if you forget to invoke each.next", async () => {
+  it("throws an error if you forget to invoke each.next()", async () => {
     await expect(run(function* () {
       let { input, output } = createChannel<string>();
       yield* spawn(function* () {
@@ -81,8 +81,8 @@ describe("each", () => {
     })).rejects.toHaveProperty("name", "IterationError");
   });
 
-  it("throws an error if you invoke each.next out of context", async () => {
-    await expect(run(() => each.next)).rejects.toHaveProperty(
+  it("throws an error if you invoke each.next() out of context", async () => {
+    await expect(run(() => each.next())).rejects.toHaveProperty(
       "name",
       "MissingContextError",
     );

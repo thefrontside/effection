@@ -11,7 +11,7 @@ import { createContext } from "./context.ts";
  * function* logvalues(stream) {
  *   for (let value of yield* each(stream)) {
  *     console.log(value);
- *     yield* each.next
+ *     yield* each.next()
  *   }
  * }
  * ```

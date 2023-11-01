@@ -10,7 +10,7 @@ import { pause } from "./pause.ts";
  * @typeParam T the type of the items in the queue
  * @typeParam TClose the type of the value that the queue is closed with
  */
-export interface Queue<T, TClose> {
+export interface Queue<T, TClose> extends Subscription<T, TClose> {
   /**
    * Add a value to the queue. The oldest value currently in the queue will
    * be the first to be read.
@@ -23,13 +23,6 @@ export interface Queue<T, TClose> {
    * @param value - the queue's final value.
    */
   close(value: TClose): void;
-
-  /**
-   * A subscription representing the values of the queue. Values added soonest
-   * will be available soonest. Any callers awaiting the `next()` value of the
-   * subscription will contend for the same buffer of values.
-   */
-  subscription: Subscription<T, TClose>;
 }
 
 /**
@@ -76,18 +69,16 @@ export function createQueue<T, TClose>(): Queue<T, TClose> {
   return {
     add: (value) => enqueue({ done: false, value }),
     close: (value) => enqueue({ done: true, value }),
-    subscription: {
-      *next() {
-        let item = items.pop();
-        if (item) {
-          return item;
-        } else {
-          return yield* pause<Item>((resolve) => {
-            consumers.add(resolve);
-            return () => consumers.delete(resolve);
-          });
-        }
-      },
+    *next() {
+      let item = items.pop();
+      if (item) {
+        return item;
+      } else {
+        return yield* pause<Item>((resolve) => {
+          consumers.add(resolve);
+          return () => consumers.delete(resolve);
+        });
+      }
     },
   };
 }

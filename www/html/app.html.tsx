@@ -50,8 +50,8 @@ export default function* AppHtml({ title }: Options): Operation<JSX.Element> {
           href={yield* useUrl("/")}
           hreflang="x-default"
         />
-        <link rel="stylesheet" href="/assets/prism-atom-one-dark.css" />
-        <link rel="stylesheet" href="https://use.typekit.net/ugs0ewy.css" />
+        <link rel="preload" as="style" href="/assets/prism-atom-one-dark.css" />
+        <link rel="preload" as="style" href="https://use.typekit.net/ugs0ewy.css" />
       </head>
       <body class="max-w-screen-2xl m-auto">
         <header class="header w-full top-0 p-6 sticky tracking-wide z-10">

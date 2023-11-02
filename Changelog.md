@@ -1,5 +1,17 @@
 # Changelog
 
+## 3.0.0-beta.1
+
+- ✨Beef up the `call()` to handle promises and async fns:
+  https://github.com/thefrontside/effection/pull/816
+- ♻️ Make `Queue` a `Subscription`
+  https://github.com/thefrontside/effection/pull/816
+- ♻️ Make the `Stream` interface have an explicit `subscribe()` method
+  https://github.com/thefrontside/effection/pull/809
+- ♻️ `each.next` is now a function
+  https://github.com/thefrontside/effection/pull/806
+- 📄 Many fixes and improvements to the typedocs
+
 ## 3.0.0-beta.0
 
 - 📄Fill out type documentation to make more coherent

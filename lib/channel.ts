@@ -1,5 +1,24 @@
-import type { Channel, Operation } from "./types.ts";
+import type { Operation, Stream } from "./types.ts";
 import { createSignal } from "./signal.ts";
+import { lift } from "./lift.ts";
+
+/**
+ * A broadcast channel that multiple consumers can subscribe to the
+ * via the same {@link Stream}, and messages sent to the channel are
+ * received by all consumers. The channel is not buffered, so if there
+ * are no consumers, the message is dropped.
+ */
+export interface Channel<T, TClose> extends Stream<T, TClose> {
+  /**
+   * Send a message to all subscribers of this {@link Channel}
+   */
+  send(message: T): Operation<void>;
+
+  /**
+   * End every subscription to this {@link Channel}
+   */
+  close(value: TClose): Operation<void>;
+}
 
 /**
  * Create a new {@link Channel}. Use channels to communicate between operations.
@@ -32,21 +51,13 @@ import { createSignal } from "./signal.ts";
  *   console.log(yield* subscription2.next()); //=> { done: false, value: 'world' }
  * });
  * ```
- *
- * @typeParam T - the type of each value sent to the channel
- * @typeParam TClose - the type of the channel's final value.
  */
 export function createChannel<T, TClose = void>(): Channel<T, TClose> {
   let signal = createSignal<T, TClose>();
 
-  let input = {
-    *send(value: T): Operation<void> {
-      signal.send(value);
-    },
-    *close(value: TClose) {
-      signal.close(value);
-    },
+  return {
+    send: lift(signal.send),
+    close: lift(signal.close),
+    subscribe: signal.subscribe,
   };
-
-  return { input, output: signal.stream };
 }

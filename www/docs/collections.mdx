@@ -77,16 +77,16 @@ to show the difference between them:
 import { main, createChannel } from 'effection';
 
 await main(function*() {
-  let { port, stream } = createChannel();
+  let { send, subscribe} = createChannel();
 
   // the channel has no subscribers yet!
-  yield* port.send('too early');
+  yield* send('too early');
 
-  let subscription1 = yield* stream;
-  let subscription2 = yield* stream;
+  let subscription1 = yield* subscribe();
+  let subscription2 = yield* subscribe();
 
-  yield* port.send('hello');
-  yield* port.send('world');
+  yield* send('hello');
+  yield* send('world');
 
   console.log(yield* subscription1.next());
   //=> { done: false, value: "hello" }
@@ -116,14 +116,14 @@ Let's look at an example of this in action by using `map()`:
 import { main, map, createChannel } from 'effection';
 
 await main(function*() {
-  let { port, stream } = createChannel();
-  let textStream = map(value => value.text)(stream);
+  let channel = createChannel();
+  let textStream = map(value => value.text)(channel);
   let uppercaseStream = map(value => value.toUpperCase())(textStream);
 
-  let subscription = yield* uppercaseStream;
+  let subscription = yield* uppercaseStream.susbscribe();
 
-  yield* port.send({ text: 'hello' });
-  yield* port.send({ text: 'world' });
+  yield* channel.send({ text: 'hello' });
+  yield* channel.send({ text: 'world' });
 
   yield* subscription.next();
   //=> { done: false, value: 'HELLO' }
@@ -151,17 +151,17 @@ that include the string "ello" somewhere inside them.
 import { main, filter, createChannel } from 'effection';
 
 await main(function*() {
-  let { port, stream } = createChannel();
-  let elloStream = filter(value => value.match(/ello/))(stream);
+  let channel = createChannel();
+  let elloStream = filter(value => value.match(/ello/))(channel);
 
-  let subscription = yield* elloStream;
+  let subscription = yield* elloStream.subscribe();
 
-  yield* port.send('hello');
+  yield* channel.send('hello');
 
   // our filtered stream skips over this value
-  yield* port.send('world');
+  yield* channel.send('world');
 
-  yield* port.send('jello');
+  yield* channel.send('jello');
 
   console.log(yield* subscription.next());
   //=> { done: false, value: 'hello' }
@@ -190,18 +190,18 @@ the text transformation above using the [`pipe()`][pipe] utility function.
 import { main, pipe, map, createChannel } from 'effection';
 
 await main(function*() {
-  let { port, stream } = createChannel();
+  let channel = createChannel();
 
   let messages = pipe(
-    stream,
+    channel,
     map(value => value.text),
     map(value => value.toUpperCase()),
   );
 
-  let subscription = yield* messages;
+  let subscription = yield* messages.subscribe();
 
-  yield* port.send({ text: 'hello' });
-  yield* port.send({ text: 'world' });
+  yield* channel.send({ text: 'hello' });
+  yield* channel.send({ text: 'world' });
 
   yield* subscription.next();
   //=> { done: false, value: 'HELLO' }
@@ -247,16 +247,16 @@ yield* each` loop. It is almost identical to the `for await` loop from
 import { main, createChannel, each, spawn, sleep } from 'effection';
 
 await main(function*() {
-  let { port, stream } = createChannel();
+  let channel = createChannel();
 
   yield* spawn(function*() {
     yield* sleep(1000);
-    yield* port.send('hello');
+    yield* channel.send('hello');
     yield* sleep(1000);
-    yield* port.send('world');
+    yield* channel.send('world');
   });
 
-  for (let value of yield* each(stream)) {
+  for (let value of yield* each(channel)) {
     console.log('got value:', value);
     yield* each.next();
   }
@@ -277,19 +277,19 @@ We could also flip this example around like this:
 import { main, createChannel, next, spawn, sleep } from 'effection';
 
 await main(function*() {
-  let { port, stream } = createChannel();
+  let channel = createChannel();
 
   yield* spawn(function*() {
-    for (let value of yield* each(stream)) {
+    for (let value of yield* each(channel)) {
       console.log('got value:', value);
       yield* each.next();
     }
   });
 
   yield* sleep(1000);
-  yield* port.send('hello');
+  yield* channel.send('hello');
   yield* sleep(1000);
-  yield* port.send('world');
+  yield* channel.send('world');
 });
 ```
 
@@ -300,18 +300,17 @@ handy if you want to just the very next item from a stream of events.
 import { main, first, createChannel, spawn, sleep } from 'effection';
 
 await main(function*() {
-  let { port, stream } = createChannel();
+  let channel = createChannel();
 
   yield* spawn(function*() {
     yield sleep(1000);
-    yield* port.send('hello');
+    yield* channel.send('hello');
     yield* sleep(1000);
-    yield* port.send('world');
+    yield* channel.send('world');
   });
 
-  let value = yield* first(stream);
+  let value = yield* first(channel);
   console.log(value); // logs 'hello'
-
 });
 ```
 
@@ -324,19 +323,19 @@ multiple times, like this:
 import { main, createChannel, spawn, sleep } from 'effection';
 
 await main(function*() {
-  let { port, stream } = createChannel();
+  let channel = createChannel();
 
   yield* spawn(function*() {
     yield* sleep(1000);
-    yield* port.send('hello');
+    yield* channel.send('hello');
     yield* sleep(1000);
-    yield* port.send('world');
+    yield* channel.send('world');
   });
 
-  let firstValue = yield* first(stream);
+  let firstValue = yield* first(channel);
   console.log(firstValue); // logs 'hello'
 
-  let secondValue = yield* first(stream);
+  let secondValue = yield* first(channel);
   console.log(secondValue); // logs 'world'
 });
 ```
@@ -346,24 +345,24 @@ change the order we do things in:
 
 ``` javascript
 // THIS IS NOT IDEAL
-import { main, createChannel, spawn, sleep } from 'effection';
+imchannel { main, createChannel, spawn, sleep } from 'effection';
 
 await main(function*() {
-  let { port, stream } = createChannel();
+  let channel = createChannel();
 
   yield* spawn(function*() {
     yield* sleep(1000);
-    yield* port.send('hello');
-    yield* port.send('world');
+    yield* channel.send('hello');
+    yield* channel.send('world');
   });
 
-  let firstValue = yield* first(stream);
+  let firstValue = yield* first(channel);
   console.log(firstValue); // logs 'hello'
 
   yield* sleep(1000);
 
   // will block forever! We missed the message!
-  let secondValue = yield* first(stream);
+  let secondValue = yield* first(channel);
 
   // we never get here!
   console.log(secondValue);
@@ -376,17 +375,17 @@ that we can never miss any messages. Here we can see how Subscriptions
 are more resilient:
 
 ``` javascript
-import { main, createChannel, spawn, sleep } from 'effection';
+imchannel { main, createChannel, spawn, sleep } from 'effection';
 
 await main(function*() {
-  let { port, stream } = createChannel();
+  let channel = createChannel();
 
-  let subscription = yield* stream;
+  let subscription = yield* channel.subscribe();
 
   yield* spawn(function*() {
     yield* sleep(1000);
-    yield* port.send('hello');
-    yield* port.send('world');
+    yield* channel.send('hello');
+    yield* channel.send('world');
   });
 
   let { value: firstValue } = yield* subscription.next();
@@ -417,15 +416,15 @@ async iterator exactly.
 import { main, sleep, spawn, createChannel } from "effection";
 
 await main(function*() {
-  let { port, stream } = createChannel();
+  let channel = createChannel();
 
-  let subscription = yield* stream;
+  let subscription = yield* channel.subscribe();
 
   yield* spawn(function*() {
-    yield* port.send('hello');
+    yield* channel.send('hello');
     yield* sleep(1000);
-    yield* port.send('hello');
-    yield* port.close({ words: 2 });
+    yield* channel.send('hello');
+    yield* channel.close({ words: 2 });
   });
 
   let next = yield* subscription.next();
@@ -472,16 +471,16 @@ all of the events
 import { createSignal, each } from "effection";
 
 export function* logClicks(button) {
-  let { send, stream } = createSignal();
+  let clicks = createSignal();
   try {
-    button.addEventListener("click", send);
+    button.addEventListener("click", clicks.send);
 
-    for (let click of yield* each(stream)) {
+    for (let click of yield* each(clicks)) {
       console.dir({ click });
       yield* each.next();
     }
   } finally {
-    button.removeEventListener("click", send);
+    button.removeEventListener("click", clicks.send);
   }
 }
 ```
@@ -504,16 +503,16 @@ boilerplate code as in our click logger:
 import { createSignal, each } from "effection";
 
 export function* cancelClicks(button) {
-  let { send, stream } = createSignal();
+  let clicks = createSignal();
   try {
-    button.addEventListener("click", send);
+    button.addEventListener("click", clicks.send);
 
-    for (let click of yield* each(stream)) {
+    for (let click of yield* each(clicks)) {
       click.preventDefault();
       yield* each.next();
     }
   } finally {
-    button.removeEventListener("click", send);
+    button.removeEventListener("click", clicks.send);
   }
 }
 ```
@@ -546,10 +545,11 @@ function* logAndCancel(button) {
 }
 ```
 
-It turns out that [resources][resources] are just what we need to make this
-happen. If you recall, a [`Stream`][stream] is just an [`Operation`][operation]
-that returns a [`Subscription`][subscription]. So the simplest way to implement
-such an operation is as a _resource that provides a subscription_.
+It turns out that [resources][resources] are just what we need to make
+this happen. If you recall, a [`Stream`][stream] is just has a
+subscribe() [`Operation`][operation] that returns a
+[`Subscription`][subscription]. So the simplest way to implement such
+an operation is as a _resource that provides a subscription_.
 
 >💡Most of the time, you won't need to implement your own streams, but when you
 > do, a resource is the easiest way to do it.
@@ -560,18 +560,20 @@ Armed with resources, we can now implement our hypothetical `clicksOn` utility.
 import { resource } from "effection"
 
 export function clicksOn(button) {
-  return resource(function*(provide) {
-    let { send, stream } = createSignal();
-    try {
-      button.addEventListener("click", send);
+  return {
+    subscribe: () => resource(function*(provide) {
+      let clicks = createSignal();
+      try {
+        button.addEventListener("click", clicks.send);
 
-      let subscription = yield* stream;
-      yield* provide(subscription);
+        let subscription = yield* clicks.subscribe();
+        yield* provide(subscription);
 
-    } finally {
-      button.removeEventListener("click", send);
-    }
-  });
+      } finally {
+        button.removeEventListener("click", send);
+      }
+    }),
+  };
 }
 ```
 

@@ -14,7 +14,7 @@ export function expect<T>(promise: Promise<T>): Operation<T> {
 
 export function subscribe<T, R>(iter: AsyncIterator<T, R>): Subscription<T, R> {
   return {
-    next: () => call(iter.next),
+    next: () => call(() => iter.next()),
   };
 }
 

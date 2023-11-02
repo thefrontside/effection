@@ -4,6 +4,7 @@ import {
   pipe,
   resource,
   run,
+  first,
   sleep,
   type Stream,
   stream,
@@ -32,7 +33,8 @@ await run(function* () {
     try {
       while (true) {
         yield* action(function* (restart) {
-          let changes = yield* pipe(
+
+          let change = pipe(
             useFsWatch(paths),
             filter(function* (event) {
               return !event.paths.some((path) =>
@@ -43,7 +45,7 @@ await run(function* () {
 
           yield* useCommand(cmd, { args });
 
-          yield* changes.next();
+          yield* first(change);
 
           yield* sleep(100);
 
@@ -59,13 +61,17 @@ await run(function* () {
 });
 
 function useFsWatch(paths: string | string[]): Stream<Deno.FsEvent, never> {
-  return resource(function* (provide) {
-    let watcher = Deno.watchFs(paths);
-    try {
-      let subscription = yield* stream(watcher);
-      yield* provide(subscription as Subscription<Deno.FsEvent, never>);
-    } finally {
-      watcher.close();
+  return {
+    subscribe() {
+      return resource(function* (provide) {
+        let watcher = Deno.watchFs(paths);
+        try {
+          let subscription = yield* stream(watcher).subscribe();
+          yield* provide(subscription as Subscription<Deno.FsEvent, never>);
+        } finally {
+          watcher.close();
+        }
+      });
     }
-  });
+  }
 }

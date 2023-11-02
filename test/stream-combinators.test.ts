@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, expectType, it } from "./suite.ts";
 
 import type { Channel } from "../mod.ts";
-import { createChannel, filter, map, op, pipe, run } from "../mod.ts";
+import { createChannel, filter, lift, map, pipe, run } from "../mod.ts";
 import type { Subscription } from "../lib/types.ts";
 
 describe("Stream combinators", () => {
@@ -17,18 +17,18 @@ describe("Stream combinators", () => {
         return item.toUpperCase();
       });
 
-      let subscription = yield* upCase(channel.output);
+      let subscription = yield* upCase(channel).subscribe();
 
       expectType<Subscription<string, string>>(subscription);
 
-      yield* channel.input.send("foo");
+      yield* channel.send("foo");
 
       let next = yield* subscription.next();
 
       expect(next.done).toBe(false);
       expect(next.value).toBe("FOO");
 
-      yield* channel.input.close("var");
+      yield* channel.close("var");
 
       expect(yield* subscription.next()).toEqual({
         done: true,
@@ -42,20 +42,20 @@ describe("Stream combinators", () => {
         return a.length > 3;
       });
 
-      let subscription = yield* longs(channel.output);
+      let subscription = yield* longs(channel).subscribe();
 
       expectType<Subscription<string, string>>(subscription);
 
-      yield* channel.input.send("no");
-      yield* channel.input.send("way");
-      yield* channel.input.send("good");
+      yield* channel.send("no");
+      yield* channel.send("way");
+      yield* channel.send("good");
 
       let next = yield* subscription.next();
 
       expect(next.done).toBe(false);
       expect(next.value).toBe("good");
 
-      yield* channel.input.close("var");
+      yield* channel.close("var");
 
       expect(yield* subscription.next()).toEqual({
         done: true,
@@ -73,21 +73,21 @@ describe("Stream combinators", () => {
         return item.length;
       });
 
-      let subscription = yield* pipe(channel.output, shorts, length);
+      let subscription = yield* pipe(channel, shorts, length).subscribe();
 
       expectType<Subscription<number, string>>(subscription);
 
-      yield* channel.input.send("too long");
-      yield* channel.input.send("too long 2");
-      yield* channel.input.send("too long 3");
-      yield* channel.input.send("foo");
+      yield* channel.send("too long");
+      yield* channel.send("too long 2");
+      yield* channel.send("too long 3");
+      yield* channel.send("foo");
 
       let next = yield* subscription.next();
 
       expect(next.done).toBe(false);
       expect(next.value).toBe("foo".length);
 
-      yield* channel.input.close("var");
+      yield* channel.close("var");
 
       expect(yield* subscription.next()).toEqual({
         done: true,
@@ -97,29 +97,29 @@ describe("Stream combinators", () => {
 
   it("lets you pass an ordinary function for a predicate", () =>
     run(function* () {
-      let upCase = map(op((item: string) => {
+      let upCase = map(lift((item: string) => {
         return item.toUpperCase();
       }));
 
-      let shorts = filter(op((a: string) => {
+      let shorts = filter(lift((a: string) => {
         return a.length < 4;
       }));
 
-      let subscription = yield* pipe(channel.output, shorts, upCase);
+      let subscription = yield* pipe(channel, shorts, upCase).subscribe();
 
       expectType<Subscription<string, string>>(subscription);
 
-      yield* channel.input.send("too long");
-      yield* channel.input.send("too long 2");
-      yield* channel.input.send("too long 3");
-      yield* channel.input.send("foo");
+      yield* channel.send("too long");
+      yield* channel.send("too long 2");
+      yield* channel.send("too long 3");
+      yield* channel.send("foo");
 
       let next = yield* subscription.next();
 
       expect(next.done).toBe(false);
       expect(next.value).toBe("FOO");
 
-      yield* channel.input.close("var");
+      yield* channel.close("var");
 
       expect(yield* subscription.next()).toEqual({
         done: true,

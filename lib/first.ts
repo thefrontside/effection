@@ -4,7 +4,7 @@ export function first<T>(stream: Stream<T, never>): Operation<T>;
 export function* first<T>(
   stream: Stream<T, unknown>,
 ): Operation<T | undefined> {
-  let subscription = yield* stream;
+  let subscription = yield* stream.subscribe();
   let result = yield* subscription.next();
 
   if (!result.done) {

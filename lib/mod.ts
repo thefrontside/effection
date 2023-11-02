@@ -12,7 +12,7 @@ export * from "./result.ts";
 export * from "./map.ts";
 export * from "./filter.ts";
 export * from "./pipe.ts";
-export * from "./op.ts";
+export * from "./lift.ts";
 export * from "./events.ts";
 export * from "./main.ts";
 export * from "./all.ts";

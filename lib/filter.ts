@@ -7,20 +7,24 @@ export interface Predicate<A> {
 export function filter<A>(predicate: Predicate<A>) {
   return function <TClose>(stream: Stream<A, TClose>): Stream<A, TClose> {
     return {
-      *[Symbol.iterator]() {
-        let subscription = yield* stream;
-
+      subscribe() {
         return {
-          *next() {
-            while (true) {
-              let next = yield* subscription.next();
+          *[Symbol.iterator]() {
+            let subscription = yield* stream.subscribe();
 
-              if (next.done) {
-                return next;
-              } else if (yield* predicate(next.value)) {
-                return next;
-              }
-            }
+            return {
+              *next() {
+                while (true) {
+                  let next = yield* subscription.next();
+
+                  if (next.done) {
+                    return next;
+                  } else if (yield* predicate(next.value)) {
+                    return next;
+                  }
+                }
+              },
+            };
           },
         };
       },

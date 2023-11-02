@@ -1,4 +1,4 @@
-import type { Stream } from "./types.ts";
+import type { Stream, Subscription } from "./types.ts";
 
 import { createQueue, type Queue } from "./queue.ts";
 import { resource } from "./instructions.ts";
@@ -15,17 +15,17 @@ import { resource } from "./instructions.ts";
  * import { createSignal, each } from "effection";
  *
  * export function* logClicks(function*(button) {
- *   let { send, stream } = createSignal<MouseEvent>();
+ *   let clicks = createSignal<MouseEvent>();
  *
- *   button.addEventListener("click", send);
+ *   button.addEventListener("click", clicks.send);
  *
  *   try {
- *     for (let click of yield* each(stream)) {
+ *     for (let click of yield* each(clicks)) {
  *       console.log(`click:`, click);
  *       yield* each.next();
  *     }
  *   } finally {
- *     button.removeEventListener("click", send);
+ *     button.removeEventListener("click", clicks.send);
  *   }
  * })
  * ````
@@ -33,7 +33,7 @@ import { resource } from "./instructions.ts";
  * @typeParam T - type of each event sent by this signal
  * @typeParam TClose - type of the final event sent by this signal
  */
-export interface Signal<T, TClose> {
+export interface Signal<T, TClose> extends Stream<T, TClose> {
   /**
    * Send a value to all the consumers of this signal.
    *
@@ -46,11 +46,6 @@ export interface Signal<T, TClose> {
    * @param value - the final value.
    */
   close(value: TClose): void;
-
-  /**
-   * The {@link Stream} that receives events that are sent to this signal.
-   */
-  stream: Stream<T, TClose>;
 }
 
 /**
@@ -83,7 +78,7 @@ export interface Signal<T, TClose> {
 export function createSignal<T, TClose = never>(): Signal<T, TClose> {
   let subscribers = new Set<Queue<T, TClose>>();
 
-  let stream: Stream<T, TClose> = resource(function* Subscription(provide) {
+  let useSubscription = resource<Subscription<T, TClose>>(function* (provide) {
     let queue = createQueue<T, TClose>();
     subscribers.add(queue);
 
@@ -106,5 +101,5 @@ export function createSignal<T, TClose = never>(): Signal<T, TClose> {
     }
   }
 
-  return { send, close, stream };
+  return { send, close, subscribe: () => useSubscription };
 }

@@ -64,6 +64,8 @@ export default function* AppHtml({ title }: Options): Operation<JSX.Element> {
                 <img
                   src="/assets/images/effection-logo.svg"
                   alt="Effection Logo"
+                  width="156px"
+                  height="24px"
                 />
               </a>
             </div>

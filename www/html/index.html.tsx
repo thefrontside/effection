@@ -9,6 +9,8 @@ export default function* IndexHTML(): Operation<JSX.Element> {
             class="inline min-w-[20%]"
             alt="Effection Logo"
             src="/assets/images/icon-effection.svg"
+            width="288px"
+            height="288px"
           />
           <h1 class="text-4xl font-bold leading-7">Effection</h1>
           <p class="text-sm py-4">
@@ -21,28 +23,28 @@ export default function* IndexHTML(): Operation<JSX.Element> {
             Get Started
           </a>
         </hgroup>
-        <Feature summary="👩🏻‍💻100% JavaScript">
+        <Feature summary="👩🏻‍💻 100% JavaScript">
           No build steps. No esoteric APIs, and no new odd-ball paradigms to
           learn; Effection leans into JavaScript's natural constructs at every
           turn, so code always feels intuitive.
         </Feature>
 
-        <Feature summary="🛡️Leak proof">
+        <Feature summary="🛡️ Leak proof">
           Effection code cleans up after itself, and that means never having to
           remember to manually close a resource or detach a listener.
         </Feature>
-        <Feature summary="🖐️Halt any operation">
+        <Feature summary="🖐️ Halt any operation">
           An Effection operation can be shut down at any moment which will not
           only stop it completely but also stop any other operations that it
           started.
         </Feature>
-        <Feature summary="🔒Synchronicity">
+        <Feature summary="🔒 Synchronicity">
           Unlike Promises and async/await, Effection is fundamentally
           synchronous in nature, which means you have full control over the
           event loop and operations requiring synchronous setup remain race
           condition free.
         </Feature>
-        <Feature summary="🎹Seamless composition">
+        <Feature summary="🎹 Seamless composition">
           Since all Effection code is well behaved, it clicks together easily,
           and there are no nasty surprises when fitting different pieces
           together.

@@ -12,7 +12,7 @@ describe("Queue", () => {
   it("adds value to an already waiting listener", async () => {
     await run(function* () {
       let q = createQueue<string, never>();
-      let listener = yield* spawn(() => q.subscription.next());
+      let listener = yield* spawn(() => q.next());
       q.add("hello");
       expect(yield* listener).toEqual({ done: false, value: "hello" });
     });
@@ -20,10 +20,10 @@ describe("Queue", () => {
 
   it("only adds value to one listener if there are multiple", async () => {
     await run(function* () {
-      let { add, subscription } = createQueue<string, never>();
-      let listener1 = yield* spawn(() => abortAfter(subscription.next(), 10));
-      let listener2 = yield* spawn(() => abortAfter(subscription.next(), 10));
-      add("hello");
+      let q = createQueue<string, never>();
+      let listener1 = yield* spawn(() => abortAfter(q.next(), 10));
+      let listener2 = yield* spawn(() => abortAfter(q.next(), 10));
+      q.add("hello");
       expect([yield* listener1, yield* listener2].filter(Boolean)).toEqual([{
         done: false,
         value: "hello",
@@ -33,9 +33,9 @@ describe("Queue", () => {
 
   it("queues value if there is no listener", async () => {
     await run(function* () {
-      let { add, subscription } = createQueue<string, never>();
-      add("hello");
-      expect(yield* subscription.next()).toEqual({
+      let q = createQueue<string, never>();
+      q.add("hello");
+      expect(yield* q.next()).toEqual({
         done: false,
         value: "hello",
       });
@@ -44,9 +44,9 @@ describe("Queue", () => {
 
   it("can close", async () => {
     await run(function* () {
-      let { close, subscription } = createQueue<string, number>();
-      let listener = yield* spawn(() => subscription.next());
-      close(42);
+      let q = createQueue<string, number>();
+      let listener = yield* spawn(() => q.next());
+      q.close(42);
       expect(yield* listener).toEqual({ done: true, value: 42 });
     });
   });

@@ -2,7 +2,14 @@ export * from "https://deno.land/std@0.163.0/testing/bdd.ts";
 export { expect, mock } from "https://deno.land/x/expect@v0.3.0/mod.ts";
 export { expectType } from "https://esm.sh/ts-expect@1.3.0?pin=v123";
 
-import { expect, type Operation, resource, sleep, spawn } from "../mod.ts";
+import {
+  action,
+  call,
+  type Operation,
+  resource,
+  sleep,
+  spawn,
+} from "../mod.ts";
 
 declare global {
   // deno-lint-ignore no-empty-interface
@@ -14,6 +21,12 @@ Object.defineProperty(Promise.prototype, Symbol.iterator, {
     return expect(this)[Symbol.iterator];
   },
 });
+
+function expect<T>(promise: Promise<T>): Operation<T> {
+  return action(function* (resolve, reject) {
+    promise.then(resolve, reject);
+  });
+}
 
 export function* createNumber(value: number): Operation<number> {
   yield* sleep(1);
@@ -76,7 +89,7 @@ export function useCommand(
     } finally {
       try {
         process.kill("SIGINT");
-        yield* process.status;
+        yield* call(process.status);
       } catch (error) {
         // if the process already quit, then this error is expected.
         // unfortunately there is no way (I know of) to check this

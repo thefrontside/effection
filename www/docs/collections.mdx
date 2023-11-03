@@ -77,13 +77,13 @@ to show the difference between them:
 import { main, createChannel } from 'effection';
 
 await main(function*() {
-  let { send, subscribe} = createChannel();
+  let channel = createChannel();
 
   // the channel has no subscribers yet!
-  yield* send('too early');
+  yield* channel.send('too early');
 
-  let subscription1 = yield* subscribe();
-  let subscription2 = yield* subscribe();
+  let subscription1 = yield* channel.subscribe();
+  let subscription2 = yield* channel.subscribe();
 
   yield* send('hello');
   yield* send('world');

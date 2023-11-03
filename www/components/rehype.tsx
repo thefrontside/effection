@@ -1,8 +1,9 @@
 import type { PluggableList } from "npm:unified@10.1.2";
 import { unified } from "npm:unified@10.1.2";
+import type { JSXChild } from "revolution";
 
 export interface RehypeOptions {
-  children: JSX.Element;
+  children: JSXChild;
   plugins: PluggableList;
 }
 

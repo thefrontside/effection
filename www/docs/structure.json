@@ -2,7 +2,8 @@
   "Getting Started": [
     ["introduction.mdx", "Introduction"],
     ["installation.mdx", "Installation"],
-    ["typescript.mdx", "TypeScript"]
+    ["typescript.mdx", "TypeScript"],
+    ["add-to-existing-project.mdx", "Add to an existing project"]
   ],
   "Learn Effection": [
     ["operations.mdx", "Operations"],

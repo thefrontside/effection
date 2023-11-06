@@ -35,15 +35,15 @@ export interface Channel<T, TClose> extends Stream<T, TClose> {
  * import { main, createChannel } from 'effection';
  *
  * await main(function*() {
- *   let { input, output } = createChannel();
+ *   let channel = createChannel();
  *
- *   yield* input.send('too early'); // the channel has no subscribers yet!
+ *   yield* channel.send('too early'); // the channel has no subscribers yet!
  *
- *   let subscription1 = yield* channel;
- *   let subscription2 = yield* channel;
+ *   let subscription1 = yield* channel.subscribe();
+ *   let subscription2 = yield* channel.subscribe();
  *
- *   yield* input.send('hello');
- *   yield* input.send('world');
+ *   yield* channel.send('hello');
+ *   yield* channel.send('world');
  *
  *   console.log(yield* subscription1.next()); //=> { done: false, value: 'hello' }
  *   console.log(yield* subscription1.next()); //=> { done: false, value: 'world' }

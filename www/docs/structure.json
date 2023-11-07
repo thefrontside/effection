@@ -1,19 +1,19 @@
 {
   "Getting Started": [
-    "introduction.mdx",
-    "operations.mdx",
-    "actions.mdx",
-    "resources.mdx",
-    "spawn.mdx",
-    "collections.mdx",
-    "events.mdx",
-    "errors.mdx",
-    "typescript.mdx"
+    ["introduction.mdx", "Introduction"],
+    ["operations.mdx", "Operations"],
+    ["actions.mdx", "Actions and Suspensions"],
+    ["resources.mdx", "Resources"],
+    ["spawn.mdx", "Spawn"],
+    ["collections.mdx", "Streams and Subscriptions"],
+    ["events.mdx", "Events"],
+    ["errors.mdx", "Error Handling"],
+    ["typescript.mdx", "TypeScript"]
   ],
   "Advanced": [
-    "scope.mdx",
-    "testing.mdx",
-    "inspector.mdx",
-    "processes.mdx"
+    ["scope.mdx", "Scope"],
+    ["testing.mdx", "Testing"],
+    ["inspector.mdx", "Inspector"],
+    ["processes.mdx", "Processes"]
   ]
 }

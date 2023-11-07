@@ -1,6 +1,5 @@
 import type { Operation } from "effection";
-import type { Doc } from "../docs/docs.ts";
-import { useDocs } from "../docs/docs.ts";
+import type { Doc, DocMeta } from "../docs/docs.ts";
 import { Navburger } from "./components/navburger.tsx";
 import { Rehype } from "./components/rehype.tsx";
 
@@ -10,10 +9,7 @@ import rehypeAddClasses from "npm:rehype-add-classes@1.0.0";
 import rehypeToc from "npm:@jsdevtools/rehype-toc@3.0.2";
 
 export default function* (doc: Doc): Operation<JSX.Element> {
-  let docs = yield* useDocs();
-  let topics = yield* docs.getTopics();
-  let next = yield* docs.getDoc(doc.nextId);
-  let prev = yield* docs.getDoc(doc.previousId);
+  let { topics } = doc;
 
   return (
     <section class="mx-auto md:pt-8 w-full justify-items-normal md:grid md:grid-cols-[225px_auto] lg:grid-cols-[225px_auto_200px] md:gap-4">
@@ -116,14 +112,15 @@ export default function* (doc: Doc): Operation<JSX.Element> {
           >
             <doc.MDXContent />
           </Rehype>
-          <NextPrevLinks prev={prev} next={next} />
+          <NextPrevLinks doc={doc} />
         </article>
       </Transform>
     </section>
   );
 }
 
-function NextPrevLinks({ next, prev }: { next?: Doc, prev?: Doc }): JSX.Element {
+function NextPrevLinks({ doc }: { doc: DocMeta }): JSX.Element {
+  let { next, prev } = doc;
   return (
     <menu class="grid grid-cols-2 my-10 gap-x-2 xl:gap-x-20 2xl:gap-x-40 text-lg">
       {prev

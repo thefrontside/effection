@@ -43,21 +43,24 @@ export interface Doc {
 }
 
 export function* loadDocs(): Operation<Docs> {
-  let topics = new Map<string, Topic>();
 
   let loaders = new Map<string, Task<Doc>>();
 
   let entries = Object.entries(structure);
 
+  let topics = entries.map(([name]) => ({ name, items: []}) as Topic)
+
+  let topicsByName = new Map<string, Topic>(topics.map(topic => [topic.name, topic]));
+
   let files = entries.flatMap(([topicName, files]) => {
-    return files.map(filename => ({ topicName, filename, id: basename(filename, ".mdx") }));
+    return files.map((filename, topicIndex) => ({ topicName, topicIndex, filename, id: basename(filename, ".mdx") }));
   })
 
   for (let i = 0; i < files.length; i++ ) {
     let file = files[i];
     let nextId = files[i + 1]?.id;
     let previousId = files[i - 1]?.id;
-    let { topicName, filename, id } = file;
+    let { topicName, topicIndex, filename, id } = file;
     let location = new URL(filename, import.meta.url);
 
     loaders.set(id, yield* spawn(function*() {
@@ -79,7 +82,6 @@ export function* loadDocs(): Operation<Docs> {
 
       let { title } = mod.frontmatter as { id: string; title: string };
 
-
       let doc: Doc = {
         id,
         nextId,
@@ -89,13 +91,9 @@ export function* loadDocs(): Operation<Docs> {
         MDXContent: () => mod.default({}),
       } as Doc;
 
-      let topic = topics.get(topicName);
-      if (!topic) {
-        topic = { name: topicName, items: [] };
-        topics.set(topicName, topic);
-      }
+      let topic = topicsByName.get(topicName);
 
-      topic.items.push(doc);
+      topic!.items[topicIndex] = doc;
 
       return doc;
     }));
@@ -105,7 +103,7 @@ export function* loadDocs(): Operation<Docs> {
   return yield* Docs.set({
     *getTopics() {
       yield* all([...loaders.values()]);
-      return [...topics.values()];
+      return topics;
     },
     *getDoc(id) {
       if (id) {

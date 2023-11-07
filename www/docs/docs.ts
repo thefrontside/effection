@@ -1,5 +1,7 @@
-import { createContext, expect, type Operation } from "effection";
+import { createContext, all, call, spawn, type Operation, type Task } from "effection";
 import structure from "./structure.json" assert { type: "json" };
+
+import { basename } from "https://deno.land/std@0.205.0/path/posix/basename.ts";
 
 import remarkFrontmatter from "npm:remark-frontmatter@4.0.1";
 import remarkMdxFrontmatter from "npm:remark-mdx-frontmatter@3.0.0";
@@ -22,8 +24,8 @@ export interface DocModule {
 }
 
 export interface Docs {
-  getTopics(): Topic[];
-  getDoc(id: string): Doc | undefined;
+  getTopics(): Operation<Topic[]>;
+  getDoc(id?: string): Operation<Doc | undefined>;
 }
 
 export interface Topic {
@@ -36,24 +38,31 @@ export interface Doc {
   title: string;
   MDXContent: () => JSX.Element;
   filename: string;
-  previous?: Doc;
-  next?: Doc;
+  nextId?: string;
+  previousId?: string;
 }
 
 export function* loadDocs(): Operation<Docs> {
-  let topics: Topic[] = [];
-  let docs: Record<string, Doc> = {};
-  let current: Doc | undefined;
+  let topics = new Map<string, Topic>();
 
-  for (let [topicName, files] of Object.entries(structure)) {
-    let topic = { name: topicName, items: [] } as Topic;
+  let loaders = new Map<string, Task<Doc>>();
 
-    topics.push(topic);
+  let entries = Object.entries(structure);
 
-    for (let filename of files) {
-      let location = new URL(filename, import.meta.url);
-      let source = yield* expect(Deno.readTextFile(location));
-      let mod = yield* expect(evaluate(source, {
+  let files = entries.flatMap(([topicName, files]) => {
+    return files.map(filename => ({ topicName, filename, id: basename(filename, ".mdx") }));
+  })
+
+  for (let i = 0; i < files.length; i++ ) {
+    let file = files[i];
+    let nextId = files[i + 1]?.id;
+    let previousId = files[i - 1]?.id;
+    let { topicName, filename, id } = file;
+    let location = new URL(filename, import.meta.url);
+
+    loaders.set(id, yield* spawn(function*() {
+      let source = yield* call(Deno.readTextFile(location));
+      let mod = yield* call(evaluate(source, {
         jsx,
         jsxs,
         jsxDEV: jsx,
@@ -68,27 +77,43 @@ export function* loadDocs(): Operation<Docs> {
         ],
       }));
 
-      let { id, title } = mod.frontmatter as { id: string; title: string };
+      let { title } = mod.frontmatter as { id: string; title: string };
 
-      let previous = current;
 
-      let doc = current = {
+      let doc: Doc = {
         id,
+        nextId,
+        previousId,
         title,
         filename,
         MDXContent: () => mod.default({}),
-        previous,
       } as Doc;
 
-      topic.items.push(doc);
-      docs[id] = doc;
-      if (previous) {
-        previous.next = doc;
+      let topic = topics.get(topicName);
+      if (!topic) {
+        topic = { name: topicName, items: [] };
+        topics.set(topicName, topic);
       }
-    }
+
+      topic.items.push(doc);
+
+      return doc;
+    }));
+
   }
-  return {
-    getTopics: () => topics,
-    getDoc: (id) => docs[id],
-  };
+
+  return yield* Docs.set({
+    *getTopics() {
+      yield* all([...loaders.values()]);
+      return [...topics.values()];
+    },
+    *getDoc(id) {
+      if (id) {
+        let task = loaders.get(id);
+        if (task) {
+          return yield* task;
+        }
+      }
+    },
+  });
 }

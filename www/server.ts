@@ -1,7 +1,7 @@
 import { serve } from "freejack/server.ts";
 import { html } from "freejack/html.ts";
 import { render } from "freejack/view.ts";
-import { Docs, loadDocs, useDocs } from "./docs/docs.ts";
+import { Docs, loadDocs } from "./docs/docs.ts";
 import { useV2Docs } from "./hooks/use-v2-docs.ts";
 
 import { AppHtml, DocumentHtml, IndexHtml } from "./html/templates.ts";
@@ -9,7 +9,7 @@ import { AppHtml, DocumentHtml, IndexHtml } from "./html/templates.ts";
 export default function* start() {
   let v2docs = yield* useV2Docs({
     fetchEagerly: !!Deno.env.get("V2_DOCS_FETCH_EAGERLY"),
-    revision: Number(Deno.env.get("V2_DOCS_REVISION")) ?? 4,
+    revision: Number(Deno.env.get("V2_DOCS_REVISION") ?? 4),
   });
 
   let docs = yield* loadDocs();
@@ -24,9 +24,8 @@ export default function* start() {
     }),
 
     "/docs/:id": html.get(function* ({ id }) {
-      let docs = yield* useDocs();
 
-      let doc = docs.getDoc(id);
+      let doc = yield* docs.getDoc(id);
 
       if (!doc) {
         return { name: "h1", attrs: {}, children: ["Not Found"] };

@@ -11,7 +11,9 @@ import rehypeToc from "npm:@jsdevtools/rehype-toc@3.0.2";
 
 export default function* (doc: Doc): Operation<JSX.Element> {
   let docs = yield* useDocs();
-  let topics = docs.getTopics();
+  let topics = yield* docs.getTopics();
+  let next = yield* docs.getDoc(doc.nextId);
+  let prev = yield* docs.getDoc(doc.previousId);
 
   return (
     <section class="mx-auto md:pt-8 w-full justify-items-normal md:grid md:grid-cols-[225px_auto] lg:grid-cols-[225px_auto_200px] md:gap-4">
@@ -114,38 +116,38 @@ export default function* (doc: Doc): Operation<JSX.Element> {
           >
             <doc.MDXContent />
           </Rehype>
-          <NextPrevLinks doc={doc} />
+          <NextPrevLinks prev={prev} next={next} />
         </article>
       </Transform>
     </section>
   );
 }
 
-function NextPrevLinks({ doc }: { doc: Doc }): JSX.Element {
+function NextPrevLinks({ next, prev }: { next?: Doc, prev?: Doc }): JSX.Element {
   return (
     <menu class="grid grid-cols-2 my-10 gap-x-2 xl:gap-x-20 2xl:gap-x-40 text-lg">
-      {doc.previous
+      {prev
         ? (
           <li class="col-start-1 text-left font-light border-1 rounded-lg p-4">
             Previous
             <a
               class="py-2 block text-xl font-bold text-blue-primary no-underline tracking-wide leading-5 before:content-['«&nbsp;'] before:font-normal"
-              href={`/docs/${doc.previous.id}`}
+              href={`/docs/${prev.id}`}
             >
-              {doc.previous.title}
+              {prev.title}
             </a>
           </li>
         )
         : <li />}
-      {doc.next
+      {next
         ? (
           <li class="col-start-2 text-right font-light border-1 rounded-lg p-4">
             Next
             <a
               class="py-2 block text-xl font-bold text-blue-primary no-underline tracking-wide leading-5 after:content-['&nbsp;»'] after:font-normal"
-              href={`/docs/${doc.next.id}`}
+              href={`/docs/${next.id}`}
             >
-              {doc.next.title}
+              {next.title}
             </a>
           </li>
         )

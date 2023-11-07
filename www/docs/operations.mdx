@@ -1,5 +1,4 @@
 ---
-id: operations
 title: Operations
 ---
 

@@ -1651,6 +1651,12 @@
     "https://deno.land/std@0.203.0/path/extname.ts": "62c4b376300795342fe1e4746c0de518b4dc9c4b0b4617bfee62a2973a9555cf",
     "https://deno.land/std@0.203.0/path/join.ts": "31c5419f23d91655b08ec7aec403f4e4cd1a63d39e28f6e42642ea207c2734f8",
     "https://deno.land/std@0.203.0/streams/read_all.ts": "3b20a50af87d1bfebefa9c2dbda49e2b214d8ab0382ffdcc8ce858af80a912be",
+    "https://deno.land/std@0.205.0/path/_common/assert_path.ts": "061e4d093d4ba5aebceb2c4da3318bfe3289e868570e9d3a8e327d91c2958946",
+    "https://deno.land/std@0.205.0/path/_common/basename.ts": "0d978ff818f339cd3b1d09dc914881f4d15617432ae519c1b8fdc09ff8d3789a",
+    "https://deno.land/std@0.205.0/path/_common/constants.ts": "e49961f6f4f48039c0dfed3c3f93e963ca3d92791c9d478ac5b43183413136e0",
+    "https://deno.land/std@0.205.0/path/_common/strip_trailing_separators.ts": "7ffc7c287e97bdeeee31b155828686967f222cd73f9e5780bfe7dfb1b58c6c65",
+    "https://deno.land/std@0.205.0/path/posix/_util.ts": "ecf49560fedd7dd376c6156cc5565cad97c1abe9824f4417adebc7acc36c93e5",
+    "https://deno.land/std@0.205.0/path/posix/basename.ts": "a630aeb8fd8e27356b1823b9dedd505e30085015407caa3396332752f6b8406a",
     "https://deno.land/x/continuation@0.1.5/mod.ts": "690def2735046367b3e1b4bc6e51b5912f2ed09c41c7df7a55c060f23720ad33",
     "https://deno.land/x/hastx@v0.0.5/jsx-runtime.ts": "5e1db59ceea4834b8d248a018a5adfc73a09922d8dcdaa3a3bb228c884da0f6c"
   }

@@ -25,29 +25,7 @@ import { createContext } from "./context.ts";
  * @param stream - the stream to iterate
  * @returns an operation to iterate `stream`
  */
-export const each = iterate as Each;
-
-/**
- * @ignore
- */
-export type Each = typeof iterate & {
-  /**
-   * Indicate that the current iteration in a for-each loop is complete.
-   *
-   * @see {@link each}
-   */
-  next: Operation<void>;
-};
-
-interface EachLoop<T> {
-  subscription: Subscription<T, unknown>;
-  current: IteratorResult<T>;
-  stale?: true;
-}
-
-const EachStack = createContext<EachLoop<unknown>[]>("each");
-
-function iterate<T>(stream: Stream<T, unknown>): Operation<Iterable<T>> {
+export function each<T>(stream: Stream<T, unknown>): Operation<Iterable<T>> {
   return {
     *[Symbol.iterator]() {
       let subscription = yield* stream.subscribe();
@@ -65,7 +43,7 @@ function iterate<T>(stream: Stream<T, unknown>): Operation<Iterable<T>> {
         next() {
           if (context.stale) {
             let error = new Error(
-              `for each loop did not use each.next operation before continuing`,
+              `for each loop did not use each.next() operation before continuing`,
             );
             error.name = "IterationError";
             throw error;
@@ -87,7 +65,7 @@ function iterate<T>(stream: Stream<T, unknown>): Operation<Iterable<T>> {
   };
 }
 
-iterate.next = function next() {
+each.next = function next() {
   return {
     name: "each.next()",
     *[Symbol.iterator]() {
@@ -107,3 +85,11 @@ iterate.next = function next() {
     },
   } as Operation<void>;
 };
+
+interface EachLoop<T> {
+  subscription: Subscription<T, unknown>;
+  current: IteratorResult<T>;
+  stale?: true;
+}
+
+const EachStack = createContext<EachLoop<unknown>[]>("each");

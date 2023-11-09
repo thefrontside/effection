@@ -2,6 +2,7 @@ import type { Stream, Subscription } from "./types.ts";
 
 import { createQueue, type Queue } from "./queue.ts";
 import { resource } from "./instructions.ts";
+import { createContext } from "./context.ts";
 
 /**
  * Convert plain JavaScript function calls into a {@link Stream} that can
@@ -49,6 +50,43 @@ export interface Signal<T, TClose> extends Stream<T, TClose> {
 }
 
 /**
+ * @ignore
+ * {@link Context} that contains a {@link Queue} factory to be used when creating a {@link Signal}.
+ *
+ * This allows end-users to customize a Signal's Queue.
+ *
+ * @example
+ * ```javascript
+ * export function useActions(pattern: ActionPattern): Stream<AnyAction, void> {
+ *  return {
+ *    *subscribe() {
+ *      const actions = yield* ActionContext;
+ *      yield* QueueFactory.set(() => createFilterQueue(matcher(pattern));
+ *      return yield* actions.subscribe();
+ *    }
+ *  }
+ * }
+ *
+ * function createFilterQueue(predicate: Predicate) {
+ *  let queue = createQueue();
+ *
+ *  return {
+ *    ...queue,
+ *    add(value) {
+ *      if (predicate(value)) {
+ *        queue.add(value);
+ *      }
+ *    }
+ *  }
+ * }
+ * ```
+ */
+export const SignalQueueFactory = createContext(
+  "Signal.createQueue",
+  createQueue,
+);
+
+/**
  * Create a new {@link Signal}
  *
  * Signal should be used when you need to send messages to a stream
@@ -79,7 +117,8 @@ export function createSignal<T, TClose = never>(): Signal<T, TClose> {
   let subscribers = new Set<Queue<T, TClose>>();
 
   let useSubscription = resource<Subscription<T, TClose>>(function* (provide) {
-    let queue = createQueue<T, TClose>();
+    let newQueue = yield* SignalQueueFactory;
+    let queue = newQueue<T, TClose>();
     subscribers.add(queue);
 
     try {

@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.0.0-beta.2
+
+- ✨allow custom `Queue` impl whene creating a `Signal`
+  https://github.com/thefrontside/effection/pull/826
+- 📄Represent `each` as a function, not a variable in the API docs
+  https://github.com/thefrontside/effection/pull/825
+- 📄Fixes to the `Channel` documentation
+  https://github.com/thefrontside/effection/pull/821
+
 ## 3.0.0-beta.1
 
 - ✨Beef up the `call()` to handle promises and async fns:

@@ -36,10 +36,7 @@ export function ProjectSelect() {
       <input type="checkbox" class="hidden" id={toggleId} checked />
       <label id={openerId} class="cursor-pointer" for={toggleId}>
         <span class="sm:hidden">OSS</span>
-        <aside
-          class="absolute m-4 rounded-md text-blue-primary bg-white shadow-lg right-0 z-50"
-
-        >
+        <aside class="absolute m-4 rounded-md text-blue-primary bg-white shadow-lg right-0 z-50">
           <h4 class="p-2.5 uppercase text-sm text-center font-normal min-w-max">
             Frontside Open Source
           </h4>

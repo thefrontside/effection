@@ -1,10 +1,10 @@
 import {
   action,
   filter,
+  first,
   pipe,
   resource,
   run,
-  first,
   sleep,
   type Stream,
   stream,
@@ -33,7 +33,6 @@ await run(function* () {
     try {
       while (true) {
         yield* action(function* (restart) {
-
           let change = pipe(
             useFsWatch(paths),
             filter(function* (event) {
@@ -72,6 +71,6 @@ function useFsWatch(paths: string | string[]): Stream<Deno.FsEvent, never> {
           watcher.close();
         }
       });
-    }
-  }
+    },
+  };
 }

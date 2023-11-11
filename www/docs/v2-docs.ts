@@ -1,17 +1,19 @@
-import { useAbortSignal } from "effection";
+import { call, useAbortSignal } from "effection";
 import type { Operation, Task } from "effection";
-import { each, expect, resource, spawn, stream, useScope } from "effection";
+import { each, spawn, stream, useScope } from "effection";
 import { Foras, GzDecoder } from "npm:@hazae41/foras@2.1.1";
 import { Untar } from "https://deno.land/std@0.203.0/archive/untar.ts";
-import { serveTar, type TarEntry } from "freejack/serve-tar.ts";
-import type { ServeHandler } from "../lib/types.ts";
+import type { TarEntry } from "../routes/serve-tar.ts";
 
 export interface V2Docs {
-  serveWebsite: ServeHandler;
-  serveApidocs: ServeHandler;
+  website: {
+    prod: Operation<Map<string, TarEntry>>;
+    local: Operation<Map<string, TarEntry>>;
+  };
+  apidocs: Operation<Map<string, TarEntry>>;
 }
 
-export interface UseV2DocsOptions {
+export interface V2DocsOptions {
   fetchEagerly?: boolean;
   revision: number | {
     website: number | {
@@ -22,44 +24,24 @@ export interface UseV2DocsOptions {
   };
 }
 
-export function useV2Docs(options: UseV2DocsOptions): Operation<V2Docs> {
-  return resource(function* (provide) {
-    let urls = getUrls(options);
+export function* loadV2Docs(options: V2DocsOptions): Operation<V2Docs> {
+  let urls = getUrls(options);
 
-    yield* expect(Foras.initBundledOnce());
+  let gzInit = yield* lazy(() => call(Foras.initBundledOnce()));
 
-    let start = options.fetchEagerly ? spawn : lazy;
+  let start = options.fetchEagerly ? spawn : lazy;
 
-    let website = {
-      prod: yield* start(() => loadTar(urls.website.prod)),
-      local: yield* start(() => loadTar(urls.website.local)),
-    };
+  let website = {
+    prod: yield* start(() => loadTar(urls.website.prod, gzInit)),
+    local: yield* start(() => loadTar(urls.website.local, gzInit)),
+  };
 
-    let apidocs = yield* start(() => loadTar(urls.apidocs));
+  let apidocs = yield* start(() => loadTar(urls.apidocs, gzInit));
 
-    yield* provide({
-      serveWebsite: {
-        *middleware(_, request) {
-          return yield* expect(serveTar(request, {
-            tarRoot: "site",
-            urlRoot: "V2",
-            entries: yield* request.headers.has("X-Base-Url")
-              ? website.prod
-              : website.local,
-          }));
-        },
-      },
-      serveApidocs: {
-        *middleware(_, request) {
-          return yield* expect(serveTar(request, {
-            tarRoot: "api/v2",
-            urlRoot: "V2/api",
-            entries: yield* apidocs,
-          }));
-        },
-      },
-    });
-  });
+  return {
+    website,
+    apidocs,
+  };
 }
 
 interface TarUrls {
@@ -71,7 +53,7 @@ interface TarUrls {
 }
 
 // supports using a version number, or a hard-coded custom url for dev purposes
-function getUrls({ revision }: UseV2DocsOptions): TarUrls {
+function getUrls({ revision }: V2DocsOptions): TarUrls {
   if (typeof revision === "number") {
     return {
       website: {
@@ -119,23 +101,24 @@ function getApiUrl(revision: string | number): string {
   }
 }
 
-function* loadTar(url: string) {
+function* loadTar(url: string, gzInit: Operation<unknown>) {
+  yield* gzInit;
   let signal = yield* useAbortSignal();
-  let response = yield* expect(fetch(url, { signal }));
+  let response = yield* call(fetch(url, { signal }));
   if (response.ok) {
     let website = new Map<string, TarEntry>();
     if (response.body) {
       let gunzip = new GzDecoder();
       let reader = response.body.getReader();
       try {
-        let next = yield* expect(reader.read());
+        let next = yield* call(reader.read());
         while (!next.done) {
           gunzip.write(next.value);
-          next = yield* expect(reader.read());
+          next = yield* call(reader.read());
         }
         gunzip.flush();
       } finally {
-        yield* expect(reader.cancel());
+        yield* call(reader.cancel());
       }
       let tar = gunzip.finish().copyAndDispose();
       let bytesRead = 0;
@@ -164,7 +147,7 @@ function* loadTar(url: string) {
           let buf = new Uint8Array(2048);
           try {
             while (true) {
-              let bytesRead = yield* expect(entry.read(buf));
+              let bytesRead = yield* call(entry.read(buf));
               if (bytesRead == null) {
                 break;
               } else {
@@ -172,7 +155,7 @@ function* loadTar(url: string) {
               }
             }
           } finally {
-            yield* expect(entry.discard());
+            yield* call(entry.discard());
           }
           entry.content = new Blob(parts);
           website.set(entry.fileName, entry);

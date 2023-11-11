@@ -1,4 +1,3 @@
-import type { Operation } from "effection";
 import type { Doc, DocMeta } from "../docs/docs.ts";
 import { Navburger } from "./components/navburger.tsx";
 import { Rehype } from "./components/rehype.tsx";
@@ -8,7 +7,7 @@ import rehypeAutolinkHeadings from "npm:rehype-autolink-headings@6.1.1";
 import rehypeAddClasses from "npm:rehype-add-classes@1.0.0";
 import rehypeToc from "npm:@jsdevtools/rehype-toc@3.0.2";
 
-export default function* (doc: Doc): Operation<JSX.Element> {
+export default function ({ doc }: { doc: Doc }): JSX.Element {
   let { topics } = doc;
 
   return (

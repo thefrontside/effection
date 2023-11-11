@@ -1,6 +1,6 @@
 {
   "tasks": {
-    "dev": "deno run -A lib/watch.ts html docs lib hooks -- deno run -A --lock-write main.ts",
+    "dev": "deno run -A lib/watch.ts html docs lib middleware -- deno run -A --lock-write main.ts",
     "build": "deno run -A docs/build.ts"
   },
   "lint": {
@@ -14,12 +14,11 @@
   },
   "compilerOptions": {
     "jsx": "react-jsx",
-    "jsxImportSource": "hastx"
+    "jsxImportSource": "revolution"
   },
   "imports": {
-    "effection": "../mod.ts",
-    "freejack/": "./lib/",
-    "hastx/": "https://deno.land/x/hastx@0.0.8/",
-    "hastx/jsx-runtime": "https://deno.land/x/hastx@v0.0.5/jsx-runtime.ts"
+    "effection": "https://deno.land/x/effection@3.0.0-beta.2/mod.ts",
+    "revolution": "https://deno.land/x/revolution@0.2.3/mod.ts",
+    "revolution/jsx-runtime": "https://deno.land/x/revolution@0.2.3/jsx-runtime.ts"
   }
 }

@@ -1,4 +1,4 @@
-import { call, spawn, type Operation, type Task } from "effection";
+import { call, type Operation, spawn, type Task } from "effection";
 import structure from "./structure.json" assert { type: "json" };
 
 import { basename } from "https://deno.land/std@0.205.0/path/posix/basename.ts";
@@ -8,7 +8,7 @@ import rehypePrismPlus from "npm:rehype-prism-plus@1.5.1";
 
 import { evaluate } from "npm:@mdx-js/mdx@2.3.0";
 
-import { Fragment, jsx, jsxs } from "hastx/jsx-runtime";
+import { Fragment, jsx, jsxs } from "revolution/jsx-runtime";
 
 export interface DocModule {
   default: () => JSX.Element;
@@ -41,7 +41,6 @@ export interface Doc extends DocMeta {
 }
 
 export function* loadDocs(): Operation<Docs> {
-
   let loaders = new Map<string, Task<Doc>>();
 
   let entries = Object.entries(structure);
@@ -52,7 +51,7 @@ export function* loadDocs(): Operation<Docs> {
     let topic: Topic = { name, items: [] };
     topics.push(topic);
 
-    let current: DocMeta | undefined = void(0);
+    let current: DocMeta | undefined = void (0);
     for (let i = 0; i < contents.length; i++) {
       let prev: DocMeta | undefined = current;
       let [filename, title] = contents[i];
@@ -61,35 +60,37 @@ export function* loadDocs(): Operation<Docs> {
         title,
         filename,
         topics,
-        prev
+        prev,
       };
       if (prev) {
         prev.next = current;
       }
       topic.items.push(current);
 
-      loaders.set(meta.id, yield* spawn(function*() {
-        let location = new URL(filename, import.meta.url);
-        let source = yield* call(Deno.readTextFile(location));
-        let mod = yield* call(evaluate(source, {
-          jsx,
-          jsxs,
-          jsxDEV: jsx,
-          Fragment,
-          remarkPlugins: [
-            remarkGfm,
-          ],
-          rehypePlugins: [
-            [rehypePrismPlus, { showLineNumbers: true }],
-          ],
-        }));
+      loaders.set(
+        meta.id,
+        yield* spawn(function* () {
+          let location = new URL(filename, import.meta.url);
+          let source = yield* call(Deno.readTextFile(location));
+          let mod = yield* call(evaluate(source, {
+            jsx,
+            jsxs,
+            jsxDEV: jsx,
+            Fragment,
+            remarkPlugins: [
+              remarkGfm,
+            ],
+            rehypePlugins: [
+              [rehypePrismPlus, { showLineNumbers: true }],
+            ],
+          }));
 
-        return {
-          ...meta,
-          MDXContent: () => mod.default({}),
-        } as Doc;
-
-      }));
+          return {
+            ...meta,
+            MDXContent: () => mod.default({}),
+          } as Doc;
+        }),
+      );
     }
   }
 

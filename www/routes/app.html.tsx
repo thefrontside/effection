@@ -45,6 +45,9 @@ export function* useAppHtml(
         />
         <link rel="icon" href="/assets/images/favicon-effection.png" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="canonical" href={yield* useUrl("/")} />
+        <link rel="alternate" href={yield* useUrl("/")} hreflang="en" />
+        <link rel="alternate" href={yield* useUrl("/")} hreflang="x-default" />
         <link
           rel="canonical"
           href={homeURL}
@@ -171,7 +174,7 @@ export function* useAppHtml(
   );
 }
 
-const IconExtern = () => (
+export const IconExtern = () => (
   <svg
     class="inline"
     width="13.5"
@@ -182,8 +185,7 @@ const IconExtern = () => (
     <path
       fill="currentColor"
       d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"
-    >
-    </path>
+    ></path>
   </svg>
 );
 

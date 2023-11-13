@@ -122,6 +122,7 @@ export default function* (doc: Doc): Operation<JSX.Element> {
           </Rehype>
           <NextPrevLinks prev={prev} next={next} />
         </article>
+        <Footer />
       </Transform>
     </section>
   );
@@ -161,6 +162,7 @@ function NextPrevLinks({ next, prev }: { next?: Doc, prev?: Doc }): JSX.Element 
 }
 
 import { Transform } from "./components/transform.tsx";
+import { Footer } from "./footer.html.tsx";
 
 /**
  * Lift the table of contents for the guide so that it is a peer

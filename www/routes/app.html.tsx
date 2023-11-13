@@ -1,13 +1,14 @@
 import type { Operation } from "effection";
+import type { JSXChild } from "revolution";
+
 import { useAbsoluteUrl } from "../middleware/base-url.ts";
-import { JSXChild } from "revolution";
-import { ProjectSelect } from "./components/project-select.tsx";
+import { ProjectSelect } from "../components/project-select.tsx";
 
 export interface Options {
   title: string;
 }
 
-export default function* useAppHtml(
+export function* useAppHtml(
   { title }: Options,
 ): Operation<({ children }: { children: JSXChild }) => JSX.Element> {
   let homeURL = yield* useAbsoluteUrl("/");

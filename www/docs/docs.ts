@@ -1,4 +1,4 @@
-import { call, type Operation, spawn, resource, useScope, type Task } from "effection";
+import { call, type Operation, resource, type Task, useScope } from "effection";
 import structure from "./structure.json" assert { type: "json" };
 
 import { basename } from "https://deno.land/std@0.205.0/path/posix/basename.ts";
@@ -41,10 +41,8 @@ export interface Doc extends DocMeta {
 }
 
 export function loadDocs(): Operation<Docs> {
-  return resource(function*(provide) {
-
+  return resource(function* (provide) {
     let loaders: Map<string, Task<Doc>> | undefined = undefined;
-
 
     let scope = yield* useScope();
 
@@ -115,6 +113,6 @@ export function loadDocs(): Operation<Docs> {
           }
         }
       },
-    });;
+    });
   });
 }

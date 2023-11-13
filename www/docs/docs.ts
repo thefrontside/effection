@@ -1,4 +1,4 @@
-import { call, type Operation, spawn, type Task } from "effection";
+import { call, type Operation, spawn, resource, useScope, type Task } from "effection";
 import structure from "./structure.json" assert { type: "json" };
 
 import { basename } from "https://deno.land/std@0.205.0/path/posix/basename.ts";
@@ -40,68 +40,81 @@ export interface Doc extends DocMeta {
   MDXContent: () => JSX.Element;
 }
 
-export function* loadDocs(): Operation<Docs> {
-  let loaders = new Map<string, Task<Doc>>();
+export function loadDocs(): Operation<Docs> {
+  return resource(function*(provide) {
 
-  let entries = Object.entries(structure);
+    let loaders: Map<string, Task<Doc>> | undefined = undefined;
 
-  let topics: Topic[] = [];
 
-  for (let [name, contents] of entries) {
-    let topic: Topic = { name, items: [] };
-    topics.push(topic);
+    let scope = yield* useScope();
 
-    let current: DocMeta | undefined = void (0);
-    for (let i = 0; i < contents.length; i++) {
-      let prev: DocMeta | undefined = current;
-      let [filename, title] = contents[i];
-      let meta: DocMeta = current = {
-        id: basename(filename, ".mdx"),
-        title,
-        filename,
-        topics,
-        prev,
-      };
-      if (prev) {
-        prev.next = current;
-      }
-      topic.items.push(current);
+    function* load() {
+      let tasks = new Map<string, Task<Doc>>();
+      let entries = Object.entries(structure);
 
-      loaders.set(
-        meta.id,
-        yield* spawn(function* () {
-          let location = new URL(filename, import.meta.url);
-          let source = yield* call(Deno.readTextFile(location));
-          let mod = yield* call(evaluate(source, {
-            jsx,
-            jsxs,
-            jsxDEV: jsx,
-            Fragment,
-            remarkPlugins: [
-              remarkGfm,
-            ],
-            rehypePlugins: [
-              [rehypePrismPlus, { showLineNumbers: true }],
-            ],
-          }));
+      let topics: Topic[] = [];
 
-          return {
-            ...meta,
-            MDXContent: () => mod.default({}),
-          } as Doc;
-        }),
-      );
-    }
-  }
+      for (let [name, contents] of entries) {
+        let topic: Topic = { name, items: [] };
+        topics.push(topic);
 
-  return {
-    *getDoc(id) {
-      if (id) {
-        let task = loaders.get(id);
-        if (task) {
-          return yield* task;
+        let current: DocMeta | undefined = void (0);
+        for (let i = 0; i < contents.length; i++) {
+          let prev: DocMeta | undefined = current;
+          let [filename, title] = contents[i];
+          let meta: DocMeta = current = {
+            id: basename(filename, ".mdx"),
+            title,
+            filename,
+            topics,
+            prev,
+          };
+          if (prev) {
+            prev.next = current;
+          }
+          topic.items.push(current);
+
+          tasks.set(
+            meta.id,
+            scope.run(function* () {
+              let location = new URL(filename, import.meta.url);
+              let source = yield* call(Deno.readTextFile(location));
+              let mod = yield* call(evaluate(source, {
+                jsx,
+                jsxs,
+                jsxDEV: jsx,
+                Fragment,
+                remarkPlugins: [
+                  remarkGfm,
+                ],
+                rehypePlugins: [
+                  [rehypePrismPlus, { showLineNumbers: true }],
+                ],
+              }));
+
+              return {
+                ...meta,
+                MDXContent: () => mod.default({}),
+              } as Doc;
+            }),
+          );
         }
       }
-    },
-  };
+      return tasks;
+    }
+
+    yield* provide({
+      *getDoc(id) {
+        if (id) {
+          if (!loaders) {
+            loaders = yield* load();
+          }
+          let task = loaders.get(id);
+          if (task) {
+            return yield* task;
+          }
+        }
+      },
+    });;
+  });
 }

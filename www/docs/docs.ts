@@ -1,4 +1,4 @@
-import { call, spawn, type Operation, type Task } from "effection";
+import { call, type Operation, resource, type Task, useScope } from "effection";
 import structure from "./structure.json" assert { type: "json" };
 
 import { basename } from "https://deno.land/std@0.205.0/path/posix/basename.ts";
@@ -8,7 +8,7 @@ import rehypePrismPlus from "npm:rehype-prism-plus@1.5.1";
 
 import { evaluate } from "npm:@mdx-js/mdx@2.3.0";
 
-import { Fragment, jsx, jsxs } from "hastx/jsx-runtime";
+import { Fragment, jsx, jsxs } from "revolution/jsx-runtime";
 
 export interface DocModule {
   default: () => JSX.Element;
@@ -40,67 +40,79 @@ export interface Doc extends DocMeta {
   MDXContent: () => JSX.Element;
 }
 
-export function* loadDocs(): Operation<Docs> {
+export function loadDocs(): Operation<Docs> {
+  return resource(function* (provide) {
+    let loaders: Map<string, Task<Doc>> | undefined = undefined;
 
-  let loaders = new Map<string, Task<Doc>>();
+    let scope = yield* useScope();
 
-  let entries = Object.entries(structure);
+    function* load() {
+      let tasks = new Map<string, Task<Doc>>();
+      let entries = Object.entries(structure);
 
-  let topics: Topic[] = [];
+      let topics: Topic[] = [];
 
-  for (let [name, contents] of entries) {
-    let topic: Topic = { name, items: [] };
-    topics.push(topic);
+      for (let [name, contents] of entries) {
+        let topic: Topic = { name, items: [] };
+        topics.push(topic);
 
-    let current: DocMeta | undefined = void(0);
-    for (let i = 0; i < contents.length; i++) {
-      let prev: DocMeta | undefined = current;
-      let [filename, title] = contents[i];
-      let meta: DocMeta = current = {
-        id: basename(filename, ".mdx"),
-        title,
-        filename,
-        topics,
-        prev
-      };
-      if (prev) {
-        prev.next = current;
-      }
-      topic.items.push(current);
+        let current: DocMeta | undefined = void (0);
+        for (let i = 0; i < contents.length; i++) {
+          let prev: DocMeta | undefined = current;
+          let [filename, title] = contents[i];
+          let meta: DocMeta = current = {
+            id: basename(filename, ".mdx"),
+            title,
+            filename,
+            topics,
+            prev,
+          };
+          if (prev) {
+            prev.next = current;
+          }
+          topic.items.push(current);
 
-      loaders.set(meta.id, yield* spawn(function*() {
-        let location = new URL(filename, import.meta.url);
-        let source = yield* call(Deno.readTextFile(location));
-        let mod = yield* call(evaluate(source, {
-          jsx,
-          jsxs,
-          jsxDEV: jsx,
-          Fragment,
-          remarkPlugins: [
-            remarkGfm,
-          ],
-          rehypePlugins: [
-            [rehypePrismPlus, { showLineNumbers: true }],
-          ],
-        }));
+          tasks.set(
+            meta.id,
+            scope.run(function* () {
+              let location = new URL(filename, import.meta.url);
+              let source = yield* call(Deno.readTextFile(location));
+              let mod = yield* call(evaluate(source, {
+                jsx,
+                jsxs,
+                jsxDEV: jsx,
+                Fragment,
+                remarkPlugins: [
+                  remarkGfm,
+                ],
+                rehypePlugins: [
+                  [rehypePrismPlus, { showLineNumbers: true }],
+                ],
+              }));
 
-        return {
-          ...meta,
-          MDXContent: () => mod.default({}),
-        } as Doc;
-
-      }));
-    }
-  }
-
-  return {
-    *getDoc(id) {
-      if (id) {
-        let task = loaders.get(id);
-        if (task) {
-          return yield* task;
+              return {
+                ...meta,
+                MDXContent: () => mod.default({}),
+              } as Doc;
+            }),
+          );
         }
       }
-    },
-  };
+      return tasks;
+    }
+
+    yield* provide({
+      *getDoc(id) {
+        if (id) {
+          if (!loaders) {
+            loaders = yield* load();
+          }
+          let task = loaders.get(id);
+          if (task) {
+            return yield* task;
+          }
+        }
+      },
+    });
+  });
 }

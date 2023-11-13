@@ -45,7 +45,10 @@ export function docsRoute(docs: Docs): JSXMiddleware {
             `}
           </style>
           <input class="hidden" id="nav-toggle" type="checkbox" checked />
-          <aside id="docbar" class="fixed top-0 h-full w-full grid grid-cols-2">
+          <aside
+            id="docbar"
+            class="fixed top-0 h-full w-full grid grid-cols-2 md:hidden"
+          >
             <nav class="bg-white px-2 border-r-2 h-full pt-20">
               {topics.map((topic) => (
                 <hgroup>
@@ -56,14 +59,14 @@ export function docsRoute(docs: Docs): JSXMiddleware {
                         {doc.id !== item.id
                           ? (
                             <a
-                              class="rounded px-4 block w-full h-full py-2 hover:bg-gray-100"
+                              class="rounded px-4 block w-full py-2 hover:bg-gray-100"
                               href={`/docs/${item.id}`}
                             >
                               {item.title}
                             </a>
                           )
                           : (
-                            <a class="rounded px-4 block w-full h-full py-2 bg-gray-100 cursor-default">
+                            <a class="rounded px-4 block w-full py-2 bg-gray-100 cursor-default">
                               {item.title}
                             </a>
                           )}

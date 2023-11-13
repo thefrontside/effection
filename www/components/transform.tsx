@@ -1,4 +1,4 @@
-import type { JSXChild, JSXElement } from "hastx/jsx-runtime";
+import type { JSXChild, JSXElement } from "revolution";
 
 export interface Transformer {
   (node: JSXElement): JSXElement;

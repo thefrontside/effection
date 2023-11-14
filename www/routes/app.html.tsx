@@ -1,7 +1,7 @@
 import type { Operation } from "effection";
 import type { JSXChild } from "revolution";
 
-import { useAbsoluteUrl } from "../middleware/base-url.ts";
+import { useAbsoluteUrl } from "../plugins/rebase.ts";
 import { ProjectSelect } from "../components/project-select.tsx";
 
 export interface Options {

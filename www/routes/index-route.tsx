@@ -1,8 +1,8 @@
-import type { JSXChild, JSXMiddleware } from "revolution";
+import type { JSXChild, JSXHandler } from "revolution";
 
 import { useAppHtml } from "./app.html.tsx";
 
-export function indexRoute(): JSXMiddleware {
+export function indexRoute(): JSXHandler {
   return function* () {
     let AppHtml = yield* useAppHtml({ title: `Effection` });
 
@@ -15,8 +15,8 @@ export function indexRoute(): JSXMiddleware {
                 class="inline min-w-[20%]"
                 alt="Effection Logo"
                 src="/assets/images/icon-effection.svg"
-                width="288px"
-                height="288px"
+                width={288}
+                height={288}
               />
               <h1 class="text-4xl font-bold leading-7">Effection</h1>
               <p class="text-sm py-4">

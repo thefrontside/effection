@@ -1,4 +1,4 @@
-import type { JSXMiddleware } from "revolution";
+import type { JSXHandler } from "revolution";
 import type { Docs } from "../docs/docs.ts";
 import type { DocMeta } from "../docs/docs.ts";
 
@@ -15,7 +15,7 @@ import rehypeAutolinkHeadings from "npm:rehype-autolink-headings@6.1.1";
 import rehypeAddClasses from "npm:rehype-add-classes@1.0.0";
 import rehypeToc from "npm:@jsdevtools/rehype-toc@3.0.2";
 
-export function docsRoute(docs: Docs): JSXMiddleware {
+export function docsRoute(docs: Docs): JSXHandler {
   return function* () {
     let { id } = yield* useParams<{ id: string }>();
 

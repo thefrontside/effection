@@ -1,4 +1,4 @@
-import { HTTPMiddleware } from "revolution";
+import { RevolutionPlugin } from "revolution";
 import { encodeBase64 } from "https://deno.land/std@0.206.0/encoding/base64.ts";
 
 const DEPLOYMENT_ID =
@@ -17,22 +17,24 @@ const DEPLOYMENT_ID_HASH = await crypto.subtle.digest(
 const ETAG = `"${encodeBase64(DEPLOYMENT_ID_HASH)}"`;
 const WEAK_ETAG = `W/"${encodeBase64(DEPLOYMENT_ID_HASH)}"`;
 
-export function etagMiddleware(): HTTPMiddleware {
-  return function* (request, next) {
-    let ifNoneMatch = request.headers.get("if-none-match");
-    if (ifNoneMatch === ETAG || ifNoneMatch === WEAK_ETAG) {
-      return new Response(null, {
-        status: 304,
-        statusText: "Not Modified",
-      });
-    } else {
-      let response = yield* next(request);
-      if (!response.headers.get("etag")) {
-        let tagged = new Response(response.body, response);
-        tagged.headers.set("etag", ETAG);
-        return tagged;
+export function etagPlugin(): RevolutionPlugin {
+  return {
+    *http(request, next) {
+      let ifNoneMatch = request.headers.get("if-none-match");
+      if (ifNoneMatch === ETAG || ifNoneMatch === WEAK_ETAG) {
+        return new Response(null, {
+          status: 304,
+          statusText: "Not Modified",
+        });
+      } else {
+        let response = yield* next(request);
+        if (!response.headers.get("etag")) {
+          let tagged = new Response(response.body, response);
+          tagged.headers.set("etag", ETAG);
+          return tagged;
+        }
+        return response;
       }
-      return response;
-    }
+    },
   };
 }

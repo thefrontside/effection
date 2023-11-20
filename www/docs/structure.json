@@ -10,6 +10,9 @@
     ["errors.mdx", "Error Handling"],
     ["typescript.mdx", "TypeScript"]
   ],
+  "Standard Library": [
+    "fetch.mdx", "Fetch API"
+  ],
   "Advanced": [
     ["scope.mdx", "Scope"],
     ["testing.mdx", "Testing"],

@@ -1,0 +1,103 @@
+---
+title: Fetch
+---
+
+Effection provides a structured concurrency aware wrapper for Fetch API. The wrapper automatically takes care of cancelling inflight fetch requests
+when the operation passed out of scope. You can use `createFetchOperation` function to wrap a fetch function provided by your environment in an operation.
+
+```ts
+import {
+  main,
+  createFetchOperation,
+} from "https://deno.land/x/effection/mod.ts";
+
+await main(function* () {
+  const effectionFetch = createFetchOperation(fetch);
+
+  const response = yield* effectionFetch(
+    "https://api.github.com/users/denoland",
+    {
+      headers: {
+        accept: "application/json",
+      },
+    }
+  );
+});
+```
+
+## Fetch Context and useFetch hook
+
+Effection provides a context reference for Fetch context appropriately called `FetchContext`. To use the `useFetch` operation, you must have `FetchContext` in your Effection scope. 
+
+Set the `FetchContext` close to the root of the operation tree to make it available to all operations.
+
+```ts
+import { main, useScope, FetchContext, createFetchOperation } from 'effection';
+
+await main(function*() {
+  const scope = useScope();
+
+  scope.set(FetchContext, createFetchOperation(fetch));
+});
+```
+
+With `FetchContext` in operation scope, you can create your own operations and use fetch with the assumption that the constructor will be provided by the context.
+
+```ts
+import { Operation, useFetch, call } from 'effection'
+
+interface User {
+  name: string;
+}
+
+function* getUser(id: string): Operation<User> {
+  const fetch = yield* useFetch();
+
+  const response = yield* fetch<User>(`https://my-app/users/${id}`);
+
+  if (response.ok) {
+    return yield* call(response.json())
+  }
+
+  throw new Error(`Failed to fetch user due to ${response.statusText}`)
+}
+```
+
+## Custom Fetch Context
+
+The Fetch Context gives you the ability to control how Fetch API is used within the scope of your application. One of the common use cases is to automatically apply an authorization token when the user is authorized.
+
+Let's asumme that your that you already have an operation that gives you a token for the current user. Let's use this operation to create a custom context
+that will automatically include the token in the Authorization header.
+
+```ts
+import { main, useScope, FetchContext, createFetchOperation } from 'effection';
+
+function* useUserToken(): Operation<string | undefined> {
+  // your application specific logic will go here
+
+  return token;
+}
+
+await main(function*() {
+  const scope = useScope();
+
+  scope.set(FetchContext, function* (url: RequestInfo | URL, init?: Omit<RequestInit, "signal") {
+    const token = yield* useUserToken();
+    const fetchOperation = createFetchOperation(fetch);
+    
+    return yield* fetchOperation(url, {
+      headers: {
+        ...(init?.headers ?? {}),
+        ...(token ? { "Authorization": `token ${token}` } : { })
+      }
+    })
+  });
+});
+```
+
+Now, anytime you use `useFetch` operation, it'll automatically include the "Authorization" header when the token is available.
+
+## Testing operations that use `useFetch` operation
+
+// TODO

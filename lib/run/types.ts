@@ -15,4 +15,5 @@ export type Exit<T> = {
  */
 export type FrameResult<T> = Result<void> & {
   exit: Exit<T>;
+  destruction: Result<void>;
 };

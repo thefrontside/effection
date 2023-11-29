@@ -148,19 +148,19 @@ export function createFrame<T>(options: FrameOptions<T>): Frame<T> {
     }
 
     if (!destruction.ok) {
-      setResults({ ok: false, error: destruction.error, exit });
+      setResults({ ok: false, error: destruction.error, exit, destruction });
     } else {
       if (exit.type === "aborted") {
-        setResults({ ok: true, value: void 0, exit });
+        setResults({ ok: true, value: void 0, exit, destruction });
       } else if (exit.type === "result") {
         let { result } = exit;
         if (result.ok) {
-          setResults({ ok: true, value: void 0, exit });
+          setResults({ ok: true, value: void 0, exit, destruction });
         } else {
-          setResults({ ok: false, error: result.error, exit });
+          setResults({ ok: false, error: result.error, exit, destruction });
         }
       } else {
-        setResults({ ok: false, error: exit.error, exit });
+        setResults({ ok: false, error: exit.error, exit, destruction });
       }
     }
   });

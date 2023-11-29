@@ -63,11 +63,11 @@ export function createTask<T>(
       };
       let awaitHaltResult = (resolve: Resolve<void>, reject: Reject) => {
         evaluate(function* () {
-          let result = yield* frame;
-          if (result.ok) {
-            resolve(result.value);
+          let { destruction } = yield* frame;
+          if (destruction.ok) {
+            resolve();
           } else {
-            reject(result.error);
+            reject(destruction.error);
           }
         });
       };

@@ -122,6 +122,8 @@ export function createFrame<T>(options: FrameOptions<T>): Frame<T> {
       thunk = thunks.pop()!;
     }
 
+    frame.exited = true;
+
     let result = thunk.value;
 
     let exit: Exit<T>;

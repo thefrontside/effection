@@ -58,7 +58,7 @@ describe("Scope", () => {
     scope.run(function* () {
       throw error;
     });
-    await expect(close()).resolves.toEqual(void 0);
+    await expect(close()).resolves.toBeUndefined();
     expect(tester.status).toEqual("closed");
   });
 
@@ -105,6 +105,24 @@ describe("Scope", () => {
     expect(scope.set(context, "Hello World!")).toEqual("Hello World!");
     expect(scope.get(context)).toEqual("Hello World!");
     await expect(scope.run(() => context)).resolves.toEqual("Hello World!");
+  });
+
+  it("propagates uncaught errors within a scope", async () => {
+    let error = new Error("boom");
+    let result = run(function* () {
+      let scope = yield* useScope();
+      scope.run(function* () {
+        throw error;
+      });
+      yield* suspend();
+    });
+    await expect(result).rejects.toBe(error);
+  });
+
+  it("throws an error if you try to run() with a dead scope", async () => {
+    let scope = await run(useScope);
+
+    expect(() => scope.run(function* () {})).toThrow("cannot call");
   });
 });
 

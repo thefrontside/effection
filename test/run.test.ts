@@ -271,4 +271,13 @@ describe("run()", () => {
       expect(error.message).toEqual("boom");
     }
   });
+
+  it("successfully halts when task fails, but shutdown succeeds ", async () => {
+    let task = run(function* () {
+      throw new Error("boom!");
+    });
+
+    await expect(task).rejects.toHaveProperty("message", "boom!");
+    await expect(task.halt()).resolves.toBe(undefined);
+  });
 });

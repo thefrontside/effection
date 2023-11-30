@@ -1,8 +1,18 @@
 # Changelog
 
+## 3.0.0-beta.3
+
+- Scope.run() now behaves like `spawn()` and will crash the scope if the
+  operation fails https://github.com/thefrontside/effection/pull/838
+- Powered up `call()` operation can now invoke not just operation functions, but
+  also async functions and vanilla JavaScript functions
+  https://github.com/thefrontside/effection/pull/832
+- Task.halt() now succeeds whenever the shutdown succeeds, regardless of whether
+  the task itself failed https://github.com/thefrontside/pull/effection/837
+
 ## 3.0.0-beta.2
 
-- ✨allow custom `Queue` impl whene creating a `Signal`
+- ✨allow custom `Queue` impl whenever creating a `Signal`
   https://github.com/thefrontside/effection/pull/826
 - 📄Represent `each` as a function, not a variable in the API docs
   https://github.com/thefrontside/effection/pull/825

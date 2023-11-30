@@ -3,6 +3,24 @@ import { action } from "./instructions.ts";
 import { pause } from "./pause.ts";
 
 /**
+ * A `Callable` in Effection is a uniform integration type that is used
+ * as the parameter to {@link call}.
+ *
+ * {@link call} takes the individual types within `Callable` and converts
+ * them to an `Operation` which can then be used anywhere within Effection.
+ *
+ * As a result, third-party or end developers can pass around
+ * `Callable` variables to seamlessly integrate with Effection without knowing
+ * anything about delimited continuations or Operations.
+ */
+export type Callable<T> =
+  | Operation<T>
+  | Promise<T>
+  | (() => Operation<T>)
+  | (() => Promise<T>)
+  | (() => T);
+
+/**
  * Pause the current operation, then runs a promise, async function, plain function,
  * or operation within a new scope. The calling operation will be resumed (or errored)
  * once call is completed.
@@ -155,10 +173,3 @@ function isIterable<T>(it: unknown): it is Iterable<T> {
   if (!it) return false;
   return typeof (it as Iterable<T>)[Symbol.iterator] === "function";
 }
-
-export type Callable<T> =
-  | Operation<T>
-  | Promise<T>
-  | (() => Operation<T>)
-  | (() => Promise<T>)
-  | (() => T);

@@ -3,15 +3,25 @@ import { action } from "./instructions.ts";
 import { pause } from "./pause.ts";
 
 /**
- * A `Callable` in Effection is a uniform integration type that is used
- * as the parameter to {@link call}.
+ * A uniform integration type representing anything that can be evaluated
+ * as a the parameter to {@link call}.
  *
- * {@link call} takes the individual types within `Callable` and converts
- * them to an `Operation` which can then be used anywhere within Effection.
+ * {@link call} converts a `Callable` into an `Operation` which can then be used
+ * anywhere within Effection.
  *
- * As a result, third-party or end developers can pass around
- * `Callable` variables to seamlessly integrate with Effection without knowing
- * anything about delimited continuations or Operations.
+ * APIs that accept `Callable` values allow end developers to pass simple
+ * functions without necessarily needing to know anything about Operations.
+ *
+ * @example
+ * function hello(to: Callable<string>): Operation<string> {
+ *   return function*() {
+ *     return `hello ${yield* call(to)}`;
+ *   }
+ * }
+ *
+ * await run(() => hello(() => "world!")); // => "hello world!"
+ * await run(() => hello(async () => "world!")); // => "hello world!"
+ * await run(() => hello(function*() { return "world!" })); "hello world!";
  */
 export type Callable<T> =
   | Operation<T>

@@ -1,4 +1,5 @@
 import type { Context, Frame, Future, Operation, Scope } from "../types.ts";
+import { evaluate } from "../deps.ts";
 import { create } from "./create.ts";
 import { createFrame } from "./frame.ts";
 import { getframe, suspend } from "../instructions.ts";
@@ -40,8 +41,24 @@ export function createScope(frame?: Frame): [Scope, () => Future<void>] {
 
   let scope = create<Scope>("Scope", {}, {
     run<T>(operation: () => Operation<T>) {
+      if (parent.exited) {
+        let error = new Error(
+          `cannot call run() on a scope that has already been exited`,
+        );
+        error.name = "InactiveScopeError";
+        throw error;
+      }
+
       let frame = parent.createChild(operation);
       frame.enter();
+
+      evaluate(function* () {
+        let result = yield* frame;
+        if (!result.ok) {
+          yield* parent.crash(result.error);
+        }
+      });
+
       return frame.getTask();
     },
     get<T>(context: Context<T>) {

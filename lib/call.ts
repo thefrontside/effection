@@ -3,6 +3,34 @@ import { action } from "./instructions.ts";
 import { pause } from "./pause.ts";
 
 /**
+ * A uniform integration type representing anything that can be evaluated
+ * as a the parameter to {@link call}.
+ *
+ * {@link call} converts a `Callable` into an `Operation` which can then be used
+ * anywhere within Effection.
+ *
+ * APIs that accept `Callable` values allow end developers to pass simple
+ * functions without necessarily needing to know anything about Operations.
+ *
+ * @example
+ * function hello(to: Callable<string>): Operation<string> {
+ *   return function*() {
+ *     return `hello ${yield* call(to)}`;
+ *   }
+ * }
+ *
+ * await run(() => hello(() => "world!")); // => "hello world!"
+ * await run(() => hello(async () => "world!")); // => "hello world!"
+ * await run(() => hello(function*() { return "world!" })); "hello world!";
+ */
+export type Callable<T> =
+  | Operation<T>
+  | Promise<T>
+  | (() => Operation<T>)
+  | (() => Promise<T>)
+  | (() => T);
+
+/**
  * Pause the current operation, then runs a promise, async function, plain function,
  * or operation within a new scope. The calling operation will be resumed (or errored)
  * once call is completed.
@@ -155,10 +183,3 @@ function isIterable<T>(it: unknown): it is Iterable<T> {
   if (!it) return false;
   return typeof (it as Iterable<T>)[Symbol.iterator] === "function";
 }
-
-export type Callable<T> =
-  | Operation<T>
-  | Promise<T>
-  | (() => Operation<T>)
-  | (() => Promise<T>)
-  | (() => T);

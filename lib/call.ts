@@ -113,46 +113,43 @@ export function call<T>(callable: () => T): Operation<T>;
 export function call<T>(callable: Operation<T>): Operation<T>;
 export function call<T>(callable: Promise<T>): Operation<T>;
 export function call<T>(callable: Callable<T>): Operation<T> {
-  return action(function* (resolve, reject) {
-    try {
+  if (isPromise<T>(callable)) {
+    return expect(callable);
+  }
+  return {
+    name: "call",
+    callable,
+    *[Symbol.iterator]() {
       if (typeof callable === "function") {
         let fn = callable as () => Operation<T> | Promise<T> | T;
-        resolve(yield* toop(fn()));
+        let op = fn();
+        if (isPromise<T>(op)) {
+          return yield* expect(op);
+        } else if (isIterable(op)) {
+          let iterator = op[Symbol.iterator]();
+          if (isInstructionIterator(iterator)) {
+            return yield* action(function* (resolve, reject) {
+              try {
+                resolve(
+                  yield* {
+                    [Symbol.iterator]: () => iterator,
+                  },
+                );
+              } catch (error) {
+                reject(error);
+              }
+            });
+          } else {
+            return op;
+          }
+        } else {
+          return op;
+        }
       } else {
-        resolve(yield* toop(callable));
+        return yield* call(() => callable);
       }
-    } catch (error) {
-      reject(error);
-    }
-  });
-}
-
-function toop<T>(
-  op: Operation<T> | Promise<T> | T,
-): Operation<T> {
-  if (isPromise(op)) {
-    return expect(op);
-  } else if (isIterable(op)) {
-    let iter = op[Symbol.iterator]();
-    if (isInstructionIterator<T>(iter)) {
-      // operation
-      return op;
-    } else {
-      // We are assuming that if an iterator does *not* have `.throw` then
-      // it must be a built-in iterator and we should return the value as-is.
-      return bare(op as T);
-    }
-  } else {
-    return bare(op as T);
-  }
-}
-
-function bare<T>(val: T): Operation<T> {
-  return {
-    [Symbol.iterator]() {
-      return { next: () => ({ done: true, value: val }) };
     },
-  };
+  } as Operation<T>;
 }
 
 function expect<T>(promise: Promise<T>): Operation<T> {

@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.0-beta.4
+
+- `main()` will now hold the event loop on Node and Deno so that `main(suspend)`
+  will work https://github.com/thefrontside/effection/pull/841
+
 ## 3.0.0-beta.3
 
 - Scope.run() now behaves like `spawn()` and will crash the scope if the

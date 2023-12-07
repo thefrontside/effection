@@ -83,6 +83,25 @@ describe("main", () => {
       expect(status.code).toEqual(1);
     });
   });
+
+  it("works even if suspend is the only operation", async () => {
+    await run(function* () {
+      let process = yield* useCommand("deno", {
+        stdout: "piped",
+        args: ["run", "test/main/just.suspend.ts"],
+      });
+      let stdout = yield* buffer(process.stdout);
+      yield* detect(stdout, "started");
+
+      process.kill("SIGINT");
+
+      let status = yield* process.status;
+
+      expect(status.code).toBe(130);
+
+      yield* detect(stdout, "gracefully stopped");
+    });
+  });
 });
 
 import type { Operation } from "../lib/types.ts";

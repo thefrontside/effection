@@ -67,6 +67,10 @@ export async function main(
       // this function in the exit context so it can be called anywhere.
       yield* ExitContext.set(resolve);
 
+      // this will hold the event loop and prevent runtimes such as
+      // Node and Deno from exiting prematurely.
+      let interval = setInterval(() => {}, Math.pow(2, 30));
+
       try {
         let interrupt = () => resolve({ status: 130, signal: "SIGINT" });
         yield* withHost({
@@ -105,6 +109,8 @@ export async function main(
         yield* exit(0);
       } catch (error) {
         resolve({ status: 1, error });
+      } finally {
+        clearInterval(interval);
       }
     })
   );

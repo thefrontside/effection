@@ -70,43 +70,8 @@ await main(function*() {
 });
 ```
 
-This allows us not only to represent the events that fire on an event
-target as [Effection streams](./collections), but it also lets us use
-all of the Stream operations to transform these streams:
-
-``` javascript
-import { main, pipe, map, on, filter, first } from 'effection';
-
-await main(function*() {
-  let socket = new WebSocket('ws://localhost:1234');
-
-  let start = pipe(
-    on(socket, 'message'),
-    map(event => JSON.parse(event.data)),
-    filter(data => data.type === 'start'),
-    first,
-  );
-
-  let startEvent = yield* start;
-
-  console.log('got start message!: ' + startEvent);
-});
-```
-
-In this code, we very concisely:
-
-1. start with a stream of message events
-2. [map][map] that stream into a stream of parsed JSON payloads
-3. [filter][filter] the mapped stream to only be "start" events
-4. take the filterd stream and return an operation for the first event
-
-As a result, `start` is an operation that will yield the payload from the first
-"start" event from the websocket!
-
 [wscode]: https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent
 [childprocess]: https://nodejs.org/api/child_process.html#child_process_class_childprocess
 [once]: https://deno.land/x/effection/mod.ts?s=once
 [on]: https://deno.land/x/effection/mod.ts?s=on
-[map]: https://deno.land/x/effection/mod.ts?s=map
-[filter]: https://deno.land/x/effection/mod.ts?s=filter
 [event-target]: https://developer.mozilla.org/en-US/docs/Web/API/EventTarget

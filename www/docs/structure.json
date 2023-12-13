@@ -1,6 +1,7 @@
 {
   "Getting Started": [
     ["introduction.mdx", "Introduction"],
+    ["installation.mdx", "Installation"],
     ["operations.mdx", "Operations"],
     ["actions.mdx", "Actions and Suspensions"],
     ["resources.mdx", "Resources"],

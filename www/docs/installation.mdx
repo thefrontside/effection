@@ -1,9 +1,15 @@
 Effection can be used in any JavaScript environment including Deno, Node and browsers. Effection packages are side-effect free and do not pollute your environment in any way, making it compatible with most JavaScript runtimes.
 If you encounter obstacles integrating with your environment, please create a [GitHub Issue in the Effection repository](https://github.com/thefrontside/effection/issues/new).
 
-## Node.js
+## Node.js & Browser
 
-Effection packages are available via NPM and Yarn. The package includes ESM, CommonJS and TypeScript types.
+<p class="inline-flex space-x-2 my-0">
+  <img class="my-0" src="https://badgen.net/bundlephobia/min/effection" alt="Bundlephobia badge showing effection minified" />
+  <img class="my-0" src="https://badgen.net/bundlephobia/minzip/effection" alt="Bundlephobia badge showing effection gzipped size" />
+  <img class="my-0" src="https://badgen.net/bundlephobia/tree-shaking/effection" alt="Bundlephobia badge showing it's treeshackable" />
+</p>
+
+Effection packages are available via [NPM][npm], [Yarn][yarn], [UNPKG][unpkg]. The package includes ESM, CommonJS and TypeScript types.
 
 ```bash
 // install with npm
@@ -15,8 +21,16 @@ yarn add effection@next
 
 ## Deno
 
-Effection has first-class Deno support because it's written in Deno. We publish NPM/Yarn packages from our [Deno package](https://deno.land/x/effection@3.0.0-beta.1). <small>If you're curious how we keep NPM/YARN and Deno packages in-sync, you can [checkout the blog post on how publish Deno packages to NPM.](https://frontside.com/blog/2023-04-27-deno-is-the-easiest-way-to-author-npm-packages/).</small>
+Effection has first-class Deno support because it's written in Deno. We publish NPM/Yarn packages from our [Deno package](https://deno.land/x/effection). For example, to import the main function:
 
 ```ts
-import { main } from 'https://deno.land/x/effection@3.0.0-beta.1/mod.ts';
+import { main } from "https://deno.land/x/effection/mod.ts";
 ```
+
+> 💡 If you're curious how we keep NPM/YARN and Deno packages in-sync, you can [checkout the blog post on how publish Deno packages to NPM.][deno-npm-publish].
+
+[deno-npm-publish]: https://frontside.com/blog/2023-04-27-deno-is-the-easiest-way-to-author-npm-packages/
+[unpkg]: https://unpkg.com/effection
+[yarn]: https://yarnpkg.com/package?q=effection&name=effection
+[npm]: https://www.npmjs.com/package/effection
+[bundlephobia]: https://bundlephobia.com/package/effection

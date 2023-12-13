@@ -1,7 +1,6 @@
 // deno-lint-ignore-file no-explicit-any ban-types
 import { createSignal } from "./signal.ts";
 import { resource } from "./instructions.ts";
-import { first } from "./mod.ts";
 import type { Operation, Stream, Subscription } from "./types.ts";
 
 type FN = (...any: any[]) => any;
@@ -32,7 +31,13 @@ export function once<
   T extends EventTarget,
   K extends EventList<T> | (string & {}),
 >(target: T, name: K): Operation<EventTypeFromEventTarget<T, K>> {
-  return first(on(target, name));
+  return {
+    *[Symbol.iterator]() {
+      let subscription = yield* on(target, name).subscribe();
+      let next = yield* subscription.next();
+      return next.value;
+    },
+  };
 }
 
 /**

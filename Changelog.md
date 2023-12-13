@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.0-beta.5
+
+- remove stream helpers `first()`, `pipe()`, `map()`, and `filter()`
+  https://github.com/thefrontside/effection/pull/845
+
 ## 3.0.0-beta.4
 
 - `main()` will now hold the event loop on Node and Deno so that `main(suspend)`

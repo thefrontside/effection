@@ -1,0 +1,158 @@
+There are two fundamental ideas that will help you get the most of Effection.
+
+1. Structured Concurrency
+2. It's just JavaScript
+
+## Structured Concurrency
+
+One way to think about `Structured Concurrency` is that it offers developers the same guarantees for their asyncronous code as they expect from syncronous code.
+These guarantees are that a _child function will never outlive it's parent_ and _every function returns or throws_. When we write synchrous code in JavaScript we
+take these guarantees for granted which makes our code easier to write and think about. Effection is designed to give you these guarantees with as little friction as possible.
+
+### Child function will never outlive it's parent
+
+In syncronous code, when you call a function from another function, you know that the child function will complete before the parent proceeds.
+For example, the following code will output `before child`, `child` and `after child` every time. This order is guaranteed by the JavaScript runtime.
+
+```ts
+function child() {
+  console.log("child");
+}
+
+function parent() {
+  console.log("before child");
+  child();
+  console.log("after child");
+}
+
+parent();
+```
+
+JavaScript runtime provides no predictable or reliable guarantees on what happens if the `child` function calls an asynchronous operation. For example,
+if we wrap the `console.log('child')` in `setTimeout` for 1 millisecond. The result will be `before child`, `after child` and `child` which means that
+the child function was still executing while the parent function was finished.
+
+```ts
+function child() {
+  setTimeout(() => console.log("child"), 1);
+}
+```
+
+This happens because the JavaScript runtime does not guarantee the _child function will never outline it's parent_. Effection brings this Structured Concurrency guarantee 
+to the JavaScript runtime environment. The same example implemented in Effection behaves according to the guarantees of Structure Concurrency.
+
+```ts
+import { sleep, run } from "effection";
+
+function* child() {
+  yield* sleep(1);
+  console.log("child");
+}
+
+function* parent() {
+  console.log("before child");
+  yield* child();
+  console.log("after child");
+}
+
+await run(parent);
+```
+
+The above example will output `before child`, `child` and `after child` as we would expect.
+
+> 💡 You might assume that Effection makes everything asyncronous which is incorrect. Effection is built on [Deliminated Continuation][delimited-continuation-repo] which allows us to treat syncronous and asyncronous code in the same way without making synchronous code asynchronous.
+
+### Every function returns or throws
+
+Based on guarantees provided by the JavaScript runtime, we expect synchronous functions to return a value or throw an error. For example, when a parent function executes a child function we know that we can use the return value from the child function or handle an error produced while executing the child function. 
+
+```ts
+// child
+function addTax(amount) {
+  return amount * 1.13
+}
+
+// parent
+function calculate(amount) {
+  try {
+    const total = addTax(amount);
+    console.log(`Total with tax: ${total}`)
+  } catch (e) {
+    console.error(`Encountered an error calculating tax`);
+  }
+}
+```
+
+The above example code will log `Total with tax: 113`. If there is an error, it'll be caught by the `try/catch` block. The same guarantee is not provided by the JavaScript runtime if the child function needs to perform an asyncronous operation. For example, if the child function needs to call an external service to perform the calculation.
+
+```ts
+async function addTax(amount) {
+  const result = await fetch(`/getTax?amount=${amount}`);
+  if (result.ok) {
+    return result.text();
+  } else {
+    throw result.error;
+  }
+}
+
+calculate(100)
+```
+
+With the asyncronous `addTax` function, the result will be nonsensical because `addTax` will return a promise which will resolve after `calculate` is finished. The fetch operation fails, the promise will be rejected but it will not be caught by the `try/catch` block.
+
+Effection eliminates this ambiguity to provide Structured Concurrency guarantee that all functions return or throw. The same example implemented in Effection would behave in the same way as the syncronous example. 
+
+```ts
+import {run, useAbortSignal} from 'effection';
+
+function* addTax(amount) {
+  const signal = yield* useAbortSignal();
+  
+  const result = yield* call(fetch(`/getTax?amount=${amount}`, {
+    signal
+  }));
+
+  if (result.ok) {
+    return result.text();
+  } else {
+    throw result.error;
+  }
+}
+
+// parent
+function* calculate(amount) {
+  try {
+    const total = yield* addTax(amount);
+    console.log(`Total with tax: ${total}`)
+  } catch (e) {
+    console.error(`Encountered an error calculating tax`);
+  }
+}
+
+await run(function*() {
+  yield* calculate(100);
+});
+```
+
+## It's just JavaScript
+
+Effection was designed to align with JavaScript as much as possible. Our goal is to reduce the number of
+new concepts that you need to learn to become productive with Effection. This means that you can use all of the JavaScript
+language constructs that you already know such as `let`, `const`, `if`, `for`, `while`, `switch` and `try/catch/finally` inside of generator functions
+executed by Effection.
+
+`async/await` and `Promises` is one aspect of JavaScript that we could not leverage directly
+
+### Async Rosetta Stone
+
+| Async            | Effection         |
+| ---------------- | ----------------- |
+| `Promise`        | `Operation`       |
+| `new Promise()`  | `action()`        |
+| `await`          | `yield*`          |
+| `async function` | `function*`       |
+| `AsyncIterable`  | `Stream`          |
+| `AsyncIterator`  | `Subscription`    |
+| `for await`      | `for yield* each` |
+
+[delimited-continuation-repo]: https://github.com/thefrontside/continuation

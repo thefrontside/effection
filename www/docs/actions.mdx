@@ -113,20 +113,9 @@ async function fetch(url) {
 }
 ```
 
-Consulting the "async rosetta stone" below, we can substitute the async
+Consulting the [Async Rosetta Stone](), we can substitute the async
 constructs for their Effection counterparts to arrive at a line for line
 translation.
-
-|    Async        |     Effection         |
-|-----------------|-----------------------|
-|`Promise`        | `Operation`           |
-|`new Promise()`  | `action()`            |
-|`await`          | `yield*`              |
-|`async function` | `function*`           |
-|`AsyncIterable`  | `Stream`              |
-|`AsyncIterator`  | `Subscription`        |
-|`for await`      | `for yield* each`  |
-
 
 ```js
 function* fetch(url) {

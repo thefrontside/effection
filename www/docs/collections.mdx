@@ -17,7 +17,7 @@ They are:
 |-----------------|-----------------------|
 |`AsyncIterator`  | `Subscription`        |
 |`AsyncIterable`  | `Stream`              |
-|`for await`      | `for yield* each`     |
+|`for await`      | `for yield*`          |
 
 
 If you're familiar with how to use these constructs, then you will be right at
@@ -98,129 +98,6 @@ As you can see, the channel can have multiple subscribers and sending a message
 to the channel adds it to each active subscription. If the channel does not
 have any active subscriptions, then sending a message to it does nothing.
 
-## Transforming Streams
-
-Because streams are completely stateless, it means that they can be transformed
-into other streams using nothing but simple functions. For example, we can apply
-several stream transformations in sequence by using the built-in [`map()`][map]
-and [`filter()`][filter] functions.
-
-Let's look at an example of this in action by using `map()`:
-
-``` javascript
-import { main, map, createChannel } from 'effection';
-
-await main(function*() {
-  let channel = createChannel();
-  let textStream = map(value => value.text)(channel);
-  let uppercaseStream = map(value => value.toUpperCase())(textStream);
-
-  let subscription = yield* uppercaseStream.susbscribe();
-
-  yield* channel.send({ text: 'hello' });
-  yield* channel.send({ text: 'world' });
-
-  yield* subscription.next();
-  //=> { done: false, value: 'HELLO' }
-
-  yield* subscription.next();
-  //=> { done: false, value: 'WORLD' }
-});
-```
-
-If we unpack this a bit, we can see that we're creating a new `Stream` called
-`textStream` using the `map` function on `stream`. It derives its values by
-pulling the `text` property from each value it sees.
-
-We then use `map` again on `textStream` to create `uppercaseStream`, which
-converts each value into uppercase.
-
-When we subscribe to `uppercaseStream` and send a value to the channel, we can
-see that all of our transformations are applied.
-
-The `filter()` function can be used to restrict the values emitted by a
-stream. The following uses a regular expression to select only those values
-that include the string "ello" somewhere inside them.
-
-``` javascript
-import { main, filter, createChannel } from 'effection';
-
-await main(function*() {
-  let channel = createChannel();
-  let elloStream = filter(value => value.match(/ello/))(channel);
-
-  let subscription = yield* elloStream.subscribe();
-
-  yield* channel.send('hello');
-
-  // our filtered stream skips over this value
-  yield* channel.send('world');
-
-  yield* channel.send('jello');
-
-  console.log(yield* subscription.next());
-  //=> { done: false, value: 'hello' }
-
-  console.log(yield* subscription.next());
-  //=> { done: false, value: 'jello' }
-});
-```
-
-When it is run, it prints out "hello" and "jello", but skips "world".
-
-## Piping Streams
-
-But what's up with that weird `map(fn)(stream)` and
-`filter(fn)(stream)` syntax anyway? It might have even thrown you for
-a loop the first time you saw it. Why don't we just pass the stream
-that we want to transform as a second argument, like `map(fn,
-stream)`?
-
-The reason is so that we can use `map()`, `filter()` and functions like them to
-very rapidly compose into streaming pipelines. For example, we could re-write
-the text transformation above using the [`pipe()`][pipe] utility function.
-
-
-``` javascript
-import { main, pipe, map, createChannel } from 'effection';
-
-await main(function*() {
-  let channel = createChannel();
-
-  let messages = pipe(
-    channel,
-    map(value => value.text),
-    map(value => value.toUpperCase()),
-  );
-
-  let subscription = yield* messages.subscribe();
-
-  yield* channel.send({ text: 'hello' });
-  yield* channel.send({ text: 'world' });
-
-  yield* subscription.next();
-  //=> { done: false, value: 'HELLO' }
-
-  yield* subscription.next();
-  //=> { done: false, value: 'WORLD' }
-});
-```
-
-We can do this because invoking `map(fn)` returns a function that
-takes a stream as its argument, and returns a stream. This allows us
-to chain together any number of these stream-to-stream functions into
-a pipeline to create new streams that apply each transformation in
-sequence.
-
->💡The `pipe()` function that comes with Effection is just a utility for
-> function composition that is provided for convenience. You can just as
-> easily use [`fp-ts#pipe`][fp-ts.pipe] or [`lodash#flow`][lodash.flow]
-
-In fact, any function that takes a stream and returns a stream can be used in
-such a way, not just `map()`, and `filter()`. This means you can write your own
-stream combinators, just so long as they return a function that takes a stream
-and returns as stream.
-
 ## for yield* each
 
 The entire point of having a stream is to consume values from it, and we
@@ -288,86 +165,12 @@ await main(function*() {
 });
 ```
 
-Another way of consuming values from a stream is to use the `first`. This is
-handy if you want to just the very next item from a stream of events.
+## Why Subscriptions?
 
-``` javascript
-import { main, first, createChannel, spawn, sleep } from 'effection';
-
-await main(function*() {
-  let channel = createChannel();
-
-  yield* spawn(function*() {
-    yield sleep(1000);
-    yield* channel.send('hello');
-    yield* sleep(1000);
-    yield* channel.send('world');
-  });
-
-  let value = yield* first(channel);
-  console.log(value); // logs 'hello'
-});
-```
-
-As you can see here, once we send any value to the Stream, `first()`
-returns that value. Now you might be tempted to call `first()`
-multiple times, like this:
-
-``` javascript
-// THIS IS NOT IDEAL
-import { main, createChannel, spawn, sleep } from 'effection';
-
-await main(function*() {
-  let channel = createChannel();
-
-  yield* spawn(function*() {
-    yield* sleep(1000);
-    yield* channel.send('hello');
-    yield* sleep(1000);
-    yield* channel.send('world');
-  });
-
-  let firstValue = yield* first(channel);
-  console.log(firstValue); // logs 'hello'
-
-  let secondValue = yield* first(channel);
-  console.log(secondValue); // logs 'world'
-});
-```
-
-And while this works, it has a problem that becomes apparent if we slightly
-change the order we do things in:
-
-``` javascript
-// THIS IS NOT IDEAL
-imchannel { main, createChannel, spawn, sleep } from 'effection';
-
-await main(function*() {
-  let channel = createChannel();
-
-  yield* spawn(function*() {
-    yield* sleep(1000);
-    yield* channel.send('hello');
-    yield* channel.send('world');
-  });
-
-  let firstValue = yield* first(channel);
-  console.log(firstValue); // logs 'hello'
-
-  yield* sleep(1000);
-
-  // will block forever! We missed the message!
-  let secondValue = yield* first(channel);
-
-  // we never get here!
-  console.log(secondValue);
-});
-```
-
-This makes it very clear why Subscriptions are necessary. It is
-because unlike listening for one-off events, a subscription guarantees
-that we can never miss any messages. Here we can see how Subscriptions
-are more resilient:
+Unlike listening for one-off events, a subscription guarantees
+that we can never miss any messages. We can see how a subscription
+will not drop a message even though it may receive deliveries even while
+the consumer is doing other things:
 
 ``` javascript
 imchannel { main, createChannel, spawn, sleep } from 'effection';

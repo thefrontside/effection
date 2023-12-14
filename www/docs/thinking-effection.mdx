@@ -1,17 +1,14 @@
-There are two fundamental ideas that will help you get the most of Effection.
+When we say that Effection is "Structured Concurrency and Effects for Javascript" we mean three things:
 
-1. Structured Concurrency
-2. It's just JavaScript
+1. No function runs longer than its parent.
+2. Every function exits fully.
+3. It's just JavaScript, and except for the guarantees derived from (1) and (2), it should feel familiar in every other way.
 
-## Structured Concurrency
+Developing a new intuition about how to leverage Structured Concurrency, while leaning on your existing intuition as a JavaScript developer will help you get the most out of Effection and have you attempting things that you would never have even dreamed before.
 
-One way to think about _Structured Concurrency_ is that it offers developers the same guarantees for their asyncronous code as they expect from syncronous code.
-These guarantees are that a _child function will never outlive it's parent_ and _every function runs to completion_. When we write synchrous code in JavaScript we
-take these guarantees for granted which makes our code easier to write and think about. Effection is designed to give you these guarantees with as little friction as possible.
+## No function runs longer than its parent.
 
-### Child function will never outlive it's parent
-
-In syncronous code, when you call a function from another function, you know that the child function will complete before the parent proceeds.
+When you call a syncronous function from another function, you know that the child function will complete before the parent proceeds.
 For example, the following code will output `before child`, `child` and `after child` every time. This order is guaranteed by the JavaScript runtime.
 
 ```ts
@@ -28,9 +25,9 @@ function parent() {
 parent();
 ```
 
-JavaScript runtime provides no predictable or reliable guarantees on what happens if the `child` function calls an asynchronous operation. For example,
-if we wrap the `console.log('child')` in `setTimeout` for 1 millisecond. The result will be `before child`, `after child` and `child` which means that
-the child function was still executing while the parent function was finished.
+JavaScript runtime provides no predictable or reliable guarantees on what happens if the `child` function calls an asynchronous function. For example,
+if we wrap the `console.log('child')` in `setTimeout` for 1 millisecond. The result will be `before child`, `after child` and `child` because child function 
+was still executing after the parent function finished.
 
 ```ts
 function child() {
@@ -38,7 +35,7 @@ function child() {
 }
 ```
 
-This happens because the JavaScript runtime does not guarantee the _child function will never outline it's parent_. Effection brings this Structured Concurrency guarantee 
+This happens because the JavaScript runtime does not guarantee the _no function runs longer than its parent_. Effection brings this Structured Concurrency guarantee 
 to the JavaScript runtime environment. The same example implemented in Effection behaves according to the guarantees of Structure Concurrency.
 
 ```ts
@@ -62,27 +59,25 @@ The above example will output `before child`, `child` and `after child` as we wo
 
 > 💡 You might assume that Effection makes everything asyncronous which is incorrect. Effection is built on [Deliminated Continuation][delimited-continuation-repo] which allows us to treat syncronous and asyncronous code in the same way without making synchronous code asynchronous.
 
-### Every function runs to completion
+## Every function exists fully.
 
-We expect synchronous functions to run to completion. This guarantee is used by the JavaScript runtime to perform garbage collection by releasing any memory allocated during execution of a function. 
-For example, a function that defines a variable will leave no trace of that variable once that function is finished. Once `fn()` is finished executing we take it for granted that any resources consumed by that function are released.
+We expect synchronous functions to run completely from start to finish. This guarantee provided by the JavaScript runtime makes synchronous functions easier to write, understand and optimize. 
 
-```ts
-function fn() {
-  const value = 5;
-}
+**For developers**: This complete execution guarantee makes code predictable. Developers can be confident that their functions will either successfully return a result or throw an error. In case of errors, wrapping the function in a `try/catch/finally` will provide an opportunity to handle the error. The `finally` block can be used to perform clean up after completion.
 
-fn();
-```
+**For the JavaScript runtime**: This guarantee is critical for memory management. The JavaScript runtime relies on this guarantee to release memory that was allocated to variables within a function to prevent holding unnecessary memory.
 
-JavaScript runtime does not offer the same guarantees for asynchronous code. In JavaScript, you may never know if an asyncronous process is truely finished.
-
-// TODO: ADD EXAMPLE HERE
+This critical guarantee that's provided for syncronous functions by the JavaScript runtime is not provided for asyncronous functions. The JavaScript runtime doesn't provide a way to interrupt the execution of the asyncronous function while allowing the the caller to complete.
+This limitation of the JavaScript runtime is described in greater detail in the [Await Event Horizon in JavaScript][await-event-horizon] blog post. 
 
 ## It's just JavaScript
 
 Effection is designed to provide Structured Concurrency guarantees using common JavaScript language constructs such as `let`, `const`, `if`, `for`, `while`, `switch` and `try/catch/finally`.
-Our goal is to allow JavaScript developers to leverage what they already know while gaining benefits of Structured Concurrency. This means that you can use 
+Our goal is to allow JavaScript developers to leverage what they already know while gaining benefits of Structured Concurrency. This means that you can use all of these constructs in an Effection 
+function and they'll behave as you'd expect.
+
+The one area where Effection can not provide Structured Concurrency guarantees is in runtime behaviour of _async/await_. We explained why in [The Await Event Horizon in JavaScript][await-event-horizon] blog post.
+Instead of `async/await` we use [Generator Functions][generator-functions]. Generator Functions are supported by all browsers and JavaScript runtimes. 
 
 ### Async Rosetta Stone
 
@@ -97,3 +92,5 @@ Our goal is to allow JavaScript developers to leverage what they already know wh
 | `for await`      | `for yield* each` |
 
 [delimited-continuation-repo]: https://github.com/thefrontside/continuation
+[await-event-horizon]: https://frontside.com/blog/2023-12-11-await-event-horizon/
+[generator-functions]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function*

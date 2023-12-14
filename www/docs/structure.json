@@ -1,6 +1,7 @@
 {
   "Getting Started": [
     ["introduction.mdx", "Introduction"],
+    ["installation.mdx", "Installation"],
     ["typescript.mdx", "TypeScript"],
     ["thinking-effection.mdx", "Thinking in Effection"]
   ],

@@ -59,7 +59,7 @@ The above example will output `before child`, `child` and `after child` as we wo
 
 > 💡 You might assume that Effection makes everything asyncronous which is incorrect. Effection is built on [Deliminated Continuation][delimited-continuation-repo] which allows us to treat syncronous and asyncronous code in the same way without making synchronous code asynchronous.
 
-## Every function exists fully.
+## Every function exits fully.
 
 We expect synchronous functions to run completely from start to finish. This guarantee provided by the JavaScript runtime makes synchronous functions easier to write, understand and optimize. 
 
@@ -67,8 +67,12 @@ We expect synchronous functions to run completely from start to finish. This gua
 
 **For the JavaScript runtime**: This guarantee is critical for memory management. The JavaScript runtime relies on this guarantee to release memory that was allocated to variables within a function to prevent holding unnecessary memory.
 
-This critical guarantee that's provided for syncronous functions by the JavaScript runtime is not provided for asyncronous functions. The JavaScript runtime doesn't provide a way to interrupt the execution of the asyncronous function while allowing the the caller to complete.
+This critical guarantee provided by the JavaScript runtime for syncronous functions but not for asyncronous functions. The JavaScript runtime doesn't give the caller an opportunity to finish once an async function was started. 
 This limitation of the JavaScript runtime is described in greater detail in the [Await Event Horizon in JavaScript][await-event-horizon] blog post. 
+
+![Showing that Effection runs finally blocks and Async/Await doesn't](/assets/images/running-to-completion-demo.gif)
+
+Developers experience the impact of this on daily basis. Many [EADDRINUSE][eaddrinuse-error] errors can be traced directly to caller not being able to execute clean up when a Node.js process is stopped.   
 
 ## It's just JavaScript
 
@@ -94,3 +98,4 @@ Instead of `async/await` we use [Generator Functions][generator-functions]. Gene
 [delimited-continuation-repo]: https://github.com/thefrontside/continuation
 [await-event-horizon]: https://frontside.com/blog/2023-12-11-await-event-horizon/
 [generator-functions]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function*
+[eaddrinuse-error]: https://stackoverflow.com/questions/14790910/stop-all-instances-of-node-js-server

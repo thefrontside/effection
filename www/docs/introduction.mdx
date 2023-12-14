@@ -33,10 +33,9 @@ To switch from async functions to generator functions, you can replace:
 For example, using `async/await` we could write something like this:
 
 ``` javascript {1,3-4} showLineNumbers
-import { fetch } from 'isomorphic-fetch';
 
-export async function fetchWeekDay(timezone) {
-  let response = await fetch(`http://worldclockapi.com/api/json/${timezone}/now`);
+export async function fetchWeekDay(timezone, signal) {
+  let response = await fetch(`http://worldclockapi.com/api/json/${timezone}/now`, { signal });
   let time = await response.json();
   return time.dayOfTheWeek;
 }
@@ -45,11 +44,11 @@ export async function fetchWeekDay(timezone) {
 The same code using Effection looks like this:
 
 ``` javascript
-import { fetch } from 'effection';
-
+import { call, useAbortSignal } from "effection";
 export function *fetchWeekDay(timezone) {
-  let response = yield* fetch(`http://worldclockapi.com/api/json/${timezone}/now`);
-  let time = yield* response.json();
+  let signal = yield* useAbortSignal();
+  let response = yield* call(fetch(`http://worldclockapi.com/api/json/${timezone}/now`, { signal }));
+  let time = yield* call(response.json());
   return time.dayOfTheWeek;
 }
 ```
@@ -72,28 +71,38 @@ await main(function*() {
 
 Even with such a simple program, Effection is still providing critical
 power-ups that you don't get with callbacks,
-promises, or `async/await`. For example, if you run the above code in
-NodeJS and hit `CTRL-C` while the request to `http://worldclockapi.com` is
-still in progress, it will properly cancel the in-flight request
-as a well-behaved HTTP client should. All without you ever having to
-think about it. This is because every Effection operation contains
-the information on how to dispose of itself, and so the actual act of
-cancellation can be automated.
+promises, or `async/await`. For example, notice how the Effection
+`fetchWeekDay()` operation does not accept an abort signal as a second argument.
+That's because there is no need to manually wire up any signal handlers and
+trigger an `AbortController` at the right time.
+
+If you run the above code in NodeJS and hit `CTRL-C` while the request
+to `http://worldclockapi.com` is still in progress, it will properly
+cancel the in-flight request as a well-behaved HTTP client should. All
+without you ever having to think about it. This is because every
+Effection operation contains the information on how to dispose of
+itself, and so the actual act of cancellation can be automated.
 
 This has powerful consequences when it comes to composing new
 operations out of existing ones. For example, we can add a time out of
 1000 milliseconds to our `fetchWeekDay` operation (or any operation
-for that matter) by wrapping it with the `withTimeout` operation from
-the standard `effection` module.
+for that matter) by wrapping it in a `withTimeout` operation.
 
 ``` javascript
-import { main, withTimeout } from 'effection';
+import { main, call, race } from 'effection';
 import { fetchWeekDay } from './fetch-week-day';
 
 await main(function*() {
   let dayOfTheWeek = yield* withTimeout(fetchWeekDay('est'), 1000);
   console.log(`It is ${dayOfTheWeek}, my friends!`);
 });
+
+function withTimeout(operation, delay) {
+  return race([operation, call(function*() {
+    yield* sleep(delay);
+    throw new Error(`timeout!`);
+  })]);
+}
 ```
 
 If more than 1000 milliseconds passes before the `fetchWeekDay()`

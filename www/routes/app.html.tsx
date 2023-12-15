@@ -3,7 +3,6 @@ import type { JSXChild } from "revolution";
 
 import { useAbsoluteUrl } from "../plugins/rebase.ts";
 import { ProjectSelect } from "../components/project-select.tsx";
-import { Footer } from "../components/footer.tsx";
 import { IconGithHub } from "../components/icons/github.tsx";
 import { IconDiscord } from "../components/icons/discord.tsx";
 
@@ -130,7 +129,6 @@ export function* useAppHtml(
         <main>
           {children}
         </main>
-        <Footer />
       </body>
     </html>
   );

@@ -2,14 +2,18 @@
   "Getting Started": [
     ["introduction.mdx", "Introduction"],
     ["installation.mdx", "Installation"],
+    ["typescript.mdx", "TypeScript"],
+    ["thinking-in-effection.mdx", "Thinking in Effection"],
+    ["async-rosetta-stone.mdx", "Async Rosetta Stone"]
+  ],
+  "Learn Effection": [
     ["operations.mdx", "Operations"],
     ["actions.mdx", "Actions and Suspensions"],
     ["resources.mdx", "Resources"],
     ["spawn.mdx", "Spawn"],
     ["collections.mdx", "Streams and Subscriptions"],
     ["events.mdx", "Events"],
-    ["errors.mdx", "Error Handling"],
-    ["typescript.mdx", "TypeScript"]
+    ["errors.mdx", "Error Handling"]
   ],
   "Advanced": [
     ["scope.mdx", "Scope"],

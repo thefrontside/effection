@@ -51,7 +51,7 @@ export function docsRoute(docs: Docs): JSXHandler {
           >
             <nav class="bg-white px-2 border-r-2 h-full pt-20">
               {topics.map((topic) => (
-                <hgroup>
+                <hgroup class="mb-2">
                   <h3 class="text-lg">{topic.name}</h3>
                   <menu class="text-gray-700">
                     {topic.items.map((item) => (
@@ -84,7 +84,7 @@ export function docsRoute(docs: Docs): JSXHandler {
           <aside>
             <nav class="hidden md:block fixed pl-4">
               {topics.map((topic) => (
-                <hgroup>
+                <hgroup class="mb-2">
                   <h3 class="text-lg">{topic.name}</h3>
                   <menu class="text-gray-700">
                     {topic.items.map((item) => (

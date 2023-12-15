@@ -11,16 +11,16 @@ have even dreamed before.
 
 ## No operation runs longer than its parent.
 
-In JavaScript, developers rarely have to think about memory allocation within a function because the lifetime of memory
-allocation is bound to the scope of the function. When a function is finished, it's scope is torn down by the JavaScript 
-runtime and all of the memory allocated to variables in function's scope can be released safely. Binding memory
-management to scope gives developers the freedom to focus on their application instead worrying about leaking memory. 
+In JavaScript, developers rarely have to think about memory allocation because memory lifetime is bound to the scope of 
+the function that it was allocated for. When a function is finished, it's scope is torn down and all of the memory 
+allocated to variables in function's scope are released safely. Binding memory management to scope gives developers the 
+freedom to focus on their application instead worrying about leaking memory. 
 
-Structured concurrency establishes the same relationship between scope and operations. Every Effection operation is 
+Structured concurrency establishes the same relationship between scope and asyncrony. Every Effection operation is 
 bound to the lifetime of it's parent. An operation can not outlive its parent and Effection automatically tears down
 child operations when the parent operation completes or is halted. Like with memory management, binding asynchrony to
 scope frees developers to focus on writing their applications instead of worrying about out of control asyncronous
-operations.
+functions.
 
 The key to the freedom from worrying about asyncrony is to make the mental shift from _an asynchronous function will
 take as long as it needs_ to _an asyncronous operation will run as long as it's neeeded by its parent operation." 

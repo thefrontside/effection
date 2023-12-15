@@ -130,8 +130,9 @@ export function docsRoute(docs: Docs): JSXHandler {
                   [rehypeToc, {
                     cssClasses: {
                       toc:
-                        "hidden text-sm font-light tracking-wide leading-loose lg:block relative whitespace-nowrap",
-                      list: "fixed",
+                        "hidden text-sm font-light tracking-wide leading-loose lg:block relative",
+                      list: "fixed w-[200px]",
+                      link: "hover:underline hover:underline-offset-2"
                     },
                   }],
                 ]}

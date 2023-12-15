@@ -2,38 +2,48 @@ When we say that Effection is "Structured Concurrency and Effects for Javascript
 
 1. No operation runs longer than its parent.
 2. Every operation exits fully.
-3. It's just JavaScript, and except for the guarantees derived from (1) and (2), it should feel familiar in every other 
+3. It's just JavaScript, and except for the guarantees derived from (1) and (2), it should feel familiar in every other
 way.
 
-Developing a new intuition about how to leverage Structured Concurrency, while leaning on your existing intuition as a 
-JavaScript developer will help you get the most out of Effection and have you attempting things that you would never 
+Developing a new intuition about how to leverage Structured Concurrency, while leaning on your existing intuition as a
+JavaScript developer will help you get the most out of Effection and have you attempting things that you would never
 have even dreamed before.
 
 ## No operation runs longer than its parent.
 
-In JavaScript, developers rarely have to think about memory allocation because memory lifetime is bound to the scope of 
-the function that it was allocated for. When a function is finished, it's scope is torn down and all of the memory 
-allocated to variables in function's scope are released safely. Binding memory management to scope gives developers the 
-freedom to focus on their application instead worrying about leaking memory. 
+In JavaScript, developers rarely have to think about memory allocation because memory lifetime is bound to the scope of
+the function that it was allocated for. When a function is finished, its scope is torn down and all of the memory
+allocated to variables in function's scope are released safely. Binding memory management to scope gives developers the
+freedom to focus on their application instead worrying about leaking memory.
 
-Structured concurrency establishes the same relationship between scope and asyncrony. Every Effection operation is 
-bound to the lifetime of it's parent. An operation can not outlive its parent and Effection automatically tears down
+Structured concurrency establishes the same relationship between scope and asynchrony. Every Effection operation is
+bound to the lifetime of its parent. Because of this, Effection automatically tears down
 child operations when the parent operation completes or is halted. Like with memory management, binding asynchrony to
-scope frees developers to focus on writing their applications instead of worrying about out of control asyncronous
-functions.
+scope frees developers to focus on writing their applications instead of worrying about where and when to run
+asynchronous cleanup.
 
-The key to the freedom from worrying about asyncrony is to make the mental shift from _an asynchronous function will
-take as long as it needs_ to _an asyncronous operation only runs as long as it's needed." 
-Effection provides you with the guarantee that when a parent operation completes, not child operation is left polluting
-your runtime.
+The key to achieving this freedom is to make the following mental shift about the natural lifetime of an asynchronous operation.
 
-> 💡 You might assume that Effection makes everything asyncronous which is incorrect. Effection is built on 
-[Deliminated Continuation][delimited-continuation-repo] which allows us to treat syncronous and asyncronous 
-operations in the same way without making synchronous operations asynchronous.
+**before**
+
+> An asynchronous operation will run as long as it needs to
+
+**after**
+
+> An asynchronous operation runs only as long as it's needed.
+
+Effection provides this shift. Whenever an operation completes, none of its child operations are left
+around to pollute your runtime.
+
+> 💡 You might assume that Effection makes all operations asynchronous which is incorrect. Effection is built on
+[Deliminated Continuations][delimited-continuation-repo] which allows us to treat synchronous and asynchronous
+operations uniformly without forcing synchronous operations to run asynchronously.
 
 ## Every operation exits fully.
 
-```ts
+We expect synchronous functions to run completely from start to finish.
+
+```js {5} showLineNumbers
 function main() {
   try {
     fn()
@@ -43,12 +53,13 @@ function main() {
 }
 ```
 
-We expect synchronous functions to run completely from start to finish. Knowing that your function full run to 
-completion makes code predictable. Developers can be confident that their functions will either return a result or 
-throw an error. You can wrap a synchronous function in a `try/catch/finally` block to handle thrown errors. The 
+Knowing this makes code predictable. Developers can be confident that their functions will either return a result or
+throw an error. You can wrap a synchronous function in a `try/catch/finally` block to handle thrown errors. The
 `finally` block can be used to perform clean up after completion.
 
-```ts
+However, the same guarantee is not provided for async functions.
+
+```js {5} showLineNumbers
 async function main() {
   try {
     await new Promise((resolve) => setTimeout(resolve, 100,000));
@@ -60,13 +71,16 @@ async function main() {
 await main();
 ```
 
-The same guarantee is not provided for async functions. Once an async function is execute, the code after may never get 
-a chance to run. This makes it difficult to write code that cleans up after itself. This limitation of the JavaScript 
-runtime is described in greater detail in the [Await Event Horizon in JavaScript][await-event-horizon] blog post. 
-Developers experience the impact of this on daily basis. Many [EADDRINUSE][eaddrinuse-error] errors are caused by caller
-not being able to execute clean up when a Node.js process is stopped.
+Once an async function begins execution, the code in its `finally{}` blocks may never get
+a chance to run, and as a result, it is difficult to write code that always cleans up after itself.
 
-```ts
+This hard limitation of the JavaScript runtime is called the [Await Event Horizon][await-event-horizon],
+and developers experience its impact on daily basis. For example, the very common [EADDRINUSE][eaddrinuse-error]
+error is caused by a caller not being able to execute clean up when a Node.js process is stopped.
+
+By contrast, Effection _does_ provide this guarantee.
+
+```js {7} showLineNumbers
 import { main, action } from "effection";
 
 await main(function*() {
@@ -78,22 +92,23 @@ await main(function*() {
 });
 ```
 
-Effection brings this guarantee to your JavaScript runtime. When executing Effection operations you can expect that 
-Effection operations will run to completion giving every operation an opportunity to clean up. At first glance, this
-might seem like a small detail but it's fundamental to writing composable code. 
+When executing Effection operations you can expect that
+they will run to completion; giving every operation an opportunity to clean up. At first glance, this
+might seem like a small detail but it's fundamental to writing composable code.
 
 ## It's just JavaScript
 
-Effection is designed to provide Structured Concurrency guarantees using common JavaScript language constructs such as 
-`let`, `const`, `if`, `for`, `while`, `switch` and `try/catch/finally`. Our goal is to allow JavaScript developers to 
-leverage what they already know while gaining the guarantees of Structured Concurrency. You can use all of these 
+Effection is designed to provide Structured Concurrency guarantees using common JavaScript language constructs such as
+`let`, `const`, `if`, `for`, `while`, `switch` and `try/catch/finally`. Our goal is to allow JavaScript developers to
+leverage what they already know while gaining the guarantees of Structured Concurrency. You can use all of these
 constructs in an Effection function and they'll behave as you'd expect.
 
-The one area where Effection can not provide Structured Concurrency guarantees is in runtime behaviour of _async/await_. 
-We explained why in [The Await Event Horizon in JavaScript][await-event-horizon] blog post. Instead of _async/await_ we 
-use [generator functions][generator-functions] which are supported by all browsers and JavaScript runtimes.
+However, one of the constructs we avoid in Effection is the syntax and semantics of `async/await`.
+This is because `async/await` is [not capable of modeling structured concurrency][await-event-horizon]. Instead, we make
+extensive use of [generator functions][generator-functions] which are a core feature of JavaScript and are supported by all browsers
+and JavaScript runtimes.
 
-We provide a handy Effection Rosetta Stone to show how _Async/Await_ concepts map into Effection APIs.
+Finally, we provide a handy Effection Rosetta Stone to show how _Async/Await_ concepts map into Effection APIs.
 
 [generator-functions]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function*
 [await-event-horizon]: https://frontside.com/blog/2023-12-11-await-event-horizon/

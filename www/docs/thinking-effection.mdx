@@ -23,7 +23,7 @@ scope frees developers to focus on writing their applications instead of worryin
 functions.
 
 The key to the freedom from worrying about asyncrony is to make the mental shift from _an asynchronous function will
-take as long as it needs_ to _an asyncronous operation will run as long as it's neeeded by its parent operation." 
+take as long as it needs_ to _an asyncronous operation only runs as long as it's needed." 
 Effection provides you with the guarantee that when a parent operation completes, not child operation is left polluting
 your runtime.
 
@@ -32,6 +32,16 @@ your runtime.
 operations in the same way without making synchronous operations asynchronous.
 
 ## Every operation exits fully.
+
+```ts
+function main() {
+  try {
+    fn()
+  } finally {
+    // code here is GUARANTEED to run
+  }
+}
+```
 
 We expect synchronous functions to run completely from start to finish. Knowing that your function full run to 
 completion makes code predictable. Developers can be confident that their functions will either return a result or 

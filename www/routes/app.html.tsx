@@ -10,12 +10,12 @@ export interface Options {
   title: string;
 }
 
-export function* useAppHtml(
-  { title }: Options,
-): Operation<({ children }: { children: JSXChild }) => JSX.Element> {
+export function* useAppHtml({
+  title,
+}: Options): Operation<({ children }: { children: JSXChild }) => JSX.Element> {
   let homeURL = yield* useAbsoluteUrl("/");
   let twitterImageURL = yield* useAbsoluteUrl(
-    "/assets/images/meta-effection.png",
+    "/assets/images/meta-effection.png"
   );
 
   return ({ children }) => (
@@ -29,10 +29,7 @@ export function* useAppHtml(
           content="Introduction | Effection"
           data-rh="true"
         />
-        <meta
-          property="og:url"
-          content={homeURL}
-        />
+        <meta property="og:url" content={homeURL} />
         <meta
           property="og:description"
           content="Effection is a structured concurrency and effects framework for JavaScript."
@@ -41,26 +38,12 @@ export function* useAppHtml(
           name="description"
           content="Effection is a structured concurrency and effects framework for JavaScript."
         />
-        <meta
-          name="twitter:image"
-          content={twitterImageURL}
-        />
+        <meta name="twitter:image" content={twitterImageURL} />
         <link rel="icon" href="/assets/images/favicon-effection.png" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link
-          rel="canonical"
-          href={homeURL}
-        />
-        <link
-          rel="alternate"
-          href={homeURL}
-          hreflang="en"
-        />
-        <link
-          rel="alternate"
-          href={homeURL}
-          hreflang="x-default"
-        />
+        <link rel="canonical" href={homeURL} />
+        <link rel="alternate" href={homeURL} hreflang="en" />
+        <link rel="alternate" href={homeURL} hreflang="x-default" />
         <link
           href="/assets/prism-atom-one-dark.css"
           rel="preload"
@@ -89,8 +72,8 @@ export function* useAppHtml(
                 <img
                   src="/assets/images/effection-logo.svg"
                   alt="Effection Logo"
-                  width="156px"
-                  height="24px"
+                  width={156}
+                  height={24}
                 />
               </a>
             </div>
@@ -103,20 +86,20 @@ export function* useAppHtml(
                 <li>
                   <a href="https://deno.land/x/effection/mod.ts">API</a>
                 </li>
-                <li class="sm:hidden">
-                  <a href="https://github.com/thefrontside/effection">Github</a>
-                </li>
-                <li class="hidden sm:block">
-                  <a href="https://github.com/thefrontside/effection">
-                    <IconGithHub />
+                <li>
+                  <a class="flex flex-row" href="https://github.com/thefrontside/effection">
+                    <span class="hidden pr-1 md:inline">
+                      <IconGithHub />
+                    </span>
+                    Github
                   </a>
                 </li>
-                <li class="sm:hidden">
-                  <a href="https://discord.gg/r6AvtnU">Discord</a>
-                </li>
-                <li class="hidden sm:block">
-                  <a href="https://discord.gg/r6AvtnU">
-                    <IconDiscord />
+                <li>
+                  <a class="flex flex-row" href="https://discord.gg/r6AvtnU">
+                    <span class="hidden pr-1 md:inline">
+                      <IconDiscord />
+                    </span>
+                    Discord
                   </a>
                 </li>
                 <li>
@@ -126,9 +109,7 @@ export function* useAppHtml(
             </nav>
           </div>
         </header>
-        <main>
-          {children}
-        </main>
+        <main>{children}</main>
       </body>
     </html>
   );

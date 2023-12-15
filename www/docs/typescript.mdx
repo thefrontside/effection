@@ -3,26 +3,45 @@ definitions. As such, it doesn't require any special setup to use in a
 TypeScript project. This section only contains some helpful hints to make
 the most out of the Effection related typings in your project.
 
+## TL;DR
+
+Use the `Operation` type for your operations
+
+```ts
+import type { Operation } from "effection";
+
+export function* op(): Operation<number> {
+  yield* sleep(10);
+  return 5;
+}
+```
+
+If you see a weird type like `Generator<Instruction, T>` or
+`Iterable<Instruction,T>` or `IterableIterator<Instruction, T>`,
+replace it with `Operation<T>`.
+
 ## Use Operations Everywhere
 
 The foundation of Effection is the [`Operation<T>`][operation] type. This is the type that
-  it uses internally to represent all actions and resources, and it is the type
- that you should both consume and return from your own functions.
- For the most part, TypeScript will infer this for you, and you don't need
- to worry about it. However, there are some cases you may want to give it a hint
- that what you have is an operation, even though it will work without it.
- This is because `Operation<T>` is effectively an
- `Iterable<Instruction, T>`. This means that when you create this
- shape naturally in your code, then it will correctly slot into other
- operations, but it might be confusing when people look at types in
- their IDE. Take the following generator function:
+it uses internally to represent all actions and resources, and it is the type
+that you should both consume and return from your own functions.
+For the most part, TypeScript will infer this for you, and you don't need
+to worry about it. However, there are some cases you may want to give it a hint
+that what you have is an operation, even though it will work without it.
+This is because `Operation<T>` is effectively an
+`Iterable<Instruction, T>`. This means that when you create this
+shape naturally in your code, then it will correctly slot into other
+operations, but it might be confusing when people look at types in
+their IDE. Take the following generator function:
+
  ```typescript
  function* op() {
    yield* sleep(10);
    return 5;
  }
  ```
- The natural inferred return type of this function is `Generator<Instruction,T>` which
+
+The natural inferred return type of this function is `Generator<Instruction,T>` which
  satisfies `Iterable<Instruction, T>` and so can be used as an operation,
  but it loses the higher-level intent of the operation.
  Instead, write `op()` like this:

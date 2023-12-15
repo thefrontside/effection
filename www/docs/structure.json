@@ -3,7 +3,8 @@
     ["introduction.mdx", "Introduction"],
     ["installation.mdx", "Installation"],
     ["typescript.mdx", "TypeScript"],
-    ["thinking-effection.mdx", "Thinking in Effection"]
+    ["thinking-effection.mdx", "Thinking in Effection"],
+    ["async-rosetta-stone.mdx", "Async Rosetta Stone"]
   ],
   "Learn Effection": [
     ["operations.mdx", "Operations"],

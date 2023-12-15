@@ -1,7 +1,7 @@
 When we say that Effection is "Structured Concurrency and Effects for Javascript" we mean three things:
 
-1. No function runs longer than its parent.
-2. Every function exits fully.
+1. No operation runs longer than its parent.
+2. Every operation exits fully.
 3. It's just JavaScript, and except for the guarantees derived from (1) and (2), it should feel familiar in every other 
 way.
 
@@ -9,13 +9,29 @@ Developing a new intuition about how to leverage Structured Concurrency, while l
 JavaScript developer will help you get the most out of Effection and have you attempting things that you would never 
 have even dreamed before.
 
-## No function runs longer than its parent.
+## No operation runs longer than its parent.
+
+In JavaScript, developers rarely have to think about memory allocation within a function because the lifetime of memory
+allocation is bound to the scope of the function. When a function is finished, it's scope is torn down by the JavaScript 
+runtime and all of the memory allocated to variables in function's scope can be released safely. Binding memory
+management to scope gives developers the freedom to focus on their application instead worrying about leaking memory. 
+
+Structured concurrency establishes the same relationship between scope and operations. Every Effection operation is 
+bound to the lifetime of it's parent. An operation can not outlive its parent and Effection automatically tears down
+child operations when the parent operation completes or is halted. Like with memory management, binding asynchrony to
+scope frees developers to focus on writing their applications instead of worrying about out of control asyncronous
+operations.
+
+The key to the freedom from worrying about asyncrony is to make the mental shift from _an asynchronous function will
+take as long as it needs_ to _an asyncronous operation will run as long as it's neeeded by its parent operation." 
+Effection provides you with the guarantee that when a parent operation completes, not child operation is left polluting
+your runtime.
 
 > 💡 You might assume that Effection makes everything asyncronous which is incorrect. Effection is built on 
 [Deliminated Continuation][delimited-continuation-repo] which allows us to treat syncronous and asyncronous 
-code in the same way without making synchronous code asynchronous.
+operations in the same way without making synchronous operations asynchronous.
 
-## Every function exits fully.
+## Every operation exits fully.
 
 We expect synchronous functions to run completely from start to finish. Knowing that your function full run to 
 completion makes code predictable. Developers can be confident that their functions will either return a result or 
@@ -64,25 +80,12 @@ leverage what they already know while gaining the guarantees of Structured Concu
 constructs in an Effection function and they'll behave as you'd expect.
 
 The one area where Effection can not provide Structured Concurrency guarantees is in runtime behaviour of _async/await_. 
-We explained why in [The Await Event Horizon in JavaScript][await-event-horizon] blog post. Instead of `async/await` we 
-use Effection functions. Effection function are expressed as [generator functions][generator-functions] which are 
-supported by all browsers and JavaScript runtimes.
+We explained why in [The Await Event Horizon in JavaScript][await-event-horizon] blog post. Instead of _async/await_ we 
+use [generator functions][generator-functions] which are supported by all browsers and JavaScript runtimes.
 
 We provide a handy Effection Rosetta Stone to show how _Async/Await_ concepts map into Effection APIs.
 
-### Effection Rosetta Stone
-
-| Async/Await      | Effection         |
-| ---------------- | ----------------- |
-| `Promise`        | `Operation`       |
-| `new Promise()`  | `action()`        |
-| `await`          | `yield*`          |
-| `async function` | `function*`       |
-| `AsyncIterable`  | `Stream`          |
-| `AsyncIterator`  | `Subscription`    |
-| `for await`      | `for yield* each` |
-
-[delimited-continuation-repo]: https://github.com/thefrontside/continuation
-[await-event-horizon]: https://frontside.com/blog/2023-12-11-await-event-horizon/
 [generator-functions]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function*
+[await-event-horizon]: https://frontside.com/blog/2023-12-11-await-event-horizon/
+[delimited-continuation-repo]: https://github.com/thefrontside/continuation
 [eaddrinuse-error]: https://stackoverflow.com/questions/14790910/stop-all-instances-of-node-js-server

@@ -22,7 +22,8 @@ child operations when the parent operation completes or is halted. Like with mem
 scope frees developers to focus on writing their applications instead of worrying about where and when to run
 asynchronous cleanup.
 
-The key to achieving this freedom is to make the following mental shift about the natural lifetime of an asynchronous operation.
+The key to achieving this freedom is to make the following mental shift about the natural lifetime of an asynchronous 
+operation.
 
 **before**
 
@@ -34,10 +35,6 @@ The key to achieving this freedom is to make the following mental shift about th
 
 Effection provides this shift. Whenever an operation completes, none of its child operations are left
 around to pollute your runtime.
-
-> 💡 You might assume that Effection makes all operations asynchronous which is incorrect. Effection is built on
-[Deliminated Continuations][delimited-continuation-repo] which allows us to treat synchronous and asynchronous
-operations uniformly without forcing synchronous operations to run asynchronously.
 
 ## Every operation exits fully.
 

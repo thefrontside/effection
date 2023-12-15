@@ -13,7 +13,6 @@
   ],
   "Advanced": [
     ["scope.mdx", "Scope"],
-    ["testing.mdx", "Testing"],
     ["processes.mdx", "Processes"]
   ]
 }

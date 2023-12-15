@@ -1,3 +1,12 @@
+When we say "Effection is Structured Concurrency and Effects for
+JavaScript", we mean "JavaScript" seriously. You shouldn't have to
+learn an entirely new way of programming just to achieve structured
+concurrency. That's why the Effection APIs mirror ordinary JavaScript
+APIs so closely. That way, if you know how to do it in JavaScript, you
+know how to do it in Effection.
+
+The congruence between vanilla JavaScript constructs and their Effection
+counterparts is reflected in the “Async Rosetta Stone.”
 
 
 | Async/Await      | Effection         |
@@ -10,3 +19,179 @@
 | `AsyncIterator`  | `Subscription`    |
 | `for await`      | `for yield* each` |
 
+## `Promise` \<=> `Operation`
+
+The `Promise` type serves roughly the same purpose as the `Operation`. It is a
+abstract value that you can use to pause a computation, and resume when the
+value has been computed.
+
+To use a promise:
+
+```js
+let promise = await promise;
+```
+
+To use an operation:
+
+```js
+let operation = yield* operation;
+```
+
+To convert from a promise to an operation, use [`call()`][call]
+
+```js
+let operation = call(promise);
+```
+
+to convert from an operation to a promise, use [`run()`][run] or [`Scope.run`][scope-run]
+
+```js
+let promise = run(operation);
+```
+
+## `new Promise()` \<=> `action()`
+
+Construct a reference to a computation that can be resolved with a callback.
+In the case of `Promise()` the value will resolve in the next tick of the run
+loop.
+
+Create a promise that resolves in ten seconds:
+
+```js
+new Promise((resolve) => { setTimeout(resolve, 10000) });
+```
+
+Create an Operation that resolves in ten seconds:
+
+```js
+action(function*(resolve) { setTimeout(resolve, 10000) });
+```
+
+A key difference is that the promise body will be executing immediately, but the
+action body is only executed when the action is evaluated. Also, it is executed
+anew every time the action is evaluated.
+
+## `await` \<=> `yield*`
+
+Pause a computation and resume it when the value represented by the right hand
+side becomes available.
+
+Continue once a promise has settled:
+
+```javascript
+await promise;
+```
+
+Continue when operation is complete.
+
+```js
+yield* operation;
+```
+
+## `async function` \<=> `function*`
+
+Compose a set of computations together with logic defined by JavaScript syntax:
+
+Count down from 5 to 1 with an async function:
+
+```js
+async function countdown() {
+  for (let i = 5; i > 1; i--) {
+    console.log(`${i}`);
+    await sleep(1000);
+  }
+  console.log('blastoff!');
+}
+```
+
+Count down from 5 to 1 with a generator function:
+
+```js
+function* countdown() {
+  for (let i = 5; i > 1; i--) {
+    console.log(`${i}`);
+    yield* sleep(1000);
+  }
+  console.log('blastoff!');
+}
+```
+
+Both will print:
+
+```
+5
+4
+3
+2
+1
+blastoff!
+```
+
+To call an async function within an operation use [`call()`][call]:
+
+```js
+yield* call(async function() {
+  return "hello world";
+});
+```
+
+To run an operation from an async function use [`run()`][run] or [`Scope.run`][scope-run]:
+
+```js
+await run(function*() {
+  return "hello world";
+});
+```
+
+## `AsyncIterable` \<=> `Stream`
+
+A recipe for instantiating a sequence of items that can arrive over time. It is not
+the sequence itself, just how to create it.
+
+Use an `AsyncIterable` to create an `AsyncIterator`:
+
+```js
+let iterator = asyncIterable[Symbol.asyncIterator]();
+```
+
+Use a `Stream` as an operation to create a `Subscription`:
+
+```js
+let subscription = yield* stream;
+```
+
+To convert an `AsyncIterable` to a `Stream` use [`stream()`][stream]
+
+```js
+let itemStream = stream(asyncIterable);
+```
+
+## `AsyncIterator` \<=> `Subscription`
+
+A stateful sequence of items that can be evaluated one at a time.
+
+## `for await` \<=> `for yield* each`
+
+Loop over an AsyncIterable with `for await`:
+
+```js
+for await (let item of iterable) {
+  //item logic
+}
+```
+
+Loop over a `Stream` with `for yield* each`
+
+```js
+for (let item of yield* each(stream)) {
+  // item logic
+  yield* each.next();
+}
+```
+
+See the definition of [`each()`][each] for more detail.
+
+[call]: https://deno.land/x/effection/mod.ts?s=call
+[run]: https://deno.land/x/effection/mod.ts?s=run
+[scope-run]: https://deno.land/x/effection/mod.ts?s=Scope#method_run_0
+[each]: https://deno.land/x/effection/mod.ts?s=each

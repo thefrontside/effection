@@ -18,7 +18,8 @@ describe("Channel", () => {
   $afterEach(() => close());
 
   it("does not use the same event twice when serially subscribed to a channel", function* () {
-    let { subscribe, ...input } = createChannel<string, void>();
+    let input = createChannel<string, void>();
+
     let actual: string[] = [];
     function* channel() {
       yield* sleep(10);
@@ -29,11 +30,11 @@ describe("Channel", () => {
     function* root() {
       yield* spawn(channel);
 
-      let subscription = yield* subscribe();
+      let subscription = yield* input;
       let result = yield* subscription.next();
       actual.push(result.value as string);
 
-      subscription = yield* subscribe();
+      subscription = yield* input;
       result = yield* subscription.next();
       actual.push(result.value as string);
     }
@@ -51,7 +52,7 @@ describe("Channel", () => {
 
     describe("sending a message", () => {
       it("receives message on subscription", function* () {
-        let subscription = yield* channel.subscribe();
+        let subscription = yield* channel;
         yield* channel.send("hello");
         let result = yield* subscription.next();
         expect(result.done).toEqual(false);
@@ -61,7 +62,7 @@ describe("Channel", () => {
 
     describe("blocking on next", () => {
       it("receives message on subscription done", function* () {
-        let subscription = yield* channel.subscribe();
+        let subscription = yield* channel;
         let result = yield* spawn(() => subscription.next());
         yield* sleep(10);
         yield* channel.send("hello");
@@ -71,7 +72,7 @@ describe("Channel", () => {
 
     describe("sending multiple messages", () => {
       it("receives messages in order", function* () {
-        let subscription = yield* channel.subscribe();
+        let subscription = yield* channel;
         let { send } = channel;
         yield* send("hello");
         yield* send("foo");
@@ -86,7 +87,7 @@ describe("Channel", () => {
       it("receives message on subscribable end", function* () {
         let channel = createChannel();
 
-        let subscription = yield* channel.subscribe();
+        let subscription = yield* channel;
 
         yield* channel.send("hello");
 
@@ -101,7 +102,7 @@ describe("Channel", () => {
       describe("without argument", () => {
         it("closes subscriptions", function* () {
           let channel = createChannel();
-          let subscription = yield* channel.subscribe();
+          let subscription = yield* channel;
           yield* channel.send("foo");
           yield* channel.close();
           expect(yield* subscription.next()).toEqual({
@@ -118,7 +119,7 @@ describe("Channel", () => {
       describe("with close argument", () => {
         it("closes subscriptions with the argument", function* () {
           let channel = createChannel<string, number>();
-          let subscription = yield* channel.subscribe();
+          let subscription = yield* channel;
           yield* channel.send("foo");
           yield* channel.close(12);
 

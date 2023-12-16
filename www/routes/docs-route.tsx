@@ -142,7 +142,9 @@ export function docsRoute(docs: Docs): JSXHandler {
               <NextPrevLinks doc={doc} />
             </article>
           </Transform>
-          <Footer />
+          <div class="col-start-2 col-span-2">
+            <Footer />
+          </div>
         </section>
       </AppHtml>
     );

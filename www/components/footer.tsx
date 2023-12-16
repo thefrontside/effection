@@ -2,7 +2,7 @@ import { IconExtern } from "./icons/iconextern.tsx";
 
 export function Footer(): JSX.Element {
   return (
-    <footer class="col-start-2 col-span-2 grid grid-cols-3 text-center text-gray-500 tracking-wide bg-gray-100 pt-5 gap-y-4 leading-10">
+    <footer class="grid grid-cols-3 text-center text-gray-500 tracking-wide bg-gray-100 pt-5 gap-y-4 leading-10">
       <section class="flex flex-col gap-y-1">
         <h1 class="text-sm uppercase font-bold text-blue-primary mb-4">
           About

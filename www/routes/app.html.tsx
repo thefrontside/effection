@@ -77,7 +77,6 @@ export function* useAppHtml({
                 />
               </a>
             </div>
-
             <nav aria-label="Site Nav" class="text-sm">
               <ul class="flex items-center sm:gap-1.5 gap-3 md:gap-16">
                 <li>

@@ -14,6 +14,7 @@ import rehypeSlug from "npm:rehype-slug@5.1.0";
 import rehypeAutolinkHeadings from "npm:rehype-autolink-headings@6.1.1";
 import rehypeAddClasses from "npm:rehype-add-classes@1.0.0";
 import rehypeToc from "npm:@jsdevtools/rehype-toc@3.0.2";
+import { Footer } from "../components/footer.tsx";
 
 export function docsRoute(docs: Docs): JSXHandler {
   return function* () {
@@ -51,7 +52,7 @@ export function docsRoute(docs: Docs): JSXHandler {
           >
             <nav class="bg-white px-2 border-r-2 h-full pt-20">
               {topics.map((topic) => (
-                <hgroup>
+                <hgroup class="mb-2">
                   <h3 class="text-lg">{topic.name}</h3>
                   <menu class="text-gray-700">
                     {topic.items.map((item) => (
@@ -84,7 +85,7 @@ export function docsRoute(docs: Docs): JSXHandler {
           <aside>
             <nav class="hidden md:block fixed pl-4">
               {topics.map((topic) => (
-                <hgroup>
+                <hgroup class="mb-2">
                   <h3 class="text-lg">{topic.name}</h3>
                   <menu class="text-gray-700">
                     {topic.items.map((item) => (
@@ -129,8 +130,9 @@ export function docsRoute(docs: Docs): JSXHandler {
                   [rehypeToc, {
                     cssClasses: {
                       toc:
-                        "hidden text-sm font-light tracking-wide leading-loose lg:block relative whitespace-nowrap",
-                      list: "fixed",
+                        "hidden text-sm font-light tracking-wide leading-loose lg:block relative",
+                      list: "fixed w-[200px]",
+                      link: "hover:underline hover:underline-offset-2"
                     },
                   }],
                 ]}
@@ -140,6 +142,9 @@ export function docsRoute(docs: Docs): JSXHandler {
               <NextPrevLinks doc={doc} />
             </article>
           </Transform>
+          <div class="col-start-2 col-span-2">
+            <Footer />
+          </div>
         </section>
       </AppHtml>
     );

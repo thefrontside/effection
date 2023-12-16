@@ -8,74 +8,15 @@ know how to do it in Effection.
 The congruence between vanilla JavaScript constructs and their Effection
 counterparts is reflected in the “Async Rosetta Stone.”
 
-
 | Async/Await      | Effection         |
 | ---------------- | ----------------- |
-| `Promise`        | `Operation`       |
-| `new Promise()`  | `action()`        |
 | `await`          | `yield*`          |
 | `async function` | `function*`       |
+| `Promise`        | `Operation`       |
+| `new Promise()`  | `action()`        |
+| `for await`      | `for yield* each` |
 | `AsyncIterable`  | `Stream`          |
 | `AsyncIterator`  | `Subscription`    |
-| `for await`      | `for yield* each` |
-
-## `Promise` \<=> `Operation`
-
-The `Promise` type serves roughly the same purpose as the `Operation`. It is a
-abstract value that you can use to pause a computation, and resume when the
-value has been computed.
-
-To use a promise:
-
-```js
-let promise = await promise;
-```
-
-To use an operation:
-
-```js
-let operation = yield* operation;
-```
-
-To convert from a promise to an operation, use [`call()`][call]
-
-```js
-import { call } from 'effection';
-
-let operation = call(promise);
-```
-
-to convert from an operation to a promise, use [`run()`][run] or [`Scope.run`][scope-run]
-
-```js
-import { run } from 'effection';
-
-let promise = run(operation);
-```
-
-## `new Promise()` \<=> `action()`
-
-Construct a reference to a computation that can be resolved with a callback.
-In the case of `Promise()` the value will resolve in the next tick of the run
-loop.
-
-Create a promise that resolves in ten seconds:
-
-```js
-new Promise((resolve) => { setTimeout(resolve, 10000) });
-```
-
-Create an Operation that resolves in ten seconds:
-
-```js
-import { action } from 'effection';
-
-action(function*(resolve) { setTimeout(resolve, 10000) });
-```
-
-A key difference is that the promise body will be executing immediately, but the
-action body is only executed when the action is evaluated. Also, it is executed
-anew every time the action is evaluated.
 
 ## `await` \<=> `yield*`
 
@@ -155,6 +96,87 @@ await run(function*() {
 });
 ```
 
+## `Promise` \<=> `Operation`
+
+The `Promise` type serves roughly the same purpose as the `Operation`. It is a
+abstract value that you can use to pause a computation, and resume when the
+value has been computed.
+
+To use a promise:
+
+```js
+let promise = await promise;
+```
+
+To use an operation:
+
+```js
+let operation = yield* operation;
+```
+
+To convert from a promise to an operation, use [`call()`][call]
+
+```js
+import { call } from 'effection';
+
+let operation = call(promise);
+```
+
+to convert from an operation to a promise, use [`run()`][run] or [`Scope.run`][scope-run]
+
+```js
+import { run } from 'effection';
+
+let promise = run(operation);
+```
+
+## `new Promise()` \<=> `action()`
+
+Construct a reference to a computation that can be resolved with a callback.
+In the case of `Promise()` the value will resolve in the next tick of the run
+loop.
+
+Create a promise that resolves in ten seconds:
+
+```js
+new Promise((resolve) => { setTimeout(resolve, 10000) });
+```
+
+Create an Operation that resolves in ten seconds:
+
+```js
+import { action } from 'effection';
+
+action(function*(resolve) { setTimeout(resolve, 10000) });
+```
+
+A key difference is that the promise body will be executing immediately, but the
+action body is only executed when the action is evaluated. Also, it is executed
+anew every time the action is evaluated.
+
+## `for await` \<=> `for yield* each`
+
+Loop over an AsyncIterable with `for await`:
+
+```js
+for await (let item of iterable) {
+  //item logic
+}
+```
+
+Loop over a `Stream` with `for yield* each`
+
+```js
+import { each } from 'effection';
+
+for (let item of yield* each(stream)) {
+  // item logic
+  yield* each.next();
+}
+```
+
+See the definition of [`each()`][each] for more detail.
+
 ## `AsyncIterable` \<=> `Stream`
 
 A recipe for instantiating a sequence of items that can arrive over time. It is not
@@ -183,29 +205,6 @@ let itemStream = stream(asyncIterable);
 ## `AsyncIterator` \<=> `Subscription`
 
 A stateful sequence of items that can be evaluated one at a time.
-
-## `for await` \<=> `for yield* each`
-
-Loop over an AsyncIterable with `for await`:
-
-```js
-for await (let item of iterable) {
-  //item logic
-}
-```
-
-Loop over a `Stream` with `for yield* each`
-
-```js
-import { each } from 'effection';
-
-for (let item of yield* each(stream)) {
-  // item logic
-  yield* each.next();
-}
-```
-
-See the definition of [`each()`][each] for more detail.
 
 [call]: https://deno.land/x/effection/mod.ts?s=call
 [run]: https://deno.land/x/effection/mod.ts?s=run

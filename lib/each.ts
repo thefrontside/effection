@@ -28,7 +28,7 @@ import { createContext } from "./context.ts";
 export function each<T>(stream: Stream<T, unknown>): Operation<Iterable<T>> {
   return {
     *[Symbol.iterator]() {
-      let subscription = yield* stream.subscribe();
+      let subscription = yield* stream;
       let current = yield* subscription.next();
       let stack = yield* EachStack.get();
       if (!stack) {

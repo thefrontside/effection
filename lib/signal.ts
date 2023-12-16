@@ -59,10 +59,10 @@ export interface Signal<T, TClose> extends Stream<T, TClose> {
  * ```javascript
  * export function useActions(pattern: ActionPattern): Stream<AnyAction, void> {
  *  return {
- *    *subscribe() {
+ *    *[Symbol.iterator]() {
  *      const actions = yield* ActionContext;
  *      yield* QueueFactory.set(() => createFilterQueue(matcher(pattern));
- *      return yield* actions.subscribe();
+ *      return yield* actions;
  *    }
  *  }
  * }
@@ -116,7 +116,7 @@ export const SignalQueueFactory = createContext(
 export function createSignal<T, TClose = never>(): Signal<T, TClose> {
   let subscribers = new Set<Queue<T, TClose>>();
 
-  let useSubscription = resource<Subscription<T, TClose>>(function* (provide) {
+  let subscribe = resource<Subscription<T, TClose>>(function* (provide) {
     let newQueue = yield* SignalQueueFactory;
     let queue = newQueue<T, TClose>();
     subscribers.add(queue);
@@ -140,5 +140,5 @@ export function createSignal<T, TClose = never>(): Signal<T, TClose> {
     }
   }
 
-  return { send, close, subscribe: () => useSubscription };
+  return { ...subscribe, send, close };
 }

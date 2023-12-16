@@ -218,10 +218,7 @@ export interface Scope {
  *
  * @see https://frontside.com/effection/docs/collections#stream
  */
-//export type Stream<T, TReturn> = Operation<Subscription<T, TReturn>>;
-export interface Stream<T, TReturn> {
-  subscribe(): Operation<Subscription<T, TReturn>>;
-}
+export type Stream<T, TReturn> = Operation<Subscription<T, TReturn>>;
 
 /**
  * The Effection equivalent of an [`AsyncIterator`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/AsyncIterator)

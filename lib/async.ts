@@ -26,7 +26,7 @@ export function subscribe<T, R>(iter: AsyncIterator<T, R>): Subscription<T, R> {
  */
 export function stream<T, R>(iterable: AsyncIterable<T, R>): Stream<T, R> {
   return {
-    *subscribe() {
+    *[Symbol.iterator]() {
       return subscribe(iterable[Symbol.asyncIterator]());
     },
   };

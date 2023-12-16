@@ -77,8 +77,8 @@ await main(function*() {
   // the channel has no subscribers yet!
   yield* channel.send('too early');
 
-  let subscription1 = yield* channel.subscribe();
-  let subscription2 = yield* channel.subscribe();
+  let subscription1 = yield* channel;
+  let subscription2 = yield* channel;
 
   yield* send('hello');
   yield* send('world');
@@ -178,7 +178,7 @@ imchannel { main, createChannel, spawn, sleep } from 'effection';
 await main(function*() {
   let channel = createChannel();
 
-  let subscription = yield* channel.subscribe();
+  let subscription = yield* channel;
 
   yield* spawn(function*() {
     yield* sleep(1000);
@@ -216,7 +216,7 @@ import { main, sleep, spawn, createChannel } from "effection";
 await main(function*() {
   let channel = createChannel();
 
-  let subscription = yield* channel.subscribe();
+  let subscription = yield* channel;
 
   yield* spawn(function*() {
     yield* channel.send('hello');
@@ -344,8 +344,8 @@ function* logAndCancel(button) {
 ```
 
 It turns out that [resources][resources] are just what we need to make
-this happen. If you recall, a [`Stream`][stream] is just has a
-subscribe() [`Operation`][operation] that returns a
+this happen. If you recall, a [`Stream`][stream] is just an
+[`Operation`][operation] that returns a
 [`Subscription`][subscription]. So the simplest way to implement such
 an operation is as a _resource that provides a subscription_.
 
@@ -358,20 +358,18 @@ Armed with resources, we can now implement our hypothetical `clicksOn` utility.
 import { resource } from "effection"
 
 export function clicksOn(button) {
-  return {
-    subscribe: () => resource(function*(provide) {
-      let clicks = createSignal();
-      try {
-        button.addEventListener("click", clicks.send);
+  return resource(function*(provide) {
+    let clicks = createSignal();
+    try {
+      button.addEventListener("click", clicks.send);
 
-        let subscription = yield* clicks.subscribe();
-        yield* provide(subscription);
+      let subscription = yield* clicks.subscribe();
+      yield* provide(subscription);
 
-      } finally {
-        button.removeEventListener("click", send);
-      }
-    }),
-  };
+    } finally {
+      button.removeEventListener("click", send);
+    }
+  });
 }
 ```
 

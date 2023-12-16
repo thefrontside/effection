@@ -12,24 +12,32 @@ export function indexRoute(): JSXHandler {
         <>
           <article class="p-4 md:px-12 mb-16">
             <section class="grid grid-cols-1 md:grid-cols-3 md:gap-4">
-              <hgroup class="text-center col-span-1 md:col-span-3">
+              <hgroup class="text-center col-span-1 md:col-span-3 my-8">
                 <img
-                  class="inline min-w-[20%]"
+                  class="inline max-w-[30%] mb-4"
                   alt="Effection Logo"
                   src="/assets/images/icon-effection.svg"
-                  width={288}
-                  height={288}
+                  width={144}
+                  height={144}
                 />
                 <h1 class="text-4xl font-bold leading-7">Effection</h1>
-                <p class="text-sm py-4">
+                <p class="text-2xl py-4 mb-6">
                   Structured Concurrency and Effects for JavaScript
                 </p>
-                <a
-                  class="inline-block mt-2 p-3 text-white w-full rounded bg-blue-900 md:w-48"
-                  href="/docs/introduction"
-                >
-                  Get Started
-                </a>
+                <div>
+                  <a
+                    class="inline-block md:inline mt-2 p-2 mr-2 text-md text-white w-full border-blue-900 border-solid border-2 rounded bg-blue-900 hover:bg-blue-800 transition-colors md:px-4"
+                    href="/docs/introduction"
+                  >
+                    Get Started
+                  </a>
+                  <a
+                    class="inline-block md:inline mt-2 p-2 text-md text-blue-900 bg-white hover:bg-blue-100 transition border-blue-900 border-solid border-2 w-full rounded md:px-4"
+                    href="https://deno.land/x/effection/mod.ts"
+                  >
+                    API Reference
+                  </a>
+                </div>
               </hgroup>
               <Feature summary="👩🏻‍💻 100% JavaScript">
                 No build steps. No esoteric APIs, and no new odd-ball paradigms

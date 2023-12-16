@@ -6,7 +6,7 @@ import { indexRoute } from "./routes/index-route.tsx";
 import { v2docsRoute } from "./routes/v2docs-route.tsx";
 import { assetsRoute } from "./routes/assets-route.ts";
 
-import { config } from "./twind.config.ts";
+import { config } from "./tailwind.config.ts";
 
 import { twindPlugin } from "./plugins/twind.ts";
 import { rebasePlugin } from "./plugins/rebase.ts";

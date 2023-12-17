@@ -1,4 +1,4 @@
-export const IconExtern = () => (
+export const IconExternal = () => (
   <svg
     class="inline"
     width="13.5"

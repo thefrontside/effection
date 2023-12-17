@@ -140,21 +140,6 @@ export function indexRoute(): JSXHandler {
                 </Feature>
               </div>
             </section>
-            <section class="my-4">
-              <hgroup class="mx-auto max-w-2xl lg:text-center">
-                <h2 class="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-                  Crash course in Effection
-                </h2>
-                <p class="mt-6 text-lg leading-8 text-gray-600">
-                  Small API focused excusively on what you need to gain
-                  Structured Concurrency guarantees for APIs available in your
-                  JavaScript runtime.
-                </p>
-              </hgroup>
-              <div class="mx-auto mt-8 max-w-2xl sm:mt-12 lg:mt-16 lg:max-w-4xl grid grid-cols-2 gap-y-4">
-
-              </div>
-            </section>
             <Footer />
           </article>
         </>

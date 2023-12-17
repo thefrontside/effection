@@ -1,4 +1,4 @@
-## Your first Effection program
+Let's write our first program using Effection.
 
 ``` javascript
 import { call, useAbortSignal } from "effection";
@@ -18,7 +18,7 @@ To start using Effection, use the `main` function as an entry
 point. In this example, we'll use the previously defined
 `fetchWeekDay`.
 
-``` javascript
+```javascript
 import { main } from 'effection';
 import { fetchWeekDay } from './fetch-week-day';
 
@@ -49,7 +49,7 @@ operations out of existing ones. For example, we can add a time out of
 1000 milliseconds to our `fetchWeekDay` operation (or any operation
 for that matter) by wrapping it in a `withTimeout` operation.
 
-``` javascript
+```javascript
 import { main, call, race } from 'effection';
 import { fetchWeekDay } from './fetch-week-day';
 
@@ -79,14 +79,10 @@ controllers][abort controller]. We just got it all for free.
 
 This is just the tip of the iceberg when it comes to the seemingly complex
 things that Effection can make simple. To find out more, jump
-into the conversation [in our discord server][discord]. We're really
+into the conversation in our [Discord server][discord]. We're really
 excited about the things that Effection has enabled us to accomplish,
 and we'd love to hear your thoughts on it, and how you might see
 it working for you.
 
-[structured concurrency]: https://vorpus.org/blog/notes-on-structured-concurrency-or-go-statement-considered-harmful/
-[generator functions]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function*
-[generators]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Generator
-[async functions]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function
 [abort controller]: https://developer.mozilla.org/en-US/docs/Web/API/AbortController
 [discord]: https://discord.gg/Ug5nWH8

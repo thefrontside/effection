@@ -3,6 +3,7 @@ import type { JSXChild, JSXHandler } from "revolution";
 import { useAppHtml } from "./app.html.tsx";
 import { Footer } from "../components/footer.tsx";
 import { IconTSLogo } from "../components/icons/typescript.tsx";
+import { IconCartouche } from "../components/icons/cartouche.tsx";
 
 export function indexRoute(): JSXHandler {
   return function* () {
@@ -49,14 +50,14 @@ export function indexRoute(): JSXHandler {
                 </h2>
                 <p class="mt-6 text-lg leading-8 text-gray-600">
                   Effection gives you control over asyncronous operations with{" "}
-                  <a href="/docs/thinking-in-effection">
+                  <a class="underline underline-offset-4" href="/docs/thinking-in-effection">
                     Structured Concurrency guarantees
                   </a>
                   . We ensure that all asyncronous operations are well behaved
                   so you can focus on using async instead of managing it.
                 </p>
               </hgroup>
-              <div class="mx-auto mt-8 max-w-2xl sm:mt-12 lg:mt-16 lg:max-w-4xl grid grid-cols-2 gap-y-4">
+              <div class="mx-auto mt-8 max-w-2xl sm:mt-12 lg:mt-16 lg:max-w-4xl md:grid md:grid-cols-2 md:gap-y-4">
                 <Feature icon={"🛡️"} summary={"Leak proof"}>
                   Effection code cleans up after itself, and that means never
                   having to remember to manually close a resource or detach a
@@ -98,7 +99,7 @@ export function indexRoute(): JSXHandler {
               {/* No build steps. No esoteric APIs, and no new odd-ball
               paradigms to learn; Effection leans into JavaScript's natural
               constructs at every turn, so code always feels intuitive. */}
-              <div class="mx-auto mt-8 max-w-2xl sm:mt-12 lg:mt-16 lg:max-w-4xl grid grid-cols-2 gap-y-4">
+              <div class="mx-auto mt-8 max-w-2xl sm:mt-12 lg:mt-16 lg:max-w-4xl md:grid md:grid-cols-2 md:gap-y-4">
                 <Feature icon={"😎"} summary="Use familiar language constructs">
                   <>
                     Use <code>let</code>, <code>const</code>, <code>for</code>,{" "}
@@ -120,15 +121,25 @@ export function indexRoute(): JSXHandler {
                 <Feature icon={"😵‍💫"} summary="No esoteric APIs">
                   <>
                     Small API focused excusively on what you need to gain
-                    Structured Concurrency guarantees in
-                    JavaScript and nothing else.
+                    Structured Concurrency guarantees in JavaScript and nothing
+                    else.
                   </>
                 </Feature>
-                <Feature icon={"💎"} summary="No build step">
+                <Feature
+                  icon={<IconCartouche />}
+                  summary="Async/Await/Promise alternatives"
+                  iconSize="h-14 w-14"
+                >
                   <>
-                    Use in TypeScript or JavaScript projects without modifying
-                    your build setup. Effection operations can be used and
-                    distributed in pure ESM code.
+                    For every Async/Await/Promise API we provide Structured
+                    Concurrency compliant Effection alternative. Checkout our{" "}
+                    <a
+                      class="underline underline-offset-4"
+                      href="/docs/async-rosetta-stone"
+                    >
+                      Async Rosetta Stone
+                    </a>{" "}
+                    for translations.
                   </>
                 </Feature>
                 <Feature icon={"💪"} summary="Small but powerful">
@@ -136,6 +147,13 @@ export function indexRoute(): JSXHandler {
                     Everything you need comes in one dependency-free package. At
                     less than 5KB minified and gzipped, Effection can be dropped
                     into any project.
+                  </>
+                </Feature>
+                <Feature icon={"💎"} summary="No build step">
+                  <>
+                    Use in TypeScript or JavaScript projects without modifying
+                    your build setup. Effection operations can be used and
+                    distributed in pure ESM code.
                   </>
                 </Feature>
               </div>
@@ -152,15 +170,17 @@ function Feature({
   summary,
   icon,
   children,
+  iconSize = "h-10 w-10 text-4xl",
 }: {
   summary: string;
   icon: JSXChild;
   children: JSXChild;
+  iconSize?: string;
 }) {
   return (
-    <div class="relative pl-16">
+    <div class="relative pl-16 mb-8">
       <dt class="text-base font-semibold leading-7 text-gray-900">
-        <div class="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-lg text-4xl">
+        <div class={`absolute left-0 top-0 flex items-center justify-center rounded-lg ${iconSize}`}>
           {icon}
         </div>
         {summary}

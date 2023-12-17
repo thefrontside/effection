@@ -29,7 +29,7 @@ export function indexRoute(): JSXHandler {
                 <div>
                   <a
                     class="inline-block md:inline mt-2 p-2 mr-2 text-md text-white w-full border-blue-900 border-solid border-2 rounded bg-blue-900 hover:bg-blue-800 transition-colors md:px-4"
-                    href="/docs/introduction"
+                    href="/docs/installation"
                   >
                     Get Started
                   </a>

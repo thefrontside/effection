@@ -1,10 +1,10 @@
 {
   "Getting Started": [
-    ["introduction.mdx", "Introduction"],
     ["installation.mdx", "Installation"],
     ["typescript.mdx", "TypeScript"],
     ["thinking-in-effection.mdx", "Thinking in Effection"],
-    ["async-rosetta-stone.mdx", "Async Rosetta Stone"]
+    ["async-rosetta-stone.mdx", "Async Rosetta Stone"],
+    ["tutorial.mdx", "Tutorial"]
   ],
   "Learn Effection": [
     ["operations.mdx", "Operations"],

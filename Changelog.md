@@ -1,17 +1,11 @@
 # Changelog
 
-## 3.0.0-beta.5
+## 3.0.0
 
 - remove stream helpers `first()`, `pipe()`, `map()`, and `filter()`
   https://github.com/thefrontside/effection/pull/845
-
-## 3.0.0-beta.4
-
 - `main()` will now hold the event loop on Node and Deno so that `main(suspend)`
   will work https://github.com/thefrontside/effection/pull/841
-
-## 3.0.0-beta.3
-
 - Scope.run() now behaves like `spawn()` and will crash the scope if the
   operation fails https://github.com/thefrontside/effection/pull/838
 - Powered up `call()` operation can now invoke not just operation functions, but
@@ -19,18 +13,12 @@
   https://github.com/thefrontside/effection/pull/832
 - Task.halt() now succeeds whenever the shutdown succeeds, regardless of whether
   the task itself failed https://github.com/thefrontside/pull/effection/837
-
-## 3.0.0-beta.2
-
 - ✨allow custom `Queue` impl whenever creating a `Signal`
   https://github.com/thefrontside/effection/pull/826
 - 📄Represent `each` as a function, not a variable in the API docs
   https://github.com/thefrontside/effection/pull/825
 - 📄Fixes to the `Channel` documentation
   https://github.com/thefrontside/effection/pull/821
-
-## 3.0.0-beta.1
-
 - ✨Beef up the `call()` to handle promises and async fns:
   https://github.com/thefrontside/effection/pull/816
 - ♻️ Make `Queue` a `Subscription`
@@ -40,14 +28,8 @@
 - ♻️ `each.next` is now a function
   https://github.com/thefrontside/effection/pull/806
 - 📄 Many fixes and improvements to the typedocs
-
-## 3.0.0-beta.0
-
 - 📄Fill out type documentation to make more coherent
   https://github.com/thefrontside/effection/pull/789
-
-## 3.0.0-alpha.15
-
 - ⚡️eliminate excess memory around the `Frame` class by consolidating `Block`
   and `Frame` into a single concept.
   https://github.com/thefrontside/effection/pull/768
@@ -55,9 +37,6 @@
 - ⚡️improve performance of queues (and by proxy signals and channels) by making
   the entire lifetime of the subscription live the same frame.
   https://github.com/thefrontside/effection/pull/771
-
-## 3.0.0-alpha.14
-
 - ✨Port `race()` operation from `v2`
   https://github.com/thefrontside/effection/pull/757
 - ✨Port `ensure()` operation from `v2`
@@ -66,45 +45,28 @@
   https://github.com/thefrontside/effection/pull/756
 - 🐞arguments were not being properly passed to NodeJS `main()`
   https://github.com/thefrontside/effection/pull/760
-
-## 3.0.0-alpha.13
-
 - Make `Scope` API to make it more friendly for embedders
   https://github.com/thefrontside/effection/issues/751
-
-## 3.0.0-alpha.12
-
 - 🐞fix typo in main for NodeJS
   https://github.com/thefrontside/effection/pull/746
-
-## 3.0.0-alpha.11
-
 - 🐞fix NodeJS detection https://github.com/thefrontside/effection/pull/744
 - ✨for yield* each() loops https://github.com/thefrontside/effection/pull/741
-
-## 3.0.0-alpha.10
-
 - [fix] bug where `main()` was failing without explicit exit
   https://github.com/thefrontside/effection/pull/722
 - [feat] Make each task run in its own Frame.
   https://github.com/thefrontside/effection/pull/729
-
-## 3.0.0-alpha.9
-
 - add `main()` method for setting up Effection to work properly in working in
   deno, browser, and node
-- add `Context.set()` and `Context.get()` operations to make working with
+- add `Context.set()` and `Context.get()` operations to make working w ith
   Context convenient
-
-## 3.0.0-alpha.8
-
-- convert `Subscription` interface from a bare operation to an "iterator" style
+- convert `Subscription` interface from a bare operation to an "iterat or" style
   interface. Succintly: `yield* subscription` -> `yield* subscription.next()`.
   For details https://github.com/thefrontside/effection/issues/693
 - add `on()` and `once()` operations for events and subscriptions to values that
   implement the W3C `EventTarget` interface.
 - generate separate types for ESM modules
   (https://github.com/thefrontside/effection/pull/702)
+- Rebuild with delimited continuations.
 
 ## 2.0.6
 

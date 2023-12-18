@@ -4,10 +4,14 @@ import { useAppHtml } from "./app.html.tsx";
 import { Footer } from "../components/footer.tsx";
 import { IconTSLogo } from "../components/icons/typescript.tsx";
 import { IconCartouche } from "../components/icons/cartouche.tsx";
+import { useAbsoluteUrl } from "../plugins/rebase.ts";
 
 export function indexRoute(): JSXHandler {
   return function* () {
     let AppHtml = yield* useAppHtml({ title: `Effection` });
+    let announcementUrl = yield* useAbsoluteUrl(
+      "/blog/2023-12-18-announcing-effection-v3/"
+    );
 
     return (
       <AppHtml>
@@ -26,19 +30,30 @@ export function indexRoute(): JSXHandler {
                 <p class="text-2xl py-4 mb-6">
                   Structured Concurrency and Effects for JavaScript
                 </p>
-                <div>
+                <div class="grid grid-cols-6 gap-y-2 gap-x-2">
                   <a
-                    class="inline-block md:inline mt-2 p-2 mr-2 text-md text-white w-full border-blue-900 border-solid border-2 rounded bg-blue-900 hover:bg-blue-800 transition-colors md:px-4"
+                    class="col-span-6 md:col-span-2 md:col-start-2 lg:col-span-1 lg:col-start-3 p-2 mr-2 text-md text-white w-full border-blue-900 border-solid border-2 rounded bg-blue-900 hover:bg-blue-800 transition-colors md:px-4"
                     href="/docs/installation"
                   >
                     Get Started
                   </a>
                   <a
-                    class="inline-block md:inline mt-2 p-2 text-md text-blue-900 bg-white hover:bg-blue-100 transition border-blue-900 border-solid border-2 w-full rounded md:px-4"
+                    class="col-span-6 md:col-span-2 p-2 lg:col-span-1 text-md text-blue-900 bg-white hover:bg-blue-100 transition border-blue-900 border-solid border-2 w-full rounded md:px-4"
                     href="https://deno.land/x/effection/mod.ts"
                   >
                     API Reference
                   </a>
+                  <p class="col-span-6 text-center">
+                    <span class="inline-block bg-sky-100 text-blue-900 rounded py-2 px-4 w-fit border border-sky-200">
+                      December 18, 2023 - We're proud to announce the{" "}
+                      <a
+                        class="underline underline-offset-4"
+                        href={announcementUrl}
+                      >
+                        release of Effection 3.0.
+                      </a>
+                    </span>
+                  </p>
                 </div>
               </hgroup>
             </section>
@@ -50,7 +65,10 @@ export function indexRoute(): JSXHandler {
                 </h2>
                 <p class="mt-6 text-lg leading-8 text-gray-600">
                   Effection gives you control over asyncronous operations with{" "}
-                  <a class="underline underline-offset-4" href="/docs/thinking-in-effection">
+                  <a
+                    class="underline underline-offset-4"
+                    href="/docs/thinking-in-effection"
+                  >
                     Structured Concurrency guarantees
                   </a>
                   . We ensure that all asyncronous operations are well behaved
@@ -180,7 +198,9 @@ function Feature({
   return (
     <div class="relative pl-16 mb-8">
       <dt class="text-base font-semibold leading-7 text-gray-900">
-        <div class={`absolute left-0 top-0 flex items-center justify-center rounded-lg ${iconSize}`}>
+        <div
+          class={`absolute left-0 top-0 flex items-center justify-center rounded-lg ${iconSize}`}
+        >
           {icon}
         </div>
         {summary}

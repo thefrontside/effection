@@ -33,7 +33,7 @@ export function once<
 >(target: T, name: K): Operation<EventTypeFromEventTarget<T, K>> {
   return {
     *[Symbol.iterator]() {
-      let subscription = yield* on(target, name).subscribe();
+      let subscription = yield* on(target, name);
       let next = yield* subscription.next();
       return next.value;
     },
@@ -55,23 +55,19 @@ export function on<
   T extends EventTarget,
   K extends EventList<T> | (string & {}),
 >(target: T, name: K): Stream<EventTypeFromEventTarget<T, K>, never> {
-  return {
-    subscribe() {
-      return resource(function* (provide) {
-        let { send, subscribe } = createSignal<Event>();
+  return resource(function* (provide) {
+    let signal = createSignal<Event>();
 
-        target.addEventListener(name, send);
+    target.addEventListener(name, signal.send);
 
-        try {
-          yield* provide(
-            yield* subscribe() as Operation<
-              Subscription<EventTypeFromEventTarget<T, K>, never>
-            >,
-          );
-        } finally {
-          target.removeEventListener(name, send);
-        }
-      });
-    },
-  };
+    try {
+      yield* provide(
+        yield* signal as Operation<
+          Subscription<EventTypeFromEventTarget<T, K>, never>
+        >,
+      );
+    } finally {
+      target.removeEventListener(name, signal.send);
+    }
+  });
 }

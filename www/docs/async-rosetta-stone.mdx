@@ -188,13 +188,14 @@ Use an `AsyncIterable` to create an `AsyncIterator`:
 let iterator = asyncIterable[Symbol.asyncIterator]();
 ```
 
-Use a `Stream` as an operation to create a `Subscription`:
+Use a `Stream` to create a `Subscription`:
 
 ```js
 let subscription = yield* stream;
 ```
 
-To convert an `AsyncIterable` to a `Stream` use [`stream()`][stream]
+To convert an `AsyncIterable` to a `Stream` use the [`stream()`][stream]
+function.
 
 ```js
 import { stream } from 'effection';
@@ -206,7 +207,38 @@ let itemStream = stream(asyncIterable);
 
 A stateful sequence of items that can be evaluated one at a time.
 
+Access the next item in an async iterator:
+
+```js
+let next = await iterator.next();
+if (next.done) {
+  return next.value;
+} else {
+  console.log(next.value)
+}
+```
+
+Access the next item in a subscription:
+
+```js
+let next = yield* subscription.next();
+if (next.done) {
+  return next.value;
+} else {
+  console.log(next.value);
+}
+```
+
+To convert an `AsyncIterator` to a `Subscription`, use the
+[`subscribe()`][subscribe] function.
+
+```js
+let subscription = subscribe(asyncIterator);
+```
+
 [call]: https://deno.land/x/effection/mod.ts?s=call
 [run]: https://deno.land/x/effection/mod.ts?s=run
 [scope-run]: https://deno.land/x/effection/mod.ts?s=Scope#method_run_0
 [each]: https://deno.land/x/effection/mod.ts?s=each
+[stream]: https://deno.land/x/effection/mod.ts?s=stream
+[subscribe]: https://deno.land/x/effection/mod.ts?s=subscribe

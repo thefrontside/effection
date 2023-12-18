@@ -68,9 +68,7 @@ export function indexRoute(): JSXHandler {
                   Effection and answer frequenty asked questions.
                 </p>
                 <iframe
-                  class="mx-auto max-w-2xl"
-                  width={560}
-                  height={315}
+                  class="mx-auto w-full aspect-video pr-0.5"
                   src="https://www.youtube.com/embed/lJDgpxRw5WA?si=rZuOYa_UWDdP1G_V"
                   title="YouTube video player"
                   frameborder="0"

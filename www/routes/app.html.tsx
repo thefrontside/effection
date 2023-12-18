@@ -61,8 +61,10 @@ export function* useAppHtml({
         </noscript>
       </head>
       <body class="max-w-screen-2xl m-auto">
-        <Header />
-        <main>{children}</main>
+        <div class="flex flex-col h-full overflow-hidden">
+          <Header />
+          <main class="grow min-h-0 overflow-auto">{children}</main>
+        </div>
       </body>
     </html>
   );

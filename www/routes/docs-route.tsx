@@ -14,7 +14,6 @@ import rehypeSlug from "npm:rehype-slug@5.1.0";
 import rehypeAutolinkHeadings from "npm:rehype-autolink-headings@6.1.1";
 import rehypeAddClasses from "npm:rehype-add-classes@1.0.0";
 import rehypeToc from "npm:@jsdevtools/rehype-toc@3.0.2";
-import { Footer } from "../components/footer.tsx";
 
 export function docsRoute(docs: Docs): JSXHandler {
   return function* () {

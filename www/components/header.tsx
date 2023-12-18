@@ -4,7 +4,7 @@ import { IconDiscord } from "./icons/discord.tsx";
 
 export function Header() {
   return (
-    <header class="header w-full top-0 p-6 tracking-wide z-10">
+    <header class="header w-full top-0 p-6 py-8 sticky tracking-wide z-10 rounded-lg max-w-screen-2xl m-auto">
       <div class="flex items-center justify-between">
         <div>
           <a
@@ -19,7 +19,7 @@ export function Header() {
             />
           </a>
         </div>
-        <nav aria-label="Site Nav" class="text-sm">
+        <nav aria-label="Site Nav" class="text-sm font-bold">
           <ul class="flex items-center sm:gap-1.5 gap-3 md:gap-16">
             <li>
               <a href="/docs/installation">Guides</a>

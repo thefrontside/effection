@@ -31,7 +31,7 @@ export function docsRoute(docs: Docs): JSXHandler {
 
     return (
       <AppHtml>
-        <section class="min-h-0 h-full mx-auto w-full justify-items-normal md:grid md:grid-cols-[225px_auto] lg:grid-cols-[225px_auto_200px] md:gap-4">
+        <section class="min-h-0 mx-auto w-full justify-items-normal md:grid md:grid-cols-[225px_auto] lg:grid-cols-[225px_auto_200px] md:gap-4">
           <p class="text-right mr-4 md:hidden">
             <label class="cursor-pointer" for="nav-toggle">
               <Navburger />
@@ -47,9 +47,9 @@ export function docsRoute(docs: Docs): JSXHandler {
           <input class="hidden" id="nav-toggle" type="checkbox" checked />
           <aside
             id="docbar"
-            class="min-h-0 top-0 h-full w-full grid grid-cols-2 md:hidden py-2"
+            class="fixed top-0 h-full w-full grid grid-cols-2 md:hidden"
           >
-            <nav class="bg-white px-2 border-r-2 h-full pt-2 md:pt-20 min-h-0 h-full overflow-auto">
+            <nav class="bg-white p-2 border-r-2 h-full pt-24 min-h-0 h-full overflow-auto">
               {topics.map((topic) => (
                 <hgroup class="mb-2">
                   <h3 class="text-lg">{topic.name}</h3>
@@ -81,7 +81,7 @@ export function docsRoute(docs: Docs): JSXHandler {
               class="h-full w-full bg-gray-500 opacity-50"
             />
           </aside>
-          <aside class="min-h-0 h-full overflow-auto hidden md:block py-2">
+          <aside class="min-h-0 h-full overflow-auto hidden md:block pt-2 top-24 sticky h-screen">
             <nav class="pl-4">
               {topics.map((topic) => (
                 <hgroup class="mb-2">
@@ -111,7 +111,7 @@ export function docsRoute(docs: Docs): JSXHandler {
             </nav>
           </aside>
           <Transform fn={liftTOC}>
-            <article class="prose max-w-full px-6 min-h-0 overflow-auto h-full py-2">
+            <article class="prose max-w-full px-6 py-2">
               <h1>{doc.title}</h1>
               <Rehype
                 plugins={[

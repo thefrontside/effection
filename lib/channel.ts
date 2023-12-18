@@ -39,8 +39,8 @@ export interface Channel<T, TClose> extends Stream<T, TClose> {
  *
  *   yield* channel.send('too early'); // the channel has no subscribers yet!
  *
- *   let subscription1 = yield* channel.subscribe();
- *   let subscription2 = yield* channel.subscribe();
+ *   let subscription1 = yield* channel;
+ *   let subscription2 = yield* channel;
  *
  *   yield* channel.send('hello');
  *   yield* channel.send('world');
@@ -58,6 +58,6 @@ export function createChannel<T, TClose = void>(): Channel<T, TClose> {
   return {
     send: lift(signal.send),
     close: lift(signal.close),
-    subscribe: signal.subscribe,
+    [Symbol.iterator]: signal[Symbol.iterator],
   };
 }

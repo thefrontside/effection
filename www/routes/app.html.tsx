@@ -3,6 +3,7 @@ import type { JSXChild } from "revolution";
 
 import { useAbsoluteUrl } from "../plugins/rebase.ts";
 import { Header } from "../components/header.tsx";
+import { Footer } from "../components/footer.tsx";
 
 
 export interface Options {
@@ -63,7 +64,8 @@ export function* useAppHtml({
       <body class="max-w-screen-2xl m-auto">
         <div class="flex flex-col h-full overflow-hidden">
           <Header />
-          <main class="grow min-h-0 overflow-auto">{children}</main>
+          <main class="grow min-h-0 overflow-hidden">{children}</main>
+          <Footer />
         </div>
       </body>
     </html>

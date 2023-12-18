@@ -80,7 +80,7 @@ export function indexRoute(): JSXHandler {
               </hgroup>
             </section>
 
-            <section class="my-20 mx-auto max-w-7xl px-6 lg:px-8">
+            <section class="my-20">
               <hgroup class="mx-auto max-w-2xl lg:text-center">
                 <h2 class="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
                   Stop worrying about asynchrony

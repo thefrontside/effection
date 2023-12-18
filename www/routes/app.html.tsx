@@ -80,7 +80,7 @@ export function* useAppHtml({
             <nav aria-label="Site Nav" class="text-sm">
               <ul class="flex items-center sm:gap-1.5 gap-3 md:gap-16">
                 <li>
-                  <a href="/docs/introduction">Guides</a>
+                  <a href="/docs/installation">Guides</a>
                 </li>
                 <li>
                   <a href="https://deno.land/x/effection/mod.ts">API</a>

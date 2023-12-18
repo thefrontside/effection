@@ -65,7 +65,6 @@ export function* useAppHtml({
         <div class="flex flex-col h-full overflow-hidden">
           <Header />
           <main class="grow container min-h-0 overflow-hidden h-full">{children}</main>
-          <Footer />
         </div>
       </body>
     </html>

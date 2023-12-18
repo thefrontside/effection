@@ -45,16 +45,38 @@ export function indexRoute(): JSXHandler {
                   </a>
                   <p class="col-span-6 text-center">
                     <span class="inline-block bg-sky-100 text-blue-900 rounded py-2 px-4 w-fit border border-sky-200">
-                      December 18, 2023 - We're proud to announce the{" "}
+                      December 18, 2023 - We're proud to{" "}
                       <a
                         class="underline underline-offset-4"
                         href={announcementUrl}
                       >
-                        release of Effection 3.0.
+                        announce the release of Effection 3.0.
                       </a>
                     </span>
                   </p>
                 </div>
+              </hgroup>
+            </section>
+
+            <section class="my-20">
+              <hgroup class="mx-auto max-w-2xl lg:text-center">
+                <h2 class="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+                  Latest video
+                </h2>
+                <p class="mt-6 text-lg leading-8 text-gray-600 mb-2">
+                  Watch Charles Lowell, the creator of Effection, explain
+                  Effection and answer frequenty asked questions.
+                </p>
+                <iframe
+                  class="mx-auto max-w-2xl"
+                  width={560}
+                  height={315}
+                  src="https://www.youtube.com/embed/lJDgpxRw5WA?si=rZuOYa_UWDdP1G_V"
+                  title="YouTube video player"
+                  frameborder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowfullscreen
+                ></iframe>
               </hgroup>
             </section>
 
@@ -102,6 +124,7 @@ export function indexRoute(): JSXHandler {
                 </Feature>
               </div>
             </section>
+
             <section class="my-20">
               <hgroup class="mx-auto max-w-2xl lg:text-center">
                 <h2 class="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">

@@ -32,7 +32,7 @@ export function docsRoute(docs: Docs): JSXHandler {
 
     return (
       <AppHtml>
-        <section class="min-h-0 h-full container mx-auto md:pt-8 w-full justify-items-normal md:grid md:grid-cols-[225px_auto] lg:grid-cols-[225px_auto_200px] md:gap-4">
+        <section class="min-h-0 h-full mx-auto w-full justify-items-normal md:grid md:grid-cols-[225px_auto] lg:grid-cols-[225px_auto_200px] md:gap-4">
           <p class="text-right mr-4 md:hidden">
             <label class="cursor-pointer" for="nav-toggle">
               <Navburger />
@@ -48,9 +48,9 @@ export function docsRoute(docs: Docs): JSXHandler {
           <input class="hidden" id="nav-toggle" type="checkbox" checked />
           <aside
             id="docbar"
-            class="min-h-0 h-full w-full grid grid-cols-2 md:hidden"
+            class="min-h-0 top-0 h-full w-full grid grid-cols-2 md:hidden py-2"
           >
-            <nav class="bg-white px-2 border-r-2 h-full pt-2 md:pt-20 min-h-0 h-full overflow-auto pb-[8rem]">
+            <nav class="bg-white px-2 border-r-2 h-full pt-2 md:pt-20 min-h-0 h-full overflow-auto">
               {topics.map((topic) => (
                 <hgroup class="mb-2">
                   <h3 class="text-lg">{topic.name}</h3>
@@ -82,8 +82,8 @@ export function docsRoute(docs: Docs): JSXHandler {
               class="h-full w-full bg-gray-500 opacity-50"
             />
           </aside>
-          <aside class="min-h-0 h-full overflow-auto hidden md:block">
-            <nav class="pl-4 pb-[8rem]">
+          <aside class="min-h-0 h-full overflow-auto hidden md:block py-2">
+            <nav class="pl-4">
               {topics.map((topic) => (
                 <hgroup class="mb-2">
                   <h3 class="text-lg">{topic.name}</h3>
@@ -112,7 +112,7 @@ export function docsRoute(docs: Docs): JSXHandler {
             </nav>
           </aside>
           <Transform fn={liftTOC}>
-            <article class="prose max-w-full px-6 min-h-0 overflow-auto h-full pt-2 pb-[6rem]">
+            <article class="prose max-w-full px-6 min-h-0 overflow-auto h-full py-2">
               <h1>{doc.title}</h1>
               <Rehype
                 plugins={[
@@ -130,7 +130,7 @@ export function docsRoute(docs: Docs): JSXHandler {
                   [rehypeToc, {
                     cssClasses: {
                       toc:
-                        "hidden text-sm font-light tracking-wide leading-loose lg:block relative",
+                        "hidden text-sm font-light tracking-wide leading-loose lg:block relative pt-2",
                       list: "fixed w-[200px]",
                       link: "hover:underline hover:underline-offset-2"
                     },

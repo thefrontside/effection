@@ -16,7 +16,7 @@ export function indexRoute(): JSXHandler {
     return (
       <AppHtml>
         <>
-          <article class="p-4 md:px-12 mb-16 min-h-0 overflow-auto h-full">
+          <article class="p-4 md:px-12 min-h-0 overflow-auto h-full">
             <section class="grid grid-cols-1 md:grid-cols-3 md:gap-4">
               <hgroup class="text-center col-span-1 md:col-span-3 my-8">
                 <img

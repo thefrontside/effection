@@ -16,7 +16,7 @@ export function indexRoute(): JSXHandler {
     return (
       <AppHtml>
         <>
-          <article class="p-4 md:px-12 mb-16">
+          <article class="p-4 md:px-12 mb-16 min-h-0 overflow-auto h-full">
             <section class="grid grid-cols-1 md:grid-cols-3 md:gap-4">
               <hgroup class="text-center col-span-1 md:col-span-3 my-8">
                 <img
@@ -123,7 +123,7 @@ export function indexRoute(): JSXHandler {
               </div>
             </section>
 
-            <section class="my-20">
+            <section class="mt-20">
               <hgroup class="mx-auto max-w-2xl lg:text-center">
                 <h2 class="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
                   It's just JavaScript
@@ -197,7 +197,6 @@ export function indexRoute(): JSXHandler {
                 </Feature>
               </div>
             </section>
-            <Footer />
           </article>
         </>
       </AppHtml>

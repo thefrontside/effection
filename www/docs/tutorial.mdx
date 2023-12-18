@@ -1,70 +1,31 @@
-## Why use Effection?
-
-JavaScript has gone through multiple evolutionary steps in how to deal
-with concurrency: from callbacks and events, to promises, and then
-finally to `async/await`. Yet it can still be difficult to write
-concurrent code which is both correct and composable, and unless
-you're very careful, it is still easy to leak resources. Most
-JavaScript code and libraries do not handle cancellation well, and so
-failure conditions can easily lead to dangling promises and other
-unexpected behavior.
-
-Effection brings [structured concurrency][structured concurrency] to
-JavaScript so that you can guarantee that you don't leak any
-resources, and that cancellation is properly handled. It helps you
-build concurrent code that feels rock solid and behaves well under all
-failure conditions. It does this all while feeling like very normal
-JavaScript.
-
-## Upgrading `async/await`
-
-If you know how to use `async/await`, then you're already familiar with most of
-what you need to know to use Effection. The only difference is that instead
-of [async functions][], you use [generator functions][]. Generator functions are
-similar to async functions but they allow Effection to take greater control over
-the execution of your code.
-
-To switch from async functions to generator functions, you can replace:
-
-1. `await` with `yield*`
-1. `async function()` with `function*()`
-
-
-For example, using `async/await` we could write something like this:
-
-``` javascript {1,3-4} showLineNumbers
-
-export async function fetchWeekDay(timezone, signal) {
-  let response = await fetch(`http://worldclockapi.com/api/json/${timezone}/now`, { signal });
-  let time = await response.json();
-  return time.dayOfTheWeek;
-}
-```
-
-The same code using Effection looks like this:
+Let's write our first program using Effection.
 
 ``` javascript
 import { call, useAbortSignal } from "effection";
+
 export function *fetchWeekDay(timezone) {
   let signal = yield* useAbortSignal();
+
   let response = yield* call(fetch(`http://worldclockapi.com/api/json/${timezone}/now`, { signal }));
+
   let time = yield* call(response.json());
+
   return time.dayOfTheWeek;
 }
 ```
-
-## Your first Effection program
 
 To start using Effection, use the `main` function as an entry
 point. In this example, we'll use the previously defined
 `fetchWeekDay`.
 
-``` javascript
+```javascript
 import { main } from 'effection';
 import { fetchWeekDay } from './fetch-week-day';
 
 await main(function*() {
+
   let dayOfTheWeek = yield* fetchWeekDay('est');
+  
   console.log(`It is ${dayOfTheWeek}, my friends!`);
 });
 ```
@@ -88,7 +49,7 @@ operations out of existing ones. For example, we can add a time out of
 1000 milliseconds to our `fetchWeekDay` operation (or any operation
 for that matter) by wrapping it in a `withTimeout` operation.
 
-``` javascript
+```javascript
 import { main, call, race } from 'effection';
 import { fetchWeekDay } from './fetch-week-day';
 
@@ -118,14 +79,10 @@ controllers][abort controller]. We just got it all for free.
 
 This is just the tip of the iceberg when it comes to the seemingly complex
 things that Effection can make simple. To find out more, jump
-into the conversation [in our discord server][discord]. We're really
+into the conversation in our [Discord server][discord]. We're really
 excited about the things that Effection has enabled us to accomplish,
 and we'd love to hear your thoughts on it, and how you might see
 it working for you.
 
-[structured concurrency]: https://vorpus.org/blog/notes-on-structured-concurrency-or-go-statement-considered-harmful/
-[generator functions]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function*
-[generators]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Generator
-[async functions]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function
 [abort controller]: https://developer.mozilla.org/en-US/docs/Web/API/AbortController
 [discord]: https://discord.gg/Ug5nWH8

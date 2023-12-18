@@ -32,7 +32,7 @@ export function docsRoute(docs: Docs): JSXHandler {
 
     return (
       <AppHtml>
-        <section class="min-h-0 h-full mx-auto md:pt-8 w-full justify-items-normal md:grid md:grid-cols-[225px_auto] lg:grid-cols-[225px_auto_200px] md:gap-4">
+        <section class="min-h-0 h-full container mx-auto md:pt-8 w-full justify-items-normal md:grid md:grid-cols-[225px_auto] lg:grid-cols-[225px_auto_200px] md:gap-4">
           <p class="text-right mr-4 md:hidden">
             <label class="cursor-pointer" for="nav-toggle">
               <Navburger />
@@ -50,7 +50,7 @@ export function docsRoute(docs: Docs): JSXHandler {
             id="docbar"
             class="min-h-0 h-full w-full grid grid-cols-2 md:hidden"
           >
-            <nav class="bg-white px-2 border-r-2 h-full pt-20">
+            <nav class="bg-white px-2 border-r-2 h-full pt-2 md:pt-20 min-h-0 h-full overflow-auto pb-[8rem]">
               {topics.map((topic) => (
                 <hgroup class="mb-2">
                   <h3 class="text-lg">{topic.name}</h3>
@@ -82,8 +82,8 @@ export function docsRoute(docs: Docs): JSXHandler {
               class="h-full w-full bg-gray-500 opacity-50"
             />
           </aside>
-          <aside class="min-h-0 h-full overflow-auto">
-            <nav class="hidden md:block pl-4 pb-[8rem]">
+          <aside class="min-h-0 h-full overflow-auto hidden md:block">
+            <nav class="pl-4 pb-[8rem]">
               {topics.map((topic) => (
                 <hgroup class="mb-2">
                   <h3 class="text-lg">{topic.name}</h3>
@@ -112,7 +112,7 @@ export function docsRoute(docs: Docs): JSXHandler {
             </nav>
           </aside>
           <Transform fn={liftTOC}>
-            <article class="prose px-6 min-w-full min-h-0 overflow-auto pb-[6rem]">
+            <article class="prose max-w-full px-6 min-h-0 overflow-auto h-full pt-2 pb-[6rem]">
               <h1>{doc.title}</h1>
               <Rehype
                 plugins={[

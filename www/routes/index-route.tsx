@@ -135,9 +135,6 @@ export function indexRoute(): JSXHandler {
                   techniques to the knowledge you already have.
                 </p>
               </hgroup>
-              {/* No build steps. No esoteric APIs, and no new odd-ball
-              paradigms to learn; Effection leans into JavaScript's natural
-              constructs at every turn, so code always feels intuitive. */}
               <div class="mx-auto mt-8 max-w-2xl sm:mt-12 lg:mt-16 lg:max-w-4xl md:grid md:grid-cols-2 md:gap-y-4">
                 <Feature icon={"😎"} summary="Use familiar language constructs">
                   <>

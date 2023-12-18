@@ -80,25 +80,29 @@ export function* useAppHtml({
             <nav aria-label="Site Nav" class="text-sm">
               <ul class="flex items-center sm:gap-1.5 gap-3 md:gap-16">
                 <li>
-                  <a href="/docs/introduction">Guides</a>
+                  <a href="/docs/installation">Guides</a>
                 </li>
                 <li>
                   <a href="https://deno.land/x/effection/mod.ts">API</a>
                 </li>
                 <li>
                   <a class="flex flex-row" href="https://github.com/thefrontside/effection">
-                    <span class="hidden pr-1 md:inline">
+                    <span class="pr-1 md:inline-flex">
                       <IconGithHub />
                     </span>
-                    Github
+                    <span class="hidden md:inline-flex">
+                      Github
+                    </span>
                   </a>
                 </li>
                 <li>
                   <a class="flex flex-row" href="https://discord.gg/r6AvtnU">
-                    <span class="hidden pr-1 md:inline">
+                    <span class="pr-1 md:inline-flex">
                       <IconDiscord />
                     </span>
-                    Discord
+                    <span class="hidden md:inline-flex">
+                      Discord
+                    </span>
                   </a>
                 </li>
                 <li>

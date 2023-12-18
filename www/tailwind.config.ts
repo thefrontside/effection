@@ -28,6 +28,7 @@ function presetFrontside() {
           "blue-primary": "#14315D",
           "blue-secondary": "#26ABE8",
           "pink-secondary": "#F74D7B",
+          "typescript-blue": "#3178c6"
         },
         screens: {
           ...defaultTheme.screens,

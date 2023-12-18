@@ -4,14 +4,12 @@ import { useAppHtml } from "./app.html.tsx";
 import { Footer } from "../components/footer.tsx";
 import { IconTSLogo } from "../components/icons/typescript.tsx";
 import { IconCartouche } from "../components/icons/cartouche.tsx";
-import { useAbsoluteUrl } from "../plugins/rebase.ts";
 
 export function indexRoute(): JSXHandler {
   return function* () {
     let AppHtml = yield* useAppHtml({ title: `Effection` });
-    let announcementUrl = yield* useAbsoluteUrl(
-      "/blog/2023-12-18-announcing-effection-v3/"
-    );
+    let announcementUrl = "https://frontside.com/blog/2023-12-18-announcing-effection-v3/";
+
 
     return (
       <AppHtml>

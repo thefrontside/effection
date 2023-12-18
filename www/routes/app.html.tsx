@@ -87,18 +87,22 @@ export function* useAppHtml({
                 </li>
                 <li>
                   <a class="flex flex-row" href="https://github.com/thefrontside/effection">
-                    <span class="hidden pr-1 md:inline">
+                    <span class="pr-1 md:inline-flex">
                       <IconGithHub />
                     </span>
-                    Github
+                    <span class="hidden md:inline-flex">
+                      Github
+                    </span>
                   </a>
                 </li>
                 <li>
                   <a class="flex flex-row" href="https://discord.gg/r6AvtnU">
-                    <span class="hidden pr-1 md:inline">
+                    <span class="pr-1 md:inline-flex">
                       <IconDiscord />
                     </span>
-                    Discord
+                    <span class="hidden md:inline-flex">
+                      Discord
+                    </span>
                   </a>
                 </li>
                 <li>

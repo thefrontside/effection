@@ -30,7 +30,7 @@ export function indexRoute(): JSXHandler {
                 <p class="text-2xl py-4 mb-6">
                   Structured Concurrency and Effects for JavaScript
                 </p>
-                <div class="grid grid-cols-6 gap-y-2 gap-x-2">
+                <div class="grid grid-cols-6 gap-y-2 md:gap-y-4 gap-x-2">
                   <a
                     class="col-span-6 md:col-span-2 md:col-start-2 lg:col-span-1 lg:col-start-3 p-2 mr-2 text-md text-white w-full border-blue-900 border-solid border-2 rounded bg-blue-900 hover:bg-blue-800 transition-colors md:px-4"
                     href="/docs/installation"
@@ -44,7 +44,7 @@ export function indexRoute(): JSXHandler {
                     API Reference
                   </a>
                   <p class="col-span-6 text-center">
-                    <span class="inline-block bg-sky-100 text-blue-900 rounded py-2 px-4 w-fit border border-sky-200">
+                    <span class="inline-block bg-sky-100 text-blue-900 rounded py-1 px-4 w-fit border border-sky-200">
                       December 18, 2023 - We're proud to{" "}
                       <a
                         class="underline underline-offset-4"

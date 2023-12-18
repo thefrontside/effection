@@ -14,7 +14,6 @@ import rehypeSlug from "npm:rehype-slug@5.1.0";
 import rehypeAutolinkHeadings from "npm:rehype-autolink-headings@6.1.1";
 import rehypeAddClasses from "npm:rehype-add-classes@1.0.0";
 import rehypeToc from "npm:@jsdevtools/rehype-toc@3.0.2";
-import { Footer } from "../components/footer.tsx";
 
 export function docsRoute(docs: Docs): JSXHandler {
   return function* () {
@@ -32,7 +31,7 @@ export function docsRoute(docs: Docs): JSXHandler {
 
     return (
       <AppHtml>
-        <section class="mx-auto md:pt-8 w-full justify-items-normal md:grid md:grid-cols-[225px_auto] lg:grid-cols-[225px_auto_200px] md:gap-4">
+        <section class="min-h-0 h-full mx-auto w-full justify-items-normal md:grid md:grid-cols-[225px_auto] lg:grid-cols-[225px_auto_200px] md:gap-4">
           <p class="text-right mr-4 md:hidden">
             <label class="cursor-pointer" for="nav-toggle">
               <Navburger />
@@ -48,9 +47,9 @@ export function docsRoute(docs: Docs): JSXHandler {
           <input class="hidden" id="nav-toggle" type="checkbox" checked />
           <aside
             id="docbar"
-            class="fixed top-0 h-full w-full grid grid-cols-2 md:hidden"
+            class="min-h-0 top-0 h-full w-full grid grid-cols-2 md:hidden py-2"
           >
-            <nav class="bg-white px-2 border-r-2 h-full pt-20">
+            <nav class="bg-white px-2 border-r-2 h-full pt-2 md:pt-20 min-h-0 h-full overflow-auto">
               {topics.map((topic) => (
                 <hgroup class="mb-2">
                   <h3 class="text-lg">{topic.name}</h3>
@@ -82,8 +81,8 @@ export function docsRoute(docs: Docs): JSXHandler {
               class="h-full w-full bg-gray-500 opacity-50"
             />
           </aside>
-          <aside>
-            <nav class="hidden md:block fixed pl-4">
+          <aside class="min-h-0 h-full overflow-auto hidden md:block py-2">
+            <nav class="pl-4">
               {topics.map((topic) => (
                 <hgroup class="mb-2">
                   <h3 class="text-lg">{topic.name}</h3>
@@ -93,14 +92,14 @@ export function docsRoute(docs: Docs): JSXHandler {
                         {doc.id !== item.id
                           ? (
                             <a
-                              class="rounded px-4 block w-full h-full py-2 hover:bg-gray-100"
+                              class="rounded px-4 block w-full py-2 hover:bg-gray-100"
                               href={`/docs/${item.id}`}
                             >
                               {item.title}
                             </a>
                           )
                           : (
-                            <a class="rounded px-4 block w-full h-full py-2 bg-gray-100 cursor-default">
+                            <a class="rounded px-4 block w-full py-2 bg-gray-100 cursor-default">
                               {item.title}
                             </a>
                           )}
@@ -112,7 +111,7 @@ export function docsRoute(docs: Docs): JSXHandler {
             </nav>
           </aside>
           <Transform fn={liftTOC}>
-            <article class="prose px-6 min-w-full">
+            <article class="prose max-w-full px-6 min-h-0 overflow-auto h-full py-2">
               <h1>{doc.title}</h1>
               <Rehype
                 plugins={[
@@ -130,7 +129,7 @@ export function docsRoute(docs: Docs): JSXHandler {
                   [rehypeToc, {
                     cssClasses: {
                       toc:
-                        "hidden text-sm font-light tracking-wide leading-loose lg:block relative",
+                        "hidden text-sm font-light tracking-wide leading-loose lg:block relative pt-2",
                       list: "fixed w-[200px]",
                       link: "hover:underline hover:underline-offset-2"
                     },
@@ -142,9 +141,6 @@ export function docsRoute(docs: Docs): JSXHandler {
               <NextPrevLinks doc={doc} />
             </article>
           </Transform>
-          <div class="col-start-2 col-span-2">
-            <Footer />
-          </div>
         </section>
       </AppHtml>
     );

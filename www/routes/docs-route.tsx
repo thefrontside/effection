@@ -6,7 +6,6 @@ import { useAppHtml } from "./app.html.tsx";
 
 import { respondNotFound, useParams } from "revolution";
 
-import { Navburger } from "../components/navburger.tsx";
 import { Rehype } from "../components/rehype.tsx";
 import { Transform } from "../components/transform.tsx";
 
@@ -32,18 +31,6 @@ export function docsRoute(docs: Docs): JSXHandler {
     return (
       <AppHtml>
         <section class="min-h-0 mx-auto w-full justify-items-normal md:grid md:grid-cols-[225px_auto] lg:grid-cols-[225px_auto_200px] md:gap-4">
-          <p class="text-right mr-4 md:hidden">
-            <label class="cursor-pointer" for="nav-toggle">
-              <Navburger />
-            </label>
-          </p>
-          <style media="all">
-            {`
-        #nav-toggle:checked ~ aside#docbar {
-          display: none;
-        }
-            `}
-          </style>
           <input class="hidden" id="nav-toggle" type="checkbox" checked />
           <aside
             id="docbar"

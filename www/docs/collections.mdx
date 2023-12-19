@@ -336,10 +336,10 @@ function* logAndCancel(button) {
 
   yield* spawn(function*() {
     for (let click of yield* each(clicks)) {
-    click.preventDefault();
-    yield* each.next();
-  }
-})
+      click.preventDefault();
+      yield* each.next();
+    }
+  });
 }
 ```
 
@@ -363,7 +363,7 @@ export function clicksOn(button) {
     try {
       button.addEventListener("click", clicks.send);
 
-      let subscription = yield* clicks.subscribe();
+      let subscription = yield* clicks;
       yield* provide(subscription);
 
     } finally {
@@ -375,6 +375,11 @@ export function clicksOn(button) {
 
 We have now encapsulated the setup and teardown of our listener in a single
 place, but the actual consuming of the stream of clicks can happen anywhere.
+
+In fact, Effection provides a handy way to create a stream of events out of any
+[`EventTarget`][event-target] using the built in [`on()`][on] function, and this is
+precisely the technique that it uses. You can read more about using event
+targets in the next section.
 
 [rx]: https://rxjs.dev
 [introduction]: ./introduction
@@ -391,3 +396,5 @@ place, but the actual consuming of the stream of clicks can happen anywhere.
 [fp-ts.pipe]: https://gcanti.github.io/fp-ts/modules/function.ts.html#pipe
 [lodash.flow]: https://lodash.com/docs/4.17.15#flow
 [close-event]: https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent
+[event-target]: https://developer.mozilla.org/en-US/docs/Web/API/EventTarget
+[on]: https://deno.land/x/effection/mod.ts?s=on

@@ -5,7 +5,7 @@ import { Navburger } from "./navburger.tsx";
 
 export function Header() {
   return (
-    <header class="header w-full top-0 p-6 py-8 sticky tracking-wide z-10 max-w-screen-2xl m-auto">
+    <header class="header w-full top-0 p-6 py-8 sticky tracking-wide z-10 max-w-screen-2xl mx-auto">
       <div class="flex items-center justify-between">
         <div class="flex">
           <a

@@ -68,7 +68,7 @@ export function docsRoute(docs: Docs): JSXHandler {
               class="h-full w-full bg-gray-500 opacity-50"
             />
           </aside>
-          <aside class="min-h-0 h-full overflow-auto hidden md:block pt-2 top-24 sticky h-screen">
+          <aside class="min-h-0 overflow-auto hidden md:block pt-2 top-24 sticky h-fit">
             <nav class="pl-4">
               {topics.map((topic) => (
                 <hgroup class="mb-2">

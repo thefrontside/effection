@@ -61,9 +61,9 @@ export function* useAppHtml({
           <link rel="stylesheet" href="/assets/prism-atom-one-dark.css" />
         </noscript>
       </head>
-      <body>
+      <body class="flex flex-col h-full">
         <Header />
-        <main class="container max-w-screen-2xl m-auto">{children}</main>
+        <main class="container max-w-screen-2xl mx-auto mb-auto">{children}</main>
         <Footer />
       </body>
     </html>

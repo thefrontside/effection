@@ -49,14 +49,14 @@ export type Callable<T> =
  * or an async function:
  *
  * @example
- * '''ts
+ * ```ts
  * async function* googleSlowly() {
  *   return yield* call(async function() {
  *     await new Promise(resolve => setTimeout(resolve, 2000));
  *     return await fetch("https://google.com");
  *   });
  * }
- * ``'
+ * ```
  *
  * It can be used to run an operation in a separate scope to ensure that any
  * resources allocated will be cleaned up:

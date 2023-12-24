@@ -191,7 +191,7 @@ await main(function*() {
 
   yield* sleep(1000);
 
-  let { value: secondValue } = yield subscription.next();
+  let { value: secondValue } = yield* subscription.next();
   console.log(secondValue); // logs 'world'
 });
 ```

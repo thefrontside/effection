@@ -249,7 +249,7 @@ await main(function*() {
 
   signal.addEventListener('abort', () => console.log('done!'));
 
-  yield sleep(5000);
+  yield* sleep(5000);
   // prints 'done!'
 });
 ```

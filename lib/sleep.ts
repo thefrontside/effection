@@ -9,7 +9,7 @@ import { action, suspend } from "./instructions.ts";
  * import { main, sleep } from 'effection';
  *
  * await main(function*() {
- *   yield sleep(2000);
+ *   yield* sleep(2000);
  *   console.log("Hello lazy world!");
  * });
  * ```

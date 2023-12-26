@@ -1,0 +1,29 @@
+On this page you'll find a collection of examples of using Effection for different use cases. If you'd like to see an
+example that's not on this page, please post a comment in [Effection Examples issue][examples-issue].
+
+## React
+
+<dl>
+  <dt class="font-bold text-lg">Loading spinner</dt>
+  <dd>
+    <>
+      <p class="mt-0">Example of a detailed loading spinner implemented as a hook. It gives users feedback when the request takes too long to load. It automatically retries up to 3 times if the request fails. Project uses TypeScript, React and Vite.</p>
+      - [`App.tsx`][loader-app-tsx] - shows all of the scenarios executed by the spinner
+      - [`useLoader hook`][loader-useloader-hook] - executes the operation
+      - [`createLoader`][loader-create-loader] - the main operation that executes the entire loader
+      - [`createSpinner`][loader-create-spinner] - operation responsible for presenting the loading spinner
+      - [`LoadingSpinner component`][loader-loading-spinner-component] - the component that's responsible for showing all of the spinners
+    </>
+  </dd>
+  <p>
+    <a href="https://stackblitz.com/~/github.com/taras/effection-react-loadingspinner" class="border rounded-full p-2 underline-none no-underline hover:bg-slate-100">⚡️ Stackblitz</a>
+    <a href="https://github.com/taras/effection-react-loadingspinner" class="ml-2 border rounded-full p-2 underline-none no-underline hover:bg-slate-100">GitHub</a>
+  </p>
+</dl>
+---
+
+[examples-issue]: https://github.com/thefrontside/effection/issues/869
+[loader-app-tsx]: https://github.com/taras/effection-react-loadingspinner/blob/main/src/App.tsx#L19-L100
+[loader-useloader-hook]: https://github.com/taras/effection-react-loadingspinner/blob/main/src/hooks/useLoader.tsx#L36
+[loader-create-loader]: https://github.com/taras/effection-react-loadingspinner/blob/main/src/operations/createLoader.tsx
+[loader-create-spinner]: https://github.com/taras/effection-react-loadingspinner/blob/main/src/operations/createSpinner.tsx

@@ -4,12 +4,13 @@ import {
   asyncResource,
   describe,
   expect,
+  expectType,
   it,
   syncReject,
   syncResolve,
 } from "./suite.ts";
 
-import { all, run, sleep } from "../mod.ts";
+import { all, call, type Operation, run, sleep } from "../mod.ts";
 
 describe("all()", () => {
   it("resolves when the given list is empty", async () => {
@@ -91,5 +92,16 @@ describe("all()", () => {
       yield* sleep(40);
       expect(fooStatus.status).toEqual("pending");
     });
+  });
+
+  it("has a type signature equivalent to Promise.all()", () => {
+    let resolve = <T>(value: T) => call(() => value);
+
+    expectType<Operation<[string, number, string]>>(
+      all([resolve("hello"), resolve(42), resolve("world")]),
+    );
+    expectType<Operation<[string, number]>>(
+      all([resolve("hello"), resolve(42)]),
+    );
   });
 });

@@ -78,9 +78,11 @@ export async function main(
             hardexit = (status) => Deno.exit(status);
             try {
               Deno.addSignalListener("SIGINT", interrupt);
+              Deno.addSignalListener("SIGTERM", interrupt);
               yield* body(Deno.args.slice());
             } finally {
               Deno.removeSignalListener("SIGINT", interrupt);
+              Deno.removeSignalListener("SIGTERM", interrupt);
             }
           },
           *node() {
@@ -90,10 +92,14 @@ export async function main(
               //@ts-expect-error type-checked by Deno, run on Node
               process.on("SIGINT", interrupt);
               //@ts-expect-error type-checked by Deno, run on Node
+              process.on("SIGTERM", interrupt);
+              //@ts-expect-error type-checked by Deno, run on Node
               yield* body(global.process.argv.slice(2));
             } finally {
               //@ts-expect-error this runs on Node
               process.off("SIGINT", interrupt);
+              //@ts-expect-error this runs on Node
+              process.off("SIGTERM", interrupt);
             }
           },
           *browser() {

@@ -21,6 +21,25 @@ describe("main", () => {
     });
   });
 
+  it("gracefully shuts down on SIGTERM", async () => {
+    await run(function* () {
+      let daemon = yield* useCommand("deno", {
+        stdout: "piped",
+        args: ["run", "test/main/ok.daemon.ts"],
+      });
+      let stdout = yield* buffer(daemon.stdout);
+      yield* detect(stdout, "started");
+
+      daemon.kill("SIGTERM");
+
+      let status = yield* daemon.status;
+
+      expect(status.code).toBe(143);
+
+      yield* detect(stdout, "gracefully stopped");
+    });
+  });
+
   it("exits gracefully on explicit exit()", async () => {
     await run(function* () {
       let cmd = yield* useCommand("deno", {

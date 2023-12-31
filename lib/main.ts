@@ -72,15 +72,21 @@ export async function main(
       let interval = setInterval(() => {}, Math.pow(2, 30));
 
       try {
-        let interrupt = () => resolve({ status: 130, signal: "SIGINT" });
+        let interrupt = {
+          SIGINT: () => resolve({ status: 130, signal: "SIGINT" }),
+          SIGTERM: () => resolve({ status: 143, signal: "SIGTERM" }),
+        };
+
         yield* withHost({
           *deno() {
             hardexit = (status) => Deno.exit(status);
             try {
-              Deno.addSignalListener("SIGINT", interrupt);
+              Deno.addSignalListener("SIGINT", interrupt.SIGINT);
+              Deno.addSignalListener("SIGTERM", interrupt.SIGTERM);
               yield* body(Deno.args.slice());
             } finally {
-              Deno.removeSignalListener("SIGINT", interrupt);
+              Deno.removeSignalListener("SIGINT", interrupt.SIGINT);
+              Deno.removeSignalListener("SIGTERM", interrupt.SIGTERM);
             }
           },
           *node() {
@@ -88,20 +94,24 @@ export async function main(
             hardexit = (status) => global.process.exit(status);
             try {
               //@ts-expect-error type-checked by Deno, run on Node
-              process.on("SIGINT", interrupt);
+              process.on("SIGINT", interrupt.SIGINT);
+              //@ts-expect-error type-checked by Deno, run on Node
+              process.on("SIGTERM", interrupt.SIGTERM);
               //@ts-expect-error type-checked by Deno, run on Node
               yield* body(global.process.argv.slice(2));
             } finally {
               //@ts-expect-error this runs on Node
-              process.off("SIGINT", interrupt);
+              process.off("SIGINT", interrupt.SIGINT);
+              //@ts-expect-error this runs on Node
+              process.off("SIGTERM", interrupt.SIGINT);
             }
           },
           *browser() {
             try {
-              self.addEventListener("unload", interrupt);
+              self.addEventListener("unload", interrupt.SIGINT);
               yield* body([]);
             } finally {
-              self.removeEventListener("unload", interrupt);
+              self.removeEventListener("unload", interrupt.SIGINT);
             }
           },
         });

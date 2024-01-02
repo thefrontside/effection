@@ -12,7 +12,7 @@ import { pause } from "./pause.ts";
  * APIs that accept `Callable` values allow end developers to pass simple
  * functions without necessarily needing to know anything about Operations.
  *
- * @example
+ * ```javascript
  * function hello(to: Callable<string>): Operation<string> {
  *   return function*() {
  *     return `hello ${yield* call(to)}`;
@@ -22,6 +22,7 @@ import { pause } from "./pause.ts";
  * await run(() => hello(() => "world!")); // => "hello world!"
  * await run(() => hello(async () => "world!")); // => "hello world!"
  * await run(() => hello(function*() { return "world!" })); "hello world!";
+ * ```
  */
 export type Callable<T> =
   | Operation<T>
@@ -42,14 +43,14 @@ export type Callable<T> =
  * It can be used to treat a promise as an operation:
  *
  * @example
- * ```js
+ * ```javascript
  * let response = yield* call(fetch('https://google.com'));
  * ```
  *
  * or an async function:
  *
  * @example
- * ```ts
+ * ```typescript
  * async function* googleSlowly() {
  *   return yield* call(async function() {
  *     await new Promise(resolve => setTimeout(resolve, 2000));
@@ -62,7 +63,7 @@ export type Callable<T> =
  * resources allocated will be cleaned up:
  *
  * @example
- * ```js
+ * ```javascript
  * yield* call(function*() {
  *   let socket = yield* useSocket();
  *   return yield* socket.read();
@@ -72,7 +73,7 @@ export type Callable<T> =
  * It can be used to run a plain function:
  *
  * @example
- * ```js
+ * ```javascript
  * yield* call(() => "a string");
  * ```
  *
@@ -80,7 +81,7 @@ export type Callable<T> =
  * establish {@link  * establish error boundaries https://frontside.com/effection/docs/errors | error boundaries}.
  *
  * @example
- * ```js
+ * ```javascript
  * function* myop() {
  *   let task = yield* spawn(function*() {
  *     throw new Error("boom!");

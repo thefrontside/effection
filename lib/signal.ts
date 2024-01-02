@@ -12,7 +12,7 @@ import { createContext } from "./context.ts";
  * Signals are particularly suited to be installed as event listeners.
  *
  * @example
- * ```ts
+ * ```typescript
  * import { createSignal, each } from "effection";
  *
  * export function* logClicks(function*(button) {

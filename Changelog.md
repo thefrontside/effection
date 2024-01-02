@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.0.1
+
+- fix typing of `all()` function
+  https://github.com/thefrontside/effection/pull/873
+- exit from `main()` on SIGTERM as well as SIGINT
+  https://github.com/thefrontside/effection/pull/874
+- various documentation fixes https://github.com/thefrontside/effection/pull/875
+
 ## 3.0.0
 
 - remove stream helpers `first()`, `pipe()`, `map()`, and `filter()`

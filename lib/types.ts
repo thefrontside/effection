@@ -13,7 +13,7 @@ import type { Computation } from "./deps.ts";
  * to other operations:
  *
  * @example
- * ```js
+ * ```javascript
  * import { sleep } from "effection";
 
  * function* slow5(seconds) {
@@ -26,7 +26,7 @@ import type { Computation } from "./deps.ts";
  * operation is the same as above:
  *
  * @example
- * ```js
+ * ```javascript
  * import { sleep } from "effection";
  *
  * const slow5 = (seconds) => ({

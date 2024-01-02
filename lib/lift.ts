@@ -4,7 +4,7 @@ import { type Operation } from "./types.ts";
  * Convert a simple function into an {@link Operation}
  *
  * @example
- * ```js
+ * ```javascript
  * let log = lift((message) => console.log(message));
  *
  * export function* run() {

@@ -24,7 +24,7 @@ export function* useScope(): Operation<Scope> {
  * the creator of the new scope to destroy it when it is no longer needed.
  *
  * @example
- * ```js
+ * ```javascript
  * let [scope, destroy] = createScope();
  * let task = scope.run(function*() {
  *   //do some long running work

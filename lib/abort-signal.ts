@@ -21,7 +21,7 @@ import { resource } from "./instructions.ts";
  * lifetime of the HTTP request to the lifetime of the current task.
  *
  * @example
- * ```js
+ * ```javascript
  * function* request() {
  *   let signal = yield* useAbortSignal();
  *   return yield* fetch('/some/url', { signal });

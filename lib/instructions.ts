@@ -218,7 +218,7 @@ export function spawn<T>(operation: () => Operation<T>): Operation<Task<T>> {
  * scope.
  *
  * @example
- * ```js
+ * ```javascript
  * function useWebSocket(url) {
  *   return resource(function*(provide) {
  *     let socket = new WebSocket(url);

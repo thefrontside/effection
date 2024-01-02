@@ -10,7 +10,7 @@ export * from "./run/scope.ts";
  * whole program using Effection, you should prefer {@link main}.
  *
  * @example
- * ```
+ * ```javascript
  * import { run, useAbortSignal } from 'effection';
  *
  * async function fetchExample() {

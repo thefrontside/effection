@@ -6,7 +6,7 @@ import { resource } from "./instructions.ts";
  * shuts down. This is equivalent to running the function or operation
  * in a `finally {}` block, but it can help you avoid rightward drift.
  *
- * @example <caption>using a function</caption>
+ * @example
  *
  * ```javascript
  * import { main, ensure } from 'effection';
@@ -21,7 +21,7 @@ import { resource } from "./instructions.ts";
  * Note that you should wrap the function body in braces, so the function
  * returns `undefined`.
  *
- * @example <caption>using operation</caption>
+ * @example
  *
  * ```javascript
  * import { main, ensure, once } from 'effection';

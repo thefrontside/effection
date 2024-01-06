@@ -1,3 +1,4 @@
+import { shift } from "./deps.ts";
 import { type Operation } from "./types.ts";
 
 /**
@@ -16,20 +17,17 @@ import { type Operation } from "./types.ts";
  * @returns a function returning an operation that invokes `fn` when evaluated
  */
 export function lift<TArgs extends unknown[], TReturn>(
-  fn: Fn<TArgs, TReturn>,
-): LiftedFn<TArgs, TReturn> {
+  fn: (...args: TArgs) => TReturn,
+): (...args: TArgs) => Operation<TReturn> {
   return (...args: TArgs) => {
     return ({
-      [Symbol.iterator]() {
-        let value = fn(...args);
-        return { next: () => ({ done: true, value }) };
+      *[Symbol.iterator]() {
+        return yield () => {
+          return shift(function* (k) {
+            k.tail({ ok: true, value: fn(...args) });
+          });
+        };
       },
     });
   };
 }
-
-type Fn<TArgs extends unknown[], TReturn> = (...args: TArgs) => TReturn;
-
-type LiftedFn<TArgs extends unknown[], TReturn> = (
-  ...args: TArgs
-) => Operation<TReturn>;

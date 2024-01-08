@@ -1,4 +1,4 @@
-import { Task, run, sleep } from "../mod.ts";
+import { run, sleep, Task } from "../mod.ts";
 import { afterEach, beforeEach, describe, expect, it } from "../test/suite.ts";
 import { CustomError, retryBackoffExample } from "./retry-backoff.ts";
 /**
@@ -13,9 +13,9 @@ describe("retry-backoff-example", () => {
   it("fails for unknown errors", () => {
     expect(run(function* () {
       yield* retryBackoffExample(function* () {
-        throw new Error('RandomError');
+        throw new Error("RandomError");
       });
-    })).rejects.toMatch(/RandomError/)
+    })).rejects.toMatch(/RandomError/);
   });
 
   describe("retries", () => {
@@ -25,18 +25,18 @@ describe("retry-backoff-example", () => {
       beforeEach(async () => {
         retries = -1;
         task = run(function* () {
-          yield* retryBackoffExample(function*() {
+          yield* retryBackoffExample(function* () {
             retries++;
-            throw new CustomError('LockTimeout');
+            throw new CustomError("LockTimeout");
           });
         });
         try {
           await task;
         } catch {}
       });
-      it("rejects to a known error", async() => {
+      it("rejects to a known error", async () => {
         await expect(task).rejects.toEqual({
-          _tag: 'LockTimeout'
+          _tag: "LockTimeout",
         });
       });
       it("5 times", () => {
@@ -79,18 +79,18 @@ describe("retry-backoff-example", () => {
               yield* sleep(200);
             }
             retry++;
-            throw new CustomError('ConflictDetected');
+            throw new CustomError("ConflictDetected");
           }, { maxDelay: 100 });
         });
         try {
           await task;
-        } catch (e) { 
-          console.log(e)
+        } catch (e) {
+          console.log(e);
         }
       });
       it("throws an error", async () => {
-        await expect(task).rejects.toMatch(/Timeout/)
-      })
-    })
-  })
-})
+        await expect(task).rejects.toMatch(/Timeout/);
+      });
+    });
+  });
+});

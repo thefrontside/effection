@@ -1,5 +1,5 @@
-import { Task, run } from "../mod.ts";
-import { beforeEach, describe, expect, it } from "../test/suite.ts";
+import { Task, run, sleep } from "../mod.ts";
+import { afterEach, beforeEach, describe, expect, it } from "../test/suite.ts";
 import { CustomError, retryBackoffExample } from "./retry-backoff.ts";
 /**
  * Requirements:
@@ -9,7 +9,7 @@ import { CustomError, retryBackoffExample } from "./retry-backoff.ts";
  *  * retry a maximum of 5 times
  * Source: https://discord.com/channels/795981131316985866/1125094089281511474/1189299794145988748
  */
-describe("retry-backoff", () => {
+describe("retry-backoff-example", () => {
   it("fails for unknown errors", () => {
     expect(run(function* () {
       yield* retryBackoffExample(function* () {
@@ -22,17 +22,20 @@ describe("retry-backoff", () => {
     describe("known errors", () => {
       let task: Task<void>;
       let retries: number;
-      beforeEach(() => {
-        retries = 0;
+      beforeEach(async () => {
+        retries = -1;
         task = run(function* () {
           yield* retryBackoffExample(function*() {
             retries++;
             throw new CustomError('LockTimeout');
           });
         });
+        try {
+          await task;
+        } catch {}
       });
-      it("rejects to a known error", () => {
-        expect(task).rejects.toEqual({
+      it("rejects to a known error", async() => {
+        await expect(task).rejects.toEqual({
           _tag: 'LockTimeout'
         });
       });
@@ -40,5 +43,54 @@ describe("retry-backoff", () => {
         expect(retries).toBe(5);
       });
     });
+    // describe("delay", () => {
+    //   let task: Task<void>;
+    //   let backoffs: number[];
+    //   let attempt: number;
+    //   let start: number;
+    //   beforeEach(async () => {
+    //     attempt = 0;
+    //     backoffs = [];
+    //     task = run(function* () {
+    //       start = performance.now();
+    //       yield* retryBackoffExample(function* () {
+    //         if (attempt > 0) {
+    //           backoffs.push(performance.now() - start);
+    //         }
+    //         attempt++;
+    //         throw new CustomError('LockTimeout');
+    //       });
+    //     });
+    //     try {
+    //       await task;
+    //     } catch { }
+    //   });
+    //   it("doubles backoffs at every attempt", () => {
+    //     expect(backoffs).toEqual([5, 10, 20, 40, 80])
+    //   });
+    // });
+    describe("timeout", () => {
+      let task: Task<void>;
+      beforeEach(async () => {
+        let retry = 0;
+        task = run(function* () {
+          yield* retryBackoffExample(function* () {
+            if (retry > 0) {
+              yield* sleep(200);
+            }
+            retry++;
+            throw new CustomError('ConflictDetected');
+          }, { maxDelay: 100 });
+        });
+        try {
+          await task;
+        } catch (e) { 
+          console.log(e)
+        }
+      });
+      it("throws an error", async () => {
+        await expect(task).rejects.toMatch(/Timeout/)
+      })
+    })
   })
 })

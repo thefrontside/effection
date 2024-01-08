@@ -20,13 +20,26 @@ export function* retryBackoffExample<T>(
   { attempts = 5, startDelay = 5, maxDelay = 200 } = {},
 ): Operation<T | undefined> {
   try {
+    // This is the initial operation, 
+    // if it succeeds then the operation will be complete
     return yield* op();
   } catch (e) {
+    // if we encounter error that we're not expecting then throw
+    // and do not proceed any further
     if (!isKnownError(e)) {
       throw e;
     }
   }
   
+  // we're here because we encountered a known issue,
+  // we want to run the retry logic attempting up to 5 attempts
+  // pause between each attempt and double the delay with each attempt
+  // trigger a timeout if we reach maxDelay
+  // we do this by setting up a race between retry logic and
+  // the timeout. If retry logic succeeds, timeout will be halted
+  // automatically. If timeout reaches the throw, it'll interrupt the
+  // retry logic automatically. 
+
   let lastError: Error;
   function* retry() {
     let delay = startDelay;

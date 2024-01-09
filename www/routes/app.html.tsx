@@ -8,10 +8,12 @@ import { Footer } from "../components/footer.tsx";
 
 export interface Options {
   title: string;
+  isDocsRoute?: boolean;
 }
 
 export function* useAppHtml({
   title,
+  isDocsRoute = false,
 }: Options): Operation<({ children }: { children: JSXChild }) => JSX.Element> {
   let homeURL = yield* useAbsoluteUrl("/");
   let twitterImageURL = yield* useAbsoluteUrl(
@@ -62,7 +64,7 @@ export function* useAppHtml({
         </noscript>
       </head>
       <body class="flex flex-col h-full">
-        <Header />
+        <Header showGuides={!isDocsRoute} showNav={isDocsRoute} />
         <main class="container max-w-screen-2xl mx-auto mb-auto">{children}</main>
         <Footer />
       </body>

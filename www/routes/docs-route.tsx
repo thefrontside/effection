@@ -26,7 +26,7 @@ export function docsRoute(docs: Docs): JSXHandler {
 
     let { topics } = doc;
 
-    let AppHtml = yield* useAppHtml({ title: `${doc.title} | Effection` });
+    let AppHtml = yield* useAppHtml({ isDocsRoute: true, title: `${doc.title} | Effection` });
 
     return (
       <AppHtml>

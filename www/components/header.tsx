@@ -3,7 +3,12 @@ import { IconGithub } from "./icons/github.tsx";
 import { IconDiscord } from "./icons/discord.tsx";
 import { Navburger } from "./navburger.tsx";
 
-export function Header() {
+interface Options {
+  showNav?: boolean;
+  showGuides?: boolean;
+}
+
+export function Header({ showGuides, showNav }: Options) {
   return (
     <header class="header w-full top-0 p-6 py-8 sticky tracking-wide z-10 max-w-screen-2xl mx-auto">
       <div class="flex items-center justify-between">
@@ -20,9 +25,11 @@ export function Header() {
         </div>
         <nav aria-label="Site Nav" class="text-sm font-bold">
           <ul class="flex items-center sm:gap-1.5 gap-3 md:gap-16">
-            <li>
-              <a href="/docs/installation">Guides</a>
-            </li>
+            {showGuides ? (
+              <li>
+                <a href="/docs/installation">Guides</a>
+              </li>
+            ) : <></>}
             <li>
               <a href="https://deno.land/x/effection/mod.ts">API</a>
             </li>
@@ -45,20 +52,22 @@ export function Header() {
             <li class="sm:hidden shrink-0">
               <ProjectSelect />
             </li>
-            <li>
-              <p class="flex flex-row md:hidden">
-                <label class="cursor-pointer" for="nav-toggle">
-                  <Navburger />
-                </label>
-              </p>
-              <style media="all">
-                {`
+            {showNav ? (
+              <li>
+                <p class="flex flex-row md:hidden">
+                  <label class="cursor-pointer" for="nav-toggle">
+                    <Navburger />
+                  </label>
+                </p>
+                <style media="all">
+                  {`
             #nav-toggle:checked ~ aside#docbar {
               display: none;
             }
                 `}
-              </style>
-            </li>
+                </style>
+              </li>
+            ) : <></>}
           </ul>
         </nav>
       </div>

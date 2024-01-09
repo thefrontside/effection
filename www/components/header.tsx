@@ -33,7 +33,7 @@ export function Header() {
                   <IconGithHub />
                 </span>
                 <span class="hidden md:inline-flex">
-                  Github
+                  GitHub
                 </span>
               </a>
             </li>

@@ -3,7 +3,7 @@ Let's write our first program using Effection.
 ``` javascript
 import { call, useAbortSignal } from "effection";
 
-export function *fetchWeekDay(timezone) {
+export function* fetchWeekDay(timezone) {
   let signal = yield* useAbortSignal();
 
   let response = yield* call(fetch(`http://worldclockapi.com/api/json/${timezone}/now`, { signal }));

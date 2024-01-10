@@ -303,3 +303,12 @@ export interface Frame<T = unknown> extends Computation<FrameResult<T>> {
   crash(error: Error): Computation<Result<void>>;
   destroy(): Computation<Result<void>>;
 }
+
+/**
+ * Unwrap the type of an `Operation`.
+ *
+ * Yielded<Operation<T>> === T
+ */
+export type Yielded<T extends Operation<unknown>> = T extends
+  Operation<infer TYield> ? TYield
+  : never;

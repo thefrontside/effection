@@ -1,4 +1,4 @@
-import type { Operation } from "./types.ts";
+import type { Operation, Yielded } from "./types.ts";
 import { action, spawn } from "./instructions.ts";
 
 /**
@@ -21,16 +21,17 @@ import { action, spawn } from "./instructions.ts";
  * });
  * ```
  *
- * @typeParam T the type of the operations that race against each other
  * @param operations a list of operations to race against each other
  * @returns the value of the fastest operation
  */
-export function race<T>(operations: Operation<T>[]): Operation<T> {
-  return action<T>(function* (resolve, reject) {
+export function race<T extends Operation<unknown>>(
+  operations: readonly T[],
+): Operation<Yielded<T>> {
+  return action<Yielded<T>>(function* (resolve, reject) {
     for (let operation of operations) {
       yield* spawn(function* () {
         try {
-          resolve(yield* operation);
+          resolve((yield* operation) as Yielded<T>);
         } catch (error) {
           reject(error);
         }

@@ -3,12 +3,13 @@ import {
   asyncResolve,
   describe,
   expect,
+  expectType,
   it,
   syncReject,
   syncResolve,
 } from "./suite.ts";
 
-import { race, run } from "../mod.ts";
+import { call, type Operation, race, run } from "../mod.ts";
 
 describe("race()", () => {
   it("resolves when one of the given operations resolves asynchronously first", async () => {
@@ -57,5 +58,19 @@ describe("race()", () => {
     );
 
     await expect(result).rejects.toHaveProperty("message", "boom: foo");
+  });
+
+  it("has a type signature equivalent to Promise.race()", () => {
+    let resolve = <T>(value: T) => call(() => value);
+
+    expectType<Operation<string | number>>(
+      race([resolve("hello"), resolve(42), resolve("world")]),
+    );
+    expectType<Operation<string | number>>(
+      race([resolve("hello"), resolve(42)]),
+    );
+    expectType<Operation<string | number | boolean>>(
+      race([resolve("hello"), resolve(42), resolve("world"), resolve(true)]),
+    );
   });
 });

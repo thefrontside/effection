@@ -1,4 +1,4 @@
-import type { Operation, Task } from "./types.ts";
+import type { Operation, Task, Yielded } from "./types.ts";
 import { spawn } from "./instructions.ts";
 import { call } from "./call.ts";
 
@@ -52,12 +52,3 @@ export function all<T extends readonly Operation<unknown>[] | []>(
 type All<T extends readonly Operation<unknown>[] | []> = {
   -readonly [P in keyof T]: Yielded<T[P]>;
 };
-
-/**
- * Unwrap the type of an `Operation`.
- *
- * Yielded<Operation<T>> === T
- */
-type Yielded<T extends Operation<unknown>> = T extends Operation<infer TYield>
-  ? TYield
-  : never;

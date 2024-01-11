@@ -267,6 +267,15 @@ export interface Context<T> extends Operation<T> {
   get(): Operation<T | undefined>;
 }
 
+/**
+ * Unwrap the type of an `Operation`.
+ * Analogous to the built in [`Awaited`](https://www.typescriptlang.org/docs/handbook/utility-types.html#awaitedtype) type.
+ * Yielded<Operation<T>> === T
+ */
+export type Yielded<T extends Operation<unknown>> = T extends
+  Operation<infer TYield> ? TYield
+  : never;
+
 /* low-level interface Which you probably will not need */
 
 /**
@@ -303,12 +312,3 @@ export interface Frame<T = unknown> extends Computation<FrameResult<T>> {
   crash(error: Error): Computation<Result<void>>;
   destroy(): Computation<Result<void>>;
 }
-
-/**
- * Unwrap the type of an `Operation`.
- *
- * Yielded<Operation<T>> === T
- */
-export type Yielded<T extends Operation<unknown>> = T extends
-  Operation<infer TYield> ? TYield
-  : never;

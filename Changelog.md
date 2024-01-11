@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.0.2
+
+- fix typing of `race()` https://github.com/thefrontside/effection/pull/884
+- make `lift()` function safe within operations
+  https://github.com/thefrontside/effection/pull/879
+
 ## 3.0.1
 
 - fix typing of `all()` function

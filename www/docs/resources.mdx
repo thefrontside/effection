@@ -34,7 +34,7 @@ automatically. Our first attempt to do so might look something like this:
 import { once, suspend } from 'effection';
 import { Socket } from 'net';
 
-export function *useSocket(port, host) {
+export function* useSocket(port, host) {
   let socket = new Socket();
   socket.connect(port, host);
 
@@ -125,7 +125,7 @@ Resources can depend on other resources, so we could use this to make a socket
 which sends a heart-beat every 10 seconds.
 
 ``` javascript
-import { main, resource } from 'effection';
+import { main, resource, spawn } from 'effection';
 import { useSocket } from './use-socket';
 
 function useHeartSocket(port, host) {
@@ -147,7 +147,7 @@ await main(function*() {
   let socket = yield* useHeartSocket(1337, '127.0.0.1'); // waits for the socket to connect
   socket.write({ hello: 'world' }); // this works
   // once `main` finishes:
-  // 1. the heartbea is stopped
+  // 1. the heartbeat is stopped
   // 2. the socket is closed
 });
 ```

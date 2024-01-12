@@ -80,8 +80,8 @@ await main(function*() {
   let subscription1 = yield* channel;
   let subscription2 = yield* channel;
 
-  yield* send('hello');
-  yield* send('world');
+  yield* channel.send('hello');
+  yield* channel.send('world');
 
   console.log(yield* subscription1.next());
   //=> { done: false, value: "hello" }
@@ -173,7 +173,7 @@ will not drop a message even though it may receive deliveries even while
 the consumer is doing other things:
 
 ``` javascript
-imchannel { main, createChannel, spawn, sleep } from 'effection';
+import { main, createChannel, spawn, sleep } from 'effection';
 
 await main(function*() {
   let channel = createChannel();
@@ -207,7 +207,7 @@ end state. For example, when a websocket is closed it emits a
 why the socked was closed.
 
 The value of this last piece of data is the value of the iterator result when
-the `done` attribute is true. Unsprisingly, this mirrors the behavior of an
+the `done` attribute is true. Unsurprisingly, this mirrors the behavior of an
 async iterator exactly.
 
 ```js

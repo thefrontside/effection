@@ -10,8 +10,8 @@ interface Options {
 
 export function Header({ showGuides, showNav }: Options) {
   return (
-    <header class="header w-full top-0 p-6 py-8 sticky tracking-wide z-10 max-w-screen-2xl mx-auto">
-      <div class="flex items-center justify-between">
+    <header class="header w-full top-0 p-6 py-8 sticky tracking-wide z-10">
+      <div class="flex items-center justify-between max-w-screen-2xl mx-auto">
         <div class="flex">
           <a
             href="/"

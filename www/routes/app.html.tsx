@@ -63,7 +63,7 @@ export function* useAppHtml({
           <link rel="stylesheet" href="/assets/prism-atom-one-dark.css" />
         </noscript>
       </head>
-      <body class="flex flex-col h-full">
+      <body class="flex flex-col">
         <Header showGuides={!isDocsRoute} showNav={isDocsRoute} />
         <main class="container max-w-screen-2xl mx-auto mb-auto">{children}</main>
         <Footer />

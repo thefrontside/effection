@@ -160,7 +160,7 @@ enact cleanup within resources as well. While a matter of preference, the
 `useSocket()` resource above could also have been written as:
 
 ``` javascript
-import { once, resource } from 'effection';
+import { ensure, once, resource } from 'effection';
 
 export function useSocket(port, host) {
   return resource(function* (provide) {

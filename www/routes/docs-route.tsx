@@ -1,8 +1,8 @@
-import type { JSXHandler } from "revolution";
+import type { JSXElement, JSXHandler } from "revolution";
 import type { Docs } from "../docs/docs.ts";
 import type { DocMeta } from "../docs/docs.ts";
-
 import { useAppHtml } from "./app.html.tsx";
+import { DocsContext } from '../lib/context.tsx';
 
 import { respondNotFound, useParams } from "revolution";
 
@@ -13,9 +13,10 @@ import rehypeSlug from "npm:rehype-slug@5.1.0";
 import rehypeAutolinkHeadings from "npm:rehype-autolink-headings@6.1.1";
 import rehypeAddClasses from "npm:rehype-add-classes@1.0.0";
 import rehypeToc from "npm:@jsdevtools/rehype-toc@3.0.2";
+import { Operation } from "effection";
 
 export function docsRoute(docs: Docs): JSXHandler {
-  return function* () {
+  return function* (): Operation<JSXElement> {
     let { id } = yield* useParams<{ id: string }>();
 
     const doc = yield* docs.getDoc(id);
@@ -26,7 +27,9 @@ export function docsRoute(docs: Docs): JSXHandler {
 
     let { topics } = doc;
 
-    let AppHtml = yield* useAppHtml({ isDocsRoute: true, title: `${doc.title} | Effection` });
+    yield* DocsContext.set(true);
+
+    let AppHtml = yield* useAppHtml({ title: `${doc.title} | Effection` });
 
     return (
       <AppHtml>

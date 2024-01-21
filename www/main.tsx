@@ -1,6 +1,6 @@
 import { main, suspend } from "effection";
 
-import { createRevolution, route } from "revolution";
+import { JSXHandler, createRevolution, route } from "revolution";
 import { docsRoute } from "./routes/docs-route.tsx";
 import { indexRoute } from "./routes/index-route.tsx";
 import { v2docsRoute } from "./routes/v2docs-route.tsx";

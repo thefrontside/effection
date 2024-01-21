@@ -1,24 +1,22 @@
 import type { Operation } from "effection";
-import type { JSXChild } from "revolution";
+import type { JSXChild, JSXElement } from "revolution";
 
 import { useAbsoluteUrl } from "../plugins/rebase.ts";
-import { Header } from "../components/header.tsx";
+import { useHeader } from "../components/header.tsx";
 import { Footer } from "../components/footer.tsx";
-
 
 export interface Options {
   title: string;
-  isDocsRoute?: boolean;
 }
 
 export function* useAppHtml({
   title,
-  isDocsRoute = false,
-}: Options): Operation<({ children }: { children: JSXChild }) => JSX.Element> {
+}: Options): Operation<({ children }: { children: JSXChild }) => JSXElement> {
   let homeURL = yield* useAbsoluteUrl("/");
   let twitterImageURL = yield* useAbsoluteUrl(
     "/assets/images/meta-effection.png"
   );
+  const Header = yield* useHeader();
 
   return ({ children }) => (
     <html lang="en-US" dir="ltr">
@@ -64,7 +62,7 @@ export function* useAppHtml({
         </noscript>
       </head>
       <body class="flex flex-col">
-        <Header showGuides={!isDocsRoute} showNav={isDocsRoute} />
+        <Header />
         <main class="container max-w-screen-2xl mx-auto mb-auto">{children}</main>
         <Footer />
       </body>

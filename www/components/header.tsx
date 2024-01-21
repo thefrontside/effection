@@ -38,7 +38,9 @@ export function Header({ showGuides, showNav }: Options) {
                 <span class="pr-1 md:inline-flex">
                   <IconGithub />
                 </span>
-                <span class="hidden md:inline-flex">Github</span>
+                <span class="hidden md:inline-flex">
+                  Github
+                </span>
               </a>
             </li>
             <li>

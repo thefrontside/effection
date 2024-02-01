@@ -8,19 +8,22 @@ import { Footer } from "../components/footer.tsx";
 
 export interface Options {
   title: string;
-  isDocsRoute?: boolean;
+}
+
+export interface AppHtmlProps {
+  children: JSXChild;
+  navLinks: JSX.Element[];
 }
 
 export function* useAppHtml({
   title,
-  isDocsRoute = false,
-}: Options): Operation<({ children }: { children: JSXChild }) => JSX.Element> {
+}: Options): Operation<({ children, navLinks }: AppHtmlProps) => JSX.Element> {
   let homeURL = yield* useAbsoluteUrl("/");
   let twitterImageURL = yield* useAbsoluteUrl(
     "/assets/images/meta-effection.png"
   );
 
-  return ({ children }) => (
+  return ({ children, navLinks }) => (
     <html lang="en-US" dir="ltr">
       <head>
         <meta charset="UTF-8" />
@@ -64,7 +67,7 @@ export function* useAppHtml({
         </noscript>
       </head>
       <body class="flex flex-col">
-        <Header showGuides={!isDocsRoute} showNav={isDocsRoute} />
+        <Header navLinks={navLinks} />
         <main class="container max-w-screen-2xl mx-auto mb-auto">{children}</main>
         <Footer />
       </body>

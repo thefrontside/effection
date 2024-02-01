@@ -1,4 +1,4 @@
-export function ProjectSelect() {
+export function ProjectSelect({ classnames }: { classnames?: string }) {
   let uuid = self.crypto.randomUUID();
 
   let toggleId = `toggle-${uuid}`;
@@ -6,7 +6,7 @@ export function ProjectSelect() {
   let closerId = `closer-${uuid}`;
 
   return (
-    <>
+    <div class={classnames}>
       <style media="all">
         {`
         #${toggleId}:checked ~ label#${openerId} > aside {
@@ -65,7 +65,7 @@ export function ProjectSelect() {
         class="absolute w-screen h-screen inset-0 z-40 hidden"
         for={toggleId}
       />
-    </>
+    </div>
   );
 }
 

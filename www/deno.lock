@@ -22,17 +22,17 @@
       "@hazae41/foras@2.1.1": {
         "integrity": "sha512-iBWx2Q0UYn4IFjdL043Kv1fJCytKFZwtx7DzGHcpDeg+zuEJklsM+oQkRmnUvrJCz/kBKdPQfCjNwDZ4kCc09w==",
         "dependencies": {
-          "@hazae41/result": "@hazae41/result@1.1.12"
+          "@hazae41/result": "@hazae41/result@1.1.16"
         }
       },
       "@hazae41/option@1.0.27": {
         "integrity": "sha512-5hD+XtEwLAx54Z93alEa2B8ZurVs/HqZolc6C4OI3gJbaSmnypo0o5b8QSB98O8lcPwypa+8YcQtWffTF2J2mw==",
         "dependencies": {
-          "@hazae41/result": "@hazae41/result@1.1.12"
+          "@hazae41/result": "@hazae41/result@1.1.16"
         }
       },
-      "@hazae41/result@1.1.12": {
-        "integrity": "sha512-UpbOL30LmEyUXbrp2+Ndhd0n4iw5bSloOWyMdpXZiKxuooT0Ga4Go30ZcETAlF1gb7G9ZmRdC1KoYkM2WVn7+w==",
+      "@hazae41/result@1.1.16": {
+        "integrity": "sha512-PMDtqlbriUkI+2oJViHAAud6DfKS1Ls0vBlNz2RdBCrDIB9ThoeBmjAejjuXnVXSLWbSiRCnS+g5aFsWf4BcFw==",
         "dependencies": {
           "@hazae41/option": "@hazae41/option@1.0.27"
         }
@@ -374,8 +374,8 @@
           "@types/hast": "@types/hast@3.0.3"
         }
       },
-      "hast-util-raw@9.0.1": {
-        "integrity": "sha512-5m1gmba658Q+lO5uqL5YNGQWeh1MYWZbZmWrM5lncdcuiXuo5E2HT/CIOp0rLF8ksfSwiCVJ3twlgVRyTGThGA==",
+      "hast-util-raw@9.0.2": {
+        "integrity": "sha512-PldBy71wO9Uq1kyaMch9AHIghtQvIwxBUkv823pKmkTM3oV1JxtsTNYdevMxvUHqcnOAuO65JKU2+0NOxc2ksA==",
         "dependencies": {
           "@types/hast": "@types/hast@3.0.3",
           "@types/unist": "@types/unist@3.0.2",
@@ -383,7 +383,7 @@
           "hast-util-from-parse5": "hast-util-from-parse5@8.0.1",
           "hast-util-to-parse5": "hast-util-to-parse5@8.0.0",
           "html-void-elements": "html-void-elements@3.0.0",
-          "mdast-util-to-hast": "mdast-util-to-hast@13.0.2",
+          "mdast-util-to-hast": "mdast-util-to-hast@13.1.0",
           "parse5": "parse5@7.1.2",
           "unist-util-position": "unist-util-position@5.0.0",
           "unist-util-visit": "unist-util-visit@5.0.0",
@@ -456,10 +456,10 @@
           "@types/unist": "@types/unist@3.0.2",
           "ccount": "ccount@2.0.1",
           "comma-separated-tokens": "comma-separated-tokens@2.0.3",
-          "hast-util-raw": "hast-util-raw@9.0.1",
+          "hast-util-raw": "hast-util-raw@9.0.2",
           "hast-util-whitespace": "hast-util-whitespace@3.0.0",
           "html-void-elements": "html-void-elements@3.0.0",
-          "mdast-util-to-hast": "mdast-util-to-hast@13.0.2",
+          "mdast-util-to-hast": "mdast-util-to-hast@13.1.0",
           "property-information": "property-information@6.4.0",
           "space-separated-tokens": "space-separated-tokens@2.0.2",
           "stringify-entities": "stringify-entities@4.0.3",
@@ -734,8 +734,8 @@
           "unist-util-visit": "unist-util-visit@4.1.2"
         }
       },
-      "mdast-util-to-hast@13.0.2": {
-        "integrity": "sha512-U5I+500EOOw9e3ZrclN3Is3fRpw8c19SMyNZlZ2IS+7vLsNzb2Om11VpIVOR+/0137GhZsFEF6YiKD5+0Hr2Og==",
+      "mdast-util-to-hast@13.1.0": {
+        "integrity": "sha512-/e2l/6+OdGp/FB+ctrJ9Avz71AN/GRH3oi/3KAx/kMnoUsD6q0woXlDT8lLEeViVKE7oZxE7RXzvO3T8kF2/sA==",
         "dependencies": {
           "@types/hast": "@types/hast@3.0.3",
           "@types/mdast": "@types/mdast@4.0.3",
@@ -744,7 +744,8 @@
           "micromark-util-sanitize-uri": "micromark-util-sanitize-uri@2.0.0",
           "trim-lines": "trim-lines@3.0.1",
           "unist-util-position": "unist-util-position@5.0.0",
-          "unist-util-visit": "unist-util-visit@5.0.0"
+          "unist-util-visit": "unist-util-visit@5.0.0",
+          "vfile": "vfile@6.0.1"
         }
       },
       "mdast-util-to-markdown@1.5.0": {

@@ -31,9 +31,9 @@ jobs:
         run: echo ::set-output name=version::$(echo ${{github.ref_name}} | sed 's/^effection-v//')
 
       - name: Generate Docs
-        run: deno doc --html --name=effection@$NPM_VERSION mod.ts
+        run: deno doc --html --name=effection@$VERSION mod.ts
         env:
-          NPM_VERSION: ${{steps.vars.outputs.version}}
+          VERSION: ${{steps.vars.outputs.version}}
 
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:

@@ -13,12 +13,14 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
-        # Give the default GITHUB_TOKEN write permission to commit and push the
-        # added or changed files to the repository.
-        contents: write
+      # Give the default GITHUB_TOKEN write permission to commit and push the
+      # added or changed files to the repository.
+      contents: write
 
     steps:
       - uses: actions/checkout@v4
+
+      - run: git status
 
       - name: setup deno
         uses: denoland/setup-deno@v1
@@ -36,7 +38,7 @@ jobs:
 
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "[skip ci] Add docs"
+          commit_message: Add docs
           file_pattern: "docs"
 
       

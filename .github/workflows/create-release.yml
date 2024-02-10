@@ -31,8 +31,6 @@ jobs:
         id: vars
         run: echo ::set-output name=version::$(echo ${{github.ref_name}} | sed 's/^effection-v//')
 
-      - run: sed -i '/docs/d' .gitignore
-
       - name: Generate Docs
         run: deno doc --html --name=effection@$VERSION mod.ts
         env:
@@ -44,6 +42,6 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: docs.tar
-          token: ${{ github.token }}
+          name: ${{steps.vars.outputs.version}}
 
       

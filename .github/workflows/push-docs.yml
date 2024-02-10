@@ -19,8 +19,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
-      - run: git status
+        with:
+          ref: ${{github.ref}}
+          fetch-depth: 0 
 
       - name: setup deno
         uses: denoland/setup-deno@v1
@@ -31,15 +32,19 @@ jobs:
         id: vars
         run: echo ::set-output name=version::$(echo ${{github.ref_name}} | sed 's/^effection-v//')
 
+      - run: sed -i '/docs/d' .gitignore
+
       - name: Generate Docs
         run: deno doc --html --name=effection@$VERSION mod.ts
         env:
           VERSION: ${{steps.vars.outputs.version}}
 
-      - uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: Add docs
-          file_pattern: "docs"
+      - run: |
+          git config user.name "GitHub Actions"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .gitignore docs
+          git commit -m "Add docs"
+          git push --force origin :${{github.ref}}
 
       
       

@@ -36,12 +36,12 @@ jobs:
         env:
           VERSION: ${{steps.vars.outputs.version}}
           
-      - run: tar cfv docs.tar -C docs .
+      - run: tar cfvz api-docs.tgz -C docs .
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          files: docs.tar
+          files: api-docs.tgz
           name: ${{steps.vars.outputs.version}}
 
       

@@ -18,7 +18,7 @@ jobs:
                   owner: 'thefrontside',
                   repo: 'effection',
               },
-              (response) => response.data.filter(({ name }) => /effection-v3.0.0/.test(name))
+              (response) => response.data.filter(({ name }) => /^effection-v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(name))
             );
 
             core.setOutput('tags', JSON.stringify(tags.map(tag => tag.name)));
@@ -33,12 +33,12 @@ jobs:
       matrix:
         tag: ${{fromJSON(needs.setup.outputs.tags)}}
       max-parallel: 4
-  
+
     permissions:
       # Give the default GITHUB_TOKEN write permission to commit and push the
       # added or changed files to the repository.
       contents: write
-    
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -57,7 +57,7 @@ jobs:
         run: deno doc --html --name=effection@$VERSION mod.ts
         env:
           VERSION: ${{steps.vars.outputs.version}}
-          
+
       - run: tar cfvz api-docs.tgz -C docs .
 
       - name: Create Release

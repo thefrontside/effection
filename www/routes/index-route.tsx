@@ -7,6 +7,7 @@ import { IconCartouche } from "../components/icons/cartouche.tsx";
 import { IconGithub } from "../components/icons/github.tsx";
 import { IconDiscord } from "../components/icons/discord.tsx";
 import { ProjectSelect } from '../components/project-select.tsx';
+import { Navburger } from "../components/navburger.tsx";
 
 export function indexRoute(): JSXHandler {
   return function* () {
@@ -31,7 +32,21 @@ export function indexRoute(): JSXHandler {
           </span>
           <span class="hidden md:inline-flex">Discord</span>
         </a>,
-        <ProjectSelect classnames="sm:hidden shrink-0" />
+        <ProjectSelect classnames="sm:hidden shrink-0" />,
+        <>
+          <p class="flex flex-row invisible">
+            <label class="cursor-pointer" for="nav-toggle">
+              <Navburger />
+            </label>
+          </p>
+          <style media="all">
+            {`
+      #nav-toggle:checked ~ aside#docbar {
+        display: none;
+      }
+            `}
+            </style>
+          </>
       ]}>
         <>
           <article class="p-4 md:px-12 mb-16">

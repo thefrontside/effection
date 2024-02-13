@@ -34,6 +34,7 @@ export function docsRoute(docs: Docs): JSXHandler {
 
     return (
       <AppHtml navLinks={[
+        <a href="/docs/installation">Guides</a>,
         <a href="https://deno.land/x/effection/mod.ts">API</a>,
         <a class="flex flex-row" href="https://github.com/thefrontside/effection">
           <span class="pr-1 md:inline-flex">

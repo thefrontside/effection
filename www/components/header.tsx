@@ -20,7 +20,7 @@ export function Header({ navLinks }: HeaderProps) {
           </span>
         </div>
         <nav aria-label="Site Nav" class="text-sm font-bold">
-          <ul class="flex items-center sm:gap-1.5 gap-3 md:gap-16">
+          <ul class="flex items-center sm:gap-1.5 gap-3 md:gap-12">
             {navLinks.map(link => (
               <li>{link}</li>
             ))}

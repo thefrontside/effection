@@ -12,7 +12,7 @@
     "exclude": ["docs/esm"]
   },
   "compilerOptions": {
-    "lib": ["deno.ns", "dom.iterable", "dom"],
+    "lib": ["deno.ns", "dom.iterable", "dom", "deno.unstable"],
     "jsx": "react-jsx",
     "jsxImportSource": "revolution"
   },

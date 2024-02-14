@@ -6,19 +6,15 @@ import { CwdContext, useCwd } from "./use-cwd.ts";
 import { useMkdir } from "./use-mkdir.ts";
 import { useReadDir } from "./use-read-dir.ts";
 
-function* useTmpCwd(scope: Scope): Operation<string> {
-  return yield* resource<string>(function* (provide) {
-    const cwd = yield* useCwd();
-    const tmp = Deno.makeTempFileSync();
-
-    try {
-      console.log({ tmp });
-      scope.set(CwdContext, tmp);
-      provide(tmp);
-    } finally {
-      scope.set(CwdContext, cwd);
-    }
-  });
+function* withTmpCwd<T>(op: () => Operation<T>): Operation<T> {
+  let current = yield* CwdContext.get();
+  const tmp = Deno.makeTempFileSync();
+  yield* CwdContext.set(tmp);
+  try {
+    return yield* op();
+  } finally {
+    yield* CwdContext.set(current);
+  }
 }
 
 function* capture<T, TReturn>(stream: Stream<T, TReturn>): Operation<T[]> {
@@ -32,37 +28,38 @@ function* capture<T, TReturn>(stream: Stream<T, TReturn>): Operation<T[]> {
 
 describe("use-read-dir", () => {
   beforeEach(function* () {
-    const scope = yield* useScope();
-    yield* useTmpCwd(scope);
-    yield* useMkdir("testdir");
+    yield* withTmpCwd(function*() {
+      yield* useMkdir("testdir");
 
-    writeSync("testdir", {
-      "index.html": "<html><body><h1>Effection Docs</h1></body></html>",
-      "fuse.js": `console.log("hello world")`,
-      "page.css": "body { background: black; }",
-      "~": {
-        "main.html": "<html><body><h1>main()</h1></body></html>",
-      },
+      writeSync("testdir", {
+	"index.html": "<html><body><h1>Effection Docs</h1></body></html>",
+	"fuse.js": `console.log("hello world")`,
+	"page.css": "body { background: black; }",
+	"~": {
+	  "main.html": "<html><body><h1>main()</h1></body></html>",
+	},
+      });
     });
+
   });
 
   it("reads files from tmp testdir", function* () {
     expect(yield* capture(yield* useReadDir("testdir"))).toEqual([
       {
-        name: "index.html",
-        isFile: true,
+	name: "index.html",
+	isFile: true,
       },
       {
-        name: "page.css",
-        isFile: true,
+	name: "page.css",
+	isFile: true,
       },
       {
-        name: 'fuse.js',
-        isFile: true,
+	name: 'fuse.js',
+	isFile: true,
       },
       {
-        name: '~',
-        isDirectory: true
+	name: '~',
+	isDirectory: true
       }
     ]);
   });

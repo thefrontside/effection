@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.3
+
+- this is just a placeholder release in order to workaround an issue. It is 100%
+  functionally equivalent to 3.0.2
+
 ## 3.0.2
 
 - fix typing of `race()` https://github.com/thefrontside/effection/pull/884

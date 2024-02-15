@@ -1,6 +1,6 @@
 {
   "deno.enable": true,
   "files.exclude": {
-    "www": true,
+    "www": true
   }
 }

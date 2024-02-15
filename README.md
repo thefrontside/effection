@@ -24,7 +24,7 @@ Deno. It is published on both [npm][npm-effection] and [deno.land][deno-land-eff
 
 ## Contributing to Website
 
-Go to [www/README.md] to learn how to contribute to the website.
+Go to [website's readme](www) to learn how to contribute to the website.
 
 ## Development
 

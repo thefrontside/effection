@@ -22,6 +22,10 @@ solid _at scale_, and it does all of this while feeling like normal JavaScript.
 Effection runs on all major JavaScript platforms including NodeJs, Browser, and
 Deno. It is published on both [npm][npm-effection] and [deno.land][deno-land-effection].
 
+## Contributing to Website
+
+Go to [www/README.md] to learn how to contribute to the website.
+
 ## Development
 
 [Deno][] is the primary tool used for development, testing, and packaging.

@@ -6,7 +6,7 @@ import { useMkdir } from "./useMkdir.ts";
 import { useReadDir } from "./useReadDir.ts";
 import { join } from "node:path";
 import { useTmpCwd } from "./useTmpCwd.ts";
-import { withDeno } from "./withDeno.ts";
+import { withDeno } from "./useDeno.ts";
 
 
 function* ___<T>(op: Operation<Stream<T, unknown>>): Operation<T[]> {

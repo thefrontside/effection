@@ -2,11 +2,11 @@ import { Operation } from "effection";
 import { CwdContext } from "./useCwd.ts";
 import { createContext } from 'effection';
 
-export const MakeTmpDir = createContext<() => string>("sys.makeTmpDir");
+export const MakeTmpDirContext = createContext<() => string>("sys.makeTmpDir");
 
 export function* withTmpCwd<T>(op: () => Operation<T>): Operation<T> {
   let current = yield* CwdContext;
-  const makeTmpDir = yield* MakeTmpDir;
+  const makeTmpDir = yield* MakeTmpDirContext;
 
   const cwd = makeTmpDir();
 
@@ -19,7 +19,7 @@ export function* withTmpCwd<T>(op: () => Operation<T>): Operation<T> {
 }
 
 export function* useTmpCwd() {
-  const makeTmpDir = yield* MakeTmpDir;
+  const makeTmpDir = yield* MakeTmpDirContext;
   
   const dir = makeTmpDir();
 

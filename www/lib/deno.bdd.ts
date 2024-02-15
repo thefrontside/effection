@@ -1,5 +1,5 @@
 import * as bdd from "https://deno.land/std@0.163.0/testing/bdd.ts";
-import { TestScope, createTestScope } from "./test-scope.ts";
+import { TestScope, createTestScope } from "./TestScope.ts";
 import type { Operation } from "effection";
 
 let scope: TestScope | void = void 0;

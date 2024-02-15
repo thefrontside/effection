@@ -13,7 +13,7 @@ import {
 
 import { parse } from "https://deno.land/std@0.188.0/flags/mod.ts";
 
-import { useCommand } from "./use-command.ts";
+import { useCommand } from "./useCommand.ts";
 
 await run(function* () {
   let scriptargs = parse(Deno.args, {

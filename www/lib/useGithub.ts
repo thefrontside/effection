@@ -1,7 +1,7 @@
 import { Octokit } from "npm:octokit@2.0.22";
 import { createTokenAuth } from "npm:@octokit/auth-token";
-import { assert } from "../../lib/deps.js";
-import { call, createContext, resource, Operation } from "../../mod.js";
+import { assert } from "../../lib/deps.ts";
+import { call, createContext, resource, Operation } from "../../mod.ts";
 
 const GithubContext = createContext<Octokit>("octokit");
 

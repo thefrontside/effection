@@ -1,12 +1,23 @@
-import { main } from "../lib/main.ts";
-import { setupGithub, getEffectionReleaseTags } from "../www/lib/use-github.ts";
+import { main } from "effection";
+import { withGithub } from "../lib/github/useGithub.ts";
+import { getTags } from '../lib/github/getTags.ts';
 
 function* recreateReleases() {
-  const tags = yield* getEffectionReleaseTags();
+  const tags = yield* getTags({
+    owner: 'thefrontside',
+    repo: 'effection'
+  });
+  
+  const significant = tags
+    .filter(({ name }) =>
+      /^effection-v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(name),
+    )
+    .map(({ name }) => name);
 
 }
 
 await main(function* () {
-  yield* setupGithub();
-  yield* recreateReleases();
+  yield* withGithub(function*() {
+    yield* recreateReleases();
+  })
 });

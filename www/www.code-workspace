@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"name": "website",
+			"path": "."
+		},
+		{
+			"name": "core",
+			"path": "..",
+		},
+	],
+	"settings": {}
+}

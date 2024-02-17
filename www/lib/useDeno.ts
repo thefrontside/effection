@@ -6,6 +6,7 @@ import { ReadDirContext } from "./useReadDir.ts";
 import { MkdirContext } from "./useMkdir.ts";
 import { EnvContext } from "./useEnv.ts";
 import { WalkContext } from "./useWalk.ts";
+import { ReadTextFileContext } from "./useReadTextFile.ts";
 
 export function withDeno<T>(op: () => Operation<T>) {
   return call(function* () {
@@ -21,4 +22,5 @@ export function* initDeno() {
   yield* MkdirContext.set(Deno.mkdir);
   yield* EnvContext.set(Deno.env);
   yield* WalkContext.set(walk);
+  yield* ReadTextFileContext.set(Deno.readTextFile);
 }

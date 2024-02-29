@@ -11,7 +11,7 @@ export function Header({ navLinks }: HeaderProps) {
         <div class="flex">
           <a
             href="/"
-            class="flex items-end gap-x-2 after:content-['v3'] after:inline after:relative after:top-0 after:text-sm"
+            class="flex items-end gap-x-2"
           >
             <img src="/assets/images/effection-logo.svg" alt="Effection Logo" width={156} height={24} />
           </a>

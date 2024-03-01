@@ -1,16 +1,13 @@
 import {
   build,
   emptyDir,
-} from "https://deno.land/x/dnt@0.36.0/mod.ts?pin=v123";
+} from "https://deno.land/x/dnt@0.40.0/mod.ts";
+
+import jsr from "../jsr.json" with { type: "json" };
 
 const outDir = "./build/npm";
 
 await emptyDir(outDir);
-
-let [version] = Deno.args;
-if (!version) {
-  throw new Error("a version argument is required to build the npm package");
-}
 
 await build({
   entryPoints: ["./mod.ts"],
@@ -28,7 +25,7 @@ await build({
   package: {
     // package.json properties
     name: "effection",
-    version,
+    version: jsr.version,
     description: "Structured concurrency and effects for JavaScript",
     license: "ISC",
     repository: {

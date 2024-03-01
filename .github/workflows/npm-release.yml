@@ -24,11 +24,6 @@ jobs:
         with:
           deno-version: v1.x
 
-      - name: Get Version
-        id: vars
-        run: echo ::set-output name=version::$(echo ${{github.ref_name}} | sed 's/^effection-v//')
-
-
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
@@ -36,9 +31,7 @@ jobs:
           registry-url: https://registry.npmjs.com
 
       - name: Build
-        run: deno task build:npm $NPM_VERSION
-        env:
-          NPM_VERSION: ${{steps.vars.outputs.version}}
+        run: deno task build:npm
 
       - name: Publish
         run: npm publish --access=public

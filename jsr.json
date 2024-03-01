@@ -1,0 +1,6 @@
+{
+  "name": "@effection/effection",
+  "version": "3.0.3",
+  "exports": "./mod.ts",
+  "exclude": ["www"]
+}

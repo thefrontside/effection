@@ -1,0 +1,19 @@
+name: Publish to JSR
+on:
+  push:
+    tags:
+      - "effection-v*"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Publish package
+        run: deno publish -c jsr.json

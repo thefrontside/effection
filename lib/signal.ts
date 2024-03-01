@@ -1,4 +1,4 @@
-import type { Stream, Subscription } from "./types.ts";
+import type { Context, Stream, Subscription } from "./types.ts";
 
 import { createQueue, type Queue } from "./queue.ts";
 import { resource } from "./instructions.ts";
@@ -81,7 +81,7 @@ export interface Signal<T, TClose> extends Stream<T, TClose> {
  * }
  * ```
  */
-export const SignalQueueFactory = createContext(
+export const SignalQueueFactory: Context<typeof createQueue> = createContext(
   "Signal.createQueue",
   createQueue,
 );

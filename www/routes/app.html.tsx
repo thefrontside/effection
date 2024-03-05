@@ -10,15 +10,20 @@ export interface Options {
   title: string;
 }
 
+export interface AppHtmlProps {
+  children: JSXChild;
+  navLinks: JSX.Element[];
+}
+
 export function* useAppHtml({
   title,
-}: Options): Operation<({ children }: { children: JSXChild }) => JSX.Element> {
+}: Options): Operation<({ children, navLinks }: AppHtmlProps) => JSX.Element> {
   let homeURL = yield* useAbsoluteUrl("/");
   let twitterImageURL = yield* useAbsoluteUrl(
     "/assets/images/meta-effection.png"
   );
 
-  return ({ children }) => (
+  return ({ children, navLinks }) => (
     <html lang="en-US" dir="ltr">
       <head>
         <meta charset="UTF-8" />
@@ -61,11 +66,10 @@ export function* useAppHtml({
           <link rel="stylesheet" href="/assets/prism-atom-one-dark.css" />
         </noscript>
       </head>
-      <body class="max-w-screen-2xl m-auto">
-        <div class="flex flex-col h-full overflow-hidden">
-          <Header />
-          <main class="grow container min-h-0 mx-auto overflow-hidden h-full">{children}</main>
-        </div>
+      <body class="flex flex-col">
+        <Header navLinks={navLinks} />
+        <main class="container max-w-screen-2xl mx-auto mb-auto">{children}</main>
+        <Footer />
       </body>
     </html>
   );

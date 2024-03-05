@@ -4,17 +4,52 @@ import { useAppHtml } from "./app.html.tsx";
 import { Footer } from "../components/footer.tsx";
 import { IconTSLogo } from "../components/icons/typescript.tsx";
 import { IconCartouche } from "../components/icons/cartouche.tsx";
+import { IconGithub } from "../components/icons/github.tsx";
+import { IconDiscord } from "../components/icons/discord.tsx";
+import { ProjectSelect } from '../components/project-select.tsx';
+import { Navburger } from "../components/navburger.tsx";
 
 export function indexRoute(): JSXHandler {
   return function* () {
     let AppHtml = yield* useAppHtml({ title: `Effection` });
     let announcementUrl = "https://frontside.com/blog/2023-12-18-announcing-effection-v3/";
 
-
     return (
-      <AppHtml>
+      <AppHtml navLinks={[
+        <a href="/docs/installation">Guides</a>,
+        <a href="https://deno.land/x/effection/mod.ts">API</a>,
+        <a class="flex flex-row" href="https://github.com/thefrontside/effection">
+          <span class="pr-1 md:inline-flex">
+            <IconGithub />
+          </span>
+          <span class="hidden md:inline-flex">
+            Github
+          </span>
+        </a>,
+        <a class="flex flex-row" href="https://discord.gg/r6AvtnU">
+          <span class="pr-1 md:inline-flex">
+            <IconDiscord />
+          </span>
+          <span class="hidden md:inline-flex">Discord</span>
+        </a>,
+        <ProjectSelect classnames="sm:hidden shrink-0" />,
         <>
-          <article class="p-4 md:px-12 min-h-0 overflow-auto h-full">
+          <p class="flex flex-row invisible">
+            <label class="cursor-pointer" for="nav-toggle">
+              <Navburger />
+            </label>
+          </p>
+          <style media="all">
+            {`
+      #nav-toggle:checked ~ aside#docbar {
+        display: none;
+      }
+            `}
+            </style>
+          </>
+      ]}>
+        <>
+          <article class="p-4 md:px-12 mb-16">
             <section class="grid grid-cols-1 md:grid-cols-3 md:gap-4">
               <hgroup class="text-center col-span-1 md:col-span-3 my-8">
                 <img

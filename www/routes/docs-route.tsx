@@ -6,7 +6,6 @@ import { useAppHtml } from "./app.html.tsx";
 
 import { respondNotFound, useParams } from "revolution";
 
-import { Navburger } from "../components/navburger.tsx";
 import { Rehype } from "../components/rehype.tsx";
 import { Transform } from "../components/transform.tsx";
 
@@ -14,6 +13,10 @@ import rehypeSlug from "npm:rehype-slug@5.1.0";
 import rehypeAutolinkHeadings from "npm:rehype-autolink-headings@6.1.1";
 import rehypeAddClasses from "npm:rehype-add-classes@1.0.0";
 import rehypeToc from "npm:@jsdevtools/rehype-toc@3.0.2";
+import { IconGithub } from "../components/icons/github.tsx";
+import { IconDiscord } from "../components/icons/discord.tsx";
+import { ProjectSelect } from "../components/project-select.tsx";
+import { Navburger } from "../components/navburger.tsx";
 
 export function docsRoute(docs: Docs): JSXHandler {
   return function* () {
@@ -30,26 +33,46 @@ export function docsRoute(docs: Docs): JSXHandler {
     let AppHtml = yield* useAppHtml({ title: `${doc.title} | Effection` });
 
     return (
-      <AppHtml>
-        <section class="min-h-0 h-full mx-auto w-full justify-items-normal md:grid md:grid-cols-[225px_auto] lg:grid-cols-[225px_auto_200px] md:gap-4">
-          <p class="text-right mr-4 md:hidden">
+      <AppHtml navLinks={[
+        <a href="/docs/installation">Guides</a>,
+        <a href="https://deno.land/x/effection/mod.ts">API</a>,
+        <a class="flex flex-row" href="https://github.com/thefrontside/effection">
+          <span class="pr-1 md:inline-flex">
+            <IconGithub />
+          </span>
+          <span class="hidden md:inline-flex">
+            Github
+          </span>
+        </a>,
+        <a class="flex flex-row" href="https://discord.gg/r6AvtnU">
+          <span class="pr-1 md:inline-flex">
+            <IconDiscord />
+          </span>
+          <span class="hidden md:inline-flex">Discord</span>
+        </a>,
+        <ProjectSelect classnames="sm:hidden shrink-0" />,
+        <>
+          <p class="flex flex-row md:hidden">
             <label class="cursor-pointer" for="nav-toggle">
               <Navburger />
             </label>
           </p>
           <style media="all">
             {`
-        #nav-toggle:checked ~ aside#docbar {
-          display: none;
-        }
-            `}
+      #nav-toggle:checked ~ aside#docbar {
+        display: none;
+      }
+          `}
           </style>
+        </>
+      ]}>
+        <section class="min-h-0 mx-auto w-full justify-items-normal md:grid md:grid-cols-[225px_auto] lg:grid-cols-[225px_auto_200px] md:gap-4">
           <input class="hidden" id="nav-toggle" type="checkbox" checked />
           <aside
             id="docbar"
-            class="min-h-0 top-0 h-full w-full grid grid-cols-2 md:hidden py-2"
+            class="fixed top-0 h-full w-full grid grid-cols-2 md:hidden"
           >
-            <nav class="bg-white px-2 border-r-2 h-full pt-2 md:pt-20 min-h-0 h-full overflow-auto">
+            <nav class="bg-white p-2 border-r-2 h-full pt-24 min-h-0 h-full overflow-auto">
               {topics.map((topic) => (
                 <hgroup class="mb-2">
                   <h3 class="text-lg">{topic.name}</h3>
@@ -81,7 +104,7 @@ export function docsRoute(docs: Docs): JSXHandler {
               class="h-full w-full bg-gray-500 opacity-50"
             />
           </aside>
-          <aside class="min-h-0 h-full overflow-auto hidden md:block py-2">
+          <aside class="min-h-0 overflow-auto hidden md:block pt-2 top-24 sticky h-fit">
             <nav class="pl-4">
               {topics.map((topic) => (
                 <hgroup class="mb-2">
@@ -111,7 +134,7 @@ export function docsRoute(docs: Docs): JSXHandler {
             </nav>
           </aside>
           <Transform fn={liftTOC}>
-            <article class="prose max-w-full px-6 min-h-0 overflow-auto h-full py-2">
+            <article class="prose max-w-full px-6 py-2">
               <h1>{doc.title}</h1>
               <Rehype
                 plugins={[
@@ -125,6 +148,7 @@ export function docsRoute(docs: Docs): JSXHandler {
                   }],
                   [rehypeAddClasses, {
                     "h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]": "group",
+                    "pre": "grid",
                   }],
                   [rehypeToc, {
                     cssClasses: {

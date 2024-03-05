@@ -1,4 +1,4 @@
-export const IconGithHub = () => (
+export const IconGithub = () => (
   <svg
     height="16"
     focusable="false"

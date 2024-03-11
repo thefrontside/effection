@@ -1,0 +1,47 @@
+# This workflow will install Deno then run Deno lint and test.
+# For more information see: https://github.com/denoland/setup-deno
+
+name: Push to Docs
+
+on:
+  push:
+    tags:
+      - "effection-v*"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    permissions:
+      # Give the default GITHUB_TOKEN write permission to commit and push the
+      # added or changed files to the repository.
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{github.ref}}
+
+      - name: setup deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - name: Get Version
+        id: vars
+        run: echo ::set-output name=version::$(echo ${{github.ref_name}} | sed 's/^effection-v//')
+
+      - name: Generate Docs
+        run: deno doc --html --name=effection@$VERSION mod.ts
+        env:
+          VERSION: ${{steps.vars.outputs.version}}
+          
+      - run: tar cfvz api-docs.tgz -C docs .
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: api-docs.tgz
+          name: ${{steps.vars.outputs.version}}
+
+      

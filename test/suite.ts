@@ -12,7 +12,6 @@ import {
 } from "../mod.ts";
 
 declare global {
-  // deno-lint-ignore no-empty-interface
   interface Promise<T> extends Operation<T> {}
 }
 

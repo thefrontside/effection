@@ -58,7 +58,7 @@ an event, and returns a Stream of values corresponding to the occurences of
 that event.
 
 ``` javascript
-import { main, once, each } from 'effection';
+import { main, on, each } from 'effection';
 
 await main(function*() {
   let socket = new WebSocket('ws://localhost:1234');

@@ -37,7 +37,7 @@ import type { Computation } from "./deps.ts";
  * })
  * ```
  *
- * See [Operations guide](https://frontside.com/effection/v3/docs/operations) for more information.
+ * See [Operations guide](https://frontside.com/effection/docs/operations) for more information.
  *
  */
 export interface Operation<T> {

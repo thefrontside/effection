@@ -78,7 +78,7 @@ export type Callable<T> =
  * ```
  *
  * Because `call()` runs within its own {@link Scope}, it can also be used to
- * establish {@link  * establish error boundaries https://frontside.com/effection/docs/errors | error boundaries}.
+ * establish [error boundaries](https://frontside.com/effection/docs/errors).
  *
  * @example
  * ```javascript

@@ -14,7 +14,7 @@ main(function*() {
 This works, but it slightly inefficient because we are running the fetches one
 after the other. How can we run both `fetch` operations at the same time?
 
-### Using `async/await`
+## Using `async/await`
 
 If we were just using `async/await` and not using Effection, we might do
 something like this to fetch the dates at the same time:
@@ -36,7 +36,7 @@ async function() {
 }
 ```
 
-### Dangling Promises
+## Dangling Promises
 
 This works fine as long as both fetches complete successfully, but what happens
 when one of them fails? Since there is no connection between the two tasks, a
@@ -52,7 +52,7 @@ We call these situations "dangling promises", and most significantly complex
 JavaScript applications suffer from this problem. `async/await` fundamentally does
 not handle cancellation very well when running multiple operations concurrently.
 
-### Effection
+## With Effection
 
 How does Effection deal with this situation? If we wrote the example using
 Effection in the exact same way as the `async/await` example, then we will find
@@ -96,7 +96,7 @@ main(function*() {
 This has the same problem as our `async/await` example: a failure in one fetch
 has no effect on the other!
 
-### Introducing `spawn`
+## Introducing `spawn`
 
 The `spawn` operation is Effection's solution to this problem!
 
@@ -147,7 +147,7 @@ cause the parent to error, which in turn halts any siblings.
 This idea is called [structured concurrency], and it has profound effects on
 the composability of concurrent code.
 
-### Using combinators
+## Using combinators
 
 We previously showed how we can use the `Promise.all` combinator to implement
 the concurrent fetch. Effection also ships with some combinators, for example
@@ -162,7 +162,7 @@ main(function *() {
 });
 ```
 
-### Spawning in a Scope
+## Spawning in a Scope
 
 The `spawn()` operation always runs its operation as a child of the current
 operation. Sometimes however, you might want to run an operation as a child of a

@@ -5,7 +5,7 @@ ultimately make Effection far more robust at handling asynchrony, and in this
 section we'll unpack these differences in more detail. In summary: operations
 are stateless, and they can be cancelled with grace.
 
-### Stateless
+## Stateless
 
 The fundamental unit of abstraction for `async/await` is the `Promise`. They can
 be created independently or with an [async function][], but either way,
@@ -35,7 +35,7 @@ sayHello();
 This is because unlike promises, Operations do not do anything by themselves.
 Instead, they describe what should be done when the operation is run.
 
-### Running Operations
+## Running Operations
 
 In the example above, the generator function contains a recipe that says "log
 'Hello World' to the console", but it does not actually execute that recipe
@@ -93,7 +93,7 @@ await main(function*() {
 Instead of needing to catch the error like we did before, `main()`
 will handle it for us, including printing it to the console.
 
-### Composing Operations
+## Composing Operations
 
 Entry points like `run()` and `main()` are used usually once at the very
 beginning of an Effection program, but the easiest and most common way to
@@ -134,7 +134,7 @@ each other, and in fact, composition is so core to how operations work that
 _every operation in Effection eventually boils down to a combination of
 just three primitive operations_: `action()`, `resource()`, and `suspend()`.
 
-### Cleanup
+## Cleanup
 
 Perhaps the most critical difference between promises and operations is that
 once started, a promise will always run to completion no matter how long that

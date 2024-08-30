@@ -3,7 +3,7 @@ teardown as a unit so that automatic cleanup is _guaranteed_, but how are
 they able to do this, and how can you implement your own operations that clean
 up after themselves?
 
-### Scope of a lifetime
+## Scope of a lifetime
 
 Every operation in Effection runs in the context of an associated scope which
 places a hard limit on how long it will live. For example, the script below uses
@@ -63,7 +63,7 @@ variable references. Because of this, once the outcome of an operation becomes
 known, or it is no longer needed, that operation and all of the operations it
 contains can be safely shut down.
 
-### The Three Outcomes
+## The Three Outcomes
 
 There are only three ways an operation may pass out of scope.
 
@@ -75,7 +75,7 @@ operation is halted.
 No matter which one of these happens, every sub-operation associated with that
 operation will be automatically destroyed.
 
-### Suspend (it's not the end)
+## Suspend (it's not the end)
 
 In order to understand the lifecycle of an Operation, we must first understand the
 concept of halting a Task.
@@ -95,7 +95,7 @@ await task.halt();
 Halting a Task means that its operation is canceled, and it also causes any
 operation created by that operation to be halted.
 
-### Immediate return
+## Immediate return
 
 If an Operation is expressed as a generator (most are), we call `return()`
 on the generator when that operation is halted. This
@@ -144,7 +144,7 @@ let task = run(function*() {
 await task.halt();
 ```
 
-### Cleaning up
+## Cleaning up
 
 We can use this mechanism to run code as an Operation is shutting
 down regardless of whether it completes successfully, is halted, or
@@ -173,7 +173,7 @@ let task = run(function*() {
 await task.halt();
 ```
 
-### Asynchronous halt
+## Asynchronous halt
 
 You might be wondering what happens when we `yield*` inside the
 _finally_ block. In fact, Effection handles this case for you:
@@ -199,7 +199,7 @@ it is good practice to keep halting speedy and simple. We recommend avoiding
 expensive operations during halt where possible, and avoiding throwing any
 errors during halting.
 
-### Ensure
+## Ensure
 
 Sometimes you want to avoid the rightward drift of using lots of
 `try/finally` blocks.  The `ensure` operation that ships with
@@ -222,7 +222,7 @@ let task = run(function*() {
 await task.halt();
 ```
 
-### Abort Signal
+## Abort Signal
 
 While cancellation and teardown are handled automatically for us as long as we
 are using Effection operations, what do we do when we want to integrate with a
@@ -275,7 +275,7 @@ function* request(url) {
 Now, no matter what happens, when the `request` operation is completed (or
 canceled), the HTTP request is guaranteed to be shut down.
 
-### Embedding API
+## Embedding API
 
 The nice thing about scope is that you don't need to worry about it. It's just
 there, ensuring that things get cleaned up as soon as they are no longer needed.

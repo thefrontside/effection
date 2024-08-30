@@ -11,7 +11,7 @@ arguments or lexical scope.
 > what you need to know about Effection Context. The biggest difference
 > is the API but general concepts are same. 
 
-# What is argument drilling?
+## What is argument drilling?
 
 Passing argument to operations is a convenient way to make data from parent operation available to the child operation. 
 
@@ -21,7 +21,7 @@ the same arguments need to be passed to many operations. This situation is calle
 Wouldn't it be great if you could access information in a deeply nested operation from a parent operation without 
 modifying operations in the middle? That's exaclty what Effection Context does.
 
-# Context: an alternative to passing arguments
+## Context: an alternative to passing arguments
 
 Context makes a value available to any child process within a tree of processes.
 
@@ -51,7 +51,7 @@ function* fetchRepositories() {
 }
 ```
 
-# Context: overriding nested context
+## Context: overriding nested context
 
 Context is attached to the scope of the parent operation. This allows you to override the context value of an operation
 in the tree without affecting the value higher up the tree.
@@ -60,14 +60,14 @@ in the tree without affecting the value higher up the tree.
   ![Parent sets value to A, Child overrides value to B and all children below get B](/assets/images/overriding-context.svg)
 </div>
 
-# Using Context
+## Using Context
 
 To use context in your operations, you need to do the following 3 steps:
 1. **Create** a context.  
 2. **Set** the context value.
 3. **Yield** the context value.
 
-## Step 1: Create a context.
+### Step 1: Create a context.
 
 Effection provides a function for creating a context appropriatelly called `createContext`. This function will return
 a reference that you use to identify the context value in the scope.
@@ -78,7 +78,7 @@ import { createContext } from 'effection'
 const MyValueContext = createContext("my-value");
 ```
 
-## Step 2: Set the context value.
+### Step 2: Set the context value.
 
 ``` javascript
 await main(function* () {
@@ -86,7 +86,7 @@ await main(function* () {
 });
 ```
 
-## Step 3: Yield the context value.
+### Step 3: Yield the context value.
 
 ```javascript
 
@@ -103,18 +103,18 @@ function* logMyValue() {
 }
 ```
 
-# Use cases for context
+## Use cases for context
 
 * **Config**: most apps written with Effection require values that come from the environment variables. Use can use context to store values from configuration to easily retrieve it in any operation.
 * **Client APIs**: many APIs require creating a client instance. You can create the client instance once and make it available to all operations using context.
 
-# Naming conventions
+## Naming conventions
 
 The following is absolutely optional, but if you don't know how to organize your context related code, try the following:
 
-## `Context` to the end of the context reference
+### For the reference
 
-This makes it easy to identify context references. For example, a config context might be called `ConfigContext`.
+Add `Context` to the end of the context reference. This makes it easy to identify context references. For example, a config context might be called `ConfigContext`.
 
 ``` javascript
 import { createContext } from 'effection';
@@ -122,9 +122,9 @@ import { createContext } from 'effection';
 const ConfigContext = createContext('config');
 ```
 
-## Provide an `init` function for initializing context
+### For the initializer
 
-You'll typically call this once at the beginning of your program.
+Provide an `init` function for initializing context. You'll typically call this once at the beginning of your program.
 
 ```javascript
 import { main } from 'effection';
@@ -140,9 +140,9 @@ await main(function* () {
 });
 ```
 
-## Provide a `use` helper for reading the context
+### For the use helper
 
-Provide a helper for retrieving the value from the context with `use` prefix.
+Provide a `use` helper for reading the context. Provide a helper for retrieving the value from the context with `use` prefix.
 
 ``` javascript
 function* useConfig() {

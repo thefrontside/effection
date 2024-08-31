@@ -2,6 +2,7 @@ import { createContext } from "./context.ts";
 import { type Operation } from "./types.ts";
 import { action } from "./instructions.ts";
 import { run } from "./run.ts";
+import process from "node:process";
 
 /**
  * Halt process execution immediately and initiate shutdown. If a message is
@@ -90,19 +91,13 @@ export async function main(
             }
           },
           *node() {
-            //@ts-expect-error type-checked by Deno, run on Node
-            hardexit = (status) => global.process.exit(status);
+            hardexit = (status) => process.exit(status);
             try {
-              //@ts-expect-error type-checked by Deno, run on Node
               process.on("SIGINT", interrupt.SIGINT);
-              //@ts-expect-error type-checked by Deno, run on Node
               process.on("SIGTERM", interrupt.SIGTERM);
-              //@ts-expect-error type-checked by Deno, run on Node
-              yield* body(global.process.argv.slice(2));
+              yield* body(process.argv.slice(2));
             } finally {
-              //@ts-expect-error this runs on Node
               process.off("SIGINT", interrupt.SIGINT);
-              //@ts-expect-error this runs on Node
               process.off("SIGTERM", interrupt.SIGINT);
             }
           },
@@ -160,10 +155,10 @@ function* withHost<T>(op: HostOperation<T>): Operation<T> {
 
   if (typeof global.Deno !== "undefined") {
     return yield* op.deno();
-    // this snippet is from the node-detect npm package
+    // this snippet is from the detect-node npm package
+    // @see https://github.com/iliakan/detect-node/blob/master/index.js
   } else if (
     Object.prototype.toString.call(
-      //@ts-expect-error dev env is deno, but this is safe to run.
       typeof process !== "undefined" ? process : 0,
     ) === "[object process]"
   ) {

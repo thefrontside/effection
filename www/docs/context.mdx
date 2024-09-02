@@ -108,51 +108,5 @@ function* logMyValue() {
 * **Config**: most apps written with Effection require values that come from the environment variables. Use can use context to store values from configuration to easily retrieve it in any operation.
 * **Client APIs**: many APIs require creating a client instance. You can create the client instance once and make it available to all operations using context.
 
-## Naming conventions
-
-The following is absolutely optional, but if you don't know how to organize your context related code, try the following:
-
-### For the reference
-
-Add `Context` to the end of the context reference. This makes it easy to identify context references. For example, a config context might be called `ConfigContext`.
-
-``` javascript
-import { createContext } from 'effection';
-
-const ConfigContext = createContext('config');
-```
-
-### For the initializer
-
-Provide an `init` function for initializing context. You'll typically call this once at the beginning of your program.
-
-```javascript
-import { main } from 'effection';
-
-function* initConfigContext() {
-  yield* ConfigContext.set({
-    mySecret: process.env.MY_SECRET
-  })
-}
-
-await main(function* () {
-  yield* initConfigContext();
-});
-```
-
-### For the use helper
-
-Provide a `use` helper for reading the context. Provide a helper for retrieving the value from the context with `use` prefix.
-
-``` javascript
-function* useConfig() {
-  return yield* ConfigContext;
-}
-
-function* someOperation() {
-  const config = yield* useConfig();
-}
-```
-
 [scope]: /docs/guides/scope
 [React Context]: https://react.dev/learn/passing-data-deeply-with-context

@@ -1,4 +1,4 @@
-import type { JSXHandler } from "revolution";
+import type { JSXElement } from "revolution";
 import type { Docs } from "../docs/docs.ts";
 import type { DocMeta } from "../docs/docs.ts";
 
@@ -17,171 +17,174 @@ import { IconGithub } from "../components/icons/github.tsx";
 import { IconDiscord } from "../components/icons/discord.tsx";
 import { ProjectSelect } from "../components/project-select.tsx";
 import { Navburger } from "../components/navburger.tsx";
-import { type HtmlElementNode } from "npm:@jsdevtools/rehype-toc@3.0.2";
-import { nodeTypes } from "npm:@mdx-js/mdx@2.3.0";
+import { SitemapRoute, RoutePath } from "../plugins/sitemap.ts";
 
-export function docsRoute(docs: Docs): JSXHandler {
-  return function* () {
-    let { id } = yield* useParams<{ id: string }>();
-
-    const doc = yield* docs.getDoc(id);
-
-    if (!doc) {
-      return yield* respondNotFound();
-    }
-
-    let { topics } = doc;
-
-    let AppHtml = yield* useAppHtml({ title: `${doc.title} | Effection` });
-
-    return (
-      <AppHtml
-        navLinks={[
-          <a href="/docs/installation">Guides</a>,
-          <a href="https://deno.land/x/effection/mod.ts">API</a>,
-          <a
-            class="flex flex-row"
-            href="https://github.com/thefrontside/effection"
-          >
-            <span class="pr-1 md:inline-flex">
-              <IconGithub />
-            </span>
-            <span class="hidden md:inline-flex">Github</span>
-          </a>,
-          <a class="flex flex-row" href="https://discord.gg/r6AvtnU">
-            <span class="pr-1 md:inline-flex">
-              <IconDiscord />
-            </span>
-            <span class="hidden md:inline-flex">Discord</span>
-          </a>,
-          <ProjectSelect classnames="sm:hidden shrink-0" />,
-          <>
-            <p class="flex flex-row md:hidden">
-              <label class="cursor-pointer" for="nav-toggle">
-                <Navburger />
-              </label>
-            </p>
-            <style media="all">
-              {`
-      #nav-toggle:checked ~ aside#docbar {
-        display: none;
+export function docsRoute(docs: Docs): SitemapRoute<JSXElement> {
+  return {
+    *routemap(pathname) {
+      let paths: RoutePath[] = [];
+      for (let doc of yield* docs.all()) {
+        paths.push({
+          pathname: pathname({ id: doc.id }),
+        });
       }
-          `}
-            </style>
-          </>,
-        ]}
-      >
-        <section class="min-h-0 mx-auto w-full justify-items-normal md:grid md:grid-cols-[225px_auto] lg:grid-cols-[225px_auto_200px] md:gap-4">
-          <input class="hidden" id="nav-toggle" type="checkbox" checked />
-          <aside
-            id="docbar"
-            class="fixed top-0 h-full w-full grid grid-cols-2 md:hidden"
-          >
-            <nav class="bg-white p-2 border-r-2 h-full pt-24 min-h-0 h-full overflow-auto">
-              {topics.map((topic) => (
-                <hgroup class="mb-2">
-                  <h3 class="text-lg">{topic.name}</h3>
-                  <menu class="text-gray-700">
-                    {topic.items.map((item) => (
-                      <li class="mt-1">
-                        {doc.id !== item.id
-                          ? (
-                            <a
-                              class="rounded px-4 block w-full py-2 hover:bg-gray-100"
-                              href={`/docs/${item.id}`}
-                            >
-                              {item.title}
-                            </a>
-                          )
-                          : (
-                            <a class="rounded px-4 block w-full py-2 bg-gray-100 cursor-default">
-                              {item.title}
-                            </a>
-                          )}
-                      </li>
-                    ))}
-                  </menu>
-                </hgroup>
-              ))}
-            </nav>
-            <label
-              for="nav-toggle"
-              class="h-full w-full bg-gray-500 opacity-50"
-            />
-          </aside>
-          <aside class="min-h-0 overflow-auto hidden md:block pt-2 top-24 sticky h-fit">
-            <nav class="pl-4">
-              {topics.map((topic) => (
-                <hgroup class="mb-2">
-                  <h3 class="text-lg">{topic.name}</h3>
-                  <menu class="text-gray-700">
-                    {topic.items.map((item) => (
-                      <li class="mt-1">
-                        {doc.id !== item.id
-                          ? (
-                            <a
-                              class="rounded px-4 block w-full py-2 hover:bg-gray-100"
-                              href={`/docs/${item.id}`}
-                            >
-                              {item.title}
-                            </a>
-                          )
-                          : (
-                            <a class="rounded px-4 block w-full py-2 bg-gray-100 cursor-default">
-                              {item.title}
-                            </a>
-                          )}
-                      </li>
-                    ))}
-                  </menu>
-                </hgroup>
-              ))}
-            </nav>
-          </aside>
-          <Transform fn={liftTOC}>
-            <article class="prose max-w-full px-6 py-2">
-              <h1>{doc.title}</h1>
-              <Rehype
-                plugins={[
-                  rehypeSlug,
-                  [
-                    rehypeAutolinkHeadings,
-                    {
+      return paths;
+    },
+    *handler() {
+      let { id } = yield* useParams<{ id: string }>();
+
+      const doc = yield* docs.getDoc(id);
+
+      if (!doc) {
+        return yield* respondNotFound();
+      }
+
+      let { topics } = doc;
+
+      let AppHtml = yield* useAppHtml({ title: `${doc.title} | Effection` });
+
+      return (
+        <AppHtml
+          navLinks={[
+            <a href="/docs/installation">Guides</a>,
+            <a href="https://deno.land/x/effection/mod.ts">API</a>,
+            <a
+              class="flex flex-row"
+              href="https://github.com/thefrontside/effection"
+            >
+              <span class="pr-1 md:inline-flex">
+                <IconGithub />
+              </span>
+              <span class="hidden md:inline-flex">
+                Github
+              </span>
+            </a>,
+            <a class="flex flex-row" href="https://discord.gg/r6AvtnU">
+              <span class="pr-1 md:inline-flex">
+                <IconDiscord />
+              </span>
+              <span class="hidden md:inline-flex">Discord</span>
+            </a>,
+            <ProjectSelect classnames="sm:hidden shrink-0" />,
+            <>
+              <p class="flex flex-row md:hidden">
+                <label class="cursor-pointer" for="nav-toggle">
+                  <Navburger />
+                </label>
+              </p>
+              <style media="all">
+                {`
+      #nav-toggle:checked ~ aside#docbar {
+	display: none;
+      }
+	  `}
+              </style>
+            </>,
+          ]}
+        >
+          <section class="min-h-0 mx-auto w-full justify-items-normal md:grid md:grid-cols-[225px_auto] lg:grid-cols-[225px_auto_200px] md:gap-4">
+            <input class="hidden" id="nav-toggle" type="checkbox" checked />
+            <aside
+              id="docbar"
+              class="fixed top-0 h-full w-full grid grid-cols-2 md:hidden"
+            >
+              <nav class="bg-white p-2 border-r-2 h-full pt-24 min-h-0 h-full overflow-auto">
+                {topics.map((topic) => (
+                  <hgroup class="mb-2">
+                    <h3 class="text-lg">{topic.name}</h3>
+                    <menu class="text-gray-700">
+                      {topic.items.map((item) => (
+                        <li class="mt-1">
+                          {doc.id !== item.id
+                            ? (
+                              <a
+                                class="rounded px-4 block w-full py-2 hover:bg-gray-100"
+                                href={`/docs/${item.id}`}
+                              >
+                                {item.title}
+                              </a>
+                            )
+                            : (
+                              <a class="rounded px-4 block w-full py-2 bg-gray-100 cursor-default">
+                                {item.title}
+                              </a>
+                            )}
+                        </li>
+                      ))}
+                    </menu>
+                  </hgroup>
+                ))}
+              </nav>
+              <label
+                for="nav-toggle"
+                class="h-full w-full bg-gray-500 opacity-50"
+              />
+            </aside>
+            <aside class="min-h-0 overflow-auto hidden md:block pt-2 top-24 sticky h-fit">
+              <nav class="pl-4">
+                {topics.map((topic) => (
+                  <hgroup class="mb-2">
+                    <h3 class="text-lg">{topic.name}</h3>
+                    <menu class="text-gray-700">
+                      {topic.items.map((item) => (
+                        <li class="mt-1">
+                          {doc.id !== item.id
+                            ? (
+                              <a
+                                class="rounded px-4 block w-full py-2 hover:bg-gray-100"
+                                href={`/docs/${item.id}`}
+                              >
+                                {item.title}
+                              </a>
+                            )
+                            : (
+                              <a class="rounded px-4 block w-full py-2 bg-gray-100 cursor-default">
+                                {item.title}
+                              </a>
+                            )}
+                        </li>
+                      ))}
+                    </menu>
+                  </hgroup>
+                ))}
+              </nav>
+            </aside>
+            <Transform fn={liftTOC}>
+              <article class="prose max-w-full px-6 py-2">
+                <h1>{doc.title}</h1>
+                <Rehype
+                  plugins={[
+                    rehypeSlug,
+                    [rehypeAutolinkHeadings, {
                       behavior: "append",
                       properties: {
                         className:
                           "opacity-0 group-hover:opacity-100 after:content-['#'] after:ml-1.5",
                       },
-                    },
-                  ],
-                  [
-                    rehypeAddClasses,
-                    {
+                    }],
+                    [rehypeAddClasses, {
                       "h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]": "group",
-                      pre: "grid",
-                    },
-                  ],
-                  [
-                    rehypeToc,
-                    {
+                      "pre": "grid",
+                    }],
+                    [rehypeToc, {
                       cssClasses: {
                         toc:
-                          "text-sm tracking-wide leading-loose lg:block relative pt-2",
+                          "hidden text-sm font-light tracking-wide leading-loose lg:block relative pt-2",
+                        list: "fixed w-[200px]",
                         link: "hover:underline hover:underline-offset-2",
                       },
-                      customizeTOC,
-                    },
-                  ],
-                ]}
-              >
-                <doc.MDXContent />
-              </Rehype>
-              <NextPrevLinks doc={doc} />
-            </article>
-          </Transform>
-        </section>
-      </AppHtml>
-    );
+                    }],
+                  ]}
+                >
+                  <doc.MDXContent />
+                </Rehype>
+                <NextPrevLinks doc={doc} />
+              </article>
+            </Transform>
+          </section>
+        </AppHtml>
+      );
+    },
   };
 }
 

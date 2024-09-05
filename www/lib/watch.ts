@@ -1,10 +1,7 @@
 import {
-  action,
-  filter,
-  first,
-  pipe,
+  call,
+  main,
   resource,
-  run,
   sleep,
   type Stream,
   stream,
@@ -15,7 +12,7 @@ import { parse } from "https://deno.land/std@0.188.0/flags/mod.ts";
 
 import { useCommand } from "./use-command.ts";
 
-await run(function* () {
+await main(function* () {
   let scriptargs = parse(Deno.args, {
     "--": true,
   });
@@ -28,49 +25,36 @@ await run(function* () {
   console.log(`watch: ${JSON.stringify(paths)}`);
   console.log(`run: ${cmd} ${args.join(" ")}`);
 
-  yield* action<void>(function* (resolve) {
-    Deno.addSignalListener("SIGINT", resolve);
-    try {
+  while (true) {
+    yield* call(function* () {
+      let changes = yield* useFsWatch(paths);
+
+      yield* useCommand(cmd, { args });
+
       while (true) {
-        yield* action(function* (restart) {
-          let change = pipe(
-            useFsWatch(paths),
-            filter(function* (event) {
-              return !event.paths.some((path) =>
-                ignores.some((ignore) => path.includes(ignore))
-              );
-            }),
-          );
-
-          yield* useCommand(cmd, { args });
-
-          yield* first(change);
-
-          yield* sleep(100);
-
-          console.log("changes detected, restarting...");
-
-          restart();
-        });
+        let { value: change } = yield* changes.next();
+        if (
+          !change.paths.some((path) =>
+            ignores.some((ignore) => path.includes(ignore))
+          )
+        ) {
+          break;
+        }
       }
-    } finally {
-      Deno.removeSignalListener("SIGINT", resolve);
-    }
-  });
+      yield* sleep(100);
+      console.log("changes detected, restarting...");
+    });
+  }
 });
 
 function useFsWatch(paths: string | string[]): Stream<Deno.FsEvent, never> {
-  return {
-    subscribe() {
-      return resource(function* (provide) {
-        let watcher = Deno.watchFs(paths);
-        try {
-          let subscription = yield* stream(watcher).subscribe();
-          yield* provide(subscription as Subscription<Deno.FsEvent, never>);
-        } finally {
-          watcher.close();
-        }
-      });
-    },
-  };
+  return resource(function* (provide) {
+    let watcher = Deno.watchFs(paths);
+    try {
+      let subscription = yield* stream(watcher);
+      yield* provide(subscription as Subscription<Deno.FsEvent, never>);
+    } finally {
+      watcher.close();
+    }
+  });
 }

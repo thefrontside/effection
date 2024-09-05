@@ -5,7 +5,6 @@ import { useAbsoluteUrl } from "../plugins/rebase.ts";
 import { Header } from "../components/header.tsx";
 import { Footer } from "../components/footer.tsx";
 
-
 export interface Options {
   title: string;
 }
@@ -20,7 +19,7 @@ export function* useAppHtml({
 }: Options): Operation<({ children, navLinks }: AppHtmlProps) => JSX.Element> {
   let homeURL = yield* useAbsoluteUrl("/");
   let twitterImageURL = yield* useAbsoluteUrl(
-    "/assets/images/meta-effection.png"
+    "/assets/images/meta-effection.png",
   );
 
   return ({ children, navLinks }) => (
@@ -68,7 +67,9 @@ export function* useAppHtml({
       </head>
       <body class="flex flex-col">
         <Header navLinks={navLinks} />
-        <main class="container max-w-screen-2xl mx-auto mb-auto">{children}</main>
+        <main class="container max-w-screen-2xl mx-auto mb-auto">
+          {children}
+        </main>
         <Footer />
       </body>
     </html>

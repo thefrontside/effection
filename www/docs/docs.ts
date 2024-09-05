@@ -1,5 +1,12 @@
-import { call, type Operation, resource, type Task, useScope } from "effection";
-import structure from "./structure.json" assert { type: "json" };
+import {
+  all,
+  call,
+  type Operation,
+  resource,
+  type Task,
+  useScope,
+} from "effection";
+import structure from "./structure.json" with { type: "json" };
 
 import { basename } from "https://deno.land/std@0.205.0/path/posix/basename.ts";
 
@@ -19,6 +26,7 @@ export interface DocModule {
 }
 
 export interface Docs {
+  all(): Operation<Doc[]>;
   getDoc(id?: string): Operation<Doc | undefined>;
 }
 
@@ -102,6 +110,12 @@ export function loadDocs(): Operation<Docs> {
     }
 
     yield* provide({
+      *all() {
+        if (!loaders) {
+          loaders = yield* load();
+        }
+        return yield* all([...loaders.values()]);
+      },
       *getDoc(id) {
         if (id) {
           if (!loaders) {

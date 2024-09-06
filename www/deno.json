@@ -18,7 +18,7 @@
   },
   "imports": {
     "effection": "https://deno.land/x/effection@3.0.0-beta.2/mod.ts",
-    "revolution": "https://deno.land/x/revolution@0.3.1/mod.ts",
-    "revolution/jsx-runtime": "https://deno.land/x/revolution@0.3.1/jsx-runtime.ts"
+    "revolution": "https://deno.land/x/revolution@0.5.2/mod.ts",
+    "revolution/jsx-runtime": "https://deno.land/x/revolution@0.5.2/jsx-runtime.ts"
   }
 }

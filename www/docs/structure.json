@@ -13,7 +13,8 @@
     ["spawn.mdx", "Spawn"],
     ["collections.mdx", "Streams and Subscriptions"],
     ["events.mdx", "Events"],
-    ["errors.mdx", "Error Handling"]
+    ["errors.mdx", "Error Handling"],
+    ["context.mdx", "Context"]
   ],
   "Advanced": [
     ["scope.mdx", "Scope"],

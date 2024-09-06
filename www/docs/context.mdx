@@ -1,3 +1,14 @@
+Effection contexts store ambient values that are needed by the operations in your application in order to run. Some of the most common 
+use cases of `Context` are
+
+
+* **Configuration**: most apps require values that come from the environment such as evironment variables or configuration files. Use context to easily retrieve such values from within any operation.
+* **Client APIs**: many APIs provide client libraries to connect with them. With an Effection context, you can create a client instance once and share it between all child operations.
+* **Services**: Database connections, Websockets, and many other types of APIs involve a handle to a stateful object that needs to be
+destroyed accordingly to a set lifecycle. Combined with [resource api][resources], Effection context allows you to share a service between child operations and also to guarantee that it is disposed of properly when it is no longer needed.
+
+## The problem
+
 Usually, you can pass information from a parent operation to a child operation 
 via function argument or lexical scope. But passing function arguments can become 
 verbose and inconvenient when the you have to pass them through many operations in 
@@ -5,7 +16,7 @@ the middle, or if many operations need the same information. Likewise, passing i
 via lexical scope is only possible if you define the child operation in the body of the
 parent operation. `Context` lets the parent operation make some information available to any
 operation in the tree below it-no matter how deep-without passing it explicitely through function
-arguments or lexical scope.   
+arguments or lexical scope.
 
 > 💁 If you're familiar with React Context, you already know most of 
 > what you need to know about Effection Context. The biggest difference
@@ -53,12 +64,14 @@ function* fetchRepositories() {
 
 ## Context: overriding nested context
 
-Context is attached to the scope of the parent operation. This allows you to override the context value of an operation
-in the tree without affecting the value higher up the tree.
+Context is attached to the scope of the parent operation. That means that the operation and _all of its children_ will see that same context.
+
+However, if a child operation sets its own value for the context, it will _not_ affect the value of any of its ancestors.
 
 <div class="max-w-md mx-auto md:max-w-2xl">
   ![Parent sets value to A, Child overrides value to B and all children below get B](/assets/images/overriding-context.svg)
 </div>
+
 
 ## Using Context
 
@@ -103,10 +116,6 @@ function* logMyValue() {
 }
 ```
 
-## Use cases for context
-
-* **Config**: most apps written with Effection require values that come from the environment variables. Use can use context to store values from configuration to easily retrieve it in any operation.
-* **Client APIs**: many APIs require creating a client instance. You can create the client instance once and make it available to all operations using context.
-
 [scope]: /docs/guides/scope
+[resources]: /docs/guides/resources
 [React Context]: https://react.dev/learn/passing-data-deeply-with-context

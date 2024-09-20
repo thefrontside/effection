@@ -1,6 +1,6 @@
 import { main, suspend } from "effection";
 
-import { createRevolution, route } from "revolution";
+import { createRevolution } from "revolution";
 import { docsRoute } from "./routes/docs-route.tsx";
 import { indexRoute } from "./routes/index-route.tsx";
 import { v2docsRoute } from "./routes/v2docs-route.tsx";
@@ -11,6 +11,7 @@ import { config } from "./tailwind.config.ts";
 import { twindPlugin } from "./plugins/twind.ts";
 import { rebasePlugin } from "./plugins/rebase.ts";
 import { etagPlugin } from "./plugins/etag.ts";
+import { route, sitemapPlugin } from "./plugins/sitemap.ts";
 
 import { loadDocs } from "./docs/docs.ts";
 import { loadV2Docs } from "./docs/v2-docs.ts";
@@ -34,6 +35,7 @@ await main(function* () {
       twindPlugin({ config }),
       etagPlugin(),
       rebasePlugin(),
+      sitemapPlugin(),
     ],
   });
 

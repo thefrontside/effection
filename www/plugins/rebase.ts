@@ -61,14 +61,22 @@ export function rebasePlugin(): RevolutionPlugin {
  * with protocol.
  */
 export function* useAbsoluteUrl(path: string): Operation<string> {
-  let normalizedPath = posixNormalize(path);
-  if (normalizedPath.startsWith("/")) {
-    let base = yield* BaseUrl;
-    let url = new URL(base);
-    url.pathname = posixNormalize(`${base.pathname}${path}`);
-    return url.toString();
-  } else {
-    let request = yield* CurrentRequest;
-    return new URL(path, request.url).toString();
+  let absolute = yield* useAbsoluteUrlFactory();
+  return absolute(path);
+}
+
+export function* useAbsoluteUrlFactory(): Operation<(path: string) => string> {
+  let base = yield* BaseUrl;
+  let request = yield* CurrentRequest;
+
+  return (path) => {
+    let normalizedPath = posixNormalize(path);
+    if (normalizedPath.startsWith("/")) {
+      let url = new URL(base);
+      url.pathname = posixNormalize(`${base.pathname}${path}`);
+      return url.toString();
+    } else {
+      return new URL(path, request.url).toString();
+    }
   }
 }

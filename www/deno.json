@@ -1,6 +1,6 @@
 {
   "tasks": {
-    "dev": "deno run -A lib/watch.ts components docs lib plugins routes -- deno run -A --lock-write main.tsx"
+    "dev": "deno run -A lib/watch.ts components docs lib plugins routes -- deno run -A main.tsx"
   },
   "lint": {
     "exclude": ["docs/esm"],
@@ -17,8 +17,8 @@
     "jsxImportSource": "revolution"
   },
   "imports": {
-    "effection": "https://deno.land/x/effection@3.0.0-beta.2/mod.ts",
-    "revolution": "https://deno.land/x/revolution@0.5.2/mod.ts",
-    "revolution/jsx-runtime": "https://deno.land/x/revolution@0.5.2/jsx-runtime.ts"
+    "effection": "https://deno.land/x/effection@3.0.3/mod.ts",
+    "revolution": "https://deno.land/x/revolution@0.6.0/mod.ts",
+    "revolution/jsx-runtime": "https://deno.land/x/revolution@0.6.0/jsx-runtime.ts"
   }
 }

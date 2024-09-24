@@ -4,7 +4,7 @@
     ["typescript.mdx", "TypeScript"],
     ["thinking-in-effection.mdx", "Thinking in Effection"],
     ["async-rosetta-stone.mdx", "Async Rosetta Stone"],
-    ["tutorial.mdx", "Tutorial"]
+    ["examples.mdx", "Examples"]
   ],
   "Learn Effection": [
     ["operations.mdx", "Operations"],

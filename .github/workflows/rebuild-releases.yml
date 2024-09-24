@@ -1,0 +1,70 @@
+name: Push to Docs
+
+on:
+  workflow_dispatch:
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      tags: ${{steps.output-tags.outputs.tags}}
+    steps:
+      - uses: actions/github-script@v7
+        id: output-tags
+        with:
+          script: |
+            const tags = await github.paginate(
+              'GET /repos/{owner}/{repo}/tags', {
+                  owner: 'thefrontside',
+                  repo: 'effection',
+              },
+              (response) => response.data.filter(({ name }) => /^effection-v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(name))
+            );
+
+            core.setOutput('tags', JSON.stringify(tags.map(tag => tag.name)));
+        env:
+          GITHUB_TOKEN: ${{github.token}}
+
+  rebuild:
+    runs-on: ubuntu-latest
+    needs: setup
+    if: "join(fromJSON(needs.setup.outputs.tags), '') != ''"
+    strategy:
+      matrix:
+        tag: ${{fromJSON(needs.setup.outputs.tags)}}
+      max-parallel: 4
+
+    permissions:
+      # Give the default GITHUB_TOKEN write permission to commit and push the
+      # added or changed files to the repository.
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: "refs/tags/${{ matrix.tag }}"
+
+      - name: setup deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - name: Get Version
+        id: vars
+        run: echo ::set-output name=version::$(echo ${{ matrix.tag }} | sed 's/^effection-v//')
+
+      - name: Generate Docs for ${{ matrix.tag }}
+        run: deno doc --html --name=effection@$VERSION mod.ts
+        env:
+          VERSION: ${{steps.vars.outputs.version}}
+
+      - run: tar cfvz api-docs.tgz -C docs .
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: api-docs.tgz
+          name: ${{steps.vars.outputs.version}}
+          tag_name: "refs/tags/${{ matrix.tag }}"
+        env:
+          GITHUB_TOKEN: ${{github.token}}

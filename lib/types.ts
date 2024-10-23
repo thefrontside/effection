@@ -1,5 +1,4 @@
-// deno-lint-ignore-file no-explicit-any
-import type { Computation } from "./deps.ts";
+import type { Result } from "./result.ts";
 
 /**
  * An `Operation` in Effection describes an abstract computation. An operation
@@ -41,7 +40,7 @@ import type { Computation } from "./deps.ts";
  *
  */
 export interface Operation<T> {
-  [Symbol.iterator](): Iterator<Instruction, T, any>;
+  [Symbol.iterator](): Iterator<Effect<unknown>, T, unknown>;
 }
 
 /**
@@ -53,7 +52,7 @@ export interface Operation<T> {
  * things, if the operation resolves synchronously, it will continue within the
  * same tick of the run loop.
  */
-export interface Future<T> extends Promise<T>, Operation<T> {}
+export interface Future<T> extends Operation<T>, Promise<T> {}
 
 /**
  * A handle to a concurrently running operation that lets you either use the
@@ -148,11 +147,95 @@ export interface Task<T> extends Future<T> {
   halt(): Future<void>;
 }
 
-export type Resolve<T = unknown> = (value: T) => void;
+/**
+ * The Effection equivalent of an [`AsyncIterator`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/AsyncIterator)
+ *
+ * A subscription acts like a stateful queue that provides a sequence of values
+ * via the next() method. Normally a subscription is created via a
+ * {@link Stream}.
+ *
+ * @see https://effection.deno.dev/docs/collections#subscription
+ */
+export interface Subscription<T, TDone> {
+  next(): Operation<IteratorResult<T, TDone>>;
+}
 
-export type Reject = (error: Error) => void;
+/**
+ * The Effection equivalent of an [`AsyncIterable`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols#the_async_iterator_and_async_iterable_protocols).
+ *
+ * Like async iterables, streams do not actually have state themselves, but
+ * contain the recipe for how to create a {@link Subscription}
+ *
+ * @see https://frontside.com/effection/docs/collections#stream
+ */
+export type Stream<T, TReturn> = Operation<Subscription<T, TReturn>>;
 
-export type Provide<T> = (value: T) => Operation<void>;
+/**
+ * `Context` defines a value which is in effect for a given scope which is an
+ * (action, resource, call, or spawn).
+ *
+ * Unless a context value is defined for a particular scope, it will inherit
+ * its value from its parent scope.
+ */
+export interface Context<T> {
+  /**
+   * A unique identifier for this context.
+   */
+  name: string;
+  /**
+   * The value returned by this context when it is not present on a scop.e
+   */
+  defaultValue?: T;
+
+  /**
+   * Read the current value of this context if it exists.
+   *
+   * @returns an operation that yields the current value if it exists, or undefined otherwise.
+   * @see {@link Scope#get} for reading a context value outside of a running operation
+   */
+  get(): Operation<T | undefined>;
+
+  /**
+   * Set the value of a context on the current scope. It will not effect the value of its
+   * containing scope and will only be visible by this scope and its children.
+   *
+   * @returns an operation yielding the value being set
+   * @see {@link Scope#set} for setting a context value outside of a running operation
+   */
+  set(value: T): Operation<T>;
+
+  /**
+   * Read the current value of the context or fail if it does not exist
+   *
+   * @returns an operation that yields the context value
+   * @see {@link Scope#expect} for reading a required context value outside of a running operation
+   */
+  expect(): Operation<T>;
+
+  /**
+   * Remove a context value from the current scope. This will only effect the current scope and
+   * not its parent value.
+   *
+   * @returns true if the value existed uniquely on this scope.
+   */
+  delete(): Operation<boolean>;
+
+  /**
+   * Evaluate an operation using `value` for the context. Once the operation is completed, the context
+   * will be reverted to its original value, or removed if it was not present originally.
+   *
+   * @example
+   * ```ts
+   * let user = yield* login();
+   * yield* UserContext.with(user, function*() {
+   *   //do stuff
+   * })
+   * ```
+   *
+   * @returns the result of evaluating the operation.
+   */
+  with<R>(value: T, operation: (value: T) => Operation<R>): Operation<R>;
+}
 
 /**
  * A programatic API to interact with an Effection scope from outside of an
@@ -185,17 +268,29 @@ export type Provide<T> = (value: T) => Operation<void>;
  */
 export interface Scope {
   /**
-   * Spawn an {@link Operation} within `Scope`.
+   * Run an {@link Operation} within `Scope`.
    *
    * This is used to create concurrent tasks from _outside_ of a running
-   * operation.
+   * operation. To create concurrent tasks from _within_ an already
+   * running operation, use {@link Scope#spawn}
    *
    * @param operation - the operation to run
-   * @returns a task rep
+   * @returns a task of the running operation
    */
   run<T>(operation: () => Operation<T>): Task<T>;
+
+  /**
+   * Spawn an {@link Operation} within `Scope`.
+   *
+   * This is used to create concurrent tasks from _within_ a running
+   * operation. To create concurrent from outside of Effection, use
+   * {@link Scope#run}
+   */
+  spawn<T>(operation: () => Operation<T>): Operation<Task<T>>;
+
   /**
    * Get a {@link Context} value from outside of an operation.
+   *
    * @param context - the context to get
    * @returns the value of that context in this scope if it exists
    */
@@ -203,68 +298,35 @@ export interface Scope {
 
   /**
    * Set the value of a {@link Context} from outside of an operation
+   *
    * @param context - the context to set
    * @param value - the value to set for this context
    * @returns - the value that was set
    */
   set<T>(context: Context<T>, value: T): T;
-}
-
-/**
- * The Effection equivalent of an [`AsyncIterable`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols#the_async_iterator_and_async_iterable_protocols).
- *
- * Like async iterables, streams do not actually have state themselves, but
- * contain the recipe for how to create a {@link Subscription}
- *
- * @see https://frontside.com/effection/docs/collections#stream
- */
-export type Stream<T, TReturn> = Operation<Subscription<T, TReturn>>;
-
-/**
- * The Effection equivalent of an [`AsyncIterator`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/AsyncIterator)
- *
- * A subscription acts like a stateful queue that provides a sequence of values
- * via the next() method. Normally a subscription is created via a
- * {@link Stream}.
- *
- * @see https://effection.deno.dev/docs/collections#subscription
- */
-export interface Subscription<T, R> {
-  next(): Operation<IteratorResult<T, R>>;
-}
-
-/**
- * `Context`` defines a value which is in effect for a given scope which is an
- * (action, resource, call, or spawn).
- *
- * When used as an operation, it gets the value of the Context from
- * the current scope. If it has not been set, and there is no default
- * value, then a `MissingContextError` will be raised.
- *
- * Unless a context value is defined for a particular scope, it will inherit
- * its value from its parent scope.
- */
-export interface Context<T> extends Operation<T> {
-  /**
-   * A unique identifier for this context.
-   */
-  readonly key: string;
 
   /**
-   * The value of the context if has not been defined for the current operation.
+   * Get a {@link Context} value from outside of an operation, and throw
+   * a `MissingContextError` if this context is not specified for this scope.
+   *
+   * @param context - the context to get
+   * @returns the value of that context in this scope if it exists
    */
-  readonly defaultValue?: T;
+  expect<T>(context: Context<T>): T;
 
   /**
-   * Set the value of the Context for the current scope.
+   * Remove a {@link Context} value from this scope.
+   *
+   * @param context - the context to delete
    */
-  set(value: T): Operation<T>;
+  delete<T>(context: Context<T>): boolean;
 
   /**
-   * Get the value of the Context from the current scope. If it has not been
-   * set, and there is no default value, then this will return `undefined`.
+   * Check if scope has its own unique value for `context`.
+   *
+   * @returns `true` if scope has its own context, `false` if context is not present, or inherited from its parent.
    */
-  get(): Operation<T | undefined>;
+  hasOwn<T>(context: Context<T>): boolean;
 }
 
 /**
@@ -276,39 +338,42 @@ export type Yielded<T extends Operation<unknown>> = T extends
   Operation<infer TYield> ? TYield
   : never;
 
-/* low-level interface Which you probably will not need */
+// low-level private apis.
 
 /**
  * @ignore
  */
-export type Result<T> = {
-  readonly ok: true;
-  value: T;
-} | {
-  readonly ok: false;
-  error: Error;
-};
-
-/**
- * @ignore
- */
-export interface Instruction {
-  (frame: Frame): Computation<Result<unknown>>;
+export interface Effect<T> {
+  description: string;
+  enter(
+    resolve: Resolve<Result<T>>,
+    routine: Coroutine,
+  ): (resolve: Resolve<Result<void>>) => void;
 }
 
-import type { FrameResult } from "./run/types.ts";
+/**
+ * @ignore
+ */
+export interface Coroutine<T = unknown> {
+  scope: Scope;
+  data: {
+    discard(resolve: Resolve<Result<unknown>>): void;
+    iterator: Iterator<Effect<unknown>, T, unknown>;
+  };
+  next(result: Result<unknown>, subscriber?: Subscriber<T>): () => void;
+  return<R>(result: Result<R>, subcriber?: Subscriber<void>): () => void;
+}
 
 /**
  * @ignore
  */
-export interface Frame<T = unknown> extends Computation<FrameResult<T>> {
-  id: number;
-  context: Record<string, unknown>;
-  exited?: true;
-  aborted?: boolean;
-  getTask(): Task<T>;
-  createChild<C>(operation: () => Operation<C>): Frame<C>;
-  enter(): void;
-  crash(error: Error): Computation<Result<void>>;
-  destroy(): Computation<Result<void>>;
+export interface Subscriber<T> {
+  (result: IteratorResult<Result<unknown>, Result<T>>): void;
+}
+
+/**
+ * @ignore
+ */
+export interface Resolve<T> {
+  (value: T): void;
 }

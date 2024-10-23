@@ -1,6 +1,6 @@
 import { describe, expect, it } from "./suite.ts";
 
-import { call, run, spawn, suspend } from "../mod.ts";
+import { call, run } from "../mod.ts";
 
 describe("call", () => {
   it("evaluates an operation function", async () => {
@@ -11,16 +11,6 @@ describe("call", () => {
       let result = yield* call(fn);
       expect(result).toEqual(10);
     });
-  });
-
-  it("evaluates an operation directly", async () => {
-    await expect(run(() =>
-      call({
-        *[Symbol.iterator]() {
-          return 42;
-        },
-      })
-    )).resolves.toEqual(42);
   });
 
   it("evaluates an async function", async () => {
@@ -36,27 +26,6 @@ describe("call", () => {
     await expect(run(() => call(() => Promise.resolve(42)))).resolves.toEqual(
       42,
     );
-  });
-
-  it("evaluates a promise directly", async () => {
-    await expect(run(() => call(Promise.resolve(42)))).resolves.toEqual(42);
-  });
-
-  it("can be used as an error boundary", async () => {
-    let error = new Error("boom!");
-    let result = await run(function* () {
-      try {
-        yield* call(function* () {
-          yield* spawn(function* () {
-            throw error;
-          });
-          yield* suspend();
-        });
-      } catch (error) {
-        return error;
-      }
-    });
-    expect(result).toEqual(error);
   });
 
   it("evaluates a vanilla function", async () => {

@@ -1,16 +1,15 @@
+// deno-lint-ignore-file no-unsafe-finally
 import { describe, expect, it } from "./suite.ts";
-import { action, run, sleep, spawn, suspend } from "../mod.ts";
+import { run, sleep, spawn, suspend } from "../mod.ts";
 
 describe("spawn", () => {
   it("can spawn a new child task", async () => {
-    let root = run(function* () {
-      let child = yield* spawn(function* () {
+    let root = run(function* root() {
+      let child = yield* spawn(function* child() {
         let one = yield* Promise.resolve(12);
         let two = yield* Promise.resolve(55);
-
         return one + two;
       });
-
       return yield* child;
     });
     await expect(root).resolves.toEqual(67);
@@ -18,8 +17,8 @@ describe("spawn", () => {
 
   it("halts child when halted", async () => {
     let child;
-    let root = run(function* () {
-      child = yield* spawn(function* () {
+    let root = run(function* root() {
+      child = yield* spawn(function* child() {
         yield* suspend();
       });
 
@@ -33,7 +32,7 @@ describe("spawn", () => {
 
   it("halts child when finishing normally", async () => {
     let child;
-    let result = run(function* () {
+    let result = run(function* parent() {
       child = yield* spawn(function* () {
         yield* suspend();
       });
@@ -64,7 +63,6 @@ describe("spawn", () => {
     let error = new Error("moo");
     let root = run(function* () {
       child = yield* spawn(function* () {
-        yield* sleep(1);
         throw error;
       });
 
@@ -90,20 +88,20 @@ describe("spawn", () => {
 
   it("rejects when child errors during completing", async () => {
     let child;
-    let root = run(function* () {
-      child = yield* spawn(function* () {
+    let root = run(function* root() {
+      child = yield* spawn(function* child() {
         try {
           yield* suspend();
         } finally {
-          // deno-lint-ignore no-unsafe-finally
           throw new Error("moo");
         }
       });
+      yield* sleep(0);
       return "foo";
     });
 
+    await expect(child).rejects.toMatchObject({ message: "moo" });
     await expect(root).rejects.toHaveProperty("message", "moo");
-    await expect(child).rejects.toHaveProperty("message", "moo");
   });
 
   it("rejects when child errors during halting", async () => {
@@ -113,7 +111,6 @@ describe("spawn", () => {
         try {
           yield* suspend();
         } finally {
-          // deno-lint-ignore no-unsafe-finally
           throw new Error("moo");
         }
       });
@@ -167,6 +164,7 @@ describe("spawn", () => {
           result.push("second done");
         }
       });
+      yield* sleep(0);
     });
 
     expect(result).toEqual([
@@ -177,29 +175,11 @@ describe("spawn", () => {
     ]);
   });
 
-  it("can catch an error spawned inside of an action", async () => {
-    let error = new Error("boom!");
-    let value = await run(function* () {
-      try {
-        yield* action(function* TheAction() {
-          yield* spawn(function* TheBomb() {
-            yield* sleep(1);
-            throw error;
-          });
-          yield* sleep(5000);
-        });
-      } catch (err) {
-        return err;
-      }
-    });
-    expect(value).toBe(error);
-  });
-
   it("halts children on explicit halt", async () => {
     let child;
     let root = run(function* () {
       child = yield* spawn(function* () {
-        yield* sleep(20);
+        yield* sleep(2);
         return "foo";
       });
 
@@ -209,5 +189,20 @@ describe("spawn", () => {
     await root.halt();
 
     await expect(child).rejects.toHaveProperty("message", "halted");
+  });
+
+  it("raises an uncatchable error if a spawned child fails", async () => {
+    let task = run(function* () {
+      yield* spawn(function* () {
+        yield* sleep(5);
+        throw new Error("moo");
+      });
+      try {
+        yield* sleep(10);
+      } catch (error) {
+        return error;
+      }
+    });
+    await expect(task).rejects.toHaveProperty("message", "moo");
   });
 });

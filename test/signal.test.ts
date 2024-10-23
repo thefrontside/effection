@@ -3,7 +3,6 @@ import {
   createQueue,
   createScope,
   createSignal,
-  each,
   run,
   SignalQueueFactory,
   spawn,
@@ -14,10 +13,12 @@ describe("createSignal", () => {
     let msgs: string[] = [];
     let signal = createSignal<string, void>();
     let root = run(function* () {
+      let subscription = yield* signal;
       let task = yield* spawn(function* () {
-        for (let msg of yield* each(signal)) {
-          msgs.push(msg);
-          yield* each.next();
+        let next = yield* subscription.next();
+        while (!next.done) {
+          msgs.push(next.value);
+          next = yield* subscription.next();
         }
       });
 
@@ -56,10 +57,12 @@ describe("createSignal", () => {
     let signal = createSignal<string, void>();
 
     let root = scope.run(function* () {
+      let subscription = yield* signal;
       let task = yield* spawn(function* () {
-        for (let msg of yield* each(signal)) {
-          msgs.push(msg);
-          yield* each.next();
+        let next = yield* subscription.next();
+        while (!next.done) {
+          msgs.push(next.value);
+          next = yield* subscription.next();
         }
       });
 

@@ -1,6 +1,4 @@
-import { sleep } from "../../lib/sleep.ts";
-import { main } from "../../lib/main.ts";
-import { spawn, suspend } from "../../lib/instructions.ts";
+import { main, sleep, spawn, suspend } from "../../mod.ts";
 
 await main(function* () {
   yield* spawn(function* () {

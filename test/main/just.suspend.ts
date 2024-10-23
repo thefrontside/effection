@@ -1,5 +1,4 @@
-import { suspend } from "../../lib/instructions.ts";
-import { main } from "../../lib/main.ts";
+import { main, suspend } from "../../mod.ts";
 
 await main(function* () {
   console.log("started");

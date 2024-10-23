@@ -1,5 +1,4 @@
-import { main } from "../../lib/main.ts";
-import { sleep } from "../../lib/sleep.ts";
+import { main, sleep } from "../../mod.ts";
 
 await main(function* () {
   console.log(`started: ${Deno.pid}`);

@@ -1,4 +1,4 @@
-import { shift } from "./deps.ts";
+import { action } from "./action.ts";
 import { type Operation } from "./types.ts";
 
 /**
@@ -20,14 +20,13 @@ export function lift<TArgs extends unknown[], TReturn>(
   fn: (...args: TArgs) => TReturn,
 ): (...args: TArgs) => Operation<TReturn> {
   return (...args: TArgs) => {
-    return ({
-      *[Symbol.iterator]() {
-        return yield () => {
-          return shift(function* (k) {
-            k.tail({ ok: true, value: fn(...args) });
-          });
-        };
-      },
+    return action((resolve, reject) => {
+      try {
+        resolve(fn(...args));
+      } catch (error) {
+        reject(error);
+      }
+      return () => {};
     });
   };
 }

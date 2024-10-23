@@ -3,23 +3,6 @@ import { Operation, resource, run, sleep, spawn, suspend } from "../mod.ts";
 
 type State = { status: string };
 
-function createResource(container: State): Operation<State> {
-  return resource(function* (provide) {
-    yield* spawn(function* () {
-      yield* sleep(5);
-      container.status = "active";
-    });
-
-    yield* sleep(1);
-
-    try {
-      yield* provide(container);
-    } finally {
-      container.status = "finalized";
-    }
-  });
-}
-
 describe("resource", () => {
   it("runs resource in task scope", async () => {
     let state = { status: "pending" };
@@ -44,11 +27,28 @@ describe("resource", () => {
     await expect(task).rejects.toHaveProperty("message", "moo");
   });
 
+  it("can catch an error in init", async () => {
+    let task = run(function* () {
+      try {
+        yield* resource(function* () {
+          throw new Error("moo");
+        });
+      } catch (error) {
+        return error;
+      }
+    });
+
+    await expect(task).resolves.toMatchObject({ message: "moo" });
+  });
+
   it("raises an error if an error occurs after init", async () => {
     let task = run(function* () {
-      yield* spawn(function* () {
-        yield* sleep(5);
-        throw new Error("moo");
+      yield* resource<void>(function* (provide) {
+        yield* spawn(function* () {
+          yield* sleep(5);
+          throw new Error("moo");
+        });
+        yield* provide();
       });
       try {
         yield* sleep(10);
@@ -72,8 +72,26 @@ describe("resource", () => {
       yield* createResource(state);
       yield* suspend();
     });
+
     await task.halt();
 
     expect(state.status).toEqual("pending");
   });
 });
+
+function createResource(container: State): Operation<State> {
+  return resource(function* (provide) {
+    yield* spawn(function* () {
+      yield* sleep(5);
+      container.status = "active";
+    });
+
+    yield* sleep(1);
+
+    try {
+      yield* provide(container);
+    } finally {
+      container.status = "finalized";
+    }
+  });
+}

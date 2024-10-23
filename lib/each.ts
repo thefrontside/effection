@@ -1,5 +1,9 @@
 import type { Operation, Stream, Subscription } from "./types.ts";
 import { createContext } from "./context.ts";
+import { race } from "./race.ts";
+import { resource } from "./resource.ts";
+import { withResolvers } from "./with-resolvers.ts";
+import { useScope } from "./scope.ts";
 
 /**
  * Consume an effection stream using a simple for-of loop.
@@ -28,39 +32,56 @@ import { createContext } from "./context.ts";
 export function each<T>(stream: Stream<T, unknown>): Operation<Iterable<T>> {
   return {
     *[Symbol.iterator]() {
-      let subscription = yield* stream;
-      let current = yield* subscription.next();
-      let stack = yield* EachStack.get();
-      if (!stack) {
-        stack = yield* EachStack.set([]);
+      let scope = yield* useScope();
+      if (!scope.hasOwn(EachStack)) {
+        scope.set(EachStack, []);
       }
+      return yield* resource(function* (provide) {
+        let done = withResolvers<void>();
 
-      let context: EachLoop<T> = { subscription, current };
+        let subscription = yield* stream;
+        let current = yield* subscription.next();
 
-      stack.push(context);
+        let stack = scope.expect(EachStack);
 
-      let iterator: Iterator<T> = {
-        next() {
-          if (context.stale) {
-            let error = new Error(
-              `for each loop did not use each.next() operation before continuing`,
-            );
-            error.name = "IterationError";
-            throw error;
-          } else {
-            context.stale = true;
-            return context.current;
-          }
-        },
-        return() {
-          stack!.pop();
-          return { done: true, value: void 0 };
-        },
-      };
+        let context: EachLoop<T> = {
+          subscription,
+          current,
+          finish() {
+            context.finish = () => {};
+            stack.pop();
+            done.resolve();
+          },
+        };
 
-      return {
-        [Symbol.iterator]: () => iterator,
-      };
+        stack.push(context);
+
+        let iterator: Iterator<T> = {
+          next() {
+            if (context.stale) {
+              let error = new Error(
+                `for each loop did not use each.next() operation before continuing`,
+              );
+              error.name = "IterationError";
+              throw error;
+            } else {
+              context.stale = true;
+              return context.current;
+            }
+          },
+          return() {
+            context.finish();
+            return { done: true, value: void 0 };
+          },
+        };
+
+        yield* race([
+          done.operation,
+          provide({
+            [Symbol.iterator]: () => iterator,
+          }),
+        ]);
+      });
     },
   };
 }
@@ -69,7 +90,7 @@ each.next = function next() {
   return {
     name: "each.next()",
     *[Symbol.iterator]() {
-      let stack = yield* EachStack;
+      let stack = yield* EachStack.expect();
       let context = stack[stack.length - 1];
       if (!context) {
         let error = new Error(`cannot call next() outside of an iteration`);
@@ -80,7 +101,7 @@ each.next = function next() {
       delete context.stale;
       context.current = current;
       if (current.done) {
-        stack.pop();
+        context.finish();
       }
     },
   } as Operation<void>;
@@ -89,6 +110,7 @@ each.next = function next() {
 interface EachLoop<T> {
   subscription: Subscription<T, unknown>;
   current: IteratorResult<T>;
+  finish: () => void;
   stale?: true;
 }
 

@@ -1,6 +1,6 @@
+// deno-lint-ignore-file no-unsafe-finally
 import { blowUp, createNumber, describe, expect, it } from "./suite.ts";
-import { run, sleep, spawn, suspend } from "../mod.ts";
-import type { Task } from "../mod.ts";
+import { action, run, sleep, spawn, suspend, type Task } from "../mod.ts";
 
 describe("run()", () => {
   it("can run an operation", async () => {
@@ -34,6 +34,7 @@ describe("run()", () => {
       let two = yield* blowUp<number>();
       return one + two;
     });
+
     await expect(task).rejects.toEqual(error);
   });
 
@@ -41,7 +42,8 @@ describe("run()", () => {
     let task = run(function () {
       throw new Error("boom");
     });
-    await expect(task).rejects.toHaveProperty("message", "boom");
+
+    await expect(task).rejects.toMatchObject({ message: "boom" });
   });
 
   it("can recover from errors in promise", async () => {
@@ -90,7 +92,21 @@ describe("run()", () => {
     });
 
     await task.halt();
+    await expect(task).rejects.toHaveProperty("message", "halted");
+    expect(halted).toEqual(true);
+  });
 
+  it("can halt a task as an operation", async () => {
+    let halted = false;
+    let task = run(function* () {
+      try {
+        yield* suspend();
+      } finally {
+        halted = true;
+      }
+    });
+
+    await run(task.halt);
     await expect(task).rejects.toHaveProperty("message", "halted");
     expect(halted).toEqual(true);
   });
@@ -126,30 +142,31 @@ describe("run()", () => {
       try {
         yield* suspend();
       } finally {
-        yield* sleep(10);
+        yield* sleep(1);
         completed = true;
       }
     });
 
     await task.halt();
+    await expect(task).rejects.toMatchObject({ message: "halted" });
 
     expect(completed).toEqual(true);
   });
 
-  it("cannot explicitly suspend in a finally block", async () => {
-    let done = false;
-    let task = run(function* () {
-      try {
-        yield* suspend();
-      } finally {
-        yield* suspend();
-        done = true;
-      }
-    });
+  // // it("cannot explicitly suspend in a finally block", async () => {
+  // //   let done = false;
+  // //   let task = run(function* () {
+  // //     try {
+  // //       yield* suspend();
+  // //     } finally {
+  // //       yield* suspend();
+  // //       done = true;
+  // //     }
+  // //   });
 
-    await task.halt();
-    expect(done).toEqual(true);
-  });
+  // //   await run(task.halt);
+  // //   expect(done).toEqual(true);
+  // // });
 
   it("can suspend in yielded finally block", async () => {
     let things: string[] = [];
@@ -170,7 +187,6 @@ describe("run()", () => {
     });
 
     await task.halt();
-
     await expect(task).rejects.toHaveProperty("message", "halted");
 
     expect(things).toEqual(["first", "second"]);
@@ -179,44 +195,42 @@ describe("run()", () => {
   it("can be halted while in the generator", async () => {
     let task = run(function* Main() {
       yield* spawn(function* Boomer() {
-        yield* sleep(2);
         throw new Error("boom");
       });
 
       yield* suspend();
     });
 
-    await expect(task).rejects.toHaveProperty("message", "boom");
+    await expect(task).rejects.toMatchObject({ message: "boom" });
   });
 
   it("can halt itself", async () => {
     let task: Task<void> = run(function* () {
-      yield* sleep(3);
+      yield* sleep(0);
       yield* task.halt();
     });
 
-    await expect(task).rejects.toHaveProperty("message", "halted");
+    await expect(task).rejects.toMatchObject({ message: "halted" });
   });
 
   it("can halt itself between yield points", async () => {
-    let task: Task<void> = run(function* () {
-      yield* sleep(1);
+    let task: Task<void> = run(function* root() {
+      yield* sleep(0);
 
-      yield* spawn(function* () {
+      yield* spawn(function* child() {
         yield* task.halt();
       });
 
       yield* suspend();
     });
 
-    await expect(task).rejects.toHaveProperty("message", "halted");
+    await expect(task).rejects.toMatchObject({ message: "halted" });
   });
 
   it("can delay halt if child fails", async () => {
     let didRun = false;
-    let task = run(function* () {
+    let task = run(function* Main() {
       yield* spawn(function* willBoom() {
-        yield* sleep(5);
         throw new Error("boom");
       });
       try {
@@ -227,27 +241,57 @@ describe("run()", () => {
       }
     });
 
-    await run(() => sleep(10));
-
     await expect(task).rejects.toHaveProperty("message", "boom");
     expect(didRun).toEqual(true);
+  });
+
+  it("handles error in entering suspend point", async () => {
+    let error = new Error("boom!");
+    let task = run(function* () {
+      yield* action(() => {
+        throw error;
+      });
+    });
+
+    await expect(task).rejects.toEqual(error);
+  });
+
+  it("handles errors in exiting suspend points", async () => {
+    let error = new Error("boom!");
+    let task = run(function* () {
+      yield* action<void>(() => () => {
+        throw error;
+      });
+    });
+
+    await expect(task.halt()).rejects.toEqual(error);
   });
 
   it("can throw error when child blows up", async () => {
     let task = run(function* Main() {
       yield* spawn(function* Boomer() {
-        yield* sleep(5);
         throw new Error("boom");
       });
       try {
         yield* suspend();
       } finally {
-        // deno-lint-ignore no-unsafe-finally
         throw new Error("bang");
       }
     });
 
     await expect(task).rejects.toHaveProperty("message", "bang");
+  });
+
+  it("throws an error in halt() if its finally block blows up", async () => {
+    let task = run(function* main() {
+      try {
+        yield* suspend();
+      } finally {
+        throw new Error("moo");
+      }
+    });
+
+    await expect(task.halt()).rejects.toMatchObject({ message: "moo" });
   });
 
   it("propagates errors", async () => {

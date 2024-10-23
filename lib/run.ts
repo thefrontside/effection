@@ -1,6 +1,6 @@
-import type { Operation, Task } from "./types.ts";
-import { createFrame } from "./run/frame.ts";
-export * from "./run/scope.ts";
+import { Operation, Task } from "./types.ts";
+
+import { global } from "./scope.ts";
 
 /**
  * Execute an operation.
@@ -29,7 +29,5 @@ export * from "./run/scope.ts";
  * @returns a task representing the running operation.
  */
 export function run<T>(operation: () => Operation<T>): Task<T> {
-  let frame = createFrame<T>({ operation });
-  frame.enter();
-  return frame.getTask();
+  return global.run(operation);
 }

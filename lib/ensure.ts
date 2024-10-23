@@ -1,5 +1,5 @@
 import { Operation } from "./types.ts";
-import { resource } from "./instructions.ts";
+import { resource } from "./resource.ts";
 
 /**
  * Run the given function or operation when the current operation

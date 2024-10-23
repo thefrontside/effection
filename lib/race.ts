@@ -1,5 +1,10 @@
-import type { Operation, Yielded } from "./types.ts";
-import { action, spawn } from "./instructions.ts";
+import { spawn } from "./spawn.ts";
+import { encapsulate, trap } from "./task.ts";
+import type { Operation, Task, Yielded } from "./types.ts";
+import { withResolvers } from "./with-resolvers.ts";
+import { Err, Ok, Result } from "./result.ts";
+//import { useScope } from "./scope.ts";
+//import { transfer } from "./scope.ts";
 
 /**
  * Race the given operations against each other and return the value of
@@ -24,18 +29,51 @@ import { action, spawn } from "./instructions.ts";
  * @param operations a list of operations to race against each other
  * @returns the value of the fastest operation
  */
-export function race<T extends Operation<unknown>>(
+
+export function* race<T extends Operation<unknown>>(
   operations: readonly T[],
 ): Operation<Yielded<T>> {
-  return action<Yielded<T>>(function* (resolve, reject) {
-    for (let operation of operations) {
-      yield* spawn(function* () {
-        try {
-          resolve((yield* operation) as Yielded<T>);
-        } catch (error) {
-          reject(error);
-        }
-      });
-    }
-  });
+  //  let caller = yield* useScope();
+  let winner = withResolvers<Result<Yielded<T>>>("await winner");
+
+  let tasks: Task<unknown>[] = [];
+
+  // encapsulate the race in a hermetic scope.
+  let result = yield* trap(() =>
+    encapsulate(function* () {
+      for (let operation of operations.toReversed()) {
+        tasks.push(
+          yield* spawn(function* () {
+            //          let contestant = yield* useScope();
+            try {
+              let value = yield* operation;
+
+              // Transfer the winner to the contestant
+              //        transfer({ from: contestant, to: caller });
+              winner.resolve(Ok(value as Yielded<T>));
+            } catch (error) {
+              winner.resolve(Err(error));
+            }
+          }),
+        );
+      }
+      return yield* winner.operation;
+    })
+  );
+
+  let shutdown: Task<void>[] = [];
+
+  for (let task of tasks) {
+    shutdown.push(yield* spawn(task.halt));
+  }
+
+  for (let task of shutdown) {
+    yield* task;
+  }
+
+  if (result.ok) {
+    return result.value;
+  } else {
+    throw result.error;
+  }
 }

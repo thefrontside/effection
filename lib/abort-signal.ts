@@ -1,5 +1,5 @@
 import type { Operation } from "./types.ts";
-import { resource } from "./instructions.ts";
+import { resource } from "./resource.ts";
 
 /**
  * Create an
@@ -29,7 +29,7 @@ import { resource } from "./instructions.ts";
  * ```
  */
 export function useAbortSignal(): Operation<AbortSignal> {
-  return resource(function* AbortSignal(provide) {
+  return resource(function* (provide) {
     let controller = new AbortController();
     try {
       yield* provide(controller.signal);

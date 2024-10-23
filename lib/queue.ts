@@ -1,5 +1,5 @@
 import type { Resolve, Subscription } from "./types.ts";
-import { pause } from "./pause.ts";
+import { action } from "./action.ts";
 
 /**
  * A FIFO queue which can be used to implement the {@link Subscription}
@@ -74,7 +74,7 @@ export function createQueue<T, TClose>(): Queue<T, TClose> {
       if (item) {
         return item;
       } else {
-        return yield* pause<Item>((resolve) => {
+        return yield* action<Item>((resolve) => {
           consumers.add(resolve);
           return () => consumers.delete(resolve);
         });

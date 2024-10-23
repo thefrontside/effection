@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-explicit-any ban-types
 import { createSignal } from "./signal.ts";
-import { resource } from "./instructions.ts";
+import { resource } from "./resource.ts";
 import type { Operation, Stream, Subscription } from "./types.ts";
 
 type FN = (...any: any[]) => any;

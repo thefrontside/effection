@@ -1,7 +1,8 @@
 import { createContext } from "./context.ts";
 import { type Operation } from "./types.ts";
-import { action } from "./instructions.ts";
+import { callcc } from "./callcc.ts";
 import { run } from "./run.ts";
+import { useScope } from "./scope.ts";
 import process from "node:process";
 
 /**
@@ -18,8 +19,8 @@ import process from "node:process";
  * @param returns an operation that exits the program
  */
 export function* exit(status: number, message?: string): Operation<void> {
-  let escape = yield* ExitContext;
-  escape({ status, message });
+  let escape = yield* ExitContext.expect();
+  yield* escape({ status, message });
 }
 
 /**
@@ -63,7 +64,7 @@ export async function main(
   let hardexit = (_status: number) => {};
 
   let result = await run(() =>
-    action<Exit>(function* (resolve) {
+    callcc<Exit>(function* (resolve) {
       // action will return shutdown immediately upon resolve, so stash
       // this function in the exit context so it can be called anywhere.
       yield* ExitContext.set(resolve);
@@ -72,10 +73,14 @@ export async function main(
       // Node and Deno from exiting prematurely.
       let interval = setInterval(() => {}, Math.pow(2, 30));
 
+      let scope = yield* useScope();
+
       try {
         let interrupt = {
-          SIGINT: () => resolve({ status: 130, signal: "SIGINT" }),
-          SIGTERM: () => resolve({ status: 143, signal: "SIGTERM" }),
+          SIGINT: () =>
+            scope.run(() => resolve({ status: 130, signal: "SIGINT" })),
+          SIGTERM: () =>
+            scope.run(() => resolve({ status: 143, signal: "SIGTERM" })),
         };
 
         yield* withHost({
@@ -113,7 +118,7 @@ export async function main(
 
         yield* exit(0);
       } catch (error) {
-        resolve({ status: 1, error });
+        yield* resolve({ status: 1, error });
       } finally {
         clearInterval(interval);
       }
@@ -135,7 +140,7 @@ export async function main(
   hardexit(result.status);
 }
 
-const ExitContext = createContext<(exit: Exit) => void>("exit");
+const ExitContext = createContext<(exit: Exit) => Operation<void>>("exit");
 
 interface Exit {
   status: number;

@@ -1,5 +1,5 @@
 import { describe, expect, it, useCommand } from "./suite.ts";
-import { run, sleep } from "../mod.ts";
+import { type Operation, resource, run, sleep, spawn } from "../mod.ts";
 
 describe("main", () => {
   it("gracefully shuts down on SIGINT", async () => {
@@ -123,9 +123,6 @@ describe("main", () => {
   });
 });
 
-import type { Operation } from "../lib/types.ts";
-import { resource, spawn } from "../lib/instructions.ts";
-
 interface Buffer {
   content: string;
 }
@@ -165,5 +162,5 @@ function* detect(
     }
     yield* sleep(10);
   }
-  expect(buffer.content).toMatch(text);
+  expect(buffer.content).toContain(text);
 }

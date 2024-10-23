@@ -1,6 +1,6 @@
 import type { Operation, Task, Yielded } from "./types.ts";
-import { spawn } from "./instructions.ts";
-import { call } from "./call.ts";
+import { spawn } from "./spawn.ts";
+import { encapsulate, trap } from "./task.ts";
 
 /**
  * Block and wait for all of the given operations to complete. Returns
@@ -27,20 +27,23 @@ import { call } from "./call.ts";
  * @param ops a list of operations to wait for
  * @returns the list of values that the operations evaluate to, in the order they were given
  */
-export function all<T extends readonly Operation<unknown>[] | []>(
+export function* all<T extends readonly Operation<unknown>[] | []>(
   ops: T,
 ): Operation<All<T>> {
-  return call(function* () {
-    let tasks: Task<unknown>[] = [];
-    for (let operation of ops) {
-      tasks.push(yield* spawn(() => operation));
-    }
-    let results = [];
-    for (let task of tasks) {
-      results.push(yield* task);
-    }
-    return results as All<T>;
-  });
+  return yield* trap(() =>
+    encapsulate(function* (): Operation<All<T>> {
+      let tasks: Task<unknown>[] = [];
+
+      for (let operation of ops) {
+        tasks.push(yield* spawn(() => operation));
+      }
+      let results = [];
+      for (let task of tasks) {
+        results.push(yield* task);
+      }
+      return results as All<T>;
+    })
+  );
 }
 
 /**

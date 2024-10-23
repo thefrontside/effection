@@ -4,19 +4,24 @@ import {
   createScope,
   resource,
   run,
+  sleep,
   suspend,
   useScope,
 } from "../mod.ts";
 
 describe("Scope", () => {
-  it("can be used to run actions", async () => {
+  it("can be used to run operations", async () => {
     let [scope] = createScope();
-    let t1 = scope.run(function* () {
-      return 1;
-    });
-    let t2 = scope.run(function* () {
-      return 2;
-    });
+    let t1 = run(() =>
+      scope.spawn(function* () {
+        return 1;
+      })
+    );
+    let t2 = run(() =>
+      scope.spawn(function* () {
+        return 2;
+      })
+    );
     expect(await t1).toEqual(1);
     expect(await t2).toEqual(2);
   });
@@ -24,9 +29,11 @@ describe("Scope", () => {
   it("succeeds on close if the frame has errored", async () => {
     let error = new Error("boom!");
     let [scope, close] = createScope();
-    let bomb = scope.run(function* () {
-      throw error;
-    });
+    let bomb = run(() =>
+      scope.spawn(function* () {
+        throw error;
+      })
+    );
     await expect(bomb).rejects.toEqual(error);
     await expect(close()).resolves.toBeUndefined();
   });
@@ -34,14 +41,16 @@ describe("Scope", () => {
   it("errors on close if there is an problem in teardown", async () => {
     let error = new Error("boom!");
     let [scope, close] = createScope();
-    scope.run(function* () {
-      try {
-        yield* suspend();
-      } finally {
-        // deno-lint-ignore no-unsafe-finally
-        throw error;
-      }
-    });
+    run(() =>
+      scope.spawn(function* () {
+        try {
+          yield* suspend();
+        } finally {
+          // deno-lint-ignore no-unsafe-finally
+          throw error;
+        }
+      })
+    );
     await expect(close()).rejects.toEqual(error);
   });
 
@@ -50,14 +59,18 @@ describe("Scope", () => {
     let [scope, close] = createScope();
     let tester: Tester = {};
 
-    scope.run(function* () {
-      yield* useTester(tester);
-      yield* suspend();
-    });
+    run(() =>
+      scope.spawn(function* () {
+        yield* useTester(tester);
+        yield* suspend();
+      })
+    );
 
-    scope.run(function* () {
-      throw error;
-    });
+    run(() =>
+      scope.spawn(function* () {
+        throw error;
+      })
+    );
     await expect(close()).resolves.toBeUndefined();
     expect(tester.status).toEqual("closed");
   });
@@ -66,10 +79,11 @@ describe("Scope", () => {
     let tester: Tester = {};
     await run(function* () {
       let scope = yield* useScope();
-      scope.run(function* () {
+      yield* scope.spawn(function* () {
         yield* useTester(tester);
         yield* suspend();
       });
+      yield* sleep(1);
       expect(tester.status).toEqual("open");
     });
     expect(tester.status).toEqual("closed");
@@ -79,7 +93,7 @@ describe("Scope", () => {
     let cxt = createContext<number>("number");
 
     function* incr() {
-      let value = yield* cxt;
+      let value = yield* cxt.expect();
       return yield* cxt.set(value + 1);
     }
 
@@ -87,14 +101,15 @@ describe("Scope", () => {
       let scope = yield* useScope();
       yield* cxt.set(1);
 
-      let first = yield* scope.run(incr);
-      let second = yield* scope.run(incr);
-      let third = yield* scope.run(incr);
+      let first = yield* scope.spawn(incr);
+      let second = yield* scope.spawn(incr);
+      let third = yield* scope.spawn(incr);
 
-      expect(yield* cxt).toEqual(1);
-      expect(first).toEqual(2);
-      expect(second).toEqual(2);
-      expect(third).toEqual(2);
+      expect(yield* first).toEqual(2);
+      expect(yield* second).toEqual(2);
+      expect(yield* third).toEqual(2);
+
+      expect(yield* cxt.expect()).toEqual(1);
     });
   });
 
@@ -104,14 +119,15 @@ describe("Scope", () => {
     expect(scope.get(context)).toEqual(void 0);
     expect(scope.set(context, "Hello World!")).toEqual("Hello World!");
     expect(scope.get(context)).toEqual("Hello World!");
-    await expect(scope.run(() => context)).resolves.toEqual("Hello World!");
+    await expect(run(() => scope.spawn(() => context.expect()))).resolves
+      .toEqual("Hello World!");
   });
 
   it("propagates uncaught errors within a scope", async () => {
     let error = new Error("boom");
     let result = run(function* () {
       let scope = yield* useScope();
-      scope.run(function* () {
+      yield* scope.spawn(function* () {
         throw error;
       });
       yield* suspend();
@@ -119,10 +135,22 @@ describe("Scope", () => {
     await expect(result).rejects.toBe(error);
   });
 
-  it("throws an error if you try to run() with a dead scope", async () => {
-    let scope = await run(useScope);
+  it("destroys derived scopes when a scope is destroyed", async () => {
+    let [parent, destroy] = createScope();
+    let [child] = createScope(parent);
 
-    expect(() => scope.run(function* () {})).toThrow("cannot call");
+    let halted = false;
+
+    child.run(function* () {
+      try {
+        yield* suspend();
+      } finally {
+        halted = true;
+      }
+    });
+
+    await destroy();
+    expect(halted).toEqual(true);
   });
 });
 

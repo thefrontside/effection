@@ -11,25 +11,20 @@
     },
     "exclude": [
       "build",
-      "website",
-      "www",
-      "packages"
+      "www"
     ]
   },
   "fmt": {
     "exclude": [
       "build",
-      "website",
       "www",
-      "packages",
       "CODE_OF_CONDUCT.md",
       "README.md"
     ]
   },
   "test": {
     "exclude": [
-      "build",
-      "packages"
+      "build"
     ]
   },
   "compilerOptions": {

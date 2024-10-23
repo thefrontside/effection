@@ -1,6 +1,6 @@
-import type { Instruction, Operation } from "./types.ts";
-import { action } from "./instructions.ts";
-import { pause } from "./pause.ts";
+import { constant } from "./constant.ts";
+import { action } from "./action.ts";
+import { Operation } from "./types.ts";
 
 /**
  * A uniform integration type representing anything that can be evaluated
@@ -24,30 +24,21 @@ import { pause } from "./pause.ts";
  * await run(() => hello(function*() { return "world!" })); "hello world!";
  * ```
  */
-export type Callable<T> =
-  | Operation<T>
-  | Promise<T>
-  | (() => Operation<T>)
-  | (() => Promise<T>)
-  | (() => T);
+export interface Callable<
+  T extends Operation<unknown> | Promise<unknown> | unknown,
+  TArgs extends unknown[] = [],
+> {
+  (...args: TArgs): T;
+}
 
 /**
- * Pause the current operation, then runs a promise, async function, plain function,
- * or operation within a new scope. The calling operation will be resumed (or errored)
- * once call is completed.
+ * Pause the current operation, async function, plain function, or operation function.
+ * The calling operation will be resumed (or errored) once call is completed.
  *
  * `call()` is a uniform integration point for calling async functions,
- * evaluating promises, generator functions, operations, and plain
- * functions.
+ * generator functions, and plain functions.
  *
- * It can be used to treat a promise as an operation:
- *
- * @example
- * ```javascript
- * let response = yield* call(fetch('https://google.com'));
- * ```
- *
- * or an async function:
+ * To call an async function:
  *
  * @example
  * ```typescript
@@ -59,128 +50,52 @@ export type Callable<T> =
  * }
  * ```
  *
- * It can be used to run an operation in a separate scope to ensure that any
- * resources allocated will be cleaned up:
- *
- * @example
- * ```javascript
- * yield* call(function*() {
- *   let socket = yield* useSocket();
- *   return yield* socket.read();
- * }); // => socket is destroyed before returning
- * ```
- *
- * It can be used to run a plain function:
+ * or a plain function:
  *
  * @example
  * ```javascript
  * yield* call(() => "a string");
  * ```
- *
- * Because `call()` runs within its own {@link Scope}, it can also be used to
- * establish [error boundaries](https://frontside.com/effection/docs/errors).
- *
- * @example
- * ```javascript
- * function* myop() {
- *   let task = yield* spawn(function*() {
- *     throw new Error("boom!");
- *   });
- *   yield* task;
- * }
- *
- * function* runner() {
- *   try {
- *     yield* myop();
- *   } catch (err) {
- *     // this will never get hit!
- *   }
- * }
- *
- * function* runner() {
- *   try {
- *     yield* call(myop);
- *   } catch(err) {
- *     // properly catches `spawn` errors!
- *   }
- * }
- * ```
- *
- * @param callable the operation, promise, async function, generator funnction, or plain function to call as part of this operation
+ * @param callable the operation, promise, async function, generator funnction,
+ * or plain function to call as part of this operation
  */
-export function call<T>(callable: () => Operation<T>): Operation<T>;
-export function call<T>(callable: () => Promise<T>): Operation<T>;
-export function call<T>(callable: () => T): Operation<T>;
-export function call<T>(callable: Operation<T>): Operation<T>;
-export function call<T>(callable: Promise<T>): Operation<T>;
-export function call<T>(callable: Callable<T>): Operation<T> {
-  return action(function* (resolve, reject) {
-    try {
-      if (typeof callable === "function") {
-        let fn = callable as () => Operation<T> | Promise<T> | T;
-        resolve(yield* toop(fn()));
-      } else {
-        resolve(yield* toop(callable));
-      }
-    } catch (error) {
-      reject(error);
-    }
-  });
-}
 
-function toop<T>(
-  op: Operation<T> | Promise<T> | T,
+export function call<T, TArgs extends unknown[] = []>(
+  callable: Callable<T, TArgs>,
+  ...args: TArgs
 ): Operation<T> {
-  if (isPromise(op)) {
-    return expect(op);
-  } else if (isIterable(op)) {
-    let iter = op[Symbol.iterator]();
-    if (isInstructionIterator<T>(iter)) {
-      // operation
-      return op;
-    } else {
-      // We are assuming that if an iterator does *not* have `.throw` then
-      // it must be a built-in iterator and we should return the value as-is.
-      return bare(op as T);
-    }
-  } else {
-    return bare(op as T);
-  }
-}
-
-function bare<T>(val: T): Operation<T> {
   return {
     [Symbol.iterator]() {
-      return { next: () => ({ done: true, value: val }) };
+      let target = callable.call(void (0), ...args);
+      if (
+        typeof target === "string" || Array.isArray(target) ||
+        target instanceof Map || target instanceof Set
+      ) {
+        return constant(target)[Symbol.iterator]();
+      } else if (isPromise<T>(target)) {
+        return action<T>(function wait(resolve, reject) {
+          target.then(resolve, reject);
+          return () => {};
+        }, `async call ${callable.name}()`)[Symbol.iterator]();
+      } else if (isOperation<T>(target)) {
+        return target[Symbol.iterator]();
+      } else {
+        return constant(target)[Symbol.iterator]();
+      }
     },
   };
 }
+1;
 
-function expect<T>(promise: Promise<T>): Operation<T> {
-  return pause((resolve, reject) => {
-    promise.then(resolve, reject);
-    return () => {};
-  });
+function isPromise<T>(
+  target: Operation<T> | Promise<T> | T,
+): target is Promise<T> {
+  return target && typeof (target as Promise<T>).then === "function";
 }
 
-function isFunc(f: unknown): f is (...args: unknown[]) => unknown {
-  return typeof f === "function";
-}
-
-function isPromise<T>(p: unknown): p is Promise<T> {
-  if (!p) return false;
-  return isFunc((p as Promise<T>).then);
-}
-
-// iterator must implement both `.next` and `.throw`
-// built-in iterators are not considered iterators to `call()`
-function isInstructionIterator<T>(it: unknown): it is Iterator<Instruction, T> {
-  if (!it) return false;
-  return isFunc((it as Iterator<Instruction, T>).next) &&
-    isFunc((it as Iterator<Instruction, T>).throw);
-}
-
-function isIterable<T>(it: unknown): it is Iterable<T> {
-  if (!it) return false;
-  return typeof (it as Iterable<T>)[Symbol.iterator] === "function";
+function isOperation<T>(
+  target: Operation<T> | Promise<T> | T,
+): target is Operation<T> {
+  return target &&
+    typeof (target as Operation<T>)[Symbol.iterator] === "function";
 }

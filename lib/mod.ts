@@ -20,3 +20,4 @@ export * from "./events.ts";
 export * from "./abort-signal.ts";
 export * from "./main.ts";
 export * from "./with-resolvers.ts";
+export * from "./async.ts";

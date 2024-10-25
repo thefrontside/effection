@@ -3,6 +3,7 @@ import { encapsulate, trap } from "./task.ts";
 import type { Operation, Task, Yielded } from "./types.ts";
 import { withResolvers } from "./with-resolvers.ts";
 import { Err, Ok, Result } from "./result.ts";
+import { call } from './call.ts';
 //import { useScope } from "./scope.ts";
 //import { transfer } from "./scope.ts";
 
@@ -68,7 +69,7 @@ export function* race<T extends Operation<unknown>>(
   }
 
   for (let task of shutdown) {
-    yield* task;
+    yield* call(() => task);
   }
 
   if (result.ok) {

@@ -1,4 +1,4 @@
-import { action, call, resource, sleep, spawn } from "../mod.ts";
+import { call, resource, sleep, spawn } from "../mod.ts";
 
 import { Operation } from "../lib/types.ts";
 
@@ -11,6 +11,10 @@ export {
 export { expect } from "jsr:@std/expect";
 export { expectType } from "npm:ts-expect@1.3.0";
 
+export function $await<T>(promise: Promise<T>): Operation<T> {
+  return call(() => promise);
+}
+
 export function* createNumber(value: number): Operation<number> {
   yield* sleep(1);
   return value;
@@ -20,21 +24,6 @@ export function* blowUp<T>(): Operation<T> {
   yield* sleep(1);
   throw new Error("boom");
 }
-
-declare global {
-  interface Promise<T> extends Operation<T> {}
-}
-
-Object.defineProperty(Promise.prototype, Symbol.iterator, {
-  get<T>(this: Promise<T>) {
-    let then = this.then.bind(this);
-    let suspense = action<T>(function wait(resolve, reject) {
-      then(resolve, reject);
-      return () => {};
-    });
-    return suspense[Symbol.iterator];
-  },
-});
 
 export function* asyncResolve(
   duration: number,

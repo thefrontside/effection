@@ -1,4 +1,4 @@
-import { describe, expect, it, useCommand } from "./suite.ts";
+import { $await, describe, expect, it, useCommand } from "./suite.ts";
 import { type Operation, resource, run, sleep, spawn } from "../mod.ts";
 
 describe("main", () => {
@@ -13,7 +13,7 @@ describe("main", () => {
 
       daemon.kill("SIGINT");
 
-      let status = yield* daemon.status;
+      let status = yield* $await(daemon.status);
 
       expect(status.code).toBe(130);
 
@@ -32,7 +32,7 @@ describe("main", () => {
 
       daemon.kill("SIGTERM");
 
-      let status = yield* daemon.status;
+      let status = yield* $await(daemon.status);
 
       expect(status.code).toBe(143);
 
@@ -61,7 +61,7 @@ describe("main", () => {
       });
 
       let stdout = yield* buffer(cmd.stdout);
-      let status = yield* cmd.status;
+      let status = yield* $await(cmd.status);
 
       yield* detect(stdout, "goodbye.");
       expect(status.code).toEqual(0);
@@ -77,7 +77,7 @@ describe("main", () => {
       });
       let stdout = yield* buffer(cmd.stdout);
       let stderr = yield* buffer(cmd.stderr);
-      let status = yield* cmd.status;
+      let status = yield* $await(cmd.status);
 
       yield* detect(stdout, "graceful goodbye");
       yield* detect(stderr, "It all went horribly wrong");
@@ -95,7 +95,7 @@ describe("main", () => {
 
       let stdout = yield* buffer(cmd.stdout);
       let stderr = yield* buffer(cmd.stderr);
-      let status = yield* cmd.status;
+      let status = yield* $await(cmd.status);
 
       yield* detect(stdout, "graceful goodbye");
       yield* detect(stderr, "Error: moo");
@@ -114,7 +114,7 @@ describe("main", () => {
 
       process.kill("SIGINT");
 
-      let status = yield* process.status;
+      let status = yield* $await(process.status);
 
       expect(status.code).toBe(130);
 
@@ -135,13 +135,13 @@ function buffer(stream: ReadableStream<Uint8Array>): Operation<Buffer> {
       let reader = stream.getReader();
 
       try {
-        let next = yield* reader.read();
+        let next = yield* $await(reader.read());
         while (!next.done) {
           buff.content += decoder.decode(next.value);
-          next = yield* reader.read();
+          next = yield* $await(reader.read());
         }
       } finally {
-        yield* reader.cancel();
+        yield* $await(reader.cancel());
       }
     });
 

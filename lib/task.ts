@@ -6,14 +6,8 @@ import { lazyPromise, lazyPromiseWithResolvers } from "./lazy-promise.ts";
 import { Just, Maybe, Nothing } from "./maybe.ts";
 import { Err, Ok, Result, unbox } from "./result.ts";
 import { createScopeInternal, type ScopeInternal } from "./scope.ts";
-import type {
-  Coroutine,
-  Future,
-  Operation,
-  Resolve,
-  Scope,
-  Task,
-} from "./types.ts";
+import type { Coroutine, Operation, Resolve, Scope, Task } from "./types.ts";
+import { withResolvers } from "./with-resolvers.ts";
 
 export interface TaskOptions<T> {
   owner: ScopeInternal;
@@ -38,7 +32,18 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
     operation: () => trapset(() => after(operation, destroy)),
   });
 
-  let { promise, resolve, reject } = lazyPromiseWithResolvers<T>();
+  let promise = lazyPromiseWithResolvers<T>();
+  let future = withResolvers<T>();
+
+  let resolve = (value: T) => {
+    promise.resolve(value);
+    future.resolve(value);
+  };
+
+  let reject = (error: Error) => {
+    promise.reject(error);
+    future.reject(error);
+  };
 
   let initiateHalt = (resolve: Resolve<Result<void>>) => {
     if (scope.hasOwn(TrapContext)) {
@@ -84,9 +89,19 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
     },
   });
 
-  let task = Object.defineProperty(promise, "halt", {
-    enumerable: false,
-    value: () => halt as Future<void>,
+  let task = Object.defineProperties(promise.promise, {
+    [Symbol.toStringTag]: {
+      enumerable: false,
+      value: "Task",
+    },
+    [Symbol.iterator]: {
+      enumerable: false,
+      value: future.operation[Symbol.iterator],
+    },
+    halt: {
+      enumerable: false,
+      value: () => halt,
+    },
   }) as Task<T>;
 
   let group = TaskGroup.ensureOwn(owner);

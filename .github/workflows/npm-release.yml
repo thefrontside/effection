@@ -28,7 +28,6 @@ jobs:
         id: vars
         run: echo ::set-output name=version::$(echo ${{github.ref_name}} | sed 's/^effection-v//')
 
-
       - name: Setup Node
         uses: actions/setup-node@v2
         with:

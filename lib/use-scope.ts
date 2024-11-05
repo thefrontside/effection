@@ -1,6 +1,5 @@
 import { Ok } from "./result.ts";
-import { Operation, Scope, Effect } from "./types.ts";
-
+import { Effect, Operation, Scope } from "./types.ts";
 
 export function* useScope(): Operation<Scope> {
   return (yield {

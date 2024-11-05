@@ -93,4 +93,3 @@ export interface ScopeInternal extends Scope {
   contexts: Record<string, unknown>;
   ensure(op: () => Operation<void>): () => void;
 }
-

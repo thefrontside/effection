@@ -1,25 +1,17 @@
 import { Context, Effect, Operation, Scope } from "./types.ts";
 import { Ok } from "./result.ts";
-import { useScope } from "./scope.ts";
+import { Do } from "./do.ts";
 
 export function createContext<T>(name: string, defaultValue?: T): Context<T> {
   let context: Context<T> = {
     name,
     defaultValue,
-    *get(): Operation<T | undefined> {
-      return (yield Get(context)) as T | undefined;
-    },
-    *set(value: T): Operation<T> {
-      return (yield Set(context, value)) as T;
-    },
-    *expect(): Operation<T> {
-      return (yield Expect(context)) as T;
-    },
-    *delete(): Operation<boolean> {
-      return (yield Delete(context)) as boolean;
-    },
+    get: () => Do(Get(context)),
+    set: (value) => Do(Set(context, value)),
+    expect: () => Do(Expect(context)),
+    delete: () => Do(Delete(context)),
     *with<R>(value: T, operation: (value: T) => Operation<R>): Operation<R> {
-      let scope = yield* useScope();
+      let scope = yield* Do(UseScope((scope) => scope, "useScope()"));
       let original = scope.hasOwn(context) ? scope.get(context) : undefined;
       try {
         return yield* operation(scope.set(context, value));
@@ -46,7 +38,7 @@ const Set = <T>(context: Context<T>, value: T) =>
 const Expect = <T>(context: Context<T>) =>
   UseScope((scope) => scope.expect(context), `expect(${context.name})`);
 const Delete = <T>(context: Context<T>) =>
-  UseScope((scope) => scope.expect(context), `delete(${context.name})`);
+  UseScope((scope) => scope.delete(context), `delete(${context.name})`);
 
 function UseScope<T>(fn: (scope: Scope) => T, description: string): Effect<T> {
   return {

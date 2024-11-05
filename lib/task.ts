@@ -201,7 +201,7 @@ function* box<T>(op: () => Operation<T>): Operation<Result<T>> {
   try {
     return Ok(yield* op());
   } catch (error) {
-    return Err(error);
+    return Err(error as Error);
   }
 }
 
@@ -218,7 +218,7 @@ function trapset<T>(op: () => Operation<T>): Operation<Maybe<T>> {
         trap.result = Ok(Just(value));
       }
     } catch (error) {
-      trap.result = Err(error);
+      trap.result = Err(error as Error);
     } finally {
       // deno-lint-ignore no-unsafe-finally
       return unbox(trap.result) as Maybe<T>;

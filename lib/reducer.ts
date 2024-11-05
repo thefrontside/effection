@@ -56,7 +56,7 @@ export class Reducer {
             throw result.error;
           }
         } catch (error) {
-          notify({ done: true, value: Err(error) });
+          notify({ done: true, value: Err(error as Error) });
         }
         item = queue.dequeue();
       }

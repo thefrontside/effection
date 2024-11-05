@@ -23,7 +23,7 @@ export function action<T>(resolver: Resolver<T>, desc?: string): Operation<T> {
               discard();
               discarded(Ok());
             } catch (error) {
-              discarded(Err(error));
+              discarded(Err(error as Error));
             }
           };
         },

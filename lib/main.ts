@@ -118,7 +118,7 @@ export async function main(
 
         yield* exit(0);
       } catch (error) {
-        yield* resolve({ status: 1, error });
+        yield* resolve({ status: 1, error: error as Error });
       } finally {
         clearInterval(interval);
       }

@@ -52,7 +52,7 @@ export function* race<T extends Operation<unknown>>(
               //        transfer({ from: contestant, to: caller });
               winner.resolve(Ok(value as Yielded<T>));
             } catch (error) {
-              winner.resolve(Err(error));
+              winner.resolve(Err(error as Error));
             }
           }),
         );

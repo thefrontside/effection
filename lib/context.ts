@@ -1,6 +1,6 @@
 import { Context, Effect, Operation, Scope } from "./types.ts";
 import { Ok } from "./result.ts";
-import { useScope } from "./scope.ts";
+import { useScope } from "./use-scope.ts";
 
 export function createContext<T>(name: string, defaultValue?: T): Context<T> {
   let context: Context<T> = {

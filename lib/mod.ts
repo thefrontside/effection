@@ -2,6 +2,7 @@ export * from "./types.ts";
 export * from "./action.ts";
 export * from "./context.ts";
 export * from "./scope.ts";
+export * from "./use-scope.ts";
 export * from "./suspend.ts";
 export * from "./sleep.ts";
 export * from "./run.ts";

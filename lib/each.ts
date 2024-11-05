@@ -3,7 +3,7 @@ import { createContext } from "./context.ts";
 import { race } from "./race.ts";
 import { resource } from "./resource.ts";
 import { withResolvers } from "./with-resolvers.ts";
-import { useScope } from "./scope.ts";
+import { useScope } from "./use-scope.ts";
 
 /**
  * Consume an effection stream using a simple for-of loop.

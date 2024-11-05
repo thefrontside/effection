@@ -1,5 +1,5 @@
 import { Children, Generation } from "./contexts.ts";
-import { Context, Effect, Future, Operation, Scope, Task } from "./types.ts";
+import { Context, Future, Operation, Scope, Task } from "./types.ts";
 import { Err, Ok, unbox } from "./result.ts";
 import { createTask } from "./task.ts";
 
@@ -94,12 +94,3 @@ export interface ScopeInternal extends Scope {
   ensure(op: () => Operation<void>): () => void;
 }
 
-export function* useScope(): Operation<Scope> {
-  return (yield {
-    description: `useScope()`,
-    enter(resolve, { scope }) {
-      resolve(Ok(scope));
-      return (resolve) => resolve(Ok());
-    },
-  } as Effect<Scope>) as Scope;
-}

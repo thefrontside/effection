@@ -3,7 +3,8 @@
   "tasks": {
     "test": "deno test --allow-run=deno",
     "test:node": "deno task build:npm 0.0.0 && node test/main/node.mjs hello world",
-    "build:npm": "deno run -A tasks/build-npm.ts"
+    "build:npm": "deno run -A tasks/build-npm.ts",
+    "bench": "deno run -A tasks/bench.ts"
   },
   "lint": {
     "rules": {

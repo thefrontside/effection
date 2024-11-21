@@ -115,6 +115,7 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
       Ok(),
       drain((result) => {
         link.close(result);
+
         if (result.ok) {
           if (result.value.exists) {
             resolve(result.value.value);

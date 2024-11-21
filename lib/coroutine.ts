@@ -38,6 +38,9 @@ export function createCoroutine<T>(
         }
         return iterator;
       },
+      set iterator(value) {
+        iterator = value;
+      },
       discard: (resolve) => resolve(Ok()),
     },
     next(result, subscriber) {

@@ -1,5 +1,6 @@
 export default [
   "./scenarios/effection.recursion.ts",
+  "./scenarios/effection+hoist.recursion.ts",
   "./scenarios/rxjs.recursion.ts",
   "./scenarios/co.recursion.ts",
   "./scenarios/async+await.recursion.ts",

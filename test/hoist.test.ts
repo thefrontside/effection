@@ -59,5 +59,32 @@ describe("hoist", () => {
     expect(backout).toEqual(10);
   });
 
-  it.skip("handles unwinding when hoisted iterators throw", async () => {});
+  it.skip("handles unwinding when hoisted iterators throw", async () => {
+    interface CountingError extends Error {
+      cause: number;
+    }
+
+    function* recurse(depth: number): Operation<number> {
+      if (depth > 0) {
+        try {
+          return (yield hoist(recurse(depth - 1))) as number;
+        } catch (err) {
+          let counter = err as CountingError;
+          counter.cause += (yield hoist(call(() =>
+            Promise.resolve(1)
+          ))) as number;
+          throw counter;
+        }
+      } else {
+        throw new Error("bottom", { cause: 0 });
+      }
+    }
+
+    try {
+      await run(() => recurse(10));
+      throw new Error(`expected to throw, but did not`);
+    } catch (err) {
+      expect((err as CountingError).cause).toEqual(10);
+    }
+  });
 });

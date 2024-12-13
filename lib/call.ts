@@ -32,22 +32,13 @@ export type Callable<T> =
   | (() => T);
 
 /**
- * Pause the current operation, then runs a promise, async function, plain function,
- * or operation within a new scope. The calling operation will be resumed (or errored)
+ * Pause the current operation, then run an async function, or operation function in a new scope. The calling operation will be resumed (or errored)
  * once call is completed.
  *
  * `call()` is a uniform integration point for calling async functions,
- * evaluating promises, generator functions, operations, and plain
- * functions.
+ * and generator functions.
  *
- * It can be used to treat a promise as an operation:
- *
- * @example
- * ```javascript
- * let response = yield* call(fetch('https://google.com'));
- * ```
- *
- * or an async function:
+ * It can be used to invoke an async function:
  *
  * @example
  * ```typescript
@@ -68,13 +59,6 @@ export type Callable<T> =
  *   let socket = yield* useSocket();
  *   return yield* socket.read();
  * }); // => socket is destroyed before returning
- * ```
- *
- * It can be used to run a plain function:
- *
- * @example
- * ```javascript
- * yield* call(() => "a string");
  * ```
  *
  * Because `call()` runs within its own {@link Scope}, it can also be used to
@@ -110,9 +94,31 @@ export type Callable<T> =
  */
 export function call<T>(callable: () => Operation<T>): Operation<T>;
 export function call<T>(callable: () => Promise<T>): Operation<T>;
+
+/**
+ * @deprecated Using call with simple functions will be removed in v4.
+ * To convert simple functions into operations, use @{link lift}.
+ */
 export function call<T>(callable: () => T): Operation<T>;
+
+/**
+ * @deprecated calling bare promises, operations, and constants will
+ * be removed in v4, always pass a function to call()
+ *
+ * before: call(operation);
+ * after:  call(() => operation);
+ */
 export function call<T>(callable: Operation<T>): Operation<T>;
+
+/**
+ * @deprecated calling bare promises, operations, and constants will
+ * be removed in v4, always pass a function to call()
+ *
+ * before: call(promise);
+ * after:  call(() => promise);
+ */
 export function call<T>(callable: Promise<T>): Operation<T>;
+
 export function call<T>(callable: Callable<T>): Operation<T> {
   return action(function* (resolve, reject) {
     try {

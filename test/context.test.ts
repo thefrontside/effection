@@ -8,7 +8,7 @@ describe("context", () => {
   it("has the initial value available at all times", async () => {
     expect(
       await run(function* () {
-        return yield* numbers;
+        return yield* numbers.expect();
       }),
     ).toEqual(3);
   });
@@ -20,7 +20,7 @@ describe("context", () => {
         yield* numbers.set(22);
         return yield* numbers.expect();
       });
-      let after = yield* numbers;
+      let after = yield* numbers.expect();
       return [before, within, after];
     });
 

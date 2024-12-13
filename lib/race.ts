@@ -33,7 +33,7 @@ export function race<T extends Operation<unknown>>(
         try {
           resolve((yield* operation) as Yielded<T>);
         } catch (error) {
-          reject(error);
+          reject(error as Error);
         }
       });
     }

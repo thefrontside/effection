@@ -98,7 +98,7 @@ export function createFrame<T>(options: FrameOptions<T>): Frame<T> {
                 result: yield* instruction(frame),
               });
             } catch (error) {
-              k.tail({ type: "settled", result: Err(error) });
+              k.tail({ type: "settled", result: Err(error as Error) });
             }
           });
 
@@ -117,7 +117,7 @@ export function createFrame<T>(options: FrameOptions<T>): Frame<T> {
           }
         }
       } catch (error) {
-        thunks.unshift({ done: true, value: Err(error) });
+        thunks.unshift({ done: true, value: Err(error as Error) });
       }
       thunk = thunks.pop()!;
     }

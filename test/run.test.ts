@@ -257,7 +257,7 @@ describe("run()", () => {
       });
       throw new Error("expected error to propagate");
     } catch (error) {
-      expect(error.message).toEqual("boom");
+      expect((error as Error).message).toEqual("boom");
     }
   });
 
@@ -268,7 +268,7 @@ describe("run()", () => {
       });
       throw new Error("expected error to propagate");
     } catch (error) {
-      expect(error.message).toEqual("boom");
+      expect((error as Error).message).toEqual("boom");
     }
   });
 

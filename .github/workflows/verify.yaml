@@ -15,12 +15,12 @@ jobs:
 
     steps:
       - name: checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: setup deno
-        uses: denoland/setup-deno@v1
+        uses: denoland/setup-deno@v2
         with:
-          deno-version: v1.46.x
+          deno-version: v2.x
 
       - name: Setup Node
         uses: actions/setup-node@v2

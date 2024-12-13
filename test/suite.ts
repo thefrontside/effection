@@ -96,7 +96,9 @@ export function useCommand(
 
         if (
           !!error &&
-          !error.message.includes("Child process has already terminated")
+          !(error as Error).message.includes(
+            "Child process has already terminated",
+          )
         ) {
           // deno-lint-ignore no-unsafe-finally
           throw error;

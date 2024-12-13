@@ -27,5 +27,5 @@ export function createContext<T>(key: string, defaultValue?: T): Context<T> {
 }
 
 class MissingContextError extends Error {
-  name = "MissingContextError";
+  override name = "MissingContextError";
 }

@@ -123,7 +123,7 @@ export function call<T>(callable: Callable<T>): Operation<T> {
         resolve(yield* toop(callable));
       }
     } catch (error) {
-      reject(error);
+      reject(error as Error);
     }
   });
 }

@@ -58,7 +58,7 @@ function abortAfter<T>(op: Operation<T>, ms: number): Operation<T | void> {
       try {
         resolve(yield* op);
       } catch (error) {
-        reject(error);
+        reject(error as Error);
       }
     });
     yield* sleep(ms);

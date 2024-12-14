@@ -5,6 +5,7 @@ import { docsRoute } from "./routes/docs-route.tsx";
 import { indexRoute } from "./routes/index-route.tsx";
 import { v2docsRoute } from "./routes/v2docs-route.tsx";
 import { assetsRoute } from "./routes/assets-route.ts";
+import { proxyRoute } from "./routes/proxy-route.ts";
 
 import { config } from "./tailwind.config.ts";
 
@@ -17,6 +18,7 @@ import { loadDocs } from "./docs/docs.ts";
 import { loadV2Docs } from "./docs/v2-docs.ts";
 
 await main(function* () {
+  let proxies = proxySites();
   let v2docs = yield* loadV2Docs({
     fetchEagerly: !!Deno.env.get("V2_DOCS_FETCH_EAGERLY"),
     revision: Number(Deno.env.get("V2_DOCS_REVISION") ?? 4),
@@ -27,6 +29,7 @@ await main(function* () {
   let revolution = createRevolution({
     app: [
       route("/", indexRoute()),
+      route("/contribs(.*)", proxyRoute(proxies.contribs)),
       route("/docs/:id", docsRoute(docs)),
       route("/assets(.*)", assetsRoute("assets")),
       route("/V2(.*)", v2docsRoute(v2docs)),
@@ -44,3 +47,14 @@ await main(function* () {
 
   yield* suspend();
 });
+
+
+function proxySites() {
+  return {
+    contribs: {
+      prefix: "contribs",
+      website: Deno.env.get("CONTRIBS_URL") ?? "https://effection-contribs.deno.dev",
+    }
+  } as const;
+}
+

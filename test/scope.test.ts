@@ -104,7 +104,9 @@ describe("Scope", () => {
     expect(scope.get(context)).toEqual(void 0);
     expect(scope.set(context, "Hello World!")).toEqual("Hello World!");
     expect(scope.get(context)).toEqual("Hello World!");
-    await expect(scope.run(() => context.expect())).resolves.toEqual("Hello World!");
+    await expect(scope.run(() => context.expect())).resolves.toEqual(
+      "Hello World!",
+    );
   });
 
   it("propagates uncaught errors within a scope", async () => {

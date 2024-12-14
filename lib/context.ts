@@ -3,7 +3,6 @@ import { create } from "./run/create.ts";
 import { useScope } from "./run/scope.ts";
 
 export function createContext<T>(key: string, defaultValue?: T): Context<T> {
-
   let context: Context<T> = create<Context<T>>(`Context`, { key }, {
     defaultValue,
     *get() {
@@ -16,7 +15,9 @@ export function createContext<T>(key: string, defaultValue?: T): Context<T> {
     },
     expect,
     [Symbol.iterator]() {
-      console.warn(`⚠️ using a context (${key}) directly as an operation is deprecated. Use context.expect() instead`);
+      console.warn(
+        `⚠️ using a context (${key}) directly as an operation is deprecated. Use context.expect() instead`,
+      );
       context[Symbol.iterator] = expect;
       return expect();
     },

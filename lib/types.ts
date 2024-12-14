@@ -268,7 +268,6 @@ export interface Context<T> extends Operation<T> {
    */
   get(): Operation<T | undefined>;
 
-
   /**
    * Get the value of the Context from the current scope. An error will be raised if the
    * context has not been defined.

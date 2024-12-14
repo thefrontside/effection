@@ -18,7 +18,7 @@ import process from "node:process";
  * @param returns an operation that exits the program
  */
 export function* exit(status: number, message?: string): Operation<void> {
-  let escape = yield* ExitContext;
+  let escape = yield* ExitContext.expect();
   escape({ status, message });
 }
 

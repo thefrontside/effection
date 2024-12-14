@@ -117,7 +117,7 @@ export function createSignal<T, TClose = never>(): Signal<T, TClose> {
   let subscribers = new Set<Queue<T, TClose>>();
 
   let subscribe = resource<Subscription<T, TClose>>(function* (provide) {
-    let newQueue = yield* SignalQueueFactory;
+    let newQueue = yield* SignalQueueFactory.expect();
     let queue = newQueue<T, TClose>();
     subscribers.add(queue);
 

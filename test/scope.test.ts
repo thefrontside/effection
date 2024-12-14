@@ -79,7 +79,7 @@ describe("Scope", () => {
     let cxt = createContext<number>("number");
 
     function* incr() {
-      let value = yield* cxt;
+      let value = yield* cxt.expect();
       return yield* cxt.set(value + 1);
     }
 
@@ -91,7 +91,7 @@ describe("Scope", () => {
       let second = yield* scope.run(incr);
       let third = yield* scope.run(incr);
 
-      expect(yield* cxt).toEqual(1);
+      expect(yield* cxt.expect()).toEqual(1);
       expect(first).toEqual(2);
       expect(second).toEqual(2);
       expect(third).toEqual(2);
@@ -104,7 +104,7 @@ describe("Scope", () => {
     expect(scope.get(context)).toEqual(void 0);
     expect(scope.set(context, "Hello World!")).toEqual("Hello World!");
     expect(scope.get(context)).toEqual("Hello World!");
-    await expect(scope.run(() => context)).resolves.toEqual("Hello World!");
+    await expect(scope.run(() => context.expect())).resolves.toEqual("Hello World!");
   });
 
   it("propagates uncaught errors within a scope", async () => {

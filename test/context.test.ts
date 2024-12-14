@@ -15,10 +15,10 @@ describe("context", () => {
 
   it("can be set within a given scope, but reverts after", async () => {
     let values = await run(function* () {
-      let before = yield* numbers;
+      let before = yield* numbers.expect();
       let within = yield* call(function* () {
         yield* numbers.set(22);
-        return yield* numbers;
+        return yield* numbers.expect();
       });
       let after = yield* numbers;
       return [before, within, after];
@@ -36,7 +36,7 @@ describe("context", () => {
 
   it("is an error to expect() when context is missing", async () => {
     await expect(run(function* () {
-      yield* createContext("missing");
+      yield* createContext("missing").expect();
     })).rejects.toHaveProperty("name", "MissingContextError");
   });
 });

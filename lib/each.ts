@@ -69,7 +69,7 @@ each.next = function next() {
   return {
     name: "each.next()",
     *[Symbol.iterator]() {
-      let stack = yield* EachStack;
+      let stack = yield* EachStack.expect();
       let context = stack[stack.length - 1];
       if (!context) {
         let error = new Error(`cannot call next() outside of an iteration`);

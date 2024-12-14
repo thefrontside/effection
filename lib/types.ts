@@ -263,8 +263,19 @@ export interface Context<T> extends Operation<T> {
   /**
    * Get the value of the Context from the current scope. If it has not been
    * set, and there is no default value, then this will return `undefined`.
+   *
+   * @return an operation provding the context value in the current scope if it is defined.
    */
   get(): Operation<T | undefined>;
+
+
+  /**
+   * Get the value of the Context from the current scope. An error will be raised if the
+   * context has not been defined.
+   *
+   * @return an operation providing the context value in the current scope.
+   */
+  expect(): Operation<T>;
 }
 
 /**

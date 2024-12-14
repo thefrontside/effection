@@ -119,4 +119,84 @@ describe("action", () => {
     });
     expect(didReach).toEqual(false);
   });
+
+  describe("v4 api", () => {
+    it("can resolve", async () => {
+      let didClear = false;
+      let task = run(() =>
+        action<number>((resolve) => {
+          let timeout = setTimeout(() => resolve(42), 5);
+          return () => {
+            didClear = true;
+            clearTimeout(timeout);
+          };
+        })
+      );
+
+      await expect(task).resolves.toEqual(42);
+      expect(didClear).toEqual(true);
+    });
+
+    it("can reject", async () => {
+      let didClear = false;
+      let error = new Error("boom");
+      let task = run(() =>
+        action<number>((_, reject) => {
+          let timeout = setTimeout(() => reject(error), 5);
+          return () => {
+            didClear = true;
+            clearTimeout(timeout);
+          };
+        })
+      );
+
+      await expect(task).rejects.toEqual(error);
+      expect(didClear).toEqual(true);
+    });
+
+    it("can resolve without ever suspending", async () => {
+      let result = await run(() =>
+        action<string>((resolve) => {
+          resolve("hello");
+          return () => {};
+        })
+      );
+
+      expect(result).toEqual("hello");
+    });
+
+    it("can reject without ever suspending", async () => {
+      let error = new Error("boom");
+      let task = run(() =>
+        action((_, reject) => {
+          reject(error);
+          return () => {};
+        })
+      );
+      await expect(task).rejects.toEqual(error);
+    });
+
+    it("fails if the operation fails", async () => {
+      let task = run(() =>
+        action(() => {
+          throw new Error("boom");
+        })
+      );
+      await expect(task).rejects.toHaveProperty("message", "boom");
+    });
+
+    it("fails if the shutdown fails", async () => {
+      let error = new Error("boom");
+      let task = run(() =>
+        action((resolve) => {
+          let timeout = setTimeout(resolve, 5);
+          return () => {
+            clearTimeout(timeout);
+            throw error;
+          };
+        })
+      );
+      await expect(task).rejects.toEqual(error);
+    });
+  });
 });

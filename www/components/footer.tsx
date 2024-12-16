@@ -17,9 +17,6 @@ export function Footer(): JSX.Element {
         <a href="https://frontside.com/interactors" class="text-gray-800">
           Interactors <IconExternal />
         </a>
-        <a href="/V2" class="text-gray-800">
-          Effection<em class="align-super text-xs">v2</em> <IconExternal />
-        </a>
       </section>
       <section class="flex flex-col gap-y-1">
         <h1 class="text-sm uppercase font-bold text-blue-primary mb-4">Community</h1>

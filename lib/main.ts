@@ -2,7 +2,7 @@ import { createContext } from "./context.ts";
 import { type Operation } from "./types.ts";
 import { action } from "./instructions.ts";
 import { run } from "./run.ts";
-import process from "node:process";
+import { call } from "./call.ts";
 
 /**
  * Halt process execution immediately and initiate shutdown. If a message is
@@ -91,6 +91,9 @@ export async function main(
             }
           },
           *node() {
+            let { default: process } = yield* call(() =>
+              import("node:process")
+            );
             hardexit = (status) => process.exit(status);
             try {
               process.on("SIGINT", interrupt.SIGINT);
@@ -159,7 +162,7 @@ function* withHost<T>(op: HostOperation<T>): Operation<T> {
     // @see https://github.com/iliakan/detect-node/blob/master/index.js
   } else if (
     Object.prototype.toString.call(
-      typeof process !== "undefined" ? process : 0,
+      typeof globalThis.process !== "undefined" ? globalThis.process : 0,
     ) === "[object process]"
   ) {
     return yield* op.node();

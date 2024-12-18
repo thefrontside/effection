@@ -22,3 +22,4 @@ export * from "./abort-signal.ts";
 export * from "./main.ts";
 export * from "./with-resolvers.ts";
 export * from "./async.ts";
+export * from "./scoped.ts";

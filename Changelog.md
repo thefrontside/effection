@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.0.4
+## 3.1.0
 
 - 🐛 dynamically import node process
   https://github.com/thefrontside/effection/pull/935

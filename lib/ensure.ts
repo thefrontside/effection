@@ -1,4 +1,4 @@
-import { Operation } from "./types.ts";
+import type { Operation } from "./types.ts";
 import { resource } from "./instructions.ts";
 
 /**

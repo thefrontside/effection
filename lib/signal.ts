@@ -3,7 +3,7 @@ import type { Stream, Subscription } from "./types.ts";
 import { createQueue, type Queue } from "./queue.ts";
 import { resource } from "./instructions.ts";
 import { createContext } from "./context.ts";
-import { type Context } from "./types.ts";
+import type { Context } from "./types.ts";
 
 /**
  * Convert plain JavaScript function calls into a {@link Stream} that can

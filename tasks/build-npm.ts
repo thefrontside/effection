@@ -1,7 +1,4 @@
-import {
-  build,
-  emptyDir,
-} from "https://deno.land/x/dnt@0.36.0/mod.ts?pin=v123";
+import { build, emptyDir } from "jsr:@deno/dnt@0.41.3";
 
 const outDir = "./build/npm";
 
@@ -21,7 +18,7 @@ await build({
   test: false,
   typeCheck: false,
   compilerOptions: {
-    lib: ["esnext", "dom"],
+    lib: ["ESNext", "DOM"],
     target: "ES2020",
     sourceMap: true,
   },
@@ -31,8 +28,8 @@ await build({
     version,
     description: "Structured concurrency and effects for JavaScript",
     license: "ISC",
+    author: "engineering@frontside.com",
     repository: {
-      author: "engineering@frontside.com",
       type: "git",
       url: "git+https://github.com/thefrontside/effection.git",
     },

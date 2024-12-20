@@ -1,5 +1,5 @@
 import { createContext } from "./context.ts";
-import { type Operation } from "./types.ts";
+import type { Operation } from "./types.ts";
 import { callcc } from "./callcc.ts";
 import { run } from "./run.ts";
 import { useScope } from "./scope.ts";

@@ -8,15 +8,16 @@ know how to do it in Effection.
 The congruence between vanilla JavaScript constructs and their Effection
 counterparts is reflected in the “Async Rosetta Stone.”
 
-| Async/Await      | Effection         |
-| ---------------- | ----------------- |
-| `await`          | `yield*`          |
-| `async function` | `function*`       |
-| `Promise`        | `Operation`       |
-| `new Promise()`  | `action()`        |
-| `for await`      | `for yield* each` |
-| `AsyncIterable`  | `Stream`          |
-| `AsyncIterator`  | `Subscription`    |
+| Async/Await               | Effection         |
+| --------------------------| ----------------- |
+| `await`                   | `yield*`          |
+| `async function`          | `function*`       |
+| `Promise`                 | `Operation`       |
+| `new Promise()`           | `action()`        |
+| `Promise.withResolvers()` | `withResolvers()` |
+| `for await`               | `for yield* each` |
+| `AsyncIterable`           | `Stream`          |
+| `AsyncIterator`           | `Subscription`    |
 
 ## `await` \<=> `yield*`
 
@@ -153,6 +154,39 @@ action(function*(resolve) { setTimeout(resolve, 10000) });
 A key difference is that the promise body will be executing immediately, but the
 action body is only executed when the action is evaluated. Also, it is executed
 anew every time the action is evaluated.
+
+## `Promise.withResolvers()` \<=> `withResolvers()`
+
+Both `Promise` and `Operation` can be constructed ahead of time without needing to begin the process that will resolve it. To do this with
+a `Promise`, use the `Promise.withResolvers()` function:
+
+```ts
+async function main() {
+  let { promise, resolve } = Promise.withResolvers();
+
+  setTimeout(resolve, 1000);
+
+  await promise;
+
+  console.log("done!")
+}
+```
+
+In effection:
+
+```ts
+import { withResolvers } from "effection";
+
+function* main() {
+  let { operation, resolve } = withResolvers();
+
+  setTimeout(resolve, 1000);
+
+  yield* operation;
+
+  console.log("done!");
+};
+```
 
 ## `for await` \<=> `for yield* each`
 

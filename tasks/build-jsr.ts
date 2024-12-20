@@ -1,9 +1,14 @@
+import jsonDeno from "../deno.json" with { type: "json" };
+
 await Deno.writeTextFile(
-  "jsr.json",
+  new URL("../deno.json", import.meta.url),
   JSON.stringify({
+    ...jsonDeno,
     name: "@effection/effection",
-    version: Deno.env.get('VERSION'),
+    version: Deno.env.get("VERSION"),
     exports: "./mod.ts",
-    include: ["lib", "mod.ts", "README.md"],
+    publish: {
+      include: ["lib", "mod.ts", "README.md"],
+    },
   }),
 );

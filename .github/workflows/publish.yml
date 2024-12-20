@@ -32,12 +32,6 @@ jobs:
           node-version: 18.x
           registry-url: https://registry.npmjs.com
 
-      - name: Build JSR
-        run: deno task build:jsr ${{steps.vars.outputs.version}}
-          
-      - name: Publish JSR
-        run: npx jsr publish
-          
       - name: Build NPM
         run: deno task build:npm ${{steps.vars.outputs.version}}
 
@@ -46,3 +40,9 @@ jobs:
         working-directory: ./build/npm
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
+
+      - name: Build JSR
+        run: deno task build:jsr ${{steps.vars.outputs.version}}
+
+      - name: Publish JSR
+        run: npx jsr publish

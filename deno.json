@@ -1,4 +1,10 @@
 {
+  "name": "@effection/effection",
+  "exports": "./mod.ts",
+  "license": "ISC",
+  "publish": {
+    "include": ["lib", "mod.ts", "README.md"]
+  },
   "lock": false,
   "tasks": {
     "test": "deno test --allow-run=deno",

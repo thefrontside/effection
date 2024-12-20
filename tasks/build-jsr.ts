@@ -7,6 +7,7 @@ await Deno.writeTextFile(
     name: "@effection/effection",
     version: Deno.env.get("VERSION"),
     exports: "./mod.ts",
+    license: "ISC",
     publish: {
       include: ["lib", "mod.ts", "README.md"],
     },

@@ -1,7 +1,4 @@
-# This workflow will install Deno then run Deno lint and test.
-# For more information see: https://github.com/denoland/setup-deno
-
-name: Release to NPM
+name: Publish
 
 on:
   push:
@@ -10,6 +7,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 jobs:
   release:
@@ -29,17 +27,21 @@ jobs:
         run: echo ::set-output name=version::$(echo ${{github.ref_name}} | sed 's/^effection-v//')
 
       - name: Setup Node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4.1.0
         with:
-          node-version: 14.x
+          node-version: 18.x
           registry-url: https://registry.npmjs.com
 
-      - name: Build
-        run: deno task build:npm $NPM_VERSION
-        env:
-          NPM_VERSION: ${{steps.vars.outputs.version}}
+      - name: Build JSR
+        run: deno task build:jsr ${{steps.vars.outputs.version}}
+          
+      - name: Publish JSR
+        run: npx jsr publish
+          
+      - name: Build NPM
+        run: deno task build:npm ${{steps.vars.outputs.version}}
 
-      - name: Publish
+      - name: Publish NPM
         run: npm publish --access=public
         working-directory: ./build/npm
         env:

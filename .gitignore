@@ -4,3 +4,6 @@
 # Local Netlify folder
 .netlify
 /build/
+
+# We generate jsr.json before publishing
+jsr.json

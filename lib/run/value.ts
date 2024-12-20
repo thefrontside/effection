@@ -1,5 +1,5 @@
 import { type Computation, reset } from "../deps.ts";
-import { type Resolve } from "../types.ts";
+import type { Resolve } from "../types.ts";
 import { shiftSync } from "../shift-sync.ts";
 
 export function* createValue<T>(): Computation<[Resolve<T>, Computation<T>]> {

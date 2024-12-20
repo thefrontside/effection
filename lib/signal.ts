@@ -3,6 +3,7 @@ import type { Stream, Subscription } from "./types.ts";
 import { createQueue, type Queue } from "./queue.ts";
 import { resource } from "./instructions.ts";
 import { createContext } from "./context.ts";
+import type { Context } from "./types.ts";
 
 /**
  * Convert plain JavaScript function calls into a {@link Stream} that can
@@ -81,7 +82,7 @@ export interface Signal<T, TClose> extends Stream<T, TClose> {
  * }
  * ```
  */
-export const SignalQueueFactory = createContext(
+export const SignalQueueFactory: Context<typeof createQueue> = createContext(
   "Signal.createQueue",
   createQueue,
 );

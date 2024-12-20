@@ -1,5 +1,12 @@
 import { describe, expect, it } from "./suite.ts";
-import { Operation, resource, run, sleep, spawn, suspend } from "../mod.ts";
+import {
+  type Operation,
+  resource,
+  run,
+  sleep,
+  spawn,
+  suspend,
+} from "../mod.ts";
 
 type State = { status: string };
 

@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.0.4
+
+- 🐛 dynamically import node process
+  https://github.com/thefrontside/effection/pull/935
+- Deprecate non-function invocations of call()
+  https://github.com/thefrontside/effection/pull/929
+- backport `Context#expect()` to v3
+  https://github.com/thefrontside/effection/commit/4d3be6c1be3f4c3c7dfbfd5435d07d754023800a
+
 ## 3.0.3
 
 - this is just a placeholder release in order to workaround an issue. It is 100%

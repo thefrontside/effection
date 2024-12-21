@@ -10,12 +10,12 @@ import type {
 import { Err, Ok, unbox } from "./result.ts";
 import { createTask } from "./task.ts";
 
-const [globalScope] = createScopeInternal();
+const scope: [ScopeInternal, () => Operation<void>] = createScopeInternal();
 
-export const global = globalScope;
+export const global = scope[0];
 
 export function createScope(
-  parent: Scope = globalScope,
+  parent: Scope = global,
 ): [Scope, () => Future<void>] {
   let [scope, destroy] = createScopeInternal(parent);
   return [scope, () => parent.run(destroy)];

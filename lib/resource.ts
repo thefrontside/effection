@@ -1,6 +1,6 @@
 import { suspend } from "./suspend.ts";
 import { spawn } from "./spawn.ts";
-import { Operation } from "./types.ts";
+import type { Operation } from "./types.ts";
 import { trap } from "./task.ts";
 import { Ok } from "./result.ts";
 import { useCoroutine } from "./coroutine.ts";

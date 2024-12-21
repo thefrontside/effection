@@ -2,10 +2,10 @@ import {
   createQueue,
   each,
   on,
-  Operation,
+  type Operation,
   resource,
   spawn,
-  Stream,
+  type Stream,
 } from "../../mod.ts";
 
 export interface WorkerResource<TSend, TRecv> {

@@ -1,7 +1,7 @@
 import { Generation } from "./contexts.ts";
 import { ReducerContext } from "./reducer.ts";
 import { Ok } from "./result.ts";
-import { Coroutine, Operation, Scope, Subscriber } from "./types.ts";
+import type { Coroutine, Operation, Scope, Subscriber } from "./types.ts";
 
 export interface CoroutineOptions<T> {
   scope: Scope;

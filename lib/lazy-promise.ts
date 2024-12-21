@@ -1,4 +1,4 @@
-import { Err, Ok, Result } from "./result.ts";
+import { Err, Ok, type Result } from "./result.ts";
 
 type PromiseWithResolvers<T> = ReturnType<typeof Promise.withResolvers<T>>;
 

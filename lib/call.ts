@@ -1,6 +1,6 @@
 import { constant } from "./constant.ts";
 import { action } from "./action.ts";
-import { Operation } from "./types.ts";
+import type { Operation } from "./types.ts";
 
 /**
  * A uniform integration type representing anything that can be evaluated

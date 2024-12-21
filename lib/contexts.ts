@@ -1,5 +1,5 @@
 import { createContext } from "./context.ts";
-import { Coroutine, Scope } from "./types.ts";
+import type { Coroutine, Scope } from "./types.ts";
 
 export const Routine = createContext<Coroutine<unknown>>(
   "@effection/coroutine",

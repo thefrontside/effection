@@ -1,4 +1,4 @@
-import { Result } from "../../lib/result.ts";
+import type { Result } from "../../lib/result.ts";
 
 export type WorkerCommand = BenchmarkOptions | Close;
 

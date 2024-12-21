@@ -1,8 +1,8 @@
 import { callcc } from "../../../lib/callcc.ts";
 import { Err, Ok } from "../../../lib/result.ts";
 import { encapsulate } from "../../../lib/task.ts";
-import { createChannel, each, main, Operation, spawn } from "../../../mod.ts";
-import {
+import { createChannel, each, main, type Operation, spawn } from "../../../mod.ts";
+import type {
   BenchmarkOptions,
   BenchmarkWorkerEvent,
   WorkerCommand,

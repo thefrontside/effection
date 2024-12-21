@@ -1,4 +1,4 @@
-import { Context, Effect, Operation, Scope } from "./types.ts";
+import type { Context, Effect, Operation, Scope } from "./types.ts";
 import { Ok } from "./result.ts";
 import { Do } from "./do.ts";
 

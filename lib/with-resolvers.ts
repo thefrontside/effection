@@ -1,4 +1,4 @@
-import { Err, Ok, Result } from "./result.ts";
+import { Err, Ok, type Result } from "./result.ts";
 import { action } from "./action.ts";
 import type { Operation } from "./types.ts";
 

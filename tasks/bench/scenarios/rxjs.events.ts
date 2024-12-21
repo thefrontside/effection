@@ -1,6 +1,6 @@
 import { fromEvent, Observable, Subject, takeUntil } from "npm:rxjs";
 import { scenario } from "./scenario.ts";
-import { action, Operation, sleep, spawn } from "../../../mod.ts";
+import { action, type Operation, sleep, spawn } from "../../../mod.ts";
 
 await scenario("rxjs.events", run);
 

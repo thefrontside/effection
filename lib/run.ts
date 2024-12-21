@@ -1,4 +1,4 @@
-import { Operation, Task } from "./types.ts";
+import type { Operation, Task } from "./types.ts";
 
 import { global } from "./scope.ts";
 

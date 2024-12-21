@@ -1,6 +1,6 @@
 import { Ok } from "./result.ts";
-import { ScopeInternal } from "./scope.ts";
-import { createTask, NewTask } from "./task.ts";
+import type { ScopeInternal } from "./scope.ts";
+import { createTask, type NewTask } from "./task.ts";
 import type { Effect, Operation, Task } from "./types.ts";
 
 export function* spawn<T>(op: () => Operation<T>): Operation<Task<T>> {

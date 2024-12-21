@@ -1,12 +1,14 @@
 import { Children, Generation } from "./contexts.ts";
-import { Context, Effect, Future, Operation, Scope, Task } from "./types.ts";
+import type { Context, Effect, Future, Operation, Scope, Task } from "./types.ts";
 import { Err, Ok, unbox } from "./result.ts";
 import { createTask } from "./task.ts";
 
-export const [global] = createScopeInternal();
+const [globalScope] = createScopeInternal();
+
+export const global = globalScope;
 
 export function createScope(
-  parent: Scope = global,
+  parent: Scope = globalScope,
 ): [Scope, () => Future<void>] {
   let [scope, destroy] = createScopeInternal(parent);
   return [scope, () => parent.run(destroy)];

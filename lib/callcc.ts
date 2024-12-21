@@ -1,6 +1,6 @@
 import { lift } from "./lift.ts";
-import { Err, Ok, Result, unbox } from "./result.ts";
-import { Operation } from "./types.ts";
+import { Err, Ok, type Result, unbox } from "./result.ts";
+import type { Operation } from "./types.ts";
 import { withResolvers } from "./with-resolvers.ts";
 import { spawn } from "./spawn.ts";
 import { encapsulate } from "./task.ts";

@@ -1,0 +1,64 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - "effection-v*"
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish-npm:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: setup deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Get Version
+        id: vars
+        run: echo ::set-output name=version::$(echo ${{github.ref_name}} | sed 's/^effection-v//')
+
+      - name: Setup Node
+        uses: actions/setup-node@v4.1.0
+        with:
+          node-version: 18.x
+          registry-url: https://registry.npmjs.com
+
+      - name: Build NPM
+        run: deno task build:npm ${{steps.vars.outputs.version}}
+
+      - name: Publish NPM
+        run: npm publish --access=public
+        working-directory: ./build/npm
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
+
+  publish-jsr:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: setup deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Get Version
+        id: vars
+        run: echo ::set-output name=version::$(echo ${{github.ref_name}} | sed 's/^effection-v//')
+
+      - name: Build JSR
+        run: deno task build:jsr ${{steps.vars.outputs.version}}
+
+      - name: Publish JSR
+        run: npx jsr publish --allow-dirty --token=${{secrets.JSR_TOKEN}}

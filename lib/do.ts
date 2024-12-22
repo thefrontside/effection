@@ -1,5 +1,5 @@
-import { Result } from "./result.ts";
-import { Effect, Operation } from "./types.ts";
+import type { Result } from "./result.ts";
+import type { Effect, Operation } from "./types.ts";
 
 /**
  * Perform a single Effect as an Operation

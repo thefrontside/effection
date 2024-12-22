@@ -1,5 +1,5 @@
 import { Err, Ok } from "./result.ts";
-import { Effect, Operation } from "./types.ts";
+import type { Effect, Operation } from "./types.ts";
 
 interface Resolver<T> {
   (resolve: (value: T) => void, reject: (error: Error) => void): () => void;

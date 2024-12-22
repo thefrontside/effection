@@ -1,5 +1,5 @@
 import { scenario } from "./scenario.ts";
-import { each, on, Operation, sleep, spawn } from "../../../mod.ts";
+import { each, on, type Operation, sleep, spawn } from "../../../mod.ts";
 
 await scenario("effection.events", start);
 

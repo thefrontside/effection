@@ -1,10 +1,17 @@
 {
+  "name": "@effection/effection",
+  "exports": "./mod.ts",
+  "license": "ISC",
+  "publish": {
+    "include": ["lib", "mod.ts", "README.md"]
+  },
   "lock": false,
   "tasks": {
     "test": "deno test --allow-run=deno",
     "test:node": "deno task build:npm 0.0.0 && node test/main/node.mjs hello world",
     "build:npm": "deno run -A tasks/build-npm.ts",
-    "bench": "deno run -A tasks/bench.ts"
+    "bench": "deno run -A tasks/bench.ts",
+    "build:jsr": "deno run -A tasks/build-jsr.ts"
   },
   "lint": {
     "rules": {

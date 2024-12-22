@@ -5,14 +5,14 @@ import {
   createQueue,
   each,
   main,
-  Operation,
+  type Operation,
   spawn,
-  Task,
+  type Task,
   withResolvers,
 } from "../mod.ts";
 import { useWorker } from "./bench/worker.ts";
 import scenarios from "./bench/scenarios.ts";
-import {
+import type {
   BenchmarkDoneEvent,
   BenchmarkOptions,
   BenchmarkWorkerEvent,

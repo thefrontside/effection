@@ -1,6 +1,6 @@
 import { call, resource, sleep, spawn } from "../mod.ts";
 
-import { Operation } from "../lib/types.ts";
+import type { Operation } from "../lib/types.ts";
 
 export {
   afterEach,

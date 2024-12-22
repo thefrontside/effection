@@ -86,7 +86,7 @@ export function each<T>(stream: Stream<T, unknown>): Operation<Iterable<T>> {
   };
 }
 
-each.next = function next() {
+each.next = function next(): Operation<void> {
   return {
     name: "each.next()",
     *[Symbol.iterator]() {

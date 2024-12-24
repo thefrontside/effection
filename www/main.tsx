@@ -11,11 +11,12 @@ import { twindPlugin } from "./plugins/twind.ts";
 import { rebasePlugin } from "./plugins/rebase.ts";
 import { etagPlugin } from "./plugins/etag.ts";
 import { route, sitemapPlugin } from "./plugins/sitemap.ts";
+import { proxyRoute } from "frontside.com/routes/proxy-route.ts"
 
 import { loadDocs } from "./docs/docs.ts";
 
 await main(function* () {
-
+  let proxies = proxySites();
   let docs = yield* loadDocs();
 
   let revolution = createRevolution({
@@ -23,6 +24,7 @@ await main(function* () {
       route("/", indexRoute()),
       route("/docs/:id", docsRoute(docs)),
       route("/assets(.*)", assetsRoute("assets")),
+      route("/contrib(.*)", proxyRoute(proxies.contrib)),
     ],
     plugins: [
       twindPlugin({ config }),
@@ -37,3 +39,12 @@ await main(function* () {
 
   yield* suspend();
 });
+
+function proxySites() {
+  return {
+    contrib: {
+      prefix: "contrib",
+      website: Deno.env.get("CONTRIB_URL") ?? "https://effection-contrib.deno.dev/",
+    }
+  } as const;
+}

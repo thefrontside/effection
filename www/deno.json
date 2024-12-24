@@ -18,7 +18,14 @@
   },
   "imports": {
     "effection": "https://deno.land/x/effection@3.0.3/mod.ts",
+    "frontside.com/": "https://raw.githubusercontent.com/thefrontside/frontside.com/a1a8ee949974aaa6c4fbc5359b360535887de9de/",
     "revolution": "https://deno.land/x/revolution@0.6.0/mod.ts",
     "revolution/jsx-runtime": "https://deno.land/x/revolution@0.6.0/jsx-runtime.ts"
+  },
+  "scopes": {
+    "https://raw.githubusercontent.com/thefrontside/frontside.com/a1a8ee949974aaa6c4fbc5359b360535887de9de/": {
+      "revolution": "https://deno.land/x/revolution@0.6.0/mod.ts",
+      "revolution/jsx-runtime": "https://deno.land/x/revolution@0.6.0/jsx-runtime.ts"
+    }
   }
 }

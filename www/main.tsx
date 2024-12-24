@@ -14,6 +14,7 @@ import { route, sitemapPlugin } from "./plugins/sitemap.ts";
 import { proxyRoute } from "frontside.com/routes/proxy-route.ts"
 
 import { loadDocs } from "./docs/docs.ts";
+import { apiRoute } from "./routes/api-route.tsx";
 
 await main(function* () {
   let proxies = proxySites();
@@ -25,6 +26,7 @@ await main(function* () {
       route("/docs/:id", docsRoute(docs)),
       route("/assets(.*)", assetsRoute("assets")),
       route("/contrib(.*)", proxyRoute(proxies.contrib)),
+      route("/api/:symbol", apiRoute())
     ],
     plugins: [
       twindPlugin({ config }),

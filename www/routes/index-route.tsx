@@ -9,6 +9,43 @@ import { ProjectSelect } from "../components/project-select.tsx";
 import { Navburger } from "../components/navburger.tsx";
 import { SitemapRoute } from "../plugins/sitemap.ts";
 
+export const navLinks = [
+  <a href="/docs/installation">Guides</a>,
+  <a href="/api">API</a>,
+  <a
+    class="flex flex-row"
+    href="https://github.com/thefrontside/effection"
+  >
+    <span class="pr-1 md:inline-flex">
+      <IconGithub />
+    </span>
+    <span class="hidden md:inline-flex">
+      Github
+    </span>
+  </a>,
+  <a class="flex flex-row" href="https://discord.gg/r6AvtnU">
+    <span class="pr-1 md:inline-flex">
+      <IconDiscord />
+    </span>
+    <span class="hidden md:inline-flex">Discord</span>
+  </a>,
+  <ProjectSelect classnames="sm:hidden shrink-0" />,
+  <>
+    <p class="flex flex-row invisible">
+      <label class="cursor-pointer" for="nav-toggle">
+        <Navburger />
+      </label>
+    </p>
+    <style media="all">
+      {`
+#nav-toggle:checked ~ aside#docbar {
+display: none;
+}
+  `}
+    </style>
+  </>,
+];
+
 export function indexRoute(): SitemapRoute<JSXElement> {
   return {
     *routemap(generate) {
@@ -23,42 +60,7 @@ export function indexRoute(): SitemapRoute<JSXElement> {
 
       return (
         <AppHtml
-          navLinks={[
-            <a href="/docs/installation">Guides</a>,
-            <a href="https://deno.land/x/effection/mod.ts">API</a>,
-            <a
-              class="flex flex-row"
-              href="https://github.com/thefrontside/effection"
-            >
-              <span class="pr-1 md:inline-flex">
-                <IconGithub />
-              </span>
-              <span class="hidden md:inline-flex">
-                Github
-              </span>
-            </a>,
-            <a class="flex flex-row" href="https://discord.gg/r6AvtnU">
-              <span class="pr-1 md:inline-flex">
-                <IconDiscord />
-              </span>
-              <span class="hidden md:inline-flex">Discord</span>
-            </a>,
-            <ProjectSelect classnames="sm:hidden shrink-0" />,
-            <>
-              <p class="flex flex-row invisible">
-                <label class="cursor-pointer" for="nav-toggle">
-                  <Navburger />
-                </label>
-              </p>
-              <style media="all">
-                {`
-      #nav-toggle:checked ~ aside#docbar {
-        display: none;
-      }
-            `}
-              </style>
-            </>,
-          ]}
+          navLinks={navLinks}
         >
           <>
             <article class="p-4 md:px-12 mb-16">

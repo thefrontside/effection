@@ -15,10 +15,17 @@ import { proxyRoute } from "frontside.com/routes/proxy-route.ts"
 
 import { loadDocs } from "./docs/docs.ts";
 import { apiRoute } from "./routes/api-route.tsx";
+import { initRepositoryContext } from "effection-contrib/www/hooks/use-repository.ts";
 
 await main(function* () {
   let proxies = proxySites();
   let docs = yield* loadDocs();
+
+  yield* initRepositoryContext({
+    name: "thefrontside/effection",
+    location: new URL("../", import.meta.url),
+    defaultBranch: "v4"
+  })
 
   let revolution = createRevolution({
     app: [

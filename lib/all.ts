@@ -24,8 +24,8 @@ import { encapsulate, trap } from "./task.ts";
  * });
  * ```
  *
- * @param ops a list of operations to wait for
- * @returns the list of values that the operations evaluate to, in the order they were given
+
+ * Returns the list of values that the operations evaluate to, in the order they were given
  */
 export function* all<T extends readonly Operation<unknown>[] | []>(
   ops: T,

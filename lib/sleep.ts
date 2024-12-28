@@ -4,7 +4,6 @@ import { action } from "./action.ts";
 /**
  * Sleep for the given amount of milliseconds.
  *
- * @example
  * ```typescript
  * import { main, sleep } from 'effection';
  *
@@ -14,7 +13,7 @@ import { action } from "./action.ts";
  * });
  * ```
  *
- * @param duration - the number of milliseconds to sleep
+
  */
 export function sleep(duration: number): Operation<void> {
   return action((resolve) => {

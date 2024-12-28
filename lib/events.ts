@@ -10,7 +10,7 @@ type EventTypeFromEventTarget<T, K extends string> = `on${K}` extends keyof T
   : Event;
 
 /**
- * @ignore
+
  */
 export type EventList<T> = T extends {
   addEventListener(type: infer P, ...args: any): void;
@@ -20,12 +20,8 @@ export type EventList<T> = T extends {
   : never;
 
 /**
- * Create an {@link Operation} that yields the next event to be emitted by an
+ * Create an [Operation](/api/Operation) that yields the next event to be emitted by an
  * [EventTarget](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget).
- *
- * @param target - the event target to be watched
- * @param name - the name of the event to watch. E.g. "click"
- * @returns an Operation that yields the next emitted event
  */
 export function once<
   T extends EventTarget,
@@ -41,15 +37,11 @@ export function once<
 }
 
 /**
- * Create a {@link Stream} of events from any
+ * Create a [Stream](/api/Stream) of events from any
  * [EventTarget](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget).
  *
  * See the guide on [Streams and Subscriptions](https://frontside.com/effection/docs/collections)
  * for details on how to use streams.
- *
- * @param target - the event target whose events will be streamed
- * @param name - the name of the event to stream. E.g. "click"
- * @returns a stream that will see one item for each event
  */
 export function on<
   T extends EventTarget,

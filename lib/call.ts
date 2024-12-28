@@ -4,15 +4,15 @@ import type { Operation } from "./types.ts";
 
 /**
  * A uniform integration type representing anything that can be evaluated
- * as a the parameter to {@link call}.
+ * as a the parameter to [call](/api/call).
  *
- * {@link call} converts a `Callable` into an `Operation` which can then be used
+ * [call](/api/call) converts a `Callable` into an `Operation` which can then be used
  * anywhere within Effection.
  *
  * APIs that accept `Callable` values allow end developers to pass simple
  * functions without necessarily needing to know anything about Operations.
  *
- * ```javascript
+ * ```ts
  * function hello(to: Callable<string>): Operation<string> {
  *   return function*() {
  *     return `hello ${yield* call(to)}`;
@@ -40,7 +40,6 @@ export interface Callable<
  *
  * To call an async function:
  *
- * @example
  * ```typescript
  * async function* googleSlowly() {
  *   return yield* call(async function() {
@@ -52,12 +51,9 @@ export interface Callable<
  *
  * or a plain function:
  *
- * @example
- * ```javascript
+ * ```ts
  * yield* call(() => "a string");
  * ```
- * @param callable the operation, promise, async function, generator funnction,
- * or plain function to call as part of this operation
  */
 
 export function call<T, TArgs extends unknown[] = []>(

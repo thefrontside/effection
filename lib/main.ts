@@ -14,9 +14,6 @@ import { call } from "./call.ts";
  *   yield* exit(5, "invalid arguments")
  * }
  * ```
- * @param status - the exit code to use for the process exit
- * @param message - message to print to the console before exiting.
- * @param returns an operation that exits the program
  */
 export function* exit(status: number, message?: string): Operation<void> {
   let escape = yield* ExitContext.expect();
@@ -29,7 +26,7 @@ export function* exit(status: number, message?: string): Operation<void> {
  * handled from within `main` including an orderly shutdown. Unlike `run`, `main`
  * automatically prints errors that occurred to the console.
  *
- * Use the {@link exit} operation form within to halt program execution
+ * Use the [exit](/api/exit) operation form within to halt program execution
  * immediately and initiate shutdown.
  *
  * The behavior of `main` is slightly different depending on the environment it
@@ -47,15 +44,15 @@ export function* exit(status: number, message?: string): Operation<void> {
  *
  * > Warning! do not call `Deno.exit()` on Deno or `process.exit()` on Node
  * > directly, as this will not gracefully shutdown. Instead, use the
- * > {@link exit} operation.
+ * > [exit](/api/exit) operation.
  *
  * ### Browser
  *
  * When running in a browser, The `main` operation gets shut down on the
  * `unload` event.
  *
- * @param body - an operation to run as the body of the program
- * @returns a promise that resolves right after the program exits
+
+
  */
 
 export async function main(
@@ -164,7 +161,7 @@ function* withHost<T>(op: HostOperation<T>): Operation<T> {
   if (typeof global.Deno !== "undefined") {
     return yield* op.deno();
     // this snippet is from the detect-node npm package
-    // @see https://github.com/iliakan/detect-node/blob/master/index.js
+    // https://github.com/iliakan/detect-node/blob/master/index.js
   } else if (
     Object.prototype.toString.call(
       typeof globalThis.process !== "undefined" ? globalThis.process : 0,

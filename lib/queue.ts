@@ -2,25 +2,23 @@ import type { Resolve, Subscription } from "./types.ts";
 import { action } from "./action.ts";
 
 /**
- * A FIFO queue which can be used to implement the {@link Subscription}
- * interface directly. Most of the time, you will use either a {@link Signal}
- * or a {@link Channel} as the mechanism, but `Queue` allows you to manage
+ * A FIFO queue which can be used to implement the [Subscription](/api/Subscription)
+ * interface directly. Most of the time, you will use either a [Signal](/api/Signal)
+ * or a [Channel](/api/Channel) as the mechanism, but `Queue` allows you to manage
  * a single subscription directly.
  *
- * @typeParam T the type of the items in the queue
- * @typeParam TClose the type of the value that the queue is closed with
+
+
  */
 export interface Queue<T, TClose> extends Subscription<T, TClose> {
   /**
    * Add a value to the queue. The oldest value currently in the queue will
    * be the first to be read.
-   * @param item - the value to add
    */
   add(item: T): void;
 
   /**
    * Close the queue.
-   * @param value - the queue's final value.
    */
   close(value: TClose): void;
 }
@@ -29,9 +27,8 @@ export interface Queue<T, TClose> extends Subscription<T, TClose> {
  * Creates a new queue. Queues are unlimited in size and sending a message to a
  * queue is always synchronous.
  *
- * @example
  *
- * ```javascript
+ * ```ts
  * import { each, main, createQueue } from 'effection';
  *
  * await main(function*() {
@@ -48,8 +45,8 @@ export interface Queue<T, TClose> extends Subscription<T, TClose> {
  * });
  * ```
  *
- * @typeParam T the type of the items in the queue
- * @typeParam TClose the type of the value that the queue is closed with
+
+
  */
 export function createQueue<T, TClose>(): Queue<T, TClose> {
   type Item = IteratorResult<T, TClose>;

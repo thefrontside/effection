@@ -6,13 +6,12 @@ import { createContext } from "./context.ts";
 import type { Context } from "./types.ts";
 
 /**
- * Convert plain JavaScript function calls into a {@link Stream} that can
+ * Convert plain JavaScript function calls into a [Stream](/api/Stream) that can
  * be consumed within an operation. If no operation is subscribed to a signal's
  * stream, then sending messages to it is a no-op.
  *
  * Signals are particularly suited to be installed as event listeners.
  *
- * @example
  * ```typescript
  * import { createSignal, each } from "effection";
  *
@@ -32,32 +31,28 @@ import type { Context } from "./types.ts";
  * })
  * ````
  *
- * @typeParam T - type of each event sent by this signal
- * @typeParam TClose - type of the final event sent by this signal
+
+
  */
 export interface Signal<T, TClose> extends Stream<T, TClose> {
   /**
    * Send a value to all the consumers of this signal.
-   *
-   * @param value - the value to send.
    */
   send(value: T): void;
 
   /**
    * Send the final value of this signal to all its consumers.
-   * @param value - the final value.
    */
   close(value: TClose): void;
 }
 
 /**
- * @ignore
- * {@link Context} that contains a {@link Queue} factory to be used when creating a {@link Signal}.
+
+ * [Context](/api/Context) that contains a [Queue](/api/Queue) factory to be used when creating a [Signal](/api/Signal).
  *
  * This allows end-users to customize a Signal's Queue.
  *
- * @example
- * ```javascript
+ * ```ts
  * export function useActions(pattern: ActionPattern): Stream<AnyAction, void> {
  *  return {
  *    *[Symbol.iterator]() {
@@ -88,14 +83,13 @@ export const SignalQueueFactory: Context<typeof createQueue> = createContext(
 );
 
 /**
- * Create a new {@link Signal}
+ * Create a new [Signal](/api/Signal)
  *
  * Signal should be used when you need to send messages to a stream
  * from _outside_ of an operation. The most common case of this is to
  * connect a plain, synchronous JavaScript callback to an operation.
  *
- * @example
- * ```javascript
+ * ```ts
  * function* logClicks(button) {
  *   let clicks = createSignal<MouseEvent>();
  *   try {
@@ -112,7 +106,7 @@ export const SignalQueueFactory: Context<typeof createQueue> = createContext(
  *
  * Do not use a signal to send messages from within an operation as it could
  * result in out-of-scope code being executed. In those cases, you should use a
- * {@link Channel}.
+ * [Channel](/api/Channel).
  */
 export function createSignal<T, TClose = never>(): Signal<T, TClose> {
   let subscribers = new Set<Queue<T, TClose>>();

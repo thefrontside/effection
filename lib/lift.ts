@@ -2,10 +2,9 @@ import { action } from "./action.ts";
 import type { Operation } from "./types.ts";
 
 /**
- * Convert a simple function into an {@link Operation}
+ * Convert a simple function into an [Operation](/api/Operation)
  *
- * @example
- * ```javascript
+ * ```ts
  * let log = lift((message) => console.log(message));
  *
  * export function* run() {
@@ -14,7 +13,7 @@ import type { Operation } from "./types.ts";
  * }
  * ```
  *
- * @returns a function returning an operation that invokes `fn` when evaluated
+ * Returns a function returning an operation that invokes `fn` when evaluated
  */
 export function lift<TArgs extends unknown[], TReturn>(
   fn: (...args: TArgs) => TReturn,

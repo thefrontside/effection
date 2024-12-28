@@ -7,10 +7,9 @@ import { global } from "./scope.ts";
  *
  * Run is an entry point into Effection, and is especially useful when
  * embedding Effection code into existing code. However, If you are writing your
- * whole program using Effection, you should prefer {@link main}.
+ * whole program using Effection, you should prefer [main](/api/main).
  *
- * @example
- * ```javascript
+ * ```ts
  * import { run, useAbortSignal } from 'effection';
  *
  * async function fetchExample() {
@@ -23,10 +22,10 @@ import { global } from "./scope.ts";
  * ```
  *
  * Run will create a new top-level scope for the operation. However, to run an
- * operation in an existing scope, you can use {@link Scope.run}.
+ * operation in an existing scope, you can use [Scope](Scope#run).
  *
- * @param operation the operation to run
- * @returns a task representing the running operation.
+
+ * Returns a task representing the running operation.
  */
 export function run<T>(operation: () => Operation<T>): Task<T> {
   return global.run(operation);

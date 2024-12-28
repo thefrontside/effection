@@ -20,8 +20,7 @@ import { resource } from "./resource.ts";
  * HTTP request should be cancelled.  This is how you would bind the
  * lifetime of the HTTP request to the lifetime of the current task.
  *
- * @example
- * ```javascript
+ * ```ts
  * function* request() {
  *   let signal = yield* useAbortSignal();
  *   return yield* fetch('/some/url', { signal });

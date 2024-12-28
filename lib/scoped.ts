@@ -9,9 +9,9 @@ import { useCoroutine } from "./coroutine.ts";
  * shut down, and all contexts will be restored to their values outside
  * of the scope.
  *
- * @param operation - the operation to be encapsulated
+
  *
- * @returns the scoped operation
+
  */
 export function scoped<T>(operation: () => Operation<T>): Operation<T> {
   return {

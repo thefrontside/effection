@@ -15,7 +15,6 @@ import { Err, Ok, type Result } from "./result.ts";
  * After the first operation wins the race, all other operations will become
  * halted and therefore cannot throw any further errors.
  *
- * @example
  *
  * ```typescript
  * import { main, race, fetch } from 'effection';
@@ -26,8 +25,8 @@ import { Err, Ok, type Result } from "./result.ts";
  * });
  * ```
  *
- * @param operations a list of operations to race against each other
- * @returns the value of the fastest operation
+
+
  */
 
 export function* race<T extends Operation<unknown>>(

@@ -4,32 +4,31 @@ import { lift } from "./lift.ts";
 
 /**
  * A broadcast channel that multiple consumers can subscribe to the
- * via the same {@link Stream}, and messages sent to the channel are
+ * via the same [Stream](/api/Stream), and messages sent to the channel are
  * received by all consumers. The channel is not buffered, so if there
  * are no consumers, the message is dropped.
  */
 export interface Channel<T, TClose> extends Stream<T, TClose> {
   /**
-   * Send a message to all subscribers of this {@link Channel}
+   * Send a message to all subscribers of this [Channel](/api/Channel)
    */
   send(message: T): Operation<void>;
 
   /**
-   * End every subscription to this {@link Channel}
+   * End every subscription to this [Channel](/api/Channel)
    */
   close(value: TClose): Operation<void>;
 }
 
 /**
- * Create a new {@link Channel}. Use channels to communicate between operations.
+ * Create a new [Channel](/api/Channel). Use channels to communicate between operations.
  * In order to dispatch messages from outside an operation such as from a
- * callback, use {@link Signal}.
+ * callback, use [Signal](/api/Signal).
  *
  * See [the guide on Streams and
  * Subscriptions](https://frontside.com/effection/docs/guides/collections)
  * for more details.
  *
- * @example
  *
  * ``` javascript
  * import { main, createChannel } from 'effection';

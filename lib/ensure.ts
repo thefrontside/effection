@@ -6,9 +6,8 @@ import { resource } from "./resource.ts";
  * shuts down. This is equivalent to running the function or operation
  * in a `finally {}` block, but it can help you avoid rightward drift.
  *
- * @example
  *
- * ```javascript
+ * ```ts
  * import { main, ensure } from 'effection';
  * import { createServer } from 'http';
  *
@@ -21,9 +20,8 @@ import { resource } from "./resource.ts";
  * Note that you should wrap the function body in braces, so the function
  * returns `undefined`.
  *
- * @example
  *
- * ```javascript
+ * ```ts
  * import { main, ensure, once } from 'effection';
  * import { createServer } from 'http';
  *
@@ -38,8 +36,6 @@ import { resource } from "./resource.ts";
  *
  * Your ensure function should return an operation whenever you need to do
  * asynchronous cleanup. Otherwise, you can return `void`
- *
- * @param fn - a function which returns an {@link Operation} or void
  */
 export function ensure(fn: () => Operation<unknown> | void): Operation<void> {
   return resource(function* (provide) {

@@ -11,7 +11,7 @@ import { useScope } from "./scope.ts";
  * Given any stream, you can access its values sequentially using the `each()`
  * operation just as you would use `for await of` loop with an async iterable:
  *
- * ```javascript
+ * ```ts
  * function* logvalues(stream) {
  *   for (let value of yield* each(stream)) {
  *     console.log(value);
@@ -25,9 +25,7 @@ import { useScope } from "./scope.ts";
  * Note that just as with async iterators, there is no way to consume the
  * `TClose` value of a stream using the `for-each` loop.
  *
- * @typeParam T - the type of each value in the stream.
- * @param stream - the stream to iterate
- * @returns an operation to iterate `stream`
+ * Returns an operation to iterate `stream`
  */
 export function each<T>(stream: Stream<T, unknown>): Operation<Iterable<T>> {
   return {

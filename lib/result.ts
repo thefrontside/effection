@@ -1,5 +1,5 @@
 /**
- * @ignore
+
  */
 export type Result<T> = {
   readonly ok: true;
@@ -10,7 +10,7 @@ export type Result<T> = {
 };
 
 /**
- * @ignore
+
  */
 export function Ok(): Result<void>;
 export function Ok<T>(value: T): Result<T>;
@@ -22,12 +22,12 @@ export function Ok<T>(value?: T): Result<T | undefined> {
 }
 
 /**
- * @ignore
+
  */
 export const Err = <T>(error: Error): Result<T> => ({ ok: false, error });
 
 /**
- * @ignore
+
  */
 export function unbox<T>(result: Result<T>): T {
   if (result.ok) {

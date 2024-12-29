@@ -26,7 +26,7 @@ export function OriginalRehype(options: RehypeOptions): JSX.Element {
       `rehype plugin stack: {options.plugins} did not return a HAST Element`,
     );
   }
-
+}
 
 interface RehypeProps {
   children: JSXElement;

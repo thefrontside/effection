@@ -1,24 +1,17 @@
 import type { JSXElement } from "revolution";
-import type { Docs } from "../docs/docs.ts";
-import type { DocMeta } from "../docs/docs.ts";
+import type { DocMeta, Docs } from "../docs/docs.ts";
 
 import { useAppHtml } from "./app.html.tsx";
-
 import { respondNotFound, useParams } from "revolution";
-
-import { Rehype } from "../components/rehype.tsx";
+import { OriginalRehype } from "../components/rehype.tsx";
 import { Transform } from "../components/transform.tsx";
 
-import rehypeSlug from "npm:rehype-slug@5.1.0";
-import rehypeAutolinkHeadings from "npm:rehype-autolink-headings@6.1.1";
-import rehypeAddClasses from "npm:rehype-add-classes@1.0.0";
 import rehypeToc from "npm:@jsdevtools/rehype-toc@3.0.2";
-import { IconGithub } from "../components/icons/github.tsx";
-import { IconDiscord } from "../components/icons/discord.tsx";
-import { ProjectSelect } from "../components/project-select.tsx";
-import { Navburger } from "../components/navburger.tsx";
-import { SitemapRoute, RoutePath } from "../plugins/sitemap.ts";
-import { useDescription } from "effection-contrib/www/hooks/use-description-parse.tsx";
+import rehypeAddClasses from "npm:rehype-add-classes@1.0.0";
+import rehypeAutolinkHeadings from "npm:rehype-autolink-headings@6.1.1";
+import rehypeSlug from "npm:rehype-slug@5.1.0";
+import { useDescription } from "../hooks/use-description-parse.tsx";
+import { RoutePath, SitemapRoute } from "../plugins/sitemap.ts";
 
 export function docsRoute(docs: Docs): SitemapRoute<JSXElement> {
   return {
@@ -50,44 +43,7 @@ export function docsRoute(docs: Docs): SitemapRoute<JSXElement> {
       });
 
       return (
-        <AppHtml
-          navLinks={[
-            <a href="/docs/installation">Guides</a>,
-            <a href="https://deno.land/x/effection/mod.ts">API</a>,
-            <a
-              class="flex flex-row"
-              href="https://github.com/thefrontside/effection"
-            >
-              <span class="pr-1 md:inline-flex">
-                <IconGithub />
-              </span>
-              <span class="hidden md:inline-flex">
-                Github
-              </span>
-            </a>,
-            <a class="flex flex-row" href="https://discord.gg/r6AvtnU">
-              <span class="pr-1 md:inline-flex">
-                <IconDiscord />
-              </span>
-              <span class="hidden md:inline-flex">Discord</span>
-            </a>,
-            <ProjectSelect classnames="sm:hidden shrink-0" />,
-            <>
-              <p class="flex flex-row md:hidden">
-                <label class="cursor-pointer" for="nav-toggle">
-                  <Navburger />
-                </label>
-              </p>
-              <style media="all">
-                {`
-      #nav-toggle:checked ~ aside#docbar {
-	display: none;
-      }
-	  `}
-              </style>
-            </>,
-          ]}
-        >
+        <AppHtml>
           <section class="min-h-0 mx-auto w-full justify-items-normal md:grid md:grid-cols-[225px_auto] lg:grid-cols-[225px_auto_200px] md:gap-4">
             <input class="hidden" id="nav-toggle" type="checkbox" checked />
             <aside
@@ -158,7 +114,7 @@ export function docsRoute(docs: Docs): SitemapRoute<JSXElement> {
             <Transform fn={liftTOC}>
               <article class="prose max-w-full px-6 py-2">
                 <h1>{doc.title}</h1>
-                <Rehype
+                <OriginalRehype
                   plugins={[
                     rehypeSlug,
                     [rehypeAutolinkHeadings, {
@@ -183,7 +139,7 @@ export function docsRoute(docs: Docs): SitemapRoute<JSXElement> {
                   ]}
                 >
                   <doc.MDXContent />
-                </Rehype>
+                </OriginalRehype>
                 <NextPrevLinks doc={doc} />
               </article>
             </Transform>

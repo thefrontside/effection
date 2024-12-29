@@ -1,19 +1,19 @@
-import type { RoutePath, SitemapRoute } from "../plugins/sitemap.ts";
+import type { RoutePath, SitemapRoute } from "../../plugins/sitemap.ts";
 import { type JSXElement, useParams } from "revolution";
-import { API } from "../components/api.tsx";
-import { PackageExports } from "../components/package/exports.tsx";
-import { PackageHeader } from "../components/package/header.tsx";
-import { ScoreCard } from "../components/score-card.tsx";
-import { readPackages } from "../hooks/read-packages.ts";
-import { useMarkdown } from "../hooks/use-markdown.tsx";
+import { API } from "../../components/api.tsx";
+import { PackageExports } from "../../components/package/exports.tsx";
+import { PackageHeader } from "../../components/package/header.tsx";
+import { ScoreCard } from "../../components/score-card.tsx";
+import { readPackages } from "../../hooks/read-packages.ts";
+import { useMarkdown } from "../../hooks/use-markdown.tsx";
 import {
   initPackageContext,
   readPackageConfig,
-} from "../hooks/use-package.tsx";
-import { useRepository } from "../hooks/use-repository.ts";
-import { useAppHtml } from "./app.html.tsx";
+} from "../../hooks/use-package.tsx";
+import { useRepository } from "../../hooks/use-repository.ts";
+import { useAppHtml } from "../app.html.tsx";
 
-export function packageRoute(): SitemapRoute<JSXElement> {
+export function contribPackageRoute(): SitemapRoute<JSXElement> {
   return {
     *routemap(pathname) {
       let paths: RoutePath[] = [];
@@ -43,9 +43,8 @@ export function packageRoute(): SitemapRoute<JSXElement> {
         let pkg = yield* initPackageContext(config);
 
         const AppHTML = yield* useAppHtml({
-          title: `${pkg.packageName}`,
+          title: `${pkg.packageName} | Contrib | Effection`,
           description: yield* pkg.description(),
-          pageTitle: `${pkg.packageName} | Effection Contrib`,
         });
 
         return (
@@ -71,9 +70,8 @@ export function packageRoute(): SitemapRoute<JSXElement> {
       } catch (e) {
         console.error(e);
         const AppHTML = yield* useAppHtml({
-          title: `${params.workspace}`,
+          title: `${params.workspace} not found`,
           description: `Failed to load ${params.workspace} due to error.`,
-          pageTitle: `${params.workspace} not found`,
         });
         return (
           <AppHTML>

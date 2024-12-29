@@ -1,12 +1,12 @@
 import { all } from "effection";
-import type { SitemapRoute } from "../plugins/sitemap.ts";
+import type { SitemapRoute } from "../../plugins/sitemap.ts";
 import type { JSXElement } from "revolution";
-import { PackageIndexItem } from "../components/index/item.tsx";
-import { readPackages } from "../hooks/read-packages.ts";
-import { useAppHtml } from "./app.html.tsx";
-import { useRepository } from "../hooks/use-repository.ts";
+import { PackageIndexItem } from "../../components/index/item.tsx";
+import { readPackages } from "../../hooks/read-packages.ts";
+import { useAppHtml } from "../app.html.tsx";
+import { useRepository } from "../../hooks/use-repository.ts";
 
-export function indexRoute(): SitemapRoute<JSXElement> {
+export function contribIndexRoute(): SitemapRoute<JSXElement> {
   return {
     *routemap() {
       return [{
@@ -18,7 +18,6 @@ export function indexRoute(): SitemapRoute<JSXElement> {
         title: "Contrib | Effection",
         description:
           "List of community contributed modules that represent emerging consensus on how to do common JavaScript tasks with Effection.",
-        pageTitle: "Contrib | Effection",
       });
 
       const repository = yield* useRepository();

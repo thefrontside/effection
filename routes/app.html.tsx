@@ -13,7 +13,6 @@ import { ProjectSelect } from "../components/project-select.tsx";
 export interface Options {
   title: string;
   description: string;
-  pageTitle: string;
 }
 
 export interface AppHtmlProps {
@@ -23,7 +22,6 @@ export interface AppHtmlProps {
 export function* useAppHtml({
   title,
   description,
-  pageTitle,
 }: Options): Operation<({ children }: AppHtmlProps) => JSX.Element> {
   let twitterImageURL = yield* useAbsoluteUrl(
     "/assets/images/meta-effection.png",
@@ -85,7 +83,7 @@ export function* useAppHtml({
         <meta property="og:image" content="/assets/images/meta-effection.png" />
         <meta
           property="og:title"
-          content={pageTitle}
+          content={title}
           data-rh="true"
         />
         <meta property="og:url" content={homeURL} />

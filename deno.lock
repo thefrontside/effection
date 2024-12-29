@@ -56,10 +56,13 @@
     "npm:hast-util-to-html@9.0.0": "9.0.0",
     "npm:rehype-add-classes@1.0.0": "1.0.0",
     "npm:rehype-autolink-headings@6.1.1": "6.1.1",
+    "npm:rehype-autolink-headings@7.1.0": "7.1.0",
+    "npm:rehype-infer-description-meta@1.0.0": "1.0.0",
     "npm:rehype-infer-description-meta@2.0.0": "2.0.0",
     "npm:rehype-prism-plus@1.5.1": "1.5.1",
     "npm:rehype-prism-plus@2.0.0": "2.0.0",
     "npm:rehype-slug@5.1.0": "5.1.0",
+    "npm:rehype-slug@6.0.0": "6.0.0",
     "npm:rehype-stringify@10.0.1": "10.0.1",
     "npm:remark-gfm@3.0.1": "3.0.1",
     "npm:remark-gfm@4.0.0": "4.0.0",
@@ -576,11 +579,18 @@
     "github-slugger@2.0.0": {
       "integrity": "sha512-IaOQ9puYtjrkq7Y0Ygl9KDZnrf/aiUJYUpVf89y8kyaxbRG7Y1SrX/jaumrv81vc61+kiMempujsM3Yw7w5qcw=="
     },
+    "hast-util-excerpt@1.0.2": {
+      "integrity": "sha512-5q3+CAQwLBzcw4/1nwkdh91BSmoXmJSJQ1fYflhm2XpbYbrnXL+rgAbZsioVgVKV3xBlO1C9jp0wQ3ZYzfWibg==",
+      "dependencies": [
+        "@types/hast@2.3.10",
+        "hast-util-truncate@1.0.2"
+      ]
+    },
     "hast-util-excerpt@2.0.0": {
       "integrity": "sha512-3hM4U3Tjvx8bn+KGM51BA2VL6poq3AyOHguq3dzDjI74lxYZfOV1zAEEiSbcGd8CXgx9N9JRS5MlS4izTWJRig==",
       "dependencies": [
         "@types/hast@3.0.4",
-        "hast-util-truncate"
+        "hast-util-truncate@2.0.0"
       ]
     },
     "hast-util-from-html@2.0.3": {
@@ -635,6 +645,12 @@
       "integrity": "sha512-iAuRp+ESgJoRFJbSyaqsfvJDY6zzmFoEnL1gtz1+U8gKtGGj1p0CVlysuUAUjq95qlZESHINLThwJzNGmgGZxA==",
       "dependencies": [
         "@types/hast@2.3.10"
+      ]
+    },
+    "hast-util-heading-rank@3.0.0": {
+      "integrity": "sha512-EJKb8oMUXVHcWZTDepnr+WNbfnXKFNf9duMesmr4S8SXTJBJ9M4Yok08pu9vxdJwdlGRhVumk9mEhkEvKGifwA==",
+      "dependencies": [
+        "@types/hast@3.0.4"
       ]
     },
     "hast-util-is-element@1.1.0": {
@@ -697,6 +713,26 @@
         "property-information@3.2.0",
         "space-separated-tokens@1.1.5",
         "zwitch@1.0.5"
+      ]
+    },
+    "hast-util-select@5.0.5": {
+      "integrity": "sha512-QQhWMhgTFRhCaQdgTKzZ5g31GLQ9qRb1hZtDPMqQaOhpLBziWcshUS0uCR5IJ0U1jrK/mxg35fmcq+Dp/Cy2Aw==",
+      "dependencies": [
+        "@types/hast@2.3.10",
+        "@types/unist@2.0.10",
+        "bcp-47-match",
+        "comma-separated-tokens@2.0.3",
+        "css-selector-parser@1.4.1",
+        "direction",
+        "hast-util-has-property@2.0.1",
+        "hast-util-to-string@2.0.0",
+        "hast-util-whitespace@2.0.1",
+        "not",
+        "nth-check@2.1.1",
+        "property-information@6.4.1",
+        "space-separated-tokens@2.0.2",
+        "unist-util-visit@4.1.2",
+        "zwitch@2.0.4"
       ]
     },
     "hast-util-select@6.0.1": {
@@ -822,13 +858,29 @@
         "@types/hast@3.0.4"
       ]
     },
+    "hast-util-to-text@3.1.2": {
+      "integrity": "sha512-tcllLfp23dJJ+ju5wCCZHVpzsQQ43+moJbqVX3jNWPB7z/KFC4FyZD6R7y94cHL6MQ33YtMZL8Z0aIXXI4XFTw==",
+      "dependencies": [
+        "@types/hast@2.3.10",
+        "@types/unist@2.0.10",
+        "hast-util-is-element@2.1.3",
+        "unist-util-find-after@4.0.1"
+      ]
+    },
     "hast-util-to-text@4.0.2": {
       "integrity": "sha512-KK6y/BN8lbaq654j7JgBydev7wuNMcID54lkRav1P0CaE1e47P72AWWPiGKXTJU271ooYzcvTAn/Zt0REnvc7A==",
       "dependencies": [
         "@types/hast@3.0.4",
         "@types/unist@3.0.3",
         "hast-util-is-element@3.0.0",
-        "unist-util-find-after"
+        "unist-util-find-after@5.0.0"
+      ]
+    },
+    "hast-util-truncate@1.0.2": {
+      "integrity": "sha512-IWLuKZGZ9YaA4mmxlYyQgxbYARRRjomRaPnwvgwhC6VfUD9uAhdDa6+B0ad23rOoC4RyLVMB8fIE40x/O6qK1Q==",
+      "dependencies": [
+        "@types/hast@2.3.10",
+        "micromark-util-character@1.2.0"
       ]
     },
     "hast-util-truncate@2.0.0": {
@@ -2009,20 +2061,43 @@
         "@types/hast@2.3.10",
         "extend",
         "hast-util-has-property@2.0.1",
-        "hast-util-heading-rank",
+        "hast-util-heading-rank@2.1.1",
         "hast-util-is-element@2.1.3",
         "unified@10.1.2",
         "unist-util-visit@4.1.2"
+      ]
+    },
+    "rehype-autolink-headings@7.1.0": {
+      "integrity": "sha512-rItO/pSdvnvsP4QRB1pmPiNHUskikqtPojZKJPPPAVx9Hj8i8TwMBhofrrAYRhYOOBZH9tgmG5lPqDLuIWPWmw==",
+      "dependencies": [
+        "@types/hast@3.0.4",
+        "@ungap/structured-clone",
+        "hast-util-heading-rank@3.0.0",
+        "hast-util-is-element@3.0.0",
+        "unified@11.0.4",
+        "unist-util-visit@5.0.0"
+      ]
+    },
+    "rehype-infer-description-meta@1.0.0": {
+      "integrity": "sha512-nxCE50OJr+F/pN8sNBv4DNBdl+zpdy1ILsGu5kiJU4qZxuD4nZSaVcstcgsisb4K8VCUNCBe2O2ZdPPsE73jng==",
+      "dependencies": [
+        "@types/hast@2.3.10",
+        "hast-util-excerpt@1.0.2",
+        "hast-util-select@5.0.5",
+        "hast-util-to-text@3.1.2",
+        "hast-util-truncate@1.0.2",
+        "unified@10.1.2",
+        "unist-util-remove-position@4.0.2"
       ]
     },
     "rehype-infer-description-meta@2.0.0": {
       "integrity": "sha512-8MZjKRfQiNB5+Qpt0fS9bpjcKe+nhF5GOTHo0M5e+XdStDpcZxkSMMnCfNIlpNaOyIQ7Hu1qEaUxm8ZL1lYI1g==",
       "dependencies": [
         "@types/hast@3.0.4",
-        "hast-util-excerpt",
+        "hast-util-excerpt@2.0.0",
         "hast-util-select@6.0.1",
-        "hast-util-to-text",
-        "hast-util-truncate",
+        "hast-util-to-text@4.0.2",
+        "hast-util-truncate@2.0.0",
         "unified@11.0.4",
         "unist-util-remove-position@5.0.0",
         "vfile@6.0.3"
@@ -2073,10 +2148,20 @@
         "@types/hast@2.3.10",
         "github-slugger",
         "hast-util-has-property@2.0.1",
-        "hast-util-heading-rank",
+        "hast-util-heading-rank@2.1.1",
         "hast-util-to-string@2.0.0",
         "unified@10.1.2",
         "unist-util-visit@4.1.2"
+      ]
+    },
+    "rehype-slug@6.0.0": {
+      "integrity": "sha512-lWyvf/jwu+oS5+hL5eClVd3hNdmwM1kAC0BUvEGD19pajQMIzcNUd/k9GsfQ+FfECvX+JE+e9/btsKH0EjJT6A==",
+      "dependencies": [
+        "@types/hast@3.0.4",
+        "github-slugger",
+        "hast-util-heading-rank@3.0.0",
+        "hast-util-to-string@3.0.0",
+        "unist-util-visit@5.0.0"
       ]
     },
     "rehype-stringify@10.0.1": {
@@ -2246,6 +2331,13 @@
         "@types/unist@3.0.3",
         "unist-util-is@6.0.0",
         "unist-util-visit-parents@6.0.1"
+      ]
+    },
+    "unist-util-find-after@4.0.1": {
+      "integrity": "sha512-QO/PuPMm2ERxC6vFXEPtmAutOopy5PknD+Oq64gGwxKtk4xwo9Z97t9Av1obPmGU0IyTa6EKYUfTrK2QJS3Ozw==",
+      "dependencies": [
+        "@types/unist@2.0.10",
+        "unist-util-is@5.2.1"
       ]
     },
     "unist-util-find-after@5.0.0": {

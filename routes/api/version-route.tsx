@@ -1,17 +1,16 @@
-import denoJson from "../../deno.json" with { type: "json" };
+import denoJson from "../../../deno.json" with { type: "json" };
 
 import { call } from "effection";
-import { Type } from "effection-contrib/www/components/api.tsx";
+import { Type } from "../../components/api.tsx";
 import {
   createPackage,
   type RenderableDocNode,
-} from "effection-contrib/www/hooks/use-package.tsx";
+} from "../../hooks/use-package.tsx";
 import { aggregateGroups } from "jsr:@std/collections@1.0.9";
 import { useParams, type JSXElement } from "revolution";
 
-import { SitemapRoute } from "../plugins/sitemap.ts";
-import { useAppHtml } from "./app.html.tsx";
-import { navLinks } from "./index-route.tsx";
+import { SitemapRoute } from "../../plugins/sitemap.ts";
+import { useAppHtml } from "../app.html.tsx";
 
 function* effectionPkgConfig() {
   return {
@@ -25,7 +24,7 @@ function* effectionPkgConfig() {
 const uniquePredicate = (value: unknown, index: number, array: unknown[]) =>
   array.indexOf(value) === index;
 
-export function apiRoute(): SitemapRoute<JSXElement> {
+export function apiVersionRoute(): SitemapRoute<JSXElement> {
   return {
     *routemap(generate) {
       const config = yield* effectionPkgConfig();
@@ -84,7 +83,7 @@ export function apiRoute(): SitemapRoute<JSXElement> {
       });
 
       return (
-        <AppHtml navLinks={navLinks}>
+        <AppHtml>
           <section class="min-h-0 mx-auto w-full justify-items-normal md:grid md:grid-cols-[225px_auto] lg:grid-cols-[225px_auto_200px] md:gap-4">
             <aside class="min-h-0 overflow-auto hidden md:block pt-2 top-24 sticky h-fit">
               <nav class="pl-4">

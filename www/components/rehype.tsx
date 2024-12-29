@@ -1,3 +1,8 @@
+import rehypeSlug from "npm:rehype-slug@6.0.0";
+import rehypeAutolinkHeadings from "npm:rehype-autolink-headings@7.1.0";
+import rehypeAddClasses from "npm:rehype-add-classes@1.0.0";
+import rehypeInferDescriptionMeta from "npm:rehype-infer-description-meta@1.0.0";
+import type { JSXElement } from "revolution/jsx-runtime";
 import type { PluggableList } from "npm:unified@10.1.2";
 import { unified } from "npm:unified@10.1.2";
 
@@ -6,7 +11,7 @@ export interface RehypeOptions {
   plugins: PluggableList;
 }
 
-export function Rehype(options: RehypeOptions): JSX.Element {
+export function OriginalRehype(options: RehypeOptions): JSX.Element {
   let { children, plugins } = options;
   let pipeline = unified().use(plugins);
 
@@ -21,4 +26,38 @@ export function Rehype(options: RehypeOptions): JSX.Element {
       `rehype plugin stack: {options.plugins} did not return a HAST Element`,
     );
   }
+
+
+interface RehypeProps {
+  children: JSXElement;
+}
+
+export function Rehype({ children }: RehypeProps) {
+  return (
+    <OriginalRehype
+      plugins={[
+        rehypeSlug,
+        rehypeInferDescriptionMeta,
+        [
+          rehypeAutolinkHeadings,
+          {
+            behavior: "append",
+            properties: {
+              className:
+                "opacity-0 group-hover:opacity-100 after:content-['#'] after:ml-1.5",
+            },
+          },
+        ],
+        [
+          rehypeAddClasses,
+          {
+            "h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]": "group",
+            pre: "grid",
+          },
+        ],
+      ]}
+    >
+      {children}
+    </OriginalRehype>
+  );
 }

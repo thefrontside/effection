@@ -33,6 +33,7 @@
     "npm:@types/hast@3": "3.0.4",
     "npm:@types/mdx@2.0.13": "2.0.13",
     "npm:@types/unist@3.0.3": "3.0.3",
+    "npm:effection@3.0.3": "3.0.3",
     "npm:hast-util-from-html@*": "2.0.3",
     "npm:hast-util-select@*": "6.0.1",
     "npm:hast-util-select@6.0.1": "6.0.1",
@@ -401,6 +402,9 @@
     },
     "direction@2.0.1": {
       "integrity": "sha512-9S6m9Sukh1cZNknO1CWAr2QAWsbKLafQiyM5gZ7VgXHeuaoUwffKN4q6NC4A/Mf9iiPlOXQEKW/Mv/mh9/3YFA=="
+    },
+    "effection@3.0.3": {
+      "integrity": "sha512-9ASCaJ44flDoEKUUJtn9drfIomn2z30sZUw7//crbq+eltMu09AyILcouXwpMkcHR8TsD5hDvTTsOLHswWRxXQ=="
     },
     "entities@4.5.0": {
       "integrity": "sha512-V0hjH4dGPh9Ao5p0MoRY6BVqtwCjhz6vI5LT8AJ55H+4g9/4vbHx1I54fS0XuclLhDHArPQCiMjDxjaL8fPxhw=="

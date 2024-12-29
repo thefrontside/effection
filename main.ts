@@ -1,12 +1,12 @@
 import { main, suspend } from "effection";
 import { createRevolution, ServerInfo } from "revolution";
-import { initDenoDeploy } from "../deno-deploy/mod.ts";
+import { initDenoDeploy } from "jsr:@effection-contrib/deno-deploy@0.1.0";
 
-import { config } from "effection-www/tailwind.config.ts";
-import { route, sitemapPlugin } from "effection-www/plugins/sitemap.ts";
-import { twindPlugin } from "effection-www/plugins/twind.ts";
-import { etagPlugin } from "effection-www/plugins/etag.ts";
-import { rebasePlugin } from "effection-www/plugins/rebase.ts";
+import { config } from "./tailwind.config.ts";
+import { route, sitemapPlugin } from "./plugins/sitemap.ts";
+import { twindPlugin } from "./plugins/twind.ts";
+import { etagPlugin } from "./plugins/etag.ts";
+import { rebasePlugin } from "./plugins/rebase.ts";
 
 import { assetsRoute } from "./routes/assets-route.ts";
 import { indexRoute } from "./routes/index.tsx";

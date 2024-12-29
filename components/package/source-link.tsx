@@ -1,5 +1,5 @@
-import { IconExternal } from "effection-www/components/icons/external.tsx";
-import { IconGithub } from "effection-www/components/icons/github.tsx";
+import { IconExternal } from "../../components/icons/external.tsx";
+import { IconGithub } from "../../components/icons/github.tsx";
 
 import { usePackage } from "../../hooks/use-package.tsx";
 import { useRepository } from "../../hooks/use-repository.ts";

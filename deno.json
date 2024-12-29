@@ -17,9 +17,8 @@
     "jsxImportSource": "revolution"
   },
   "imports": {
-    "effection": "https://deno.land/x/effection@3.0.3/mod.ts",
+    "effection": "jsr:@effection/effection@3.1.0",
     "frontside.com/": "https://raw.githubusercontent.com/thefrontside/frontside.com/a1a8ee949974aaa6c4fbc5359b360535887de9de/",
-    "effection-contrib/www/": "file:///Users/tarasmankovski/Repositories/frontside/effection-contrib/www/",
     "revolution": "https://deno.land/x/revolution@0.6.0/mod.ts",
     "revolution/jsx-runtime": "https://deno.land/x/revolution@0.6.0/jsx-runtime.ts"
   },
@@ -27,11 +26,6 @@
     "https://raw.githubusercontent.com/thefrontside/frontside.com/a1a8ee949974aaa6c4fbc5359b360535887de9de/": {
       "revolution": "https://deno.land/x/revolution@0.6.0/mod.ts",
       "revolution/jsx-runtime": "https://deno.land/x/revolution@0.6.0/jsx-runtime.ts"
-    },
-    "file:///Users/tarasmankovski/Repositories/frontside/effection-contrib/www/": {
-      "revolution": "https://deno.land/x/revolution@0.6.0/mod.ts",
-      "revolution/jsx-runtime": "https://deno.land/x/revolution@0.6.0/jsx-runtime.ts",
-      "effection": "https://deno.land/x/effection@3.0.3/mod.ts"
     }
   }
 }

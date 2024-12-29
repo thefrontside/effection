@@ -1,4 +1,4 @@
-import type { RoutePath, SitemapRoute } from "effection-www/plugins/sitemap.ts";
+import type { RoutePath, SitemapRoute } from "../plugins/sitemap.ts";
 import { type JSXElement, useParams } from "revolution";
 import { API } from "../components/api.tsx";
 import { PackageExports } from "../components/package/exports.tsx";

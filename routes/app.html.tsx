@@ -18,7 +18,6 @@ export interface Options {
 
 export interface AppHtmlProps {
   children: JSXChild;
-  navLinks: JSX.Element[];
 }
 
 export function* useAppHtml({

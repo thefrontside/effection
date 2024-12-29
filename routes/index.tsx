@@ -1,5 +1,5 @@
 import { all } from "effection";
-import type { SitemapRoute } from "effection-www/plugins/sitemap.ts";
+import type { SitemapRoute } from "../plugins/sitemap.ts";
 import type { JSXElement } from "revolution";
 import { PackageIndexItem } from "../components/index/item.tsx";
 import { readPackages } from "../hooks/read-packages.ts";

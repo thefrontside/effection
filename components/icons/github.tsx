@@ -1,3 +1,4 @@
+// @ts-nocheck Property 'svg' does not exist on type 'JSX.IntrinsicElements'.deno-ts(2339)
 export const IconGithub = () => (
   <svg
     height="16"

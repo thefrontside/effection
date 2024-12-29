@@ -7,6 +7,7 @@ import { Footer } from "../components/footer.tsx";
 
 export interface Options {
   title: string;
+  description: string;
 }
 
 export interface AppHtmlProps {
@@ -16,6 +17,7 @@ export interface AppHtmlProps {
 
 export function* useAppHtml({
   title,
+  description
 }: Options): Operation<({ children, navLinks }: AppHtmlProps) => JSX.Element> {
   let homeURL = yield* useAbsoluteUrl("/");
   let twitterImageURL = yield* useAbsoluteUrl(
@@ -30,17 +32,17 @@ export function* useAppHtml({
         <meta property="og:image" content="/assets/images/meta-effection.png" />
         <meta
           property="og:title"
-          content="Introduction | Effection"
+          content={title}
           data-rh="true"
         />
         <meta property="og:url" content={homeURL} />
         <meta
           property="og:description"
-          content="Effection is a structured concurrency and effects framework for JavaScript."
+          content={description}
         />
         <meta
           name="description"
-          content="Effection is a structured concurrency and effects framework for JavaScript."
+          content={description}
         />
         <meta name="twitter:image" content={twitterImageURL} />
         <link rel="icon" href="/assets/images/favicon-effection.png" />

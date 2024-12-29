@@ -46,6 +46,7 @@ export interface DocMeta {
 
 export interface Doc extends DocMeta {
   MDXContent: () => JSX.Element;
+  markdown: string;
 }
 
 export function loadDocs(): Operation<Docs> {
@@ -100,6 +101,7 @@ export function loadDocs(): Operation<Docs> {
 
               return {
                 ...meta,
+                markdown: source,
                 MDXContent: () => mod.default({}),
               } as Doc;
             }),

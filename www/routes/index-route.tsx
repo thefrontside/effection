@@ -54,7 +54,10 @@ export function indexRoute(): SitemapRoute<JSXElement> {
       }];
     },
     handler: function* () {
-      let AppHtml = yield* useAppHtml({ title: `Effection` });
+      let AppHtml = yield* useAppHtml({ 
+        title: `Effection`,
+        description: "Effection is a structured concurrency and effects framework for JavaScript."
+      });
       let announcementUrl =
         "https://frontside.com/blog/2023-12-18-announcing-effection-v3/";
 

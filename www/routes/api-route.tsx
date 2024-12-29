@@ -7,7 +7,7 @@ import {
   type RenderableDocNode,
 } from "effection-contrib/www/hooks/use-package.tsx";
 import { aggregateGroups } from "jsr:@std/collections@1.0.9";
-import { type JSXElement } from "revolution";
+import { useParams, type JSXElement } from "revolution";
 
 import { SitemapRoute } from "../plugins/sitemap.ts";
 import { useAppHtml } from "./app.html.tsx";
@@ -43,7 +43,7 @@ export function apiRoute(): SitemapRoute<JSXElement> {
         });
     },
     handler: function* () {
-      const AppHtml = yield* useAppHtml({ title: "API Reference " });
+      const { symbol } = yield* useParams<{ symbol: string }>();
 
       const config = yield* effectionPkgConfig();
       const pkg = yield* createPackage(config);
@@ -77,6 +77,11 @@ export function apiRoute(): SitemapRoute<JSXElement> {
           </section>,
         );
       }
+
+      const AppHtml = yield* useAppHtml({ 
+        title: `${symbol} | API Reference | Effection`,
+        description: nodes.find(node => node.description)?.description ?? ""
+      });
 
       return (
         <AppHtml navLinks={navLinks}>

@@ -18,6 +18,7 @@ import { IconDiscord } from "../components/icons/discord.tsx";
 import { ProjectSelect } from "../components/project-select.tsx";
 import { Navburger } from "../components/navburger.tsx";
 import { SitemapRoute, RoutePath } from "../plugins/sitemap.ts";
+import { useDescription } from "effection-contrib/www/hooks/use-description-parse.tsx";
 
 export function docsRoute(docs: Docs): SitemapRoute<JSXElement> {
   return {
@@ -41,7 +42,12 @@ export function docsRoute(docs: Docs): SitemapRoute<JSXElement> {
 
       let { topics } = doc;
 
-      let AppHtml = yield* useAppHtml({ title: `${doc.title} | Effection` });
+      const description = yield* useDescription(doc.markdown);
+
+      let AppHtml = yield* useAppHtml({ 
+        title: `${doc.title} | Docs | Effection`,
+        description
+      });
 
       return (
         <AppHtml

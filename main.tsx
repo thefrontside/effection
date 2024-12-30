@@ -18,7 +18,8 @@ import { contribPackageRoute } from "./routes/contrib/package-route.tsx";
 
 import { patchDenoPermissionsQuerySync } from "./deno-deploy-patch.ts";
 import { loadDocs } from "./docs/docs.ts";
-import { initRepositoryContext } from "./hooks/use-repository.ts";
+import { loadRepository } from "./resources/repository.ts";
+import { initGithubClientContext } from "./context/github.ts";
 
 // Learn more at https://docs.deno.com/runtime/manual/examples/module_metadata#concepts
 if (import.meta.main) {
@@ -29,19 +30,30 @@ if (import.meta.main) {
       patchDenoPermissionsQuerySync();
     }
 
+    const token = Deno.env.get("GITHUB_TOKEN");
+    if (!token) throw new Error(`GITHUB_TOKEN environment variable is missing`);
+    
+    yield* initGithubClientContext({
+      token
+    })
+
     let docs = yield* loadDocs();
 
-    yield* initRepositoryContext({
-      name: "thefrontside/effection",
-      location: new URL("../", import.meta.url),
-      defaultBranch: "v4",
+    let library = yield* loadRepository({
+      owner: "thefrontside",
+      name: "effection"
     });
+
+    let contrib = yield* loadRepository({
+      owner: "thefrontside",
+      name: "effection-contrib"
+    })
 
     let revolution = createRevolution({
       app: [
         route("/", indexRoute()),
         route("/docs/:id", docsRoute(docs)),
-        route("/contrib", contribIndexRoute()),
+        route("/contrib", contribIndexRoute(contrib)),
         route("/contrib/:workspace", contribPackageRoute()),
         route("/api/:symbol", apiVersionRoute()),
         route("/assets(.*)", assetsRoute("assets")),

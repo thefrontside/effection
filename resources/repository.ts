@@ -5,21 +5,8 @@ import { Endpoints, RequestParameters } from "npm:@octokit/types@13.6.2";
 import { rsort } from "npm:semver@7.6.3";
 
 import { GithubClientContext } from "../context/github.ts";
-import { DenoJson, DenoJsonType } from "../hooks/use-package.tsx";
+import { loadRepositoryRef } from "./repository-ref.ts";
 
-export interface RepositoryRef {
-  /**
-   * Get readme file at the root of the ref
-   * 
-   * @return string
-   */
-  getReadme(): Operation<string>;
-
-  /**
-   * Get the parsed version of deno.json at the root
-   */
-  getDenoJson(): Operation<DenoJsonType>;
-}
 
 export interface Repository {
   get(): Operation<
@@ -156,49 +143,3 @@ export function loadRepository(
   });
 }
 
-function loadRepositoryRef({ ref, repository }: { ref: string; repository: Repository }) {
-  return resource<RepositoryRef>(function*(provide) {
-    let readme: string;
-    let denoJson: DenoJsonType;
-
-    const repositoryRef: RepositoryRef = {
-      *getReadme() {
-        if (readme) {
-          return readme;
-        }
-
-        const response = yield* repository.getContent({
-          path: "README.md",
-          ref,
-          mediaType: {
-            format: "raw",
-          },
-        });
-      
-        return readme = response.data.toString();
-      },
-
-      *getDenoJson() {
-        if (denoJson) {
-          return denoJson;
-        }
-
-        const response = yield* repository.getContent({
-          path: "deno.json",
-          ref,
-          mediaType: {
-            format: "raw",
-          },
-        });
-      
-        const text = response.data.toString();
-      
-        denoJson = DenoJson.parse(JSON.parse(text));
-
-        return denoJson;
-      }
-    };
-
-    yield* provide(repositoryRef);
-  })
-}

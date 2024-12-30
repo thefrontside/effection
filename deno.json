@@ -1,6 +1,6 @@
 {
   "tasks": {
-    "dev": "deno run -A lib/watch.ts components docs lib plugins routes -- deno run -A main.tsx"
+    "dev": "deno run -A --watch main.tsx"
   },
   "lint": {
     "exclude": ["docs/esm"],

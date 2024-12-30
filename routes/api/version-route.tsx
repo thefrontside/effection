@@ -1,4 +1,4 @@
-import denoJson from "../../../deno.json" with { type: "json" };
+// import denoJson from "../../../deno.json" with { type: "json" };
 
 import { call } from "effection";
 import { Type } from "../../components/api.tsx";

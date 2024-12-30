@@ -13,7 +13,12 @@ export function* PackageHeader(pkg: Package) {
         <span class="text-3xl mx-2 align-middle">
           v{pkg.version ? pkg.version : ""}
         </span>
-        {yield* PackageSourceLink()()}
+        {
+          yield* PackageSourceLink({
+            sourceUrl: pkg.source.toString(),
+            repositoryName: pkg.packageName,
+          })
+        }
       </div>
       <div class="space-x-1">
         <a href={`${pkg.jsr}`} class="inline-block align-middle">

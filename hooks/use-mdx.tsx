@@ -1,5 +1,5 @@
 import { call, type Operation } from "effection";
-import { evaluate } from "npm:@mdx-js/mdx@3.0.1";
+import { evaluate } from "npm:@mdx-js/mdx@3.1.0";
 import type { MDXModule } from "npm:@types/mdx@2.0.13";
 import rehypePrismPlus from "npm:rehype-prism-plus@2.0.0";
 import remarkGfm from "npm:remark-gfm@4.0.0";
@@ -14,9 +14,16 @@ export function* useMDX(markdown: string): Operation<MDXModule> {
       jsxDEV: jsx,
       Fragment,
       remarkPlugins: [remarkGfm],
-      rehypePlugins: [[removeDescriptionHR], [rehypePrismPlus, {
-        showLineNumbers: true,
-      }]],
-    })
+      rehypePlugins: [
+        [removeDescriptionHR],
+        [
+          // @ts-expect-error Type 'Settings' has no properties in common with type 'Settings'.deno-ts(2322)
+          rehypePrismPlus,
+          {
+            showLineNumbers: true,
+          },
+        ],
+      ],
+    }),
   );
 }

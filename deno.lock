@@ -84,6 +84,7 @@
     "npm:semver@7.6.3": "7.6.3",
     "npm:unified@10.1.2": "10.1.2",
     "npm:unified@11.0.4": "11.0.4",
+    "npm:unified@11.0.5": "11.0.5",
     "npm:unist-util-visit@5.0.0": "5.0.0",
     "npm:vfile@6.0.3": "6.0.3",
     "npm:zod@3.23.8": "3.23.8"
@@ -3231,6 +3232,18 @@
     },
     "unified@11.0.4": {
       "integrity": "sha512-apMPnyLjAX+ty4OrNap7yumyVAMlKx5IWU2wlzzUdYJO9A8f1p9m/gywF/GM2ZDFcjQPrx59Mc90KwmxsoklxQ==",
+      "dependencies": [
+        "@types/unist@3.0.3",
+        "bail",
+        "devlop",
+        "extend",
+        "is-plain-obj",
+        "trough",
+        "vfile@6.0.3"
+      ]
+    },
+    "unified@11.0.5": {
+      "integrity": "sha512-xKvGhPWw3k84Qjh8bI3ZeJjqnyadK+GEFtazSfZv/rKeTkTjOJho6mFqh2SM96iIcZokxiOpg78GazTSg8+KHA==",
       "dependencies": [
         "@types/unist@3.0.3",
         "bail",

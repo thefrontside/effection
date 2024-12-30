@@ -92,6 +92,7 @@ export function loadDocs(): Operation<Docs> {
                   remarkGfm,
                 ],
                 rehypePlugins: [
+                  // @ts-expect-error Type 'Settings' has no properties in common with type 'Settings'.deno-ts(2322)
                   [rehypePrismPlus, { showLineNumbers: true }],
                 ],
               }));

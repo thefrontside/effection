@@ -1,27 +1,23 @@
 import { join } from "jsr:@std/path@1.0.6";
 
-import {
-  type RenderableDocNode,
-  usePackage,
-} from "../../hooks/use-package.tsx";
 import { Keyword, Punctuation } from "../tokens.tsx";
+import { Package, RenderableDocNode } from "../../resources/package.ts";
 
-export function PackageExports() {
-  return function* () {
-    const pkg = yield* usePackage();
+export function* PackageExports(pkg: Package) {
 
-    return (
-      <>
-        {Object.keys(pkg.docs).map((exportName) => (
-          <PackageExport
-            packageName={pkg.packageName}
-            exportName={exportName}
-            docs={pkg.docs[exportName]}
-          />
-        ))}
-      </>
-    );
-  };
+  const docs = yield* pkg.docs();
+
+  return (
+    <>
+      {Object.keys(pkg.docs).map((exportName) => (
+        <PackageExport
+          packageName={pkg.packageName}
+          exportName={exportName}
+          docs={docs[exportName]}
+        />
+      ))}
+    </>
+  );
 }
 
 interface PackageExportOptions {

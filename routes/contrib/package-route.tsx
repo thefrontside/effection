@@ -1,46 +1,39 @@
-import type { RoutePath, SitemapRoute } from "../../plugins/sitemap.ts";
 import { type JSXElement, useParams } from "revolution";
+
 import { API } from "../../components/api.tsx";
 import { PackageExports } from "../../components/package/exports.tsx";
 import { PackageHeader } from "../../components/package/header.tsx";
 import { ScoreCard } from "../../components/score-card.tsx";
-import { readPackages } from "../../hooks/read-packages.ts";
 import { useMarkdown } from "../../hooks/use-markdown.tsx";
-import {
-  initPackageContext,
-  readPackageConfig,
-} from "../../hooks/use-package.tsx";
-import { useRepository } from "../../hooks/use-repository.ts";
+import type { RoutePath, SitemapRoute } from "../../plugins/sitemap.ts";
+import { Repository } from "../../resources/repository.ts";
 import { useAppHtml } from "../app.html.tsx";
 
-export function contribPackageRoute(): SitemapRoute<JSXElement> {
+export function contribPackageRoute(
+  contrib: Repository,
+): SitemapRoute<JSXElement> {
   return {
     *routemap(pathname) {
       let paths: RoutePath[] = [];
-      const repository = yield* useRepository();
 
-      let configs = yield* readPackages({
-        excludePrivate: true,
-        base: repository.location,
-      });
+      const main = yield* contrib.loadRef();
+      const { workspace = [] } = yield* main.loadDenoJson();
 
-      for (let pkg of configs) {
+      for (let workspacePath of workspace) {
         paths.push({
-          pathname: pathname({ workspace: pkg.workspace }),
+          pathname: pathname({ workspacePath: workspacePath.replace(/^\.\//, "") }),
         });
       }
 
       return paths;
     },
     *handler() {
-      const params = yield* useParams<{ workspace: string }>();
-      const repository = yield* useRepository();
+      const params = yield* useParams<{ workspacePath: string }>();
 
       try {
-        let config = yield* readPackageConfig(
-          new URL(params.workspace, repository.location),
-        );
-        let pkg = yield* initPackageContext(config);
+
+        const main = yield* contrib.loadRef();
+        const pkg = yield* main.loadWorkspace(`./${params.workspacePath}`);
 
         const AppHTML = yield* useAppHtml({
           title: `${pkg.packageName} | Contrib | Effection`,
@@ -55,7 +48,7 @@ export function contribPackageRoute(): SitemapRoute<JSXElement> {
                   {yield* PackageHeader()()}
                   <div class="prose">
                     <div class="mb-5">{yield* PackageExports()()}</div>
-                    {yield* useMarkdown(pkg.readme)}
+                    {yield* useMarkdown(yield* pkg.readme())}
                     <h2 class="mb-0">API</h2>
                     {yield* API()()}
                   </div>
@@ -70,12 +63,12 @@ export function contribPackageRoute(): SitemapRoute<JSXElement> {
       } catch (e) {
         console.error(e);
         const AppHTML = yield* useAppHtml({
-          title: `${params.workspace} not found`,
-          description: `Failed to load ${params.workspace} due to error.`,
+          title: `${params.workspacePath} not found`,
+          description: `Failed to load ${params.workspacePath} due to error.`,
         });
         return (
           <AppHTML>
-            <p>Failed to load {params.workspace} due to error.</p>
+            <p>Failed to load {params.workspacePath} due to error.</p>
           </AppHTML>
         );
       }

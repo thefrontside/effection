@@ -106,7 +106,7 @@ export const DenoJson = z.object({
   version: z.string().optional(),
   exports: z.union([z.record(z.string()), z.string()]),
   license: z.string(),
-  workspaces: z.array(z.string()).optional(),
+  workspace: z.array(z.string()).optional(),
 });
 
 export type DenoJsonType = z.infer<typeof DenoJson>;
@@ -115,7 +115,7 @@ export type PackageDocs = Record<string, Array<RenderableDocNode>>;
 
 export const DEFAULT_MODULE_KEY = ".";
 
-export function* loadPackage(
+export function loadPackage(
   { ref, workspacePath }: { workspacePath: string; ref: RepositoryRef },
 ) {
   return resource<Package>(function* (provide) {
@@ -125,6 +125,8 @@ export function* loadPackage(
 
     if (!scope) throw new Error(`Expected a scope but got ${scope}`);
     if (!name) throw new Error(`Expected a package name but got ${name}`);
+
+    let docs: PackageDocs;
 
     let pkg: Package = {
       get exports() {
@@ -173,7 +175,11 @@ export function* loadPackage(
         return entrypoints;
       },
       *docs() {
-        let docs: PackageDocs = {};
+        if (docs) {
+          return docs;
+        } else {
+          docs = {};
+        }
         for (const key of Object.keys(pkg.entrypoints)) {
           const url = String(pkg.entrypoints[key]);
           const docNodes = yield* useDenoDoc([url]);

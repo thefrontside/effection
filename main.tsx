@@ -12,7 +12,7 @@ import { twindPlugin } from "./plugins/twind.ts";
 import { assetsRoute } from "./routes/assets-route.ts";
 import { docsRoute } from "./routes/docs-route.tsx";
 import { indexRoute } from "./routes/index-route.tsx";
-import { apiVersionRoute } from "./routes/api/version-route.tsx";
+import { apiSymbolRoute } from "./routes/api/symbol-route.tsx";
 import { contribIndexRoute } from "./routes/contrib/index-route.tsx";
 import { contribPackageRoute } from "./routes/contrib/package-route.tsx";
 
@@ -32,7 +32,7 @@ if (import.meta.main) {
 
     const token = Deno.env.get("GITHUB_TOKEN");
     if (!token) throw new Error(`GITHUB_TOKEN environment variable is missing`);
-    
+
     yield* initGithubClientContext({
       token
     })
@@ -54,8 +54,8 @@ if (import.meta.main) {
         route("/", indexRoute()),
         route("/docs/:id", docsRoute(docs)),
         route("/contrib", contribIndexRoute(contrib)),
-        route("/contrib/:workspace", contribPackageRoute()),
-        route("/api/:symbol", apiVersionRoute()),
+        route("/contrib/:workspacePath", contribPackageRoute(contrib)),
+        route("/api/:symbol", apiSymbolRoute(library)),
         route("/assets(.*)", assetsRoute("assets")),
       ],
       plugins: [

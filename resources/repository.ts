@@ -1,11 +1,12 @@
 import { call, type Operation, resource } from "effection";
 import { globToRegExp } from "jsr:@std/path@1.0.6";
 import { Endpoints, RequestParameters } from "npm:@octokit/types@13.6.2";
+import { components } from "npm:@octokit/openapi-types@22.2.0";
 // @deno-types="npm:@types/semver@7.5.8"
 import { rsort } from "npm:semver@7.6.3";
 
 import { GithubClientContext } from "../context/github.ts";
-import { loadRepositoryRef } from "./repository-ref.ts";
+import { loadRepositoryRef, RepositoryRef } from "./repository-ref.ts";
 
 
 export interface Repository {
@@ -39,7 +40,7 @@ export interface Repository {
    * @param glob
    * @returns a tag if found or undefined
    */
-  getLatestSemverTag(glob: string): unknown
+  getLatestSemverTag(glob: string): Operation<components["schemas"]["tag"] | undefined>
 
   /**
    * Get contents of a repository
@@ -67,12 +68,10 @@ export function loadRepository(
 ) {
   return resource<Repository>(function* (provide) {
     let refs: Map<string, RepositoryRef> = new Map();
-    const github = yield* GithubClientContext;
+    const github = yield* GithubClientContext.expect();
 
     const repository: Repository = {
       *get() {
-        const github = yield* GithubClientContext;
-
         const result = yield* call(() =>
           github.rest.repos.get({
             repo: name,

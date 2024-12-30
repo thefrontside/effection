@@ -102,10 +102,10 @@ export type RenderableDocNode = DocNode & {
 };
 
 export const DenoJson = z.object({
-  name: z.string(),
+  name: z.string().optional(),
   version: z.string().optional(),
-  exports: z.union([z.record(z.string()), z.string()]),
-  license: z.string(),
+  exports: z.union([z.record(z.string()), z.string()]).optional(),
+  license: z.string().optional(),
   workspace: z.array(z.string()).optional(),
 });
 

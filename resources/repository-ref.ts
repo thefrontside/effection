@@ -77,7 +77,9 @@ export function loadRepositoryRef(
 
         const text = response.data.toString();
 
-        denoJson = DenoJson.parse(JSON.parse(text));
+        const json = JSON.parse(text);
+
+        denoJson = DenoJson.parse(json);
 
         return denoJson;
       },

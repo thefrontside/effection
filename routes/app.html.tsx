@@ -27,14 +27,13 @@ export function* useAppHtml({
     "/assets/images/meta-effection.png",
   );
   let homeURL = yield* useAbsoluteUrl("/");
-  let { isDenoDeploy } = yield* useDenoDeploy();
 
   const navLinks: JSXElement[] = [
     <a href="/docs/installation">Guides</a>,
-    <a href="https://deno.land/x/effection/mod.ts">API</a>,
+    <a href="/api">API</a>,
     <a
       class="flex flex-row"
-      href={isDenoDeploy ? "/contrib" : "/"}
+      href="/contrib"
     >
       <span class="hidden md:inline-flex">
         Contrib

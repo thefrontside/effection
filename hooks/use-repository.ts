@@ -1,9 +1,10 @@
 import { call, createContext, type Operation } from "effection";
 import { Octokit } from "npm:octokit@^4.0.0";
-import { Endpoints } from "npm:@octokit/types@13.6.2";
+import { Endpoints, RequestParameters } from "npm:@octokit/types@13.6.2";
 import { globToRegExp } from "jsr:@std/path@1.0.6";
 // @deno-types="npm:@types/semver@7.5.8"
 import { rsort } from "npm:semver@7.6.3";
+import { DenoJson } from "./use-package.tsx";
 
 export const GithubClientContext = createContext<Octokit>("github-client");
 
@@ -14,7 +15,24 @@ export interface RepositoryParams {
 }
 
 class Repository {
+  private refs: Map<string, RepositoryRef> = new Map();
+
   constructor(public owner: string, public name: string) {}
+
+  *get(): Operation<
+    Endpoints["GET /repos/{owner}/{repo}"]["response"]["data"]
+  > {
+    const github = yield* GithubClientContext;
+
+    const result = yield* call(() =>
+      github.rest.repos.get({
+        repo: this.name,
+        owner: this.owner,
+      })
+    );
+
+    return result.data;
+  }
 
   /**
    * Retrieve tags for the current repository.
@@ -69,16 +87,15 @@ class Repository {
 
   /**
    * Get contents of a repository
-   * 
+   *
    * @param params.path path to the content
    * @param params.ref optional branch, tag or commit (defaults to default branch when emitted)
-   * @returns 
+   * @returns
    */
   *getContent(
-    params: Omit<
-      Endpoints["GET /repos/{owner}/{repo}/contents/{path}"]["parameters"],
+    params: Omit<Endpoints["GET /repos/{owner}/{repo}/contents/{path}"]["parameters"],
       "owner" | "repo"
-    >,
+    > & RequestParameters,
   ): Operation<
     Endpoints["GET /repos/{owner}/{repo}/contents/{path}"]["response"]
   > {
@@ -93,6 +110,48 @@ class Repository {
     );
 
     return response;
+  }
+
+  *ref(ref?: string | undefined): Operation<RepositoryRef> {
+    if (ref === undefined) {
+      const repository = yield* this.get();
+      ref = repository.default_branch;
+    }
+    if (!this.refs.has(ref)) {
+      this.refs.set(ref, new RepositoryRef(ref, this));
+    }
+    return this.refs.get(ref)!;
+  }
+}
+
+class RepositoryRef {
+  constructor(public ref: string, private repository: Repository) {}
+
+  *getReadme() {
+    const response = yield* this.repository.getContent({
+      path: "README.md",
+      ref: this.ref,
+      mediaType: {
+        format: "raw"
+      }
+    });
+
+    return response.data.toString();
+  }
+
+  *getDenoJson() {
+    const response = yield* this.repository.getContent({
+      path: "deno.json",
+      ref: this.ref,
+      mediaType: {
+        format: "raw"
+      }
+    });
+
+    const text = response.data.toString();
+    const denoJson = JSON.parse(text);
+    
+    return DenoJson.parse(denoJson);
   }
 }
 

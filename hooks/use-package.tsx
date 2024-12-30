@@ -117,8 +117,8 @@ export const DenoJson = z.object({
   name: z.string(),
   version: z.string().optional(),
   exports: z.union([z.record(z.string()), z.string()]),
-  private: z.union([z.undefined(), z.literal(true)]),
   license: z.string(),
+  workspaces: z.array(z.string()).optional()
 });
 
 export type PackageConfig = {

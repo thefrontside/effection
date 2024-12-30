@@ -6,7 +6,7 @@ import { respondNotFound, useParams } from "revolution";
 import { OriginalRehype } from "../components/rehype.tsx";
 import { Transform } from "../components/transform.tsx";
 
-import rehypeToc from "npm:@jsdevtools/rehype-toc@3.0.2";
+import rehypeToc, { HtmlElementNode } from "npm:@jsdevtools/rehype-toc@3.0.2";
 import rehypeAddClasses from "npm:rehype-add-classes@1.0.0";
 import rehypeAutolinkHeadings from "npm:rehype-autolink-headings@6.1.1";
 import rehypeSlug from "npm:rehype-slug@5.1.0";
@@ -128,6 +128,7 @@ export function docsRoute(docs: Docs): SitemapRoute<JSXElement> {
                       "h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]": "group",
                       "pre": "grid",
                     }],
+                    // @ts-expect-error deno-ts(2322)
                     [rehypeToc, {
                       cssClasses: {
                         toc:

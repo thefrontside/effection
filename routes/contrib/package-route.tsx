@@ -45,16 +45,16 @@ export function contribPackageRoute(
             <>
               <div class="grid grid-cols-1 lg:grid-cols-10 gap-8 lg:gap-12">
                 <article class="min-w-0 lg:col-span-7 lg:row-start-1">
-                  {yield* PackageHeader()()}
+                  {yield* PackageHeader(pkg)}
                   <div class="prose">
-                    <div class="mb-5">{yield* PackageExports()()}</div>
+                    <div class="mb-5">{yield* PackageExports(pkg)}</div>
                     {yield* useMarkdown(yield* pkg.readme())}
                     <h2 class="mb-0">API</h2>
-                    {yield* API()()}
+                    {yield* API(pkg)}
                   </div>
                 </article>
                 <aside class="lg:col-[span_3/_-1] lg:top-0 lg:sticky lg:max-h-screen flex flex-col box-border gap-y-4 -mt-4 pt-4">
-                  {yield* ScoreCard()()}
+                  {yield* ScoreCard(pkg)}
                 </aside>
               </div>
             </>

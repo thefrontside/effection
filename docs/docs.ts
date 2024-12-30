@@ -6,16 +6,13 @@ import {
   type Task,
   useScope,
 } from "effection";
-import structure from "./structure.json" with { type: "json" };
-
-import { basename } from "https://deno.land/std@0.205.0/path/posix/basename.ts";
-
-import remarkGfm from "npm:remark-gfm@3.0.1";
-import rehypePrismPlus from "npm:rehype-prism-plus@1.5.1";
-
-import { evaluate } from "npm:@mdx-js/mdx@2.3.0";
-
+import { basename } from "jsr:@std/path@1.0.8";
+import { evaluate } from "npm:@mdx-js/mdx@3.1.0";
+import rehypePrismPlus from "npm:rehype-prism-plus@2.0.0";
+import remarkGfm from "npm:remark-gfm@4.0.0";
 import { Fragment, jsx, jsxs } from "revolution/jsx-runtime";
+
+import structure from "./structure.json" with { type: "json" };
 
 export interface DocModule {
   default: () => JSX.Element;

@@ -34,6 +34,7 @@
     "jsr:@std/media-types@~0.219.1": "0.219.1",
     "jsr:@std/path@*": "1.0.8",
     "jsr:@std/path@1.0.6": "1.0.6",
+    "jsr:@std/path@1.0.8": "1.0.8",
     "jsr:@std/path@^1.0.8": "1.0.8",
     "jsr:@std/path@~0.218.2": "0.218.2",
     "jsr:@std/path@~0.219.1": "0.219.1",
@@ -42,6 +43,7 @@
     "npm:@jsdevtools/rehype-toc@3.0.2": "3.0.2",
     "npm:@mdx-js/mdx@2.3.0": "2.3.0",
     "npm:@mdx-js/mdx@3.0.1": "3.0.1",
+    "npm:@mdx-js/mdx@3.1.0": "3.1.0",
     "npm:@octokit/openapi-types@22.2.0": "22.2.0",
     "npm:@octokit/plugin-rest-endpoint-methods@7.2.3": "7.2.3_@octokit+core@6.1.2",
     "npm:@octokit/rest@21.0.2": "21.0.2_@octokit+core@6.1.2",
@@ -317,6 +319,35 @@
         "hast-util-to-jsx-runtime",
         "markdown-extensions@2.0.0",
         "periscopic",
+        "remark-mdx@3.1.0",
+        "remark-parse@11.0.0",
+        "remark-rehype@11.1.1",
+        "source-map",
+        "unified@11.0.4",
+        "unist-util-position-from-estree@2.0.0",
+        "unist-util-stringify-position@4.0.0",
+        "unist-util-visit@5.0.0",
+        "vfile@6.0.3"
+      ]
+    },
+    "@mdx-js/mdx@3.1.0": {
+      "integrity": "sha512-/QxEhPAvGwbQmy1Px8F899L5Uc2KZ6JtXwlCgJmjSTBedwOZkByYcBG4GceIGPXRDsmfxhHazuS+hlOShRLeDw==",
+      "dependencies": [
+        "@types/estree",
+        "@types/estree-jsx",
+        "@types/hast@3.0.4",
+        "@types/mdx@2.0.13",
+        "collapse-white-space",
+        "devlop",
+        "estree-util-is-identifier-name@3.0.0",
+        "estree-util-scope",
+        "estree-walker",
+        "hast-util-to-jsx-runtime",
+        "markdown-extensions@2.0.0",
+        "recma-build-jsx",
+        "recma-jsx",
+        "recma-stringify",
+        "rehype-recma",
         "remark-mdx@3.1.0",
         "remark-parse@11.0.0",
         "remark-rehype@11.1.1",
@@ -1189,6 +1220,24 @@
     "entities@4.5.0": {
       "integrity": "sha512-V0hjH4dGPh9Ao5p0MoRY6BVqtwCjhz6vI5LT8AJ55H+4g9/4vbHx1I54fS0XuclLhDHArPQCiMjDxjaL8fPxhw=="
     },
+    "esast-util-from-estree@2.0.0": {
+      "integrity": "sha512-4CyanoAudUSBAn5K13H4JhsMH6L9ZP7XbLVe/dKybkxMO7eDyLsT8UHl9TRNrU2Gr9nz+FovfSIjuXWJ81uVwQ==",
+      "dependencies": [
+        "@types/estree-jsx",
+        "devlop",
+        "estree-util-visit@2.0.0",
+        "unist-util-position-from-estree@2.0.0"
+      ]
+    },
+    "esast-util-from-js@2.0.1": {
+      "integrity": "sha512-8Ja+rNJ0Lt56Pcf3TAmpBZjmx8ZcK5Ts4cAzIOjsjevg9oSXJnl6SUQ2EevU8tv3h6ZLWmoKL5H4fgWvdvfETw==",
+      "dependencies": [
+        "@types/estree-jsx",
+        "acorn",
+        "esast-util-from-estree",
+        "vfile-message@4.0.2"
+      ]
+    },
     "escape-string-regexp@5.0.0": {
       "integrity": "sha512-/veY75JbMK4j1yjvuUxuVsiS/hr/4iHs9FTT6cgTexxdE0Ly/glccBAkloH/DofkjRbZU3bnoj38mOmhkZ0lHw=="
     },
@@ -1226,6 +1275,13 @@
     },
     "estree-util-is-identifier-name@3.0.0": {
       "integrity": "sha512-hFtqIDZTIUZ9BXLb8y4pYGyk6+wekIivNVTcmvk8NoOh+VeRn5y6cEHzbURrWbfp1fIqdVipilzj+lfaadNZmg=="
+    },
+    "estree-util-scope@1.0.0": {
+      "integrity": "sha512-2CAASclonf+JFWBNJPndcOpA8EMJwa0Q8LUFJEKqXLW6+qBvbFZuF5gItbQOs/umBUkjviCSDCbBwU2cXbmrhQ==",
+      "dependencies": [
+        "@types/estree",
+        "devlop"
+      ]
     },
     "estree-util-to-js@1.2.0": {
       "integrity": "sha512-IzU74r1PK5IMMGZXUVZbmiu4A1uhiPgW5hm1GjcOfr4ZzHaMPpLNJjR7HjXiIOzi25nZDrgFTobHTkV5Q6ITjA==",
@@ -2852,6 +2908,42 @@
     "property-information@6.4.1": {
       "integrity": "sha512-OHYtXfu5aI2sS2LWFSN5rgJjrQ4pCy8i1jubJLe2QvMF8JJ++HXTUIVWFLfXJoaOfvYYjk2SN8J2wFUWIGXT4w=="
     },
+    "recma-build-jsx@1.0.0": {
+      "integrity": "sha512-8GtdyqaBcDfva+GUKDr3nev3VpKAhup1+RvkMvUxURHpW7QyIvk9F5wz7Vzo06CEMSilw6uArgRqhpiUcWp8ew==",
+      "dependencies": [
+        "@types/estree",
+        "estree-util-build-jsx@3.0.1",
+        "vfile@6.0.3"
+      ]
+    },
+    "recma-jsx@1.0.0": {
+      "integrity": "sha512-5vwkv65qWwYxg+Atz95acp8DMu1JDSqdGkA2Of1j6rCreyFUE/gp15fC8MnGEuG1W68UKjM6x6+YTWIh7hZM/Q==",
+      "dependencies": [
+        "acorn-jsx",
+        "estree-util-to-js@2.0.0",
+        "recma-parse",
+        "recma-stringify",
+        "unified@11.0.4"
+      ]
+    },
+    "recma-parse@1.0.0": {
+      "integrity": "sha512-OYLsIGBB5Y5wjnSnQW6t3Xg7q3fQ7FWbw/vcXtORTnyaSFscOtABg+7Pnz6YZ6c27fG1/aN8CjfwoUEUIdwqWQ==",
+      "dependencies": [
+        "@types/estree",
+        "esast-util-from-js",
+        "unified@11.0.4",
+        "vfile@6.0.3"
+      ]
+    },
+    "recma-stringify@1.0.0": {
+      "integrity": "sha512-cjwII1MdIIVloKvC9ErQ+OgAtwHBmcZ0Bg4ciz78FtbT8In39aAYbaA7zvxQ61xVMSPE8WxhLwLbhif4Js2C+g==",
+      "dependencies": [
+        "@types/estree",
+        "estree-util-to-js@2.0.0",
+        "unified@11.0.4",
+        "vfile@6.0.3"
+      ]
+    },
     "refractor@4.8.1": {
       "integrity": "sha512-/fk5sI0iTgFYlmVGYVew90AoYnNMP6pooClx/XKqyeeCQXrL0Kvgn8V0VEht5ccdljbzzF1i3Q213gcntkRExg==",
       "dependencies": [
@@ -2952,6 +3044,14 @@
         "rehype-parse@9.0.1",
         "unist-util-filter@5.0.1",
         "unist-util-visit@5.0.0"
+      ]
+    },
+    "rehype-recma@1.0.0": {
+      "integrity": "sha512-lqA4rGUf1JmacCNWWZx0Wv1dHqMwxzsDWYMTowuplHF3xH0N/MmrZ/G3BDZnzAkRmxDadujCjaKM2hqYdCBOGw==",
+      "dependencies": [
+        "@types/estree",
+        "@types/hast@3.0.4",
+        "hast-util-to-estree@3.1.0"
       ]
     },
     "rehype-slug@5.1.0": {

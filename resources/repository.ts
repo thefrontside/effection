@@ -1,12 +1,15 @@
 import { call, type Operation, resource } from "effection";
-import { globToRegExp } from "jsr:@std/path@1.0.6";
 import { Endpoints, RequestParameters } from "npm:@octokit/types@13.6.2";
 import { components } from "npm:@octokit/openapi-types@22.2.0";
 // @deno-types="npm:@types/semver@7.5.8"
 import { rsort } from "npm:semver@7.6.3";
 
 import { GithubClientContext } from "../context/github.ts";
-import { loadRepositoryRef, REF_PATTERN, RepositoryRef } from "./repository-ref.ts";
+import {
+  loadRepositoryRef,
+  REF_PATTERN,
+  RepositoryRef,
+} from "./repository-ref.ts";
 
 export interface Repository {
   name: string;
@@ -38,12 +41,14 @@ export interface Repository {
   >;
 
   /**
-   * Find the latest Semver tag that matches a specific pattern.
+   * Find the latest Semver tag that matches a specific search query.
    *
    * @param glob
    * @returns a tag if found or undefined
    */
-  getLatestSemverTag(glob: string): Operation<components["schemas"]["tag"] | undefined>
+  getLatestSemverTag(
+    searchQuery: string,
+  ): Operation<components["schemas"]["tag"] | undefined>;
 
   /**
    * Get contents of a repository
@@ -53,17 +58,20 @@ export interface Repository {
    * @returns
    */
   getContent(
-      params:
-        & Omit<
-          Endpoints["GET /repos/{owner}/{repo}/contents/{path}"]["parameters"],
-          "owner" | "repo"
-        >
-        & RequestParameters,
-    ): Operation<
-      Endpoints["GET /repos/{owner}/{repo}/contents/{path}"]["response"]
-    >
+    params:
+      & Omit<
+        Endpoints["GET /repos/{owner}/{repo}/contents/{path}"]["parameters"],
+        "owner" | "repo"
+      >
+      & RequestParameters,
+  ): Operation<
+    Endpoints["GET /repos/{owner}/{repo}/contents/{path}"]["response"]
+  >;
 
-  loadRef(ref?: string | undefined, type?: "branch" | "tag"): Operation<RepositoryRef>
+  loadRef(
+    ref?: string | undefined,
+    type?: "branch" | "tag",
+  ): Operation<RepositoryRef>;
 }
 
 export function loadRepository(
@@ -87,34 +95,56 @@ export function loadRepository(
         return result.data;
       },
       *tags(
-        glob?: string,
+        searchQuery: string,
       ) {
         const result = yield* call(() =>
-          github.paginate(github.rest.repos.listTags, {
-            repo: name,
-            owner: owner,
-          })
+          github.graphql(
+            /* GraphQL */ `
+            query RepositoryTags($owner: String!, $name: String!, $searchQuery: String!) {
+              repository(owner: $owner, name: $name) {
+                refs(query: $searchQuery, refPrefix: "refs/tags/", first: 100) {
+                  nodes {
+                    name
+                  }
+                }
+              }
+            }
+            `,
+            {
+              name: name,
+              owner: owner,
+              searchQuery,
+            },
+          )
         );
-    
-        if (glob) {
-          const regex = globToRegExp(glob);
-    
-          return result.filter((tag) => regex.test(tag.name));
-        }
-    
-        return result;
+
+        return result.repository.refs.nodes;
       },
       *getLatestSemverTag(glob: string) {
         const tags = yield* this.tags(glob);
-    
-        const [latest] = rsort(tags.map((tag) => tag.name));
-    
-        return tags.find((tag) => tag.name === latest);
+
+        const [latest] = rsort(
+          tags.map((tag) => tag.name).map((tag) => {
+            const parts = tag.match(
+              // @source: https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string
+              /(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?/,
+            );
+            if (parts) {
+              return parts[0];
+            } else {
+              return "0.0.0";
+            }
+          }),
+        );
+
+        return tags.find((tag) => tag.name.endsWith(latest));
       },
       *getContent(
         params:
           & Omit<
-            Endpoints["GET /repos/{owner}/{repo}/contents/{path}"]["parameters"],
+            Endpoints["GET /repos/{owner}/{repo}/contents/{path}"][
+              "parameters"
+            ],
             "owner" | "repo"
           >
           & RequestParameters,
@@ -128,7 +158,7 @@ export function loadRepository(
             ...params,
           })
         );
-    
+
         return response;
       },
       *loadRef(ref?: string | undefined): Operation<RepositoryRef> {
@@ -138,15 +168,16 @@ export function loadRepository(
         }
         const parts = ref.match(REF_PATTERN);
         if (parts) {
-          ref = parts[0]
+          ref = parts[0];
         } else {
-          throw new Error(`Expected ref in format heads/<ref> or tags/<ref> (refs/ is ignored) but got ${ref}`);
+          throw new Error(
+            `Expected ref in format heads/<ref> or tags/<ref> (refs/ is ignored) but got ${ref}`,
+          );
         }
         return yield* loadRepositoryRef({ ref, repository });
-      }
+      },
     };
 
     yield* provide(repository);
   });
 }
-

@@ -23,6 +23,7 @@
     "jsr:@std/cache@0.1.3": "0.1.3",
     "jsr:@std/cli@~0.219.1": "0.219.1",
     "jsr:@std/collections@1.0.9": "1.0.9",
+    "jsr:@std/encoding@1": "1.0.6",
     "jsr:@std/encoding@~0.219.1": "0.219.1",
     "jsr:@std/fmt@^1.0.3": "1.0.3",
     "jsr:@std/fmt@~0.218.2": "0.218.2",
@@ -41,6 +42,7 @@
     "jsr:@std/path@~0.218.2": "0.218.2",
     "jsr:@std/path@~0.219.1": "0.219.1",
     "jsr:@std/streams@~0.219.1": "0.219.1",
+    "jsr:@takker/md5@0.1.0": "0.1.0",
     "npm:@hazae41/foras@2.1.1": "2.1.1",
     "npm:@jsdevtools/rehype-toc@3.0.2": "3.0.2",
     "npm:@mdx-js/mdx@2.3.0": "2.3.0",
@@ -204,6 +206,9 @@
     "@std/encoding@0.219.1": {
       "integrity": "77b30e481a596cfb2a8f2f38c3165e6035a4f76a7259bf89b6a622ceaf57d575"
     },
+    "@std/encoding@1.0.6": {
+      "integrity": "ca87122c196e8831737d9547acf001766618e78cd8c33920776c7f5885546069"
+    },
     "@std/fmt@0.218.2": {
       "integrity": "99526449d2505aa758b6cbef81e7dd471d8b28ec0dcb1491d122b284c548788a"
     },
@@ -225,7 +230,7 @@
         "jsr:@std/assert@~0.219.1",
         "jsr:@std/async",
         "jsr:@std/cli",
-        "jsr:@std/encoding",
+        "jsr:@std/encoding@~0.219.1",
         "jsr:@std/fmt@~0.219.1",
         "jsr:@std/media-types",
         "jsr:@std/path@~0.219.1",
@@ -274,6 +279,9 @@
       "dependencies": [
         "jsr:@std/assert@~0.219.1"
       ]
+    },
+    "@takker/md5@0.1.0": {
+      "integrity": "4c423d8247aadf7bcb1eb83c727bf28c05c21906e916517395d00aa157b6eae0"
     }
   },
   "npm": {

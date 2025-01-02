@@ -16,12 +16,12 @@ const uniquePredicate = (value: unknown, index: number, array: unknown[]) =>
 
 function* getApiForLatestTag(
   repository: Repository,
-  glob: string,
+  searchQuery: string,
 ): Operation<PackageDocs | undefined> {
-  const latest = yield* repository.getLatestSemverTag(glob);
+  const latest = yield* repository.getLatestSemverTag(searchQuery);
 
   if (latest) {
-    const ref = yield* repository.loadRef(latest.name);
+    const ref = yield* repository.loadRef(`tags/${latest.name}`);
     const pkg = yield* ref.loadRootPackage();
     if (pkg) {
       return yield* pkg.docs();
@@ -32,7 +32,7 @@ function* getApiForLatestTag(
 export function apiSymbolRoute(library: Repository): SitemapRoute<JSXElement> {
   return {
     *routemap(generate) {
-      const docs = yield* getApiForLatestTag(library, "effection-v3*");
+      const docs = yield* getApiForLatestTag(library, "effection-v3");
 
       if (docs) {
         return docs["."]
@@ -54,8 +54,9 @@ export function apiSymbolRoute(library: Repository): SitemapRoute<JSXElement> {
     handler: function* () {
       const { symbol } = yield* useParams<{ symbol: string }>();
       try {
-        const docs = yield* getApiForLatestTag(library, "effection-v3*");
+        const docs = yield* getApiForLatestTag(library, "effection-v3");
         if (!docs) throw new Error(`Could not retreive docs`);
+
         const nodes = docs["."].filter((node) => node.name === symbol);
         const nodesByKind = aggregateGroups<
           RenderableDocNode,

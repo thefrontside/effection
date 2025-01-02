@@ -2,6 +2,7 @@
   "version": "4",
   "specifiers": {
     "jsr:@deno/cache-dir@0.14": "0.14.0",
+    "jsr:@deno/cache-dir@0.16.0": "0.16.0",
     "jsr:@deno/cache-dir@0.8": "0.8.0",
     "jsr:@deno/doc@0.162.4": "0.162.4",
     "jsr:@deno/graph@0.73": "0.73.1",
@@ -19,6 +20,7 @@
     "jsr:@std/async@~0.219.1": "0.219.1",
     "jsr:@std/bytes@^1.0.2": "1.0.4",
     "jsr:@std/bytes@~0.218.2": "0.218.2",
+    "jsr:@std/cache@0.1.3": "0.1.3",
     "jsr:@std/cli@~0.219.1": "0.219.1",
     "jsr:@std/collections@1.0.9": "1.0.9",
     "jsr:@std/encoding@~0.219.1": "0.219.1",
@@ -44,6 +46,7 @@
     "npm:@mdx-js/mdx@2.3.0": "2.3.0",
     "npm:@mdx-js/mdx@3.0.1": "3.0.1",
     "npm:@mdx-js/mdx@3.1.0": "3.1.0",
+    "npm:@octokit/endpoint@10.1.2": "10.1.2",
     "npm:@octokit/openapi-types@22.2.0": "22.2.0",
     "npm:@octokit/plugin-rest-endpoint-methods@7.2.3": "7.2.3_@octokit+core@6.1.2",
     "npm:@octokit/rest@21.0.2": "21.0.2_@octokit+core@6.1.2",
@@ -106,6 +109,15 @@
       "integrity": "729f0b68e7fc96443c09c2c544b830ca70897bdd5168598446d752f7a4c731ad",
       "dependencies": [
         "jsr:@deno/graph@0.86",
+        "jsr:@std/fmt@^1.0.3",
+        "jsr:@std/fs@^1.0.6",
+        "jsr:@std/io@0.225",
+        "jsr:@std/path@^1.0.8"
+      ]
+    },
+    "@deno/cache-dir@0.16.0": {
+      "integrity": "844e10e48749139331121ff172aea15fd1c687ec2efbfea782858e41cc4dd1fb",
+      "dependencies": [
         "jsr:@std/fmt@^1.0.3",
         "jsr:@std/fs@^1.0.6",
         "jsr:@std/io@0.225",
@@ -176,6 +188,9 @@
     },
     "@std/bytes@1.0.4": {
       "integrity": "11a0debe522707c95c7b7ef89b478c13fb1583a7cfb9a85674cd2cc2e3a28abc"
+    },
+    "@std/cache@0.1.3": {
+      "integrity": "8d3ab61d994d0915295048999f34a8ce2280f0e4d1f4cccb08c9e3d297c0c6ec"
     },
     "@std/cli@0.219.1": {
       "integrity": "715a9926b58b89ef8a3c91e91633ac5f8176e0f02f6b3a16f0a67309e41a2911",
@@ -600,6 +615,13 @@
     },
     "@octokit/endpoint@10.1.1": {
       "integrity": "sha512-JYjh5rMOwXMJyUpj028cu0Gbp7qe/ihxfJMLc8VZBMMqSwLgOxDI1911gV4Enl1QSavAQNJcwmwBF9M0VvLh6Q==",
+      "dependencies": [
+        "@octokit/types@13.6.2",
+        "universal-user-agent@7.0.2"
+      ]
+    },
+    "@octokit/endpoint@10.1.2": {
+      "integrity": "sha512-XybpFv9Ms4hX5OCHMZqyODYqGTZ3H6K6Vva+M9LR7ib/xr1y1ZnlChYv9H680y77Vd/i/k+thXApeRASBQkzhA==",
       "dependencies": [
         "@octokit/types@13.6.2",
         "universal-user-agent@7.0.2"

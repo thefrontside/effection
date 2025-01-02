@@ -140,7 +140,11 @@ loop.
 Create a promise that resolves in ten seconds:
 
 ```js
-new Promise((resolve) => { setTimeout(resolve, 10000) });
+async function sleep_10s() {
+  await new Promise((resolve) => {
+    setTimeout(resolve, 10000)
+  });
+}
 ```
 
 Create an Operation that resolves in ten seconds:
@@ -148,12 +152,21 @@ Create an Operation that resolves in ten seconds:
 ```js
 import { action } from 'effection';
 
-action(function*(resolve) { setTimeout(resolve, 10000) });
+function* sleep_10s() {
+  yield* action((resolve) => {
+    let timeoutId = setTimeout(resolve, 10000);
+    return () => clearTimeout(timeoutId);
+  });
+}
+
 ```
 
-A key difference is that the promise body will be executing immediately, but the
-action body is only executed when the action is evaluated. Also, it is executed
-anew every time the action is evaluated.
+Key differences:
+
+1. The promise executor will be executing eagerly and only ever once, but the
+action body is executed every time (and only when) the action is evaluated.
+2. The action executor must return a "finally" function that is run regardless
+of whether action is resolved, rejected or discarded.
 
 ## `Promise.withResolvers()` \<=> `withResolvers()`
 

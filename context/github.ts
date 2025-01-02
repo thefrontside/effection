@@ -1,10 +1,12 @@
 import { createContext } from "effection";
 import type {
   EndpointInterface,
+  EndpointDefaults,
   OctokitResponse,
+  RequestRequestOptions,
 } from "npm:@octokit/types@13.6.2";
 import { endpoint } from "npm:@octokit/endpoint@10.1.2";
-import { Octokit } from "npm:octokit@^4.0.0";
+import { Octokit } from "npm:octokit@4.0.3";
 import { md5 } from "jsr:@takker/md5@0.1.0";
 import { encodeHex } from "jsr:@std/encoding@1";
 
@@ -19,7 +21,7 @@ export function* initGithubClientContext({ token }: { token: string }) {
 
   const octokit = new Octokit({ auth: token });
 
-  octokit.hook.wrap("request", async (request, options) => {
+  octokit.hook.wrap("request", async (request, options: Required<EndpointDefaults>) => {
     const key = generateKey(options);
 
     if (!cache.has(key)) {
@@ -33,7 +35,7 @@ export function* initGithubClientContext({ token }: { token: string }) {
   return yield* GithubClientContext.set(octokit);
 }
 
-function generateKey(options: unknown) {
+function generateKey(options: Required<EndpointDefaults>) {
   const params: ParseResult = endpoint.parse(options);
 
   switch (params.method) {

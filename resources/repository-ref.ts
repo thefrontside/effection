@@ -114,7 +114,7 @@ export function loadRepositoryRef(
         const response = yield* call(() =>
           github.rest.git.getRef({
             owner: repository.owner,
-            name: repository.name,
+            repo: repository.name,
             ref: ref.ref,
           })
         );

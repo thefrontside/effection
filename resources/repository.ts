@@ -1,6 +1,5 @@
 import { call, type Operation, resource } from "effection";
 import { Endpoints, RequestParameters } from "npm:@octokit/types@13.6.2";
-import { components } from "npm:@octokit/openapi-types@22.2.0";
 // @deno-types="npm:@types/semver@7.5.8"
 import { rsort } from "npm:semver@7.6.3";
 
@@ -37,7 +36,7 @@ export interface Repository {
   tags(
     glob?: string,
   ): Operation<
-    Endpoints["GET /repos/{owner}/{repo}/tags"]["response"]["data"]
+    { name: string }[]
   >;
 
   /**
@@ -48,7 +47,7 @@ export interface Repository {
    */
   getLatestSemverTag(
     searchQuery: string,
-  ): Operation<components["schemas"]["tag"] | undefined>;
+  ): Operation<{ name: string } | undefined>;
 
   /**
    * Get contents of a repository
@@ -98,7 +97,9 @@ export function loadRepository(
         searchQuery: string,
       ) {
         const result = yield* call(() =>
-          github.graphql(
+          github.graphql<
+            { repository: { refs: { nodes: { name: string }[] } } }
+          >(
             /* GraphQL */ `
             query RepositoryTags($owner: String!, $name: String!, $searchQuery: String!) {
               repository(owner: $owner, name: $name) {
@@ -124,17 +125,7 @@ export function loadRepository(
         const tags = yield* this.tags(glob);
 
         const [latest] = rsort(
-          tags.map((tag) => tag.name).map((tag) => {
-            const parts = tag.match(
-              // @source: https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string
-              /(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?/,
-            );
-            if (parts) {
-              return parts[0];
-            } else {
-              return "0.0.0";
-            }
-          }),
+          tags.map((tag) => tag.name).map(extractVersion),
         );
 
         return tags.find((tag) => tag.name.endsWith(latest));
@@ -180,4 +171,16 @@ export function loadRepository(
 
     yield* provide(repository);
   });
+}
+
+function extractVersion(input: string) {
+  const parts = input.match(
+    // @source: https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string
+    /(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?/,
+  );
+  if (parts) {
+    return parts[0];
+  } else {
+    return "0.0.0";
+  }
 }

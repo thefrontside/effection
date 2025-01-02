@@ -279,12 +279,12 @@ function docLoader(
 
     if (url?.host === "github.com") {
       const gh = githubUrlParse(specifier);
-      if (gh?.filepath) {
+      if (gh && gh.owner && gh.name && gh.filepath) {
         const result = yield* call(() =>
           github.rest.repos.getContent({
-            owner: gh.owner,
-            repo: gh.name,
-            path: gh.filepath,
+            owner: gh.owner!,
+            repo: gh.name!,
+            path: gh.filepath!,
             ref: gh.branch,
             mediaType: {
               format: "raw",
@@ -294,7 +294,7 @@ function docLoader(
         return {
           kind: "module",
           specifier,
-          content: result.data,
+          content: `${result.data}`,
         };
       } else {
         throw new Error(`Could not parse ${specifier} as Github URL`);

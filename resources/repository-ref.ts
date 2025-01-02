@@ -1,9 +1,9 @@
 import { all, call, Operation, resource } from "effection";
 
+import { Endpoints } from "npm:@octokit/types@13.6.2";
+import { GithubClientContext } from "../context/github.ts";
 import { DenoJson, DenoJsonType, loadPackage, Package } from "./package.ts";
 import { Repository } from "./repository.ts";
-import { GithubClientContext } from "../context/github.ts";
-import { Endpoints } from "npm:@octokit/types@13.6.2";
 
 export const REF_PATTERN = /^(\/?refs\/)?(heads|tags)\/(.*)$/;
 
@@ -81,11 +81,6 @@ export function loadRepositoryRef(
   { ref: _ref, repository }: { ref: string; repository: Repository },
 ) {
   return resource<RepositoryRef>(function* (provide) {
-    let denoJson: DenoJsonType;
-    let packages: Map<string, Package> = new Map();
-    let fetchedRef: Ref;
-    const files: Map<string, string> = new Map();
-
     const ref = matchRef(_ref);
 
     if (!ref) throw new Error(`Could not normalize ${_ref}`);
@@ -114,74 +109,55 @@ export function loadRepositoryRef(
       },
 
       *get() {
-        if (!fetchedRef) {
-          const github = yield* GithubClientContext.expect();
+        const github = yield* GithubClientContext.expect();
 
-          const response = yield* call(() =>
-            github.rest.git.getRef({
-              owner: repository.owner,
-              name: repository.name,
-              ref: ref.ref,
-            })
-          );
+        const response = yield* call(() =>
+          github.rest.git.getRef({
+            owner: repository.owner,
+            name: repository.name,
+            ref: ref.ref,
+          })
+        );
 
-          fetchedRef = response.data;
-        }
-
-        return fetchedRef;
+        return response.data;
       },
 
       *loadReadme(base: string = "") {
         const path = repositoryRef.getPath(base, "README.md");
 
-        if (!files.has(path)) {
-          const response = yield* repository.getContent({
-            path,
-            ref: ref.name,
-            mediaType: {
-              format: "raw",
-            },
-          });
+        const response = yield* repository.getContent({
+          path,
+          ref: ref.name,
+          mediaType: {
+            format: "raw",
+          },
+        });
 
-          files.set(path, response.data.toString());
-        }
-
-        return files.get(path)!;
+        return response.data.toString()
       },
 
       *loadDenoJson(base: string = "") {
         const path = repositoryRef.getPath(base, "deno.json");
 
-        if (!files.has(path)) {
-          const response = yield* repository.getContent({
-            path: path,
-            ref: ref.name,
-            mediaType: {
-              format: "raw",
-            },
-          });
+        const response = yield* repository.getContent({
+          path: path,
+          ref: ref.name,
+          mediaType: {
+            format: "raw",
+          },
+        });
 
-          files.set(path, response.data.toString());
-        }
-
-        const text = files.get(path)!;
+        const text = response.data.toString();
 
         const json = JSON.parse(text);
 
-        denoJson = DenoJson.parse(json);
-
-        return denoJson;
+        return DenoJson.parse(json);
       },
 
       *loadRootPackage() {
-        if (packages.has("")) {
-          return packages.get("");
-        }
-        const pkg = yield* loadPackage(
+        return yield* loadPackage(
           { workspacePath: "", ref: repositoryRef },
         );
-        packages.set("", pkg);
-        return pkg;
       },
 
       *loadWorkspace(workspacePath: string) {
@@ -189,12 +165,8 @@ export function loadRepositoryRef(
         if (!workspace?.includes(workspacePath)) {
           throw new Error(`${workspacePath} is not a valid workspace`);
         }
-        if (packages.has(workspacePath)) {
-          return packages.get(workspacePath)!;
-        }
-        const pkg = yield* loadPackage({ workspacePath, ref: repositoryRef });
-        packages.set(workspacePath, pkg);
-        return pkg;
+
+        return yield* loadPackage({ workspacePath, ref: repositoryRef });
       },
 
       *loadWorkspaces() {

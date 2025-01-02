@@ -19,7 +19,7 @@ export function* initGithubClientContext({ token }: { token: string }) {
     }
 
     return cache.get(params.url);
-  })
+  });
 
   return yield* GithubClientContext.set(octokit)
 }

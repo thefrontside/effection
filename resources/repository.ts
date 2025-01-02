@@ -70,7 +70,6 @@ export function loadRepository(
   { owner, name }: { owner: string; name: string },
 ) {
   return resource<Repository>(function* (provide) {
-    let refs: Map<string, RepositoryRef> = new Map();
     const github = yield* GithubClientContext.expect();
 
     const repository: Repository = {
@@ -137,18 +136,13 @@ export function loadRepository(
           const repository = yield* this.get();
           ref = `heads/${repository.default_branch}`;
         }
-        if (ref) {
-          const parts = ref.match(REF_PATTERN);
-          if (parts) {
-            ref = parts[0]
-          } else {
-            throw new Error(`Expected ref in format heads/<ref> or tags/<ref> (refs/ is ignored) but got ${ref}`);
-          }
+        const parts = ref.match(REF_PATTERN);
+        if (parts) {
+          ref = parts[0]
+        } else {
+          throw new Error(`Expected ref in format heads/<ref> or tags/<ref> (refs/ is ignored) but got ${ref}`);
         }
-        if (!refs.has(ref)) {
-          refs.set(ref, yield* loadRepositoryRef({ ref, repository }));
-        }
-        return refs.get(ref)!;
+        return yield* loadRepositoryRef({ ref, repository });
       }
     };
 

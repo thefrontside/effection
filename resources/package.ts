@@ -124,8 +124,6 @@ export function loadPackage(
 
     const [, scope, name] = denoJson?.name?.match(/@(.*)\/(.*)/) ?? [];
 
-    let docs: PackageDocs;
-
     let pkg: Package = {
       get exports() {
         if (typeof denoJson.exports === "string") {
@@ -141,7 +139,7 @@ export function loadPackage(
       jsrBadge: new URL(`./${denoJson.name}`, "https://jsr.io/badges/"),
       npm: new URL(`./${denoJson.name}`, "https://www.npmjs.com/package/"),
       bundleSizeBadge: new URL(
-        `./${denoJson.name}/${denoJson.version}`,
+        `./${denoJson.name}@${denoJson.version}`,
         "https://img.shields.io/bundlephobia/minzip/",
       ),
       npmVersionBadge: new URL(
@@ -149,7 +147,7 @@ export function loadPackage(
         "https://img.shields.io/npm/v/",
       ),
       bundlephobia: new URL(
-        `./${denoJson.name}/${denoJson.version}`,
+        `./${denoJson.name}@${denoJson.version}`,
         "https://bundlephobia.com/package/",
       ),
       dependencyCountBadge: new URL(
@@ -175,45 +173,44 @@ export function loadPackage(
         return entrypoints;
       },
       *docs() {
-        if (!docs) {
-          docs = {};
+        const docs: PackageDocs = {};
 
-          const scope = yield* useScope();
+        const scope = yield* useScope();
 
-          for (const key of Object.keys(pkg.entrypoints)) {
-            const url = String(pkg.entrypoints[key]);
+        for (const key of Object.keys(pkg.entrypoints)) {
+          const url = String(pkg.entrypoints[key]);
 
-            const docNodes = yield* useDenoDoc([url], {
-              load: (specifier: string) => scope.run(docLoader(specifier)),
-            });
+          const docNodes = yield* useDenoDoc([url], {
+            load: (specifier: string) => scope.run(docLoader(specifier)),
+          });
 
-            docs[key] = yield* all(
-              docNodes[url].map(function* (node) {
-                if (node.jsDoc && node.jsDoc.doc) {
-                  try {
-                    const mod = yield* useMDX(node.jsDoc.doc);
-                    return {
-                      id: exportHash(key, node),
-                      ...node,
-                      description: yield* useDescription(node.jsDoc.doc),
-                      MDXDoc: () => mod.default({}),
-                    };
-                  } catch (e) {
-                    console.error(
-                      `Could not parse doc string for ${node.name} at ${node.location}`,
-                      e,
-                    );
-                  }
+          docs[key] = yield* all(
+            docNodes[url].map(function* (node) {
+              if (node.jsDoc && node.jsDoc.doc) {
+                try {
+                  const mod = yield* useMDX(node.jsDoc.doc);
+                  return {
+                    id: exportHash(key, node),
+                    ...node,
+                    description: yield* useDescription(node.jsDoc.doc),
+                    MDXDoc: () => mod.default({}),
+                  };
+                } catch (e) {
+                  console.error(
+                    `Could not parse doc string for ${node.name} at ${node.location}`,
+                    e,
+                  );
                 }
-                return {
-                  id: exportHash(key, node),
-                  description: "",
-                  ...node,
-                };
-              }),
-            );
-          }
+              }
+              return {
+                id: exportHash(key, node),
+                description: "",
+                ...node,
+              };
+            }),
+          );
         }
+
         return docs;
       },
       version: denoJson.version,

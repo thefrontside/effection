@@ -41,7 +41,7 @@ export function contribIndexRoute(
                     return (
                       <li class="px-0">
                         <h3>
-                          <a href={`/contrib/${pkg.packageName}`}>
+                          <a href={`/contrib/${pkg.path}`}>
                             {pkg.packageName}
                           </a>
                         </h3>

@@ -119,12 +119,9 @@ export function loadPackage(
   { ref, workspacePath }: { workspacePath: string; ref: RepositoryRef },
 ) {
   return resource<Package>(function* (provide) {
-    const denoJson = yield* ref.loadDenoJson();
+    const denoJson = yield* ref.loadDenoJson(workspacePath);
 
-    const [, scope, name] = denoJson.name.match(/@(.*)\/(.*)/) ?? [];
-
-    if (!scope) throw new Error(`Expected a scope but got ${scope}`);
-    if (!name) throw new Error(`Expected a package name but got ${name}`);
+    const [, scope, name] = denoJson?.name?.match(/@(.*)\/(.*)/) ?? [];
 
     let docs: PackageDocs;
 
@@ -132,6 +129,8 @@ export function loadPackage(
       get exports() {
         if (typeof denoJson.exports === "string") {
           return { [DEFAULT_MODULE_KEY]: denoJson.exports };
+        } else if (denoJson.exports === undefined) {
+          return { [DEFAULT_MODULE_KEY]: "./mod.ts" }
         } else {
           return denoJson.exports;
         }
@@ -160,12 +159,12 @@ export function loadPackage(
         `./${denoJson.name}`,
         "https://badgen.net/bundlephobia/tree-shaking/",
       ),
-      packageName: denoJson.name,
+      packageName: denoJson.name ?? "",
       scope,
-      source: new URL(workspacePath, ref.name),
+      source: new URL(ref.url),
       name,
       *readme() {
-        return yield* ref.loadReadme();
+        return yield* ref.loadReadme(workspacePath);
       },
       get entrypoints() {
         const entrypoints: Record<string, URL> = {};

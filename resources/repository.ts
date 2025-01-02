@@ -6,10 +6,13 @@ import { components } from "npm:@octokit/openapi-types@22.2.0";
 import { rsort } from "npm:semver@7.6.3";
 
 import { GithubClientContext } from "../context/github.ts";
-import { loadRepositoryRef, RepositoryRef } from "./repository-ref.ts";
-
+import { loadRepositoryRef, REF_PATTERN, RepositoryRef } from "./repository-ref.ts";
 
 export interface Repository {
+  name: string;
+
+  owner: string;
+
   get(): Operation<
     Endpoints["GET /repos/{owner}/{repo}"]["response"]["data"]
   >;
@@ -60,7 +63,7 @@ export interface Repository {
       Endpoints["GET /repos/{owner}/{repo}/contents/{path}"]["response"]
     >
 
-  loadRef(ref?: string | undefined): Operation<RepositoryRef>
+  loadRef(ref?: string | undefined, type?: "branch" | "tag"): Operation<RepositoryRef>
 }
 
 export function loadRepository(
@@ -71,6 +74,9 @@ export function loadRepository(
     const github = yield* GithubClientContext.expect();
 
     const repository: Repository = {
+      owner,
+      name,
+
       *get() {
         const result = yield* call(() =>
           github.rest.repos.get({
@@ -127,9 +133,17 @@ export function loadRepository(
         return response;
       },
       *loadRef(ref?: string | undefined): Operation<RepositoryRef> {
-        if (ref === undefined) {
+        if (!ref) {
           const repository = yield* this.get();
-          ref = repository.default_branch;
+          ref = `heads/${repository.default_branch}`;
+        }
+        if (ref) {
+          const parts = ref.match(REF_PATTERN);
+          if (parts) {
+            ref = parts[0]
+          } else {
+            throw new Error(`Expected ref in format heads/<ref> or tags/<ref> (refs/ is ignored) but got ${ref}`);
+          }
         }
         if (!refs.has(ref)) {
           refs.set(ref, yield* loadRepositoryRef({ ref, repository }));

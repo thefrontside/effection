@@ -1,19 +1,17 @@
 import { all, call, type Operation, resource, useScope } from "effection";
+import { CacheSetting, LoadResponse } from "jsr:@deno/doc@0.162.4";
 import { z } from "npm:zod@3.23.8";
 import type { JSXElement } from "revolution";
-
-import { type DocNode, useDenoDoc } from "../hooks/use-deno-doc.tsx";
-import { useMDX } from "../hooks/use-mdx.tsx";
-import { useDescription } from "../hooks/use-description-parse.tsx";
-import {
-  PackageDetailsResult,
-  PackageScoreResult,
-} from "./jsr-client.ts";
-import { RepositoryRef } from "./repository-ref.ts";
 // @deno-types="npm:@types/parse-github-url@1.0.3";
 import githubUrlParse from "npm:parse-github-url@1.0.3";
+
 import { GithubClientContext } from "../context/github.ts";
 import { useJSRClient } from "../context/jsr.ts";
+import { type DocNode, useDenoDoc } from "../hooks/use-deno-doc.tsx";
+import { useDescription } from "../hooks/use-description-parse.tsx";
+import { useMDX } from "../hooks/use-mdx.tsx";
+import { PackageDetailsResult, PackageScoreResult } from "./jsr-client.ts";
+import { RepositoryRef } from "./repository-ref.ts";
 
 export interface Package {
   /**
@@ -184,33 +182,9 @@ export function loadPackage(
 
           for (const key of Object.keys(pkg.entrypoints)) {
             const url = String(pkg.entrypoints[key]);
-            const docNodes = yield* useDenoDoc([url], {
-              load: (
-                specifier: string,
-              ) =>
-                scope.run(function* () {
-                  const github = yield* GithubClientContext.expect();
 
-                  const gh = githubUrlParse(specifier);
-                  if (gh?.filepath) {
-                    const result = yield* call(() => github.rest.repos.getContent({
-                      owner: gh.owner,
-                      repo: gh.name,
-                      path: gh.filepath,
-                      ref: ref.ref,
-                      mediaType: {
-                        format: "raw",
-                      },
-                    }));
-                    return {
-                      kind: "module",
-                      specifier,
-                      content: result.data
-                    }
-                  } else {
-                    throw new Error(`Could not parse ${specifier} as Github URL`);
-                  }
-                }),
+            const docNodes = yield* useDenoDoc([url], {
+              load: (specifier: string) => scope.run(docLoader(specifier)),
             });
 
             docs[key] = yield* all(
@@ -293,4 +267,45 @@ function exportHash(exportName: string, doc: DocNode): string {
   } else {
     return `${exportName}__${doc.name}`;
   }
+}
+
+function docLoader(
+  specifier: string,
+  _isDynamic?: boolean,
+  _cacheSetting?: CacheSetting,
+  _checksum?: string,
+): () => Operation<LoadResponse | undefined> {
+  return function* downloadDocModules() {
+    const github = yield* GithubClientContext.expect();
+
+    const url = URL.parse(specifier);
+
+    if (url?.host === "github.com") {
+      const gh = githubUrlParse(specifier);
+      if (gh?.filepath) {
+        const result = yield* call(() =>
+          github.rest.repos.getContent({
+            owner: gh.owner,
+            repo: gh.name,
+            path: gh.filepath,
+            ref: gh.branch,
+            mediaType: {
+              format: "raw",
+            },
+          })
+        );
+        return {
+          kind: "module",
+          specifier,
+          content: result.data,
+        };
+      } else {
+        throw new Error(`Could not parse ${specifier} as Github URL`);
+      }
+    }
+
+    if (url?.host === "jsr.io") {
+      console.log(`Ignoring ${url} while reading docs`);
+    }
+  };
 }

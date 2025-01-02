@@ -11,6 +11,8 @@ type Ref =
   Endpoints["GET /repos/{owner}/{repo}/git/ref/{ref}"]["response"]["data"];
 
 export interface RepositoryRef {
+  repository: Repository;
+
   /**
    * Name of the ref without heads/ or tags/ prefix
    */
@@ -59,6 +61,20 @@ export interface RepositoryRef {
    * Load packages declarated in workspaces
    */
   loadWorkspaces(): Operation<Package[]>;
+
+  /**
+   * Return relative path that can be to retrieve file content
+   * @param base
+   * @param target
+   */
+  getPath(base: string, target: string): string;
+
+  /**
+   * Return complete URL of a file or a directory in GitHub API
+   * @param base
+   * @param target
+   */
+  getUrl(base: string, target: string, isFile: boolean): URL;
 }
 
 export function loadRepositoryRef(
@@ -77,8 +93,25 @@ export function loadRepositoryRef(
     const url = getRefUrl(repository, ref);
 
     const repositoryRef: RepositoryRef = {
+      repository,
       ...ref,
       url,
+
+      getUrl(base, target, isFile) {
+        return new URL(
+          `./${isFile ? "blob" : "tree"}/${ref.name}/${
+            repositoryRef.getPath(base, target)
+          }`,
+          `https://github.com/${repository.owner}/${repository.name}/`,
+        );
+      },
+
+      getPath(base, target) {
+        return [base, target].filter(Boolean).join("/").replace(
+          /^\.\//,
+          "",
+        );
+      },
 
       *get() {
         if (!fetchedRef) {
@@ -91,18 +124,15 @@ export function loadRepositoryRef(
               ref: ref.ref,
             })
           );
-          
-          fetchedRef = response.data
+
+          fetchedRef = response.data;
         }
 
         return fetchedRef;
       },
 
       *loadReadme(base: string = "") {
-        const path = [base, "README.md"].filter(Boolean).join("/").replace(
-          /^\.\//,
-          "",
-        );
+        const path = repositoryRef.getPath(base, "README.md");
 
         if (!files.has(path)) {
           const response = yield* repository.getContent({
@@ -112,7 +142,7 @@ export function loadRepositoryRef(
               format: "raw",
             },
           });
-  
+
           files.set(path, response.data.toString());
         }
 
@@ -120,10 +150,7 @@ export function loadRepositoryRef(
       },
 
       *loadDenoJson(base: string = "") {
-        const path = [base, "deno.json"].filter(Boolean).join("/").replace(
-          /^\.\//,
-          "",
-        );
+        const path = repositoryRef.getPath(base, "deno.json");
 
         if (!files.has(path)) {
           const response = yield* repository.getContent({
@@ -133,7 +160,7 @@ export function loadRepositoryRef(
               format: "raw",
             },
           });
-  
+
           files.set(path, response.data.toString());
         }
 

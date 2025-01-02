@@ -54,6 +54,7 @@
     "npm:@types/hast@3": "3.0.4",
     "npm:@types/mdx@2.0.13": "2.0.13",
     "npm:@types/node@*": "22.5.4",
+    "npm:@types/parse-github-url@1.0.3": "1.0.3",
     "npm:@types/semver@7.5.8": "7.5.8",
     "npm:@types/unist@3.0.3": "3.0.3",
     "npm:effection@3.0.3": "3.0.3",
@@ -67,6 +68,7 @@
     "npm:octokit@4": "4.0.3_@octokit+core@6.1.2",
     "npm:octokit@4.0.3": "4.0.3_@octokit+core@6.1.2",
     "npm:octokit@^2.0.10": "2.1.0_@octokit+core@4.2.4",
+    "npm:parse-github-url@1.0.3": "1.0.3",
     "npm:rehype-add-classes@1.0.0": "1.0.0",
     "npm:rehype-autolink-headings@6.1.1": "6.1.1",
     "npm:rehype-autolink-headings@7.1.0": "7.1.0",
@@ -1074,6 +1076,12 @@
       "integrity": "sha512-FDuKUJQm/ju9fT/SeX/6+gBzoPzlVCzfzmGkwKvRHQVxi4BntVbyIwf6a4Xn62mrvndLiml6z/UBXIdEVjQLXg==",
       "dependencies": [
         "undici-types"
+      ]
+    },
+    "@types/parse-github-url@1.0.3": {
+      "integrity": "sha512-7sTbCVmSVzK/iAsHGIxoqiyAnqix9opZm68lOvaU6DBx9EQ9kHMSp0y7Criu2OCsZ9wDllEyCRU+LU4hPRxXUA==",
+      "dependencies": [
+        "@types/node"
       ]
     },
     "@types/prismjs@1.26.3": {
@@ -2882,6 +2890,9 @@
         "is-decimal",
         "is-hexadecimal"
       ]
+    },
+    "parse-github-url@1.0.3": {
+      "integrity": "sha512-tfalY5/4SqGaV/GIGzWyHnFjlpTPTNpENR9Ea2lLldSJ8EWXMsvacWucqY3m3I4YPtas15IxTLQVQ5NSYXPrww=="
     },
     "parse-numeric-range@1.3.0": {
       "integrity": "sha512-twN+njEipszzlMJd4ONUYgSfZPDxgHhT9Ahed5uTigpQn90FggW4SA/AIPq/6a149fTbE9qBEcSwE3FAEp6wQQ=="

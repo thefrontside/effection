@@ -1,4 +1,4 @@
-import { all, type Operation, resource } from "effection";
+import { all, call, type Operation, resource, useScope } from "effection";
 import { z } from "npm:zod@3.23.8";
 import type { JSXElement } from "revolution";
 
@@ -8,9 +8,12 @@ import { useDescription } from "../hooks/use-description-parse.tsx";
 import {
   PackageDetailsResult,
   PackageScoreResult,
-  useJSRClient,
-} from "../hooks/use-jsr-client.ts";
+} from "./jsr-client.ts";
 import { RepositoryRef } from "./repository-ref.ts";
+// @deno-types="npm:@types/parse-github-url@1.0.3";
+import githubUrlParse from "npm:parse-github-url@1.0.3";
+import { GithubClientContext } from "../context/github.ts";
+import { useJSRClient } from "../context/jsr.ts";
 
 export interface Package {
   /**
@@ -130,7 +133,7 @@ export function loadPackage(
         if (typeof denoJson.exports === "string") {
           return { [DEFAULT_MODULE_KEY]: denoJson.exports };
         } else if (denoJson.exports === undefined) {
-          return { [DEFAULT_MODULE_KEY]: "./mod.ts" }
+          return { [DEFAULT_MODULE_KEY]: "./mod.ts" };
         } else {
           return denoJson.exports;
         }
@@ -168,45 +171,74 @@ export function loadPackage(
       },
       get entrypoints() {
         const entrypoints: Record<string, URL> = {};
-        for (const key of Object.keys(exports)) {
-          entrypoints[key] = new URL(exports[key], workspacePath);
+        for (const key of Object.keys(pkg.exports)) {
+          entrypoints[key] = ref.getUrl(workspacePath, pkg.exports[key], true);
         }
         return entrypoints;
       },
       *docs() {
-        if (docs) {
-          return docs;
-        } else {
+        if (!docs) {
           docs = {};
-        }
-        for (const key of Object.keys(pkg.entrypoints)) {
-          const url = String(pkg.entrypoints[key]);
-          const docNodes = yield* useDenoDoc([url]);
-          docs[key] = yield* all(
-            docNodes[url].map(function* (node) {
-              if (node.jsDoc && node.jsDoc.doc) {
-                try {
-                  const mod = yield* useMDX(node.jsDoc.doc);
-                  return {
-                    id: exportHash(key, node),
-                    ...node,
-                    description: yield* useDescription(node.jsDoc.doc),
-                    MDXDoc: () => mod.default({}),
-                  };
-                } catch (e) {
-                  console.error(
-                    `Could not parse doc string for ${node.name} at ${node.location}`,
-                    e,
-                  );
+
+          const scope = yield* useScope();
+
+          for (const key of Object.keys(pkg.entrypoints)) {
+            const url = String(pkg.entrypoints[key]);
+            const docNodes = yield* useDenoDoc([url], {
+              load: (
+                specifier: string,
+              ) =>
+                scope.run(function* () {
+                  const github = yield* GithubClientContext.expect();
+
+                  const gh = githubUrlParse(specifier);
+                  if (gh?.filepath) {
+                    const result = yield* call(() => github.rest.repos.getContent({
+                      owner: gh.owner,
+                      repo: gh.name,
+                      path: gh.filepath,
+                      ref: ref.ref,
+                      mediaType: {
+                        format: "raw",
+                      },
+                    }));
+                    return {
+                      kind: "module",
+                      specifier,
+                      content: result.data
+                    }
+                  } else {
+                    throw new Error(`Could not parse ${specifier} as Github URL`);
+                  }
+                }),
+            });
+
+            docs[key] = yield* all(
+              docNodes[url].map(function* (node) {
+                if (node.jsDoc && node.jsDoc.doc) {
+                  try {
+                    const mod = yield* useMDX(node.jsDoc.doc);
+                    return {
+                      id: exportHash(key, node),
+                      ...node,
+                      description: yield* useDescription(node.jsDoc.doc),
+                      MDXDoc: () => mod.default({}),
+                    };
+                  } catch (e) {
+                    console.error(
+                      `Could not parse doc string for ${node.name} at ${node.location}`,
+                      e,
+                    );
+                  }
                 }
-              }
-              return {
-                id: exportHash(key, node),
-                description: "",
-                ...node,
-              };
-            }),
-          );
+                return {
+                  id: exportHash(key, node),
+                  description: "",
+                  ...node,
+                };
+              }),
+            );
+          }
         }
         return docs;
       },

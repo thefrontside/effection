@@ -1,4 +1,4 @@
-import { call, createContext, type Operation } from "effection";
+import { call, resource, type Operation } from "effection";
 import { z } from "npm:zod@3.23.8";
 
 interface GetPackageDetailsParams {
@@ -54,57 +54,47 @@ export interface JSRClient {
   ) => Operation<z.SafeParseReturnType<unknown, PackageDetailsResult>>;
 }
 
-const JSRClientContext = createContext<JSRClient>("jsr-client");
-
-export function* initJSRClient({ token }: { token: string }) {
-  let client = createJSRClient(token);
-
-  return yield* JSRClientContext.set(client);
-}
-
-export function* useJSRClient(): Operation<JSRClient> {
-  return yield* JSRClientContext;
-}
-
-function createJSRClient(token: string): JSRClient {
-  return {
-    *getPackageScore(params) {
-      const response = yield* call(() =>
-        fetch(
-          `https://api.jsr.io/scopes/${params.scope}/packages/${params.package}/score`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
+export function createJSRClient(token: string): Operation<JSRClient> {
+  return resource<JSRClient>(function*(provide) {
+    yield* provide({
+      *getPackageScore(params) {
+        const response = yield* call(() =>
+          fetch(
+            `https://api.jsr.io/scopes/${params.scope}/packages/${params.package}/score`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
             },
-          },
-        )
-      );
-
-      if (response.ok) {
-        const json = yield* call(() => response.json());
-        return yield* call(() => PackageScore.safeParseAsync(json));
-      }
-
-      throw new Error(`${response.status}: ${response.statusText}`);
-    },
-    *getPackageDetails(params) {
-      const response = yield* call(() =>
-        fetch(
-          `https://api.jsr.io/scopes/${params.scope}/packages/${params.package}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
+          )
+        );
+  
+        if (response.ok) {
+          const json = yield* call(() => response.json());
+          return yield* call(() => PackageScore.safeParseAsync(json));
+        }
+  
+        throw new Error(`${response.status}: ${response.statusText}`);
+      },
+      *getPackageDetails(params) {
+        const response = yield* call(() =>
+          fetch(
+            `https://api.jsr.io/scopes/${params.scope}/packages/${params.package}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
             },
-          },
-        )
-      );
-
-      if (response.ok) {
-        const json = yield* call(() => response.json());
-        return yield* call(() => PackageDetails.safeParseAsync(json));
-      }
-
-      throw new Error(`${response.status}: ${response.statusText}`);
-    },
-  };
+          )
+        );
+  
+        if (response.ok) {
+          const json = yield* call(() => response.json());
+          return yield* call(() => PackageDetails.safeParseAsync(json));
+        }
+  
+        throw new Error(`${response.status}: ${response.statusText}`);
+      },
+    })
+  });
 }

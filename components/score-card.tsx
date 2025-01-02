@@ -1,24 +1,23 @@
-import { type PackageScoreResult } from "../hooks/use-jsr-client.ts";
+import { JSXElement } from "revolution/jsx-runtime";
+import { type PackageScoreResult } from "../resources/jsr-client.ts";
+import { Package } from "../resources/package.ts";
 import {
+  BrowserIcon,
+  BunIcon,
   Check,
   CloudflareWorkersIcon,
   Cross,
+  DenoIcon,
   IconProps,
+  JSRIcon,
   NodeIcon,
   NPMIcon,
 } from "./package/icons.tsx";
-import { JSRIcon } from "./package/icons.tsx";
-import { JSXElement } from "revolution/jsx-runtime";
-import { DenoIcon } from "./package/icons.tsx";
-import { BunIcon } from "./package/icons.tsx";
-import { BrowserIcon } from "./package/icons.tsx";
-import { Package } from "../resources/package.ts";
 
 export function* ScoreCard(pkg: Package) {
   const [details, score] = yield* pkg.jsrPackageDetails();
 
-  const jsrScore = (details.success && details.data && details.data.score) ||
-    0;
+  const jsrScore = (details.success && details.data && details.data.score) || 0;
 
   return (
     <div class="flex flex-col items-center space-y-5 w-full">
@@ -89,17 +88,19 @@ export function* ScoreCard(pkg: Package) {
           >
             <div>JSR Score</div>
             <div
-              class={`!leading-none md:text-xl ${
-                getScoreTextColorClass(jsrScore)
-              }`}
+              class={`!leading-none md:text-xl ${getScoreTextColorClass(
+                jsrScore,
+              )}`}
             >
               {jsrScore}%
             </div>
           </a>
         </div>
-        {score.success && score.data
-          ? <ScoreDescription score={score.data} pkg={pkg} />
-          : <></>}
+        {score.success && score.data ? (
+          <ScoreDescription score={score.data} pkg={pkg} />
+        ) : (
+          <></>
+        )}
       </>
     </div>
   );
@@ -127,7 +128,9 @@ function SupportedEnvironment(props: SupportedEnvironmentProps) {
           props.enabled ? "" : "select-none filter grayscale opacity-40"
         }`}
       />
-      {props.enabled ? <></> : (
+      {props.enabled ? (
+        <></>
+      ) : (
         <div
           aria-hidden="true"
           title={`It is unknown whether this package works with ${props.name}`}

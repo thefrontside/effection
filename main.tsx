@@ -20,6 +20,7 @@ import { patchDenoPermissionsQuerySync } from "./deno-deploy-patch.ts";
 import { loadDocs } from "./docs/docs.ts";
 import { loadRepository } from "./resources/repository.ts";
 import { initGithubClientContext } from "./context/github.ts";
+import { initJSRClient } from "./context/jsr.ts";
 
 // Learn more at https://docs.deno.com/runtime/manual/examples/module_metadata#concepts
 if (import.meta.main) {
@@ -30,11 +31,20 @@ if (import.meta.main) {
       patchDenoPermissionsQuerySync();
     }
 
-    const token = Deno.env.get("GITHUB_TOKEN");
-    if (!token) throw new Error(`GITHUB_TOKEN environment variable is missing`);
+    const jsrToken = Deno.env.get("JSR_API") ?? "";
+    if (jsrToken === "") {
+      console.log("Missing JSR API token; expect score card not to load.");
+    }
+
+    yield* initJSRClient({
+      token: jsrToken,
+    });
+
+    const githubToken = Deno.env.get("GITHUB_TOKEN");
+    if (!githubToken) throw new Error(`GITHUB_TOKEN environment variable is missing`);
 
     yield* initGithubClientContext({
-      token
+      token: githubToken
     })
 
     let docs = yield* loadDocs();

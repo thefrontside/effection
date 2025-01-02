@@ -1,5 +1,5 @@
 import type { Middleware, RevolutionPlugin } from "revolution";
-import { useRevolutionOptions, route as revolutionRoute } from "revolution";
+import { route as revolutionRoute, useRevolutionOptions } from "revolution";
 import type { Operation } from "effection";
 import { stringify } from "jsr:@libs/xml";
 import { compile } from "https://deno.land/x/path_to_regexp@v6.2.1/index.ts";
@@ -12,39 +12,39 @@ export function sitemapPlugin(): RevolutionPlugin {
       let url = new URL(request.url);
 
       if (url.pathname === "/sitemap.xml") {
-	let app = options.app ?? [];
-	let paths: RoutePath[] = [];
-	for (let middleware of app) {
-	  let ext = middleware as SitemapExtension;
-	  if (ext.sitemapExtension) {
-	    paths = paths.concat(yield* ext.sitemapExtension(request));
-	  }
-	}
+        let app = options.app ?? [];
+        let paths: RoutePath[] = [];
+        for (let middleware of app) {
+          let ext = middleware as SitemapExtension;
+          if (ext.sitemapExtension) {
+            paths = paths.concat(yield* ext.sitemapExtension(request));
+          }
+        }
 
-	let absolute = yield* useAbsoluteUrlFactory();
+        let absolute = yield* useAbsoluteUrlFactory();
 
-	let xml = stringify({
-	  "@version": "1.0",
-	  "@encoding": "UTF-8",
-	  urlset: {
-	    "@xmlns": "http://www.sitemaps.org/schemas/sitemap/0.9",
-	    url: paths.map((path) => {
-	      let { pathname, ...entry } = path;
+        let xml = stringify({
+          "@version": "1.0",
+          "@encoding": "UTF-8",
+          urlset: {
+            "@xmlns": "http://www.sitemaps.org/schemas/sitemap/0.9",
+            url: paths.map((path) => {
+              let { pathname, ...entry } = path;
 
-	      return {
-		loc: absolute(pathname),
-		...entry,
-	      };
-	    }),
-	  },
-	});
+              return {
+                loc: absolute(pathname),
+                ...entry,
+              };
+            }),
+          },
+        });
 
-	return new Response(xml, {
-	  status: 200,
-	  headers: {
-	    "Content-Type": "application/xml",
-	  },
-	});
+        return new Response(xml, {
+          status: 200,
+          headers: {
+            "Content-Type": "application/xml",
+          },
+        });
       }
       return yield* next(request);
     },
@@ -106,10 +106,10 @@ export function route<T>(
     if (middleware.routemap) {
       const { routemap } = middleware;
       Object.defineProperty(handler, "sitemapExtension", {
-	value(request: Request) {
-	  let generate = compile(pattern);
-	  return routemap(generate, request);
-	},
+        value(request: Request) {
+          let generate = compile(pattern);
+          return routemap(generate, request);
+        },
       });
     }
     return handler;

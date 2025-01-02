@@ -1,6 +1,5 @@
 import type { Operation } from "effection";
 import type { JSXChild, JSXElement } from "revolution";
-import { useDenoDeploy } from "jsr:@effection-contrib/deno-deploy@0.1.0";
 
 import { useAbsoluteUrl } from "../plugins/rebase.ts";
 import { Header } from "../components/header.tsx";

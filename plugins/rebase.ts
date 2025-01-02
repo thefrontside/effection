@@ -78,5 +78,5 @@ export function* useAbsoluteUrlFactory(): Operation<(path: string) => string> {
     } else {
       return new URL(path, request.url).toString();
     }
-  }
+  };
 }

@@ -4,7 +4,6 @@ import { Keyword, Punctuation } from "../tokens.tsx";
 import { Package, RenderableDocNode } from "../../resources/package.ts";
 
 export function* PackageExports(pkg: Package) {
-
   const docs = yield* pkg.docs();
 
   return (

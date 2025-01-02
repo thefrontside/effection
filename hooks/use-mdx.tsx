@@ -24,6 +24,6 @@ export function* useMDX(markdown: string): Operation<MDXModule> {
           },
         ],
       ],
-    }),
+    })
   );
 }

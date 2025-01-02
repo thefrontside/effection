@@ -88,19 +88,19 @@ export function* ScoreCard(pkg: Package) {
           >
             <div>JSR Score</div>
             <div
-              class={`!leading-none md:text-xl ${getScoreTextColorClass(
-                jsrScore,
-              )}`}
+              class={`!leading-none md:text-xl ${
+                getScoreTextColorClass(
+                  jsrScore,
+                )
+              }`}
             >
               {jsrScore}%
             </div>
           </a>
         </div>
-        {score.success && score.data ? (
-          <ScoreDescription score={score.data} pkg={pkg} />
-        ) : (
-          <></>
-        )}
+        {score.success && score.data
+          ? <ScoreDescription score={score.data} pkg={pkg} />
+          : <></>}
       </>
     </div>
   );
@@ -128,9 +128,7 @@ function SupportedEnvironment(props: SupportedEnvironmentProps) {
           props.enabled ? "" : "select-none filter grayscale opacity-40"
         }`}
       />
-      {props.enabled ? (
-        <></>
-      ) : (
+      {props.enabled ? <></> : (
         <div
           aria-hidden="true"
           title={`It is unknown whether this package works with ${props.name}`}

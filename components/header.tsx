@@ -13,7 +13,12 @@ export function Header({ navLinks }: HeaderProps) {
             href="/"
             class="flex items-end gap-x-2"
           >
-            <img src="/assets/images/effection-logo.svg" alt="Effection Logo" width={156} height={24} />
+            <img
+              src="/assets/images/effection-logo.svg"
+              alt="Effection Logo"
+              width={156}
+              height={24}
+            />
           </a>
           <span class="hidden sm:flex items-center">
             <ProjectSelect />
@@ -21,9 +26,7 @@ export function Header({ navLinks }: HeaderProps) {
         </div>
         <nav aria-label="Site Nav" class="text-sm font-bold">
           <ul class="flex items-center sm:gap-1.5 gap-3 md:gap-12">
-            {navLinks.map(link => (
-              <li>{link}</li>
-            ))}
+            {navLinks.map((link) => <li>{link}</li>)}
           </ul>
         </nav>
       </div>

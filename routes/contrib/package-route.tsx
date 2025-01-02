@@ -21,7 +21,9 @@ export function contribPackageRoute(
 
       for (let workspacePath of workspace) {
         paths.push({
-          pathname: pathname({ workspacePath: workspacePath.replace(/^\.\//, "") }),
+          pathname: pathname({
+            workspacePath: workspacePath.replace(/^\.\//, ""),
+          }),
         });
       }
 
@@ -31,7 +33,6 @@ export function contribPackageRoute(
       const params = yield* useParams<{ workspacePath: string }>();
 
       try {
-
         const main = yield* contrib.loadRef();
         const pkg = yield* main.loadWorkspace(`./${params.workspacePath}`);
 

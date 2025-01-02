@@ -35,22 +35,20 @@ export function contribIndexRoute(
               Effection.
             </p>
             <ul class="list-none px-0">
-              {
-                yield* all(
-                  packages.map(function* (pkg) {
-                    return (
-                      <li class="px-0">
-                        <h3>
-                          <a href={`/contrib/${pkg.path}`}>
-                            {pkg.packageName}
-                          </a>
-                        </h3>
-                        <p>{yield* pkg.description()}</p>
-                      </li>
-                    );
-                  }),
-                )
-              }
+              {yield* all(
+                packages.map(function* (pkg) {
+                  return (
+                    <li class="px-0">
+                      <h3>
+                        <a href={`/contrib/${pkg.path}`}>
+                          {pkg.packageName}
+                        </a>
+                      </h3>
+                      <p>{yield* pkg.description()}</p>
+                    </li>
+                  );
+                }),
+              )}
             </ul>
           </article>
         </AppHTML>

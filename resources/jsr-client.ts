@@ -1,4 +1,4 @@
-import { call, resource, type Operation } from "effection";
+import { call, type Operation, resource } from "effection";
 import { z } from "npm:zod@3.23.8";
 
 interface GetPackageDetailsParams {
@@ -55,7 +55,7 @@ export interface JSRClient {
 }
 
 export function createJSRClient(token: string): Operation<JSRClient> {
-  return resource<JSRClient>(function*(provide) {
+  return resource<JSRClient>(function* (provide) {
     yield* provide({
       *getPackageScore(params) {
         const response = yield* call(() =>
@@ -68,12 +68,12 @@ export function createJSRClient(token: string): Operation<JSRClient> {
             },
           )
         );
-  
+
         if (response.ok) {
           const json = yield* call(() => response.json());
           return yield* call(() => PackageScore.safeParseAsync(json));
         }
-  
+
         throw new Error(`${response.status}: ${response.statusText}`);
       },
       *getPackageDetails(params) {
@@ -87,14 +87,14 @@ export function createJSRClient(token: string): Operation<JSRClient> {
             },
           )
         );
-  
+
         if (response.ok) {
           const json = yield* call(() => response.json());
           return yield* call(() => PackageDetails.safeParseAsync(json));
         }
-  
+
         throw new Error(`${response.status}: ${response.statusText}`);
       },
-    })
+    });
   });
 }

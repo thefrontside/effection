@@ -133,7 +133,7 @@ export function loadRepositoryRef(
           },
         });
 
-        return response.data.toString()
+        return response.data.toString();
       },
 
       *loadDenoJson(base: string = "") {

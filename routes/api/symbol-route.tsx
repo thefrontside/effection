@@ -66,10 +66,9 @@ export function apiSymbolRoute(library: Repository): SitemapRoute<JSXElement> {
           (current, _key, _first, accumulator = {}) => ({
             ...accumulator,
             ...{
-              [current.name]:
-                current.name in accumulator
-                  ? [...accumulator[current.name]]
-                  : [current],
+              [current.name]: current.name in accumulator
+                ? [...accumulator[current.name]]
+                : [current],
             },
           }),
         );
@@ -90,8 +89,8 @@ export function apiSymbolRoute(library: Repository): SitemapRoute<JSXElement> {
 
         const AppHtml = yield* useAppHtml({
           title: `${symbol} | API Reference | Effection`,
-          description:
-            nodes.find((node) => node.description)?.description ?? "",
+          description: nodes.find((node) => node.description)?.description ??
+            "",
         });
 
         return (
@@ -143,20 +142,22 @@ function Menu({
         .sort()
         .map((name) => (
           <li>
-            {current === name ? (
-              <span class="rounded px-2 block w-full py-2 bg-gray-100 cursor-default ">
-                <Icon node={nodes[name][0]} />
-                {name}
-              </span>
-            ) : (
-              <a
-                class="rounded px-2 block w-full py-2 hover:bg-gray-100"
-                href={`/api/${name}`}
-              >
-                <Icon node={nodes[name][0]} />
-                {name}
-              </a>
-            )}
+            {current === name
+              ? (
+                <span class="rounded px-2 block w-full py-2 bg-gray-100 cursor-default ">
+                  <Icon node={nodes[name][0]} />
+                  {name}
+                </span>
+              )
+              : (
+                <a
+                  class="rounded px-2 block w-full py-2 hover:bg-gray-100"
+                  href={`/api/${name}`}
+                >
+                  <Icon node={nodes[name][0]} />
+                  {name}
+                </a>
+              )}
           </li>
         ))}
     </menu>

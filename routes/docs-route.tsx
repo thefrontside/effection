@@ -6,7 +6,7 @@ import { respondNotFound, useParams } from "revolution";
 import { OriginalRehype } from "../components/rehype.tsx";
 import { Transform } from "../components/transform.tsx";
 
-import rehypeToc, { HtmlElementNode } from "npm:@jsdevtools/rehype-toc@3.0.2";
+import rehypeToc from "npm:@jsdevtools/rehype-toc@3.0.2";
 import rehypeAddClasses from "npm:rehype-add-classes@1.0.0";
 import rehypeAutolinkHeadings from "npm:rehype-autolink-headings@7.1.0";
 import rehypeSlug from "npm:rehype-slug@6.0.0";
@@ -37,9 +37,9 @@ export function docsRoute(docs: Docs): SitemapRoute<JSXElement> {
 
       const description = yield* useDescription(doc.markdown);
 
-      let AppHtml = yield* useAppHtml({ 
+      let AppHtml = yield* useAppHtml({
         title: `${doc.title} | Docs | Effection`,
-        description
+        description,
       });
 
       return (
@@ -209,79 +209,4 @@ function liftTOC(element: JSX.Element): JSX.Element {
       nav,
     ],
   };
-}
-
-function customizeTOC(toc: HtmlElementNode) {
-  const [list, ...rest] = toc?.children as HtmlElementNode[];
-  const modified = addPaddingToChildren({
-    ...toc,
-    children: [
-      {
-        ...list,
-        properties: {
-          className: `fixed w-[250px] ${list.properties.className}`,
-        },
-        children: [
-          {
-            type: "element",
-            tagName: "li",
-            properties: {
-              className: '',
-            },
-            children: [
-              {
-                type: "element",
-                tagName: "h2",
-                properties: {
-                  className: "text-lg",
-                },
-                children: [
-                  {
-                    type: "text",
-                    value: "On this page",
-                  } as unknown as HtmlElementNode,
-                ],
-              } as unknown as HtmlElementNode,
-            ],
-          } as unknown as HtmlElementNode,
-          ...(list.children ?? []),
-        ],
-      },
-      ...rest,
-    ],
-  });
-
-  return modified;
-}
-
-function addPaddingToChildren(
-  node: HtmlElementNode & { children: HtmlElementNode[] },
-): HtmlElementNode {
-  if (node.children) {
-    return {
-      ...node,
-      properties: {
-        ...node.properties,
-        className: isNestedHeader(node)
-          ? `pl-5 ${node.properties.className}`
-          : node.properties.className,
-      },
-      children:
-        (node.children as (HtmlElementNode & { children: HtmlElementNode[] })[])
-          .map((child) => addPaddingToChildren(child)),
-    };
-  } else {
-    return node;
-  }
-}
-
-function isNestedHeader(node: HtmlElementNode) {
-  if (node.tagName === "li") {
-    const { data } = node;
-    if (data && Object.hasOwn(data, "hookArgs")) {
-      const { hookArgs } = data as { hookArgs: HtmlElementNode[] };
-      return ["h3", "h4", "h5", "h6"].includes(hookArgs[0].tagName);
-    }
-  }
-  return false;
 }

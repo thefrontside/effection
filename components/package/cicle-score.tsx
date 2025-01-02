@@ -8,9 +8,11 @@ export function CircleScore({ details }: { details: PackageDetailsResult }) {
         Score
       </h3>
       <div
-        class={`h-32 w-32 justify-center aspect-square rounded-full p-1.5 ${getScoreBgColorClass(
-          details.score,
-        )}`}
+        class={`h-32 w-32 justify-center aspect-square rounded-full p-1.5 ${
+          getScoreBgColorClass(
+            details.score,
+          )
+        }`}
         style="background-image: conic-gradient(transparent, transparent 100%, #e7e8e8 100%)"
       >
         <span class="rounded-full w-full h-full bg-white flex justify-center items-center text-center text-3xl font-bold">

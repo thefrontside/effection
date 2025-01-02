@@ -41,23 +41,25 @@ if (import.meta.main) {
     });
 
     const githubToken = Deno.env.get("GITHUB_TOKEN");
-    if (!githubToken) throw new Error(`GITHUB_TOKEN environment variable is missing`);
+    if (!githubToken) {
+      throw new Error(`GITHUB_TOKEN environment variable is missing`);
+    }
 
     yield* initGithubClientContext({
-      token: githubToken
-    })
+      token: githubToken,
+    });
 
     let docs = yield* loadDocs();
 
     let library = yield* loadRepository({
       owner: "thefrontside",
-      name: "effection"
+      name: "effection",
     });
 
     let contrib = yield* loadRepository({
       owner: "thefrontside",
-      name: "effection-contrib"
-    })
+      name: "effection-contrib",
+    });
 
     let revolution = createRevolution({
       app: [

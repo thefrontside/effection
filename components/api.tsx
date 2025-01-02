@@ -22,7 +22,6 @@ import { useMarkdown } from "../hooks/use-markdown.tsx";
 import { Package, RenderableDocNode } from "../resources/package.ts";
 
 export function* API(pkg: Package): Operation<JSXElement> {
-
   const elements: JSXElement[] = [];
   const docs = yield* pkg.docs();
 

@@ -96,7 +96,7 @@ export function apiSymbolRoute(library: Repository): SitemapRoute<JSXElement> {
                 </nav>
               </aside>
               <article class="prose max-w-full px-6 py-2">
-                <h1>{page.kind} {page.name}</h1>
+                <h1>{page.kind === "typeAlias" ? "type alias " : page.kind} {page.name}</h1>
                 <>
                   {elements}
                 </>

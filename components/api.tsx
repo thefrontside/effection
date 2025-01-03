@@ -338,6 +338,7 @@ export function TypeDef({ typeDef }: { typeDef: TsTypeDef }) {
       return <TypeDefUnion union={typeDef.union} />;
     case "fnOrConstructor":
       if (typeDef.fnOrConstructor.constructor) {
+        console.log(`<TypeDef> unimplemeneted`, typeDef.fnOrConstructor)
         // TODO(taras): implement
         return <></>;
       } else {
@@ -376,6 +377,13 @@ export function TypeDef({ typeDef }: { typeDef: TsTypeDef }) {
           <TypeDef typeDef={typeDef.typeOperator.tsType} />
         </>
       )
+    case "parenthesized": {
+      return <>
+        <Punctuation>(</Punctuation>
+          <TypeDef typeDef={typeDef.parenthesized} />
+        <Punctuation>)</Punctuation>
+      </>
+    }
     default:
       console.log("<TypeDef> unimplemented", typeDef);
   }

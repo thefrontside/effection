@@ -135,7 +135,7 @@ export function* extractJsDoc(
         lines.push(
           `<div class="border-l-4 border-red-500 mt-0 [&>*]:my-0 pl-3">
             <span class="text-red-500 font-bold">Deprecated</span>
-            ${yield* replaceLinks(warning.doc)}
+            ${warning.doc}
           </div>
           `);
       }
@@ -149,37 +149,29 @@ export function* extractJsDoc(
     let i = 1;
     for (const example of examples) {
       lines.push(`#### Example ${i++}`);
-      lines.push(yield* replaceLinks(example.doc));
+      lines.push(example.doc);
       lines.push("---");
     }
   }
 
-  if (node.kind === "function") {
-    const { typeParams } = node.functionDef;
-    if (typeParams.length > 0) {
-      lines.push("### Type Parameters");
-      const jsDocs = node.jsDoc?.tags?.flatMap((tag) => tag.kind === "template" ? [tag] : []) ?? [];
-      let i = 0;
-      for (const typeParam of typeParams) {
-        lines.push(yield* replaceLinks(TypeParam(typeParam)));
-        if (jsDocs[i]) {
-          lines.push(yield* replaceLinks(jsDocs[i].doc ?? ""))
-        }
-        i++;
-      }
-      
-    }
+  if (node.kind === "typeAlias") {
+    lines.push("\n");
+    lines.push(...TypeParams(node.typeAliasDef.typeParams, node))
+  }
 
+  if (node.kind === "function") {
+    lines.push(...TypeParams(node.functionDef.typeParams, node))
+    
     const { params } = node.functionDef;
     if (params.length > 0) {
       lines.push("### Parameters");
       const jsDocs = node.jsDoc?.tags?.flatMap((tag) => tag.kind === "param" ? [tag] : []) ?? [];
       let i = 0;
       for (const param of params) {
-        lines.push(yield* replaceLinks(Param(param)));
+        lines.push(Param(param));
         lines.push("\n");
         if (jsDocs[i] && jsDocs[i].doc) {
-          lines.push(yield* replaceLinks(jsDocs[i].doc ?? ""))
+          lines.push(jsDocs[i].doc)
         }
         i++;
       }
@@ -191,12 +183,12 @@ export function* extractJsDoc(
       const jsDocs = node.jsDoc?.tags?.find((tag) => tag.kind === "return");
       if (jsDocs && jsDocs.doc) {
         lines.push("\n")
-        lines.push(yield* replaceLinks(jsDocs.doc))
+        lines.push(jsDocs.doc)
       }
     }
   }
 
-  markdown += lines.join("\n");
+  markdown += yield* replaceLinks(lines.join("\n"));
 
   if (node.jsDoc && node.jsDoc.tags) {
     for (const tag of node.jsDoc.tags) {
@@ -213,6 +205,23 @@ export function* extractJsDoc(
     markdown,
     ignore,
   };
+}
+
+function TypeParams(typeParams: TsTypeParamDef[], node: DocNode) {
+  let lines = []
+  if (typeParams.length > 0) {
+    lines.push("### Type Parameters");
+    const jsDocs = node.jsDoc?.tags?.flatMap((tag) => tag.kind === "template" ? [tag] : []) ?? [];
+    let i = 0;
+    for (const typeParam of typeParams) {
+      lines.push(TypeParam(typeParam));
+      if (jsDocs[i]) {
+        lines.push(jsDocs[i].doc)
+      }
+      i++;
+    }
+  }
+  return lines;
 }
 
 function TypeDef(typeDef: TsTypeDef): string {
@@ -261,7 +270,7 @@ function TypeDef(typeDef: TsTypeDef): string {
 }
 
 function TypeParam(paramDef: TsTypeParamDef) {
-  let parts = [paramDef.name];
+  let parts = [`{@link ${paramDef.name}}`];
   if (paramDef.constraint) {
     parts.push(`extends ${TypeDef(paramDef.constraint)}`);
   }

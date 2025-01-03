@@ -355,12 +355,22 @@ export function TypeDef({ typeDef }: { typeDef: TsTypeDef }) {
         </>
       );
     case "tuple":
-      return <span class="token">[]</span>;
+      return (
+        <>
+          <Punctuation>[</Punctuation>
+          <>
+            {typeDef.tuple
+              .flatMap((tp) => [<TypeDef typeDef={tp} />, ", "])
+              .slice(0, -1)}
+          </>
+          <Punctuation>]</Punctuation>
+        </>
+      );
     case "array":
       return (
         <>
           <TypeDef typeDef={typeDef.array} />
-          []
+          <Punctuation>[]</Punctuation>
         </>
       );
     case "typeOperator":

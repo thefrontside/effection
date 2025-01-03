@@ -430,9 +430,11 @@ function InterfaceTypeParams({
             return [
               <>
                 {param.name}
-                <Keyword>{" extends "}</Keyword>
                 {param.constraint ? (
-                  <TypeDef typeDef={param.constraint} />
+                  <>
+                    <Keyword>{" extends "}</Keyword>
+                    <TypeDef typeDef={param.constraint} />
+                  </>
                 ) : (
                   <></>
                 )}

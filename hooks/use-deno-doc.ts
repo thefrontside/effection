@@ -113,7 +113,7 @@ export function* extractJsDoc(
   function* replaceLinks(doc: string) {
     return yield* replaceAll(
       doc,
-      /{@link\s*(\w*)(\W)?(\w*)?}/gm,
+      /@?{@?link\s*(\w*)(\W)?(\w*)?}/gm,
       function* (match) {
         const [, symbol, connector, method] = match;
         return yield* resolve(symbol, connector, method);
@@ -126,6 +126,21 @@ export function* extractJsDoc(
   }
 
   const lines = [];
+
+  const deprecated = node.jsDoc && node.jsDoc.tags?.flatMap(tag => tag.kind === "deprecated" ? [tag] : []);
+  if (deprecated && deprecated.length > 0) {
+    lines.push(``)
+    for (const warning of deprecated) {
+      if (warning.doc) {
+        lines.push(
+          `<div class="border-l-4 border-red-500 mt-0 [&>*]:my-0 pl-3">
+            <span class="text-red-500 font-bold">Deprecated</span>
+            ${yield* replaceLinks(warning.doc)}
+          </div>
+          `);
+      }
+    }
+  }
 
   const examples = node.jsDoc &&
     node.jsDoc.tags?.flatMap((tag) => tag.kind === "example" ? [tag] : []);

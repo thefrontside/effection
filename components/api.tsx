@@ -19,7 +19,8 @@ import {
 } from "./tokens.tsx";
 import { useMDX } from "../hooks/use-mdx.tsx";
 import { useMarkdown } from "../hooks/use-markdown.tsx";
-import { Package, RenderableDocNode } from "../resources/package.ts";
+import { Package } from "../resources/package.ts";
+import { DocNode } from "../hooks/use-deno-doc.ts";
 
 export function* API(pkg: Package): Operation<JSXElement> {
   const elements: JSXElement[] = [];
@@ -45,7 +46,7 @@ export function* API(pkg: Package): Operation<JSXElement> {
 }
 
 interface TypeProps {
-  node: RenderableDocNode;
+  node: DocNode;
 }
 
 export function* Type({ node }: TypeProps): Operation<JSXElement> {

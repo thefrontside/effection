@@ -68,10 +68,13 @@ export function* useDocPages(docs: Record<string, DocNode[]>, options: { resolve
             })
           }
         }
+
+        const description = yield* useDescription(sections.map(s => s.markdown).filter(m => m).join(""));
+
         pages.push({
           name: symbol,
           kind: nodes?.at(0)?.kind ?? "",
-          description: yield* useDescription(sections.filter(section => section.markdown).join("")),
+          description,
           sections
         }) 
       }

@@ -7,25 +7,9 @@ import {
   TsTypeDef,
   TsTypeParamDef,
 } from "jsr:@deno/doc@0.162.4";
-import { replaceAll } from "../lib/replace-all.ts";
 import { useDescription } from "./use-description-parse.tsx";
 
 export type { DocNode };
-
-export type ResolveLinkFunction = (
-  symbol: string,
-  connector?: string,
-  method?: string,
-) => Operation<string>;
-
-export function* defaultLinkResolver(
-  symbol: string,
-  connector?: string,
-  method?: string,
-) {
-  const name = [symbol, connector, method].filter(Boolean).join("");
-  return `[${name}](${name})`;
-}
 
 export function* useDenoDoc(
   specifiers: string[],
@@ -51,7 +35,6 @@ export interface DocPageSection {
 
 export function* useDocPages(
   docs: Record<string, DocNode[]>,
-  options: { resolveMarkdownLink: ResolveLinkFunction },
 ) {
   const entrypoints: Record<string, DocPage[]> = {};
 
@@ -68,7 +51,6 @@ export function* useDocPages(
           if (node.jsDoc) {
             const { markdown, ignore } = yield* extractJsDoc(
               node,
-              options?.resolveMarkdownLink,
             );
             sections.push({
               node,
@@ -84,8 +66,10 @@ export function* useDocPages(
           }
         }
 
+        const markdown = sections.map((s) => s.markdown).filter((m) => m).join("");
+
         const description = yield* useDescription(
-          sections.map((s) => s.markdown).filter((m) => m).join(""),
+          markdown,
         );
 
         pages.push({
@@ -104,28 +88,14 @@ export function* useDocPages(
 }
 
 export function* extractJsDoc(
-  node: DocNode,
-  resolve: ResolveLinkFunction = defaultLinkResolver,
+  node: DocNode
 ) {
-  let markdown = "";
+  const lines = [];
   let ignore = false;
 
-  function* replaceLinks(doc: string) {
-    return yield* replaceAll(
-      doc,
-      /@?{@?link\s*(\w*)(\W)?(\w*)?}/gm,
-      function* (match) {
-        const [, symbol, connector, method] = match;
-        return yield* resolve(symbol, connector, method);
-      },
-    );
-  }
-
   if (node.jsDoc && node.jsDoc.doc) {
-    markdown += yield* replaceLinks(node.jsDoc.doc);
+    lines.push(node.jsDoc.doc)
   }
-
-  const lines = [];
 
   const deprecated = node.jsDoc && node.jsDoc.tags?.flatMap(tag => tag.kind === "deprecated" ? [tag] : []);
   if (deprecated && deprecated.length > 0) {
@@ -179,7 +149,7 @@ export function* extractJsDoc(
 
     if (node.functionDef.returnType) {
       lines.push("### Return Type");
-      lines.push(yield* replaceLinks(TypeDef(node.functionDef.returnType)))
+      lines.push(TypeDef(node.functionDef.returnType))
       const jsDocs = node.jsDoc?.tags?.find((tag) => tag.kind === "return");
       if (jsDocs && jsDocs.doc) {
         lines.push("\n")
@@ -187,8 +157,6 @@ export function* extractJsDoc(
       }
     }
   }
-
-  markdown += yield* replaceLinks(lines.join("\n"));
 
   if (node.jsDoc && node.jsDoc.tags) {
     for (const tag of node.jsDoc.tags) {
@@ -200,6 +168,8 @@ export function* extractJsDoc(
       }
     }
   }
+
+  const markdown = lines.join("\n");
 
   return {
     markdown,

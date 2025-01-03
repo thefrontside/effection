@@ -18,7 +18,7 @@ import {
   Punctuation,
 } from "./tokens.tsx";
 import { useMDX } from "../hooks/use-mdx.tsx";
-import { useMarkdown } from "../hooks/use-markdown.tsx";
+import { useJsDocMarkdown } from "../hooks/use-markdown.tsx";
 import { Package } from "../resources/package.ts";
 import { DocNode } from "../hooks/use-deno-doc.ts";
 
@@ -164,7 +164,7 @@ export function* Type({ node }: TypeProps): Operation<JSXElement> {
         </header>
       );
     default:
-      console.log("<Type> unimplemented", node.kind)
+      console.log("<Type> unimplemented", node.kind);
       return (
         <header>
           <h3 class="inline-block">
@@ -196,7 +196,7 @@ function* TSClassDef({ classDef }: { classDef: ClassDef }) {
 
   for (const property of classDef.properties) {
     const jsDoc = property.jsDoc?.doc
-      ? yield* useMarkdown(property.jsDoc?.doc)
+      ? yield* useJsDocMarkdown(property.jsDoc?.doc)
       : undefined;
     elements.push(
       <li class={`text-base ${jsDoc ? "my-0 border-l-2 first:-mt-5" : "my-1"}`}>
@@ -211,12 +211,9 @@ function* TSClassDef({ classDef }: { classDef: ClassDef }) {
   }
 
   for (const method of classDef.methods) {
-    const jsDoc = yield* call(function* (): Operation<JSXElement | undefined> {
-      if (method.jsDoc?.doc) {
-        const mod = yield* useMDX(method.jsDoc?.doc);
-        return mod.default();
-      }
-    });
+    const jsDoc = method.jsDoc?.doc
+      ? yield* useJsDocMarkdown(method.jsDoc?.doc)
+      : undefined;
     elements.push(
       <li class={`${jsDoc ? "my-0 border-l-2 first:-mt-5" : "my-1"}`}>
         {jsDoc ? <div>{jsDoc}</div> : <></>}
@@ -247,7 +244,7 @@ function* TSInterfaceDef({
   const elements: JSXElement[] = [];
   for (const property of interfaceDef.properties) {
     const jsDoc = property.jsDoc?.doc
-      ? yield* useMarkdown(property.jsDoc?.doc)
+      ? yield* useJsDocMarkdown(property.jsDoc?.doc)
       : undefined;
     elements.push(
       <li class={`${jsDoc ? "my-0 border-l-2 first:-mt-5" : "my-1"}`}>
@@ -262,12 +259,9 @@ function* TSInterfaceDef({
   }
 
   for (const method of interfaceDef.methods) {
-    const jsDoc = yield* call(function* (): Operation<JSXElement | undefined> {
-      if (method.jsDoc?.doc) {
-        const mod = yield* useMDX(method.jsDoc?.doc);
-        return mod.default();
-      }
-    });
+    const jsDoc = method.jsDoc?.doc
+      ? yield* useJsDocMarkdown(method.jsDoc?.doc)
+      : undefined;
     elements.push(
       <li class={`${jsDoc ? "my-0 border-l-2 first:-mt-5" : "my-1"}`}>
         {jsDoc ? <div class="-mb-5">{jsDoc}</div> : <></>}
@@ -338,7 +332,7 @@ export function TypeDef({ typeDef }: { typeDef: TsTypeDef }) {
       return <TypeDefUnion union={typeDef.union} />;
     case "fnOrConstructor":
       if (typeDef.fnOrConstructor.constructor) {
-        console.log(`<TypeDef> unimplemeneted`, typeDef.fnOrConstructor)
+        console.log(`<TypeDef> unimplemeneted`, typeDef.fnOrConstructor);
         // TODO(taras): implement
         return <></>;
       } else {
@@ -376,13 +370,15 @@ export function TypeDef({ typeDef }: { typeDef: TsTypeDef }) {
           <Keyword>{typeDef.typeOperator.operator}</Keyword>{" "}
           <TypeDef typeDef={typeDef.typeOperator.tsType} />
         </>
-      )
+      );
     case "parenthesized": {
-      return <>
-        <Punctuation>(</Punctuation>
+      return (
+        <>
+          <Punctuation>(</Punctuation>
           <TypeDef typeDef={typeDef.parenthesized} />
-        <Punctuation>)</Punctuation>
-      </>
+          <Punctuation>)</Punctuation>
+        </>
+      );
     }
     default:
       console.log("<TypeDef> unimplemented", typeDef);

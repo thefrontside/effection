@@ -11,7 +11,7 @@ import {
 import { Repository } from "../../resources/repository.ts";
 import { useAppHtml } from "../app.html.tsx";
 import { DocNode, DocPage } from "../../hooks/use-deno-doc.ts";
-import { useMarkdown } from "../../hooks/use-markdown.tsx";
+import { useJsDocMarkdown, useMarkdown } from "../../hooks/use-markdown.tsx";
 
 const uniquePredicate = (value: unknown, index: number, array: unknown[]) =>
   array.indexOf(value) === index;
@@ -63,6 +63,7 @@ export function apiSymbolRoute(library: Repository): SitemapRoute<JSXElement> {
 
         if (!page) throw new Error(`Could not find a doc page for ${symbol}`);
 
+
         const elements: JSXElement[] = [];
         if (page) {
           for (const section of page?.sections) {
@@ -71,7 +72,7 @@ export function apiSymbolRoute(library: Repository): SitemapRoute<JSXElement> {
                 {yield* Type({ node: section.node })}
                 {section.markdown ? (
                   <div class="pl-2 -mt-5">
-                    {yield* useMarkdown(section.markdown)}
+                    {yield* useJsDocMarkdown(section.markdown)}
                   </div>
                 ) : (
                   <></>

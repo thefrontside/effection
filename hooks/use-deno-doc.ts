@@ -146,7 +146,7 @@ export function* extractJsDoc(
       const jsDocs = node.jsDoc?.tags?.flatMap((tag) => tag.kind === "template" ? [tag] : []) ?? [];
       let i = 0;
       for (const typeParam of typeParams) {
-        lines.push(`**${typeParam.name}**`);
+        lines.push(yield* replaceLinks(TypeParam(typeParam)));
         if (jsDocs[i]) {
           lines.push(yield* replaceLinks(jsDocs[i].doc ?? ""))
         }
@@ -200,15 +200,6 @@ export function* extractJsDoc(
   };
 }
 
-function Type({ node }: { node: DocNode }) {
-  switch (node.kind) {
-    case "function":
-      return `${node.functionDef.isAsync} && _async_ ${node.kind}${
-        node.functionDef.isGenerator && "*"
-      } ${node.name}: ()`;
-  }
-}
-
 function TypeDef(typeDef: TsTypeDef): string {
   switch (typeDef.kind) {
     case "fnOrConstructor": {
@@ -223,26 +214,32 @@ function TypeDef(typeDef: TsTypeDef): string {
     case "keyword": {
       return `__${typeDef.keyword}__`
     }
-    case "array":
+    case "union": {
+      return typeDef.union.map(TypeDef).join(" | ");
+    }
+    case "array": {
+      return `${TypeDef(typeDef.array)}&lbrack;&rbrack;`
+    }
+    case "typeOperator": {
+      return `${typeDef.typeOperator.operator} ${TypeDef(typeDef.typeOperator.tsType)}`
+    }
+    case "tuple": {
+      return `&lbrack;${typeDef.tuple.map(TypeDef).join(", ")}&rbrack;`;
+    }
     case "conditional":
     case "importType":
     case "indexedAccess":
     case "infer":
     case "intersection":
-
     case "literal":
     case "mapped":
     case "optional":
-    case "parenthesized":
+    case "parenthesized": 
     case "rest":
     case "this":
-    case "tuple":
     case "typeLiteral":
-    case "typeOperator":
     case "typePredicate":
     case "typeQuery":
-
-    case "union":
       console.log("TypeDef: unimplemented", typeDef);
   }
   return ""
@@ -275,3 +272,12 @@ function Param(paramDef: ParamDef) {
   }
   return ""
 }
+
+// function Type({ node }: { node: DocNode }) {
+//   switch (node.kind) {
+//     case "function":
+//       return `${node.functionDef.isAsync} && _async_ ${node.kind}${
+//         node.functionDef.isGenerator && "*"
+//       } ${node.name}: ()`;
+//   }
+// }

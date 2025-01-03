@@ -56,18 +56,31 @@ export function* Type({ node }: TypeProps): Operation<JSXElement> {
         <header>
           <h3 class="inline-block">
             <span class="language-ts code-highlight">
-              {node.functionDef.isAsync
-                ? <Punctuation>{"async "}</Punctuation>
-                : <></>}
+              {node.functionDef.isAsync ? (
+                <Punctuation>{"async "}</Punctuation>
+              ) : (
+                <></>
+              )}
               <Keyword>{node.kind}</Keyword>
-              {node.functionDef.isGenerator
-                ? <Punctuation>*</Punctuation>
-                : <></>} <span class="token function">{node.name}</span>
+              {node.functionDef.isGenerator ? (
+                <Punctuation>*</Punctuation>
+              ) : (
+                <></>
+              )}{" "}
+              <span class="token function">{node.name}</span>
+              {node.functionDef.typeParams.length > 0 ? (
+                <InterfaceTypeParams typeParams={node.functionDef.typeParams} />
+              ) : (
+                <></>
+              )}
               <Punctuation>(</Punctuation>
               <FunctionParams params={node.functionDef.params} />
-              <Punctuation>)</Punctuation>: {node.functionDef.returnType
-                ? <TypeDef typeDef={node.functionDef.returnType} />
-                : <></>}
+              <Punctuation>)</Punctuation>:{" "}
+              {node.functionDef.returnType ? (
+                <TypeDef typeDef={node.functionDef.returnType} />
+              ) : (
+                <></>
+              )}
             </span>
           </h3>
         </header>
@@ -77,31 +90,27 @@ export function* Type({ node }: TypeProps): Operation<JSXElement> {
         <header class="mb-10">
           <h3 class="inline-block mb-0">
             <Keyword>{node.kind}</Keyword> <ClassName>{node.name}</ClassName>
-            {node.classDef.extends
-              ? (
+            {node.classDef.extends ? (
+              <>
+                <Keyword>{" extends "}</Keyword>
+                <ClassName>{node.classDef.extends}</ClassName>
+              </>
+            ) : (
+              <></>
+            )}
+            {node.classDef.implements ? (
+              <>
+                <Keyword>{" implements "}</Keyword>
                 <>
-                  <Keyword>{" extends "}</Keyword>
-                  <ClassName>{node.classDef.extends}</ClassName>
+                  {node.classDef.implements
+                    .flatMap((typeDef) => [<TypeDef typeDef={typeDef} />, ", "])
+                    .slice(0, -1)}
                 </>
-              )
-              : <></>}
-            {node.classDef.implements
-              ? (
-                <>
-                  <Keyword>{" implements "}</Keyword>
-                  <>
-                    {node.classDef.implements
-                      .flatMap((
-                        typeDef,
-                      ) => [<TypeDef typeDef={typeDef} />, ", "])
-                      .slice(0, -1)}
-                  </>
-                </>
-              )
-              : <></>}
-            <Punctuation classes="text-lg">
-              {" {"}
-            </Punctuation>
+              </>
+            ) : (
+              <></>
+            )}
+            <Punctuation classes="text-lg">{" {"}</Punctuation>
           </h3>
           {yield* TSClassDef({ classDef: node.classDef })}
           <Punctuation classes="text-lg">{"}"}</Punctuation>
@@ -112,30 +121,24 @@ export function* Type({ node }: TypeProps): Operation<JSXElement> {
         <header class="mb-10">
           <h3 class="inline-block mb-0">
             <Keyword>{node.kind}</Keyword> <ClassName>{node.name}</ClassName>
-            {node.interfaceDef.typeParams.length > 0
-              ? (
-                <InterfaceTypeParams
-                  typeParams={node.interfaceDef.typeParams}
-                />
-              )
-              : <></>}
-            {node.interfaceDef.extends.length > 0
-              ? (
+            {node.interfaceDef.typeParams.length > 0 ? (
+              <InterfaceTypeParams typeParams={node.interfaceDef.typeParams} />
+            ) : (
+              <></>
+            )}
+            {node.interfaceDef.extends.length > 0 ? (
+              <>
+                <Keyword>{" extends "}</Keyword>
                 <>
-                  <Keyword>{" extends "}</Keyword>
-                  <>
-                    {node.interfaceDef.extends
-                      .flatMap((
-                        typeDef,
-                      ) => [<TypeDef typeDef={typeDef} />, ", "])
-                      .slice(0, -1)}
-                  </>
+                  {node.interfaceDef.extends
+                    .flatMap((typeDef) => [<TypeDef typeDef={typeDef} />, ", "])
+                    .slice(0, -1)}
                 </>
-              )
-              : <></>}
-            <Punctuation classes="text-lg">
-              {" {"}
-            </Punctuation>
+              </>
+            ) : (
+              <></>
+            )}
+            <Punctuation classes="text-lg">{" {"}</Punctuation>
           </h3>
           {yield* TSInterfaceDef({ interfaceDef: node.interfaceDef })}
           <Punctuation classes="text-lg">{"}"}</Punctuation>
@@ -161,6 +164,7 @@ export function* Type({ node }: TypeProps): Operation<JSXElement> {
         </header>
       );
     default:
+      console.log("<Type> unimplemented", node.kind)
       return (
         <header>
           <h3 class="inline-block">
@@ -187,9 +191,7 @@ function TSVariableDef({
   );
 }
 
-function* TSClassDef({
-  classDef,
-}: { classDef: ClassDef }) {
+function* TSClassDef({ classDef }: { classDef: ClassDef }) {
   const elements: JSXElement[] = [];
 
   for (const property of classDef.properties) {
@@ -224,9 +226,11 @@ function* TSClassDef({
         <FunctionParams params={method.functionDef.params} />
         <Punctuation>)</Punctuation>
         <Operator>{": "}</Operator>
-        {method.functionDef.returnType
-          ? <TypeDef typeDef={method.functionDef.returnType} />
-          : <></>}
+        {method.functionDef.returnType ? (
+          <TypeDef typeDef={method.functionDef.returnType} />
+        ) : (
+          <></>
+        )}
         <Punctuation>{";"}</Punctuation>
       </li>,
     );
@@ -365,6 +369,15 @@ export function TypeDef({ typeDef }: { typeDef: TsTypeDef }) {
           []
         </>
       );
+    case "typeOperator":
+      return (
+        <>
+          <Keyword>{typeDef.typeOperator.operator}</Keyword>{" "}
+          <TypeDef typeDef={typeDef.typeOperator.tsType} />
+        </>
+      )
+    default:
+      console.log("<TypeDef> unimplemented", typeDef);
   }
   return <></>;
 }
@@ -386,19 +399,19 @@ function TypeRef({ typeRef }: { typeRef: TsTypeRefDef }) {
   return (
     <>
       {typeRef.typeName}
-      {typeRef.typeParams
-        ? (
+      {typeRef.typeParams ? (
+        <>
+          <Operator>{"<"}</Operator>
           <>
-            <Operator>{"<"}</Operator>
-            <>
-              {typeRef.typeParams
-                .flatMap((tp) => [<TypeDef typeDef={tp} />, ", "])
-                .slice(0, -1)}
-            </>
-            <Operator>{">"}</Operator>
+            {typeRef.typeParams
+              .flatMap((tp) => [<TypeDef typeDef={tp} />, ", "])
+              .slice(0, -1)}
           </>
-        )
-        : <></>}
+          <Operator>{">"}</Operator>
+        </>
+      ) : (
+        <></>
+      )}
     </>
   );
 }
@@ -418,17 +431,19 @@ function InterfaceTypeParams({
               <>
                 {param.name}
                 <Keyword>{" extends "}</Keyword>
-                {param.constraint
-                  ? <TypeDef typeDef={param.constraint} />
-                  : <></>}
-                {param.default
-                  ? (
-                    <>
-                      <Keyword>{" = "}</Keyword>
-                      <TypeDef typeDef={param.default} />
-                    </>
-                  )
-                  : <></>}
+                {param.constraint ? (
+                  <TypeDef typeDef={param.constraint} />
+                ) : (
+                  <></>
+                )}
+                {param.default ? (
+                  <>
+                    <Keyword>{" = "}</Keyword>
+                    <TypeDef typeDef={param.default} />
+                  </>
+                ) : (
+                  <></>
+                )}
               </>,
               ", ",
             ];

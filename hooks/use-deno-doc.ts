@@ -48,22 +48,14 @@ export function* useDocPages(
       if (nodes) {
         const sections: DocPageSection[] = [];
         for (const node of nodes) {
-          if (node.jsDoc) {
-            const { markdown, ignore } = yield* extractJsDoc(
-              node,
-            );
-            sections.push({
-              node,
-              markdown,
-              ignore,
-            });
-          } else {
-            sections.push({
-              node,
-              markdown: "",
-              ignore: false,
-            });
-          }
+          const { markdown, ignore } = yield* extractJsDoc(
+            node,
+          );
+          sections.push({
+            node,
+            markdown,
+            ignore,
+          });
         }
 
         const markdown = sections.map((s) => s.markdown).filter((m) => m).join("");
@@ -260,7 +252,7 @@ function Param(paramDef: ParamDef) {
   switch (paramDef.kind) {
     case "identifier":
       {
-        return `**${paramDef.name}**${paramDef.optional ? "?" : ""}: ${
+        return `**${paramDef.name}**${paramDef.optional ? `<span class="inline-block bg-sky-100 rounded px-2 text-sm text-sky-900 mx-1">optional</span>` : ""}: ${
           paramDef.tsType ? TypeDef(paramDef.tsType) : ""
         }`;
       }

@@ -22,7 +22,7 @@ interface Executor<T> {
  * the `new Promise()` executor function, the action executor is
  * called every time that an action is evaluated.
  *
- * The resolver must return a "finally" function that will be _always_ be
+ * The resolver must return a "finally" function that will _always_ be
  * called regardless of whether the action was resolved or rejected,
  * or discarded.
  *

@@ -19,7 +19,7 @@ import {
 } from "./tokens.tsx";
 import { useJsDocMarkdown } from "../hooks/use-markdown.tsx";
 import { Package } from "../resources/package.ts";
-import { DocNode } from "../hooks/use-deno-doc.ts";
+import { DocNode } from "../hooks/use-deno-doc.tsx";
 
 export function* API(pkg: Package): Operation<JSXElement> {
   const elements: JSXElement[] = [];

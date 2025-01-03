@@ -8,6 +8,7 @@ import {
   TsTypeParamDef,
 } from "jsr:@deno/doc@0.162.4";
 import { useDescription } from "./use-description-parse.tsx";
+import { toHtml } from "npm:hast-util-to-html@9.0.4";
 
 export type { DocNode };
 
@@ -33,24 +34,18 @@ export interface DocPageSection {
   ignore: boolean;
 }
 
-export function* useDocPages(
-  docs: Record<string, DocNode[]>,
-) {
+export function* useDocPages(docs: Record<string, DocNode[]>) {
   const entrypoints: Record<string, DocPage[]> = {};
 
   for (const [url, all] of Object.entries(docs)) {
     const pages: DocPage[] = [];
-    for (
-      const [symbol, nodes] of Object.entries(
-        Object.groupBy(all, (node) => node.name),
-      )
-    ) {
+    for (const [symbol, nodes] of Object.entries(
+      Object.groupBy(all, (node) => node.name),
+    )) {
       if (nodes) {
         const sections: DocPageSection[] = [];
         for (const node of nodes) {
-          const { markdown, ignore } = yield* extractJsDoc(
-            node,
-          );
+          const { markdown, ignore } = yield* extractJsDoc(node);
           sections.push({
             node,
             markdown,
@@ -58,11 +53,12 @@ export function* useDocPages(
           });
         }
 
-        const markdown = sections.map((s) => s.markdown).filter((m) => m).join("");
+        const markdown = sections
+          .map((s) => s.markdown)
+          .filter((m) => m)
+          .join("");
 
-        const description = yield* useDescription(
-          markdown,
-        );
+        const description = yield* useDescription(markdown);
 
         pages.push({
           name: symbol,
@@ -79,19 +75,19 @@ export function* useDocPages(
   return entrypoints;
 }
 
-export function* extractJsDoc(
-  node: DocNode
-) {
+export function* extractJsDoc(node: DocNode) {
   const lines = [];
   let ignore = false;
 
   if (node.jsDoc && node.jsDoc.doc) {
-    lines.push(node.jsDoc.doc)
+    lines.push(node.jsDoc.doc);
   }
 
-  const deprecated = node.jsDoc && node.jsDoc.tags?.flatMap(tag => tag.kind === "deprecated" ? [tag] : []);
+  const deprecated =
+    node.jsDoc &&
+    node.jsDoc.tags?.flatMap((tag) => (tag.kind === "deprecated" ? [tag] : []));
   if (deprecated && deprecated.length > 0) {
-    lines.push(``)
+    lines.push(``);
     for (const warning of deprecated) {
       if (warning.doc) {
         lines.push(
@@ -99,46 +95,76 @@ export function* extractJsDoc(
             <span class="text-red-500 font-bold">Deprecated</span>
             ${warning.doc}
           </div>
-          `);
+          `,
+        );
       }
     }
   }
 
-  const examples = node.jsDoc &&
-    node.jsDoc.tags?.flatMap((tag) => tag.kind === "example" ? [tag] : []);
+  const examples =
+    node.jsDoc &&
+    node.jsDoc.tags?.flatMap((tag) => (tag.kind === "example" ? [tag] : []));
   if (examples && examples?.length > 0) {
     lines.push("### Examples");
     let i = 1;
     for (const example of examples) {
+      if (i !== 1) lines.push("---");
       lines.push(`#### Example ${i++}`);
       lines.push(example.doc);
-      lines.push("---");
+      lines.push("\n");
+    }
+  }
+
+  if (node.kind === "namespace") {
+    const variables =
+      node.namespaceDef.elements.flatMap((node) =>
+        node.kind === "variable" ? [node] : [],
+      ) ?? [];
+    if (variables.length > 0) {
+      lines.push("### Variables");
+      lines.push("<dl>");
+      for (const variable of variables) {
+        lines.push(
+          `<dt>`,
+          toHtml(<Icon kind={variable.kind} />),
+          `{@link ${node.name}.${variable.name}}`,
+          `</dt>`,
+        );
+        lines.push(
+          `<dd class="italic">`,
+          variable.jsDoc?.doc
+            ? yield* useDescription(variable.jsDoc?.doc)
+            : "No documentation available.",
+          `</dd>`,
+        );
+      }
+      lines.push("</dl>");
     }
   }
 
   if (node.kind === "interface") {
-    lines.push("\n");
-    lines.push(...TypeParams(node.interfaceDef.typeParams, node))    
+    lines.push("\n", ...TypeParams(node.interfaceDef.typeParams, node));
   }
 
   if (node.kind === "typeAlias") {
-    lines.push("\n");
-    lines.push(...TypeParams(node.typeAliasDef.typeParams, node))
+    lines.push("\n", ...TypeParams(node.typeAliasDef.typeParams, node));
   }
 
   if (node.kind === "function") {
-    lines.push(...TypeParams(node.functionDef.typeParams, node))
-    
+    lines.push(...TypeParams(node.functionDef.typeParams, node));
+
     const { params } = node.functionDef;
     if (params.length > 0) {
       lines.push("### Parameters");
-      const jsDocs = node.jsDoc?.tags?.flatMap((tag) => tag.kind === "param" ? [tag] : []) ?? [];
+      const jsDocs =
+        node.jsDoc?.tags?.flatMap((tag) =>
+          tag.kind === "param" ? [tag] : [],
+        ) ?? [];
       let i = 0;
       for (const param of params) {
-        lines.push(Param(param));
-        lines.push("\n");
+        lines.push("\n", Param(param));
         if (jsDocs[i] && jsDocs[i].doc) {
-          lines.push(jsDocs[i].doc)
+          lines.push(jsDocs[i].doc);
         }
         i++;
       }
@@ -146,11 +172,11 @@ export function* extractJsDoc(
 
     if (node.functionDef.returnType) {
       lines.push("### Return Type");
-      lines.push(TypeDef(node.functionDef.returnType))
+      lines.push(TypeDef(node.functionDef.returnType));
       const jsDocs = node.jsDoc?.tags?.find((tag) => tag.kind === "return");
       if (jsDocs && jsDocs.doc) {
-        lines.push("\n")
-        lines.push(jsDocs.doc)
+        lines.push("\n");
+        lines.push(jsDocs.doc);
       }
     }
   }
@@ -175,15 +201,18 @@ export function* extractJsDoc(
 }
 
 function TypeParams(typeParams: TsTypeParamDef[], node: DocNode) {
-  let lines = []
+  let lines = [];
   if (typeParams.length > 0) {
     lines.push("### Type Parameters");
-    const jsDocs = node.jsDoc?.tags?.flatMap((tag) => tag.kind === "template" ? [tag] : []) ?? [];
+    const jsDocs =
+      node.jsDoc?.tags?.flatMap((tag) =>
+        tag.kind === "template" ? [tag] : [],
+      ) ?? [];
     let i = 0;
     for (const typeParam of typeParams) {
       lines.push(TypeParam(typeParam));
       if (jsDocs[i]) {
-        lines.push(jsDocs[i].doc)
+        lines.push(jsDocs[i].doc);
       }
       lines.push("\n");
       i++;
@@ -196,24 +225,32 @@ function TypeDef(typeDef: TsTypeDef): string {
   switch (typeDef.kind) {
     case "fnOrConstructor": {
       const params = typeDef.fnOrConstructor.params.map(Param).join(", ");
-      const tparams = typeDef.fnOrConstructor.typeParams.map(TypeParam).join(", ");
-      return `(${params})${tparams.length > 0 ? `<${tparams}>` : ""} => ${TypeDef(typeDef.fnOrConstructor.tsType)}`
+      const tparams = typeDef.fnOrConstructor.typeParams
+        .map(TypeParam)
+        .join(", ");
+      return `(${params})${tparams.length > 0 ? `<${tparams}>` : ""} => ${TypeDef(
+        typeDef.fnOrConstructor.tsType,
+      )}`;
     }
     case "typeRef": {
-      const tparams = typeDef.typeRef.typeParams?.map(TypeDef).join(", ")
-      return `{@link ${typeDef.typeRef.typeName}}${tparams && tparams?.length > 0 ? `&lt;${tparams}&gt;` : ""} `
+      const tparams = typeDef.typeRef.typeParams?.map(TypeDef).join(", ");
+      return `{@link ${typeDef.typeRef.typeName}}${
+        tparams && tparams?.length > 0 ? `&lt;${tparams}&gt;` : ""
+      } `;
     }
     case "keyword": {
-      return `__${typeDef.keyword}__`
+      return typeDef.keyword;
     }
     case "union": {
       return typeDef.union.map(TypeDef).join(" | ");
     }
     case "array": {
-      return `${TypeDef(typeDef.array)}&lbrack;&rbrack;`
+      return `${TypeDef(typeDef.array)}&lbrack;&rbrack;`;
     }
     case "typeOperator": {
-      return `${typeDef.typeOperator.operator} ${TypeDef(typeDef.typeOperator.tsType)}`
+      return `${typeDef.typeOperator.operator} ${TypeDef(
+        typeDef.typeOperator.tsType,
+      )}`;
     }
     case "tuple": {
       return `&lbrack;${typeDef.tuple.map(TypeDef).join(", ")}&rbrack;`;
@@ -226,7 +263,7 @@ function TypeDef(typeDef: TsTypeDef): string {
     case "literal":
     case "mapped":
     case "optional":
-    case "parenthesized": 
+    case "parenthesized":
     case "rest":
     case "this":
     case "typeLiteral":
@@ -234,7 +271,7 @@ function TypeDef(typeDef: TsTypeDef): string {
     case "typeQuery":
       console.log("TypeDef: unimplemented", typeDef);
   }
-  return ""
+  return "";
 }
 
 function TypeParam(paramDef: TsTypeParamDef) {
@@ -245,31 +282,54 @@ function TypeParam(paramDef: TsTypeParamDef) {
   if (paramDef.default) {
     parts.push(`= ${TypeDef(paramDef.default)}`);
   }
-  return parts.join(" ")
+  return parts.join(" ");
 }
 
 function Param(paramDef: ParamDef) {
   switch (paramDef.kind) {
-    case "identifier":
-      {
-        return `**${paramDef.name}**${paramDef.optional ? `<span class="inline-block bg-sky-100 rounded px-2 text-sm text-sky-900 mx-1">optional</span>` : ""}: ${
-          paramDef.tsType ? TypeDef(paramDef.tsType) : ""
-        }`;
-      }
+    case "identifier": {
+      return `**${paramDef.name}**${
+        paramDef.optional
+          ? `<span class="inline-block bg-sky-100 rounded px-2 text-sm text-sky-900 mx-1">optional</span>`
+          : ""
+      }: ${paramDef.tsType ? TypeDef(paramDef.tsType) : ""}`;
+    }
     case "array":
     case "assign":
     case "object":
     case "rest":
-      console.log("Param: unimplemented", paramDef)
+      console.log("Param: unimplemented", paramDef);
   }
-  return ""
+  return "";
 }
 
-// function Type({ node }: { node: DocNode }) {
-//   switch (node.kind) {
-//     case "function":
-//       return `${node.functionDef.isAsync} && _async_ ${node.kind}${
-//         node.functionDef.isGenerator && "*"
-//       } ${node.name}: ()`;
-//   }
-// }
+export function Icon({ kind }: { kind: string }) {
+  switch (kind) {
+    case "function":
+      return (
+        <span class="rounded-full bg-sky-100 inline-block w-6 h-full mr-1 text-center">
+          f
+        </span>
+      );
+    case "interface":
+      return (
+        <span class="rounded-full bg-orange-50 text-orange-600 inline-block w-6 h-full mr-1 text-center">
+          I
+        </span>
+      );
+    case "typeAlias":
+      return (
+        <span class="rounded-full bg-red-50 text-red-600 inline-block w-6 h-full mr-1 text-center">
+          T
+        </span>
+      );
+    case "variable": {
+      return (
+        <span class="rounded-full bg-violet-300 text-violet-600 inline-block w-6 h-full mr-1 text-center">
+          V
+        </span>
+      );
+    }
+  }
+  return <></>;
+}

@@ -7,7 +7,7 @@ import githubUrlParse from "npm:parse-github-url@1.0.3";
 
 import { GithubClientContext } from "../context/github.ts";
 import { useJSRClient } from "../context/jsr.ts";
-import { type DocNode, DocPage, useDenoDoc, useDocPages } from "../hooks/use-deno-doc.ts";
+import { type DocNode, DocPage, useDenoDoc, useDocPages } from "../hooks/use-deno-doc.tsx";
 import { useDescription } from "../hooks/use-description-parse.tsx";
 import { useMDX } from "../hooks/use-mdx.tsx";
 import { PackageDetailsResult, PackageScoreResult } from "./jsr-client.ts";
@@ -183,12 +183,7 @@ export function loadPackage(
             load: (specifier: string) => scope.run(docLoader(specifier)),
           });
 
-          const pages = yield* useDocPages(result, {
-            *resolveMarkdownLink(symbol, connector, method) {
-                const name = [symbol, connector, method].filter(Boolean).join("");
-                return `[${name}](/api/${name})`;
-            }
-          });
+          const pages = yield* useDocPages(result);
           
           docs[entrypoint] = pages[`${url}`];
         }

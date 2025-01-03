@@ -2,14 +2,12 @@ import type { Operation } from "effection";
 import { type JSXElement, useParams } from "revolution";
 
 import { Type } from "../../components/api.tsx";
+import { DocPage, Icon } from "../../hooks/use-deno-doc.tsx";
+import { useJsDocMarkdown } from "../../hooks/use-markdown.tsx";
 import { SitemapRoute } from "../../plugins/sitemap.ts";
-import {
-  PackageDocs,
-} from "../../resources/package.ts";
+import { PackageDocs } from "../../resources/package.ts";
 import { Repository } from "../../resources/repository.ts";
 import { useAppHtml } from "../app.html.tsx";
-import { DocPage } from "../../hooks/use-deno-doc.ts";
-import { useJsDocMarkdown } from "../../hooks/use-markdown.tsx";
 
 function* getApiForLatestTag(
   repository: Repository,
@@ -58,7 +56,6 @@ export function apiSymbolRoute(library: Repository): SitemapRoute<JSXElement> {
 
         if (!page) throw new Error(`Could not find a doc page for ${symbol}`);
 
-
         const elements: JSXElement[] = [];
         if (page) {
           for (const section of page?.sections) {
@@ -92,10 +89,11 @@ export function apiSymbolRoute(library: Repository): SitemapRoute<JSXElement> {
                 </nav>
               </aside>
               <article class="prose max-w-full px-6 py-2">
-                <h1>{page.kind === "typeAlias" ? "type alias " : page.kind} {page.name}</h1>
-                <>
-                  {elements}
-                </>
+                <h1>
+                  {page.kind === "typeAlias" ? "type alias " : page.kind}{" "}
+                  {page.name}
+                </h1>
+                <>{elements}</>
               </article>
             </section>
           </AppHtml>
@@ -141,28 +139,4 @@ function Menu({ pages, current }: { current: string; pages: DocPage[] }) {
         ))}
     </menu>
   );
-}
-
-function Icon({ kind }: { kind: string }) {
-  switch (kind) {
-    case "function":
-      return (
-        <span class="rounded-full bg-sky-100 inline-block w-6 h-full mr-1 text-center">
-          f
-        </span>
-      );
-    case "interface":
-      return (
-        <span class="rounded-full bg-orange-50 text-orange-600 inline-block w-6 h-full mr-1 text-center">
-          I
-        </span>
-      );
-    case "typeAlias":
-      return (
-        <span class="rounded-full bg-red-50 text-red-600 inline-block w-6 h-full mr-1 text-center">
-          T
-        </span>
-      );
-  }
-  return <></>;
 }

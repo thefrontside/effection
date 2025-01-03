@@ -1,4 +1,4 @@
-import { call, type Operation } from "effection";
+import { type Operation } from "effection";
 import type { JSXElement } from "revolution";
 import type {
   ClassDef,
@@ -17,7 +17,6 @@ import {
   Optional,
   Punctuation,
 } from "./tokens.tsx";
-import { useMDX } from "../hooks/use-mdx.tsx";
 import { useJsDocMarkdown } from "../hooks/use-markdown.tsx";
 import { Package } from "../resources/package.ts";
 import { DocNode } from "../hooks/use-deno-doc.ts";

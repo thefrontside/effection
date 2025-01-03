@@ -1,20 +1,15 @@
 import type { Operation } from "effection";
-import { aggregateGroups } from "jsr:@std/collections@1.0.9";
 import { type JSXElement, useParams } from "revolution";
 
 import { Type } from "../../components/api.tsx";
 import { SitemapRoute } from "../../plugins/sitemap.ts";
 import {
   PackageDocs,
-  type RenderableDocNode,
 } from "../../resources/package.ts";
 import { Repository } from "../../resources/repository.ts";
 import { useAppHtml } from "../app.html.tsx";
-import { DocNode, DocPage } from "../../hooks/use-deno-doc.ts";
-import { useJsDocMarkdown, useMarkdown } from "../../hooks/use-markdown.tsx";
-
-const uniquePredicate = (value: unknown, index: number, array: unknown[]) =>
-  array.indexOf(value) === index;
+import { DocPage } from "../../hooks/use-deno-doc.ts";
+import { useJsDocMarkdown } from "../../hooks/use-markdown.tsx";
 
 function* getApiForLatestTag(
   repository: Repository,

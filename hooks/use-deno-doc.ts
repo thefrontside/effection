@@ -124,6 +124,11 @@ export function* extractJsDoc(
     }
   }
 
+  if (node.kind === "interface") {
+    lines.push("\n");
+    lines.push(...TypeParams(node.interfaceDef.typeParams, node))    
+  }
+
   if (node.kind === "typeAlias") {
     lines.push("\n");
     lines.push(...TypeParams(node.typeAliasDef.typeParams, node))
@@ -188,6 +193,7 @@ function TypeParams(typeParams: TsTypeParamDef[], node: DocNode) {
       if (jsDocs[i]) {
         lines.push(jsDocs[i].doc)
       }
+      lines.push("\n");
       i++;
     }
   }

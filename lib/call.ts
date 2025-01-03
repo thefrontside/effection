@@ -32,8 +32,9 @@ export interface Callable<
 }
 
 /**
- * Pause the current operation, async function, plain function, or operation function.
- * The calling operation will be resumed (or errored) once call is completed.
+ * Pause the current operation and evaluate an async function, plain
+ * function, or operation function. The calling operation will be
+ * resumed (or errored) once call is completed.
  *
  * `call()` is a uniform integration point for calling async functions,
  * generator functions, and plain functions.
@@ -42,8 +43,8 @@ export interface Callable<
  *
  * @example
  * ```typescript
- * async function* googleSlowly() {
- *   return yield* call(async function() {
+ * export function googleSlowly(query: string) {
+ *    return call(async function() {
  *     await new Promise(resolve => setTimeout(resolve, 2000));
  *     return await fetch("https://google.com");
  *   });
@@ -56,10 +57,14 @@ export interface Callable<
  * ```javascript
  * yield* call(() => "a string");
  * ```
- * @param callable the operation, promise, async function, generator funnction,
+ *
+ * The function will be invoked anew every time that the `call()` operation is evaluated.
+ *
+ * @param callable - the operation, promise, async function, generator funnction,
  * or plain function to call as part of this operation
+ *
+ * @returns an {@link Operation} that evaluates to the result of executing the function to completion
  */
-
 export function call<T, TArgs extends unknown[] = []>(
   fn: (...args: TArgs) => Promise<T>,
 ): Operation<T>;
@@ -94,7 +99,6 @@ export function call<T, TArgs extends unknown[] = []>(
     },
   };
 }
-1;
 
 function isPromise<T>(
   target: Operation<T> | Promise<T> | T,

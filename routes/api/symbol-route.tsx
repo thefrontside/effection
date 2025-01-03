@@ -95,7 +95,12 @@ export function apiSymbolRoute(library: Repository): SitemapRoute<JSXElement> {
                   <Menu pages={docs["."]} current={symbol} />
                 </nav>
               </aside>
-              <article class="prose max-w-full px-6 py-2">{elements}</article>
+              <article class="prose max-w-full px-6 py-2">
+                <h1>{page.kind} {page.name}</h1>
+                <>
+                  {elements}
+                </>
+              </article>
             </section>
           </AppHtml>
         );

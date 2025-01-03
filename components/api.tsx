@@ -306,7 +306,7 @@ function TSParam({ param }: { param: ParamDef }) {
   return <></>;
 }
 
-function TypeDef({ typeDef }: { typeDef: TsTypeDef }) {
+export function TypeDef({ typeDef }: { typeDef: TsTypeDef }) {
   switch (typeDef.kind) {
     case "literal":
       switch (typeDef.literal.kind) {

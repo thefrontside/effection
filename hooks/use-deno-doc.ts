@@ -143,9 +143,16 @@ export function* extractJsDoc(
     const { typeParams } = node.functionDef;
     if (typeParams.length > 0) {
       lines.push("### Type Parameters");
+      const jsDocs = node.jsDoc?.tags?.flatMap((tag) => tag.kind === "template" ? [tag] : []) ?? [];
+      let i = 0;
       for (const typeParam of typeParams) {
         lines.push(`**${typeParam.name}**`);
+        if (jsDocs[i]) {
+          lines.push(yield* replaceLinks(jsDocs[i].doc ?? ""))
+        }
+        i++;
       }
+      
     }
 
     const { params } = node.functionDef;
@@ -166,6 +173,11 @@ export function* extractJsDoc(
     if (node.functionDef.returnType) {
       lines.push("### Return Type");
       lines.push(yield* replaceLinks(TypeDef(node.functionDef.returnType)))
+      const jsDocs = node.jsDoc?.tags?.find((tag) => tag.kind === "return");
+      if (jsDocs && jsDocs.doc) {
+        lines.push("\n")
+        lines.push(yield* replaceLinks(jsDocs.doc))
+      }
     }
   }
 
@@ -208,13 +220,16 @@ function TypeDef(typeDef: TsTypeDef): string {
       const tparams = typeDef.typeRef.typeParams?.map(TypeDef).join(", ")
       return `{@link ${typeDef.typeRef.typeName}}${tparams && tparams?.length > 0 ? `&lt;${tparams}&gt;` : ""} `
     }
+    case "keyword": {
+      return `__${typeDef.keyword}__`
+    }
     case "array":
     case "conditional":
     case "importType":
     case "indexedAccess":
     case "infer":
     case "intersection":
-    case "keyword":
+
     case "literal":
     case "mapped":
     case "optional":

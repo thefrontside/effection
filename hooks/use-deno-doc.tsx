@@ -45,12 +45,13 @@ export function* useDocPages(docs: Record<string, DocNode[]>) {
       if (nodes) {
         const sections: DocPageSection[] = [];
         for (const node of nodes) {
-          const { markdown, ignore } = yield* extractJsDoc(node);
+          const { markdown, ignore, pages: _pages } = yield* extractJsDoc(node);
           sections.push({
             node,
             markdown,
             ignore,
           });
+          pages.push(..._pages);
         }
 
         const markdown = sections
@@ -77,6 +78,8 @@ export function* useDocPages(docs: Record<string, DocNode[]>) {
 
 export function* extractJsDoc(node: DocNode) {
   const lines = [];
+  const pages: DocPage[] = [];
+
   let ignore = false;
 
   if (node.jsDoc && node.jsDoc.doc) {
@@ -124,19 +127,30 @@ export function* extractJsDoc(node: DocNode) {
       lines.push("### Variables");
       lines.push("<dl>");
       for (const variable of variables) {
+        const name = `${node.name}.${variable.name}`;
+        const description = variable.jsDoc?.doc
+          ? yield* useDescription(variable.jsDoc?.doc)
+          : "No documentation available.";
+        const section = yield* extractJsDoc(variable);
+        pages.push({
+          name,
+          kind: variable.kind,
+          description,
+          sections: [
+            {
+              node: variable,
+              markdown: section.markdown,
+              ignore: section.ignore,
+            },
+          ],
+        });
         lines.push(
           `<dt>`,
           toHtml(<Icon kind={variable.kind} />),
-          `{@link ${node.name}.${variable.name}}`,
+          `{@link ${name}}`,
           `</dt>`,
         );
-        lines.push(
-          `<dd class="italic">`,
-          variable.jsDoc?.doc
-            ? yield* useDescription(variable.jsDoc?.doc)
-            : "No documentation available.",
-          `</dd>`,
-        );
+        lines.push(`<dd class="italic">`, description, `</dd>`);
       }
       lines.push("</dl>");
     }
@@ -197,6 +211,7 @@ export function* extractJsDoc(node: DocNode) {
   return {
     markdown,
     ignore,
+    pages,
   };
 }
 

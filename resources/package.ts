@@ -7,7 +7,7 @@ import githubUrlParse from "npm:parse-github-url@1.0.3";
 
 import { GithubClientContext } from "../context/github.ts";
 import { useJSRClient } from "../context/jsr.ts";
-import { type DocNode, useDenoDoc } from "../hooks/use-deno-doc.tsx";
+import { type DocNode, DocPage, useDenoDoc, useDocPages } from "../hooks/use-deno-doc.ts";
 import { useDescription } from "../hooks/use-description-parse.tsx";
 import { useMDX } from "../hooks/use-mdx.tsx";
 import { PackageDetailsResult, PackageScoreResult } from "./jsr-client.ts";
@@ -112,7 +112,7 @@ export const DenoJson = z.object({
 
 export type DenoJsonType = z.infer<typeof DenoJson>;
 
-export type PackageDocs = Record<string, Array<RenderableDocNode>>;
+export type PackageDocs = Record<string, DocPage[]>;
 
 export const DEFAULT_MODULE_KEY = ".";
 
@@ -173,42 +173,24 @@ export function loadPackage(
         return entrypoints;
       },
       *docs() {
-        const docs: PackageDocs = {};
-
         const scope = yield* useScope();
 
-        for (const key of Object.keys(pkg.entrypoints)) {
-          const url = String(pkg.entrypoints[key]);
+        const docs: PackageDocs = {};
 
-          const docNodes = yield* useDenoDoc([url], {
+        for (const [entrypoint, url] of Object.entries(pkg.entrypoints)) {
+
+          const result = yield* useDenoDoc([`${url}`], {
             load: (specifier: string) => scope.run(docLoader(specifier)),
           });
 
-          docs[key] = yield* all(
-            docNodes[url].map(function* (node) {
-              if (node.jsDoc && node.jsDoc.doc) {
-                try {
-                  const mod = yield* useMDX(node.jsDoc.doc);
-                  return {
-                    id: exportHash(key, node),
-                    ...node,
-                    description: yield* useDescription(node.jsDoc.doc),
-                    MDXDoc: () => mod.default({}),
-                  };
-                } catch (e) {
-                  console.error(
-                    `Could not parse doc string for ${node.name} at ${node.location}`,
-                    e,
-                  );
-                }
-              }
-              return {
-                id: exportHash(key, node),
-                description: "",
-                ...node,
-              };
-            }),
-          );
+          const pages = yield* useDocPages(result, {
+            *resolveMarkdownLink(symbol, connector, method) {
+                const name = [symbol, connector, method].filter(Boolean).join("");
+                return `[${name}](/api/${name})`;
+            }
+          });
+          
+          docs[entrypoint] = pages[`${url}`];
         }
 
         return docs;
@@ -306,3 +288,4 @@ function docLoader(
     }
   };
 }
+

@@ -14,6 +14,7 @@
     "jsr:@frontside/continuation@0.1.6": "0.1.6",
     "jsr:@libs/typing@2": "2.9.0",
     "jsr:@libs/xml@*": "5.4.13",
+    "jsr:@std/assert@*": "1.0.10",
     "jsr:@std/assert@1.0.10": "1.0.10",
     "jsr:@std/assert@~0.218.2": "0.218.2",
     "jsr:@std/assert@~0.219.1": "0.219.1",

@@ -10,6 +10,7 @@ import {
 } from "../../resources/package.ts";
 import { Repository } from "../../resources/repository.ts";
 import { useAppHtml } from "../app.html.tsx";
+import { DocNode, DocPage } from "../../hooks/use-deno-doc.ts";
 
 const uniquePredicate = (value: unknown, index: number, array: unknown[]) =>
   array.indexOf(value) === index;
@@ -37,7 +38,6 @@ export function apiSymbolRoute(library: Repository): SitemapRoute<JSXElement> {
       if (docs) {
         return docs["."]
           .map((node) => node.name)
-          .filter(uniquePredicate)
           .flatMap((symbol) => {
             return [
               {
@@ -55,42 +55,30 @@ export function apiSymbolRoute(library: Repository): SitemapRoute<JSXElement> {
       const { symbol } = yield* useParams<{ symbol: string }>();
       try {
         const docs = yield* getApiForLatestTag(library, "effection-v3");
+        
         if (!docs) throw new Error(`Could not retreive docs`);
 
-        const nodes = docs["."].filter((node) => node.name === symbol);
-        const nodesByKind = aggregateGroups<
-          RenderableDocNode,
-          Record<string, RenderableDocNode[]>
-        >(
-          Object.groupBy(docs["."], (node) => node.kind),
-          (current, _key, _first, accumulator = {}) => ({
-            ...accumulator,
-            ...{
-              [current.name]: current.name in accumulator
-                ? [...accumulator[current.name]]
-                : [current],
-            },
-          }),
-        );
+        const page = docs["."].find((node) => node.name === symbol);
+
+        if (!page) throw new Error(`Could not find a doc page for ${symbol}`);
 
         const elements: JSXElement[] = [];
-        for (const node of nodes) {
-          const { MDXDoc = () => <></> } = node;
-
-          elements.push(
-            <section id={node.id}>
-              {yield* Type({ node })}
-              <div class="pl-2 -mt-5">
-                <MDXDoc />
-              </div>
-            </section>,
-          );
-        }
-
+        // if (page) {
+        //   for (const section of page?.sections) {
+        //     elements.push(
+        //       <section>
+        //         {yield* Type({ node })}
+        //         <div class="pl-2 -mt-5">
+        //           <MDXDoc />
+        //         </div>
+        //       </section>,
+        //     );
+        //   }
+        // }
+        
         const AppHtml = yield* useAppHtml({
           title: `${symbol} | API Reference | Effection`,
-          description: nodes.find((node) => node.description)?.description ??
-            "",
+          description: "",
         });
 
         return (
@@ -100,11 +88,7 @@ export function apiSymbolRoute(library: Repository): SitemapRoute<JSXElement> {
                 <nav class="pl-4">
                   <h3 class="text-lg">API Reference</h3>
                   <Menu
-                    nodes={{
-                      ...nodesByKind.typeAlias,
-                      ...nodesByKind.function,
-                      ...nodesByKind.interface,
-                    }}
+                    pages={docs["."]}
                     current={symbol}
                   />
                 </nav>
@@ -130,32 +114,31 @@ export function apiSymbolRoute(library: Repository): SitemapRoute<JSXElement> {
 }
 
 function Menu({
-  nodes,
+  pages,
   current,
 }: {
   current: string;
-  nodes: Record<string, RenderableDocNode[]>;
+  pages: DocPage[];
 }) {
   return (
     <menu>
-      {Object.keys(nodes)
-        .sort()
-        .map((name) => (
+      {pages.sort((a, b) => a.name.localeCompare(b.name))
+        .map((page) => (
           <li>
-            {current === name
+            {current === page.name
               ? (
                 <span class="rounded px-2 block w-full py-2 bg-gray-100 cursor-default ">
-                  <Icon node={nodes[name][0]} />
-                  {name}
+                  <Icon kind={page.kind} />
+                  {page.name}
                 </span>
               )
               : (
                 <a
                   class="rounded px-2 block w-full py-2 hover:bg-gray-100"
-                  href={`/api/${name}`}
+                  href={`/api/${page.name}`}
                 >
-                  <Icon node={nodes[name][0]} />
-                  {name}
+                  <Icon kind={page.kind} />
+                  {page.name}
                 </a>
               )}
           </li>
@@ -164,8 +147,8 @@ function Menu({
   );
 }
 
-function Icon({ node }: { node: RenderableDocNode }) {
-  switch (node.kind) {
+function Icon({ kind }: { kind: string }) {
+  switch (kind) {
     case "function":
       return (
         <span class="rounded-full bg-sky-100 inline-block w-6 h-full mr-1 text-center">

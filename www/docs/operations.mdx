@@ -132,7 +132,7 @@ await main(function*() {
 There is no limit to the number of operations that can be nested within
 each other, and in fact, composition is so core to how operations work that
 _every operation in Effection eventually boils down to a combination of
-just three primitive operations_: `action()` and `resource()`.
+just two primitive operations_: `action()` and `resource()`.
 
 ## Cleanup
 
@@ -231,8 +231,8 @@ never leak a timeout effect.
 ## Computational Components
 
 It's amazing to think how so many operations in the Effection
-ecosystem can be broken down into a combination of the fundamental:
-`action()` and `resource()`. Composability is the key to everything.
+ecosystem can be broken down into a combination of the fundamental
+`action()` and `resource()` operations. Composability is the key to everything.
 
 Once you become accustomed to programming with Effection, you'll come to realize
 that the manner in which operations compose resembles in a large part the

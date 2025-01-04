@@ -1,51 +1,24 @@
-In this section, we'll cover the first two fundamental operations in Effection:
-`suspend()` and `action()`, and how we can use them in tandem to serve as a safe
-alternative to the [Promise constructor][promise-constructor].
+In this section, we'll cover one of the most fundamental operations in
+Effection: `action()`, and how we can use it as a safe alternative to
+the [Promise constructor][promise-constructor].
 
-## Suspend
+## Example: Sleep
 
-Simple in concept, yet bearing enormous practical weight, the `suspend()`
-operation is fundamental to Effection. It pauses the current
-operation until it [passes out of scope][scope], at which point it will return
-immediately.
-
-Let's revisit our simplified sleep operation from the [introduction to
+Let's revisit our sleep operation from the [introduction to
 operations](./operations):
 
+
 ```js
-export function sleep(duration) {
-  return action(function* (resolve) {
+export function sleep(duration: number): Operation<void> {
+  return action((resolve) => {
     let timeoutId = setTimeout(resolve, duration);
-    try {
-      yield* suspend();
-    } finally {
-      clearTimeout(timeoutId);
-    }
+    return () => clearTimeout(timeoutId);
   });
 }
 ```
 
 As we saw, no matter how the sleep operation ends, it always executes the
-`finally {}` block on its way out; thereby clearing out the `setTimeout`
-callback.
-
-It's worth noting that we say the suspend operation will return immediately,
-we really mean it. The operation will proceed to return from the suspension
-point via _as direct a path as possible_, as though it were returning a value.
-
-```js {6}
-export function sleep(duration) {
-  return action(function* (resolve) {
-    let timeoutId = setTimeout(resolve, duration);
-    try {
-      yield* suspend();
-      console.log('you will never ever see this printed!');
-    } finally {
-      clearTimeout(timeoutId);
-    }
-  });
-}
-```
+`clearTimeout()` on its way out.
 
 If we wanted to replicate our `sleep()` functionality with promises, we'd need
 to do something like accept an [`AbortSignal`][abort-signal] as a second
@@ -80,22 +53,13 @@ await Promise.all([sleep(10, signal), sleep(1000, signal)]);
 controller.abort();
 ```
 
-With a suspended action on the other hand, we get all the benefit as if
+With an action on the other hand, we get all the benefit as if
 an abort signal was there without sacrificing any clarity in achieving it.
 
-> 💡Fun Fact: `suspend()` is the only true 'async' operation in Effection. If an
->  operation does not include a call to `suspend()`, either by itself or via a
->  sub-operation, then that operation is synchronous.
+## Action Constructor
 
-Most often, [but not always][spawn-suspend], you encounter `suspend()` in the
-context of an action as the pivot between that action's setup and teardown.
-
-## Actions
-
-The second fundamental operation, [`action()`][action], serves two
-purposes. The first is to adapt callback-based APIs and make them available as
-operations. In this regard, it is very much like the
-[promise constructor][promise-constructor]. To see this correspondance, let's
+The [`action()`][action] function provides a callback based API to create Effection operations. You don't need use it all that often, but when you do it functions almost exactly like the 
+[promise constructor][promise-constructor]. To see this, let's
 use [one of the examples from MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/Promise#examples)
 that uses promises to make a crude replica of the global [`fetch()`][fetch]
 function. It manually creates an XHR, and hooks up the `load` and `error` events
@@ -114,17 +78,19 @@ async function fetch(url) {
 ```
 
 Consulting the [Async Rosetta Stone](async-rosetta-stone), we can substitute the async
-constructs for their Effection counterparts to arrive at a line for line
-translation.
+constructs for their Effection counterparts to arrive at an (almost) line for line
+translation. The only significant difference is that unlike the promise constructor, an
+action constructor _must_ return a "finally" function to exit the action.
 
 ```js
 function* fetch(url) {
-  return yield* action(function*(resolve, reject) {
+  return yield* action((resolve, reject) => {
     let xhr = new XMLHttpRequest();
     xhr.open("GET", url);
     xhr.onload = () => resolve(xhr.responseText);
     xhr.onerror = () => reject(xhr.statusText);
     xhr.send();
+	return () => { } // "finally" function place holder.
   });
 }
 ```
@@ -133,7 +99,7 @@ While this works works every bit as well as the promise based
 implementation, it turns out that the example from MDN has a subtle
 bug. In fact, it's the same subtle bug that afflicted the "racing
 sleep" example in the [introduction to
-operations](http://localhost:8000/docs/operations#cleanup). If
+operations](../operations#cleanup). If
 we no longer care about the outcome of our `fetch` operation, we will
 "leak" its http request which will remain in flight until a response
 is received. In the example below it does not matter which web request
@@ -147,23 +113,19 @@ await Promise.race([
 ])
 ```
 
-With Effection, this is easily fixed by suspending the operation, and making
-sure that the request is cancelled when it is either resolved, rejected, or
+With Effection, this is easily fixed by calling `abort()` in the finally function to 
+make sure that the request is cancelled when it is either resolved, rejected, or
 passes out of scope.
 
-```js {8-12} showLineNumbers
+```js {8} showLineNumbers
 function* fetch(url) {
-  return yield* action(function*(resolve, reject) {
+  return yield* action((resolve, reject) => {
     let xhr = new XMLHttpRequest();
     xhr.open("GET", url);
     xhr.onload = () => resolve(xhr.responseText);
     xhr.onerror = () => reject(xhr.statusText);
     xhr.send();
-    try {
-      yield* suspend();
-    } finally {
-      xhr.abort();
-    }
+    return () => { xhr.abort(); }; //called in all cases
   });
 }
 ```
@@ -171,95 +133,6 @@ function* fetch(url) {
 >💡Almost every usage of the [promise concurrency primitives][promise-concurrency]
 > will contain bugs born of leaked effects.
 
-As we've seen, actions can do anything that a promise can do (and more safely
-at that), but they also have a super power that promises do not. If you recall
-from the very beginning of this article, a key difference in Effection is that
-operations are values which, unlike promises, do not represent runtime state.
-Rather, they are "recipes" of what to do, and in order to do them, they need to
-be run either explicitly with `run()` or by including them with `yield*`.
-
-This means that when every operation runs, it is bound to an explicit
-lexical context; which is a fancy way of saying that ___running an
-operation can only ever return control to a single location___. A
-promise on the other hand, because it accepts an unlimited number of
-callbacks via `then()`, `catch()`, and `finally()`, can return control
-to an unlimited number of locations. This may seem a small thing, but
-it is very powerful. To demonstrate, consider the following set of
-nested actions.
-
-```js
-await run(function* () {
-  yield* action(function* (resolve) {
-    try {
-      yield* action(function*() {
-        try {
-          yield* action(function*() { resolve() });
-        } finally {
-          console.log('inner')
-        }
-      });
-    } finally {
-      console.log('middle');
-    }
-  });
-  console.log('outer');
-});
-```
-
-When we run it, it outputs the strings `inner`, `middle`, and `outer` in order.
-Notice however, that we never actually resolved the inner actions, only the
-outer one, and yet every single piece of teardown code is executed as expected
-as the call stack unwinds and it proceeds back to line 2. This means you can use
-actions to "capture" a specific location in your code as an "escape point" and
-return to it an any moment, but still feel confident that you won't leak any
-effects when you do.
-
-Let's consider a slightly more practical example of when this functionality
-could come in handy. Let's say we have a bunch of numbers scattered across the
-network that we want to fetch and multiply together. We want to write an
-to muliply these numbers that will use a list of operations that retreive the
-numbers for us.
-
-In order to be time efficient we want to fetch all the numbers
-concurrently so we use the [`all()`][all] operation. However, because
-this is multiplication, if any one of the numbers is zero, then the
-entire result is zero, so if at any point we discover that there is a
-`0` in any of the inputs to the computation, there really is no
-further point in continuing because the answer will be zero no matter
-how we slice it. It would save us time and money if there were a
-mechanism to "short-circuit" the operation and proceed directly to
-zero, and in fact there is!
-
-The answer is with an action.
-
-```ts
-import { action, all } from "effection";
-
-export function multiply(...operations) {
-  return action(function* (resolve) {
-    let fetchNumbers = operations.map(operation => function* () {
-      let num = yield* operation;
-      if (num === 0) {
-        resolve(0);
-      }
-      return num;
-    });
-
-    let values = yield* all(fetchNumbers);
-
-    let result = values.reduce((current, value) => current * value, 1);
-
-    resolve(result);
-  });
-}
-```
-
-We wrap each operation that retrieves a number into one that _immediately_
-ejects from the entire action with a result of zero the _moment_ that any zero
-is detected in _any_ of the results. The action will yield zero, but before
-returning control back to its caller, it will ensure that all outstanding
-requests are completely shutdown so that we can be guaranteed not to leak any
-effects.
 
 [abort-signal]: https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal
 [fetch]: https://developer.mozilla.org/en-US/docs/Web/API/fetch

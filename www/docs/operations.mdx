@@ -132,7 +132,7 @@ await main(function*() {
 There is no limit to the number of operations that can be nested within
 each other, and in fact, composition is so core to how operations work that
 _every operation in Effection eventually boils down to a combination of
-just three primitive operations_: `action()`, `resource()`, and `suspend()`.
+just three primitive operations_: `action()` and `resource()`.
 
 ## Cleanup
 
@@ -205,48 +205,34 @@ await main(function*() {
 ```
 
 If we look at the implementation of the `sleep()` operation in Effection, we can
-see how this works. It uses two of the fundamental operations:
-`action()`, and `suspend()`, to wait until the duration has elapsed.
+see how this works. It uses the fundamental `action()` operation to pause execution until 
+the duration has elapsed.
 
-```js {6-8} showLineNumbers
-export function sleep(duration) {
-  return action(function* (resolve) {
+```js {3-4} showLineNumbers
+export function sleep(duration: number): Operation<void> {
+  return action((resolve) => {
     let timeoutId = setTimeout(resolve, duration);
-    try {
-      yield* suspend();
-    } finally {
-      clearTimeout(timeoutId);
-    }
+    return () => clearTimeout(timeoutId);
   });
 }
 ```
 
-However, there is a key difference between this version of `sleep()` and the
-earlier one we wrote using promises. In this `Operation` based implementation,
-there is a `finally {}` block which clears the timeout callback, and it is
-because of this that the Effection `sleep()` does not cause the process to hang,
-whereas the promise-`sleep()` does.
+However, there is a key difference between this version of `sleep()`
+and the earlier one we wrote using promises. In this `Operation` based
+implementation, there is a "finally" function returned by the action
+executor which clears the timeout callback. It is because of this that
+the Effection `sleep()` does not cause the process to hang, whereas
+the promise-`sleep()` does.
 
-Furthermore, the operation is crystal clear about the order of its execution.
-The steps are:
-
-1. install the timeout callback
-2. suspend until resolved or discarded.
-3. uninstall the timeout callback
-
-If we always follow those steps, then we'll always resume at the right point,
-and we'll never leak a timeout effect.
-
->💡As an alternative to using a `finally {}` block to express your cleanup, you
-> can also use the [`ensure()`][ensure] operation which in some cases can add
-> clarity. Which method you use is up to you!
+Like every operation in Effection, the logic to enter a sleep is
+bundled right alongside the logit to exit it. As a result, and we'll
+never leak a timeout effect.
 
 ## Computational Components
 
 It's amazing to think how so many operations in the Effection
-ecosystem can be broken down into a combination of the fundamental:
-`action()`, `resource()`, and `suspend()` operations.  Composability
-is the key to everything.
+	ecosystem can be broken down into a combination of the fundamental:
+`action()` and `resource()`. Composability is the key to everything.
 
 Once you become accustomed to programming with Effection, you'll come to realize
 that the manner in which operations compose resembles in a large part the

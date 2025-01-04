@@ -309,10 +309,12 @@ function Param(paramDef: ParamDef) {
           : ""
       }: ${paramDef.tsType ? TypeDef(paramDef.tsType) : ""}`;
     }
+    case "rest": {
+      return `...${Param(paramDef.arg)}: ${paramDef.tsType ? TypeDef(paramDef.tsType) : ""}`
+    }
     case "array":
     case "assign":
     case "object":
-    case "rest":
       console.log("Param: unimplemented", paramDef);
   }
   return "";

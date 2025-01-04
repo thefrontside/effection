@@ -28,14 +28,12 @@ export function* API(pkg: Package): Operation<JSXElement> {
   for (const exportName of Object.keys(docs)) {
     const nodes = docs[exportName];
     for (const node of nodes) {
-      const { MDXDoc = () => <></> } = node;
-
       elements.push(
-        <section id={node.id}>
+        <section>
           {yield* Type({ node })}
-          <div class="pl-2 -mt-5">
+          {/* <div class="pl-2 -mt-5">
             <MDXDoc />
-          </div>
+          </div> */}
         </section>,
       );
     }
@@ -290,15 +288,28 @@ function FunctionParams({ params }: { params: ParamDef[] }) {
 }
 
 function TSParam({ param }: { param: ParamDef }) {
-  if (param.kind === "identifier") {
-    return (
-      <>
-        {param.name}
-        <Optional optional={param.optional} />
-        <Operator>{": "}</Operator>
-        {param.tsType ? <TypeDef typeDef={param.tsType} /> : <></>}
-      </>
-    );
+  switch (param.kind) {
+    case "identifier": {
+      return (
+        <>
+          {param.name}
+          <Optional optional={param.optional} />
+          <Operator>{": "}</Operator>
+          {param.tsType ? <TypeDef typeDef={param.tsType} /> : <></>}
+        </>
+      );
+    }
+    case "rest": {
+      return (
+        <>
+          <Operator>&hellip;</Operator>
+          <TSParam param={param.arg} />
+          {param.tsType ? <TypeDef typeDef={param.tsType} /> : <></>}
+        </>
+      );
+    }
+    default:
+      console.log("<TSParam> unimplemented:", param);
   }
   return <></>;
 }

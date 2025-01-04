@@ -216,6 +216,7 @@ export function* extract(
     }
   }
 
+  const see: string[] = [];
   if (node.jsDoc && node.jsDoc.tags) {
     for (const tag of node.jsDoc.tags) {
       switch (tag.kind) {
@@ -223,8 +224,14 @@ export function* extract(
           ignore = true;
           break;
         }
+        case "see": {
+          see.push(tag.doc);
+        }
       }
     }
+  }
+  if (see.length > 0) {
+    lines.push("\n", "### See", ...see.map(item => `* ${item}`))
   }
 
   const markdown = lines.join("\n");

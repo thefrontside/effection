@@ -34,6 +34,8 @@ export interface DocPageSection {
   ignore: boolean;
 }
 
+const NO_DOCS_AVAILABLE = "No documentation available.";
+
 export function* useDocPages(docs: Record<string, DocNode[]>) {
   const entrypoints: Record<string, DocPage[]> = {};
 
@@ -45,7 +47,7 @@ export function* useDocPages(docs: Record<string, DocNode[]>) {
       if (nodes) {
         const sections: DocPageSection[] = [];
         for (const node of nodes) {
-          const { markdown, ignore, pages: _pages } = yield* extractJsDoc(node);
+          const { markdown, ignore, pages: _pages } = yield* extract(node);
           sections.push({
             node,
             markdown,
@@ -76,7 +78,9 @@ export function* useDocPages(docs: Record<string, DocNode[]>) {
   return entrypoints;
 }
 
-export function* extractJsDoc(node: DocNode) {
+export function* extract(
+  node: DocNode,
+): Operation<{ markdown: string; ignore: boolean; pages: DocPage[] }> {
   const lines = [];
   const pages: DocPage[] = [];
 
@@ -130,8 +134,8 @@ export function* extractJsDoc(node: DocNode) {
         const name = `${node.name}.${variable.name}`;
         const description = variable.jsDoc?.doc
           ? yield* useDescription(variable.jsDoc?.doc)
-          : "No documentation available.";
-        const section = yield* extractJsDoc(variable);
+          : NO_DOCS_AVAILABLE;
+        const section = yield* extract(variable);
         pages.push({
           name,
           kind: variable.kind,
@@ -158,6 +162,27 @@ export function* extractJsDoc(node: DocNode) {
 
   if (node.kind === "interface") {
     lines.push("\n", ...TypeParams(node.interfaceDef.typeParams, node));
+
+    if (node.interfaceDef.methods.length > 0) {
+      lines.push("\n", "### Methods", "<dl>");
+      for (const method of node.interfaceDef.methods) {
+        const typeParams = method.typeParams.map(TypeParam).join(", ");
+        const params = method.params.map(Param).join(", ");
+        const returnType = method.returnType ? TypeDef(method.returnType) : "";
+        const description = method.jsDoc?.doc
+          ? yield* useDescription(method.jsDoc?.doc)
+          : NO_DOCS_AVAILABLE;
+        lines.push(
+          "<dt>",
+          `[${method.name}](${node.name}.${method.name})${typeParams ? `&lt;${typeParams}&gt;` : ""}(${params}): ${returnType}`,
+          "</dt>",
+          "<dd>",
+          description,
+          "</dd>",
+        );
+      }
+      lines.push("</dl>");
+    }
   }
 
   if (node.kind === "typeAlias") {
@@ -178,7 +203,7 @@ export function* extractJsDoc(node: DocNode) {
       for (const param of params) {
         lines.push("\n", Param(param));
         if (jsDocs[i] && jsDocs[i].doc) {
-          lines.push(jsDocs[i].doc);
+          lines.push("\n", jsDocs[i].doc);
         }
         i++;
       }
@@ -280,7 +305,7 @@ function TypeDef(typeDef: TsTypeDef): string {
     case "importType":
     case "indexedAccess":
     case "infer":
-    case "literal": 
+    case "literal":
     case "mapped":
     case "optional":
     case "rest":
@@ -316,7 +341,7 @@ function Param(paramDef: ParamDef): string {
       }: ${paramDef.tsType ? TypeDef(paramDef.tsType) : ""}`;
     }
     case "rest": {
-      return `...${Param(paramDef.arg)}: ${paramDef.tsType ? TypeDef(paramDef.tsType) : ""}`
+      return `...${Param(paramDef.arg)}: ${paramDef.tsType ? TypeDef(paramDef.tsType) : ""}`;
     }
     case "array":
     case "assign":
@@ -348,8 +373,8 @@ export function Icon({ kind }: { kind: string }) {
       );
     case "variable": {
       return (
-        <span class="rounded-full bg-violet-300 text-violet-600 inline-block w-6 h-full mr-1 text-center">
-          V
+        <span class="rounded-full bg-purple-200 text-violet-600 inline-block w-6 h-full mr-1 text-center">
+          v
         </span>
       );
     }

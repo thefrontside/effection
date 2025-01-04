@@ -8,6 +8,7 @@ import { SitemapRoute } from "../../plugins/sitemap.ts";
 import { PackageDocs } from "../../resources/package.ts";
 import { Repository } from "../../resources/repository.ts";
 import { useAppHtml } from "../app.html.tsx";
+import { Keyword } from "../../components/tokens.tsx";
 
 function* getApiForLatestTag(
   repository: Repository,
@@ -60,19 +61,17 @@ export function apiSymbolRoute(library: Repository): SitemapRoute<JSXElement> {
 
         const elements: JSXElement[] = [];
         if (page) {
-          for (const section of page?.sections) {
-            elements.push(
-              <section>
-                {yield* Type({ node: section.node })}
-                {section.markdown ? (
-                  <div class="pl-2 -mt-5">
+          for (const [i, section] of Object.entries(page?.sections)) {
+            if (section.markdown) {
+              elements.push(
+                <section id={section.id} class={`${i !== "0" ? "border-t-2" : ""} pb-7`}>
+                  {yield* Type({ node: section.node, Heading: (props) => <h2 class="flex mt-7" {...props} /> })}
+                  <div class="[&>hr]:my-5 [&>p]:mb-0">
                     {yield* useJsDocMarkdown(section.markdown)}
                   </div>
-                ) : (
-                  <></>
-                )}
-              </section>,
-            );
+                </section>,
+              );
+            }
           }
         }
 
@@ -92,7 +91,9 @@ export function apiSymbolRoute(library: Repository): SitemapRoute<JSXElement> {
               </aside>
               <article class="prose max-w-full px-6 py-2">
                 <h1>
-                  {page.kind === "typeAlias" ? "type alias " : page.kind}{" "}
+                  <Keyword>
+                    {page.kind === "typeAlias" ? "type alias " : page.kind}
+                  </Keyword>{" "}
                   {page.name}
                 </h1>
                 <>{elements}</>

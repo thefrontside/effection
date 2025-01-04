@@ -120,10 +120,7 @@ export function* extract(
     lines.push("### Examples");
     let i = 1;
     for (const example of examples) {
-      if (i !== 1) lines.push("---");
-      lines.push(`#### Example ${i++}`);
-      lines.push(example.doc);
-      lines.push("\n");
+      lines.push(`#### Example ${i++}`, example.doc, "---");
     }
   }
 
@@ -201,7 +198,7 @@ export function* extract(
         ) ?? [];
       let i = 0;
       for (const param of params) {
-        lines.push("\n", `<code>${Param(param)}</code>`);
+        lines.push("\n", Param(param));
         if (jsDocs[i] && jsDocs[i].doc) {
           lines.push("\n", jsDocs[i].doc);
         }
@@ -211,7 +208,7 @@ export function* extract(
 
     if (node.functionDef.returnType) {
       lines.push("### Return Type");
-      lines.push("\n", `<code>${TypeDef(node.functionDef.returnType)}</code>`);
+      lines.push("\n", TypeDef(node.functionDef.returnType));
       const jsDocs = node.jsDoc?.tags?.find((tag) => tag.kind === "return");
       if (jsDocs && jsDocs.doc) {
         lines.push("\n", jsDocs.doc);
@@ -256,7 +253,7 @@ function TypeParams(typeParams: TsTypeParamDef[], node: DocNode) {
       ) ?? [];
     let i = 0;
     for (const typeParam of typeParams) {
-      lines.push(`<code>${TypeParam(typeParam)}</code>`);
+      lines.push(TypeParam(typeParam));
       if (jsDocs[i]) {
         lines.push(jsDocs[i].doc);
       }

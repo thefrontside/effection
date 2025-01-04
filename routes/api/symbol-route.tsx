@@ -116,24 +116,6 @@ export function apiSymbolRoute(library: Repository): SitemapRoute<JSXElement> {
   };
 }
 
-function parseParams(params: { symbol: string }): { symbol: string; namespace: string | undefined } {
-  if (params.symbol.includes(".")) {
-    const parts = params.symbol.split(".");
-    if (parts.length === 2) {
-      return {
-        namespace: parts[0],
-        symbol: parts[1]
-      }
-    } else {
-      throw new Error(`Expected either string with no more than namespace seperator.`)
-    }
-  }
-  return {
-    symbol: params.symbol,
-    namespace: undefined
-  }
-}
-
 function Menu({ pages, current }: { current: string; pages: DocPage[] }) {
   return (
     <menu>

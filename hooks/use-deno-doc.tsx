@@ -132,10 +132,8 @@ export function* extract(
       lines.push("<dl>");
       for (const variable of variables) {
         const name = `${node.name}.${variable.name}`;
-        const description = variable.jsDoc?.doc
-          ? yield* useDescription(variable.jsDoc?.doc)
-          : NO_DOCS_AVAILABLE;
         const section = yield* extract(variable);
+        const description = variable.jsDoc?.doc || NO_DOCS_AVAILABLE;
         pages.push({
           name,
           kind: variable.kind,
@@ -169,12 +167,10 @@ export function* extract(
         const typeParams = method.typeParams.map(TypeParam).join(", ");
         const params = method.params.map(Param).join(", ");
         const returnType = method.returnType ? TypeDef(method.returnType) : "";
-        const description = method.jsDoc?.doc
-          ? yield* useDescription(method.jsDoc?.doc)
-          : NO_DOCS_AVAILABLE;
+        const description = method.jsDoc?.doc || NO_DOCS_AVAILABLE;
         lines.push(
           "<dt>",
-          `[${method.name}](${node.name}.${method.name})${typeParams ? `&lt;${typeParams}&gt;` : ""}(${params}): ${returnType}`,
+          `**${method.name}**${typeParams ? `&lt;${typeParams}&gt;` : ""}(${params}): ${returnType}`,
           "</dt>",
           "<dd>",
           description,

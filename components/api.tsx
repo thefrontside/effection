@@ -19,23 +19,25 @@ import {
 } from "./tokens.tsx";
 import { useJsDocMarkdown } from "../hooks/use-markdown.tsx";
 import { Package } from "../resources/package.ts";
-import { DocNode } from "../hooks/use-deno-doc.tsx";
+import { DocNode, NO_DOCS_AVAILABLE } from "../hooks/use-deno-doc.tsx";
 
 export function* API(pkg: Package): Operation<JSXElement> {
   const elements: JSXElement[] = [];
   const docs = yield* pkg.docs();
 
   for (const exportName of Object.keys(docs)) {
-    const nodes = docs[exportName];
-    for (const node of nodes) {
-      elements.push(
-        <section>
-          {yield* Type({ node })}
-          {/* <div class="pl-2 -mt-5">
-            <MDXDoc />
-          </div> */}
-        </section>,
-      );
+    const pages = docs[exportName];
+    for (const page of pages) {
+      for (const section of page.sections) {
+        elements.push(
+          <section id={section.id}>
+            {yield* Type({ node: section.node })}
+            {section.markdown
+              ? yield* useJsDocMarkdown(section.markdown)
+              : NO_DOCS_AVAILABLE}
+          </section>,
+        );
+      }
     }
   }
 
@@ -164,9 +166,9 @@ export function* Type({ node }: TypeProps): Operation<JSXElement> {
       console.log("<Type> unimplemented", node.kind);
       return (
         <header>
-          <h3 class="inline-block">
+          <div class="inline-block">
             <Keyword>{node.kind}</Keyword> {node.name}
-          </h3>
+          </div>
         </header>
       );
   }

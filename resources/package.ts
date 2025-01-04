@@ -1,7 +1,6 @@
 import { all, call, type Operation, resource, useScope } from "effection";
 import { CacheSetting, LoadResponse } from "jsr:@deno/doc@0.162.4";
 import { z } from "npm:zod@3.23.8";
-import type { JSXElement } from "revolution";
 // @deno-types="npm:@types/parse-github-url@1.0.3";
 import githubUrlParse from "npm:parse-github-url@1.0.3";
 
@@ -95,12 +94,6 @@ export interface Package {
   MDXContent(): Operation<JSX.Element>;
   description(): Operation<string>;
 }
-
-export type RenderableDocNode = DocNode & {
-  id: string;
-  description: string;
-  MDXDoc?: () => JSXElement;
-};
 
 export const DenoJson = z.object({
   name: z.string().optional(),
@@ -235,14 +228,6 @@ export function loadPackage(
   });
 }
 
-function exportHash(exportName: string, doc: DocNode): string {
-  if (exportName === DEFAULT_MODULE_KEY) {
-    return doc.name;
-  } else {
-    return `${exportName}__${doc.name}`;
-  }
-}
-
 function docLoader(
   specifier: string,
   _isDynamic?: boolean,
@@ -283,4 +268,3 @@ function docLoader(
     }
   };
 }
-

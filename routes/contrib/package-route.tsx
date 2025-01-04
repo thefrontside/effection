@@ -8,6 +8,7 @@ import { useMarkdown } from "../../hooks/use-markdown.tsx";
 import type { RoutePath, SitemapRoute } from "../../plugins/sitemap.ts";
 import { Repository } from "../../resources/repository.ts";
 import { useAppHtml } from "../app.html.tsx";
+import { DocPage } from "../../hooks/use-deno-doc.tsx";
 
 export function contribPackageRoute(
   contrib: Repository,
@@ -48,7 +49,7 @@ export function contribPackageRoute(
                 <article class="min-w-0 lg:col-span-7 lg:row-start-1">
                   {yield* PackageHeader(pkg)}
                   <div class="prose">
-                    <div class="mb-5">{yield* PackageExports(pkg)}</div>
+                    <div class="mb-5">{yield* PackageExports({ pkg, linkResolver })}</div>
                     {yield* useMarkdown(yield* pkg.readme())}
                     <h2 class="mb-0">API</h2>
                     {yield* API(pkg)}
@@ -75,4 +76,8 @@ export function contribPackageRoute(
       }
     },
   };
+}
+
+function* linkResolver(page: DocPage) {
+  return `#${page.kind}_${page.name}`;
 }

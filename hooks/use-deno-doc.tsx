@@ -28,6 +28,8 @@ export interface DocPage {
 }
 
 export interface DocPageSection {
+  id: string;
+
   node: DocNode;
 
   markdown?: string;
@@ -35,7 +37,7 @@ export interface DocPageSection {
   ignore: boolean;
 }
 
-const NO_DOCS_AVAILABLE = "No documentation available.";
+export const NO_DOCS_AVAILABLE = "No documentation available.";
 
 export function* useDocPages(docs: Record<string, DocNode[]>) {
   const entrypoints: Record<string, DocPage[]> = {};
@@ -50,6 +52,7 @@ export function* useDocPages(docs: Record<string, DocNode[]>) {
         for (const node of nodes) {
           const { markdown, ignore, pages: _pages } = yield* extract(node);
           sections.push({
+            id: exportHash(node, sections.length),
             node,
             markdown,
             ignore,
@@ -141,6 +144,7 @@ export function* extract(
           description,
           sections: [
             {
+              id: exportHash(variable, 0),
               node: variable,
               markdown: section.markdown,
               ignore: section.ignore,
@@ -385,4 +389,8 @@ export function Icon({ kind }: { kind: string }) {
     }
   }
   return <></>;
+}
+
+function exportHash(node: DocNode, index: number): string {
+  return [node.kind, node.name, index].filter(Boolean).join("_");
 }

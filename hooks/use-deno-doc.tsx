@@ -270,18 +270,24 @@ function TypeDef(typeDef: TsTypeDef): string {
     case "tuple": {
       return `&lbrack;${typeDef.tuple.map(TypeDef).join(", ")}&rbrack;`;
     }
+    case "parenthesized": {
+      return TypeDef(typeDef.parenthesized);
+    }
+    case "intersection": {
+      return typeDef.intersection.map(TypeDef).join(" &amp; ");
+    }
     case "conditional":
     case "importType":
     case "indexedAccess":
     case "infer":
-    case "intersection":
-    case "literal":
+    case "literal": 
     case "mapped":
     case "optional":
-    case "parenthesized":
     case "rest":
     case "this":
     case "typeLiteral":
+      // todo(taras): this is incomplete
+      return `&#123;&#125;`;
     case "typePredicate":
     case "typeQuery":
       console.log("TypeDef: unimplemented", typeDef);
@@ -300,7 +306,7 @@ function TypeParam(paramDef: TsTypeParamDef) {
   return parts.join(" ");
 }
 
-function Param(paramDef: ParamDef) {
+function Param(paramDef: ParamDef): string {
   switch (paramDef.kind) {
     case "identifier": {
       return `**${paramDef.name}**${

@@ -400,7 +400,36 @@ export function TypeDef({ typeDef }: { typeDef: TsTypeDef }) {
         </>
       );
     }
-    default:
+    case "intersection": {
+      return (
+        <>
+          {typeDef.intersection
+            .flatMap((tp) => [
+              <TypeDef typeDef={tp} />,
+              <Operator>{" & "}</Operator>,
+            ])
+            .slice(0, -1)}
+        </>
+      );
+    }
+    case "typeLiteral": {
+      // todo(taras): this is incomplete
+      return (
+        <>
+          <Punctuation>&#123;</Punctuation>
+          <Punctuation>&#125;</Punctuation>  
+        </>
+      )
+    }
+    case "conditional":
+    case "importType":
+    case "infer":
+    case "mapped":
+    case "optional":
+    case "rest":
+    case "this":
+    case "typePredicate":
+    case "typeQuery":
       console.log("<TypeDef> unimplemented", typeDef);
   }
   return <></>;

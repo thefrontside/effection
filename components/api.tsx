@@ -417,13 +417,32 @@ export function TypeDef({ typeDef }: { typeDef: TsTypeDef }) {
       return (
         <>
           <Punctuation>&#123;</Punctuation>
-          <Punctuation>&#125;</Punctuation>  
+          <Punctuation>&#125;</Punctuation>
         </>
-      )
+      );
     }
-    case "conditional":
+    case "conditional": {
+      return (
+        <>
+          <TypeDef typeDef={typeDef.conditionalType.checkType} />
+          <Keyword>{" extends "}</Keyword>
+          <TypeDef typeDef={typeDef.conditionalType.extendsType} />
+          <Operator>{" ? "}</Operator>
+          <TypeDef typeDef={typeDef.conditionalType.trueType} />
+          <Operator>{" : "}</Operator>
+          <TypeDef typeDef={typeDef.conditionalType.falseType} />
+        </>
+      );
+    }
+    case "infer": {
+      return (
+        <>
+          <Keyword>{"infer "}</Keyword>
+          {typeDef.infer.typeParam.name}
+        </>
+      );
+    }
     case "importType":
-    case "infer":
     case "mapped":
     case "optional":
     case "rest":

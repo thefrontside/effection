@@ -9,6 +9,7 @@ import {
 } from "jsr:@deno/doc@0.162.4";
 import { useDescription } from "./use-description-parse.tsx";
 import { toHtml } from "npm:hast-util-to-html@9.0.4";
+import { encode } from "npm:html-entities@2.5.2";
 
 export type { DocNode };
 
@@ -87,7 +88,7 @@ export function* extract(
   let ignore = false;
 
   if (node.jsDoc && node.jsDoc.doc) {
-    lines.push(node.jsDoc.doc);
+    lines.push(encode(node.jsDoc.doc));
   }
 
   const deprecated =
@@ -305,6 +306,7 @@ function TypeDef(typeDef: TsTypeDef): string {
       return typeDef.intersection.map(TypeDef).join(" &amp; ");
     }
     case "conditional":
+
     case "importType":
     case "indexedAccess":
     case "infer":

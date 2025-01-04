@@ -70,6 +70,7 @@
     "npm:hast-util-to-html@*": "9.0.0",
     "npm:hast-util-to-html@9.0.0": "9.0.0",
     "npm:hast-util-to-html@9.0.4": "9.0.4",
+    "npm:html-entities@2.5.2": "2.5.2",
     "npm:octokit@2": "2.1.0_@octokit+core@4.2.4",
     "npm:octokit@3": "3.2.1_@octokit+core@5.2.0",
     "npm:octokit@4": "4.0.3_@octokit+core@6.1.2",
@@ -1740,6 +1741,9 @@
         "property-information@6.4.1",
         "space-separated-tokens@2.0.2"
       ]
+    },
+    "html-entities@2.5.2": {
+      "integrity": "sha512-K//PSRMQk4FZ78Kyau+mZurHn3FH0Vwr+H36eE0rPbeYkRRi9YxceYPhuN60UwWorxyKHhqoAJl2OFKa4BVtaA=="
     },
     "html-void-elements@3.0.0": {
       "integrity": "sha512-bEqo66MRXsUGxWHV5IP0PUiAWwoEjba4VCzg0LjFJBpchPaTfyfCKTG6bc5F8ucKec3q5y6qOdGyYTSBEvhCrg=="

@@ -71,6 +71,7 @@
     "npm:hast-util-to-html@9.0.0": "9.0.0",
     "npm:hast-util-to-html@9.0.4": "9.0.4",
     "npm:html-entities@2.5.2": "2.5.2",
+    "npm:mdast@3.0.0": "3.0.0",
     "npm:octokit@2": "2.1.0_@octokit+core@4.2.4",
     "npm:octokit@3": "3.2.1_@octokit+core@5.2.0",
     "npm:octokit@4": "4.0.3_@octokit+core@6.1.2",
@@ -2203,6 +2204,9 @@
       "dependencies": [
         "@types/mdast@4.0.3"
       ]
+    },
+    "mdast@3.0.0": {
+      "integrity": "sha512-xySmf8g4fPKMeC07jXGz971EkLbWAJ83s4US2Tj9lEdnZ142UP5grN73H1Xd3HzrdbU5o9GYYP/y8F9ZSwLE9g=="
     },
     "micromark-core-commonmark@1.1.0": {
       "integrity": "sha512-BgHO1aRbolh2hcrzL2d1La37V0Aoz73ymF8rAcKnohLy93titmv62E0gP8Hrx9PKcKrqCZ1BbLGbP3bEhoXYlw==",

@@ -51,7 +51,7 @@ export function contribPackageRoute(
                   <div class="prose">
                     <div class="mb-5">{yield* PackageExports({ pkg, linkResolver })}</div>
                     {yield* useMarkdown(yield* pkg.readme())}
-                    <h2 class="mb-0">API</h2>
+                    <h2 class="mb-0">API Reference</h2>
                     {yield* API(pkg)}
                   </div>
                 </article>

@@ -9,7 +9,6 @@ import {
 } from "jsr:@deno/doc@0.162.4";
 import { useDescription } from "./use-description-parse.tsx";
 import { toHtml } from "npm:hast-util-to-html@9.0.4";
-import { encode } from "npm:html-entities@2.5.2";
 
 export type { DocNode };
 
@@ -91,7 +90,7 @@ export function* extract(
   let ignore = false;
 
   if (node.jsDoc && node.jsDoc.doc) {
-    lines.push(encode(node.jsDoc.doc));
+    lines.push(node.jsDoc.doc);
   }
 
   const deprecated =
@@ -102,9 +101,11 @@ export function* extract(
     for (const warning of deprecated) {
       if (warning.doc) {
         lines.push(
-          `<div class="border-l-4 border-red-500 mt-0 [&>*]:my-0 pl-3">
+          `<div class="border-l-4 border-red-500 mt-1 [&>*]:my-0 pl-3">
             <span class="text-red-500 font-bold">Deprecated</span>
+
             ${warning.doc}
+            
           </div>
           `,
         );
@@ -154,7 +155,7 @@ export function* extract(
         lines.push(
           `<dt>`,
           toHtml(<Icon kind={variable.kind} />),
-          `{@link ${name}}`,
+          `[${name}](${name})`,
           `</dt>`,
         );
         lines.push(`<dd class="italic">`, description, `</dd>`);
@@ -174,9 +175,7 @@ export function* extract(
         const returnType = method.returnType ? TypeDef(method.returnType) : "";
         const description = method.jsDoc?.doc || NO_DOCS_AVAILABLE;
         lines.push(
-          "<dt>",
-          `**${method.name}**${typeParams ? `&lt;${typeParams}&gt;` : ""}(${params}): ${returnType}`,
-          "</dt>",
+          `<dt>**${method.name}**${typeParams ? `&lt;${typeParams}&gt;` : ""}(${params}): ${returnType}</dt>`,
           "<dd>",
           description,
           "</dd>",
@@ -202,7 +201,7 @@ export function* extract(
         ) ?? [];
       let i = 0;
       for (const param of params) {
-        lines.push("\n", Param(param));
+        lines.push("\n", `<code>${Param(param)}</code>`);
         if (jsDocs[i] && jsDocs[i].doc) {
           lines.push("\n", jsDocs[i].doc);
         }
@@ -212,11 +211,10 @@ export function* extract(
 
     if (node.functionDef.returnType) {
       lines.push("### Return Type");
-      lines.push(TypeDef(node.functionDef.returnType));
+      lines.push("\n", `<code>${TypeDef(node.functionDef.returnType)}</code>`);
       const jsDocs = node.jsDoc?.tags?.find((tag) => tag.kind === "return");
       if (jsDocs && jsDocs.doc) {
-        lines.push("\n");
-        lines.push(jsDocs.doc);
+        lines.push("\n", jsDocs.doc);
       }
     }
   }
@@ -236,7 +234,7 @@ export function* extract(
     }
   }
   if (see.length > 0) {
-    lines.push("\n", "### See", ...see.map(item => `* ${item}`))
+    lines.push("\n", "### See", ...see.map((item) => `* ${item}`));
   }
 
   const markdown = lines.join("\n");
@@ -258,7 +256,7 @@ function TypeParams(typeParams: TsTypeParamDef[], node: DocNode) {
       ) ?? [];
     let i = 0;
     for (const typeParam of typeParams) {
-      lines.push(TypeParam(typeParam));
+      lines.push(`<code>${TypeParam(typeParam)}</code>`);
       if (jsDocs[i]) {
         lines.push(jsDocs[i].doc);
       }
@@ -282,9 +280,9 @@ function TypeDef(typeDef: TsTypeDef): string {
     }
     case "typeRef": {
       const tparams = typeDef.typeRef.typeParams?.map(TypeDef).join(", ");
-      return `{@link ${typeDef.typeRef.typeName}}${
+      return `[${typeDef.typeRef.typeName}](${typeDef.typeRef.typeName})${
         tparams && tparams?.length > 0 ? `&lt;${tparams}&gt;` : ""
-      } `;
+      }`;
     }
     case "keyword": {
       return typeDef.keyword;
@@ -310,7 +308,6 @@ function TypeDef(typeDef: TsTypeDef): string {
       return typeDef.intersection.map(TypeDef).join(" &amp; ");
     }
     case "conditional":
-
     case "importType":
     case "indexedAccess":
     case "infer":
@@ -330,7 +327,7 @@ function TypeDef(typeDef: TsTypeDef): string {
 }
 
 function TypeParam(paramDef: TsTypeParamDef) {
-  let parts = [`{@link ${paramDef.name}}`];
+  let parts = [`[${paramDef.name}](${paramDef.name})`];
   if (paramDef.constraint) {
     parts.push(`extends ${TypeDef(paramDef.constraint)}`);
   }

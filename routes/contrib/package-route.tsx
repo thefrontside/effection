@@ -48,7 +48,7 @@ export function contribPackageRoute(
               <div class="grid grid-cols-1 lg:grid-cols-10 gap-8 lg:gap-12">
                 <article class="min-w-0 lg:col-span-7 lg:row-start-1">
                   {yield* PackageHeader(pkg)}
-                  <div class="prose">
+                  <div class="prose max-w-full">
                     <div class="mb-5">{yield* PackageExports({ pkg, linkResolver })}</div>
                     {yield* useMarkdown(yield* pkg.readme())}
                     <h2 class="mb-0">API Reference</h2>

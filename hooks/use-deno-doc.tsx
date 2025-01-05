@@ -1,5 +1,6 @@
 import { call, type Operation } from "effection";
 import {
+  ClassMethodDef,
   doc,
   type DocNode,
   type DocOptions,
@@ -36,7 +37,7 @@ export interface DocPageSection {
   ignore: boolean;
 }
 
-export const NO_DOCS_AVAILABLE = "No documentation available.";
+export const NO_DOCS_AVAILABLE = "*No documentation available.*";
 
 export function* useDocPages(docs: Record<string, DocNode[]>) {
   const entrypoints: Record<string, DocPage[]> = {};
@@ -102,14 +103,53 @@ export function* extract(
       if (warning.doc) {
         lines.push(
           `<div class="border-l-4 border-red-500 mt-1 [&>*]:my-0 pl-3">
-            <span class="text-red-500 font-bold">Deprecated</span>
+          <span class="text-red-500 font-bold">Deprecated</span>
 
-            ${warning.doc}
-            
-          </div>
-          `,
+          ${warning.doc}
+          
+        </div>
+        `,
         );
       }
+    }
+  }
+
+  if (node.kind === "class") {
+    if (node.classDef.constructors.length > 0) {
+      lines.push(`### Constructors`, "<dl>");
+      for (const constructor of node.classDef.constructors) {
+        lines.push(
+          `<dt>${NEW} **${node.name}**(${constructor.params.map(Param).join(", ")})</dt>`,
+          `<dd>`,
+          constructor.jsDoc,
+          `</dd>`,
+        );
+      }
+      lines.push("</dl>");
+    }
+
+    const nonStatic = node.classDef.methods.filter(
+      (method) => !method.isStatic,
+    );
+    if (nonStatic.length > 0) {
+      lines.push(
+        "### Methods",
+        `<dl>`,
+        ...methodList(nonStatic),
+        "</dl>",
+      );
+    }
+
+    const staticMethods = node.classDef.methods.filter(
+      (method) => method.isStatic,
+    );
+    if (staticMethods.length > 0) {
+      lines.push(
+        "### Static Methods",
+        "<dl>",
+        ...methodList(staticMethods),
+        "</dl>",
+      );
     }
   }
 
@@ -172,8 +212,8 @@ export function* extract(
         const returnType = method.returnType ? TypeDef(method.returnType) : "";
         const description = method.jsDoc?.doc || NO_DOCS_AVAILABLE;
         lines.push(
-          `<dt>**${method.name}**${typeParams ? `&lt;${typeParams}&gt;` : ""}(${params}): ${returnType}</dt>`,
-          "<dd>",
+          `<dt class="border-dotted [&:not(:first-child)]:border-t-2 [&:not(:first-child)]:pt-3 [&:not(:first-child)]:mt-2">**${method.name}**${typeParams ? `&lt;${typeParams}&gt;` : ""}(${params}): ${returnType}</dt>`,
+          `<dd class="flex flex-col [&>pre]:mb-3">`,
           description,
           "</dd>",
         );
@@ -338,9 +378,7 @@ function Param(paramDef: ParamDef): string {
   switch (paramDef.kind) {
     case "identifier": {
       return `**${paramDef.name}**${
-        paramDef.optional
-          ? `<span class="inline-block bg-sky-100 rounded px-2 text-sm text-sky-900 mx-1">optional</span>`
-          : ""
+        paramDef.optional ? OPTIONAL : ""
       }: ${paramDef.tsType ? TypeDef(paramDef.tsType) : ""}`;
     }
     case "rest": {
@@ -387,4 +425,26 @@ export function Icon({ kind }: { kind: string }) {
 
 function exportHash(node: DocNode, index: number): string {
   return [node.kind, node.name, index].filter(Boolean).join("_");
+}
+
+const OPTIONAL = `<span class="inline-block bg-sky-100 rounded px-2 text-sm text-sky-900 mx-1">optional</span>`;
+const NEW = `<span class="inline-block bg-violet-100 rounded px-2 text-sm text-violet-900 mx-1">new</span>`;
+
+function methodList(methods: ClassMethodDef[]) {
+  const lines = [];
+  for (const method of methods) {
+    const typeParams = method.functionDef.typeParams.map(TypeParam).join(", ");
+    const params = method.functionDef.params.map(Param).join(", ");
+    const returnType = method.functionDef.returnType
+      ? TypeDef(method.functionDef.returnType)
+      : "";
+    const description = method.jsDoc?.doc || NO_DOCS_AVAILABLE;
+    lines.push(
+      `<dt>**${method.name}**${typeParams ? `&lt;${typeParams}&gt;` : ""}(${params}): ${returnType}</dt>`,
+      `<dd class="flex flex-col [&>pre]:mb-3 [&:not(:last-child)]:border-dotted [&:not(:last-child)]:border-b-2 [&:not(:last-child)]:pb-3 [&:not(:last-child)]:mb-3">`,
+      description,
+      "</dd>",
+    );
+  }
+  return lines;
 }

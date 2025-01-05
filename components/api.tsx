@@ -161,11 +161,9 @@ export function* Type(props: TypeProps): Operation<JSXElement> {
     default:
       console.log("<Type> unimplemented", node.kind);
       return (
-        <Heading>
-          <span class="inline-block">
-            <Keyword>{node.kind}</Keyword> {node.name}
-          </span>
-        </Heading>
+        <span class="inline-block">
+          <Keyword>{node.kind}</Keyword> {node.name}
+        </span>
       );
   }
 }

@@ -12,7 +12,7 @@ import { twindPlugin } from "./plugins/twind.ts";
 import { assetsRoute } from "./routes/assets-route.ts";
 import { docsRoute } from "./routes/docs-route.tsx";
 import { indexRoute } from "./routes/index-route.tsx";
-import { apiSymbolRoute } from "./routes/api/symbol-route.tsx";
+import { apiReferenceRoute } from "./routes/api-reference-route.tsx";
 import { contribIndexRoute } from "./routes/contrib/index-route.tsx";
 import { contribPackageRoute } from "./routes/contrib/package-route.tsx";
 
@@ -21,6 +21,7 @@ import { loadDocs } from "./docs/docs.ts";
 import { loadRepository } from "./resources/repository.ts";
 import { initGithubClientContext } from "./context/github.ts";
 import { initJSRClient } from "./context/jsr.ts";
+import { apiIndexRoute } from "./routes/api-index-route.tsx";
 
 // Learn more at https://docs.deno.com/runtime/manual/examples/module_metadata#concepts
 if (import.meta.main) {
@@ -67,7 +68,9 @@ if (import.meta.main) {
         route("/docs/:id", docsRoute(docs)),
         route("/contrib", contribIndexRoute(contrib)),
         route("/contrib/:workspacePath", contribPackageRoute(contrib)),
-        route("/api/:symbol", apiSymbolRoute(library)),
+        route("/api", apiIndexRoute({ library })),
+        route("/api/v3/:symbol", apiReferenceRoute({ library, pattern: "effection-v3" })),
+        route("/api/v4/:symbol", apiReferenceRoute({ library, pattern: "effection-v4" })),
         route("/assets(.*)", assetsRoute("assets")),
       ],
       plugins: [

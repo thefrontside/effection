@@ -6,7 +6,7 @@ import { DocPage } from "../../hooks/use-deno-doc.tsx";
 import { Operation } from "effection";
 import { JSXChild, JSXElement } from "revolution/jsx-runtime";
 
-interface DocPageLinkResolver {
+export interface DocPageLinkResolver {
   (page: DocPage): Operation<string>;
 }
 

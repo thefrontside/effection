@@ -173,7 +173,7 @@ export function loadRepository(
   });
 }
 
-function extractVersion(input: string) {
+export function extractVersion(input: string) {
   const parts = input.match(
     // @source: https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string
     /(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?/,

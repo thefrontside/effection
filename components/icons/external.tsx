@@ -1,9 +1,11 @@
 // @ts-nocheck Property 'svg' does not exist on type 'JSX.IntrinsicElements'.deno-ts(2339)
-export const IconExternal = () => (
+import { JSXComponentProps } from "revolution/jsx-runtime";
+
+export const IconExternal = (props: JSXComponentProps = {}) => (
   <svg
-    class="inline"
-    width="13.5"
-    height="13.5"
+    class={props.class ?? "inline"}
+    width={props.width ?? "13.5"}
+    height={props.height ?? "13.5"}
     aria-hidden="true"
     viewBox="0 0 24 24"
   >

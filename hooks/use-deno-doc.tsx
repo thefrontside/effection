@@ -114,6 +114,17 @@ export function* extract(
     }
   }
 
+  const examples =
+    node.jsDoc &&
+    node.jsDoc.tags?.flatMap((tag) => (tag.kind === "example" ? [tag] : []));
+  if (examples && examples?.length > 0) {
+    lines.push("### Examples");
+    let i = 1;
+    for (const example of examples) {
+      lines.push(`#### Example ${i++}`, example.doc, "---");
+    }
+  }
+
   if (node.kind === "class") {
     if (node.classDef.constructors.length > 0) {
       lines.push(`### Constructors`, "<dl>");
@@ -150,17 +161,6 @@ export function* extract(
         ...methodList(staticMethods),
         "</dl>",
       );
-    }
-  }
-
-  const examples =
-    node.jsDoc &&
-    node.jsDoc.tags?.flatMap((tag) => (tag.kind === "example" ? [tag] : []));
-  if (examples && examples?.length > 0) {
-    lines.push("### Examples");
-    let i = 1;
-    for (const example of examples) {
-      lines.push(`#### Example ${i++}`, example.doc, "---");
     }
   }
 
@@ -204,8 +204,23 @@ export function* extract(
   if (node.kind === "interface") {
     lines.push("\n", ...TypeParams(node.interfaceDef.typeParams, node));
 
+    if (node.interfaceDef.properties.length > 0) {
+      lines.push("### Properties", "<dl>");
+      for (const property of node.interfaceDef.properties) {
+        const typeDef = property.tsType ? TypeDef(property.tsType) : "";
+        const description = property.jsDoc?.doc || NO_DOCS_AVAILABLE;
+        lines.push(
+          `<dt class="border-dotted [&:not(:first-child)]:border-t-2 [&:not(:first-child)]:pt-3 [&:not(:first-child)]:mt-2">**${property.name}**: ${typeDef}</dt>`,
+          `<dd class="flex flex-col [&>pre]:mb-3">`,
+          description,
+          "</dd>",
+        );
+      }
+      lines.push("</dl>");
+    }
+
     if (node.interfaceDef.methods.length > 0) {
-      lines.push("\n", "### Methods", "<dl>");
+      lines.push("### Methods", "<dl>");
       for (const method of node.interfaceDef.methods) {
         const typeParams = method.typeParams.map(TypeParam).join(", ");
         const params = method.params.map(Param).join(", ");

@@ -19,7 +19,7 @@ import {
 } from "./tokens.tsx";
 import { useJsDocMarkdown } from "../hooks/use-markdown.tsx";
 import { Package } from "../resources/package.ts";
-import { DocNode } from "../hooks/use-deno-doc.tsx";
+import { DocNode, NO_DOCS_AVAILABLE } from "../hooks/use-deno-doc.tsx";
 
 export function* API(pkg: Package): Operation<JSXElement> {
   const elements: JSXElement[] = [];
@@ -38,11 +38,9 @@ export function* API(pkg: Package): Operation<JSXElement> {
                 })
               }
             </h3>
-            {section.markdown ? (
-              <div>{yield* useJsDocMarkdown(section.markdown)}</div>
-            ) : (
-              <></>
-            )}
+            <div class="[&>h3:first-child]:mt-0">
+              {yield* useJsDocMarkdown(section.markdown || NO_DOCS_AVAILABLE)}
+            </div>
           </section>,
         );
       }

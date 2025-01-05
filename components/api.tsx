@@ -1,4 +1,5 @@
 import { type Operation } from "effection";
+
 import type { JSXElement } from "revolution";
 import type {
   ClassDef,
@@ -20,6 +21,7 @@ import {
 import { useMarkdown } from "../hooks/use-markdown.tsx";
 import { Package } from "../resources/package.ts";
 import { DocNode, NO_DOCS_AVAILABLE } from "../hooks/use-deno-doc.tsx";
+import { shiftHeadings } from "../lib/shift-headings.ts";
 
 export function* API(pkg: Package): Operation<JSXElement> {
   const elements: JSXElement[] = [];
@@ -39,7 +41,11 @@ export function* API(pkg: Package): Operation<JSXElement> {
               }
             </h3>
             <div class="[&>h3:first-child]:mt-0">
-              {yield* useMarkdown(section.markdown || NO_DOCS_AVAILABLE)}
+              {
+                yield* useMarkdown(section.markdown || NO_DOCS_AVAILABLE, {
+                  remarkPlugins: [[shiftHeadings, 1]],
+                })
+              }
             </div>
           </section>,
         );

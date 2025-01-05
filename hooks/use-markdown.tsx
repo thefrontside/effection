@@ -19,7 +19,7 @@ export function* defaultLinkResolver(
 }
 
 interface UseMarkdownOptions {
-  resolve: ResolveLinkFunction;
+  resolve?: ResolveLinkFunction;
 }
 
 export type ResolveLinkFunction = (
@@ -42,7 +42,7 @@ export function* useMarkdown(
   const sanitized = yield* sanitize(markdown);
 
   const mod = yield* useMDX(sanitized, {
-    remarkPlugins: [remarkGfm],
+    remarkPlugins: [remarkGfm, ...options?.remarkPlugins ?? []],
     rehypePlugins: [
       [removeDescriptionHR],
       [
@@ -51,7 +51,9 @@ export function* useMarkdown(
           showLineNumbers: true,
         },
       ],
+      ...options?.rehypePlugins ?? []
     ],
+    remarkRehypeOptions: options?.remarkRehypeOptions
   });
 
   return yield* call(() => mod.default());

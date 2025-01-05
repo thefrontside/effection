@@ -67,6 +67,7 @@
     "npm:hast-util-from-html@*": "2.0.3",
     "npm:hast-util-select@*": "6.0.1",
     "npm:hast-util-select@6.0.1": "6.0.1",
+    "npm:hast-util-shift-heading@4.0.0": "4.0.0",
     "npm:hast-util-to-html@*": "9.0.0",
     "npm:hast-util-to-html@9.0.0": "9.0.0",
     "npm:hast-util-to-html@9.0.4": "9.0.4",
@@ -1550,6 +1551,14 @@
         "space-separated-tokens@2.0.2",
         "unist-util-visit@5.0.0",
         "zwitch@2.0.4"
+      ]
+    },
+    "hast-util-shift-heading@4.0.0": {
+      "integrity": "sha512-1WzYRfcydfUIAn/N/QBDLlaG/JlXnE3Tx2ybuQFZKP4ZfM9v8FPJ/8i6pEaSoEtEI+FzjYmALlOJROkgRg3epg==",
+      "dependencies": [
+        "@types/hast@3.0.4",
+        "hast-util-heading-rank@3.0.0",
+        "unist-util-visit@5.0.0"
       ]
     },
     "hast-util-to-dom@4.0.0": {

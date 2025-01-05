@@ -2,13 +2,10 @@ import { join } from "jsr:@std/path@1.0.6";
 
 import { Keyword, Punctuation } from "../tokens.tsx";
 import { Package } from "../../resources/package.ts";
-import { DocPage } from "../../hooks/use-deno-doc.tsx";
+import { DocPage, DocPageLinkResolver } from "../../hooks/use-deno-doc.tsx";
 import { Operation } from "effection";
 import { JSXChild, JSXElement } from "revolution/jsx-runtime";
 
-export interface DocPageLinkResolver {
-  (page: DocPage): Operation<string>;
-}
 
 export function* PackageExports({
   pkg,
@@ -50,7 +47,7 @@ function* PackageExport({
 }: PackageExportOptions): Operation<JSXElement> {
   const exports: JSXChild[] = [];
 
-  for (const page of docPages) {
+  for (const page of docPages.sort((a, b) => a.name.localeCompare(b.name))) {
     exports.push(
       ...[
         <a

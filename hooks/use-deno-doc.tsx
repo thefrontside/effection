@@ -13,6 +13,10 @@ import { toHtml } from "npm:hast-util-to-html@9.0.4";
 
 export type { DocNode };
 
+export interface DocPageLinkResolver {
+  (page: DocPage): Operation<string>;
+}
+
 export function* useDenoDoc(
   specifiers: string[],
   docOptions?: DocOptions,
@@ -24,7 +28,7 @@ export interface DocPage {
   name: string;
   sections: DocPageSection[];
   description: string;
-  kind: string;
+  kind: DocNode["kind"];
 }
 
 export interface DocPageSection {

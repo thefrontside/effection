@@ -5,8 +5,7 @@ import { SitemapRoute } from "../plugins/sitemap.ts";
 import { useAppHtml } from "./app.html.tsx";
 import { ApiReference, getApiForLatestTag } from "./api-reference-route.tsx";
 import { extractVersion, Repository } from "../resources/repository.ts";
-import { PackageExports } from "../components/package/exports.tsx";
-import { DocPage } from "../hooks/use-deno-doc.tsx";
+import { DocPage, DocPageLinkResolver } from "../hooks/use-deno-doc.tsx";
 
 export function apiIndexRoute({
   library,
@@ -31,12 +30,24 @@ export function apiIndexRoute({
         if (!v3pkg)
           throw new Error(`Could not retrieve root package from ${v3ref.ref}`);
 
+        const v3version = extractVersion(v3ref.name);
+
+        if (!v4ref)
+          throw new Error(`Could not retrieve a tag for "effection-v4"`);
+        if (!v4docs)
+          throw new Error(`Cound not retrieve docs for "effection-v4"`);
+
+        const v4pkg = yield* v3ref.loadRootPackage();
+
+        if (!v4pkg)
+          throw new Error(`Could not retrieve root package from ${v4ref.ref}`);
+
+        const v4version = extractVersion(v4ref.name);
+
         const AppHtml = yield* useAppHtml({
           title: `API Reference | Effection`,
           description: `API Reference for Effection`,
         });
-
-        const version = extractVersion(v3ref.name);
 
         return (
           <AppHtml>
@@ -50,15 +61,28 @@ export function apiIndexRoute({
                   content: (
                     <>
                       <h1>API Reference</h1>
-                      <h2>Current: v{version}</h2>
-                      <>
-                        {
-                          yield* PackageExports({
-                            pkg: v3pkg,
-                            linkResolver: linkResolver("v3"),
-                          })
-                        }
-                      </>
+                      <section>
+                        <h2>Latest release: {v3version}</h2>
+                        <ul class="columns-3">
+                          {
+                            yield* listPages({
+                              pages: v3docs["."],
+                              linkResolver: linkResolver("v3"),
+                            })
+                          }
+                        </ul>
+                      </section>
+                      <section>
+                        <h2>Canary release: {v4version}</h2>
+                        <ul class="columns-3">
+                          {
+                            yield* listPages({
+                              pages: v3docs["."],
+                              linkResolver: linkResolver("v4"),
+                            })
+                          }
+                        </ul>
+                      </section>
                     </>
                   ),
                 })
@@ -86,4 +110,24 @@ function linkResolver(version: string) {
   return function* (doc: DocPage) {
     return `/api/${version}/${doc.name}`;
   };
+}
+
+function* listPages({
+  pages,
+  linkResolver,
+}: {
+  pages: DocPage[];
+  linkResolver: DocPageLinkResolver;
+}) {
+  const elements = [];
+
+  for (const page of pages.sort((a, b) => a.name.localeCompare(b.name))) {
+    const link = yield* linkResolver(page);
+    elements.push(
+      <li>
+        <a href={link}>{page.name}</a>
+      </li>,
+    );
+  }
+  return <>{elements}</>;
 }

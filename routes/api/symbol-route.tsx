@@ -64,8 +64,13 @@ export function apiSymbolRoute(library: Repository): SitemapRoute<JSXElement> {
           for (const [i, section] of Object.entries(page?.sections)) {
             if (section.markdown) {
               elements.push(
-                <section id={section.id} class={`${i !== "0" ? "border-t-2" : ""} pb-7`}>
-                  {yield* Type({ node: section.node, Heading: (props) => <h2 class="flex mt-7" {...props} /> })}
+                <section
+                  id={section.id}
+                  class={`${i !== "0" ? "border-t-2" : ""} pb-7`}
+                >
+                  <h2 class="flex mt-7">
+                    {yield* Type({ node: section.node })}
+                  </h2>
                   <div class="[&>hr]:my-5 [&>p]:mb-0">
                     {yield* useJsDocMarkdown(section.markdown)}
                   </div>

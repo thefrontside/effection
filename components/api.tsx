@@ -19,12 +19,7 @@ import {
 } from "./tokens.tsx";
 import { useJsDocMarkdown } from "../hooks/use-markdown.tsx";
 import { Package } from "../resources/package.ts";
-import { DocNode, NO_DOCS_AVAILABLE } from "../hooks/use-deno-doc.tsx";
-import {
-  JSXComponent,
-  JSXComponentProps,
-  JSXElementProps,
-} from "revolution/jsx-runtime";
+import { DocNode } from "../hooks/use-deno-doc.tsx";
 
 export function* API(pkg: Package): Operation<JSXElement> {
   const elements: JSXElement[] = [];
@@ -36,17 +31,18 @@ export function* API(pkg: Package): Operation<JSXElement> {
       for (const section of page.sections) {
         elements.push(
           <section id={section.id} class="flex flex-col border-b-2 pb-5">
-            {
-              yield* Type({
-                node: section.node,
-                Heading: (props) => <h3 class="flex" {...props} />,
-              })
-            }
-            <div class="">
-              {section.markdown
-                ? yield* useJsDocMarkdown(section.markdown)
-                : NO_DOCS_AVAILABLE}
-            </div>
+            <h3 class="flex">
+              {
+                yield* Type({
+                  node: section.node,
+                })
+              }
+            </h3>
+            {section.markdown ? (
+              <div>{yield* useJsDocMarkdown(section.markdown)}</div>
+            ) : (
+              <></>
+            )}
           </section>,
         );
       }
@@ -58,136 +54,105 @@ export function* API(pkg: Package): Operation<JSXElement> {
 
 interface TypeProps {
   node: DocNode;
-  Heading?: (props: JSXComponentProps & JSXElementProps) => JSXElement;
 }
 
 export function* Type(props: TypeProps): Operation<JSXElement> {
   const { node } = props;
 
-  const Heading: JSXComponent = (props.Heading as JSXComponent) || <></>;
-
   switch (node.kind) {
     case "function":
       return (
-        <Heading>
-          <span class="language-ts code-highlight inline-block">
-            {node.functionDef.isAsync ? (
-              <Punctuation>{"async "}</Punctuation>
-            ) : (
-              <></>
-            )}
-            <Keyword>{node.kind}</Keyword>
-            {node.functionDef.isGenerator ? (
-              <Punctuation>*</Punctuation>
-            ) : (
-              <></>
-            )}{" "}
-            <span class="token function">{node.name}</span>
-            {node.functionDef.typeParams.length > 0 ? (
-              <InterfaceTypeParams typeParams={node.functionDef.typeParams} />
-            ) : (
-              <></>
-            )}
-            <Punctuation>(</Punctuation>
-            <FunctionParams params={node.functionDef.params} />
-            <Punctuation>)</Punctuation>:{" "}
-            {node.functionDef.returnType ? (
-              <TypeDef typeDef={node.functionDef.returnType} />
-            ) : (
-              <></>
-            )}
-          </span>
-        </Heading>
+        <span class="language-ts code-highlight inline-block">
+          {node.functionDef.isAsync ? (
+            <Punctuation>{"async "}</Punctuation>
+          ) : (
+            <></>
+          )}
+          <Keyword>{node.kind}</Keyword>
+          {node.functionDef.isGenerator ? (
+            <Punctuation>*</Punctuation>
+          ) : (
+            <></>
+          )}{" "}
+          <span class="token function">{node.name}</span>
+          {node.functionDef.typeParams.length > 0 ? (
+            <InterfaceTypeParams typeParams={node.functionDef.typeParams} />
+          ) : (
+            <></>
+          )}
+          <Punctuation>(</Punctuation>
+          <FunctionParams params={node.functionDef.params} />
+          <Punctuation>)</Punctuation>:{" "}
+          {node.functionDef.returnType ? (
+            <TypeDef typeDef={node.functionDef.returnType} />
+          ) : (
+            <></>
+          )}
+        </span>
       );
     case "class":
       return (
         <span class="language-ts code-highlight inline-block">
-          <Heading>
-            <span class="inline-block mb-0">
-              <Keyword>{node.kind}</Keyword> <ClassName>{node.name}</ClassName>
-              {node.classDef.extends ? (
-                <>
-                  <Keyword>{" extends "}</Keyword>
-                  <ClassName>{node.classDef.extends}</ClassName>
-                </>
-              ) : (
-                <></>
-              )}
-              {node.classDef.implements ? (
-                <>
-                  <Keyword>{" implements "}</Keyword>
-                  <>
-                    {node.classDef.implements
-                      .flatMap((typeDef) => [
-                        <TypeDef typeDef={typeDef} />,
-                        ", ",
-                      ])
-                      .slice(0, -1)}
-                  </>
-                </>
-              ) : (
-                <></>
-              )}
-              <Punctuation classes="text-lg">{" {"}</Punctuation>
-            </span>
-          </Heading>
-          {yield* TSClassDef({ classDef: node.classDef })}
-          <Punctuation classes="text-lg">{"}"}</Punctuation>
+          <Keyword>{node.kind}</Keyword> <ClassName>{node.name}</ClassName>
+          {node.classDef.extends ? (
+            <>
+              <Keyword>{" extends "}</Keyword>
+              <ClassName>{node.classDef.extends}</ClassName>
+            </>
+          ) : (
+            <></>
+          )}
+          {node.classDef.implements ? (
+            <>
+              <Keyword>{" implements "}</Keyword>
+              <>
+                {node.classDef.implements
+                  .flatMap((typeDef) => [<TypeDef typeDef={typeDef} />, ", "])
+                  .slice(0, -1)}
+              </>
+            </>
+          ) : (
+            <></>
+          )}
         </span>
       );
     case "interface":
       return (
         <span class="language-ts code-highlight inline-block">
-          <Heading>
-            <span class="inline-block mb-0">
-              <Keyword>{node.kind}</Keyword> <ClassName>{node.name}</ClassName>
-              {node.interfaceDef.typeParams.length > 0 ? (
-                <InterfaceTypeParams
-                  typeParams={node.interfaceDef.typeParams}
-                />
-              ) : (
-                <></>
-              )}
-              {node.interfaceDef.extends.length > 0 ? (
-                <>
-                  <Keyword>{" extends "}</Keyword>
-                  <>
-                    {node.interfaceDef.extends
-                      .flatMap((typeDef) => [
-                        <TypeDef typeDef={typeDef} />,
-                        ", ",
-                      ])
-                      .slice(0, -1)}
-                  </>
-                </>
-              ) : (
-                <></>
-              )}
-              <Punctuation classes="text-lg">{" {"}</Punctuation>
-            </span>
-          </Heading>
-          {yield* TSInterfaceDef({ interfaceDef: node.interfaceDef })}
-          <Punctuation classes="text-lg">{"}"}</Punctuation>
+          <Keyword>{node.kind}</Keyword> <ClassName>{node.name}</ClassName>
+          {node.interfaceDef.typeParams.length > 0 ? (
+            <InterfaceTypeParams typeParams={node.interfaceDef.typeParams} />
+          ) : (
+            <></>
+          )}
+          {node.interfaceDef.extends.length > 0 ? (
+            <>
+              <Keyword>{" extends "}</Keyword>
+              <>
+                {node.interfaceDef.extends
+                  .flatMap((typeDef) => [<TypeDef typeDef={typeDef} />, ", "])
+                  .slice(0, -1)}
+              </>
+            </>
+          ) : (
+            <></>
+          )}
         </span>
       );
     case "variable":
       return (
-        <Heading>
-          <span class="inline-block">
-            <TSVariableDef variableDef={node.variableDef} name={node.name} />
-          </span>
-        </Heading>
+        <span class="inline-block">
+          <TSVariableDef variableDef={node.variableDef} name={node.name} />
+        </span>
       );
     case "typeAlias":
       return (
-        <Heading>
-          <span class="inline-block">
-            <Keyword>{"type "}</Keyword>
-            {node.name}
-            <Operator>{" = "}</Operator>
-            <TypeDef typeDef={node.typeAliasDef.tsType} />
-          </span>
-        </Heading>
+        <span class="inline-block">
+          <Keyword>{"type "}</Keyword>
+          {node.name}
+          <Operator>{" = "}</Operator>
+          <TypeDef typeDef={node.typeAliasDef.tsType} />
+        </span>
       );
     case "enum":
     case "import":
@@ -221,6 +186,10 @@ function TSVariableDef({
   );
 }
 
+/**
+ * This class definition that I'm no longer using in favour of definition generated
+ * with markdown. I'm keeping it in case it comes in handy in the future.
+ */
 function* TSClassDef({ classDef }: { classDef: ClassDef }) {
   const elements: JSXElement[] = [];
 
@@ -266,6 +235,10 @@ function* TSClassDef({ classDef }: { classDef: ClassDef }) {
   return <ul class="my-0 list-none pl-1">{elements}</ul>;
 }
 
+/**
+ * This interface definition that I'm no longer using in favour of definition generated
+ * with markdown. I'm keeping it in case it comes in handy in the future.
+ */
 function* TSInterfaceDef({
   interfaceDef,
 }: {

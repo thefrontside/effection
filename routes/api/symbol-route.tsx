@@ -3,7 +3,7 @@ import { type JSXElement, useParams } from "revolution";
 
 import { Type } from "../../components/api.tsx";
 import { DocPage, Icon } from "../../hooks/use-deno-doc.tsx";
-import { useJsDocMarkdown } from "../../hooks/use-markdown.tsx";
+import { useMarkdown } from "../../hooks/use-markdown.tsx";
 import { SitemapRoute } from "../../plugins/sitemap.ts";
 import { PackageDocs } from "../../resources/package.ts";
 import { Repository } from "../../resources/repository.ts";
@@ -72,7 +72,7 @@ export function apiSymbolRoute(library: Repository): SitemapRoute<JSXElement> {
                     {yield* Type({ node: section.node })}
                   </h2>
                   <div class="[&>hr]:my-5 [&>p]:mb-0">
-                    {yield* useJsDocMarkdown(section.markdown)}
+                    {yield* useMarkdown(section.markdown)}
                   </div>
                 </section>,
               );

@@ -17,7 +17,7 @@ import {
   Optional,
   Punctuation,
 } from "./tokens.tsx";
-import { useJsDocMarkdown } from "../hooks/use-markdown.tsx";
+import { useMarkdown } from "../hooks/use-markdown.tsx";
 import { Package } from "../resources/package.ts";
 import { DocNode, NO_DOCS_AVAILABLE } from "../hooks/use-deno-doc.tsx";
 
@@ -39,7 +39,7 @@ export function* API(pkg: Package): Operation<JSXElement> {
               }
             </h3>
             <div class="[&>h3:first-child]:mt-0">
-              {yield* useJsDocMarkdown(section.markdown || NO_DOCS_AVAILABLE)}
+              {yield* useMarkdown(section.markdown || NO_DOCS_AVAILABLE)}
             </div>
           </section>,
         );
@@ -191,7 +191,7 @@ function* TSClassDef({ classDef }: { classDef: ClassDef }) {
 
   for (const property of classDef.properties) {
     const jsDoc = property.jsDoc?.doc
-      ? yield* useJsDocMarkdown(property.jsDoc?.doc)
+      ? yield* useMarkdown(property.jsDoc?.doc)
       : undefined;
     elements.push(
       <li class={`text-base ${jsDoc ? "my-0 border-l-2 first:-mt-5" : "my-1"}`}>
@@ -207,7 +207,7 @@ function* TSClassDef({ classDef }: { classDef: ClassDef }) {
 
   for (const method of classDef.methods) {
     const jsDoc = method.jsDoc?.doc
-      ? yield* useJsDocMarkdown(method.jsDoc?.doc)
+      ? yield* useMarkdown(method.jsDoc?.doc)
       : undefined;
     elements.push(
       <li class={`${jsDoc ? "my-0 border-l-2 first:-mt-5" : "my-1"}`}>
@@ -243,7 +243,7 @@ function* TSInterfaceDef({
   const elements: JSXElement[] = [];
   for (const property of interfaceDef.properties) {
     const jsDoc = property.jsDoc?.doc
-      ? yield* useJsDocMarkdown(property.jsDoc?.doc)
+      ? yield* useMarkdown(property.jsDoc?.doc)
       : undefined;
     elements.push(
       <li class={`${jsDoc ? "my-0 border-l-2 first:-mt-5" : "my-1"}`}>
@@ -259,7 +259,7 @@ function* TSInterfaceDef({
 
   for (const method of interfaceDef.methods) {
     const jsDoc = method.jsDoc?.doc
-      ? yield* useJsDocMarkdown(method.jsDoc?.doc)
+      ? yield* useMarkdown(method.jsDoc?.doc)
       : undefined;
     elements.push(
       <li class={`${jsDoc ? "my-0 border-l-2 first:-mt-5" : "my-1"}`}>

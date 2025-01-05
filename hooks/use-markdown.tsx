@@ -1,13 +1,9 @@
 import { call, type Operation } from "effection";
-import type { JSXElement } from "revolution/jsx-runtime";
-import { useMDX } from "./use-mdx.tsx";
+import { useMDX, UseMDXOptions } from "./use-mdx.tsx";
 import { replaceAll } from "../lib/replace-all.ts";
-
-export function* useMarkdown(markdown: string): Operation<JSXElement> {
-  const mod = yield* useMDX(markdown);
-
-  return yield* call(() => mod.default());
-}
+import { removeDescriptionHR } from "../lib/remove-description-hr.ts";
+import rehypePrismPlus from "npm:rehype-prism-plus@2.0.0";
+import remarkGfm from "npm:remark-gfm@4.0.0";
 
 export function* defaultLinkResolver(
   symbol: string,
@@ -22,23 +18,48 @@ export function* defaultLinkResolver(
   return `[${name}](${name})`;
 }
 
+interface UseMarkdownOptions {
+  resolve: ResolveLinkFunction;
+}
+
 export type ResolveLinkFunction = (
   symbol: string,
   connector?: string,
   method?: string,
 ) => Operation<string>;
 
-export function* useJsDocMarkdown(
+export function* useMarkdown(
   markdown: string,
-  resolve: ResolveLinkFunction = defaultLinkResolver,
+  options?: UseMDXOptions & UseMarkdownOptions,
 ) {
-  const sanitize = createJsDocSanitizer(resolve)
+  /**
+   * I'm doing this pre-processing here because MDX throws a parse error when it encounteres `{@link }`. 
+   * I can't use a remark/rehype plugin to change this because they are applied after MDX parses is successful. 
+   */
+  const sanitize = createJsDocSanitizer(
+    options?.resolve ?? defaultLinkResolver,
+  );
   const sanitized = yield* sanitize(markdown);
 
-  return yield* useMarkdown(sanitized);
+  const mod = yield* useMDX(sanitized, {
+    remarkPlugins: [remarkGfm],
+    rehypePlugins: [
+      [removeDescriptionHR],
+      [
+        rehypePrismPlus,
+        {
+          showLineNumbers: true,
+        },
+      ],
+    ],
+  });
+
+  return yield* call(() => mod.default());
 }
 
-export function createJsDocSanitizer(resolver: ResolveLinkFunction = defaultLinkResolver) {
+export function createJsDocSanitizer(
+  resolver: ResolveLinkFunction = defaultLinkResolver,
+) {
   return function* sanitizeJsDoc(doc: string) {
     return yield* replaceAll(
       doc,
@@ -46,7 +67,7 @@ export function createJsDocSanitizer(resolver: ResolveLinkFunction = defaultLink
       function* (match) {
         const [, symbol, connector, method] = match;
         return yield* resolver(symbol, connector, method);
-      }
+      },
     );
-  }
+  };
 }

@@ -6,11 +6,12 @@ import githubUrlParse from "npm:parse-github-url@1.0.3";
 
 import { GithubClientContext } from "../context/github.ts";
 import { useJSRClient } from "../context/jsr.ts";
-import { type DocNode, DocPage, useDenoDoc, useDocPages } from "../hooks/use-deno-doc.tsx";
+import { DocPage, useDenoDoc, useDocPages } from "../hooks/use-deno-doc.tsx";
 import { useDescription } from "../hooks/use-description-parse.tsx";
 import { useMDX } from "../hooks/use-mdx.tsx";
 import { PackageDetailsResult, PackageScoreResult } from "./jsr-client.ts";
 import { RepositoryRef } from "./repository-ref.ts";
+import { defaultLinkResolver, ResolveLinkFunction } from "../hooks/use-markdown.tsx";
 
 export interface Package {
   /**
@@ -90,7 +91,7 @@ export interface Package {
   /**
    * Generated docs
    */
-  docs(): Operation<PackageDocs>;
+  docs({ linkResolver }: { linkResolver: ResolveLinkFunction }): Operation<PackageDocs>;
   MDXContent(): Operation<JSX.Element>;
   description(): Operation<string>;
 }
@@ -165,7 +166,7 @@ export function loadPackage(
         }
         return entrypoints;
       },
-      *docs() {
+      *docs(options = { linkResolver: defaultLinkResolver }) {
         const scope = yield* useScope();
 
         const docs: PackageDocs = {};
@@ -176,7 +177,7 @@ export function loadPackage(
             load: (specifier: string) => scope.run(docLoader(specifier)),
           });
 
-          const pages = yield* useDocPages(result);
+          const pages = yield* useDocPages(result, { linkResolver: options.linkResolver });
           
           docs[entrypoint] = pages[`${url}`];
         }

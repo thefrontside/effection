@@ -8,7 +8,13 @@ import { useMarkdown } from "../../hooks/use-markdown.tsx";
 import type { RoutePath, SitemapRoute } from "../../plugins/sitemap.ts";
 import { Repository } from "../../resources/repository.ts";
 import { useAppHtml } from "../app.html.tsx";
-import { DocPage } from "../../hooks/use-deno-doc.tsx";
+
+function* linkResolver(symbol: string, connector?: string, method?: string) {
+  if (connector === "_") {
+    return `#${symbol}_${method}`;
+  }
+  return symbol;
+}
 
 export function contribPackageRoute(
   contrib: Repository,
@@ -36,6 +42,7 @@ export function contribPackageRoute(
       try {
         const main = yield* contrib.loadRef();
         const pkg = yield* main.loadWorkspace(`./${params.workspacePath}`);
+        const docs = yield* pkg.docs({ linkResolver });
 
         const AppHTML = yield* useAppHtml({
           title: `${pkg.packageName} | Contrib | Effection`,
@@ -49,10 +56,18 @@ export function contribPackageRoute(
                 <article class="min-w-0 lg:col-span-7 lg:row-start-1">
                   {yield* PackageHeader(pkg)}
                   <div class="prose max-w-full">
-                    <div class="mb-5">{yield* PackageExports({ pkg, linkResolver })}</div>
-                    {yield* useMarkdown(yield* pkg.readme())}
+                    <div class="mb-5">
+                      {
+                        yield* PackageExports({
+                          packageName: pkg.packageName,
+                          docs,
+                          linkResolver,
+                        })
+                      }
+                    </div>
+                    {yield* useMarkdown(yield* pkg.readme(), { linkResolver })}
                     <h2 class="mb-0">API Reference</h2>
-                    {yield* API(pkg)}
+                    {yield* API({ pkg, linkResolver })}
                   </div>
                 </article>
                 <aside class="lg:col-[span_3/_-1] lg:top-0 lg:sticky lg:max-h-screen flex flex-col box-border gap-y-4 -mt-4 pt-4">
@@ -76,8 +91,4 @@ export function contribPackageRoute(
       }
     },
   };
-}
-
-function* linkResolver(page: DocPage) {
-  return `#${page.kind}_${page.name}`;
 }

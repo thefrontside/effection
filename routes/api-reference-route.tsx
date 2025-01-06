@@ -4,31 +4,17 @@ import { type JSXElement, useParams } from "revolution";
 import { Type } from "../components/api.tsx";
 import { Keyword } from "../components/tokens.tsx";
 import { DocPage, DocPageLinkResolver, Icon } from "../hooks/use-deno-doc.tsx";
-import { useMarkdown } from "../hooks/use-markdown.tsx";
+import {
+  defaultLinkResolver,
+  ResolveLinkFunction,
+  useMarkdown,
+} from "../hooks/use-markdown.tsx";
 import { SitemapRoute } from "../plugins/sitemap.ts";
 import { PackageDocs } from "../resources/package.ts";
 import { RepositoryRef } from "../resources/repository-ref.ts";
 import { extractVersion, Repository } from "../resources/repository.ts";
 import { useAppHtml } from "./app.html.tsx";
 import { IconExternal } from "../components/icons/external.tsx";
-
-export function* getApiForLatestTag(
-  repository: Repository,
-  searchQuery: string,
-): Operation<[RepositoryRef | undefined, PackageDocs | undefined]> {
-  const latest = yield* repository.getLatestSemverTag(searchQuery);
-
-  if (latest) {
-    const ref = yield* repository.loadRef(`tags/${latest.name}`);
-    const pkg = yield* ref.loadRootPackage();
-    if (pkg) {
-      return [ref, yield* pkg.docs()];
-    }
-    return [ref, undefined];
-  }
-
-  return [undefined, undefined];
-}
 
 export function apiReferenceRoute({
   library,
@@ -67,9 +53,23 @@ export function apiReferenceRoute({
 
         if (!docs) throw new Error(`Could not retreive docs`);
 
+        const pages = docs["."];
+
         const page = docs["."].find((node) => node.name === symbol);
 
         if (!page) throw new Error(`Could not find a doc page for ${symbol}`);
+
+        const internal: ResolveLinkFunction = function* resolve(
+          symbol,
+          connector,
+          method,
+        ) {
+          if (pages && pages.find((page) => page.name === symbol)) {
+            return yield* defaultLinkResolver(symbol, connector, method);
+          } else {
+            return symbol;
+          }
+        };
 
         const elements: JSXElement[] = [];
         if (page) {
@@ -84,7 +84,11 @@ export function apiReferenceRoute({
                     {yield* Type({ node: section.node })}
                   </h2>
                   <div class="[&>hr]:my-5 [&>p]:mb-0">
-                    {yield* useMarkdown(section.markdown)}
+                    {
+                      yield* useMarkdown(section.markdown, {
+                        linkResolver: internal,
+                      })
+                    }
                   </div>
                 </section>,
               );
@@ -140,6 +144,25 @@ export function apiReferenceRoute({
       }
     },
   };
+}
+
+export function* getApiForLatestTag(
+  repository: Repository,
+  searchQuery: string,
+  linkResolver: ResolveLinkFunction = defaultLinkResolver,
+): Operation<[RepositoryRef | undefined, PackageDocs | undefined]> {
+  const latest = yield* repository.getLatestSemverTag(searchQuery);
+
+  if (latest) {
+    const ref = yield* repository.loadRef(`tags/${latest.name}`);
+    const pkg = yield* ref.loadRootPackage();
+    if (pkg) {
+      return [ref, yield* pkg.docs({ linkResolver })];
+    }
+    return [ref, undefined];
+  }
+
+  return [undefined, undefined];
 }
 
 export function* ApiReference({

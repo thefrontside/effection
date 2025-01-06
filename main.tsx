@@ -12,13 +12,16 @@ import { twindPlugin } from "./plugins/twind.ts";
 import { assetsRoute } from "./routes/assets-route.ts";
 import { docsRoute } from "./routes/docs-route.tsx";
 import { indexRoute } from "./routes/index-route.tsx";
-import { apiVersionRoute } from "./routes/api/version-route.tsx";
+import { apiReferenceRoute } from "./routes/api-reference-route.tsx";
 import { contribIndexRoute } from "./routes/contrib/index-route.tsx";
 import { contribPackageRoute } from "./routes/contrib/package-route.tsx";
 
 import { patchDenoPermissionsQuerySync } from "./deno-deploy-patch.ts";
 import { loadDocs } from "./docs/docs.ts";
-import { initRepositoryContext } from "./hooks/use-repository.ts";
+import { loadRepository } from "./resources/repository.ts";
+import { initGithubClientContext } from "./context/github.ts";
+import { initJSRClient } from "./context/jsr.ts";
+import { apiIndexRoute } from "./routes/api-index-route.tsx";
 
 // Learn more at https://docs.deno.com/runtime/manual/examples/module_metadata#concepts
 if (import.meta.main) {
@@ -29,21 +32,45 @@ if (import.meta.main) {
       patchDenoPermissionsQuerySync();
     }
 
+    const jsrToken = Deno.env.get("JSR_API") ?? "";
+    if (jsrToken === "") {
+      console.log("Missing JSR API token; expect score card not to load.");
+    }
+
+    yield* initJSRClient({
+      token: jsrToken,
+    });
+
+    const githubToken = Deno.env.get("GITHUB_TOKEN");
+    if (!githubToken) {
+      throw new Error(`GITHUB_TOKEN environment variable is missing`);
+    }
+
+    yield* initGithubClientContext({
+      token: githubToken,
+    });
+
     let docs = yield* loadDocs();
 
-    yield* initRepositoryContext({
-      name: "thefrontside/effection",
-      location: new URL("../", import.meta.url),
-      defaultBranch: "v4",
+    let library = yield* loadRepository({
+      owner: "thefrontside",
+      name: "effection",
+    });
+
+    let contrib = yield* loadRepository({
+      owner: "thefrontside",
+      name: "effection-contrib",
     });
 
     let revolution = createRevolution({
       app: [
         route("/", indexRoute()),
         route("/docs/:id", docsRoute(docs)),
-        route("/contrib", contribIndexRoute()),
-        route("/contrib/:workspace", contribPackageRoute()),
-        route("/api/:symbol", apiVersionRoute()),
+        route("/contrib", contribIndexRoute(contrib)),
+        route("/contrib/:workspacePath", contribPackageRoute(contrib)),
+        route("/api", apiIndexRoute({ library })),
+        route("/api/v3/:symbol", apiReferenceRoute({ library, pattern: "effection-v3" })),
+        route("/api/v4/:symbol", apiReferenceRoute({ library, pattern: "effection-v4" })),
         route("/assets(.*)", assetsRoute("assets")),
       ],
       plugins: [

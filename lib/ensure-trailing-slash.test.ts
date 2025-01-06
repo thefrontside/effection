@@ -1,5 +1,5 @@
 import { assertEquals } from "jsr:@std/assert";
-import { ensureTrailingSlash } from "./use-package.tsx";
+import { ensureTrailingSlash } from "./ensure-trailing-slash.ts";
 
 Deno.test("ensureTrailingSlash adds trailing slash to each URL", () => {
   assertEquals(

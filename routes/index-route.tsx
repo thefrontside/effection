@@ -13,9 +13,10 @@ export function indexRoute(): SitemapRoute<JSXElement> {
       }];
     },
     handler: function* () {
-      let AppHtml = yield* useAppHtml({ 
+      let AppHtml = yield* useAppHtml({
         title: `Effection`,
-        description: "Effection is a structured concurrency and effects framework for JavaScript."
+        description:
+          "Effection is a structured concurrency and effects framework for JavaScript.",
       });
       let announcementUrl =
         "https://frontside.com/blog/2023-12-18-announcing-effection-v3/";
@@ -78,7 +79,7 @@ export function indexRoute(): SitemapRoute<JSXElement> {
                     class="mx-auto w-full aspect-video pr-0.5"
                     src="https://www.youtube.com/embed/lJDgpxRw5WA?si=rZuOYa_UWDdP1G_V"
                     title="YouTube video player"
-		    //@ts-expect-error TODO: add frameborder attribute to JSX
+                    //@ts-expect-error TODO: add frameborder attribute to JSX
                     frameborder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                     allowfullscreen

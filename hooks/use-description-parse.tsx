@@ -12,7 +12,6 @@ import { trimAfterHR } from "../lib/trim-after-hr.ts";
 
 export function* useDescription(markdown: string): Operation<string> {
   const file = yield* useMarkdownFile(markdown);
-
   return file.data?.meta?.description ?? "";
 }
 

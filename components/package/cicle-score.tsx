@@ -1,4 +1,4 @@
-import { PackageDetailsResult } from "../../hooks/use-jsr-client.ts";
+import { PackageDetailsResult } from "../../resources/jsr-client.ts";
 
 export function CircleScore({ details }: { details: PackageDetailsResult }) {
   return (

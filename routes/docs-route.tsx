@@ -8,8 +8,8 @@ import { Transform } from "../components/transform.tsx";
 
 import rehypeToc from "npm:@jsdevtools/rehype-toc@3.0.2";
 import rehypeAddClasses from "npm:rehype-add-classes@1.0.0";
-import rehypeAutolinkHeadings from "npm:rehype-autolink-headings@6.1.1";
-import rehypeSlug from "npm:rehype-slug@5.1.0";
+import rehypeAutolinkHeadings from "npm:rehype-autolink-headings@7.1.0";
+import rehypeSlug from "npm:rehype-slug@6.0.0";
 import { useDescription } from "../hooks/use-description-parse.tsx";
 import { RoutePath, SitemapRoute } from "../plugins/sitemap.ts";
 
@@ -37,9 +37,9 @@ export function docsRoute(docs: Docs): SitemapRoute<JSXElement> {
 
       const description = yield* useDescription(doc.markdown);
 
-      let AppHtml = yield* useAppHtml({ 
+      let AppHtml = yield* useAppHtml({
         title: `${doc.title} | Docs | Effection`,
-        description
+        description,
       });
 
       return (
@@ -128,6 +128,7 @@ export function docsRoute(docs: Docs): SitemapRoute<JSXElement> {
                       "h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]": "group",
                       "pre": "grid",
                     }],
+                    // @ts-expect-error deno-ts(2322)
                     [rehypeToc, {
                       cssClasses: {
                         toc:
@@ -208,79 +209,4 @@ function liftTOC(element: JSX.Element): JSX.Element {
       nav,
     ],
   };
-}
-
-function customizeTOC(toc: HtmlElementNode) {
-  const [list, ...rest] = toc?.children as HtmlElementNode[];
-  const modified = addPaddingToChildren({
-    ...toc,
-    children: [
-      {
-        ...list,
-        properties: {
-          className: `fixed w-[250px] ${list.properties.className}`,
-        },
-        children: [
-          {
-            type: "element",
-            tagName: "li",
-            properties: {
-              className: '',
-            },
-            children: [
-              {
-                type: "element",
-                tagName: "h2",
-                properties: {
-                  className: "text-lg",
-                },
-                children: [
-                  {
-                    type: "text",
-                    value: "On this page",
-                  } as unknown as HtmlElementNode,
-                ],
-              } as unknown as HtmlElementNode,
-            ],
-          } as unknown as HtmlElementNode,
-          ...(list.children ?? []),
-        ],
-      },
-      ...rest,
-    ],
-  });
-
-  return modified;
-}
-
-function addPaddingToChildren(
-  node: HtmlElementNode & { children: HtmlElementNode[] },
-): HtmlElementNode {
-  if (node.children) {
-    return {
-      ...node,
-      properties: {
-        ...node.properties,
-        className: isNestedHeader(node)
-          ? `pl-5 ${node.properties.className}`
-          : node.properties.className,
-      },
-      children:
-        (node.children as (HtmlElementNode & { children: HtmlElementNode[] })[])
-          .map((child) => addPaddingToChildren(child)),
-    };
-  } else {
-    return node;
-  }
-}
-
-function isNestedHeader(node: HtmlElementNode) {
-  if (node.tagName === "li") {
-    const { data } = node;
-    if (data && Object.hasOwn(data, "hookArgs")) {
-      const { hookArgs } = data as { hookArgs: HtmlElementNode[] };
-      return ["h3", "h4", "h5", "h6"].includes(hookArgs[0].tagName);
-    }
-  }
-  return false;
 }

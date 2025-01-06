@@ -1,6 +1,5 @@
 import type { Operation } from "effection";
 import type { JSXChild, JSXElement } from "revolution";
-import { useDenoDeploy } from "jsr:@effection-contrib/deno-deploy@0.1.0";
 
 import { useAbsoluteUrl } from "../plugins/rebase.ts";
 import { Header } from "../components/header.tsx";
@@ -27,14 +26,13 @@ export function* useAppHtml({
     "/assets/images/meta-effection.png",
   );
   let homeURL = yield* useAbsoluteUrl("/");
-  let { isDenoDeploy } = yield* useDenoDeploy();
 
   const navLinks: JSXElement[] = [
     <a href="/docs/installation">Guides</a>,
-    <a href="https://deno.land/x/effection/mod.ts">API</a>,
+    <a href="/api">API</a>,
     <a
       class="flex flex-row"
-      href={isDenoDeploy ? "/contrib" : "/"}
+      href="/contrib"
     >
       <span class="hidden md:inline-flex">
         Contrib

@@ -1,10 +1,9 @@
-import rehypeSlug from "npm:rehype-slug@6.0.0";
-import rehypeAutolinkHeadings from "npm:rehype-autolink-headings@7.1.0";
 import rehypeAddClasses from "npm:rehype-add-classes@1.0.0";
-import rehypeInferDescriptionMeta from "npm:rehype-infer-description-meta@1.0.0";
+import rehypeAutolinkHeadings from "npm:rehype-autolink-headings@7.1.0";
+import rehypeInferDescriptionMeta from "npm:rehype-infer-description-meta@2.0.0";
+import rehypeSlug from "npm:rehype-slug@6.0.0";
+import { type PluggableList, unified } from "npm:unified@11.0.5";
 import type { JSXElement } from "revolution/jsx-runtime";
-import type { PluggableList } from "npm:unified@10.1.2";
-import { unified } from "npm:unified@10.1.2";
 
 export interface RehypeOptions {
   children: JSX.Element;

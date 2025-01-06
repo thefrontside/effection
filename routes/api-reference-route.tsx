@@ -3,7 +3,7 @@ import { type JSXElement, useParams } from "revolution";
 
 import { Type } from "../components/api.tsx";
 import { Keyword } from "../components/tokens.tsx";
-import { DocPage, Icon } from "../hooks/use-deno-doc.tsx";
+import { DocPage, DocPageLinkResolver, Icon } from "../hooks/use-deno-doc.tsx";
 import { useMarkdown } from "../hooks/use-markdown.tsx";
 import { SitemapRoute } from "../plugins/sitemap.ts";
 import { PackageDocs } from "../resources/package.ts";
@@ -11,7 +11,6 @@ import { RepositoryRef } from "../resources/repository-ref.ts";
 import { extractVersion, Repository } from "../resources/repository.ts";
 import { useAppHtml } from "./app.html.tsx";
 import { IconExternal } from "../components/icons/external.tsx";
-import { DocPageLinkResolver } from "../components/package/exports.tsx";
 
 export function* getApiForLatestTag(
   repository: Repository,
@@ -60,7 +59,6 @@ export function apiReferenceRoute({
     },
     handler: function* () {
       let { symbol } = yield* useParams<{ symbol: string }>();
-      // let { symbol, namespace } = parseParams(params);
 
       try {
         const [ref, docs] = yield* getApiForLatestTag(library, pattern);
@@ -120,8 +118,8 @@ export function apiReferenceRoute({
                       <>{elements}</>
                     </>
                   ),
-                  linkResolver: function* (doc) {
-                    return `/api/v3/${doc.name}`;
+                  linkResolver: function* (page) {
+                    return page.name;
                   },
                 })
               }

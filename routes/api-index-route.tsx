@@ -6,6 +6,7 @@ import { useAppHtml } from "./app.html.tsx";
 import { ApiReference, getApiForLatestTag } from "./api-reference-route.tsx";
 import { extractVersion, Repository } from "../resources/repository.ts";
 import { DocPage, DocPageLinkResolver } from "../hooks/use-deno-doc.tsx";
+import { v3Links, v4Links } from "./links-resolvers.ts";
 
 export function apiIndexRoute({
   library,
@@ -57,7 +58,7 @@ export function apiIndexRoute({
                   pages: v3docs["."],
                   current: "",
                   ref: v3ref,
-                  linkResolver: linkResolver("v3"),
+                  linkResolver: v3Links,
                   content: (
                     <>
                       <h1>API Reference</h1>
@@ -67,7 +68,7 @@ export function apiIndexRoute({
                           {
                             yield* listPages({
                               pages: v3docs["."],
-                              linkResolver: linkResolver("v3"),
+                              linkResolver: v3Links,
                             })
                           }
                         </ul>
@@ -78,7 +79,7 @@ export function apiIndexRoute({
                           {
                             yield* listPages({
                               pages: v3docs["."],
-                              linkResolver: linkResolver("v4"),
+                              linkResolver: v4Links,
                             })
                           }
                         </ul>
@@ -103,12 +104,6 @@ export function apiIndexRoute({
         );
       }
     },
-  };
-}
-
-function linkResolver(version: string) {
-  return function* (doc: DocPage) {
-    return `/api/${version}/${doc.name}`;
   };
 }
 

@@ -10,8 +10,13 @@ import {
 } from "jsr:@deno/doc@0.162.4";
 import { useDescription } from "./use-description-parse.tsx";
 import { toHtml } from "npm:hast-util-to-html@9.0.4";
+import { defaultLinkResolver, ResolveLinkFunction } from "./use-markdown.tsx";
 
 export type { DocNode };
+
+export interface DocPageLinkResolver {
+  (page: DocPage): Operation<string>;
+}
 
 export function* useDenoDoc(
   specifiers: string[],
@@ -24,7 +29,7 @@ export interface DocPage {
   name: string;
   sections: DocPageSection[];
   description: string;
-  kind: string;
+  kind: DocNode["kind"];
 }
 
 export interface DocPageSection {
@@ -37,9 +42,13 @@ export interface DocPageSection {
   ignore: boolean;
 }
 
+interface UseDocPagesOptions {
+  linkResolver?: ResolveLinkFunction
+}
+
 export const NO_DOCS_AVAILABLE = "*No documentation available.*";
 
-export function* useDocPages(docs: Record<string, DocNode[]>) {
+export function* useDocPages(docs: Record<string, DocNode[]>, options: UseDocPagesOptions = { linkResolver: defaultLinkResolver }) {
   const entrypoints: Record<string, DocPage[]> = {};
 
   for (const [url, all] of Object.entries(docs)) {
@@ -69,7 +78,7 @@ export function* useDocPages(docs: Record<string, DocNode[]>) {
 
         pages.push({
           name: symbol,
-          kind: nodes?.at(0)?.kind ?? "",
+          kind: nodes?.at(0)?.kind!,
           description,
           sections,
         });

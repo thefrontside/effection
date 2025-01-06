@@ -9,7 +9,7 @@ import { EXIT, visit } from "npm:unist-util-visit@5.0.0";
  */
 export function trimAfterHR() {
   return function (tree: Root) {
-    return visit(tree, (node: Nodes, index: number, parent: Nodes) => {
+    visit(tree, (node: Nodes, index: number, parent: Nodes) => {
       if (
         node.type === "element" && node.tagName === "hr" &&
         parent.type === "root"

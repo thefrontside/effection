@@ -19,7 +19,7 @@ export function* defaultLinkResolver(
 }
 
 interface UseMarkdownOptions {
-  resolve?: ResolveLinkFunction;
+  linkResolver?: ResolveLinkFunction;
 }
 
 export type ResolveLinkFunction = (
@@ -37,7 +37,7 @@ export function* useMarkdown(
    * I can't use a remark/rehype plugin to change this because they are applied after MDX parses is successful. 
    */
   const sanitize = createJsDocSanitizer(
-    options?.resolve ?? defaultLinkResolver,
+    options?.linkResolver ?? defaultLinkResolver,
   );
   const sanitized = yield* sanitize(markdown);
 

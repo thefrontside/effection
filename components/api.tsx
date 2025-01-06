@@ -18,14 +18,19 @@ import {
   Optional,
   Punctuation,
 } from "./tokens.tsx";
-import { useMarkdown } from "../hooks/use-markdown.tsx";
-import { Package } from "../resources/package.ts";
+import { ResolveLinkFunction, useMarkdown } from "../hooks/use-markdown.tsx";
 import { DocNode, NO_DOCS_AVAILABLE } from "../hooks/use-deno-doc.tsx";
 import { shiftHeadings } from "../lib/shift-headings.ts";
+import { Package } from "../resources/package.ts";
 
-export function* API(pkg: Package): Operation<JSXElement> {
+interface APIOptions {
+  pkg: Package;
+  linkResolver: ResolveLinkFunction
+}
+
+export function* API({ pkg, linkResolver }: APIOptions): Operation<JSXElement> {
   const elements: JSXElement[] = [];
-  const docs = yield* pkg.docs();
+  const docs = yield* pkg.docs({ linkResolver });
 
   for (const exportName of Object.keys(docs)) {
     const pages = docs[exportName];
@@ -44,6 +49,7 @@ export function* API(pkg: Package): Operation<JSXElement> {
               {
                 yield* useMarkdown(section.markdown || NO_DOCS_AVAILABLE, {
                   remarkPlugins: [[shiftHeadings, 1]],
+                  linkResolver
                 })
               }
             </div>

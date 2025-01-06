@@ -1,31 +1,30 @@
 import { join } from "jsr:@std/path@1.0.6";
 
 import { Keyword, Punctuation } from "../tokens.tsx";
-import { Package } from "../../resources/package.ts";
+import { PackageDocs } from "../../resources/package.ts";
 import { DocPage } from "../../hooks/use-deno-doc.tsx";
 import { Operation } from "effection";
 import { JSXChild, JSXElement } from "revolution/jsx-runtime";
+import { ResolveLinkFunction } from "../../hooks/use-markdown.tsx";
 
-export interface DocPageLinkResolver {
-  (page: DocPage): Operation<string>;
+interface PackageExportsParams {
+  packageName: string;
+  docs: PackageDocs;
+  linkResolver: ResolveLinkFunction;
 }
 
 export function* PackageExports({
-  pkg,
+  packageName,
+  docs,
   linkResolver,
-}: {
-  pkg: Package;
-  linkResolver: DocPageLinkResolver;
-}) {
-  const docs = yield* pkg.docs();
-
+}: PackageExportsParams) {
   const elements: JSXElement[] = [];
 
   for (const [exportName, docPages] of Object.entries(docs)) {
     elements.push(
       yield* PackageExport({
         linkResolver,
-        packageName: pkg.packageName,
+        packageName,
         exportName,
         docPages,
       }),
@@ -39,7 +38,7 @@ interface PackageExportOptions {
   packageName: string;
   exportName: string;
   docPages: Array<DocPage>;
-  linkResolver: DocPageLinkResolver;
+  linkResolver: ResolveLinkFunction;
 }
 
 function* PackageExport({
@@ -50,12 +49,12 @@ function* PackageExport({
 }: PackageExportOptions): Operation<JSXElement> {
   const exports: JSXChild[] = [];
 
-  for (const page of docPages) {
+  for (const page of docPages.sort((a, b) => a.name.localeCompare(b.name))) {
     exports.push(
       ...[
         <a
           class="no-underline text-slate-300 hover:underline underline-offset-4"
-          href={yield* linkResolver(page)}
+          href={yield* linkResolver(page.kind, "_", page.name)}
         >
           {["enum", "typeAlias", "namespace", "interface"].includes(
             page.kind,

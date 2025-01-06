@@ -58,7 +58,7 @@ an abort signal was there without sacrificing any clarity in achieving it.
 
 ## Action Constructor
 
-The [`action()`][action] function provides a callback based API to create Effection operations. You don't need use it all that often, but when you do it functions almost exactly like the 
+The [`action()`][action] function provides a callback based API to create Effection operations. You don't need it all that often, but when you do it functions almost exactly like the 
 [promise constructor][promise-constructor]. To see this, let's
 use [one of the examples from MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/Promise#examples)
 that uses promises to make a crude replica of the global [`fetch()`][fetch]
@@ -125,7 +125,7 @@ function* fetch(url) {
     xhr.onload = () => resolve(xhr.responseText);
     xhr.onerror = () => reject(xhr.statusText);
     xhr.send();
-    return () => { xhr.abort(); }; //called in all cases
+    return () => { xhr.abort(); }; // called in all cases
   });
 }
 ```

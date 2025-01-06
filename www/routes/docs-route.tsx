@@ -47,7 +47,7 @@ export function docsRoute(docs: Docs): SitemapRoute<JSXElement> {
         <AppHtml
           navLinks={[
             <a href="/docs/installation">Guides</a>,
-            <a href="https://deno.land/x/effection/mod.ts">API</a>,
+            <a href="https://jsr.io/@effection/effection/doc">API</a>,
             <a
               class="flex flex-row"
               href="https://github.com/thefrontside/effection"

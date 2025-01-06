@@ -102,8 +102,7 @@ on the generator when that operation is halted. This
 behaves somewhat similarly to if you would replace the current `yield*`
 statement with a `return` statement.
 
-Let's look at an example where a task is suspended using `yield*` with no
-arguments and what happens when we call `halt` on it:
+Let's look at an example where a task is suspended using `yield* suspend()` and we call `halt` on it:
 
 ``` javascript
 import { main, suspend } from 'effection';
@@ -302,8 +301,8 @@ await main(function*() {
     // use the scope to spawn an operation within it.
     return await scope.run(function*() {
       let signal = yield* useAbortSignal();
-      let response = yield* call(fetch(`https://google.com?q=${req.params.q}`, { signal }));
-      res.send(yield* call(response.text()));
+      let response = yield* call(() => fetch(`https://google.com?q=${req.params.q}`, { signal }));
+      res.send(yield* call(() => response.text()));
     });
   });
 

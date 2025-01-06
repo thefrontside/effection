@@ -51,17 +51,17 @@ const Structure = z.record(
 
 export type StructureJson = z.infer<typeof Structure>;
 
-export function loadDocs({ repo }: { repo: Repository }): Operation<Docs> {
+export function loadDocs({ repo, pattern }: { repo: Repository, pattern: string }): Operation<Docs> {
   return resource(function* (provide) {
     let loaders: Map<string, Task<Doc>> | undefined = undefined;
 
     let scope = yield* useScope();
 
     function* load() {
-      const latest = yield* repo.getLatestSemverTag("effection-v3");
+      const latest = yield* repo.getLatestSemverTag(pattern);
 
       if (!latest) {
-        throw new Error(`Could not retrieve latest tag for "effection-v3"`);
+        throw new Error(`Could not retrieve latest tag for "${pattern}"`);
       }
 
       const ref = yield* repo.loadRef(`tags/${latest.name}`);

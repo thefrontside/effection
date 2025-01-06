@@ -60,11 +60,13 @@ if (import.meta.main) {
       name: "effection-contrib",
     });
 
-    let docs = yield* loadDocs({ repo: library });
+    let docs = yield* loadDocs({ repo: library, pattern: "effection-v3" });
+    let docsV4 = yield* loadDocs({ repo: library, pattern: "effection-v4" });
 
     let revolution = createRevolution({
       app: [
         route("/", indexRoute()),
+        route("/docs/v4/:id", docsRoute(docsV4)),
         route("/docs/:id", docsRoute(docs)),
         route("/contrib", contribIndexRoute(contrib)),
         route("/contrib/:workspacePath", contribPackageRoute(contrib)),

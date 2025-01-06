@@ -17,7 +17,7 @@ import { contribIndexRoute } from "./routes/contrib/index-route.tsx";
 import { contribPackageRoute } from "./routes/contrib/package-route.tsx";
 
 import { patchDenoPermissionsQuerySync } from "./deno-deploy-patch.ts";
-import { loadDocs } from "./docs/docs.ts";
+import { loadDocs } from "./resources/docs.ts";
 import { loadRepository } from "./resources/repository.ts";
 import { initGithubClientContext } from "./context/github.ts";
 import { initJSRClient } from "./context/jsr.ts";
@@ -50,8 +50,6 @@ if (import.meta.main) {
       token: githubToken,
     });
 
-    let docs = yield* loadDocs();
-
     let library = yield* loadRepository({
       owner: "thefrontside",
       name: "effection",
@@ -61,6 +59,8 @@ if (import.meta.main) {
       owner: "thefrontside",
       name: "effection-contrib",
     });
+
+    let docs = yield* loadDocs({ repo: library });
 
     let revolution = createRevolution({
       app: [

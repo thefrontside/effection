@@ -1,5 +1,5 @@
 import type { JSXElement } from "revolution";
-import type { DocMeta, Docs } from "../docs/docs.ts";
+import type { DocMeta, Docs } from "../resources/docs.ts";
 
 import { useAppHtml } from "./app.html.tsx";
 import { respondNotFound, useParams } from "revolution";

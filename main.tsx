@@ -66,8 +66,8 @@ if (import.meta.main) {
     let revolution = createRevolution({
       app: [
         route("/", indexRoute()),
-        route("/docs/v4/:id", docsRoute(docsV4)),
-        route("/docs/:id", docsRoute(docs)),
+        route("/docs/v4/:id", docsRoute({ docs: docsV4, base: "/docs/v4/" })),
+        route("/docs/:id", docsRoute({ docs, base: "/docs/" })),
         route("/contrib", contribIndexRoute(contrib)),
         route("/contrib/:workspacePath", contribPackageRoute(contrib)),
         route("/api", apiIndexRoute({ library })),

@@ -13,7 +13,7 @@ import rehypeSlug from "npm:rehype-slug@6.0.0";
 import { useDescription } from "../hooks/use-description-parse.tsx";
 import { RoutePath, SitemapRoute } from "../plugins/sitemap.ts";
 
-export function docsRoute(docs: Docs): SitemapRoute<JSXElement> {
+export function docsRoute({ docs, base }: { docs: Docs, base: string }): SitemapRoute<JSXElement> {
   return {
     *routemap(pathname) {
       let paths: RoutePath[] = [];
@@ -61,7 +61,7 @@ export function docsRoute(docs: Docs): SitemapRoute<JSXElement> {
                             ? (
                               <a
                                 class="rounded px-4 block w-full py-2 hover:bg-gray-100"
-                                href={`/docs/${item.id}`}
+                                href={`${base}${item.id}`}
                               >
                                 {item.title}
                               </a>
@@ -94,7 +94,7 @@ export function docsRoute(docs: Docs): SitemapRoute<JSXElement> {
                             ? (
                               <a
                                 class="rounded px-4 block w-full py-2 hover:bg-gray-100"
-                                href={`/docs/${item.id}`}
+                                href={`${base}${item.id}`}
                               >
                                 {item.title}
                               </a>
@@ -151,7 +151,7 @@ export function docsRoute(docs: Docs): SitemapRoute<JSXElement> {
   };
 }
 
-function NextPrevLinks({ doc }: { doc: DocMeta }): JSX.Element {
+function NextPrevLinks({ doc, base }: { doc: DocMeta, base: string }): JSX.Element {
   let { next, prev } = doc;
   return (
     <menu class="grid grid-cols-2 my-10 gap-x-2 xl:gap-x-20 2xl:gap-x-40 text-lg">
@@ -161,7 +161,7 @@ function NextPrevLinks({ doc }: { doc: DocMeta }): JSX.Element {
             Previous
             <a
               class="py-2 block text-xl font-bold text-blue-primary no-underline tracking-wide leading-5 before:content-['«&nbsp;'] before:font-normal"
-              href={`/docs/${prev.id}`}
+              href={`${base}${prev.id}`}
             >
               {prev.title}
             </a>
@@ -174,7 +174,7 @@ function NextPrevLinks({ doc }: { doc: DocMeta }): JSX.Element {
             Next
             <a
               class="py-2 block text-xl font-bold text-blue-primary no-underline tracking-wide leading-5 after:content-['&nbsp;»'] after:font-normal"
-              href={`/docs/${next.id}`}
+              href={`${base}${next.id}`}
             >
               {next.title}
             </a>

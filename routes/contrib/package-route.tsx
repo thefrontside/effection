@@ -9,13 +9,6 @@ import type { RoutePath, SitemapRoute } from "../../plugins/sitemap.ts";
 import { Repository } from "../../resources/repository.ts";
 import { useAppHtml } from "../app.html.tsx";
 
-function* linkResolver(symbol: string, connector?: string, method?: string) {
-  if (connector === "_") {
-    return `#${symbol}_${method}`;
-  }
-  return symbol;
-}
-
 export function contribPackageRoute(
   contrib: Repository,
 ): SitemapRoute<JSXElement> {
@@ -48,6 +41,18 @@ export function contribPackageRoute(
           title: `${pkg.packageName} | Contrib | Effection`,
           description: yield* pkg.description(),
         });
+
+        const linkResolver = function* (symbol: string, connector?: string, method?: string) {
+          const internal = `#${symbol}_${method}`;
+          if (connector === "_") {
+            return internal;
+          }
+          const page = docs["."].find(page => page.name === symbol)
+          if (page) {
+            return `[${symbol}](#${page.kind}_${page.name})`;
+          }
+          return symbol;
+        }
 
         return (
           <AppHTML>

@@ -1,15 +1,14 @@
 import { join } from "jsr:@std/path@1.0.6";
 
 import { Keyword, Punctuation } from "../tokens.tsx";
-import { PackageDocs } from "../../resources/package.ts";
-import { DocPage } from "../../hooks/use-deno-doc.tsx";
+import { DocPage, DocsPages } from "../../hooks/use-deno-doc.tsx";
 import { Operation } from "effection";
 import { JSXChild, JSXElement } from "revolution/jsx-runtime";
 import { ResolveLinkFunction } from "../../hooks/use-markdown.tsx";
 
 interface PackageExportsParams {
   packageName: string;
-  docs: PackageDocs;
+  docs: DocsPages;
   linkResolver: ResolveLinkFunction;
 }
 

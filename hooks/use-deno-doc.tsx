@@ -44,7 +44,9 @@ export interface DocPageSection {
 
 export const NO_DOCS_AVAILABLE = "*No documentation available.*";
 
-export function* useDocPages(docs: Record<string, DocNode[]>) {
+export type DocsPages = Record<string, DocPage[]>;
+
+export function* useDocPages(docs: Record<string, DocNode[]>): Operation<DocsPages> {
   const entrypoints: Record<string, DocPage[]> = {};
 
   for (const [url, all] of Object.entries(docs)) {

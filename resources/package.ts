@@ -6,7 +6,7 @@ import githubUrlParse from "npm:parse-github-url@1.0.3";
 
 import { GithubClientContext } from "../context/github.ts";
 import { useJSRClient } from "../context/jsr.ts";
-import { DocPage, useDenoDoc, useDocPages } from "../hooks/use-deno-doc.tsx";
+import { DocsPages, useDenoDoc, useDocPages } from "../hooks/use-deno-doc.tsx";
 import { useDescription } from "../hooks/use-description-parse.tsx";
 import { useMDX } from "../hooks/use-mdx.tsx";
 import { PackageDetailsResult, PackageScoreResult } from "./jsr-client.ts";
@@ -90,7 +90,7 @@ export interface Package {
   /**
    * Generated docs
    */
-  docs(): Operation<PackageDocs>;
+  docs(): Operation<DocsPages>;
   MDXContent(): Operation<JSX.Element>;
   description(): Operation<string>;
 }
@@ -104,8 +104,6 @@ export const DenoJson = z.object({
 });
 
 export type DenoJsonType = z.infer<typeof DenoJson>;
-
-export type PackageDocs = Record<string, DocPage[]>;
 
 export const DEFAULT_MODULE_KEY = ".";
 
@@ -168,7 +166,7 @@ export function loadPackage(
       *docs() {
         const scope = yield* useScope();
 
-        const docs: PackageDocs = {};
+        const docs: DocsPages = {};
 
         for (const [entrypoint, url] of Object.entries(pkg.entrypoints)) {
 

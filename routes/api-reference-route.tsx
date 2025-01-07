@@ -10,7 +10,7 @@ import {
   useMarkdown,
 } from "../hooks/use-markdown.tsx";
 import { SitemapRoute } from "../plugins/sitemap.ts";
-import { PackageDocs } from "../resources/package.ts";
+import { DocsPages } from "../resources/package.ts";
 import { RepositoryRef } from "../resources/repository-ref.ts";
 import { extractVersion, Repository } from "../resources/repository.ts";
 import { useAppHtml } from "./app.html.tsx";
@@ -149,7 +149,7 @@ export function apiReferenceRoute({
 export function* getApiForLatestTag(
   repository: Repository,
   searchQuery: string,
-): Operation<[RepositoryRef | undefined, PackageDocs | undefined]> {
+): Operation<[RepositoryRef | undefined, DocsPages | undefined]> {
   const latest = yield* repository.getLatestSemverTag(searchQuery);
 
   if (latest) {

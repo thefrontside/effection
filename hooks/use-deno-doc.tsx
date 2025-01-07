@@ -10,7 +10,6 @@ import {
 } from "jsr:@deno/doc@0.162.4";
 import { useDescription } from "./use-description-parse.tsx";
 import { toHtml } from "npm:hast-util-to-html@9.0.4";
-import { defaultLinkResolver, ResolveLinkFunction } from "./use-markdown.tsx";
 
 export type { DocNode };
 

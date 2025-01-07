@@ -1,4 +1,4 @@
-import { call, type Operation } from "effection";
+import { call, useScope, type Operation } from "effection";
 import {
   ClassMethodDef,
   doc,
@@ -7,9 +7,18 @@ import {
   ParamDef,
   TsTypeDef,
   TsTypeParamDef,
+  CacheSetting,
+  LoadResponse,
 } from "jsr:@deno/doc@0.162.4";
+import { createGraph } from "jsr:@deno/graph@0.86.7";
+import { DependencyJson } from "jsr:@deno/graph@0.86.7/types";
+
 import { useDescription } from "./use-description-parse.tsx";
 import { toHtml } from "npm:hast-util-to-html@9.0.4";
+// @deno-types="npm:@types/parse-github-url@1.0.3";
+import githubUrlParse from "npm:parse-github-url@1.0.3";
+
+import { GithubClientContext } from "../context/github.ts";
 
 export type { DocNode };
 
@@ -36,6 +45,8 @@ export interface DocPageSection {
 
   node: DocNode;
 
+  dependencies?: DependencyJson[];
+
   markdown?: string;
 
   ignore: boolean;
@@ -45,7 +56,24 @@ export const NO_DOCS_AVAILABLE = "*No documentation available.*";
 
 export type DocsPages = Record<string, DocPage[]>;
 
-export function* useDocPages(docs: Record<string, DocNode[]>): Operation<DocsPages> {
+export function* useDocPages(
+  specifier: string
+): Operation<DocsPages> {
+
+  const scope = yield* useScope();
+
+  const loader = (specifier: string) => scope.run(docLoader(specifier));
+
+  const graph = yield* call(() =>
+    createGraph([specifier], {
+      load: loader,
+    }),
+  );
+
+  const docs = yield* useDenoDoc([specifier], {
+    load: loader,
+  });
+
   const entrypoints: Record<string, DocPage[]> = {};
 
   for (const [url, all] of Object.entries(docs)) {
@@ -62,6 +90,7 @@ export function* useDocPages(docs: Record<string, DocNode[]>): Operation<DocsPag
             node,
             markdown,
             ignore,
+            dependencies: graph.modules.find(m => m.specifier === node.location.filename)?.dependencies
           });
           pages.push(..._pages);
         }
@@ -149,12 +178,7 @@ export function* extract(
       (method) => !method.isStatic,
     );
     if (nonStatic.length > 0) {
-      lines.push(
-        "### Methods",
-        `<dl>`,
-        ...methodList(nonStatic),
-        "</dl>",
-      );
+      lines.push("### Methods", `<dl>`, ...methodList(nonStatic), "</dl>");
     }
 
     const staticMethods = node.classDef.methods.filter(
@@ -468,4 +492,45 @@ function methodList(methods: ClassMethodDef[]) {
     );
   }
   return lines;
+}
+
+function docLoader(
+  specifier: string,
+  _isDynamic?: boolean,
+  _cacheSetting?: CacheSetting,
+  _checksum?: string,
+): () => Operation<LoadResponse | undefined> {
+  return function* downloadDocModules() {
+    const github = yield* GithubClientContext.expect();
+
+    const url = URL.parse(specifier);
+
+    if (url?.host === "github.com") {
+      const gh = githubUrlParse(specifier);
+      if (gh && gh.owner && gh.name && gh.filepath) {
+        const result = yield* call(() =>
+          github.rest.repos.getContent({
+            owner: gh.owner!,
+            repo: gh.name!,
+            path: gh.filepath!,
+            ref: gh.branch,
+            mediaType: {
+              format: "raw",
+            },
+          }),
+        );
+        return {
+          kind: "module",
+          specifier,
+          content: `${result.data}`,
+        };
+      } else {
+        throw new Error(`Could not parse ${specifier} as Github URL`);
+      }
+    }
+
+    if (url?.host === "jsr.io") {
+      console.log(`Ignoring ${url} while reading docs`);
+    }
+  };
 }

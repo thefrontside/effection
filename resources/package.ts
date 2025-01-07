@@ -1,12 +1,9 @@
-import { all, call, type Operation, resource, useScope } from "effection";
-import { CacheSetting, LoadResponse } from "jsr:@deno/doc@0.162.4";
-import { z } from "npm:zod@3.23.8";
-// @deno-types="npm:@types/parse-github-url@1.0.3";
-import githubUrlParse from "npm:parse-github-url@1.0.3";
+import { all, type Operation, resource, useScope } from "effection";
 
-import { GithubClientContext } from "../context/github.ts";
+import { z } from "npm:zod@3.23.8";
+
 import { useJSRClient } from "../context/jsr.ts";
-import { DocsPages, useDenoDoc, useDocPages } from "../hooks/use-deno-doc.tsx";
+import { DocsPages, useDocPages } from "../hooks/use-deno-doc.tsx";
 import { useDescription } from "../hooks/use-description-parse.tsx";
 import { useMDX } from "../hooks/use-mdx.tsx";
 import { PackageDetailsResult, PackageScoreResult } from "./jsr-client.ts";
@@ -164,18 +161,12 @@ export function loadPackage(
         return entrypoints;
       },
       *docs() {
-        const scope = yield* useScope();
-
         const docs: DocsPages = {};
-
+        
         for (const [entrypoint, url] of Object.entries(pkg.entrypoints)) {
-
-          const result = yield* useDenoDoc([`${url}`], {
-            load: (specifier: string) => scope.run(docLoader(specifier)),
-          });
-
-          const pages = yield* useDocPages(result);
           
+          const pages = yield* useDocPages(`${url}`);
+
           docs[entrypoint] = pages[`${url}`];
         }
 
@@ -224,45 +215,4 @@ export function loadPackage(
 
     yield* provide(pkg);
   });
-}
-
-function docLoader(
-  specifier: string,
-  _isDynamic?: boolean,
-  _cacheSetting?: CacheSetting,
-  _checksum?: string,
-): () => Operation<LoadResponse | undefined> {
-  return function* downloadDocModules() {
-    const github = yield* GithubClientContext.expect();
-
-    const url = URL.parse(specifier);
-
-    if (url?.host === "github.com") {
-      const gh = githubUrlParse(specifier);
-      if (gh && gh.owner && gh.name && gh.filepath) {
-        const result = yield* call(() =>
-          github.rest.repos.getContent({
-            owner: gh.owner!,
-            repo: gh.name!,
-            path: gh.filepath!,
-            ref: gh.branch,
-            mediaType: {
-              format: "raw",
-            },
-          })
-        );
-        return {
-          kind: "module",
-          specifier,
-          content: `${result.data}`,
-        };
-      } else {
-        throw new Error(`Could not parse ${specifier} as Github URL`);
-      }
-    }
-
-    if (url?.host === "jsr.io") {
-      console.log(`Ignoring ${url} while reading docs`);
-    }
-  };
 }

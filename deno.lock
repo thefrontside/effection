@@ -6,7 +6,8 @@
     "jsr:@deno/cache-dir@0.8": "0.8.0",
     "jsr:@deno/doc@0.162.4": "0.162.4",
     "jsr:@deno/graph@0.73": "0.73.1",
-    "jsr:@deno/graph@0.86": "0.86.5",
+    "jsr:@deno/graph@0.86": "0.86.7",
+    "jsr:@deno/graph@0.86.7": "0.86.7",
     "jsr:@deno/graph@~0.69.7": "0.69.10",
     "jsr:@deno/graph@~0.82.3": "0.82.3",
     "jsr:@effection-contrib/deno-deploy@0.1.0": "0.1.0",
@@ -152,6 +153,9 @@
     },
     "@deno/graph@0.86.5": {
       "integrity": "2bef0dde35fc4ee3627c9dd05ad44d4f97e9da54a74d71f6a06b089226fd12c0"
+    },
+    "@deno/graph@0.86.7": {
+      "integrity": "fb4e5ab648d1b9d464ea55e0f70cd489251b1926e622dd83697b4e28e59c7291"
     },
     "@effection-contrib/deno-deploy@0.1.0": {
       "integrity": "a8e20f746c330bc3dc38a0f6dd65829954e28a3cbeaf5c54d2f2b4569d5b9259",

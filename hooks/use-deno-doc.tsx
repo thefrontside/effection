@@ -42,13 +42,9 @@ export interface DocPageSection {
   ignore: boolean;
 }
 
-interface UseDocPagesOptions {
-  linkResolver?: ResolveLinkFunction
-}
-
 export const NO_DOCS_AVAILABLE = "*No documentation available.*";
 
-export function* useDocPages(docs: Record<string, DocNode[]>, options: UseDocPagesOptions = { linkResolver: defaultLinkResolver }) {
+export function* useDocPages(docs: Record<string, DocNode[]>) {
   const entrypoints: Record<string, DocPage[]> = {};
 
   for (const [url, all] of Object.entries(docs)) {
@@ -341,7 +337,7 @@ function TypeDef(typeDef: TsTypeDef): string {
     }
     case "typeRef": {
       const tparams = typeDef.typeRef.typeParams?.map(TypeDef).join(", ");
-      return `[${typeDef.typeRef.typeName}](${typeDef.typeRef.typeName})${
+      return `{@link ${typeDef.typeRef.typeName}}${
         tparams && tparams?.length > 0 ? `&lt;${tparams}&gt;` : ""
       }`;
     }
@@ -388,7 +384,7 @@ function TypeDef(typeDef: TsTypeDef): string {
 }
 
 function TypeParam(paramDef: TsTypeParamDef) {
-  let parts = [`[${paramDef.name}](${paramDef.name})`];
+  let parts = [`{@link ${paramDef.name}}`];
   if (paramDef.constraint) {
     parts.push(`extends ${TypeDef(paramDef.constraint)}`);
   }

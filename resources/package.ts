@@ -11,7 +11,6 @@ import { useDescription } from "../hooks/use-description-parse.tsx";
 import { useMDX } from "../hooks/use-mdx.tsx";
 import { PackageDetailsResult, PackageScoreResult } from "./jsr-client.ts";
 import { RepositoryRef } from "./repository-ref.ts";
-import { defaultLinkResolver, ResolveLinkFunction } from "../hooks/use-markdown.tsx";
 
 export interface Package {
   /**
@@ -91,7 +90,7 @@ export interface Package {
   /**
    * Generated docs
    */
-  docs({ linkResolver }: { linkResolver: ResolveLinkFunction }): Operation<PackageDocs>;
+  docs(): Operation<PackageDocs>;
   MDXContent(): Operation<JSX.Element>;
   description(): Operation<string>;
 }
@@ -166,7 +165,7 @@ export function loadPackage(
         }
         return entrypoints;
       },
-      *docs(options = { linkResolver: defaultLinkResolver }) {
+      *docs() {
         const scope = yield* useScope();
 
         const docs: PackageDocs = {};
@@ -177,7 +176,7 @@ export function loadPackage(
             load: (specifier: string) => scope.run(docLoader(specifier)),
           });
 
-          const pages = yield* useDocPages(result, { linkResolver: options.linkResolver });
+          const pages = yield* useDocPages(result);
           
           docs[entrypoint] = pages[`${url}`];
         }

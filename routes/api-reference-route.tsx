@@ -149,7 +149,6 @@ export function apiReferenceRoute({
 export function* getApiForLatestTag(
   repository: Repository,
   searchQuery: string,
-  linkResolver: ResolveLinkFunction = defaultLinkResolver,
 ): Operation<[RepositoryRef | undefined, PackageDocs | undefined]> {
   const latest = yield* repository.getLatestSemverTag(searchQuery);
 
@@ -157,7 +156,7 @@ export function* getApiForLatestTag(
     const ref = yield* repository.loadRef(`tags/${latest.name}`);
     const pkg = yield* ref.loadRootPackage();
     if (pkg) {
-      return [ref, yield* pkg.docs({ linkResolver })];
+      return [ref, yield* pkg.docs()];
     }
     return [ref, undefined];
   }

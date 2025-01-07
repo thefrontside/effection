@@ -42,7 +42,7 @@ export function contribPackageRoute(
       try {
         const main = yield* contrib.loadRef();
         const pkg = yield* main.loadWorkspace(`./${params.workspacePath}`);
-        const docs = yield* pkg.docs({ linkResolver });
+        const docs = yield* pkg.docs();
 
         const AppHTML = yield* useAppHtml({
           title: `${pkg.packageName} | Contrib | Effection`,

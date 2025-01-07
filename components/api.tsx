@@ -30,7 +30,7 @@ interface APIOptions {
 
 export function* API({ pkg, linkResolver }: APIOptions): Operation<JSXElement> {
   const elements: JSXElement[] = [];
-  const docs = yield* pkg.docs({ linkResolver });
+  const docs = yield* pkg.docs();
 
   for (const exportName of Object.keys(docs)) {
     const pages = docs[exportName];

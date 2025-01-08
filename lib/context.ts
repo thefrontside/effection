@@ -2,6 +2,12 @@ import type { Context, Effect, Operation, Scope } from "./types.ts";
 import { Ok } from "./result.ts";
 import { Do } from "./do.ts";
 
+/**
+ * Create a new {@link Context}
+ *
+ * @param name - the unique name to give this context.
+ * @returns the new context
+ */
 export function createContext<T>(name: string, defaultValue?: T): Context<T> {
   let context: Context<T> = {
     name,
@@ -28,6 +34,7 @@ export function createContext<T>(name: string, defaultValue?: T): Context<T> {
   return context;
 }
 
+// private effects for efficiency.
 const Get = <T>(context: Context<T>) =>
   UseScope((scope) => scope.get(context), `get(${context.name})`);
 const Set = <T>(context: Context<T>, value: T) =>

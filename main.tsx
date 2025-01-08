@@ -17,7 +17,7 @@ import { contribIndexRoute } from "./routes/contrib/index-route.tsx";
 import { contribPackageRoute } from "./routes/contrib/package-route.tsx";
 
 import { patchDenoPermissionsQuerySync } from "./deno-deploy-patch.ts";
-import { loadDocs } from "./docs/docs.ts";
+import { loadDocs } from "./resources/docs.ts";
 import { loadRepository } from "./resources/repository.ts";
 import { initGithubClientContext } from "./context/github.ts";
 import { initJSRClient } from "./context/jsr.ts";
@@ -50,8 +50,6 @@ if (import.meta.main) {
       token: githubToken,
     });
 
-    let docs = yield* loadDocs();
-
     let library = yield* loadRepository({
       owner: "thefrontside",
       name: "effection",
@@ -62,10 +60,14 @@ if (import.meta.main) {
       name: "effection-contrib",
     });
 
+    let docs = yield* loadDocs({ repo: library, pattern: "effection-v3" });
+    let docsV4 = yield* loadDocs({ repo: library, pattern: "effection-v4" });
+
     let revolution = createRevolution({
       app: [
         route("/", indexRoute()),
-        route("/docs/:id", docsRoute(docs)),
+        route("/docs/v4/:id", docsRoute({ docs: docsV4, base: "/docs/v4/" })),
+        route("/docs/:id", docsRoute({ docs, base: "/docs/" })),
         route("/contrib", contribIndexRoute(contrib)),
         route("/contrib/:workspacePath", contribPackageRoute(contrib)),
         route("/api", apiIndexRoute({ library })),

@@ -7,12 +7,10 @@ import {
   useScope,
 } from "effection";
 import { basename } from "jsr:@std/path@1.0.8";
-import { evaluate } from "npm:@mdx-js/mdx@3.1.0";
-import rehypePrismPlus from "npm:rehype-prism-plus@2.0.0";
-import remarkGfm from "npm:remark-gfm@4.0.0";
-import { Fragment, jsx, jsxs } from "revolution/jsx-runtime";
-
-import structure from "./structure.json" with { type: "json" };
+import { Repository } from "./repository.ts";
+import { z } from "npm:zod@3.23.8";
+import { useMDX } from "../hooks/use-mdx.tsx";
+import { useMarkdown } from "../hooks/use-markdown.tsx";
 
 export interface DocModule {
   default: () => JSX.Element;
@@ -46,13 +44,32 @@ export interface Doc extends DocMeta {
   markdown: string;
 }
 
-export function loadDocs(): Operation<Docs> {
+const Structure = z.record(
+  z.string(),
+  z.array(z.tuple([z.string(), z.string()])),
+);
+
+export type StructureJson = z.infer<typeof Structure>;
+
+export function loadDocs({ repo, pattern }: { repo: Repository, pattern: string }): Operation<Docs> {
   return resource(function* (provide) {
     let loaders: Map<string, Task<Doc>> | undefined = undefined;
 
     let scope = yield* useScope();
 
     function* load() {
+      const latest = yield* repo.getLatestSemverTag(pattern);
+
+      if (!latest) {
+        throw new Error(`Could not retrieve latest tag for "${pattern}"`);
+      }
+
+      const ref = yield* repo.loadRef(`tags/${latest.name}`);
+
+      const json = yield* ref.loadJson("www/docs/structure.json");
+
+      const structure = Structure.parse(json);
+
       let tasks = new Map<string, Task<Doc>>();
       let entries = Object.entries(structure);
 
@@ -69,7 +86,7 @@ export function loadDocs(): Operation<Docs> {
           let meta: DocMeta = current = {
             id: basename(filename, ".mdx"),
             title,
-            filename,
+            filename: `www/docs/${filename}`,
             topics,
             prev,
           };
@@ -81,26 +98,13 @@ export function loadDocs(): Operation<Docs> {
           tasks.set(
             meta.id,
             scope.run(function* () {
-              let location = new URL(filename, import.meta.url);
-              let source = yield* call(Deno.readTextFile(location));
-              let mod = yield* call(evaluate(source, {
-                jsx,
-                jsxs,
-                jsxDEV: jsx,
-                Fragment,
-                remarkPlugins: [
-                  remarkGfm,
-                ],
-                rehypePlugins: [
-                  // @ts-expect-error Type 'Settings' has no properties in common with type 'Settings'.deno-ts(2322)
-                  [rehypePrismPlus, { showLineNumbers: true }],
-                ],
-              }));
+              let source = yield* call(() => ref.loadText(meta.filename));
+              let content = yield* useMarkdown(source);
 
               return {
                 ...meta,
                 markdown: source,
-                MDXContent: () => mod.default({}),
+                MDXContent: () => content,
               } as Doc;
             }),
           );

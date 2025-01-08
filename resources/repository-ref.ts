@@ -36,11 +36,23 @@ export interface RepositoryRef {
   get(): Operation<Ref>;
 
   /**
+   * Read a text file
+   * @param path 
+   */
+  loadText(path: string): Operation<string>
+
+  /**
    * Get readme file at the root of the ref
    *
    * @return string
    */
   loadReadme(base?: string): Operation<string>;
+
+  /**
+   * Read content of a json file specified path
+   * @param path 
+   */
+  loadJson<T = unknown>(path: string): Operation<T>;
 
   /**
    * Get the parsed version of deno.json at the root
@@ -122,9 +134,7 @@ export function loadRepositoryRef(
         return response.data;
       },
 
-      *loadReadme(base: string = "") {
-        const path = repositoryRef.getPath(base, "README.md");
-
+      *loadText(path: string) {
         const response = yield* repository.getContent({
           path,
           ref: ref.name,
@@ -136,9 +146,11 @@ export function loadRepositoryRef(
         return response.data.toString();
       },
 
-      *loadDenoJson(base: string = "") {
-        const path = repositoryRef.getPath(base, "deno.json");
+      *loadReadme(base: string = ""): Operation<string> {
+        return yield* this.loadText(repositoryRef.getPath(base, "README.md"))
+      },
 
+      *loadJson<T>(path: string): Operation<T> {
         const response = yield* repository.getContent({
           path: path,
           ref: ref.name,
@@ -149,8 +161,12 @@ export function loadRepositoryRef(
 
         const text = response.data.toString();
 
-        const json = JSON.parse(text);
+        return JSON.parse(text) as T;
+      },
 
+      *loadDenoJson(base: string = "") {
+        const path = repositoryRef.getPath(base, "deno.json");
+        const json = yield* this.loadJson(path);
         return DenoJson.parse(json);
       },
 

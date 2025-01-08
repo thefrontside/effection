@@ -9,6 +9,18 @@ import { useCoroutine } from "./coroutine.ts";
  * shut down, and all contexts will be restored to their values outside
  * of the scope.
  *
+ * @example
+ * ```js
+ * import { useAbortSignal } from "effection";
+
+ * function* example() {
+ *   let signal = yield* scoped(function*() {
+ *     return yield* useAbortSignal();
+ *   });
+ *   return signal.aborted; //=> true
+ * }
+ * ```
+ *
  * @param operation - the operation to be encapsulated
  *
  * @returns the scoped operation

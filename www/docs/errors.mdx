@@ -67,7 +67,7 @@ async function runExample() {
   await task.halt();
 
   try {
-    let value = await task // 💥 throws "halted" error;
+    let value = await task // 💥 throws "halted"
 
     // will never reach here because halted tasks do not produce values
     console.log(value);
@@ -138,22 +138,23 @@ You might be surprised that we do *not* enter the catch handler here. Instead,
 our entire main task just fails. This is by design! We are only allowed to
 catch errors thrown by whatever we yield to directly, _not_ by any spawned
 children or resources running in the background. This makes error handling more
-predictable, since our catch block will not receive errors from any background
+predictable. Since our catch block will not receive errors from any background
 task, we're better able to specify which errors we actually want to deal with.
 
 ## Error boundary
 
-If we do want to catch an error from a spawned task (or from a [Resource][]) then
-we need to introduce an intermediate task which allows us to bring the error into
-the foreground. We call this pattern an "error boundary":
+If we do want to catch an error that happens in the background, then
+we need to explicitly tell Effection where it should be brought into the foreground.
+This location is called an "error boundary". To establish an error boundary you can
+wrap any operation with the `scoped()` function.
 
 ``` typescript
-import { main, call, spawn, suspend } from 'effection';
+import { main, scoped, spawn, suspend } from 'effection';
 import { tickingBomb } from './ticking-bomb';
 
-main(function*() {
+await main(function*() {
   try {
-    yield* call(function*() { // error boundary
+    yield* scoped(function*() { // error boundary
       yield* spawn(tickingBomb); // will blow up in the background
       yield* suspend(); // sleep forever
     });
@@ -163,5 +164,7 @@ main(function*() {
 });
 ```
 
+Now, when our spawned task throws an error, control will pass to our catch handler.
+
 [Resource]: ./resources
-[task]: https://deno.land/x/effection/mod.ts?s=Task
+[task]: https://jsr.io/@effection/effection/doc/~/Task

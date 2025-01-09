@@ -150,15 +150,21 @@ export function apiMinorSymbolRoute({
                     <>
                       {outdated ? (
                         <Alert
-                          title="Potentially outdated documentation"
+                          title="Newer version available"
+                          level="info"
                           class="mb-4"
                         >
-                          <p>
-                            You're reading API reference for version {version}.
-                            The latest stable release is version{" "}
-                            <a href={`/api/v3/${page.name}`}>{latestVersion}</a>
-                            .
-                          </p>
+                          <>
+                            <p>
+                              You’re viewing the API reference for version{" "}
+                              {version}, but the latest version is{" "}
+                              {latestVersion}. The latest version include may
+                              important updates and fixes.
+                            </p>
+                            <a href={`/api/v3/${page.name}`}>
+                              View Latest Version
+                            </a>
+                          </>
                         </Alert>
                       ) : (
                         <></>

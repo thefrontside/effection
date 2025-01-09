@@ -8,7 +8,10 @@ import { IconDiscord } from "../components/icons/discord.tsx";
 import { IconGithub } from "../components/icons/github.tsx";
 import { Navburger } from "../components/navburger.tsx";
 import { ProjectSelect } from "../components/project-select.tsx";
-import { ContribRepositoryContext, LibraryRepositoryContext } from "../context/repository.ts";
+import {
+  ContribRepositoryContext,
+  LibraryRepositoryContext,
+} from "../context/repository.ts";
 import { StarIcon } from "../components/icons/star.tsx";
 
 export interface Options {
@@ -42,7 +45,12 @@ export function* useAppHtml({
 
     <a class="flex flex-row" href="https://github.com/thefrontside/effection">
       <span class="hidden md:inline-flex flex-row space-x-1">
-        <span>GitHub</span><span class="flex flex-row items-center"><StarIcon class="text-white pr-0.5" /><span>{yield* library.starCount()}</span><span class="font-black">+</span></span>
+        <span>GitHub</span>
+        <span class="flex flex-row items-center">
+          <StarIcon class="text-white pr-0.5" />
+          <span>{yield* library.starCount()}</span>
+          <span class="font-black">+</span>
+        </span>
       </span>
     </a>,
     <a class="flex flex-row" href="https://discord.gg/r6AvtnU">

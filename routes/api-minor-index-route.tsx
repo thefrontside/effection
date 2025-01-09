@@ -66,12 +66,19 @@ export function apiMinorIndexRoute({
           <AppHtml>
             <article class="prose m-auto">
               {outdated ? (
-                <Alert title="Potentially outdated documentation" class="mb-6">
-                  <p>
-                    You're reading API reference for version {version}. The
-                    latest stable release is version{" "}
-                    <a href="/api/v3">{latestVersion}</a>.
-                  </p>
+                <Alert
+                  title="Newer version available"
+                  level="info"
+                  class="mb-6"
+                >
+                  <>
+                    <p>
+                      You’re viewing the API reference for version {version},
+                      but the latest version is {latestVersion}. The latest
+                      version include may important updates and fixes.
+                    </p>
+                    <a href={`/api/v3`}>View Latest Version</a>
+                  </>
                 </Alert>
               ) : (
                 <></>
@@ -128,18 +135,26 @@ function* listPages({
   return <>{elements}</>;
 }
 
+const ALERT_LEVELS = {
+  warning: "bg-orange-100 border-orange-500 text-orange-700",
+  error: "bg-red-100 border-red-400 text-red-700",
+  info: "bg-blue-100 border-blue-500 text-blue-700",
+} as const;
+
 export function Alert({
   title,
   children,
   class: className,
+  level,
 }: {
   title: string;
+  level: "info" | "warning" | "error";
   children: JSXChild;
   class?: string;
 }) {
   return (
     <div
-      class={`${className ?? ""} bg-orange-100 border-l-4 border-orange-500 text-orange-700 p-4 [&>p]:my-1`}
+      class={`${className ?? ""} ${ALERT_LEVELS[level]} border-l-4 p-4 [&>p]:my-1`}
       role="alert"
     >
       <p class="font-bold">{title}</p>

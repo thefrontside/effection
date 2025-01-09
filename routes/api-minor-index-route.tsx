@@ -60,12 +60,13 @@ export function apiMinorIndexRoute({
           description: `API Reference for Effection`,
         });
 
+        const outdated = compare(version, latestVersion) < 0;
+
         return (
           <AppHtml>
             <article class="prose m-auto">
-              <h1>{version}</h1>
-              {compare(version, latestVersion) < 0 ? (
-                <Alert title="Potentially outdated documentation">
+              {outdated ? (
+                <Alert title="Potentially outdated documentation" class="mb-6">
                   <p>
                     You're reading API reference for version {version}. The
                     latest stable release is version{" "}
@@ -75,7 +76,7 @@ export function apiMinorIndexRoute({
               ) : (
                 <></>
               )}
-
+              <h1>{version}</h1>
               <section>
                 <h2>API Reference</h2>
                 <p>This release includes the following exports:</p>
@@ -138,7 +139,7 @@ export function Alert({
 }) {
   return (
     <div
-      class={`${className ?? ""} bg-orange-100 border-l-4 border-orange-500 text-orange-700 p-4`}
+      class={`${className ?? ""} bg-orange-100 border-l-4 border-orange-500 text-orange-700 p-4 [&>p]:my-1`}
       role="alert"
     >
       <p class="font-bold">{title}</p>

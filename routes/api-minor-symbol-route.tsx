@@ -137,6 +137,7 @@ export function apiMinorSymbolRoute({
 
         const latestVersion = extractVersion(latest.name);
         const version = extractVersion(tag.name);
+        const outdated = compare(version, latestVersion) < 0;
 
         return (
           <AppHtml>
@@ -148,10 +149,10 @@ export function apiMinorSymbolRoute({
                   ref: ref,
                   content: (
                     <>
-                      {compare(version, latestVersion) < 0 ? (
+                      {outdated ? (
                         <Alert
                           title="Potentially outdated documentation"
-                          class="mb-2"
+                          class="mb-4"
                         >
                           <p>
                             You're reading API reference for version {version}.

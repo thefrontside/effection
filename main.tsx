@@ -24,7 +24,11 @@ import { initJSRClient } from "./context/jsr.ts";
 import { apiIndexRoute } from "./routes/api-index-route.tsx";
 import { apiMinorIndexRoute } from "./routes/api-minor-index-route.tsx";
 import { apiMinorSymbolRoute } from "./routes/api-minor-symbol-route.tsx";
-import { ContribRepositoryContext, LibraryRepositoryContext } from "./context/repository.ts";
+import {
+  ContribRepositoryContext,
+  LibraryRepositoryContext,
+} from "./context/repository.ts";
+import { previewRoute } from "./routes/preview-route.tsx";
 
 // Learn more at https://docs.deno.com/runtime/manual/examples/module_metadata#concepts
 if (import.meta.main) {
@@ -87,15 +91,10 @@ if (import.meta.main) {
           "/api/v4/:symbol",
           apiReferenceRoute({ library, pattern: "effection-v4" }),
         ),
-        route(
-          "/api/:minor",
-          apiMinorIndexRoute({ library })
-        ),
-        route(
-          "/api/:minor/:symbol",
-          apiMinorSymbolRoute({ library })
-        ),
+        route("/api/:minor", apiMinorIndexRoute({ library })),
+        route("/api/:minor/:symbol", apiMinorSymbolRoute({ library })),
         route("/assets(.*)", assetsRoute("assets")),
+        route("/preview", previewRoute({ library })),
       ],
       plugins: [
         twindPlugin({ config }),

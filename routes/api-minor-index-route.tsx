@@ -43,6 +43,7 @@ export function apiMinorIndexRoute({
         if (!tag) throw new Error(`Failed to retrieve latest tag for ${minor}`);
 
         const ref = yield* library.loadRef(`tags/${tag.name}`);
+
         const pkg = yield* ref.loadRootPackage();
 
         if (!pkg) throw new Error(`Failed to load root package for ${minor}`);
@@ -114,7 +115,7 @@ export function apiMinorIndexRoute({
   };
 }
 
-function* listPages({
+export function* listPages({
   pages,
   linkResolver,
 }: {

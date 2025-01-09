@@ -5,7 +5,6 @@ import { useAbsoluteUrl } from "../plugins/rebase.ts";
 import { Header } from "../components/header.tsx";
 import { Footer } from "../components/footer.tsx";
 import { IconDiscord } from "../components/icons/discord.tsx";
-import { IconGithub } from "../components/icons/github.tsx";
 import { Navburger } from "../components/navburger.tsx";
 import { ProjectSelect } from "../components/project-select.tsx";
 import {

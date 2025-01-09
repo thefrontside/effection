@@ -5,7 +5,7 @@ import { drain } from "./drain.ts";
 import { lazyPromise, lazyPromiseWithResolvers } from "./lazy-promise.ts";
 import { Just, type Maybe, Nothing } from "./maybe.ts";
 import { Err, Ok, type Result, unbox } from "./result.ts";
-import { createScopeInternal, type ScopeInternal } from "./scope.ts";
+import { createScopeInternal, type ScopeInternal } from "./scope-internal.ts";
 import type { Coroutine, Operation, Resolve, Scope, Task } from "./types.ts";
 import { withResolvers } from "./with-resolvers.ts";
 

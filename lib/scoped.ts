@@ -1,7 +1,7 @@
 import type { Operation } from "./types.ts";
 import { trap } from "./task.ts";
-import { createScopeInternal } from "./scope.ts";
 import { useCoroutine } from "./coroutine.ts";
+import { createScopeInternal } from "./scope-internal.ts";
 
 /**
  * Encapsulate an operation so that no effects will persist outside of

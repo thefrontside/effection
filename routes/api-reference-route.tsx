@@ -203,7 +203,9 @@ export function* ApiReference({
           {yield* Menu({ pages, current, linkResolver })}
         </nav>
       </aside>
-      <article class="prose max-w-full px-6 py-2">{content}</article>
+      <article class="prose max-w-full px-6 py-2">
+        {content}
+      </article>
     </section>
   );
 }

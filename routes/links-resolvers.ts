@@ -1,6 +1,6 @@
 import { DocPage } from "../hooks/use-deno-doc.tsx";
 
-function createAPIReferenceLinkResolver(version: string) {
+export function createAPIReferenceLinkResolver(version: string) {
   return function* (doc: DocPage) {
     return `/api/${version}/${doc.name}`;
   };

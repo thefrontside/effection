@@ -22,7 +22,8 @@ import { loadRepository } from "./resources/repository.ts";
 import { initGithubClientContext } from "./context/github.ts";
 import { initJSRClient } from "./context/jsr.ts";
 import { apiIndexRoute } from "./routes/api-index-route.tsx";
-import { apiVersionRoute } from "./routes/api-version-route.tsx";
+import { apiMinorIndexRoute } from "./routes/api-minor-index-route.tsx";
+import { apiMinorSymbolRoute } from "./routes/api-minor-symbol-route.tsx";
 
 // Learn more at https://docs.deno.com/runtime/manual/examples/module_metadata#concepts
 if (import.meta.main) {
@@ -84,8 +85,12 @@ if (import.meta.main) {
           apiReferenceRoute({ library, pattern: "effection-v4" }),
         ),
         route(
-          "/api/:version/:symbol",
-          apiVersionRoute({ library })
+          "/api/:minor",
+          apiMinorIndexRoute({ library })
+        ),
+        route(
+          "/api/:minor/:symbol",
+          apiMinorSymbolRoute({ library })
         ),
         route("/assets(.*)", assetsRoute("assets")),
       ],

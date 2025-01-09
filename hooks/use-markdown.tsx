@@ -71,7 +71,6 @@ export function createJsDocSanitizer(
       /@?{@?link\s*(\w*)([^\w}])?(\w*)?([^}]*)?}/gm,
       function* (match) {
         const [, symbol, connector, method] = match;
-        console.log({ symbol, connector, method })
         return yield* resolver(symbol, connector, method);
       },
     );

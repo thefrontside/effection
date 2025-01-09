@@ -14,8 +14,10 @@ import { fetchMinorVersions } from "./api-index-route.tsx";
 import { all, Operation } from "effection";
 import { DocsPages, isDocsPages } from "../hooks/use-deno-doc.tsx";
 import { ApiReference } from "./api-reference-route.tsx";
+import { Alert } from "./api-minor-index-route.tsx";
+import { extractVersion } from "../lib/semver.ts";
 
-export function apiVersionRoute({
+export function apiMinorSymbolRoute({
   library,
 }: {
   library: Repository;
@@ -29,7 +31,9 @@ export function apiVersionRoute({
       });
 
       const fetched = yield* all(
-        versions.map(function* ([series, version]): Operation<[string, string, DocsPages | Error]> {
+        versions.map(function* ([series, version]): Operation<
+          [string, string, DocsPages | Error]
+        > {
           try {
             const ref = yield* library.loadRef(`tags/effection-v${version}`);
             const pkg = yield* ref.loadRootPackage();
@@ -48,27 +52,40 @@ export function apiVersionRoute({
         }),
       );
 
-      return fetched.flatMap(([series, _version, docs]) => {
+      return fetched.flatMap(([minor, _version, docs]) => {
         if (isDocsPages(docs)) {
           return docs["."].map((page) => ({
             pathname: generate({
-              version: series,
-              symbol: page.name
-            })
-          }))
+              minor,
+              symbol: page.name,
+            }),
+          }));
         }
         return [];
       });
     },
     handler: function* () {
-      let { symbol, version } = yield* useParams<{ version: string; symbol: string }>();
+      let { symbol, minor } = yield* useParams<{
+        minor: string;
+        symbol: string;
+      }>();
 
       try {
-        const tag = yield* library.getLatestSemverTag(version)
+        const latest = yield* library.getLatestSemverTag("effection-v3");
+
+        if (!latest)
+          throw new Error(
+            `Failed to retrieve latest version for "effection-v3" tag`,
+          );
+
+        const tag = yield* library.getLatestSemverTag(minor);
+        if (!tag)
+          throw new Error(`Failed to retrieve latest version for ${minor}`);
+
         const ref = yield* library.loadRef(`tags/${tag?.name}`);
         const pkg = yield* ref.loadRootPackage();
 
-        if (!pkg) throw new Error(`Failed to load root package for ${version}`)
+        if (!pkg) throw new Error(`Failed to load root package for ${minor}`);
 
         const pages = (yield* pkg.docs())["."];
 
@@ -118,6 +135,9 @@ export function apiVersionRoute({
           description: page.description,
         });
 
+        const latestVersion = extractVersion(latest.name);
+        const version = extractVersion(tag.name);
+
         return (
           <AppHtml>
             <>
@@ -128,6 +148,13 @@ export function apiVersionRoute({
                   ref: ref,
                   content: (
                     <>
+                      <Alert title="Outdated documentation" class="mb-2">
+                        <p>
+                          You're reading API reference archive for {version}.
+                          The latest stable release is{" "}
+                          <a href={`/api/v3/${page.name}`}>{latestVersion}</a>.
+                        </p>
+                      </Alert>
                       <h1>
                         <Keyword>
                           {page.kind === "typeAlias"

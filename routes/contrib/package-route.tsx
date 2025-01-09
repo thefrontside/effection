@@ -4,13 +4,24 @@ import { API } from "../../components/api.tsx";
 import { PackageExports } from "../../components/package/exports.tsx";
 import { PackageHeader } from "../../components/package/header.tsx";
 import { ScoreCard } from "../../components/score-card.tsx";
+import { DocPageContext } from "../../context/doc-page.ts";
+import { Dependency, DocsPages } from "../../hooks/use-deno-doc.tsx";
 import { useMarkdown } from "../../hooks/use-markdown.tsx";
+import { major, minor } from "../../lib/semver.ts";
 import type { RoutePath, SitemapRoute } from "../../plugins/sitemap.ts";
 import { Repository } from "../../resources/repository.ts";
 import { useAppHtml } from "../app.html.tsx";
 
-export function contribPackageRoute(
+
+interface ContribPackageRouteParams {
   contrib: Repository,
+  library: Repository,
+}
+
+export function contribPackageRoute({
+  contrib,
+  library,
+}: ContribPackageRouteParams
 ): SitemapRoute<JSXElement> {
   return {
     *routemap(pathname) {
@@ -42,17 +53,45 @@ export function contribPackageRoute(
           description: yield* pkg.description(),
         });
 
-        const linkResolver = function* (symbol: string, connector?: string, method?: string) {
+        const linkResolver = function* (
+          symbol: string,
+          connector?: string,
+          method?: string,
+        ) {
           const internal = `#${symbol}_${method}`;
           if (connector === "_") {
             return internal;
           }
-          const page = docs["."].find(page => page.name === symbol)
+          const page = docs["."].find((page) => page.name === symbol);
+
+          let effectionDocs: DocsPages | undefined;
+          let effection: Dependency | undefined;
           if (page) {
+            // get internal link
             return `[${symbol}](#${page.kind}_${page.name})`;
+          } else {
+            // get external link
+            if (!effectionDocs) {
+              const page = yield* DocPageContext.expect();
+              effection = page.dependencies.find(dep => ["effection", "@effection/effection"].includes(dep.name));
+              if (effection) {
+                const ref = yield* library.loadRef(`tags/effection-v${effection.version}`)
+                const pkg = yield* ref.loadRootPackage();
+                if (pkg) {
+                  effectionDocs = yield* pkg?.docs();
+                }
+              }
+            }
+            if (effection && effectionDocs) {
+              const page = effectionDocs["."].find((page) => page.name === symbol);
+              if (page) {
+                return `[${symbol}](/api/${major(effection?.version)}.${minor(effection?.version)}/${symbol})`
+              }  
+            }
           }
+
           return symbol;
-        }
+        };
 
         return (
           <AppHTML>

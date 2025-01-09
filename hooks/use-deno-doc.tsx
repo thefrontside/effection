@@ -33,19 +33,24 @@ export function* useDenoDoc(
   return yield* call(() => doc(specifiers, docOptions));
 }
 
+export interface Dependency {
+  source: string;
+  name: string;
+  version: string;
+}
+
 export interface DocPage {
   name: string;
   sections: DocPageSection[];
   description: string;
   kind: DocNode["kind"];
+  dependencies: Dependency[];
 }
 
 export interface DocPageSection {
   id: string;
 
   node: DocNode;
-
-  dependencies?: DependencyJson[];
 
   markdown?: string;
 
@@ -56,10 +61,7 @@ export const NO_DOCS_AVAILABLE = "*No documentation available.*";
 
 export type DocsPages = Record<string, DocPage[]>;
 
-export function* useDocPages(
-  specifier: string
-): Operation<DocsPages> {
-
+export function* useDocPages(specifier: string): Operation<DocsPages> {
   const scope = yield* useScope();
 
   const loader = (specifier: string) => scope.run(docLoader(specifier));
@@ -69,6 +71,23 @@ export function* useDocPages(
       load: loader,
     }),
   );
+
+  const externalDependencies: Dependency[] = graph.modules.flatMap((module) => {
+    if (module.kind === "external") {
+      const parts = module.specifier.match(/(.*):(.*)@(.*)/);
+      if (parts) {
+        const [, source, name, version] = parts;
+        return [
+          {
+            source,
+            name,
+            version,
+          },
+        ];
+      }
+    }
+    return [];
+  });
 
   const docs = yield* useDenoDoc([specifier], {
     load: loader,
@@ -90,9 +109,13 @@ export function* useDocPages(
             node,
             markdown,
             ignore,
-            dependencies: graph.modules.find(m => m.specifier === node.location.filename)?.dependencies
           });
-          pages.push(..._pages);
+          pages.push(
+            ..._pages.map((page) => ({
+              ...page,
+              dependencies: externalDependencies,
+            })),
+          );
         }
 
         const markdown = sections
@@ -107,6 +130,7 @@ export function* useDocPages(
           kind: nodes?.at(0)?.kind!,
           description,
           sections,
+          dependencies: externalDependencies,
         });
       }
     }
@@ -210,6 +234,7 @@ export function* extract(
           name,
           kind: variable.kind,
           description,
+          dependencies: [],
           sections: [
             {
               id: exportHash(variable, 0),
@@ -533,4 +558,77 @@ function docLoader(
       console.log(`Ignoring ${url} while reading docs`);
     }
   };
+}
+
+export function isDocsPages(value: unknown): value is DocsPages {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  // Check if each key is a string and value is an array of DocPage objects
+  for (const key in value) {
+    if (typeof key !== "string") {
+      return false;
+    }
+
+    const pages = (value as Record<string, unknown>)[key];
+
+    if (!Array.isArray(pages)) {
+      return false;
+    }
+
+    // Check if each item in the array is a valid DocPage
+    for (const page of pages) {
+      if (!isDocPage(page)) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+function isDocPage(value: unknown): value is DocPage {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  const page = value as DocPage;
+
+  return (
+    typeof page.name === "string" &&
+    Array.isArray(page.sections) && page.sections.every(isDocPageSection) &&
+    typeof page.description === "string" &&
+    typeof page.kind === "string" &&
+    Array.isArray(page.dependencies) && page.dependencies.every(isDependency)
+  );
+}
+
+function isDocPageSection(value: unknown): value is DocPageSection {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  const section = value as DocPageSection;
+
+  return (
+    typeof section.id === "string" &&
+    typeof section.node === "object" && section.node !== null && // You might need a guard for DocNode if it's complex
+    (typeof section.markdown === "undefined" || typeof section.markdown === "string") &&
+    typeof section.ignore === "boolean"
+  );
+}
+
+function isDependency(value: unknown): value is Dependency {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  const dependency = value as Dependency;
+
+  return (
+    typeof dependency.source === "string" &&
+    typeof dependency.name === "string" &&
+    typeof dependency.version === "string"
+  );
 }

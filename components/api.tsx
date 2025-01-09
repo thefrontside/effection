@@ -1,4 +1,4 @@
-import { type Operation } from "effection";
+import { call, type Operation } from "effection";
 
 import type { JSXElement } from "revolution";
 import type {
@@ -22,10 +22,11 @@ import { ResolveLinkFunction, useMarkdown } from "../hooks/use-markdown.tsx";
 import { DocNode, NO_DOCS_AVAILABLE } from "../hooks/use-deno-doc.tsx";
 import { shiftHeadings } from "../lib/shift-headings.ts";
 import { Package } from "../resources/package.ts";
+import { DocPageContext } from "../context/doc-page.ts";
 
 interface APIOptions {
   pkg: Package;
-  linkResolver: ResolveLinkFunction
+  linkResolver: ResolveLinkFunction;
 }
 
 export function* API({ pkg, linkResolver }: APIOptions): Operation<JSXElement> {
@@ -47,9 +48,15 @@ export function* API({ pkg, linkResolver }: APIOptions): Operation<JSXElement> {
             </h3>
             <div class="[&>h3:first-child]:mt-0">
               {
-                yield* useMarkdown(section.markdown || NO_DOCS_AVAILABLE, {
-                  remarkPlugins: [[shiftHeadings, 1]],
-                  linkResolver
+                yield* call(function* () {
+                  yield* DocPageContext.set(page);
+                  return yield* useMarkdown(
+                    section.markdown || NO_DOCS_AVAILABLE,
+                    {
+                      remarkPlugins: [[shiftHeadings, 1]],
+                      linkResolver,
+                    },
+                  );
                 })
               }
             </div>

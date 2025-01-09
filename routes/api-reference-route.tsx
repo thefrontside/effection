@@ -3,18 +3,18 @@ import { type JSXElement, useParams } from "revolution";
 
 import { Type } from "../components/api.tsx";
 import { Keyword } from "../components/tokens.tsx";
-import { DocPage, DocPageLinkResolver, Icon } from "../hooks/use-deno-doc.tsx";
+import { DocPage, DocPageLinkResolver, DocsPages, Icon } from "../hooks/use-deno-doc.tsx";
 import {
   defaultLinkResolver,
   ResolveLinkFunction,
   useMarkdown,
 } from "../hooks/use-markdown.tsx";
 import { SitemapRoute } from "../plugins/sitemap.ts";
-import { DocsPages } from "../resources/package.ts";
 import { RepositoryRef } from "../resources/repository-ref.ts";
-import { extractVersion, Repository } from "../resources/repository.ts";
+import { Repository } from "../resources/repository.ts";
 import { useAppHtml } from "./app.html.tsx";
 import { IconExternal } from "../components/icons/external.tsx";
+import { extractVersion } from "../lib/semver.ts";
 
 export function apiReferenceRoute({
   library,

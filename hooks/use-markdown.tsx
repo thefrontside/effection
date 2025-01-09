@@ -11,11 +11,14 @@ export function* defaultLinkResolver(
   method?: string,
 ) {
   let parts = [symbol];
-  if (connector && method) {
+  if (symbol && connector && method) {
     parts.push(connector, method);
   }
   const name = parts.filter(Boolean).join("");
-  return `[${name}](${name})`;
+  if (name) {
+    return `[${name}](${name})`;
+  }
+  return "";
 }
 
 interface UseMarkdownOptions {
@@ -65,9 +68,10 @@ export function createJsDocSanitizer(
   return function* sanitizeJsDoc(doc: string) {
     return yield* replaceAll(
       doc,
-      /@?{@?link\s*(\w*)(\W+)?(\w*)?}/gm,
+      /@?{@?link\s*(\w*)([^\w}])?(\w*)?([^}]*)?}/gm,
       function* (match) {
         const [, symbol, connector, method] = match;
+        console.log({ symbol, connector, method })
         return yield* resolver(symbol, connector, method);
       },
     );

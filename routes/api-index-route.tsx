@@ -1,12 +1,13 @@
-import { all } from "effection";
+import { all, Operation } from "effection";
 import { type JSXElement } from "revolution";
 
 import { SitemapRoute } from "../plugins/sitemap.ts";
 import { useAppHtml } from "./app.html.tsx";
-import { ApiReference, getApiForLatestTag } from "./api-reference-route.tsx";
-import { extractVersion, Repository } from "../resources/repository.ts";
+import { getApiForLatestTag } from "./api-reference-route.tsx";
+import { Repository } from "../resources/repository.ts";
 import { DocPage, DocPageLinkResolver } from "../hooks/use-deno-doc.tsx";
 import { v3Links, v4Links } from "./links-resolvers.ts";
+import { major, minor, rsort, extractVersion } from "../lib/semver.ts";
 
 export function apiIndexRoute({
   library,
@@ -52,43 +53,57 @@ export function apiIndexRoute({
 
         return (
           <AppHtml>
-            <>
-              {
-                yield* ApiReference({
-                  pages: v3docs["."],
-                  current: "",
-                  ref: v3ref,
-                  linkResolver: v3Links,
-                  content: (
-                    <>
-                      <h1>API Reference</h1>
-                      <section>
-                        <h2>Latest release: {v3version}</h2>
-                        <ul class="columns-3">
-                          {
-                            yield* listPages({
-                              pages: v3docs["."],
-                              linkResolver: v3Links,
-                            })
-                          }
-                        </ul>
-                      </section>
-                      <section>
-                        <h2>Canary release: {v4version}</h2>
-                        <ul class="columns-3">
-                          {
-                            yield* listPages({
-                              pages: v3docs["."],
-                              linkResolver: v4Links,
-                            })
-                          }
-                        </ul>
-                      </section>
-                    </>
-                  ),
-                })
-              }
-            </>
+            <article class="prose m-auto">
+              <h1>API Reference</h1>
+              <section>
+                <h2>Stable</h2>
+                <p>
+                  The stable releases are recommended for most Effection users.
+                </p>
+                <h3>Latest release: {v3version}</h3>
+                <p>This release includes the following exports:</p>
+                <ul class="columns-3">
+                  {
+                    yield* listPages({
+                      pages: v3docs["."],
+                      linkResolver: v3Links,
+                    })
+                  }
+                </ul>
+                <h3>Previous releases</h3>
+                <ul>
+                  {(yield* fetchMinorVersions({
+                    repository: library,
+                    pattern: "effection-v3",
+                  }))
+                    .filter(([_series, version]) => version !== v3version)
+                    .map(([series, _version]) => (
+                      <li class="inline-block pr-10">
+                        <a href={`/api/${series}/`}>{series}</a>
+                      </li>
+                    ))}
+                </ul>
+              </section>
+              <hr />
+              <section>
+                <h2>Canary</h2>
+                <p>
+                  Canary releases are experimental and not recommended for most
+                  new users. Reach out in Discord if you're unsure which version
+                  is right for you.
+                </p>
+                <h3>Latest release: {v4version}</h3>
+                <p>This release includes the following exports:</p>
+                <ul class="columns-3">
+                  {
+                    yield* listPages({
+                      pages: v3docs["."],
+                      linkResolver: v4Links,
+                    })
+                  }
+                </ul>
+              </section>
+            </article>
           </AppHtml>
         );
       } catch (e) {
@@ -125,4 +140,25 @@ function* listPages({
     );
   }
   return <>{elements}</>;
+}
+
+export function* fetchMinorVersions({
+  repository,
+  pattern,
+}: {
+  repository: Repository;
+  pattern: string;
+}): Operation<[string, string][]> {
+  const tags = yield* repository.tags(pattern);
+  const sorted = rsort(tags.map((tag) => tag.name).map(extractVersion)).reduce<
+    Map<string, string>
+  >((acc, version) => {
+    const series = `${major(version)}.${minor(version)}`;
+    if (!acc.has(series)) {
+      acc.set(series, version);
+    }
+    return acc;
+  }, new Map());
+
+  return [...sorted.entries()];
 }

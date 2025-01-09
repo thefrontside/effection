@@ -1,4 +1,4 @@
-import { all, type Operation, resource, useScope } from "effection";
+import { all, type Operation, resource } from "effection";
 
 import { z } from "npm:zod@3.23.8";
 

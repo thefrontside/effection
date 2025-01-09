@@ -24,6 +24,7 @@ import { initJSRClient } from "./context/jsr.ts";
 import { apiIndexRoute } from "./routes/api-index-route.tsx";
 import { apiMinorIndexRoute } from "./routes/api-minor-index-route.tsx";
 import { apiMinorSymbolRoute } from "./routes/api-minor-symbol-route.tsx";
+import { ContribRepositoryContext, LibraryRepositoryContext } from "./context/repository.ts";
 
 // Learn more at https://docs.deno.com/runtime/manual/examples/module_metadata#concepts
 if (import.meta.main) {
@@ -56,11 +57,13 @@ if (import.meta.main) {
       owner: "thefrontside",
       name: "effection",
     });
+    yield* LibraryRepositoryContext.set(library);
 
     let contrib = yield* loadRepository({
       owner: "thefrontside",
       name: "effection-contrib",
     });
+    yield* ContribRepositoryContext.set(contrib);
 
     let docs = yield* loadDocs({ repo: library, pattern: "effection-v3" });
     let docsV4 = yield* loadDocs({ repo: library, pattern: "effection-v4" });

@@ -8,6 +8,8 @@ import { IconDiscord } from "../components/icons/discord.tsx";
 import { IconGithub } from "../components/icons/github.tsx";
 import { Navburger } from "../components/navburger.tsx";
 import { ProjectSelect } from "../components/project-select.tsx";
+import { ContribRepositoryContext, LibraryRepositoryContext } from "../context/repository.ts";
+import { StarIcon } from "../components/icons/star.tsx";
 
 export interface Options {
   title: string;
@@ -26,28 +28,21 @@ export function* useAppHtml({
     "/assets/images/meta-effection.png",
   );
   let homeURL = yield* useAbsoluteUrl("/");
+  let library = yield* LibraryRepositoryContext.expect();
+  let contrib = yield* ContribRepositoryContext.expect();
+  let contribMain = yield* contrib.loadRef();
+  let workspaces = yield* contribMain.loadWorkspaces();
 
   const navLinks: JSXElement[] = [
     <a href="/docs/installation">Guides</a>,
     <a href="/api">API</a>,
-    <a
-      class="flex flex-row"
-      href="/contrib"
-    >
-      <span class="hidden md:inline-flex">
-        Contrib
-      </span>
+    <a class="flex flex-row" href="/contrib">
+      <span class="hidden md:inline-flex">Contrib ({workspaces.length})</span>
     </a>,
 
-    <a
-      class="flex flex-row"
-      href="https://github.com/thefrontside/effection"
-    >
-      <span class="pr-1 md:inline-flex">
-        <IconGithub />
-      </span>
-      <span class="hidden md:inline-flex">
-        Github
+    <a class="flex flex-row" href="https://github.com/thefrontside/effection">
+      <span class="hidden md:inline-flex flex-row space-x-1">
+        <span>GitHub</span><span class="flex flex-row items-center"><StarIcon class="text-white pr-0.5" /><span>{yield* library.starCount()}</span><span class="font-black">+</span></span>
       </span>
     </a>,
     <a class="flex flex-row" href="https://discord.gg/r6AvtnU">
@@ -79,17 +74,10 @@ export function* useAppHtml({
         <meta charset="UTF-8" />
         <title>{title}</title>
         <meta property="og:image" content="/assets/images/meta-effection.png" />
-        <meta
-          property="og:title"
-          content={title}
-          data-rh="true"
-        />
+        <meta property="og:title" content={title} data-rh="true" />
         <meta property="og:url" content={homeURL} />
         <meta property="og:description" content={description} />
-        <meta
-          name="description"
-          content={description}
-        />
+        <meta name="description" content={description} />
         <meta name="twitter:image" content={twitterImageURL} />
         <link rel="icon" href="/assets/images/favicon-effection.png" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />

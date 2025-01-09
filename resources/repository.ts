@@ -20,6 +20,8 @@ export interface Repository {
     Endpoints["GET /repos/{owner}/{repo}"]["response"]["data"]
   >;
 
+  starCount(): Operation<number>
+
   /**
    * Retrieve tags for the current repository.
    *
@@ -93,6 +95,11 @@ export function loadRepository(
         );
 
         return result.data;
+      },
+      *starCount() {
+        const repo = yield* repository.get();
+        
+        return repo.stargazers_count;
       },
       *tags(
         searchQuery: string,

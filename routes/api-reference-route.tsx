@@ -196,13 +196,12 @@ export function* ApiReference({
     <section class="min-h-0 mx-auto w-full justify-items-normal md:grid md:grid-cols-[225px_auto] lg:grid-cols-[225px_auto_200px] md:gap-4">
       <aside class="min-h-0 overflow-auto hidden md:block pt-2 top-24 sticky h-fit">
         <nav class="pl-4">
-          <h3 class="text-lg flex flex-col">
+          <h3 class="text-xl flex flex-col">
             <span class="font-bold">API Reference</span>
             <span>
-              version{" "}
               <a
-                href={ref.getUrl("/", "/", false).toString()}
-                class="font-semibold"
+                href={ref.getUrl().toString()}
+                class="font-semibold text-base"
               >
                 {version}{" "}
                 <IconExternal

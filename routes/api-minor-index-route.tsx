@@ -5,7 +5,7 @@ import { useAppHtml } from "./app.html.tsx";
 import { Repository } from "../resources/repository.ts";
 import { DocPage, DocPageLinkResolver } from "../hooks/use-deno-doc.tsx";
 import { createAPIReferenceLinkResolver } from "./links-resolvers.ts";
-import { extractVersion } from "../lib/semver.ts";
+import { compare, extractVersion } from "../lib/semver.ts";
 import { fetchMinorVersions } from "./api-index-route.tsx";
 import { InfoIcon } from "../components/icons/info.tsx";
 
@@ -63,15 +63,21 @@ export function apiMinorIndexRoute({
         return (
           <AppHtml>
             <article class="prose m-auto">
-              <h1>API Reference</h1>
-              <Alert title="Outdated documentation">
-                <p>
-                  You're reading API reference archive for {version}. The latest
-                  stable release is <a href="/api/v3">{latestVersion}</a>.
-                </p>
-              </Alert>
+              <h1>{version}</h1>
+              {compare(version, latestVersion) < 0 ? (
+                <Alert title="Potentially outdated documentation">
+                  <p>
+                    You're reading API reference for version {version}. The
+                    latest stable release is version{" "}
+                    <a href="/api/v3">{latestVersion}</a>.
+                  </p>
+                </Alert>
+              ) : (
+                <></>
+              )}
+
               <section>
-                <h2>Release {version}</h2>
+                <h2>API Reference</h2>
                 <p>This release includes the following exports:</p>
                 <ul class="columns-3">
                   {
@@ -128,11 +134,11 @@ export function Alert({
 }: {
   title: string;
   children: JSXChild;
-  class: string;
+  class?: string;
 }) {
   return (
     <div
-      class={`${className} bg-orange-100 border-l-4 border-orange-500 text-orange-700 p-4`}
+      class={`${className ?? ""} bg-orange-100 border-l-4 border-orange-500 text-orange-700 p-4`}
       role="alert"
     >
       <p class="font-bold">{title}</p>

@@ -15,7 +15,7 @@ import { all, Operation } from "effection";
 import { DocsPages, isDocsPages } from "../hooks/use-deno-doc.tsx";
 import { ApiReference } from "./api-reference-route.tsx";
 import { Alert } from "./api-minor-index-route.tsx";
-import { extractVersion } from "../lib/semver.ts";
+import { compare, extractVersion } from "../lib/semver.ts";
 
 export function apiMinorSymbolRoute({
   library,
@@ -148,13 +148,19 @@ export function apiMinorSymbolRoute({
                   ref: ref,
                   content: (
                     <>
-                      <Alert title="Outdated documentation" class="mb-2">
-                        <p>
-                          You're reading API reference archive for {version}.
-                          The latest stable release is{" "}
-                          <a href={`/api/v3/${page.name}`}>{latestVersion}</a>.
-                        </p>
-                      </Alert>
+                      {compare(version, latestVersion) < 0 ? (
+                        <Alert
+                          title="Potentially outdated documentation"
+                          class="mb-2"
+                        >
+                          <p>
+                            You're reading API reference for version {version}.
+                            The latest stable release is version{" "}
+                            <a href={`/api/v3/${page.name}`}>{latestVersion}</a>
+                            .
+                          </p>
+                        </Alert>
+                      ) : null}
                       <h1>
                         <Keyword>
                           {page.kind === "typeAlias"

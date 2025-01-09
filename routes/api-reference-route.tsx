@@ -20,7 +20,7 @@ import { Repository } from "../resources/repository.ts";
 import { useAppHtml } from "./app.html.tsx";
 import { IconExternal } from "../components/icons/external.tsx";
 import { extractVersion } from "../lib/semver.ts";
-import { PackageSourceLink } from "../components/package/source-link.tsx";
+import { GithubPill } from "../components/package/source-link.tsx";
 import { Package } from "../resources/package.ts";
 
 export function apiReferenceRoute({
@@ -217,11 +217,15 @@ export function* SymbolHeader({ page, pkg }: { page: DocPage; pkg: Package }) {
         </Keyword>{" "}
         {page.name}
       </h1>
-      {yield* PackageSourceLink({ pkg })}
+      {
+        yield* GithubPill({
+          url: pkg.source.toString(),
+          text: pkg.ref.repository.nameWithOwner,
+        })
+      }
     </header>
   );
 }
-
 
 function* Menu({
   pages,

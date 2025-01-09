@@ -10,6 +10,7 @@ import { PackageDetailsResult, PackageScoreResult } from "./jsr-client.ts";
 import { RepositoryRef } from "./repository-ref.ts";
 
 export interface Package {
+  ref: RepositoryRef,
   /**
    * Relative path of workspace on file system
    */
@@ -113,6 +114,7 @@ export function loadPackage(
     const [, scope, name] = denoJson?.name?.match(/@(.*)\/(.*)/) ?? [];
 
     let pkg: Package = {
+      ref,
       get exports() {
         if (typeof denoJson.exports === "string") {
           return { [DEFAULT_MODULE_KEY]: denoJson.exports };

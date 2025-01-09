@@ -3,7 +3,12 @@ import { type JSXElement, useParams } from "revolution";
 
 import { Type } from "../components/api.tsx";
 import { Keyword } from "../components/tokens.tsx";
-import { DocPage, DocPageLinkResolver, DocsPages, Icon } from "../hooks/use-deno-doc.tsx";
+import {
+  DocPage,
+  DocPageLinkResolver,
+  DocsPages,
+  Icon,
+} from "../hooks/use-deno-doc.tsx";
 import {
   defaultLinkResolver,
   ResolveLinkFunction,
@@ -15,6 +20,7 @@ import { Repository } from "../resources/repository.ts";
 import { useAppHtml } from "./app.html.tsx";
 import { IconExternal } from "../components/icons/external.tsx";
 import { extractVersion } from "../lib/semver.ts";
+import { PackageSourceLink } from "../components/package/source-link.tsx";
 
 export function apiReferenceRoute({
   library,
@@ -101,6 +107,10 @@ export function apiReferenceRoute({
           description: page.description,
         });
 
+        const pkg = yield* ref?.loadRootPackage();
+        if (!pkg)
+          throw new Error(`Fail to retrieve root package for ${ref.name}`);
+
         return (
           <AppHtml>
             <>
@@ -111,14 +121,17 @@ export function apiReferenceRoute({
                   ref: ref,
                   content: (
                     <>
-                      <h1>
-                        <Keyword>
-                          {page.kind === "typeAlias"
-                            ? "type alias "
-                            : page.kind}
-                        </Keyword>{" "}
-                        {page.name}
-                      </h1>
+                      <header class="flex flex-row space-x-2">
+                        <h1 class="mb-0">
+                          <Keyword>
+                            {page.kind === "typeAlias"
+                              ? "type alias "
+                              : page.kind}
+                          </Keyword>{" "}
+                          {page.name}
+                        </h1>
+                        {yield* PackageSourceLink({ pkg, class: "text-lg" })}
+                      </header>
                       <>{elements}</>
                     </>
                   ),
@@ -203,9 +216,7 @@ export function* ApiReference({
           {yield* Menu({ pages, current, linkResolver })}
         </nav>
       </aside>
-      <article class="prose max-w-full px-6 py-2">
-        {content}
-      </article>
+      <article class="prose max-w-full px-6 py-2">{content}</article>
     </section>
   );
 }

@@ -5,6 +5,7 @@
     "jsr:@deno/cache-dir@0.16.0": "0.16.0",
     "jsr:@deno/cache-dir@0.8": "0.8.0",
     "jsr:@deno/doc@0.162.4": "0.162.4",
+    "jsr:@deno/doc@0.164.0": "0.164.0",
     "jsr:@deno/graph@0.73": "0.73.1",
     "jsr:@deno/graph@0.86": "0.86.7",
     "jsr:@deno/graph@0.86.7": "0.86.7",
@@ -140,6 +141,12 @@
       "dependencies": [
         "jsr:@deno/cache-dir@0.14",
         "jsr:@deno/graph@~0.82.3"
+      ]
+    },
+    "@deno/doc@0.164.0": {
+      "integrity": "6fbb660fc16fe91fa7ff91f88684b22f387bd825a70a66d6c93facd0e37802f2",
+      "dependencies": [
+        "jsr:@deno/cache-dir@0.14"
       ]
     },
     "@deno/graph@0.69.10": {

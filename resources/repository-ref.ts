@@ -233,5 +233,5 @@ export function matchRef(ref: string): BranchRef | TagRef | undefined {
 }
 
 function getRefUrl(repository: Repository, ref: BranchRef | TagRef) {
-  return `https://github.com/${repository.owner}/${repository.name}/tree/${ref.name}/}`;
+  return `https://github.com/${repository.owner}/${repository.name}/tree/${ref.name}/`;
 }

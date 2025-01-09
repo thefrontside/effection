@@ -9,9 +9,8 @@ import {
   TsTypeParamDef,
   CacheSetting,
   LoadResponse,
-} from "jsr:@deno/doc@0.162.4";
+} from "jsr:@deno/doc@0.164.0";
 import { createGraph } from "jsr:@deno/graph@0.86.7";
-import { DependencyJson } from "jsr:@deno/graph@0.86.7/types";
 
 import { useDescription } from "./use-description-parse.tsx";
 import { toHtml } from "npm:hast-util-to-html@9.0.4";

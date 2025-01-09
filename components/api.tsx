@@ -9,7 +9,7 @@ import type {
   TsTypeParamDef,
   TsTypeRefDef,
   VariableDef,
-} from "https://deno.land/x/deno_doc@0.125.0/types.d.ts";
+} from "jsr:@deno/doc@0.164.0/types";
 import {
   Builtin,
   ClassName,

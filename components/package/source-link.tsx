@@ -1,20 +1,21 @@
 import { IconExternal } from "../../components/icons/external.tsx";
 import { IconGithub } from "../../components/icons/github.tsx";
+import { Package } from "../../resources/package.ts";
 
 export function* PackageSourceLink({
-  sourceUrl,
-  repositoryName,
+  pkg,
+  ...props
 }: {
-  sourceUrl: string;
-  repositoryName: string;
+  pkg: Package
+  class?: string;
 }) {
   return (
     <a
-      href={sourceUrl}
-      class="[&>*]:inline-block rounded-full bg-gray-200 px-2 py-1"
+      href={pkg.source.toString()}
+      class={`flex flex-row items-center rounded-full bg-gray-200 px-2 py-1 ${props.class ?? ""}`}
     >
       <IconGithub />
-      <span class="px-1">{repositoryName}</span>
+      <span class="px-1">{pkg.ref.repository.nameWithOwner}</span>
       <IconExternal />
     </a>
   );

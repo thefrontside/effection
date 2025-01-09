@@ -16,6 +16,7 @@ import { DocsPages, isDocsPages } from "../hooks/use-deno-doc.tsx";
 import { ApiReference } from "./api-reference-route.tsx";
 import { Alert } from "./api-minor-index-route.tsx";
 import { compare, extractVersion } from "../lib/semver.ts";
+import { PackageSourceLink } from "../components/package/source-link.tsx";
 
 export function apiMinorSymbolRoute({
   library,
@@ -169,6 +170,7 @@ export function apiMinorSymbolRoute({
                             : page.kind}
                         </Keyword>{" "}
                         {page.name}
+                        {yield* PackageSourceLink({ pkg })}
                       </h1>
                       <>{elements}</>
                     </>

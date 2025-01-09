@@ -14,6 +14,8 @@ export interface Repository {
 
   owner: string;
 
+  nameWithOwner: string;
+
   get(): Operation<
     Endpoints["GET /repos/{owner}/{repo}"]["response"]["data"]
   >;
@@ -78,6 +80,7 @@ export function loadRepository(
     const github = yield* GithubClientContext.expect();
 
     const repository: Repository = {
+      nameWithOwner: `${owner}/${name}`,
       owner,
       name,
 

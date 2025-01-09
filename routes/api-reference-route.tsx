@@ -21,6 +21,7 @@ import { useAppHtml } from "./app.html.tsx";
 import { IconExternal } from "../components/icons/external.tsx";
 import { extractVersion } from "../lib/semver.ts";
 import { PackageSourceLink } from "../components/package/source-link.tsx";
+import { Package } from "../resources/package.ts";
 
 export function apiReferenceRoute({
   library,
@@ -121,17 +122,7 @@ export function apiReferenceRoute({
                   ref: ref,
                   content: (
                     <>
-                      <header class="flex flex-row space-x-2">
-                        <h1 class="mb-0">
-                          <Keyword>
-                            {page.kind === "typeAlias"
-                              ? "type alias "
-                              : page.kind}
-                          </Keyword>{" "}
-                          {page.name}
-                        </h1>
-                        {yield* PackageSourceLink({ pkg, class: "text-lg" })}
-                      </header>
+                      {yield* SymbolHeader({ pkg, page })}
                       <>{elements}</>
                     </>
                   ),
@@ -199,10 +190,7 @@ export function* ApiReference({
           <h3 class="text-xl flex flex-col">
             <span class="font-bold">API Reference</span>
             <span>
-              <a
-                href={ref.getUrl().toString()}
-                class="font-semibold text-base"
-              >
+              <a href={ref.getUrl().toString()} class="font-semibold text-base">
                 {version}{" "}
                 <IconExternal
                   class="inline-block align-baseline"
@@ -219,6 +207,21 @@ export function* ApiReference({
     </section>
   );
 }
+
+export function* SymbolHeader({ page, pkg }: { page: DocPage; pkg: Package }) {
+  return (
+    <header class="flex flex-row items-center space-x-2">
+      <h1 class="mb-0">
+        <Keyword>
+          {page.kind === "typeAlias" ? "type alias " : page.kind}
+        </Keyword>{" "}
+        {page.name}
+      </h1>
+      {yield* PackageSourceLink({ pkg })}
+    </header>
+  );
+}
+
 
 function* Menu({
   pages,

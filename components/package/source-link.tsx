@@ -12,7 +12,7 @@ export function* PackageSourceLink({
   return (
     <a
       href={pkg.source.toString()}
-      class={`flex flex-row items-center rounded-full bg-gray-200 px-2 py-1 ${props.class ?? ""}`}
+      class={`flex flex-row h-10 items-center rounded-full bg-gray-200 px-2 py-1 ${props.class ?? ""}`}
     >
       <IconGithub />
       <span class="px-1">{pkg.ref.repository.nameWithOwner}</span>

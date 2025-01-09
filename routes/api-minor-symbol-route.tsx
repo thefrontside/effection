@@ -1,7 +1,6 @@
 import { type JSXElement, useParams } from "revolution";
 
 import { Type } from "../components/api.tsx";
-import { Keyword } from "../components/tokens.tsx";
 import {
   defaultLinkResolver,
   ResolveLinkFunction,
@@ -13,10 +12,9 @@ import { useAppHtml } from "./app.html.tsx";
 import { fetchMinorVersions } from "./api-index-route.tsx";
 import { all, Operation } from "effection";
 import { DocsPages, isDocsPages } from "../hooks/use-deno-doc.tsx";
-import { ApiReference } from "./api-reference-route.tsx";
+import { ApiReference, SymbolHeader } from "./api-reference-route.tsx";
 import { Alert } from "./api-minor-index-route.tsx";
 import { compare, extractVersion } from "../lib/semver.ts";
-import { PackageSourceLink } from "../components/package/source-link.tsx";
 
 export function apiMinorSymbolRoute({
   library,
@@ -162,16 +160,10 @@ export function apiMinorSymbolRoute({
                             .
                           </p>
                         </Alert>
-                      ) : <></>}
-                      <h1>
-                        <Keyword>
-                          {page.kind === "typeAlias"
-                            ? "type alias "
-                            : page.kind}
-                        </Keyword>{" "}
-                        {page.name}
-                        {yield* PackageSourceLink({ pkg })}
-                      </h1>
+                      ) : (
+                        <></>
+                      )}
+                      {yield* SymbolHeader({ pkg, page })}
                       <>{elements}</>
                     </>
                   ),

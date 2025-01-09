@@ -48,11 +48,11 @@ export function apiVersionRoute({
         }),
       );
 
-      return fetched.flatMap(([_series, version, docs]) => {
+      return fetched.flatMap(([series, _version, docs]) => {
         if (isDocsPages(docs)) {
           return docs["."].map((page) => ({
             pathname: generate({
-              version,
+              version: series,
               symbol: page.name
             })
           }))
@@ -63,7 +63,6 @@ export function apiVersionRoute({
     handler: function* () {
       let { symbol, version } = yield* useParams<{ version: string; symbol: string }>();
 
-      console.log(version)
       try {
         const tag = yield* library.getLatestSemverTag(version)
         const ref = yield* library.loadRef(`tags/${tag?.name}`);

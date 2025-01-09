@@ -317,13 +317,16 @@ export function* extract(
     }
 
     if (node.functionDef.returnType) {
-      lines.push("### Return Type");
-      lines.push("\n", TypeDef(node.functionDef.returnType));
+      lines.push("### Return Type", "\n", TypeDef(node.functionDef.returnType));
       const jsDocs = node.jsDoc?.tags?.find((tag) => tag.kind === "return");
       if (jsDocs && jsDocs.doc) {
         lines.push("\n", jsDocs.doc);
       }
     }
+  }
+
+  if (node.kind === "variable" && node.variableDef.tsType) {
+    lines.push("### Type", "\n", TypeDef(node.variableDef.tsType))
   }
 
   const see: string[] = [];
@@ -454,8 +457,8 @@ function Param(paramDef: ParamDef): string {
     case "rest": {
       return `...${Param(paramDef.arg)}: ${paramDef.tsType ? TypeDef(paramDef.tsType) : ""}`;
     }
-    case "array":
     case "assign":
+    case "array":
     case "object":
       console.log("Param: unimplemented", paramDef);
   }

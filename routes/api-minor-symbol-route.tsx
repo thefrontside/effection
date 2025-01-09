@@ -161,7 +161,7 @@ export function apiMinorSymbolRoute({
                             .
                           </p>
                         </Alert>
-                      ) : null}
+                      ) : <></>}
                       <h1>
                         <Keyword>
                           {page.kind === "typeAlias"

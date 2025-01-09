@@ -129,14 +129,14 @@ export function apiMinorSymbolRoute({
           }
         }
 
-        const AppHtml = yield* useAppHtml({
-          title: `${symbol} | API Reference | Effection`,
-          description: page.description,
-        });
-
         const latestVersion = extractVersion(latest.name);
         const version = extractVersion(tag.name);
         const outdated = compare(version, latestVersion) < 0;
+
+        const AppHtml = yield* useAppHtml({
+          title: `${symbol} | ${version} | API Reference | Effection`,
+          description: page.description,
+        });
 
         return (
           <AppHtml>

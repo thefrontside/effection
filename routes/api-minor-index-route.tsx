@@ -7,7 +7,6 @@ import { DocPage, DocPageLinkResolver } from "../hooks/use-deno-doc.tsx";
 import { createAPIReferenceLinkResolver } from "./links-resolvers.ts";
 import { compare, extractVersion } from "../lib/semver.ts";
 import { fetchMinorVersions } from "./api-index-route.tsx";
-import { InfoIcon } from "../components/icons/info.tsx";
 
 export function apiMinorIndexRoute({
   library,
@@ -56,8 +55,8 @@ export function apiMinorIndexRoute({
         const linkResolver = createAPIReferenceLinkResolver(version);
 
         const AppHtml = yield* useAppHtml({
-          title: `API Reference | Effection`,
-          description: `API Reference for Effection`,
+          title: `${version} | API Reference | Effection`,
+          description: `API Reference for Effection v${version}`,
         });
 
         const outdated = compare(version, latestVersion) < 0;

@@ -8,6 +8,7 @@ import { compare, extractVersion } from "../lib/semver.ts";
 import { fetchMinorVersions } from "./api-index-route.tsx";
 import { ResolveLinkFunction } from "../hooks/use-markdown.tsx";
 import { createChildURL } from "./links-resolvers.ts";
+import { Alert } from "../components/alert.tsx";
 
 export function apiMinorIndexRoute({
   library,
@@ -127,32 +128,4 @@ export function* listPages({
     );
   }
   return <>{elements}</>;
-}
-
-const ALERT_LEVELS = {
-  warning: "bg-orange-100 border-orange-500 text-orange-700",
-  error: "bg-red-100 border-red-400 text-red-700",
-  info: "bg-blue-100 border-blue-500 text-blue-700",
-} as const;
-
-export function Alert({
-  title,
-  children,
-  class: className,
-  level,
-}: {
-  title?: string;
-  level: "info" | "warning" | "error";
-  children: JSXChild;
-  class?: string;
-}) {
-  return (
-    <div
-      class={`${className ?? ""} ${ALERT_LEVELS[level]} border-l-4 p-4 [&>p]:my-1`}
-      role="alert"
-    >
-      {title ? <p class="font-bold">{title}</p> : <></>}
-      {children}
-    </div>
-  );
 }

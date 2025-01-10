@@ -13,8 +13,8 @@ import { fetchMinorVersions } from "./api-index-route.tsx";
 import { all, Operation } from "effection";
 import { DocsPages, isDocsPages } from "../hooks/use-deno-doc.tsx";
 import { ApiReference, SymbolHeader } from "./api-reference-route.tsx";
-import { Alert } from "./api-minor-index-route.tsx";
 import { compare, extractVersion } from "../lib/semver.ts";
+import { Alert } from "../components/alert.tsx";
 
 export function apiMinorSymbolRoute({
   library,

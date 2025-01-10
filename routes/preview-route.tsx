@@ -3,9 +3,9 @@ import { type JSXElement } from "revolution";
 import { SitemapRoute } from "../plugins/sitemap.ts";
 import { useAppHtml } from "./app.html.tsx";
 import { Repository } from "../resources/repository.ts";
-import { Alert, listPages } from "./api-minor-index-route.tsx";
-import { DocPage } from "../hooks/use-deno-doc.tsx";
+import { listPages } from "./api-minor-index-route.tsx";
 import { createChildURL } from "./links-resolvers.ts";
+import { Alert } from "../components/alert.tsx";
 
 export function previewRoute({
   library,

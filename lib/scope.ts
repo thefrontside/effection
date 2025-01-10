@@ -1,19 +1,44 @@
-import { Children, Generation } from "./contexts.ts";
-import type {
-  Context,
-  Effect,
-  Future,
-  Operation,
-  Scope,
-  Task,
-} from "./types.ts";
-import { Err, Ok, unbox } from "./result.ts";
-import { createTask } from "./task.ts";
+import type { Effect, Future, Operation, Scope } from "./types.ts";
+import { Ok } from "./result.ts";
+import { createScopeInternal } from "./scope-internal.ts";
 
-const scope: [ScopeInternal, () => Operation<void>] = createScopeInternal();
+/**
+ * The root of all Effection Scopes.
+ */
+export const global = createScopeInternal()[0] as Scope;
 
-export const global = scope[0];
-
+/**
+ * Create a new {@link Scope} as a child of `parent`, inheriting all its contexts.
+ * along with a method to destroy the scope. Whenever the scope is destroyd, all
+ * tasks and resources it contains will be halted.
+ *
+ * This function is used mostly by frameworks as an intergration point to enter
+ * Effection.
+ *
+ * @example
+ * ```js
+ * import { createScope, sleep, suspend } from "effection";
+ *
+ * let [scope, destroy] = createScope();
+ *
+ * let delay = scope.run(function*() {
+ *   yield* sleep(1000);
+ * });
+ * scope.run(function*() {
+ *   try {
+ *     yield* suspend();
+ *    } finally {
+ *      console.log('done!');
+ *    }
+ * });
+ * await delay;
+ * await destroy(); // prints "done!";
+ * ```
+ *
+ * @param parent scope. If no parent is specified it will derive directly from {@link global}
+ * @returns a tuple containing the freshly created scope, along with a function to
+ *          destroy it.
+ */
 export function createScope(
   parent: Scope = global,
 ): [Scope, () => Future<void>] {
@@ -21,88 +46,11 @@ export function createScope(
   return [scope, () => parent.run(destroy)];
 }
 
-export function createScopeInternal(
-  parent?: Scope,
-): [ScopeInternal, () => Operation<void>] {
-  let destructors = new Set<() => Operation<void>>();
-
-  let contexts: Record<string, unknown> = Object.create(
-    parent ? (parent as ScopeInternal).contexts : null,
-  );
-  let scope: ScopeInternal = Object.create({
-    [Symbol.toStringTag]: "Scope",
-    contexts,
-    get<T>(context: Context<T>): T | undefined {
-      return (contexts[context.name] ?? context.defaultValue) as T | undefined;
-    },
-    set<T>(context: Context<T>, value: T): T {
-      return contexts[context.name] = value;
-    },
-    expect<T>(context: Context<T>): T {
-      let value = scope.get(context);
-      if (typeof value === "undefined") {
-        let error = new Error(context.name);
-        error.name = `MissingContextError`;
-        throw error;
-      }
-      return value;
-    },
-    delete<T>(context: Context<T>): boolean {
-      return delete contexts[context.name];
-    },
-    hasOwn<T>(context: Context<T>): boolean {
-      return !!Reflect.getOwnPropertyDescriptor(contexts, context.name);
-    },
-    run<T>(operation: () => Operation<T>): Task<T> {
-      let { task, start } = createTask({ operation, owner: scope });
-      start();
-      return task;
-    },
-    spawn<T>(operation: () => Operation<T>): Operation<Task<T>> {
-      return {
-        *[Symbol.iterator]() {
-          let { task, start } = createTask({ operation, owner: scope });
-          start();
-          return task;
-        },
-      };
-    },
-
-    ensure(op: () => Operation<void>): () => void {
-      destructors.add(op);
-      return () => destructors.delete(op);
-    },
-  });
-
-  scope.set(Generation, scope.expect(Generation) + 1);
-  scope.set(Children, new Set());
-  parent?.expect(Children).add(scope);
-
-  let unbind = parent ? (parent as ScopeInternal).ensure(destroy) : () => {};
-
-  function* destroy(): Operation<void> {
-    parent?.expect(Children).delete(scope);
-    unbind();
-    let outcome = Ok();
-    for (let destructor of [...destructors].reverse()) {
-      try {
-        destructors.delete(destructor);
-        yield* destructor();
-      } catch (error) {
-        outcome = Err(error as Error);
-      }
-    }
-    unbox(outcome);
-  }
-
-  return [scope, destroy];
-}
-
-export interface ScopeInternal extends Scope {
-  contexts: Record<string, unknown>;
-  ensure(op: () => Operation<void>): () => void;
-}
-
+/**
+ * Get the scope of the currently running {@link Operation}.
+ *
+ * @returns an operation yielding the current scope
+ */
 export function* useScope(): Operation<Scope> {
   return (yield {
     description: `useScope()`,

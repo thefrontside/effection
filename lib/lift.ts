@@ -13,7 +13,9 @@ import type { Operation } from "./types.ts";
  *   yield* log("done");
  * }
  * ```
- *
+ * @param fn - the function to convert into an operation.
+ * @typeParam TArgs - the type of the arguments to `fn`
+ * @typeParam TReturn - return type of `fn`
  * @returns a function returning an operation that invokes `fn` when evaluated
  */
 export function lift<TArgs extends unknown[], TReturn>(

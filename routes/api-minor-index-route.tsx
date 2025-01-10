@@ -65,19 +65,14 @@ export function apiMinorIndexRoute({
           <AppHtml>
             <article class="prose m-auto">
               {outdated ? (
-                <Alert
-                  title="Newer version available"
-                  level="info"
-                  class="mb-6"
-                >
-                  <>
-                    <p>
-                      You’re viewing the API reference for version {version},
-                      but the latest version is {latestVersion}. The latest
-                      version include may important updates and fixes.
-                    </p>
-                    <a href={`/api/v3`}>View Latest Version</a>
-                  </>
+                <Alert level="info" class="mb-6">
+                  <p>
+                    Version {version} is behind the current release:{" "}
+                    <a class="underline font-bold" href={`/api/v3`}>
+                      jump to latest version
+                    </a>{" "}
+                    ({latestVersion}).
+                  </p>
                 </Alert>
               ) : (
                 <></>
@@ -146,7 +141,7 @@ export function Alert({
   class: className,
   level,
 }: {
-  title: string;
+  title?: string;
   level: "info" | "warning" | "error";
   children: JSXChild;
   class?: string;
@@ -156,7 +151,7 @@ export function Alert({
       class={`${className ?? ""} ${ALERT_LEVELS[level]} border-l-4 p-4 [&>p]:my-1`}
       role="alert"
     >
-      <p class="font-bold">{title}</p>
+      {title ? <p class="font-bold">{title}</p> : <></>}
       {children}
     </div>
   );

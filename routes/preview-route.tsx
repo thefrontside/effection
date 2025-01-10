@@ -5,6 +5,7 @@ import { useAppHtml } from "./app.html.tsx";
 import { Repository } from "../resources/repository.ts";
 import { Alert, listPages } from "./api-minor-index-route.tsx";
 import { DocPage } from "../hooks/use-deno-doc.tsx";
+import { createChildURL } from "./links-resolvers.ts";
 
 export function previewRoute({
   library,
@@ -32,10 +33,6 @@ export function previewRoute({
 
         const pages = (yield* pkg.docs())["."];
 
-        const linkResolver = function* (doc: DocPage) {
-          return `/preview/api/${doc.name}?branch=${branch}`;
-        };
-
         const AppHtml = yield* useAppHtml({
           title: `${branch} | API Reference | Effection`,
           description: `API Reference for Effection on branch ${branch}`,
@@ -57,7 +54,7 @@ export function previewRoute({
                   {
                     yield* listPages({
                       pages,
-                      linkResolver,
+                      linkResolver: createChildURL("api"),
                     })
                   }
                 </ul>

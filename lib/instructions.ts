@@ -54,52 +54,42 @@ function Suspend(frame: Frame) {
  * Create an {@link Operation} that can be either resolved (or rejected) with
  * a synchronous callback. This is the Effection equivalent of `new Promise()`.
  *
- * The action body is itself an operation that runs in a new scope that is
- * destroyed completely before program execution returns to the point where the
- * action was yielded to.
+ * The action body is a function that enters the effect, and returns a function that
+ * will be called to exit the action..
  *
  * For example:
  *
  * ```js
- * let five = yield* action(function*(resolve, reject) {
- *   setTimeout(() => {
+ * let five = yield* action((resolve, reject) => {
+ *   let timeout = setTimeout(() => {
  *     if (Math.random() > 5) {
  *       resolve(5)
  *     } else {
  *       reject(new Error("bad luck!"));
  *     }
  *   }, 1000);
- * });
- *
- * ```
- *
- * However, it is customary to explicitly {@link suspend} inside the body of the
- * action so that whenever the action resolves, appropriate cleanup code can
- * run. The preceeding example would be more correctly written as:
- *
- * ```js
- * let five = yield* action(function*(resolve) {
- *   let timeoutId = setTimeout(() => {
- *     if (Math.random() > 5) {
- *       resolve(5)
- *     } else {
- *       reject(new Error("bad luck!"));
- *     }
- *   }, 1000);
- *   try {
- *     yield* suspend();
- *   } finally {
- *     clearTimout(timeoutId);
- *   }
+ *   return () => clearTimeout(timeout);
  * });
  * ```
  *
  * @typeParam T - type of the action's result.
- * @param operation - body of the action
+ * @param body - enter and exit the action
  * @returns an operation producing the resolved value, or throwing the rejected error
  */
 export function action<T>(
+  enter: (resolve: Resolve<T>, reject: Reject) => () => void,
+): Operation<T>;
+
+/**
+ * @deprecated `action()` used with an operation will be removed in v4.
+ */
+export function action<T>(
   operation: (resolve: Resolve<T>, reject: Reject) => Operation<void>,
+): Operation<T>;
+export function action<T>(
+  operation:
+    | ((resolve: Resolve<T>, reject: Reject) => Operation<void>)
+    | ((resolve: Resolve<T>, reject: Reject) => () => void),
 ): Operation<T> {
   return instruction(function Action(frame) {
     return shift<Result<T>>(function* (k) {
@@ -119,8 +109,17 @@ export function action<T>(
       let reject: Reject = (error) => settle(Err(error));
 
       let child = frame.createChild(function* () {
-        yield* operation(resolve, reject);
-        yield* suspend();
+        let iterable = operation(resolve, reject);
+        if (typeof iterable === "function") {
+          try {
+            yield* suspend();
+          } finally {
+            iterable();
+          }
+        } else {
+          yield* iterable;
+          yield* suspend();
+        }
       });
 
       yield* reset(function* () {

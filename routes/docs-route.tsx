@@ -7,9 +7,6 @@ import { Rehype } from "../components/rehype.tsx";
 import { Transform } from "../components/transform.tsx";
 
 import rehypeToc from "npm:@jsdevtools/rehype-toc@3.0.2";
-import rehypeAddClasses from "npm:rehype-add-classes@1.0.0";
-import rehypeAutolinkHeadings from "npm:rehype-autolink-headings@7.1.0";
-import rehypeSlug from "npm:rehype-slug@6.0.0";
 import { useDescription } from "../hooks/use-description-parse.tsx";
 import { RoutePath, SitemapRoute } from "../plugins/sitemap.ts";
 
@@ -139,7 +136,7 @@ export function docsRoute({ docs, base }: { docs: Docs, base: string }): Sitemap
   };
 }
 
-function NextPrevLinks({ doc, base }: { doc: DocMeta, base: string }): JSX.Element {
+function NextPrevLinks({ doc, base }: { doc: DocMeta, base?: string }): JSX.Element {
   let { next, prev } = doc;
   return (
     <menu class="grid grid-cols-2 my-10 gap-x-2 xl:gap-x-20 2xl:gap-x-40 text-lg">

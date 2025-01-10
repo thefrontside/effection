@@ -7,7 +7,6 @@ export function SourceCodeIcon(props) {
       height="14"
       viewBox="0 0 14 14"
       fill="none"
-      fill="currentColor"
       xmlns="http://www.w3.org/2000/svg"
       class={props.class}
     >

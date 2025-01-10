@@ -1,28 +1,31 @@
 import { type JSXElement, useParams } from "revolution";
+import { call, type Operation } from "effection";
 
-import { API } from "../../components/api.tsx";
 import { PackageExports } from "../../components/package/exports.tsx";
 import { PackageHeader } from "../../components/package/header.tsx";
 import { ScoreCard } from "../../components/score-card.tsx";
 import { DocPageContext } from "../../context/doc-page.ts";
 import { Dependency, DocsPages } from "../../hooks/use-deno-doc.tsx";
-import { useMarkdown } from "../../hooks/use-markdown.tsx";
+import { useMarkdown, ResolveLinkFunction } from "../../hooks/use-markdown.tsx";
 import { major, minor } from "../../lib/semver.ts";
 import type { RoutePath, SitemapRoute } from "../../plugins/sitemap.ts";
 import { Repository } from "../../resources/repository.ts";
 import { useAppHtml } from "../app.html.tsx";
-
+import { shiftHeadings } from "../../lib/shift-headings.ts";
+import { Package } from "../../resources/package.ts";
+import { Type } from "../../components/type/jsx.tsx";
+import { NO_DOCS_AVAILABLE } from "../../components/type/markdown.tsx";
+import { SourceCodeIcon } from "../../components/icons/source-code.tsx";
 
 interface ContribPackageRouteParams {
-  contrib: Repository,
-  library: Repository,
+  contrib: Repository;
+  library: Repository;
 }
 
 export function contribPackageRoute({
   contrib,
   library,
-}: ContribPackageRouteParams
-): SitemapRoute<JSXElement> {
+}: ContribPackageRouteParams): SitemapRoute<JSXElement> {
   return {
     *routemap(pathname) {
       let paths: RoutePath[] = [];
@@ -73,9 +76,13 @@ export function contribPackageRoute({
             // get external link
             if (!effectionDocs) {
               const page = yield* DocPageContext.expect();
-              effection = page.dependencies.find(dep => ["effection", "@effection/effection"].includes(dep.name));
+              effection = page.dependencies.find((dep) =>
+                ["effection", "@effection/effection"].includes(dep.name),
+              );
               if (effection) {
-                const ref = yield* library.loadRef(`tags/effection-v${effection.version}`)
+                const ref = yield* library.loadRef(
+                  `tags/effection-v${effection.version}`,
+                );
                 const pkg = yield* ref.loadRootPackage();
                 if (pkg) {
                   effectionDocs = yield* pkg?.docs();
@@ -83,10 +90,12 @@ export function contribPackageRoute({
               }
             }
             if (effection && effectionDocs) {
-              const page = effectionDocs["."].find((page) => page.name === symbol);
+              const page = effectionDocs["."].find(
+                (page) => page.name === symbol,
+              );
               if (page) {
-                return `[${symbol}](/api/${major(effection?.version)}.${minor(effection?.version)}/${symbol})`
-              }  
+                return `[${symbol}](/api/${major(effection?.version)}.${minor(effection?.version)}/${symbol})`;
+              }
             }
           }
 
@@ -135,4 +144,52 @@ export function contribPackageRoute({
       }
     },
   };
+}
+
+interface APIOptions {
+  pkg: Package;
+  linkResolver: ResolveLinkFunction;
+}
+
+export function* API({ pkg, linkResolver }: APIOptions): Operation<JSXElement> {
+  const elements: JSXElement[] = [];
+  const docs = yield* pkg.docs();
+
+  for (const exportName of Object.keys(docs)) {
+    const pages = docs[exportName];
+    for (const page of pages) {
+      for (const section of page.sections) {
+        elements.push(
+          <section id={section.id} class="flex flex-col border-b-2 pb-5">
+            <div class="flex group">
+              <h3 class="grow">{yield* Type({ node: section.node })}</h3>
+              <a
+                class="mt-8 opacity-0 before:content-['View_code'] group-hover:opacity-100 before:flex before:text-xs before:mr-1 hover:bg-gray-100 p-2 flex-none flex rounded no-underline items-center h-8"
+                href={`${section.node.location.filename}#L${section.node.location.line}`}
+              >
+                <SourceCodeIcon />
+              </a>
+            </div>
+            <div class="[&>h3:first-child]:mt-0">
+              {
+                yield* call(function* () {
+                  yield* DocPageContext.set(page);
+                  return yield* useMarkdown(
+                    section.markdown || NO_DOCS_AVAILABLE,
+                    {
+                      remarkPlugins: [[shiftHeadings, 1]],
+                      linkResolver,
+                      slugPrefix: section.id,
+                    },
+                  );
+                })
+              }
+            </div>
+          </section>,
+        );
+      }
+    }
+  }
+
+  return <>{elements}</>;
 }

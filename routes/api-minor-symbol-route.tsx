@@ -1,11 +1,5 @@
 import { type JSXElement, useParams } from "revolution";
 
-import { Type } from "../components/type/jsx.tsx";
-import {
-  defaultLinkResolver,
-  ResolveLinkFunction,
-  useMarkdown,
-} from "../hooks/use-markdown.tsx";
 import { SitemapRoute } from "../plugins/sitemap.ts";
 import { Repository } from "../resources/repository.ts";
 import { useAppHtml } from "./app.html.tsx";

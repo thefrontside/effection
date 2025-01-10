@@ -10,10 +10,14 @@ import { Keyword } from "../type/tokens.tsx";
 import { GithubPill } from "../package/source-link.tsx";
 import { Package } from "../../resources/package.ts";
 import { Icon } from "../type/icon.tsx";
-
+import { SourceCodeIcon } from "../icons/source-code.tsx";
 
 export function* ApiPage({
-  pages, current, ref, externalLinkResolver, banner,
+  pages,
+  current,
+  ref,
+  externalLinkResolver,
+  banner,
 }: {
   current: string;
   pages: DocPage[];
@@ -31,7 +35,7 @@ export function* ApiPage({
   const linkResolver: ResolveLinkFunction = function* resolve(
     symbol,
     connector,
-    method
+    method,
   ) {
     if (pages && pages.find((page) => page.name === symbol)) {
       return `[${symbol}](${yield* externalLinkResolver(symbol, connector, method)})`;
@@ -42,25 +46,26 @@ export function* ApiPage({
 
   return (
     <>
-      {yield* ApiReference({
-        pages,
-        current,
-        ref,
-        content: (
-          <>
-            <>{banner}</>
-            {yield* SymbolHeader({ pkg, page })}
-            {yield* ApiBody({ page, linkResolver })}
-          </>
-        ),
-        linkResolver: function* (symbol) {
-          return yield* createSibling(symbol);
-        },
-      })}
+      {
+        yield* ApiReference({
+          pages,
+          current,
+          ref,
+          content: (
+            <>
+              <>{banner}</>
+              {yield* SymbolHeader({ pkg, page })}
+              {yield* ApiBody({ page, linkResolver })}
+            </>
+          ),
+          linkResolver: function* (symbol) {
+            return yield* createSibling(symbol);
+          },
+        })
+      }
     </>
   );
 }
-
 
 export function* ApiBody({
   page,
@@ -78,7 +83,15 @@ export function* ApiBody({
           id={section.id}
           class={`${i !== "0" ? "border-t-2" : ""} pb-7`}
         >
-          <h2 class="flex mt-7">{yield* Type({ node: section.node })}</h2>
+          <div class="flex mt-7 group">
+            <h2 class="my-0 grow">{yield* Type({ node: section.node })}</h2>
+            <a
+              class="opacity-0 before:content-['View_code'] group-hover:opacity-100 before:flex before:text-xs before:mr-1 hover:bg-gray-100 p-2 flex-none flex rounded no-underline items-center h-8"
+              href={`${section.node.location.filename}#L${section.node.location.line}`}
+            >
+              <SourceCodeIcon />
+            </a>
+          </div>
           <div class="[&>hr]:my-5 [&>p]:mb-0">
             {
               yield* useMarkdown(section.markdown, {

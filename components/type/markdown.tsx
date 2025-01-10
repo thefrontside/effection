@@ -1,17 +1,18 @@
 import { Operation } from "effection";
 import type {
-ClassMethodDef,
+  ClassMethodDef,
   DocNode,
   ParamDef,
   TsTypeDef,
   TsTypeParamDef,
 } from "jsr:@deno/doc@0.164.0/types";
 import { toHtml } from "npm:hast-util-to-html@9.0.0";
-import { Icon } from "./icon.tsx";
 import { DocPage } from "../../hooks/use-deno-doc.tsx";
+import { Icon } from "./icon.tsx";
 
 const NEW = `<span class="inline-block bg-violet-100 rounded px-2 text-sm text-violet-900 mx-1">new</span>`;
 const OPTIONAL = `<span class="inline-block bg-sky-100 rounded px-2 text-sm text-sky-900 mx-1">optional</span>`;
+
 export const NO_DOCS_AVAILABLE = "*No documentation available.*";
 
 export function* extract(

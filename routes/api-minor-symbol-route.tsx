@@ -12,9 +12,10 @@ import { useAppHtml } from "./app.html.tsx";
 import { fetchMinorVersions } from "./api-index-route.tsx";
 import { all, Operation } from "effection";
 import { DocsPages, isDocsPages } from "../hooks/use-deno-doc.tsx";
-import { ApiReference, SymbolHeader } from "./api-reference-route.tsx";
+import { ApiPage } from "./api-reference-route.tsx";
 import { compare, extractVersion } from "../lib/semver.ts";
 import { Alert } from "../components/alert.tsx";
+import { createSibling } from "./links-resolvers.ts";
 
 export function apiMinorSymbolRoute({
   library,
@@ -120,7 +121,7 @@ export function apiMinorSymbolRoute({
                     {
                       yield* useMarkdown(section.markdown, {
                         linkResolver: internal,
-                        slugPrefix: `-${section.id}`
+                        slugPrefix: `-${section.id}`,
                       })
                     }
                   </div>
@@ -143,35 +144,29 @@ export function apiMinorSymbolRoute({
           <AppHtml>
             <>
               {
-                yield* ApiReference({
+                yield* ApiPage({
                   pages,
                   current: symbol,
-                  ref: ref,
-                  content: (
-                    <>
-                      {outdated ? (
-                        <Alert level="info" class="mb-6">
-                          <p>
-                            Version {version} is behind the current release:{" "}
-                            <a
-                              class="underline font-bold"
-                              href={`/api/v3/${page.name}`}
-                            >
-                              jump to latest version
-                            </a>{" "}
-                            ({latestVersion}).
-                          </p>
-                        </Alert>
-                      ) : (
-                        <></>
-                      )}
-                      {yield* SymbolHeader({ pkg, page })}
-                      <>{elements}</>
-                    </>
-                  ),
-                  linkResolver: function* (symbol) {
-                    return symbol;
+                  ref,
+                  externalLinkResolver: function* (symbol) {
+                    return yield* createSibling(symbol);
                   },
+                  banner: outdated ? (
+                    <Alert level="info" class="mb-6">
+                      <p>
+                        Version {version} is behind the current release:{" "}
+                        <a
+                          class="underline font-bold"
+                          href={`/api/v3/${page.name}`}
+                        >
+                          jump to latest version
+                        </a>{" "}
+                        ({latestVersion}).
+                      </p>
+                    </Alert>
+                  ) : (
+                    <></>
+                  ),
                 })
               }
             </>

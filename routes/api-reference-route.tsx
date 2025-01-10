@@ -98,10 +98,12 @@ export function* ApiPage({
   current,
   ref,
   externalLinkResolver,
+  banner,
 }: {
   current: string;
   pages: DocPage[];
   ref: RepositoryRef;
+  banner?: JSXElement;
   externalLinkResolver: ResolveLinkFunction;
 }) {
   const pkg = yield* ref.loadRootPackage();
@@ -132,6 +134,7 @@ export function* ApiPage({
           ref,
           content: (
             <>
+              <>{banner}</>
               {yield* SymbolHeader({ pkg, page })}
               {yield* ApiBody({ page, linkResolver })}
             </>
@@ -166,7 +169,7 @@ export function* ApiBody({
             {
               yield* useMarkdown(section.markdown, {
                 linkResolver,
-                slugPrefix: section.id
+                slugPrefix: section.id,
               })
             }
           </div>
@@ -209,7 +212,8 @@ export function* ApiReference({
   pages: DocPage[];
   linkResolver: ResolveLinkFunction;
 }) {
-  const version = extractVersion(ref.name) === "0.0.0" ? ref.name : extractVersion(ref.name);
+  const version =
+    extractVersion(ref.name) === "0.0.0" ? ref.name : extractVersion(ref.name);
 
   return (
     <section class="min-h-0 mx-auto w-full justify-items-normal md:grid md:grid-cols-[225px_auto] lg:grid-cols-[225px_auto_200px] md:gap-4">

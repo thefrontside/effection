@@ -117,7 +117,7 @@ export function* ApiPage({
     method,
   ) {
     if (pages && pages.find((page) => page.name === symbol)) {
-      return yield* externalLinkResolver(symbol, connector, method);
+      return `[${symbol}](${yield* externalLinkResolver(symbol, connector, method)})`;
     } else {
       return symbol;
     }

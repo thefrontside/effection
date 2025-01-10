@@ -58,20 +58,29 @@ export function* useMarkdown(
           showLineNumbers: true,
         },
       ],
-      [rehypeSlug, {
-        prefix: `${options?.slugPrefix}-`
-      }],
-      [rehypeAutolinkHeadings, {
-        behavior: "append",
-        properties: {
-          className:
-            "opacity-0 group-hover:opacity-100 after:content-['#'] after:ml-1.5 no-underline",
+      [
+        rehypeSlug,
+        {
+          prefix: options?.slugPrefix ? `${options.slugPrefix}-` : undefined,
         },
-      }],
-      [rehypeAddClasses, {
-        "h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]": "group",
-        "pre": "grid",
-      }],
+      ],
+      [
+        rehypeAutolinkHeadings,
+        {
+          behavior: "append",
+          properties: {
+            className:
+              "opacity-0 group-hover:opacity-100 after:content-['#'] after:ml-1.5 no-underline",
+          },
+        },
+      ],
+      [
+        rehypeAddClasses,
+        {
+          "h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]": "group",
+          pre: "grid",
+        },
+      ],
       ...(options?.rehypePlugins ?? []),
     ],
     remarkRehypeOptions: options?.remarkRehypeOptions,

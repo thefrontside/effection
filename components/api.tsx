@@ -55,6 +55,7 @@ export function* API({ pkg, linkResolver }: APIOptions): Operation<JSXElement> {
                     {
                       remarkPlugins: [[shiftHeadings, 1]],
                       linkResolver,
+                      slugPrefix: section.id
                     },
                   );
                 })

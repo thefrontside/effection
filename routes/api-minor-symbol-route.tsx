@@ -120,6 +120,7 @@ export function apiMinorSymbolRoute({
                     {
                       yield* useMarkdown(section.markdown, {
                         linkResolver: internal,
+                        slugPrefix: `-${section.id}`
                       })
                     }
                   </div>

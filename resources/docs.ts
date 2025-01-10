@@ -9,7 +9,6 @@ import {
 import { basename } from "jsr:@std/path@1.0.8";
 import { Repository } from "./repository.ts";
 import { z } from "npm:zod@3.23.8";
-import { useMDX } from "../hooks/use-mdx.tsx";
 import { useMarkdown } from "../hooks/use-markdown.tsx";
 
 export interface DocModule {

@@ -3,7 +3,7 @@ import type { DocMeta, Docs } from "../resources/docs.ts";
 
 import { useAppHtml } from "./app.html.tsx";
 import { respondNotFound, useParams } from "revolution";
-import { OriginalRehype } from "../components/rehype.tsx";
+import { Rehype } from "../components/rehype.tsx";
 import { Transform } from "../components/transform.tsx";
 
 import rehypeToc from "npm:@jsdevtools/rehype-toc@3.0.2";
@@ -114,20 +114,8 @@ export function docsRoute({ docs, base }: { docs: Docs, base: string }): Sitemap
             <Transform fn={liftTOC}>
               <article class="prose max-w-full px-6 py-2">
                 <h1>{doc.title}</h1>
-                <OriginalRehype
+                <Rehype
                   plugins={[
-                    rehypeSlug,
-                    [rehypeAutolinkHeadings, {
-                      behavior: "append",
-                      properties: {
-                        className:
-                          "opacity-0 group-hover:opacity-100 after:content-['#'] after:ml-1.5",
-                      },
-                    }],
-                    [rehypeAddClasses, {
-                      "h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]": "group",
-                      "pre": "grid",
-                    }],
                     // @ts-expect-error deno-ts(2322)
                     [rehypeToc, {
                       cssClasses: {
@@ -140,7 +128,7 @@ export function docsRoute({ docs, base }: { docs: Docs, base: string }): Sitemap
                   ]}
                 >
                   <doc.MDXContent />
-                </OriginalRehype>
+                </Rehype>
                 <NextPrevLinks doc={doc} />
               </article>
             </Transform>

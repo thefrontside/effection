@@ -2,17 +2,17 @@ import { call, type Operation } from "effection";
 import { useMDX, UseMDXOptions } from "./use-mdx.tsx";
 import { replaceAll } from "../lib/replace-all.ts";
 import { removeDescriptionHR } from "../lib/remove-description-hr.ts";
+import rehypeAutolinkHeadings from "npm:rehype-autolink-headings@7.1.0";
+import rehypeAddClasses from "npm:rehype-add-classes@1.0.0";
 import rehypePrismPlus from "npm:rehype-prism-plus@2.0.0";
 import remarkGfm from "npm:remark-gfm@4.0.0";
-import { CurrentRequest } from "../context/request.ts";
+import rehypeSlug from "npm:rehype-slug@6.0.0";
 
 export function* defaultLinkResolver(
   symbol: string,
   connector?: string,
   method?: string,
 ) {
-  const request = yield* CurrentRequest.expect();
-  
   let parts = [symbol];
   if (symbol && connector && method) {
     parts.push(connector, method);
@@ -26,6 +26,7 @@ export function* defaultLinkResolver(
 
 interface UseMarkdownOptions {
   linkResolver?: ResolveLinkFunction;
+  slugPrefix?: string;
 }
 
 export type ResolveLinkFunction = (
@@ -39,8 +40,8 @@ export function* useMarkdown(
   options?: UseMDXOptions & UseMarkdownOptions,
 ) {
   /**
-   * I'm doing this pre-processing here because MDX throws a parse error when it encounteres `{@link }`. 
-   * I can't use a remark/rehype plugin to change this because they are applied after MDX parses is successful. 
+   * I'm doing this pre-processing here because MDX throws a parse error when it encounteres `{@link }`.
+   * I can't use a remark/rehype plugin to change this because they are applied after MDX parses is successful.
    */
   const sanitize = createJsDocSanitizer(
     options?.linkResolver ?? defaultLinkResolver,
@@ -48,7 +49,7 @@ export function* useMarkdown(
   const sanitized = yield* sanitize(markdown);
 
   const mod = yield* useMDX(sanitized, {
-    remarkPlugins: [remarkGfm, ...options?.remarkPlugins ?? []],
+    remarkPlugins: [remarkGfm, ...(options?.remarkPlugins ?? [])],
     rehypePlugins: [
       [removeDescriptionHR],
       [
@@ -57,9 +58,23 @@ export function* useMarkdown(
           showLineNumbers: true,
         },
       ],
-      ...options?.rehypePlugins ?? []
+      [rehypeSlug, {
+        prefix: `${options?.slugPrefix}-`
+      }],
+      [rehypeAutolinkHeadings, {
+        behavior: "append",
+        properties: {
+          className:
+            "opacity-0 group-hover:opacity-100 after:content-['#'] after:ml-1.5 no-underline",
+        },
+      }],
+      [rehypeAddClasses, {
+        "h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]": "group",
+        "pre": "grid",
+      }],
+      ...(options?.rehypePlugins ?? []),
     ],
-    remarkRehypeOptions: options?.remarkRehypeOptions
+    remarkRehypeOptions: options?.remarkRehypeOptions,
   });
 
   return yield* call(() => mod.default());

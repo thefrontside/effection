@@ -166,6 +166,7 @@ export function* ApiBody({
             {
               yield* useMarkdown(section.markdown, {
                 linkResolver,
+                slugPrefix: section.id
               })
             }
           </div>

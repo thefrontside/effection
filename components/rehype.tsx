@@ -10,7 +10,7 @@ export interface RehypeOptions {
   plugins: PluggableList;
 }
 
-export function OriginalRehype(options: RehypeOptions): JSX.Element {
+export function Rehype(options: RehypeOptions): JSX.Element {
   let { children, plugins } = options;
   let pipeline = unified().use(plugins);
 
@@ -31,32 +31,32 @@ interface RehypeProps {
   children: JSXElement;
 }
 
-export function Rehype({ children }: RehypeProps) {
-  return (
-    <OriginalRehype
-      plugins={[
-        rehypeSlug,
-        rehypeInferDescriptionMeta,
-        [
-          rehypeAutolinkHeadings,
-          {
-            behavior: "append",
-            properties: {
-              className:
-                "opacity-0 group-hover:opacity-100 after:content-['#'] after:ml-1.5",
-            },
-          },
-        ],
-        [
-          rehypeAddClasses,
-          {
-            "h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]": "group",
-            pre: "grid",
-          },
-        ],
-      ]}
-    >
-      {children}
-    </OriginalRehype>
-  );
-}
+// export function Rehype({ children }: RehypeProps) {
+//   return (
+//     <OriginalRehype
+//       plugins={[
+//         rehypeSlug,
+//         rehypeInferDescriptionMeta,
+//         [
+//           rehypeAutolinkHeadings,
+//           {
+//             behavior: "append",
+//             properties: {
+//               className:
+//                 "opacity-0 group-hover:opacity-100 after:content-['#'] after:ml-1.5",
+//             },
+//           },
+//         ],
+//         [
+//           rehypeAddClasses,
+//           {
+//             "h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]": "group",
+//             pre: "grid",
+//           },
+//         ],
+//       ]}
+//     >
+//       {children}
+//     </OriginalRehype>
+//   );
+// }

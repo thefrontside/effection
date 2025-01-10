@@ -68,6 +68,7 @@
     "npm:@types/semver@7.5.8": "7.5.8",
     "npm:@types/unist@3.0.3": "3.0.3",
     "npm:effection@3.0.3": "3.0.3",
+    "npm:hast-util-from-html-isomorphic@2.0.0": "2.0.0",
     "npm:hast-util-from-html@*": "2.0.3",
     "npm:hast-util-select@*": "6.0.1",
     "npm:hast-util-select@6.0.1": "6.0.1",
@@ -1409,6 +1410,23 @@
         "hast-util-truncate@2.0.0"
       ]
     },
+    "hast-util-from-dom@5.0.1": {
+      "integrity": "sha512-N+LqofjR2zuzTjCPzyDUdSshy4Ma6li7p/c3pA78uTwzFgENbgbUrm2ugwsOdcjI1muO+o6Dgzp9p8WHtn/39Q==",
+      "dependencies": [
+        "@types/hast@3.0.4",
+        "hastscript@9.0.0",
+        "web-namespaces"
+      ]
+    },
+    "hast-util-from-html-isomorphic@2.0.0": {
+      "integrity": "sha512-zJfpXq44yff2hmE0XmwEOzdWin5xwH+QIhMLOScpX91e/NSGPsAzNCvLQDIEPyO2TXi+lBmU6hjLIhV8MwP2kw==",
+      "dependencies": [
+        "@types/hast@3.0.4",
+        "hast-util-from-dom",
+        "hast-util-from-html",
+        "unist-util-remove-position@5.0.0"
+      ]
+    },
     "hast-util-from-html@2.0.3": {
       "integrity": "sha512-CUSRHXyKjzHov8yKsQjGOElXy/3EKpyX56ELnkHH34vDVw1N1XSQ1ZcAvTyAPtGqLTuKP/uxM+aLkSPqF/EtMw==",
       "dependencies": [
@@ -1763,6 +1781,16 @@
     },
     "hastscript@8.0.0": {
       "integrity": "sha512-dMOtzCEd3ABUeSIISmrETiKuyydk1w0pa+gE/uormcTpSYuaNJPbX1NU3JLyscSLjwAQM8bWMhhIlnCqnRvDTw==",
+      "dependencies": [
+        "@types/hast@3.0.4",
+        "comma-separated-tokens@2.0.3",
+        "hast-util-parse-selector@4.0.0",
+        "property-information@6.4.1",
+        "space-separated-tokens@2.0.2"
+      ]
+    },
+    "hastscript@9.0.0": {
+      "integrity": "sha512-jzaLBGavEDKHrc5EfFImKN7nZKKBdSLIdGvCwDZ9TfzbF2ffXiov8CKE445L2Z1Ek2t/m4SKQ2j6Ipv7NyUolw==",
       "dependencies": [
         "@types/hast@3.0.4",
         "comma-separated-tokens@2.0.3",

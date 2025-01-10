@@ -21,10 +21,6 @@ import { GithubClientContext } from "../context/github.ts";
 
 export type { DocNode };
 
-export interface DocPageLinkResolver {
-  (page: DocPage): Operation<string>;
-}
-
 export function* useDenoDoc(
   specifiers: string[],
   docOptions?: DocOptions,

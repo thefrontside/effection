@@ -3,10 +3,11 @@ import { JSXChild, useParams, type JSXElement } from "revolution";
 import { SitemapRoute } from "../plugins/sitemap.ts";
 import { useAppHtml } from "./app.html.tsx";
 import { Repository } from "../resources/repository.ts";
-import { DocPage, DocPageLinkResolver } from "../hooks/use-deno-doc.tsx";
-import { createAPIReferenceLinkResolver } from "./links-resolvers.ts";
+import { DocPage } from "../hooks/use-deno-doc.tsx";
 import { compare, extractVersion } from "../lib/semver.ts";
 import { fetchMinorVersions } from "./api-index-route.tsx";
+import { ResolveLinkFunction } from "../hooks/use-markdown.tsx";
+import { createChildURL } from "./links-resolvers.ts";
 
 export function apiMinorIndexRoute({
   library,
@@ -53,8 +54,6 @@ export function apiMinorIndexRoute({
         const version = extractVersion(tag.name);
         const latestVersion = extractVersion(latest.name);
 
-        const linkResolver = createAPIReferenceLinkResolver(version);
-
         const AppHtml = yield* useAppHtml({
           title: `${version} | API Reference | Effection`,
           description: `API Reference for Effection v${version}`,
@@ -91,7 +90,7 @@ export function apiMinorIndexRoute({
                   {
                     yield* listPages({
                       pages,
-                      linkResolver,
+                      linkResolver: createChildURL(),
                     })
                   }
                 </ul>
@@ -120,12 +119,12 @@ export function* listPages({
   linkResolver,
 }: {
   pages: DocPage[];
-  linkResolver: DocPageLinkResolver;
+  linkResolver: ResolveLinkFunction;
 }) {
   const elements = [];
 
   for (const page of pages.sort((a, b) => a.name.localeCompare(b.name))) {
-    const link = yield* linkResolver(page);
+    const link = yield* linkResolver(page.name);
     elements.push(
       <li>
         <a href={link}>{page.name}</a>

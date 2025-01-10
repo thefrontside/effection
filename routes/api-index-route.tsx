@@ -5,9 +5,10 @@ import { SitemapRoute } from "../plugins/sitemap.ts";
 import { useAppHtml } from "./app.html.tsx";
 import { getApiForLatestTag } from "./api-reference-route.tsx";
 import { Repository } from "../resources/repository.ts";
-import { DocPage, DocPageLinkResolver } from "../hooks/use-deno-doc.tsx";
-import { v3Links, v4Links } from "./links-resolvers.ts";
+import { DocPage } from "../hooks/use-deno-doc.tsx";
+import { createChildURL } from "./links-resolvers.ts";
 import { major, minor, rsort, extractVersion } from "../lib/semver.ts";
+import { ResolveLinkFunction } from "../hooks/use-markdown.tsx";
 
 export function apiIndexRoute({
   library,
@@ -66,7 +67,7 @@ export function apiIndexRoute({
                   {
                     yield* listPages({
                       pages: v3docs["."],
-                      linkResolver: v3Links,
+                      linkResolver: createChildURL("v3"),
                     })
                   }
                 </ul>
@@ -98,7 +99,7 @@ export function apiIndexRoute({
                   {
                     yield* listPages({
                       pages: v3docs["."],
-                      linkResolver: v4Links,
+                      linkResolver: createChildURL("v4"),
                     })
                   }
                 </ul>
@@ -127,12 +128,12 @@ function* listPages({
   linkResolver,
 }: {
   pages: DocPage[];
-  linkResolver: DocPageLinkResolver;
+  linkResolver: ResolveLinkFunction;
 }) {
   const elements = [];
 
   for (const page of pages.sort((a, b) => a.name.localeCompare(b.name))) {
-    const link = yield* linkResolver(page);
+    const link = yield* linkResolver(page.name);
     elements.push(
       <li>
         <a href={link}>{page.name}</a>

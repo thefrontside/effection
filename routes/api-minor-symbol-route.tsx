@@ -1,6 +1,6 @@
 import { type JSXElement, useParams } from "revolution";
 
-import { Type } from "../components/api.tsx";
+import { Type } from "../components/type/jsx.tsx";
 import {
   defaultLinkResolver,
   ResolveLinkFunction,

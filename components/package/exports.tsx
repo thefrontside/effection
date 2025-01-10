@@ -1,6 +1,6 @@
 import { join } from "jsr:@std/path@1.0.6";
 
-import { Keyword, Punctuation } from "../tokens.tsx";
+import { Keyword, Punctuation } from "../type/tokens.tsx";
 import { DocPage, DocsPages } from "../../hooks/use-deno-doc.tsx";
 import { Operation } from "effection";
 import { JSXChild, JSXElement } from "revolution/jsx-runtime";

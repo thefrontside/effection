@@ -1,9 +1,10 @@
 import type { Operation } from "effection";
 import { type JSXElement, useParams } from "revolution";
 
-import { Type } from "../components/api.tsx";
-import { Keyword } from "../components/tokens.tsx";
-import { DocPage, DocsPages, Icon } from "../hooks/use-deno-doc.tsx";
+import { Type } from "../components/type/jsx.tsx";
+import { Keyword } from "../components/type/tokens.tsx";
+import { DocPage, DocsPages } from "../hooks/use-deno-doc.tsx";
+import { Icon } from "../components/type/icon.tsx";
 import { ResolveLinkFunction, useMarkdown } from "../hooks/use-markdown.tsx";
 import { SitemapRoute } from "../plugins/sitemap.ts";
 import { RepositoryRef } from "../resources/repository-ref.ts";

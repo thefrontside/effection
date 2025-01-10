@@ -9,6 +9,6 @@ export function extractVersion(input: string) {
   if (parts) {
     return parts[0];
   } else {
-    return "0.0.0";
+    return input;
   }
 }

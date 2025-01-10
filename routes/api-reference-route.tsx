@@ -42,7 +42,7 @@ export function apiReferenceRoute({
 
       return [];
     },
-    handler: function* (request) {
+    handler: function* () {
       let { symbol } = yield* useParams<{ symbol: string }>();
 
       try {
@@ -209,7 +209,7 @@ export function* ApiReference({
   pages: DocPage[];
   linkResolver: ResolveLinkFunction;
 }) {
-  const version = extractVersion(ref?.name);
+  const version = extractVersion(ref.name) === "0.0.0" ? ref.name : extractVersion(ref.name);
 
   return (
     <section class="min-h-0 mx-auto w-full justify-items-normal md:grid md:grid-cols-[225px_auto] lg:grid-cols-[225px_auto_200px] md:gap-4">

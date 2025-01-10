@@ -47,7 +47,7 @@ export function previewApiRoute({
         return (
           <AppHtml>
             <>
-              <Alert level="info" title={`Preview for ${branch}`}>
+              <Alert level="info" title={`Preview for ${branch}`} class="mb-5">
                 <p>
                   You’re viewing the API reference for branch {branch}. This is
                   a preview URL used for Effection development.

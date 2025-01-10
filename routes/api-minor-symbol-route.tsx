@@ -12,7 +12,7 @@ import { useAppHtml } from "./app.html.tsx";
 import { fetchMinorVersions } from "./api-index-route.tsx";
 import { all, Operation } from "effection";
 import { DocsPages, isDocsPages } from "../hooks/use-deno-doc.tsx";
-import { ApiPage } from "./api-reference-route.tsx";
+import { ApiPage } from "../components/api/api-page.tsx";
 import { compare, extractVersion } from "../lib/semver.ts";
 import { Alert } from "../components/alert.tsx";
 import { createSibling } from "./links-resolvers.ts";
@@ -92,44 +92,6 @@ export function apiMinorSymbolRoute({
         const page = pages.find((node) => node.name === symbol);
 
         if (!page) throw new Error(`Could not find a doc page for ${symbol}`);
-
-        const internal: ResolveLinkFunction = function* resolve(
-          symbol,
-          connector,
-          method,
-        ) {
-          if (pages && pages.find((page) => page.name === symbol)) {
-            return yield* defaultLinkResolver(symbol, connector, method);
-          } else {
-            return symbol;
-          }
-        };
-
-        const elements: JSXElement[] = [];
-        if (page) {
-          for (const [i, section] of Object.entries(page?.sections)) {
-            if (section.markdown) {
-              elements.push(
-                <section
-                  id={section.id}
-                  class={`${i !== "0" ? "border-t-2" : ""} pb-7`}
-                >
-                  <h2 class="flex mt-7">
-                    {yield* Type({ node: section.node })}
-                  </h2>
-                  <div class="[&>hr]:my-5 [&>p]:mb-0">
-                    {
-                      yield* useMarkdown(section.markdown, {
-                        linkResolver: internal,
-                        slugPrefix: `-${section.id}`,
-                      })
-                    }
-                  </div>
-                </section>,
-              );
-            }
-          }
-        }
 
         const latestVersion = extractVersion(latest.name);
         const version = extractVersion(tag.name);

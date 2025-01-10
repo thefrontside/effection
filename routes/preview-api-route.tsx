@@ -3,7 +3,7 @@ import { useParams, type JSXElement } from "revolution";
 import { SitemapRoute } from "../plugins/sitemap.ts";
 import { useAppHtml } from "./app.html.tsx";
 import { Repository } from "../resources/repository.ts";
-import { ApiPage } from "./api-reference-route.tsx";
+import { ApiPage } from "../components/api/api-page.tsx";
 import { createSibling } from "./links-resolvers.ts";
 import { Alert } from "../components/alert.tsx";
 

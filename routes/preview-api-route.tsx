@@ -47,18 +47,24 @@ export function previewApiRoute({
         return (
           <AppHtml>
             <>
-              <Alert level="info" title={`Preview for ${branch}`} class="mb-5">
-                <p>
-                  You’re viewing the API reference for branch {branch}. This is
-                  a preview URL used for Effection development.
-                </p>
-              </Alert>
               {
                 yield* ApiPage({
                   pages,
                   current: symbol,
                   ref,
                   externalLinkResolver: linkResolver,
+                  banner: (
+                    <Alert
+                      level="info"
+                      title={`Preview for ${branch}`}
+                      class="mb-5"
+                    >
+                      <p>
+                        You’re viewing the API reference for branch {branch}.
+                        This is a preview URL used for Effection development.
+                      </p>
+                    </Alert>
+                  ),
                 })
               }
             </>

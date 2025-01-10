@@ -5,6 +5,7 @@ import { useAppHtml } from "./app.html.tsx";
 import { Repository } from "../resources/repository.ts";
 import { Alert } from "./api-minor-index-route.tsx";
 import { ApiPage } from "./api-reference-route.tsx";
+import { createSibling } from "./links-resolvers.ts";
 
 export function previewApiRoute({
   library,
@@ -35,7 +36,7 @@ export function previewApiRoute({
         const pages = (yield* pkg.docs())["."];
 
         const linkResolver = function* (symbol: string) {
-          return `[${symbol}](${new URL(request.url).pathname}/${symbol}?branch=${branch})`;
+          return `[${symbol}](${yield* createSibling(symbol)})`;
         };
 
         const AppHtml = yield* useAppHtml({
@@ -58,7 +59,6 @@ export function previewApiRoute({
                   current: symbol,
                   ref,
                   externalLinkResolver: linkResolver,
-                  currentUrl: request.url
                 })
               }
             </>

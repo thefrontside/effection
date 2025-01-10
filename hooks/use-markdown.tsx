@@ -4,12 +4,15 @@ import { replaceAll } from "../lib/replace-all.ts";
 import { removeDescriptionHR } from "../lib/remove-description-hr.ts";
 import rehypePrismPlus from "npm:rehype-prism-plus@2.0.0";
 import remarkGfm from "npm:remark-gfm@4.0.0";
+import { CurrentRequest } from "../context/request.ts";
 
 export function* defaultLinkResolver(
   symbol: string,
   connector?: string,
   method?: string,
 ) {
+  const request = yield* CurrentRequest.expect();
+  
   let parts = [symbol];
   if (symbol && connector && method) {
     parts.push(connector, method);

@@ -3,12 +3,7 @@ import { type JSXElement, useParams } from "revolution";
 
 import { Type } from "../components/api.tsx";
 import { Keyword } from "../components/tokens.tsx";
-import {
-  DocPage,
-  DocPageLinkResolver,
-  DocsPages,
-  Icon,
-} from "../hooks/use-deno-doc.tsx";
+import { DocPage, DocsPages, Icon } from "../hooks/use-deno-doc.tsx";
 import { ResolveLinkFunction, useMarkdown } from "../hooks/use-markdown.tsx";
 import { SitemapRoute } from "../plugins/sitemap.ts";
 import { RepositoryRef } from "../resources/repository-ref.ts";
@@ -18,7 +13,7 @@ import { IconExternal } from "../components/icons/external.tsx";
 import { extractVersion } from "../lib/semver.ts";
 import { GithubPill } from "../components/package/source-link.tsx";
 import { Package } from "../resources/package.ts";
-import { dirname, join } from "jsr:@std/path@1.0.8";
+import { createSibling } from "./links-resolvers.ts";
 
 export function apiReferenceRoute({
   library,
@@ -76,9 +71,8 @@ export function apiReferenceRoute({
                 current: symbol,
                 ref,
                 externalLinkResolver: function* (symbol) {
-                  return `${request.url}/${symbol}`;
+                  return yield* createSibling(symbol);
                 },
-                currentUrl: request.url,
               })
             }
           </AppHtml>
@@ -104,13 +98,11 @@ export function* ApiPage({
   current,
   ref,
   externalLinkResolver,
-  currentUrl,
 }: {
   current: string;
   pages: DocPage[];
   ref: RepositoryRef;
   externalLinkResolver: ResolveLinkFunction;
-  currentUrl: string;
 }) {
   const pkg = yield* ref.loadRootPackage();
   if (!pkg) throw new Error(`Fail to retrieve root package for ${ref.name}`);
@@ -144,10 +136,8 @@ export function* ApiPage({
               {yield* ApiBody({ page, linkResolver })}
             </>
           ),
-          linkResolver: function* (page) {
-            const url = new URL(currentUrl);
-            url.pathname = join(dirname(url.pathname), page.name);
-            return url.toString();
+          linkResolver: function* (symbol) {
+            return yield* createSibling(symbol);
           },
         })
       }
@@ -216,7 +206,7 @@ export function* ApiReference({
   content: JSXElement;
   current: string;
   pages: DocPage[];
-  linkResolver: DocPageLinkResolver;
+  linkResolver: ResolveLinkFunction;
 }) {
   const version = extractVersion(ref?.name);
 
@@ -271,7 +261,7 @@ function* Menu({
 }: {
   current: string;
   pages: DocPage[];
-  linkResolver: DocPageLinkResolver;
+  linkResolver: ResolveLinkFunction;
 }) {
   const elements = [];
   for (const page of pages.sort((a, b) => a.name.localeCompare(b.name))) {
@@ -285,7 +275,7 @@ function* Menu({
         ) : (
           <a
             class="rounded px-2 block w-full py-2 hover:bg-gray-100"
-            href={yield* linkResolver(page)}
+            href={yield* linkResolver(page.name)}
           >
             <Icon kind={page.kind} />
             {page.name}

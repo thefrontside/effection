@@ -173,8 +173,8 @@ export function apiMinorSymbolRoute({
                       <>{elements}</>
                     </>
                   ),
-                  linkResolver: function* (page) {
-                    return page.name;
+                  linkResolver: function* (symbol) {
+                    return symbol;
                   },
                 })
               }

@@ -29,6 +29,7 @@ import {
   LibraryRepositoryContext,
 } from "./context/repository.ts";
 import { previewRoute } from "./routes/preview-route.tsx";
+import { previewApiRoute } from "./routes/preview-api-route.tsx";
 
 // Learn more at https://docs.deno.com/runtime/manual/examples/module_metadata#concepts
 if (import.meta.main) {
@@ -95,6 +96,7 @@ if (import.meta.main) {
         route("/api/:minor/:symbol", apiMinorSymbolRoute({ library })),
         route("/assets(.*)", assetsRoute("assets")),
         route("/preview", previewRoute({ library })),
+        route("/preview/api/:symbol", previewApiRoute({ library })),
       ],
       plugins: [
         twindPlugin({ config }),

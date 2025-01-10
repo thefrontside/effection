@@ -9,11 +9,7 @@ import {
   DocsPages,
   Icon,
 } from "../hooks/use-deno-doc.tsx";
-import {
-  defaultLinkResolver,
-  ResolveLinkFunction,
-  useMarkdown,
-} from "../hooks/use-markdown.tsx";
+import { ResolveLinkFunction, useMarkdown } from "../hooks/use-markdown.tsx";
 import { SitemapRoute } from "../plugins/sitemap.ts";
 import { RepositoryRef } from "../resources/repository-ref.ts";
 import { Repository } from "../resources/repository.ts";
@@ -22,6 +18,7 @@ import { IconExternal } from "../components/icons/external.tsx";
 import { extractVersion } from "../lib/semver.ts";
 import { GithubPill } from "../components/package/source-link.tsx";
 import { Package } from "../resources/package.ts";
+import { dirname, join } from "jsr:@std/path@1.0.8";
 
 export function apiReferenceRoute({
   library,
@@ -50,7 +47,7 @@ export function apiReferenceRoute({
 
       return [];
     },
-    handler: function* () {
+    handler: function* (request) {
       let { symbol } = yield* useParams<{ symbol: string }>();
 
       try {
@@ -62,76 +59,28 @@ export function apiReferenceRoute({
 
         const pages = docs["."];
 
-        const page = docs["."].find((node) => node.name === symbol);
+        const page = pages.find((node) => node.name === symbol);
 
         if (!page) throw new Error(`Could not find a doc page for ${symbol}`);
-
-        const internal: ResolveLinkFunction = function* resolve(
-          symbol,
-          connector,
-          method,
-        ) {
-          if (pages && pages.find((page) => page.name === symbol)) {
-            return yield* defaultLinkResolver(symbol, connector, method);
-          } else {
-            return symbol;
-          }
-        };
-
-        const elements: JSXElement[] = [];
-        if (page) {
-          for (const [i, section] of Object.entries(page?.sections)) {
-            if (section.markdown) {
-              elements.push(
-                <section
-                  id={section.id}
-                  class={`${i !== "0" ? "border-t-2" : ""} pb-7`}
-                >
-                  <h2 class="flex mt-7">
-                    {yield* Type({ node: section.node })}
-                  </h2>
-                  <div class="[&>hr]:my-5 [&>p]:mb-0">
-                    {
-                      yield* useMarkdown(section.markdown, {
-                        linkResolver: internal,
-                      })
-                    }
-                  </div>
-                </section>,
-              );
-            }
-          }
-        }
 
         const AppHtml = yield* useAppHtml({
           title: `${symbol} | API Reference | Effection`,
           description: page.description,
         });
 
-        const pkg = yield* ref?.loadRootPackage();
-        if (!pkg)
-          throw new Error(`Fail to retrieve root package for ${ref.name}`);
-
         return (
           <AppHtml>
-            <>
-              {
-                yield* ApiReference({
-                  pages: docs["."],
-                  current: symbol,
-                  ref: ref,
-                  content: (
-                    <>
-                      {yield* SymbolHeader({ pkg, page })}
-                      <>{elements}</>
-                    </>
-                  ),
-                  linkResolver: function* (page) {
-                    return page.name;
-                  },
-                })
-              }
-            </>
+            {
+              yield* ApiPage({
+                pages,
+                current: symbol,
+                ref,
+                externalLinkResolver: function* (symbol) {
+                  return `${request.url}/${symbol}`;
+                },
+                currentUrl: request.url,
+              })
+            }
           </AppHtml>
         );
       } catch (e) {
@@ -148,6 +97,94 @@ export function apiReferenceRoute({
       }
     },
   };
+}
+
+export function* ApiPage({
+  pages,
+  current,
+  ref,
+  externalLinkResolver,
+  currentUrl,
+}: {
+  current: string;
+  pages: DocPage[];
+  ref: RepositoryRef;
+  externalLinkResolver: ResolveLinkFunction;
+  currentUrl: string;
+}) {
+  const pkg = yield* ref.loadRootPackage();
+  if (!pkg) throw new Error(`Fail to retrieve root package for ${ref.name}`);
+
+  const page = pages.find((node) => node.name === current);
+
+  if (!page) throw new Error(`Could not find a doc page for ${current}`);
+
+  const linkResolver: ResolveLinkFunction = function* resolve(
+    symbol,
+    connector,
+    method,
+  ) {
+    if (pages && pages.find((page) => page.name === symbol)) {
+      return yield* externalLinkResolver(symbol, connector, method);
+    } else {
+      return symbol;
+    }
+  };
+
+  return (
+    <>
+      {
+        yield* ApiReference({
+          pages,
+          current,
+          ref,
+          content: (
+            <>
+              {yield* SymbolHeader({ pkg, page })}
+              {yield* ApiBody({ page, linkResolver })}
+            </>
+          ),
+          linkResolver: function* (page) {
+            const url = new URL(currentUrl);
+            url.pathname = join(dirname(url.pathname), page.name);
+            return url.toString();
+          },
+        })
+      }
+    </>
+  );
+}
+
+export function* ApiBody({
+  page,
+  linkResolver,
+}: {
+  page: DocPage;
+  linkResolver: ResolveLinkFunction;
+}) {
+  const elements: JSXElement[] = [];
+
+  for (const [i, section] of Object.entries(page.sections)) {
+    if (section.markdown) {
+      elements.push(
+        <section
+          id={section.id}
+          class={`${i !== "0" ? "border-t-2" : ""} pb-7`}
+        >
+          <h2 class="flex mt-7">{yield* Type({ node: section.node })}</h2>
+          <div class="[&>hr]:my-5 [&>p]:mb-0">
+            {
+              yield* useMarkdown(section.markdown, {
+                linkResolver,
+              })
+            }
+          </div>
+        </section>,
+      );
+    }
+  }
+
+  return <>{elements}</>;
 }
 
 export function* getApiForLatestTag(

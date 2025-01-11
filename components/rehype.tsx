@@ -1,4 +1,4 @@
-import { type PluggableList, unified } from "npm:unified@11.0.5";
+import { type PluggableList, unified } from "unified";
 import type { JSXElement } from "revolution/jsx-runtime";
 
 export interface RehypeOptions {

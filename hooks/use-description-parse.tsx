@@ -1,8 +1,5 @@
-import {
-  call,
-  type Operation,
-} from "https://deno.land/x/effection@3.0.3/mod.ts";
-import { unified } from "npm:unified@11.0.4";
+import { call, type Operation } from "effection";
+import { unified } from "unified";
 import type { VFile } from "npm:vfile@6.0.3";
 import rehypeInferDescriptionMeta from "npm:rehype-infer-description-meta@2.0.0";
 import rehypeStringify from "npm:rehype-stringify@10.0.1";
@@ -26,8 +23,6 @@ export function* useMarkdownFile(markdown: string): Operation<VFile> {
         inferDescriptionHast: true,
         truncateSize: 200,
       })
-      .process(
-        markdown,
-      )
+      .process(markdown)
   );
 }

@@ -1,16 +1,15 @@
 import type { Nodes } from "npm:@types/hast@3.0.4";
-import type { Root } from "npm:@types/mdast@4.0.4";
 import { EXIT, visit } from "npm:unist-util-visit@5.0.0";
 
 /**
  * Remove the HR element used to define the end of the description.
  */
 export function removeDescriptionHR() {
-  return function (tree: Root) {
+  return function (tree: Nodes) {
     return visit(tree, (node, index, parent) => {
       if (
         node.type === "element" && node.tagName === "hr" &&
-        parent.type === "root"
+        parent?.type === "root"
       ) {
         const beforeHR = parent.children
           .slice(0, index)

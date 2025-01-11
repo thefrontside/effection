@@ -1,5 +1,4 @@
-
-export function Icon({ kind }: { kind: string; }) {
+export function Icon({ kind }: { kind: string }) {
   switch (kind) {
     case "function":
       return (

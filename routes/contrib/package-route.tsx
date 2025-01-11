@@ -6,7 +6,7 @@ import { PackageHeader } from "../../components/package/header.tsx";
 import { ScoreCard } from "../../components/score-card.tsx";
 import { DocPageContext } from "../../context/doc-page.ts";
 import { Dependency, DocsPages } from "../../hooks/use-deno-doc.tsx";
-import { useMarkdown, ResolveLinkFunction } from "../../hooks/use-markdown.tsx";
+import { ResolveLinkFunction, useMarkdown } from "../../hooks/use-markdown.tsx";
 import { major, minor } from "../../lib/semver.ts";
 import type { RoutePath, SitemapRoute } from "../../plugins/sitemap.ts";
 import { Repository } from "../../resources/repository.ts";
@@ -77,7 +77,7 @@ export function contribPackageRoute({
             if (!effectionDocs) {
               const page = yield* DocPageContext.expect();
               effection = page.dependencies.find((dep) =>
-                ["effection", "@effection/effection"].includes(dep.name),
+                ["effection", "@effection/effection"].includes(dep.name)
               );
               if (effection) {
                 const ref = yield* library.loadRef(
@@ -94,7 +94,9 @@ export function contribPackageRoute({
                 (page) => page.name === symbol,
               );
               if (page) {
-                return `[${symbol}](/api/${major(effection?.version)}.${minor(effection?.version)}/${symbol})`;
+                return `[${symbol}](/api/${major(effection?.version)}.${
+                  minor(effection?.version)
+                }/${symbol})`;
               }
             }
           }
@@ -110,13 +112,11 @@ export function contribPackageRoute({
                   {yield* PackageHeader(pkg)}
                   <div class="prose max-w-full">
                     <div class="mb-5">
-                      {
-                        yield* PackageExports({
-                          packageName: pkg.packageName,
-                          docs,
-                          linkResolver,
-                        })
-                      }
+                      {yield* PackageExports({
+                        packageName: pkg.packageName,
+                        docs,
+                        linkResolver,
+                      })}
                     </div>
                     {yield* useMarkdown(yield* pkg.readme(), { linkResolver })}
                     <h2 class="mb-0">API Reference</h2>
@@ -171,19 +171,17 @@ export function* API({ pkg, linkResolver }: APIOptions): Operation<JSXElement> {
               </a>
             </div>
             <div class="[&>h3:first-child]:mt-0 [&>hr]:my-5 [&>h5]:font-semibold">
-              {
-                yield* call(function* () {
-                  yield* DocPageContext.set(page);
-                  return yield* useMarkdown(
-                    section.markdown || NO_DOCS_AVAILABLE,
-                    {
-                      remarkPlugins: [[shiftHeadings, 1]],
-                      linkResolver,
-                      slugPrefix: section.id,
-                    },
-                  );
-                })
-              }
+              {yield* call(function* () {
+                yield* DocPageContext.set(page);
+                return yield* useMarkdown(
+                  section.markdown || NO_DOCS_AVAILABLE,
+                  {
+                    remarkPlugins: [[shiftHeadings, 1]],
+                    linkResolver,
+                    slugPrefix: section.id,
+                  },
+                );
+              })}
             </div>
           </section>,
         );

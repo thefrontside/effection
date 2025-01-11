@@ -1,4 +1,4 @@
-import { JSXChild, useParams, type JSXElement } from "revolution";
+import { JSXChild, type JSXElement, useParams } from "revolution";
 
 import { SitemapRoute } from "../plugins/sitemap.ts";
 import { useAppHtml } from "./app.html.tsx";
@@ -35,10 +35,11 @@ export function apiMinorIndexRoute({
       try {
         const latest = yield* library.getLatestSemverTag("effection-v3");
 
-        if (!latest)
+        if (!latest) {
           throw new Error(
             `Failed to retrieve latest version for "effection-v3" tag`,
           );
+        }
 
         const tag = yield* library.getLatestSemverTag(minor);
 
@@ -65,30 +66,28 @@ export function apiMinorIndexRoute({
         return (
           <AppHtml>
             <article class="prose m-auto">
-              {outdated ? (
-                <Alert level="info" class="mb-6">
-                  <p>
-                    Version {version} is behind the current release:{" "}
-                    <a class="underline font-bold" href={`/api/v3`}>
-                      jump to latest version
-                    </a>{" "}
-                    ({latestVersion}).
-                  </p>
-                </Alert>
-              ) : (
-                <></>
-              )}
+              {outdated
+                ? (
+                  <Alert level="info" class="mb-6">
+                    <p>
+                      Version {version} is behind the current release:{" "}
+                      <a class="underline font-bold" href={`/api/v3`}>
+                        jump to latest version
+                      </a>{" "}
+                      ({latestVersion}).
+                    </p>
+                  </Alert>
+                )
+                : <></>}
               <h1>{version}</h1>
               <section>
                 <h2>API Reference</h2>
                 <p>This release includes the following exports:</p>
                 <ul class="columns-3">
-                  {
-                    yield* listPages({
-                      pages,
-                      linkResolver: createChildURL(),
-                    })
-                  }
+                  {yield* listPages({
+                    pages,
+                    linkResolver: createChildURL(),
+                  })}
                 </ul>
               </section>
             </article>

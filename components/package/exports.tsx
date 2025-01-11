@@ -56,12 +56,12 @@ function* PackageExport({
           href={yield* linkResolver(page.kind, "_", page.name)}
         >
           {["enum", "typeAlias", "namespace", "interface"].includes(
-            page.kind,
-          ) ? (
-            <Keyword>{"type "}</Keyword>
-          ) : (
-            ""
-          )}
+              page.kind,
+            )
+            ? <Keyword>{"type "}</Keyword>
+            : (
+              ""
+            )}
           {page.name}
         </a>,
         ", ",

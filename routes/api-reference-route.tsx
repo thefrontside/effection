@@ -60,16 +60,14 @@ export function apiReferenceRoute({
 
         return (
           <AppHtml>
-            {
-              yield* ApiPage({
-                pages,
-                current: symbol,
-                ref,
-                externalLinkResolver: function* (symbol) {
-                  return yield* createSibling(symbol);
-                },
-              })
-            }
+            {yield* ApiPage({
+              pages,
+              current: symbol,
+              ref,
+              externalLinkResolver: function* (symbol) {
+                return yield* createSibling(symbol);
+              },
+            })}
           </AppHtml>
         );
       } catch (e) {
@@ -105,4 +103,3 @@ export function* getApiForLatestTag(
 
   return [undefined, undefined];
 }
-

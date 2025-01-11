@@ -10,7 +10,7 @@ import { PackageDetailsResult, PackageScoreResult } from "./jsr-client.ts";
 import { RepositoryRef } from "./repository-ref.ts";
 
 export interface Package {
-  ref: RepositoryRef,
+  ref: RepositoryRef;
   /**
    * Relative path of workspace on file system
    */
@@ -164,9 +164,8 @@ export function loadPackage(
       },
       *docs() {
         const docs: DocsPages = {};
-        
+
         for (const [entrypoint, url] of Object.entries(pkg.entrypoints)) {
-          
           const pages = yield* useDocPages(`${url}`);
 
           docs[entrypoint] = pages[`${url}`];

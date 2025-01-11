@@ -1,9 +1,9 @@
-import { call, useScope, type Operation } from "effection";
+import { call, type Operation, useScope } from "effection";
 import {
+  CacheSetting,
   doc,
   type DocNode,
   type DocOptions,
-  CacheSetting,
   LoadResponse,
 } from "jsr:@deno/doc@0.164.0";
 import { createGraph } from "jsr:@deno/graph@0.86.7";
@@ -57,7 +57,7 @@ export function* useDocPages(specifier: string): Operation<DocsPages> {
   const graph = yield* call(() =>
     createGraph([specifier], {
       load: loader,
-    }),
+    })
   );
 
   const externalDependencies: Dependency[] = graph.modules.flatMap((module) => {
@@ -85,9 +85,11 @@ export function* useDocPages(specifier: string): Operation<DocsPages> {
 
   for (const [url, all] of Object.entries(docs)) {
     const pages: DocPage[] = [];
-    for (const [symbol, nodes] of Object.entries(
-      Object.groupBy(all, (node) => node.name),
-    )) {
+    for (
+      const [symbol, nodes] of Object.entries(
+        Object.groupBy(all, (node) => node.name),
+      )
+    ) {
       if (nodes) {
         const sections: DocPageSection[] = [];
         for (const node of nodes) {
@@ -129,7 +131,6 @@ export function* useDocPages(specifier: string): Operation<DocsPages> {
   return entrypoints;
 }
 
-
 function docLoader(
   specifier: string,
   _isDynamic?: boolean,
@@ -153,7 +154,7 @@ function docLoader(
             mediaType: {
               format: "raw",
             },
-          }),
+          })
         );
         return {
           kind: "module",

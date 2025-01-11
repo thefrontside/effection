@@ -37,9 +37,9 @@ export interface RepositoryRef {
 
   /**
    * Read a text file
-   * @param path 
+   * @param path
    */
-  loadText(path: string): Operation<string>
+  loadText(path: string): Operation<string>;
 
   /**
    * Get readme file at the root of the ref
@@ -50,7 +50,7 @@ export interface RepositoryRef {
 
   /**
    * Read content of a json file specified path
-   * @param path 
+   * @param path
    */
   loadJson<T = unknown>(path: string): Operation<T>;
 
@@ -149,7 +149,7 @@ export function loadRepositoryRef(
       },
 
       *loadReadme(base: string = ""): Operation<string> {
-        return yield* this.loadText(repositoryRef.getPath(base, "README.md"))
+        return yield* this.loadText(repositoryRef.getPath(base, "README.md"));
       },
 
       *loadJson<T>(path: string): Operation<T> {

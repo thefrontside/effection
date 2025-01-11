@@ -1,5 +1,5 @@
 // @deno-types="npm:@types/semver@7.5.8"
-export { minor, major, rsort, compare } from "npm:semver@7.6.3";
+export { compare, major, minor, rsort } from "npm:semver@7.6.3";
 
 export function extractVersion(input: string) {
   const parts = input.match(

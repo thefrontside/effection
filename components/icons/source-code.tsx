@@ -16,14 +16,16 @@ export function SourceCodeIcon(props) {
         stroke-width="1.4"
         stroke-linecap="round"
         stroke-linejoin="round"
-      ></path>
+      >
+      </path>
       <path
         d="M6.08334 10.3333L7.83334 8.58334L6.08334 6.83334M3.75 6.83334L2 8.58334L3.75 10.3333M9.00001 1V4.5H12.5L9.00001 1Z"
         stroke="currentColor"
         stroke-width="1.4"
         stroke-linecap="round"
         stroke-linejoin="round"
-      ></path>
+      >
+      </path>
     </svg>
   );
 }

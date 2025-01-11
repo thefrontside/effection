@@ -9,12 +9,13 @@ export function* createSibling(pathname: string): Operation<string> {
   return url.toString();
 }
 
-
 export function createChildURL(prefix?: string) {
   return function* (pathname: string): Operation<string> {
     const request = yield* CurrentRequest.expect();
     const url = new URL(request.url);
-    url.pathname = join(...[url.pathname, prefix, pathname].flatMap(s => s ? [s] : []));
+    url.pathname = join(
+      ...[url.pathname, prefix, pathname].flatMap((s) => s ? [s] : []),
+    );
     return url.toString();
-  }
+  };
 }

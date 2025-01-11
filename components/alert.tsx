@@ -1,4 +1,3 @@
-
 // @ts-nocheck Property 'role' does not exist on type 'HTMLElement'.deno-ts(2322)
 import { JSXChild } from "revolution/jsx-runtime";
 
@@ -21,7 +20,9 @@ export function Alert({
 }) {
   return (
     <div
-      class={`${className ?? ""} ${ALERT_LEVELS[level]} border-l-4 p-4 [&>p]:my-1`}
+      class={`${className ?? ""} ${
+        ALERT_LEVELS[level]
+      } border-l-4 p-4 [&>p]:my-1`}
       role="alert"
     >
       {title ? <p class="font-bold">{title}</p> : <></>}

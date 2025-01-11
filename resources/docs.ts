@@ -50,7 +50,9 @@ const Structure = z.record(
 
 export type StructureJson = z.infer<typeof Structure>;
 
-export function loadDocs({ repo, pattern }: { repo: Repository, pattern: string }): Operation<Docs> {
+export function loadDocs(
+  { repo, pattern }: { repo: Repository; pattern: string },
+): Operation<Docs> {
   return resource(function* (provide) {
     let loaders: Map<string, Task<Doc>> | undefined = undefined;
 

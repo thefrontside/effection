@@ -10,7 +10,9 @@ import rehypeToc from "npm:@jsdevtools/rehype-toc@3.0.2";
 import { useDescription } from "../hooks/use-description-parse.tsx";
 import { RoutePath, SitemapRoute } from "../plugins/sitemap.ts";
 
-export function docsRoute({ docs, base }: { docs: Docs, base: string }): SitemapRoute<JSXElement> {
+export function docsRoute(
+  { docs, base }: { docs: Docs; base: string },
+): SitemapRoute<JSXElement> {
   return {
     *routemap(pathname) {
       let paths: RoutePath[] = [];
@@ -136,7 +138,9 @@ export function docsRoute({ docs, base }: { docs: Docs, base: string }): Sitemap
   };
 }
 
-function NextPrevLinks({ doc, base }: { doc: DocMeta, base?: string }): JSX.Element {
+function NextPrevLinks(
+  { doc, base }: { doc: DocMeta; base?: string },
+): JSX.Element {
   let { next, prev } = doc;
   return (
     <menu class="grid grid-cols-2 my-10 gap-x-2 xl:gap-x-20 2xl:gap-x-40 text-lg">

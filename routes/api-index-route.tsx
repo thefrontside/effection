@@ -7,7 +7,7 @@ import { getApiForLatestTag } from "./api-reference-route.tsx";
 import { Repository } from "../resources/repository.ts";
 import { DocPage } from "../hooks/use-deno-doc.tsx";
 import { createChildURL } from "./links-resolvers.ts";
-import { major, minor, rsort, extractVersion } from "../lib/semver.ts";
+import { extractVersion, major, minor, rsort } from "../lib/semver.ts";
 import { ResolveLinkFunction } from "../hooks/use-markdown.tsx";
 
 export function apiIndexRoute({
@@ -23,27 +23,33 @@ export function apiIndexRoute({
           getApiForLatestTag(library, "effection-v4"),
         ]);
 
-        if (!v3ref)
+        if (!v3ref) {
           throw new Error(`Could not retrieve a tag for "effection-v3"`);
-        if (!v3docs)
+        }
+        if (!v3docs) {
           throw new Error(`Cound not retrieve docs for "effection-v3"`);
+        }
 
         const v3pkg = yield* v3ref.loadRootPackage();
 
-        if (!v3pkg)
+        if (!v3pkg) {
           throw new Error(`Could not retrieve root package from ${v3ref.ref}`);
+        }
 
         const v3version = extractVersion(v3ref.name);
 
-        if (!v4ref)
+        if (!v4ref) {
           throw new Error(`Could not retrieve a tag for "effection-v4"`);
-        if (!v4docs)
+        }
+        if (!v4docs) {
           throw new Error(`Cound not retrieve docs for "effection-v4"`);
+        }
 
         const v4pkg = yield* v3ref.loadRootPackage();
 
-        if (!v4pkg)
+        if (!v4pkg) {
           throw new Error(`Could not retrieve root package from ${v4ref.ref}`);
+        }
 
         const v4version = extractVersion(v4ref.name);
 
@@ -64,12 +70,10 @@ export function apiIndexRoute({
                 <h3>Latest release: {v3version}</h3>
                 <p>This release includes the following exports:</p>
                 <ul class="columns-3">
-                  {
-                    yield* listPages({
-                      pages: v3docs["."],
-                      linkResolver: createChildURL("v3"),
-                    })
-                  }
+                  {yield* listPages({
+                    pages: v3docs["."],
+                    linkResolver: createChildURL("v3"),
+                  })}
                 </ul>
                 <h3>Previous releases</h3>
                 <ul>
@@ -96,12 +100,10 @@ export function apiIndexRoute({
                 <h3>Latest release: {v4version}</h3>
                 <p>This release includes the following exports:</p>
                 <ul class="columns-3">
-                  {
-                    yield* listPages({
-                      pages: v3docs["."],
-                      linkResolver: createChildURL("v4"),
-                    })
-                  }
+                  {yield* listPages({
+                    pages: v3docs["."],
+                    linkResolver: createChildURL("v4"),
+                  })}
                 </ul>
               </section>
             </article>

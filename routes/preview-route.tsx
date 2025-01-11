@@ -19,17 +19,19 @@ export function previewRoute({
       const branch = searchParams.get("branch");
 
       try {
-        if (!branch)
+        if (!branch) {
           throw new Error(
             `Missing branch query parameter. Try specifying it with ${request.url}?branch=<branch>.`,
           );
+        }
 
         const ref = yield* library.loadRef(`heads/${branch}`);
 
         const pkg = yield* ref.loadRootPackage();
 
-        if (!pkg)
+        if (!pkg) {
           throw new Error(`Failed to load root package for ${branch} branch`);
+        }
 
         const pages = (yield* pkg.docs())["."];
 
@@ -43,20 +45,19 @@ export function previewRoute({
             <article class="prose m-auto">
               <Alert level="info" title={`Preview for ${branch}`}>
                 <p>
-                  You’re viewing the API reference for branch {branch}. This is
-                  a preview URL used for Effection development.
+                  You’re viewing the API reference for branch{" "}
+                  {branch}. This is a preview URL used for Effection
+                  development.
                 </p>
               </Alert>
               <section>
                 <h2>API Reference</h2>
                 <p>This release includes the following exports:</p>
                 <ul class="columns-3">
-                  {
-                    yield* listPages({
-                      pages,
-                      linkResolver: createChildURL("api"),
-                    })
-                  }
+                  {yield* listPages({
+                    pages,
+                    linkResolver: createChildURL("api"),
+                  })}
                 </ul>
               </section>
             </article>

@@ -67,14 +67,16 @@ export function apiMinorSymbolRoute({
       try {
         const latest = yield* library.getLatestSemverTag("effection-v3");
 
-        if (!latest)
+        if (!latest) {
           throw new Error(
             `Failed to retrieve latest version for "effection-v3" tag`,
           );
+        }
 
         const tag = yield* library.getLatestSemverTag(minor);
-        if (!tag)
+        if (!tag) {
           throw new Error(`Failed to retrieve latest version for ${minor}`);
+        }
 
         const ref = yield* library.loadRef(`tags/${tag?.name}`);
         const pkg = yield* ref.loadRootPackage();
@@ -99,15 +101,15 @@ export function apiMinorSymbolRoute({
         return (
           <AppHtml>
             <>
-              {
-                yield* ApiPage({
-                  pages,
-                  current: symbol,
-                  ref,
-                  externalLinkResolver: function* (symbol) {
-                    return yield* createSibling(symbol);
-                  },
-                  banner: outdated ? (
+              {yield* ApiPage({
+                pages,
+                current: symbol,
+                ref,
+                externalLinkResolver: function* (symbol) {
+                  return yield* createSibling(symbol);
+                },
+                banner: outdated
+                  ? (
                     <Alert level="info" class="mb-6">
                       <p>
                         Version {version} is behind the current release:{" "}
@@ -120,11 +122,9 @@ export function apiMinorSymbolRoute({
                         ({latestVersion}).
                       </p>
                     </Alert>
-                  ) : (
-                    <></>
-                  ),
-                })
-              }
+                  )
+                  : <></>,
+              })}
             </>
           </AppHtml>
         );

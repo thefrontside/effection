@@ -150,7 +150,7 @@ export function loadPackage(
       ),
       packageName: denoJson.name ?? "",
       scope,
-      source: new URL(ref.url),
+      source: ref.getUrl(workspacePath),
       name,
       *readme() {
         return yield* ref.loadReadme(workspacePath);

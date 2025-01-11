@@ -414,8 +414,27 @@ export function TypeDef({ typeDef }: { typeDef: TsTypeDef }) {
         </>
       );
     }
-    case "importType":
     case "mapped":
+      return (
+        <>
+          <Punctuation>[</Punctuation>
+          {typeDef.mappedType.typeParam.name}
+          <Keyword>{` in `}</Keyword>
+          {typeDef.mappedType.typeParam.constraint ? (
+            <TypeDef typeDef={typeDef.mappedType.typeParam.constraint} />
+          ) : (
+            <></>
+          )}
+          <Punctuation>]</Punctuation>
+          <Operator>{" : "}</Operator>
+          {typeDef.mappedType.tsType ? (
+            <TypeDef typeDef={typeDef.mappedType.tsType} />
+          ) : (
+            <></>
+          )}
+        </>
+      );
+    case "importType":
     case "optional":
     case "rest":
     case "this":

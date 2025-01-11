@@ -63,7 +63,9 @@ export function* extract(
       lines.push(`### Constructors`, "<dl>");
       for (const constructor of node.classDef.constructors) {
         lines.push(
-          `<dt>${NEW} **${node.name}**(${constructor.params.map(Param).join(", ")})</dt>`,
+          `<dt>${NEW} **${node.name}**(${constructor.params
+            .map(Param)
+            .join(", ")})</dt>`,
           `<dd>`,
           constructor.jsDoc,
           `</dd>`,
@@ -156,7 +158,9 @@ export function* extract(
         const returnType = method.returnType ? TypeDef(method.returnType) : "";
         const description = method.jsDoc?.doc || NO_DOCS_AVAILABLE;
         lines.push(
-          `<dt class="border-dotted [&:not(:first-child)]:border-t-2 [&:not(:first-child)]:pt-3 [&:not(:first-child)]:mt-2">**${method.name}**${typeParams ? `&lt;${typeParams}&gt;` : ""}(${params}): ${returnType}</dt>`,
+          `<dt class="border-dotted [&:not(:first-child)]:border-t-2 [&:not(:first-child)]:pt-3 [&:not(:first-child)]:mt-2">**${method.name}**${
+            typeParams ? `&lt;${typeParams}&gt;` : ""
+          }(${params}): ${returnType}</dt>`,
           `<dd class="flex flex-col [&>pre]:mb-3">`,
           description,
           "</dd>",
@@ -295,18 +299,29 @@ export function TypeDef(typeDef: TsTypeDef): string {
     case "intersection": {
       return typeDef.intersection.map(TypeDef).join(" &amp; ");
     }
-    case "conditional":
+    case "typeLiteral": {
+      // todo(taras): this is incomplete
+      return `&#123;&#125;`;
+    }
+    case "mapped": {
+      return `[${TypeParam(typeDef.mappedType.typeParam)}]: ${
+        typeDef.mappedType.tsType ? TypeDef(typeDef.mappedType.tsType) : ""
+      }`;
+    }
+    case "conditional": {
+      return `${TypeDef(typeDef.conditionalType.checkType)} extends ${TypeDef(typeDef.conditionalType.extendsType)} ? ${TypeDef(
+        typeDef.conditionalType.trueType,
+      )} : ${TypeDef(typeDef.conditionalType.falseType)}`;
+    }
+    case "indexedAccess": {
+      return `${TypeDef(typeDef.indexedAccess.objType)}[${TypeDef(typeDef.indexedAccess.indexType)}]`;
+    }
     case "importType":
-    case "indexedAccess":
     case "infer":
     case "literal":
-    case "mapped":
     case "optional":
     case "rest":
     case "this":
-    case "typeLiteral":
-      // todo(taras): this is incomplete
-      return `&#123;&#125;`;
     case "typePredicate":
     case "typeQuery":
       console.log("TypeDef: unimplemented", typeDef);
@@ -317,7 +332,14 @@ export function TypeDef(typeDef: TsTypeDef): string {
 function TypeParam(paramDef: TsTypeParamDef) {
   let parts = [`{@link ${paramDef.name}}`];
   if (paramDef.constraint) {
-    parts.push(`extends ${TypeDef(paramDef.constraint)}`);
+    if (
+      paramDef.constraint.kind === "typeOperator" &&
+      paramDef.constraint.typeOperator.operator === "keyof"
+    ) {
+      parts.push(`in ${TypeDef(paramDef.constraint)}`);
+    } else {
+      parts.push(`extends ${TypeDef(paramDef.constraint)}`);
+    }
   }
   if (paramDef.default) {
     parts.push(`= ${TypeDef(paramDef.default)}`);
@@ -328,12 +350,14 @@ function TypeParam(paramDef: TsTypeParamDef) {
 function Param(paramDef: ParamDef): string {
   switch (paramDef.kind) {
     case "identifier": {
-      return `**${paramDef.name}**${
-        paramDef.optional ? OPTIONAL : ""
-      }: ${paramDef.tsType ? TypeDef(paramDef.tsType) : ""}`;
+      return `**${paramDef.name}**${paramDef.optional ? OPTIONAL : ""}: ${
+        paramDef.tsType ? TypeDef(paramDef.tsType) : ""
+      }`;
     }
     case "rest": {
-      return `...${Param(paramDef.arg)}: ${paramDef.tsType ? TypeDef(paramDef.tsType) : ""}`;
+      return `...${Param(paramDef.arg)} ${
+        paramDef.tsType ? TypeDef(paramDef.tsType) : ""
+      }`;
     }
     case "assign":
     case "array":
@@ -353,7 +377,9 @@ export function methodList(methods: ClassMethodDef[]) {
       : "";
     const description = method.jsDoc?.doc || NO_DOCS_AVAILABLE;
     lines.push(
-      `<dt>**${method.name}**${typeParams ? `&lt;${typeParams}&gt;` : ""}(${params}): ${returnType}</dt>`,
+      `<dt>**${method.name}**${
+        typeParams ? `&lt;${typeParams}&gt;` : ""
+      }(${params}): ${returnType}</dt>`,
       `<dd class="flex flex-col [&>pre]:mb-3 [&:not(:last-child)]:border-dotted [&:not(:last-child)]:border-b-2 [&:not(:last-child)]:pb-3 [&:not(:last-child)]:mb-3">`,
       description,
       "</dd>",

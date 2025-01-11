@@ -170,7 +170,7 @@ export function* API({ pkg, linkResolver }: APIOptions): Operation<JSXElement> {
                 <SourceCodeIcon />
               </a>
             </div>
-            <div class="[&>h3:first-child]:mt-0">
+            <div class="[&>h3:first-child]:mt-0 [&>hr]:my-5 [&>h5]:font-semibold">
               {
                 yield* call(function* () {
                   yield* DocPageContext.set(page);

@@ -1,4 +1,4 @@
-import { JSXChild, type JSXElement, useParams } from "revolution";
+import { type JSXElement, useParams } from "revolution";
 
 import { SitemapRoute } from "../plugins/sitemap.ts";
 import { useAppHtml } from "./app.html.tsx";

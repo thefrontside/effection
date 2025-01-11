@@ -1,9 +1,7 @@
 import { JSXElement } from "revolution/jsx-runtime";
 import { type Operation } from "effection";
 import type {
-  ClassDef,
   DocNode,
-  InterfaceDef,
   ParamDef,
   TsTypeDef,
   TsTypeParamDef,
@@ -18,7 +16,6 @@ import {
   Optional,
   Punctuation,
 } from "./tokens.tsx";
-import { useMarkdown } from "../../hooks/use-markdown.tsx";
 
 interface TypeProps {
   node: DocNode;
@@ -138,101 +135,6 @@ function TSVariableDef({
       {variableDef.tsType ? <TypeDef typeDef={variableDef.tsType} /> : <></>}
     </>
   );
-}
-
-/**
- * This class definition that I'm no longer using in favour of definition generated
- * with markdown. I'm keeping it in case it comes in handy in the future.
- */
-function* TSClassDef({ classDef }: { classDef: ClassDef }) {
-  const elements: JSXElement[] = [];
-
-  for (const property of classDef.properties) {
-    const jsDoc = property.jsDoc?.doc
-      ? yield* useMarkdown(property.jsDoc?.doc)
-      : undefined;
-    elements.push(
-      <li class={`text-base ${jsDoc ? "my-0 border-l-2 first:-mt-5" : "my-1"}`}>
-        {jsDoc ? <div class="-mb-5">{jsDoc}</div> : <></>}
-        {property.name}
-        <Optional optional={property.optional} />
-        <Operator>{": "}</Operator>
-        {property.tsType ? <TypeDef typeDef={property.tsType} /> : <></>}
-        <Punctuation>{";"}</Punctuation>
-      </li>,
-    );
-  }
-
-  for (const method of classDef.methods) {
-    const jsDoc = method.jsDoc?.doc
-      ? yield* useMarkdown(method.jsDoc?.doc)
-      : undefined;
-    elements.push(
-      <li class={`${jsDoc ? "my-0 border-l-2 first:-mt-5" : "my-1"}`}>
-        {jsDoc ? <div>{jsDoc}</div> : <></>}
-        <span class="font-bold">{method.name}</span>
-        <Optional optional={method.optional} />
-        <Punctuation>(</Punctuation>
-        <FunctionParams params={method.functionDef.params} />
-        <Punctuation>)</Punctuation>
-        <Operator>{": "}</Operator>
-        {method.functionDef.returnType
-          ? <TypeDef typeDef={method.functionDef.returnType} />
-          : <></>}
-        <Punctuation>{";"}</Punctuation>
-      </li>,
-    );
-  }
-
-  return <ul class="my-0 list-none pl-1">{elements}</ul>;
-}
-
-/**
- * This interface definition that I'm no longer using in favour of definition generated
- * with markdown. I'm keeping it in case it comes in handy in the future.
- */
-function* TSInterfaceDef({
-  interfaceDef,
-}: {
-  interfaceDef: InterfaceDef;
-}): Operation<JSXElement> {
-  const elements: JSXElement[] = [];
-  for (const property of interfaceDef.properties) {
-    const jsDoc = property.jsDoc?.doc
-      ? yield* useMarkdown(property.jsDoc?.doc)
-      : undefined;
-    elements.push(
-      <li class={`${jsDoc ? "my-0 border-l-2 first:-mt-5" : "my-1"}`}>
-        {jsDoc ? <div class="-mb-5">{jsDoc}</div> : <></>}
-        {property.name}
-        <Optional optional={property.optional} />
-        <Operator>{": "}</Operator>
-        {property.tsType ? <TypeDef typeDef={property.tsType} /> : <></>}
-        <Punctuation>{";"}</Punctuation>
-      </li>,
-    );
-  }
-
-  for (const method of interfaceDef.methods) {
-    const jsDoc = method.jsDoc?.doc
-      ? yield* useMarkdown(method.jsDoc?.doc)
-      : undefined;
-    elements.push(
-      <li class={`${jsDoc ? "my-0 border-l-2 first:-mt-5" : "my-1"}`}>
-        {jsDoc ? <div class="-mb-5">{jsDoc}</div> : <></>}
-        {method.name}
-        <Optional optional={method.optional} />
-        <Punctuation>(</Punctuation>
-        <FunctionParams params={method.params} />
-        <Punctuation>)</Punctuation>
-        <Operator>{": "}</Operator>
-        {method.returnType ? <TypeDef typeDef={method.returnType} /> : <></>}
-        <Punctuation>{";"}</Punctuation>
-      </li>,
-    );
-  }
-
-  return <ul class="my-0 list-none pl-1">{elements}</ul>;
 }
 
 function FunctionParams({ params }: { params: ParamDef[] }) {

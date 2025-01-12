@@ -1,21 +1,19 @@
 import { Package } from "../../resources/package.ts";
-import { PackageSourceLink } from "./source-link.tsx";
+import { GithubPill } from "./source-link.tsx";
 
 export function* PackageHeader(pkg: Package) {
   return (
     <header class="space-y-3 mb-5">
-      <div class="[&>*]:inline-block">
-        <span class="text-3xl font-bold align-middle">
+      <div class="flex flex-row">
+        <span class="text-3xl font-bold">
           @{pkg.scope}
           <span>/</span>
           {pkg.name}
         </span>
-        <span class="text-3xl mx-2 align-middle">
-          v{pkg.version ? pkg.version : ""}
-        </span>
-        {yield* PackageSourceLink({
-          sourceUrl: pkg.source.toString(),
-          repositoryName: pkg.packageName,
+        <span class="text-3xl mx-2">v{pkg.version ? pkg.version : ""}</span>
+        {yield* GithubPill({
+          url: pkg.source.toString(),
+          text: pkg.ref.repository.nameWithOwner,
         })}
       </div>
       <div class="space-x-1">

@@ -1,7 +1,5 @@
 import { call, type Operation, resource } from "effection";
 import { Endpoints, RequestParameters } from "npm:@octokit/types@13.6.2";
-// @deno-types="npm:@types/semver@7.5.8"
-import { rsort } from "npm:semver@7.6.3";
 
 import { GithubClientContext } from "../context/github.ts";
 import {
@@ -9,15 +7,20 @@ import {
   REF_PATTERN,
   RepositoryRef,
 } from "./repository-ref.ts";
+import { extractVersion, rsort } from "../lib/semver.ts";
 
 export interface Repository {
   name: string;
 
   owner: string;
 
+  nameWithOwner: string;
+
   get(): Operation<
     Endpoints["GET /repos/{owner}/{repo}"]["response"]["data"]
   >;
+
+  starCount(): Operation<number>;
 
   /**
    * Retrieve tags for the current repository.
@@ -34,7 +37,7 @@ export interface Repository {
    * @returns tag objects
    */
   tags(
-    glob?: string,
+    searchQuery?: string,
   ): Operation<
     { name: string }[]
   >;
@@ -69,7 +72,6 @@ export interface Repository {
 
   loadRef(
     ref?: string | undefined,
-    type?: "branch" | "tag",
   ): Operation<RepositoryRef>;
 }
 
@@ -80,6 +82,7 @@ export function loadRepository(
     const github = yield* GithubClientContext.expect();
 
     const repository: Repository = {
+      nameWithOwner: `${owner}/${name}`,
       owner,
       name,
 
@@ -92,6 +95,11 @@ export function loadRepository(
         );
 
         return result.data;
+      },
+      *starCount() {
+        const repo = yield* repository.get();
+
+        return repo.stargazers_count;
       },
       *tags(
         searchQuery: string,
@@ -171,16 +179,4 @@ export function loadRepository(
 
     yield* provide(repository);
   });
-}
-
-export function extractVersion(input: string) {
-  const parts = input.match(
-    // @source: https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string
-    /(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?/,
-  );
-  if (parts) {
-    return parts[0];
-  } else {
-    return "0.0.0";
-  }
 }

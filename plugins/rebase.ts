@@ -2,9 +2,9 @@ import type { RevolutionPlugin } from "revolution";
 import { createContext, type Operation } from "effection";
 import { posixNormalize } from "https://deno.land/std@0.203.0/path/_normalize.ts";
 import { selectAll } from "npm:hast-util-select@6.0.1";
+import { CurrentRequest } from "../context/request.ts";
 
 const BaseUrl = createContext<URL>("baseUrl");
-const CurrentRequest = createContext<Request>("Request");
 
 export function rebasePlugin(): RevolutionPlugin {
   return {

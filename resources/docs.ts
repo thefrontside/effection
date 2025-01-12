@@ -9,7 +9,6 @@ import {
 import { basename } from "jsr:@std/path@1.0.8";
 import { Repository } from "./repository.ts";
 import { z } from "npm:zod@3.23.8";
-import { useMDX } from "../hooks/use-mdx.tsx";
 import { useMarkdown } from "../hooks/use-markdown.tsx";
 
 export interface DocModule {
@@ -51,7 +50,9 @@ const Structure = z.record(
 
 export type StructureJson = z.infer<typeof Structure>;
 
-export function loadDocs({ repo, pattern }: { repo: Repository, pattern: string }): Operation<Docs> {
+export function loadDocs(
+  { repo, pattern }: { repo: Repository; pattern: string },
+): Operation<Docs> {
   return resource(function* (provide) {
     let loaders: Map<string, Task<Doc>> | undefined = undefined;
 

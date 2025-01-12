@@ -37,9 +37,9 @@ export interface RepositoryRef {
 
   /**
    * Read a text file
-   * @param path 
+   * @param path
    */
-  loadText(path: string): Operation<string>
+  loadText(path: string): Operation<string>;
 
   /**
    * Get readme file at the root of the ref
@@ -50,7 +50,7 @@ export interface RepositoryRef {
 
   /**
    * Read content of a json file specified path
-   * @param path 
+   * @param path
    */
   loadJson<T = unknown>(path: string): Operation<T>;
 
@@ -86,7 +86,7 @@ export interface RepositoryRef {
    * @param base
    * @param target
    */
-  getUrl(base: string, target: string, isFile: boolean): URL;
+  getUrl(base?: string, target?: string, isFile?: boolean): URL;
 }
 
 export function loadRepositoryRef(
@@ -106,10 +106,12 @@ export function loadRepositoryRef(
 
       getUrl(base, target, isFile) {
         return new URL(
-          `./${isFile ? "blob" : "tree"}/${ref.name}/${
-            repositoryRef.getPath(base, target)
-          }`,
-          `https://github.com/${repository.owner}/${repository.name}/`,
+          [
+            isFile ? "blob" : "tree",
+            ref.name,
+            repositoryRef.getPath(base ?? "", target ?? ""),
+          ].filter(Boolean).join("/"),
+          `https://github.com/${repository.nameWithOwner}/`,
         );
       },
 
@@ -147,7 +149,7 @@ export function loadRepositoryRef(
       },
 
       *loadReadme(base: string = ""): Operation<string> {
-        return yield* this.loadText(repositoryRef.getPath(base, "README.md"))
+        return yield* this.loadText(repositoryRef.getPath(base, "README.md"));
       },
 
       *loadJson<T>(path: string): Operation<T> {
@@ -233,5 +235,5 @@ export function matchRef(ref: string): BranchRef | TagRef | undefined {
 }
 
 function getRefUrl(repository: Repository, ref: BranchRef | TagRef) {
-  return `https://github.com/${repository.owner}/${repository.name}/tree/${ref.name}/}`;
+  return `https://github.com/${repository.owner}/${repository.name}/tree/${ref.name}/`;
 }

@@ -1,8 +1,4 @@
-import rehypeAddClasses from "npm:rehype-add-classes@1.0.0";
-import rehypeAutolinkHeadings from "npm:rehype-autolink-headings@7.1.0";
-import rehypeInferDescriptionMeta from "npm:rehype-infer-description-meta@2.0.0";
-import rehypeSlug from "npm:rehype-slug@6.0.0";
-import { type PluggableList, unified } from "npm:unified@11.0.5";
+import { type PluggableList, unified } from "unified";
 import type { JSXElement } from "revolution/jsx-runtime";
 
 export interface RehypeOptions {
@@ -10,7 +6,7 @@ export interface RehypeOptions {
   plugins: PluggableList;
 }
 
-export function OriginalRehype(options: RehypeOptions): JSX.Element {
+export function Rehype(options: RehypeOptions): JSX.Element {
   let { children, plugins } = options;
   let pipeline = unified().use(plugins);
 
@@ -31,32 +27,32 @@ interface RehypeProps {
   children: JSXElement;
 }
 
-export function Rehype({ children }: RehypeProps) {
-  return (
-    <OriginalRehype
-      plugins={[
-        rehypeSlug,
-        rehypeInferDescriptionMeta,
-        [
-          rehypeAutolinkHeadings,
-          {
-            behavior: "append",
-            properties: {
-              className:
-                "opacity-0 group-hover:opacity-100 after:content-['#'] after:ml-1.5",
-            },
-          },
-        ],
-        [
-          rehypeAddClasses,
-          {
-            "h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]": "group",
-            pre: "grid",
-          },
-        ],
-      ]}
-    >
-      {children}
-    </OriginalRehype>
-  );
-}
+// export function Rehype({ children }: RehypeProps) {
+//   return (
+//     <OriginalRehype
+//       plugins={[
+//         rehypeSlug,
+//         rehypeInferDescriptionMeta,
+//         [
+//           rehypeAutolinkHeadings,
+//           {
+//             behavior: "append",
+//             properties: {
+//               className:
+//                 "opacity-0 group-hover:opacity-100 after:content-['#'] after:ml-1.5",
+//             },
+//           },
+//         ],
+//         [
+//           rehypeAddClasses,
+//           {
+//             "h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]": "group",
+//             pre: "grid",
+//           },
+//         ],
+//       ]}
+//     >
+//       {children}
+//     </OriginalRehype>
+//   );
+// }

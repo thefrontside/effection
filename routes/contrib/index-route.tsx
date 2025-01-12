@@ -3,6 +3,7 @@ import type { SitemapRoute } from "../../plugins/sitemap.ts";
 import type { JSXElement } from "revolution";
 import { useAppHtml } from "../app.html.tsx";
 import { Repository } from "../../resources/repository.ts";
+import { GithubPill } from "../../components/package/source-link.tsx";
 
 export function contribIndexRoute(
   contrib: Repository,
@@ -27,8 +28,14 @@ export function contribIndexRoute(
 
       return (
         <AppHTML>
-          <article class="prose">
-            <h1>Effection Contrib</h1>
+          <article class="prose m-auto">
+            <header class="flex flex-row items-center space-x-2">
+              <h1 class="mb-0">Effection Contrib</h1>
+              {yield* GithubPill({
+                url: ref.getUrl().toString(),
+                text: ref.repository.nameWithOwner,
+              })}
+            </header>
             <p>
               Here are a list of community contributed modules that represent
               emerging consensus on how to do common JavaScript tasks with
@@ -40,9 +47,7 @@ export function contribIndexRoute(
                   return (
                     <li class="px-0">
                       <h3>
-                        <a href={`/contrib/${pkg.path}`}>
-                          {pkg.packageName}
-                        </a>
+                        <a href={`/contrib/${pkg.path}`}>{pkg.packageName}</a>
                       </h3>
                       <p>{yield* pkg.description()}</p>
                     </li>

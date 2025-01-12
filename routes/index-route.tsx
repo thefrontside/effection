@@ -47,7 +47,7 @@ export function indexRoute(): SitemapRoute<JSXElement> {
                     </a>
                     <a
                       class="col-span-6 md:col-span-2 p-2 lg:col-span-1 text-md text-blue-900 bg-white hover:bg-blue-100 transition border-blue-900 border-solid border-2 w-full rounded md:px-4"
-                      href="https://deno.land/x/effection/mod.ts"
+                      href="/api"
                     >
                       API Reference
                     </a>

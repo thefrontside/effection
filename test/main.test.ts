@@ -165,5 +165,5 @@ function* detect(
     }
     yield* sleep(10);
   }
-  expect(buffer.content).toMatch(text);
+  expect(buffer.content).toMatch(new RegExp(text));
 }

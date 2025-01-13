@@ -44,7 +44,6 @@ export function docsRoute(
       return (
         <AppHtml search={search}>
           <section class="min-h-0 mx-auto w-full justify-items-normal md:grid md:grid-cols-[225px_auto] lg:grid-cols-[225px_auto_200px] md:gap-4">
-            <input class="hidden" id="nav-toggle" type="checkbox" checked />
             <aside
               id="docbar"
               class="fixed top-0 h-full w-full grid grid-cols-2 md:hidden"

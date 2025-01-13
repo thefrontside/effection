@@ -35,6 +35,7 @@
     "jsr:@std/path@^1.0.8": "1.0.8",
     "jsr:@std/streams@^1.0.8": "1.0.8",
     "jsr:@takker/md5@0.1.0": "0.1.0",
+    "npm:@docsearch/css@3": "3.8.2",
     "npm:@jsdevtools/rehype-toc@3.0.2": "3.0.2",
     "npm:@mdx-js/mdx@3.1.0": "3.1.0",
     "npm:@octokit/endpoint@10.1.2": "10.1.2",
@@ -203,6 +204,9 @@
     }
   },
   "npm": {
+    "@docsearch/css@3.8.2": {
+      "integrity": "sha512-y05ayQFyUmCXze79+56v/4HpycYF3uFqB78pLPrSV5ZKAlDuIAAJNhaRi8tTdRNXh05yxX/TyNnzD6LwSM89vQ=="
+    },
     "@jsdevtools/rehype-toc@3.0.2": {
       "integrity": "sha512-n5JEf16Wr4mdkRMZ8wMP/wN9/sHmTjRPbouXjJH371mZ2LEGDl72t8tEsMRNFerQN/QJtivOxqK1frdGa4QK5Q=="
     },

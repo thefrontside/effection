@@ -332,7 +332,7 @@ export interface Scope {
 /**
  * Unwrap the type of an `Operation`.
  * Analogous to the built in [`Awaited`](https://www.typescriptlang.org/docs/handbook/utility-types.html#awaitedtype) type.
- * Yielded<Operation<T>> === T
+ * `Yielded<Operation<T>> === T`
  */
 export type Yielded<T extends Operation<unknown>> = T extends
   Operation<infer TYield> ? TYield

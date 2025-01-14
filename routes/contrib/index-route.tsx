@@ -9,12 +9,8 @@ export function contribIndexRoute(
   contrib: Repository,
 ): SitemapRoute<JSXElement> {
   return {
-    *routemap() {
-      return [
-        {
-          pathname: "/",
-        },
-      ];
+    *routemap(gen) {
+      return [{ pathname: gen() }];
     },
     *handler() {
       const AppHTML = yield* useAppHtml({

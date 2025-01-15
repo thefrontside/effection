@@ -16,6 +16,9 @@ export function apiIndexRoute({
   library: Repository;
 }): SitemapRoute<JSXElement> {
   return {
+    *routemap(gen) {
+      return [{ pathname: gen() }];
+    },
     handler: function* () {
       const [[v3ref, v3docs], [v4ref, v4docs]] = yield* all([
         getApiForLatestTag(library, "effection-v3"),

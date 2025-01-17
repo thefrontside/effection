@@ -1,0 +1,25 @@
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  staticalize:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      
+      - run: deno task dev
+
+      - uses: thefrontside/staticalize@v0.0.1
+        with:
+          site: http://localhost:8000
+          output: built
+          base: http://localhost:8000

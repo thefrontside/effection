@@ -34,11 +34,14 @@ jobs:
           tar -xzf /tmp/staticalize-linux.tar.gz -C /usr/local/bin
           chmod +x /usr/local/bin/staticalize-linux
 
-      - run: |
+      - name: Staticalize
+        run: |
           staticalize-linux \
             --site=http://127.0.0.1:8000 \
             --output=built \
             --base=https://effection-www.deno.dev/
+
+      - run: npx pagefind --site built
 
       - uses: actions/upload-artifact@v4
         with:

@@ -1,4 +1,5 @@
 on:
+  pull_request:
   push:
     branches:
       - main
@@ -16,10 +17,26 @@ jobs:
         with:
           deno-version: v2.x
       
-      - run: deno task dev
+      - run: |
+          deno task dev &
+          until curl --output /dev/null --silent --head --fail http://127.0.0.1:8000; do
+            printf '.'
+            sleep 1
+          done
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          JSR_API: ${{ secrets.JSR_API }}
 
-      - uses: thefrontside/staticalize@v0.0.1
-        with:
-          site: http://localhost:8000
-          output: built
-          base: http://localhost:8000
+      - name: Download Staticalize
+        run: |
+          wget https://github.com/thefrontside/staticalize/releases/download/v0.0.1/staticalize-linux.tar.gz \
+            -O /tmp/staticalize-linux.tar.gz
+          tar -xzf /tmp/staticalize-linux.tar.gz -C /usr/local/bin
+          chmod +x /usr/local/bin/staticalize-linux
+
+      - run: |
+          curl http://127.0.0.1:8000
+          staticalize-linux \
+            --site=http://127.0.0.1:8000 \
+            --output=built \
+            --base=https://effection-www.deno.dev/

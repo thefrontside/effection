@@ -39,3 +39,8 @@ jobs:
             --site=http://127.0.0.1:8000 \
             --output=built \
             --base=https://effection-www.deno.dev/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: built
+          path: built

@@ -35,7 +35,6 @@ jobs:
           chmod +x /usr/local/bin/staticalize-linux
 
       - run: |
-          curl http://127.0.0.1:8000
           staticalize-linux \
             --site=http://127.0.0.1:8000 \
             --output=built \

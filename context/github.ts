@@ -25,7 +25,11 @@ export function* initGithubClientContext({ token }: { token: string }) {
     async (request, options: Required<EndpointDefaults>) => {
       const key = generateKey(options);
 
-      if (!cache.has(key)) {
+      if (cache.has(key)) {
+        console.log(`🎯 Cache hit: ${key}`)
+        return cache.get(key) as OctokitResponse<unknown, number>;
+      } else {
+        console.log(`🙅‍♂️ Cache miss: ${key}`)
         const response = await request(options);
         cache.set(key, response);
       }

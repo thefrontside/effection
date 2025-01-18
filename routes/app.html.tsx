@@ -109,6 +109,8 @@ export function* useAppHtml({
           <link rel="stylesheet" href="https://use.typekit.net/ugs0ewy.css" />
           <link rel="stylesheet" href="/assets/prism-atom-one-dark.css" />
         </noscript>
+        <link href="/pagefind/pagefind-ui.css" rel="stylesheet" />
+        <script src="/pagefind/pagefind-ui.js"></script>
       </head>
       <body class="flex flex-col">
         <Header navLinks={navLinks} />

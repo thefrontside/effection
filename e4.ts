@@ -25,12 +25,15 @@ type GenerateOptions = {
   output: string;
 } & PagefindServiceConfig;
 
+const log = (first: unknown, ...args: unknown[]) =>
+  console.log(`💪: ${first}`, ...args);
+
 export function generate({ host, output, ...indexOptions }: GenerateOptions) {
   return async function () {
     return await run(function* () {
       const tmp = yield* makeTempDir();
 
-      console.log(`🚀🚀🚀🚀🚀 Staticalizing: ${host} to ${tmp}`);
+      log(`💪 Staticalizing: ${host} to ${tmp}`);
 
       yield* race([
         staticalize({
@@ -41,14 +44,17 @@ export function generate({ host, output, ...indexOptions }: GenerateOptions) {
         sleep(60000),
       ]);
 
-      console.log("🚀🚀🚀🚀🚀 Adding index");
+      log("💪 Adding index");
+      
       const index = yield* createPagefindIndex(indexOptions);
 
-      console.log(`🚀🚀🚀🚀🚀 Adding directory: ${tmp}`);
-      const added = yield* index.addDirectory({ path: tmp });
-      console.log(`Addedd ${added} pages from ${tmp}`);
+      log(`🚀🚀🚀🚀🚀 Adding directory: ${tmp}`);
 
-      console.log(`🚀🚀🚀🚀🚀 Writing files ${output}`);
+      const added = yield* index.addDirectory({ path: tmp });
+
+      log(`Addedd ${added} pages from ${tmp}`);
+
+      log(`🚀🚀🚀🚀🚀 Writing files ${output}`);
       return yield* index.writeFiles({ outputPath: output });
     });
   };

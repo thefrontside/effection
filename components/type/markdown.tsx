@@ -10,10 +10,9 @@ import { toHtml } from "npm:hast-util-to-html@9.0.0";
 import { DocPage } from "../../hooks/use-deno-doc.tsx";
 import { Icon } from "./icon.tsx";
 
-const NEW =
-  `<span class="inline-block bg-violet-100 rounded px-2 text-sm text-violet-900 mx-1">new</span>`;
-const OPTIONAL =
-  `<span class="inline-block bg-sky-100 rounded px-2 text-sm text-sky-900 mx-1">optional</span>`;
+const NEW = `<span class="inline-block bg-violet-100 rounded px-2 text-sm text-violet-900 mx-1">new</span>`;
+const OPTIONAL = `<span class="inline-block bg-sky-100 rounded px-2 text-sm text-sky-900 mx-1">optional</span>`;
+const READONLY = `<span class="inline-block bg-orange-100 rounded px-2 text-sm text-orange-900 mx-1">readonly</span>`;
 
 export const NO_DOCS_AVAILABLE = "*No documentation available.*";
 
@@ -29,7 +28,8 @@ export function* extract(
     lines.push(node.jsDoc.doc);
   }
 
-  const deprecated = node.jsDoc &&
+  const deprecated =
+    node.jsDoc &&
     node.jsDoc.tags?.flatMap((tag) => (tag.kind === "deprecated" ? [tag] : []));
   if (deprecated && deprecated.length > 0) {
     lines.push(``);
@@ -48,7 +48,8 @@ export function* extract(
     }
   }
 
-  const examples = node.jsDoc &&
+  const examples =
+    node.jsDoc &&
     node.jsDoc.tags?.flatMap((tag) => (tag.kind === "example" ? [tag] : []));
   if (examples && examples?.length > 0) {
     lines.push("### Examples");
@@ -63,11 +64,9 @@ export function* extract(
       lines.push(`### Constructors`, "<dl>");
       for (const constructor of node.classDef.constructors) {
         lines.push(
-          `<dt>${NEW} **${node.name}**(${
-            constructor.params
-              .map(Param)
-              .join(", ")
-          })</dt>`,
+          `<dt>${NEW} **${node.name}**(${constructor.params
+            .map(Param)
+            .join(", ")})</dt>`,
           `<dd>`,
           constructor.jsDoc,
           `</dd>`,
@@ -97,9 +96,10 @@ export function* extract(
   }
 
   if (node.kind === "namespace") {
-    const variables = node.namespaceDef.elements.flatMap((node) =>
-      node.kind === "variable" ? [node] : []
-    ) ?? [];
+    const variables =
+      node.namespaceDef.elements.flatMap((node) =>
+        node.kind === "variable" ? [node] : [],
+      ) ?? [];
     if (variables.length > 0) {
       lines.push("### Variables");
       lines.push("<dl>");
@@ -134,6 +134,8 @@ export function* extract(
   }
 
   if (node.kind === "interface") {
+    if (node.name === "Completed") console.log(node);
+
     lines.push("\n", ...TypeParams(node.interfaceDef.typeParams, node));
 
     if (node.interfaceDef.properties.length > 0) {
@@ -142,7 +144,7 @@ export function* extract(
         const typeDef = property.tsType ? TypeDef(property.tsType) : "";
         const description = property.jsDoc?.doc || NO_DOCS_AVAILABLE;
         lines.push(
-          `<dt class="border-dotted [&:not(:first-child)]:border-t-2 [&:not(:first-child)]:pt-3 [&:not(:first-child)]:mt-2">**${property.name}**: ${typeDef}</dt>`,
+          `<dt class="border-dotted [&:not(:first-child)]:border-t-2 [&:not(:first-child)]:pt-3 [&:not(:first-child)]:mt-2">**${property.name}**${property.readonly ? READONLY : ""}${property.optional ? OPTIONAL : ""}: ${typeDef}</dt>`,
           `<dd class="flex flex-col [&>pre]:mb-3">`,
           description,
           "</dd>",
@@ -181,9 +183,10 @@ export function* extract(
     const { params } = node.functionDef;
     if (params.length > 0) {
       lines.push("### Parameters");
-      const jsDocs = node.jsDoc?.tags?.flatMap((tag) =>
-        tag.kind === "param" ? [tag] : []
-      ) ?? [];
+      const jsDocs =
+        node.jsDoc?.tags?.flatMap((tag) =>
+          tag.kind === "param" ? [tag] : [],
+        ) ?? [];
       let i = 0;
       for (const param of params) {
         lines.push("\n", Param(param));
@@ -242,9 +245,10 @@ export function TypeParams(typeParams: TsTypeParamDef[], node: DocNode) {
   let lines = [];
   if (typeParams.length > 0) {
     lines.push("### Type Parameters");
-    const jsDocs = node.jsDoc?.tags?.flatMap((tag) =>
-      tag.kind === "template" ? [tag] : []
-    ) ?? [];
+    const jsDocs =
+      node.jsDoc?.tags?.flatMap((tag) =>
+        tag.kind === "template" ? [tag] : [],
+      ) ?? [];
     let i = 0;
     for (const typeParam of typeParams) {
       lines.push(TypeParam(typeParam));
@@ -265,11 +269,9 @@ export function TypeDef(typeDef: TsTypeDef): string {
       const tparams = typeDef.fnOrConstructor.typeParams
         .map(TypeParam)
         .join(", ");
-      return `(${params})${tparams.length > 0 ? `<${tparams}>` : ""} => ${
-        TypeDef(
-          typeDef.fnOrConstructor.tsType,
-        )
-      }`;
+      return `(${params})${tparams.length > 0 ? `<${tparams}>` : ""} => ${TypeDef(
+        typeDef.fnOrConstructor.tsType,
+      )}`;
     }
     case "typeRef": {
       const tparams = typeDef.typeRef.typeParams?.map(TypeDef).join(", ");
@@ -287,11 +289,9 @@ export function TypeDef(typeDef: TsTypeDef): string {
       return `${TypeDef(typeDef.array)}&lbrack;&rbrack;`;
     }
     case "typeOperator": {
-      return `${typeDef.typeOperator.operator} ${
-        TypeDef(
-          typeDef.typeOperator.tsType,
-        )
-      }`;
+      return `${typeDef.typeOperator.operator} ${TypeDef(
+        typeDef.typeOperator.tsType,
+      )}`;
     }
     case "tuple": {
       return `&lbrack;${typeDef.tuple.map(TypeDef).join(", ")}&rbrack;`;
@@ -312,22 +312,22 @@ export function TypeDef(typeDef: TsTypeDef): string {
       }`;
     }
     case "conditional": {
-      return `${TypeDef(typeDef.conditionalType.checkType)} extends ${
-        TypeDef(typeDef.conditionalType.extendsType)
-      } ? ${
-        TypeDef(
-          typeDef.conditionalType.trueType,
-        )
-      } : ${TypeDef(typeDef.conditionalType.falseType)}`;
+      return `${TypeDef(typeDef.conditionalType.checkType)} extends ${TypeDef(
+        typeDef.conditionalType.extendsType,
+      )} ? ${TypeDef(
+        typeDef.conditionalType.trueType,
+      )} : ${TypeDef(typeDef.conditionalType.falseType)}`;
     }
     case "indexedAccess": {
-      return `${TypeDef(typeDef.indexedAccess.objType)}[${
-        TypeDef(typeDef.indexedAccess.indexType)
-      }]`;
+      return `${TypeDef(typeDef.indexedAccess.objType)}[${TypeDef(
+        typeDef.indexedAccess.indexType,
+      )}]`;
+    }
+    case "literal": {
+      return `*${typeDef.repr}*`;
     }
     case "importType":
     case "infer":
-    case "literal":
     case "optional":
     case "rest":
     case "this":

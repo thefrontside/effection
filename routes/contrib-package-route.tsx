@@ -5,7 +5,7 @@ import { PackageExports } from "../components/package/exports.tsx";
 import { PackageHeader } from "../components/package/header.tsx";
 import { ScoreCard } from "../components/score-card.tsx";
 import { DocPageContext } from "../context/doc-page.ts";
-import { Dependency, DocsPages } from "../hooks/use-deno-doc.tsx";
+import { DocsPages } from "../hooks/use-deno-doc.tsx";
 import { ResolveLinkFunction, useMarkdown } from "../hooks/use-markdown.tsx";
 import { major, minor } from "../lib/semver.ts";
 import type { RoutePath, SitemapRoute } from "../plugins/sitemap.ts";
@@ -65,10 +65,12 @@ export function contribPackageRoute({
           if (connector === "_") {
             return internal;
           }
-          const page = docs["."].find((page) => page.name === symbol);
+          const page = docs["."].find(
+            (page) => page.name === symbol && page.kind !== "import",
+          );
 
           let effectionDocs: DocsPages | undefined;
-          let effection: Dependency | undefined;
+          let version: string | undefined;
           if (page) {
             // get internal link
             return `[${symbol}](#${page.kind}_${page.name})`;
@@ -76,12 +78,13 @@ export function contribPackageRoute({
             // get external link
             if (!effectionDocs) {
               const page = yield* DocPageContext.expect();
-              effection = page.dependencies.find((dep) =>
-                ["effection", "@effection/effection"].includes(dep.name)
+              let effection = page.dependencies.find((dep) =>
+                ["effection", "@effection/effection"].includes(dep.name),
               );
               if (effection) {
+                version = effection.version.replace("^", "");
                 const ref = yield* library.loadRef(
-                  `tags/effection-v${effection.version.replace("^", "")}`,
+                  `tags/effection-v${version}`,
                 );
                 const pkg = yield* ref.loadRootPackage();
                 if (pkg) {
@@ -89,14 +92,14 @@ export function contribPackageRoute({
                 }
               }
             }
-            if (effection && effectionDocs) {
+            if (version && effectionDocs) {
               const page = effectionDocs["."].find(
                 (page) => page.name === symbol,
               );
               if (page) {
-                return `[${symbol}](/api/${major(effection?.version)}.${
-                  minor(effection?.version)
-                }/${symbol})`;
+                return `[${symbol}](/api/${major(version)}.${minor(
+                  version,
+                )}/${symbol})`;
               }
             }
           }
@@ -112,11 +115,13 @@ export function contribPackageRoute({
                   {yield* PackageHeader(pkg)}
                   <div class="prose max-w-full">
                     <div class="mb-5">
-                      {yield* PackageExports({
-                        packageName: pkg.packageName,
-                        docs,
-                        linkResolver,
-                      })}
+                      {
+                        yield* PackageExports({
+                          packageName: pkg.packageName,
+                          docs,
+                          linkResolver,
+                        })
+                      }
                     </div>
                     {yield* useMarkdown(yield* pkg.readme(), { linkResolver })}
                     <h2 class="mb-0">API Reference</h2>
@@ -157,7 +162,10 @@ export function* API({ pkg, linkResolver }: APIOptions): Operation<JSXElement> {
 
   for (const exportName of Object.keys(docs)) {
     const pages = docs[exportName];
-    for (const page of pages) {
+    const withoutImports = pages.flatMap((page) =>
+      page.kind === "import" ? [] : [page],
+    );
+    for (const page of withoutImports) {
       for (const section of page.sections) {
         elements.push(
           <section id={section.id} class="flex flex-col border-b-2 pb-5">
@@ -171,17 +179,19 @@ export function* API({ pkg, linkResolver }: APIOptions): Operation<JSXElement> {
               </a>
             </div>
             <div class="[&>h3:first-child]:mt-0 [&>hr]:my-5 [&>h5]:font-semibold">
-              {yield* call(function* () {
-                yield* DocPageContext.set(page);
-                return yield* useMarkdown(
-                  section.markdown || NO_DOCS_AVAILABLE,
-                  {
-                    remarkPlugins: [[shiftHeadings, 1]],
-                    linkResolver,
-                    slugPrefix: section.id,
-                  },
-                );
-              })}
+              {
+                yield* call(function* () {
+                  yield* DocPageContext.set(page);
+                  return yield* useMarkdown(
+                    section.markdown || NO_DOCS_AVAILABLE,
+                    {
+                      remarkPlugins: [[shiftHeadings, 1]],
+                      linkResolver,
+                      slugPrefix: section.id,
+                    },
+                  );
+                })
+              }
             </div>
           </section>,
         );

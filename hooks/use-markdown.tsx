@@ -87,8 +87,6 @@ export function* useMarkdown(
     remarkRehypeOptions: options?.remarkRehypeOptions,
   });
 
-  console.log({ mod })
-
   return yield* call(async () => {
     try {
       const result = await mod.default();

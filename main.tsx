@@ -31,6 +31,7 @@ import {
 import { previewRoute } from "./routes/preview-route.tsx";
 import { previewApiRoute } from "./routes/preview-api-route.tsx";
 import { pagefindRoute } from "./routes/pagefind-route.ts";
+import { searchRoute } from "./routes/search-route.tsx";
 
 // Learn more at https://docs.deno.com/runtime/manual/examples/module_metadata#concepts
 if (import.meta.main) {
@@ -77,6 +78,7 @@ if (import.meta.main) {
     let revolution = createRevolution({
       app: [
         route("/", indexRoute()),
+        route("/search", searchRoute()),
         route("/docs/v4/:id", docsRoute({ docs: docsV4, base: "/docs/v4/" })),
         route("/docs/:id", docsRoute({ docs, base: "/docs/" })),
         route("/contrib", contribIndexRoute(contrib)),

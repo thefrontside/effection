@@ -85,12 +85,10 @@ export function apiIndexRoute({
               <h3>Latest release: {v3version}</h3>
               <p>This release includes the following exports:</p>
               <ul class="columns-3 pl-0">
-                {
-                  yield* listPages({
-                    pages: v3docs["."],
-                    linkResolver: createChildURL("v3"),
-                  })
-                }
+                {yield* listPages({
+                  pages: v3docs["."],
+                  linkResolver: createChildURL("v3"),
+                })}
               </ul>
               <h3>Previous releases</h3>
               <ul>
@@ -117,12 +115,10 @@ export function apiIndexRoute({
               <h3>Latest release: {v4version}</h3>
               <p>This release includes the following exports:</p>
               <ul class="columns-3 pl-0">
-                {
-                  yield* listPages({
-                    pages: v3docs["."],
-                    linkResolver: createChildURL("v4"),
-                  })
-                }
+                {yield* listPages({
+                  pages: v3docs["."],
+                  linkResolver: createChildURL("v4"),
+                })}
               </ul>
             </section>
           </article>

@@ -92,8 +92,11 @@ export function* useMarkdown(
       const result = await mod.default();
       return result;
     } catch (e) {
-      console.error(`Failed to convert markdown to JSXElement for ${markdown}`, e);
-      return <></>
+      console.error(
+        `Failed to convert markdown to JSXElement for ${markdown}`,
+        e,
+      );
+      return <></>;
     }
   });
 }

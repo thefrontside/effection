@@ -79,7 +79,7 @@ export function contribPackageRoute({
             if (!effectionDocs) {
               const page = yield* DocPageContext.expect();
               let effection = page.dependencies.find((dep) =>
-                ["effection", "@effection/effection"].includes(dep.name),
+                ["effection", "@effection/effection"].includes(dep.name)
               );
               if (effection) {
                 version = effection.version.replace("^", "");
@@ -97,9 +97,11 @@ export function contribPackageRoute({
                 (page) => page.name === symbol,
               );
               if (page) {
-                return `[${symbol}](/api/${major(version)}.${minor(
-                  version,
-                )}/${symbol})`;
+                return `[${symbol}](/api/${major(version)}.${
+                  minor(
+                    version,
+                  )
+                }/${symbol})`;
               }
             }
           }
@@ -115,13 +117,11 @@ export function contribPackageRoute({
                   {yield* PackageHeader(pkg)}
                   <div class="prose max-w-full">
                     <div class="mb-5">
-                      {
-                        yield* PackageExports({
-                          packageName: pkg.packageName,
-                          docs,
-                          linkResolver,
-                        })
-                      }
+                      {yield* PackageExports({
+                        packageName: pkg.packageName,
+                        docs,
+                        linkResolver,
+                      })}
                     </div>
                     {yield* useMarkdown(yield* pkg.readme(), { linkResolver })}
                     <h2 class="mb-0">API Reference</h2>
@@ -163,7 +163,7 @@ export function* API({ pkg, linkResolver }: APIOptions): Operation<JSXElement> {
   for (const exportName of Object.keys(docs)) {
     const pages = docs[exportName];
     const withoutImports = pages.flatMap((page) =>
-      page.kind === "import" ? [] : [page],
+      page.kind === "import" ? [] : [page]
     );
     for (const page of withoutImports) {
       for (const section of page.sections) {
@@ -179,19 +179,17 @@ export function* API({ pkg, linkResolver }: APIOptions): Operation<JSXElement> {
               </a>
             </div>
             <div class="[&>h3:first-child]:mt-0 [&>hr]:my-5 [&>h5]:font-semibold">
-              {
-                yield* call(function* () {
-                  yield* DocPageContext.set(page);
-                  return yield* useMarkdown(
-                    section.markdown || NO_DOCS_AVAILABLE,
-                    {
-                      remarkPlugins: [[shiftHeadings, 1]],
-                      linkResolver,
-                      slugPrefix: section.id,
-                    },
-                  );
-                })
-              }
+              {yield* call(function* () {
+                yield* DocPageContext.set(page);
+                return yield* useMarkdown(
+                  section.markdown || NO_DOCS_AVAILABLE,
+                  {
+                    remarkPlugins: [[shiftHeadings, 1]],
+                    linkResolver,
+                    slugPrefix: section.id,
+                  },
+                );
+              })}
             </div>
           </section>,
         );

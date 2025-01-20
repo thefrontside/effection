@@ -48,9 +48,11 @@ function* PackageExport({
 }: PackageExportOptions): Operation<JSXElement> {
   const exports: JSXChild[] = [];
 
-  for (const page of docPages
-    .flatMap((page) => (page.kind === "import" ? [] : [page]))
-    .sort((a, b) => a.name.localeCompare(b.name))) {
+  for (
+    const page of docPages
+      .flatMap((page) => (page.kind === "import" ? [] : [page]))
+      .sort((a, b) => a.name.localeCompare(b.name))
+  ) {
     exports.push(
       ...[
         <a
@@ -58,12 +60,12 @@ function* PackageExport({
           href={yield* linkResolver(page.kind, "_", page.name)}
         >
           {["enum", "typeAlias", "namespace", "interface"].includes(
-            page.kind,
-          ) ? (
-            <Keyword>{"type "}</Keyword>
-          ) : (
-            ""
-          )}
+              page.kind,
+            )
+            ? <Keyword>{"type "}</Keyword>
+            : (
+              ""
+            )}
           {page.name}
         </a>,
         ", ",

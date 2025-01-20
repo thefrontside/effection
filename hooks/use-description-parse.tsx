@@ -30,6 +30,6 @@ export function* useMarkdownFile(markdown: string): Operation<VFile> {
         inferDescriptionHast: true,
         truncateSize: 200,
       })
-      .process(markdown),
+      .process(markdown)
   );
 }

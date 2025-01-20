@@ -43,7 +43,9 @@ export function contribIndexRoute(
                   return (
                     <li class="px-0">
                       <h3>
-                        <a href={`/contrib/${pkg.path}`}>{yield* pkg.title()}</a>
+                        <a href={`/contrib/${pkg.path}`}>
+                          {yield* pkg.title()}
+                        </a>
                       </h3>
                       <p>{yield* pkg.description()}</p>
                     </li>

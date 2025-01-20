@@ -14,6 +14,8 @@ const NEW =
   `<span class="inline-block bg-violet-100 rounded px-2 text-sm text-violet-900 mx-1">new</span>`;
 const OPTIONAL =
   `<span class="inline-block bg-sky-100 rounded px-2 text-sm text-sky-900 mx-1">optional</span>`;
+const READONLY =
+  `<span class="inline-block bg-orange-100 rounded px-2 text-sm text-orange-900 mx-1">readonly</span>`;
 
 export const NO_DOCS_AVAILABLE = "*No documentation available.*";
 
@@ -134,6 +136,8 @@ export function* extract(
   }
 
   if (node.kind === "interface") {
+    if (node.name === "Completed") console.log(node);
+
     lines.push("\n", ...TypeParams(node.interfaceDef.typeParams, node));
 
     if (node.interfaceDef.properties.length > 0) {
@@ -142,7 +146,9 @@ export function* extract(
         const typeDef = property.tsType ? TypeDef(property.tsType) : "";
         const description = property.jsDoc?.doc || NO_DOCS_AVAILABLE;
         lines.push(
-          `<dt class="border-dotted [&:not(:first-child)]:border-t-2 [&:not(:first-child)]:pt-3 [&:not(:first-child)]:mt-2">**${property.name}**: ${typeDef}</dt>`,
+          `<dt class="border-dotted [&:not(:first-child)]:border-t-2 [&:not(:first-child)]:pt-3 [&:not(:first-child)]:mt-2">**${property.name}**${
+            property.readonly ? READONLY : ""
+          }${property.optional ? OPTIONAL : ""}: ${typeDef}</dt>`,
           `<dd class="flex flex-col [&>pre]:mb-3">`,
           description,
           "</dd>",
@@ -313,7 +319,9 @@ export function TypeDef(typeDef: TsTypeDef): string {
     }
     case "conditional": {
       return `${TypeDef(typeDef.conditionalType.checkType)} extends ${
-        TypeDef(typeDef.conditionalType.extendsType)
+        TypeDef(
+          typeDef.conditionalType.extendsType,
+        )
       } ? ${
         TypeDef(
           typeDef.conditionalType.trueType,
@@ -322,12 +330,16 @@ export function TypeDef(typeDef: TsTypeDef): string {
     }
     case "indexedAccess": {
       return `${TypeDef(typeDef.indexedAccess.objType)}[${
-        TypeDef(typeDef.indexedAccess.indexType)
+        TypeDef(
+          typeDef.indexedAccess.indexType,
+        )
       }]`;
+    }
+    case "literal": {
+      return `*${typeDef.repr}*`;
     }
     case "importType":
     case "infer":
-    case "literal":
     case "optional":
     case "rest":
     case "this":

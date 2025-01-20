@@ -37,7 +37,10 @@ export function* ApiPage({
     connector,
     method,
   ) {
-    if (pages && pages.find((page) => page.name === symbol)) {
+    if (
+      pages &&
+      pages.find((page) => page.name === symbol && page.kind !== "import")
+    ) {
       return `[${symbol}](${yield* externalLinkResolver(
         symbol,
         connector,

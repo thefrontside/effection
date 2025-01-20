@@ -1,21 +1,21 @@
 import { type JSXElement, useParams } from "revolution";
 import { call, type Operation } from "effection";
 
-import { PackageExports } from "../../components/package/exports.tsx";
-import { PackageHeader } from "../../components/package/header.tsx";
-import { ScoreCard } from "../../components/score-card.tsx";
-import { DocPageContext } from "../../context/doc-page.ts";
-import { Dependency, DocsPages } from "../../hooks/use-deno-doc.tsx";
-import { ResolveLinkFunction, useMarkdown } from "../../hooks/use-markdown.tsx";
-import { major, minor } from "../../lib/semver.ts";
-import type { RoutePath, SitemapRoute } from "../../plugins/sitemap.ts";
-import { Repository } from "../../resources/repository.ts";
-import { useAppHtml } from "../app.html.tsx";
-import { shiftHeadings } from "../../lib/shift-headings.ts";
-import { Package } from "../../resources/package.ts";
-import { Type } from "../../components/type/jsx.tsx";
-import { NO_DOCS_AVAILABLE } from "../../components/type/markdown.tsx";
-import { SourceCodeIcon } from "../../components/icons/source-code.tsx";
+import { PackageExports } from "../components/package/exports.tsx";
+import { PackageHeader } from "../components/package/header.tsx";
+import { ScoreCard } from "../components/score-card.tsx";
+import { DocPageContext } from "../context/doc-page.ts";
+import { DocsPages } from "../hooks/use-deno-doc.tsx";
+import { ResolveLinkFunction, useMarkdown } from "../hooks/use-markdown.tsx";
+import { major, minor } from "../lib/semver.ts";
+import type { RoutePath, SitemapRoute } from "../plugins/sitemap.ts";
+import { Repository } from "../resources/repository.ts";
+import { useAppHtml } from "./app.html.tsx";
+import { shiftHeadings } from "../lib/shift-headings.ts";
+import { Package } from "../resources/package.ts";
+import { Type } from "../components/type/jsx.tsx";
+import { NO_DOCS_AVAILABLE } from "../components/type/markdown.tsx";
+import { SourceCodeIcon } from "../components/icons/source-code.tsx";
 
 interface ContribPackageRouteParams {
   contrib: Repository;
@@ -65,10 +65,12 @@ export function contribPackageRoute({
           if (connector === "_") {
             return internal;
           }
-          const page = docs["."].find((page) => page.name === symbol);
+          const page = docs["."].find(
+            (page) => page.name === symbol && page.kind !== "import",
+          );
 
           let effectionDocs: DocsPages | undefined;
-          let effection: Dependency | undefined;
+          let version: string | undefined;
           if (page) {
             // get internal link
             return `[${symbol}](#${page.kind}_${page.name})`;
@@ -76,12 +78,13 @@ export function contribPackageRoute({
             // get external link
             if (!effectionDocs) {
               const page = yield* DocPageContext.expect();
-              effection = page.dependencies.find((dep) =>
+              let effection = page.dependencies.find((dep) =>
                 ["effection", "@effection/effection"].includes(dep.name)
               );
               if (effection) {
+                version = effection.version.replace("^", "");
                 const ref = yield* library.loadRef(
-                  `tags/effection-v${effection.version}`,
+                  `tags/effection-v${version}`,
                 );
                 const pkg = yield* ref.loadRootPackage();
                 if (pkg) {
@@ -89,13 +92,15 @@ export function contribPackageRoute({
                 }
               }
             }
-            if (effection && effectionDocs) {
+            if (version && effectionDocs) {
               const page = effectionDocs["."].find(
                 (page) => page.name === symbol,
               );
               if (page) {
-                return `[${symbol}](/api/${major(effection?.version)}.${
-                  minor(effection?.version)
+                return `[${symbol}](/api/${major(version)}.${
+                  minor(
+                    version,
+                  )
                 }/${symbol})`;
               }
             }
@@ -157,7 +162,10 @@ export function* API({ pkg, linkResolver }: APIOptions): Operation<JSXElement> {
 
   for (const exportName of Object.keys(docs)) {
     const pages = docs[exportName];
-    for (const page of pages) {
+    const withoutImports = pages.flatMap((page) =>
+      page.kind === "import" ? [] : [page]
+    );
+    for (const page of withoutImports) {
       for (const section of page.sections) {
         elements.push(
           <section id={section.id} class="flex flex-col border-b-2 pb-5">

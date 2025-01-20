@@ -4,7 +4,7 @@ import { z } from "npm:zod@3.23.8";
 
 import { useJSRClient } from "../context/jsr.ts";
 import { DocsPages, useDocPages } from "../hooks/use-deno-doc.tsx";
-import { useDescription } from "../hooks/use-description-parse.tsx";
+import { useDescription, useTitle } from "../hooks/use-description-parse.tsx";
 import { useMDX } from "../hooks/use-mdx.tsx";
 import { PackageDetailsResult, PackageScoreResult } from "./jsr-client.ts";
 import { RepositoryRef } from "./repository-ref.ts";
@@ -90,6 +90,7 @@ export interface Package {
    */
   docs(): Operation<DocsPages>;
   MDXContent(): Operation<JSX.Element>;
+  title(): Operation<string>;
   description(): Operation<string>;
 }
 
@@ -207,6 +208,10 @@ export function loadPackage(
         let mod = yield* useMDX(readme);
 
         return mod.default({});
+      },
+      *title(): Operation<string> {
+        let readme = yield* pkg.readme();
+        return yield* useTitle(readme);
       },
       *description(): Operation<string> {
         let readme = yield* pkg.readme();

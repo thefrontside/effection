@@ -1,6 +1,7 @@
 {
   "tasks": {
-    "dev": "deno run -A --watch main.tsx"
+    "dev": "deno run -A --watch main.tsx",
+    "staticalize": "deno run -A jsr:@frontside/staticalize@0.2.0/cli --site http://localhost:8000 --output=built --base=http://localhost:8000"
   },
   "lint": {
     "exclude": ["docs/esm"],

@@ -33,7 +33,7 @@ export function generate({ host, output, ...indexOptions }: GenerateOptions) {
     return await run(function* () {
       const tmp = yield* makeTempDir();
 
-      log(`💪 Staticalizing: ${host} to ${tmp}`);
+      log(`Staticalizing: ${host} to ${tmp}`);
 
       yield* race([
         staticalize({
@@ -44,17 +44,17 @@ export function generate({ host, output, ...indexOptions }: GenerateOptions) {
         sleep(60000),
       ]);
 
-      log("💪 Adding index");
+      log("Adding index");
       
       const index = yield* createPagefindIndex(indexOptions);
 
-      log(`🚀🚀🚀🚀🚀 Adding directory: ${tmp}`);
+      log(`Adding directory: ${tmp}`);
 
       const added = yield* index.addDirectory({ path: tmp });
 
       log(`Addedd ${added} pages from ${tmp}`);
 
-      log(`🚀🚀🚀🚀🚀 Writing files ${output}`);
+      log(`Writing files ${output}`);
       return yield* index.writeFiles({ outputPath: output });
     });
   };

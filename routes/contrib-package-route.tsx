@@ -1,21 +1,21 @@
 import { type JSXElement, useParams } from "revolution";
 import { call, type Operation } from "effection";
 
-import { PackageExports } from "../../components/package/exports.tsx";
-import { PackageHeader } from "../../components/package/header.tsx";
-import { ScoreCard } from "../../components/score-card.tsx";
-import { DocPageContext } from "../../context/doc-page.ts";
-import { Dependency, DocsPages } from "../../hooks/use-deno-doc.tsx";
-import { ResolveLinkFunction, useMarkdown } from "../../hooks/use-markdown.tsx";
-import { major, minor } from "../../lib/semver.ts";
-import type { RoutePath, SitemapRoute } from "../../plugins/sitemap.ts";
-import { Repository } from "../../resources/repository.ts";
-import { useAppHtml } from "../app.html.tsx";
-import { shiftHeadings } from "../../lib/shift-headings.ts";
-import { Package } from "../../resources/package.ts";
-import { Type } from "../../components/type/jsx.tsx";
-import { NO_DOCS_AVAILABLE } from "../../components/type/markdown.tsx";
-import { SourceCodeIcon } from "../../components/icons/source-code.tsx";
+import { PackageExports } from "../components/package/exports.tsx";
+import { PackageHeader } from "../components/package/header.tsx";
+import { ScoreCard } from "../components/score-card.tsx";
+import { DocPageContext } from "../context/doc-page.ts";
+import { Dependency, DocsPages } from "../hooks/use-deno-doc.tsx";
+import { ResolveLinkFunction, useMarkdown } from "../hooks/use-markdown.tsx";
+import { major, minor } from "../lib/semver.ts";
+import type { RoutePath, SitemapRoute } from "../plugins/sitemap.ts";
+import { Repository } from "../resources/repository.ts";
+import { useAppHtml } from "./app.html.tsx";
+import { shiftHeadings } from "../lib/shift-headings.ts";
+import { Package } from "../resources/package.ts";
+import { Type } from "../components/type/jsx.tsx";
+import { NO_DOCS_AVAILABLE } from "../components/type/markdown.tsx";
+import { SourceCodeIcon } from "../components/icons/source-code.tsx";
 
 interface ContribPackageRouteParams {
   contrib: Repository;

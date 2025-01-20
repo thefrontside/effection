@@ -1,9 +1,9 @@
 import { all } from "effection";
-import type { SitemapRoute } from "../../plugins/sitemap.ts";
+import type { SitemapRoute } from "../plugins/sitemap.ts";
 import type { JSXElement } from "revolution";
-import { useAppHtml } from "../app.html.tsx";
-import { Repository } from "../../resources/repository.ts";
-import { GithubPill } from "../../components/package/source-link.tsx";
+import { useAppHtml } from "./app.html.tsx";
+import { Repository } from "../resources/repository.ts";
+import { GithubPill } from "../components/package/source-link.tsx";
 
 export function contribIndexRoute(
   contrib: Repository,

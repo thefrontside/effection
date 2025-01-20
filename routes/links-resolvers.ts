@@ -6,7 +6,7 @@ export function* createSibling(pathname: string): Operation<string> {
   const request = yield* CurrentRequest.expect();
   const url = new URL(request.url);
   url.pathname = join(dirname(url.pathname), pathname);
-  return url.toString();
+  return url.toString().replace(url.origin, "");
 }
 
 export function createChildURL(prefix?: string) {
@@ -16,6 +16,6 @@ export function createChildURL(prefix?: string) {
     url.pathname = join(
       ...[url.pathname, prefix, pathname].flatMap((s) => s ? [s] : []),
     );
-    return url.toString();
+    return url.toString().replace(url.origin, "");
   };
 }

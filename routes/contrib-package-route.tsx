@@ -81,7 +81,7 @@ export function contribPackageRoute({
               );
               if (effection) {
                 const ref = yield* library.loadRef(
-                  `tags/effection-v${effection.version}`,
+                  `tags/effection-v${effection.version.replace("^", "")}`,
                 );
                 const pkg = yield* ref.loadRootPackage();
                 if (pkg) {

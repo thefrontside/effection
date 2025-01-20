@@ -7,6 +7,7 @@ import rehypeAddClasses from "npm:rehype-add-classes@1.0.0";
 import rehypePrismPlus from "npm:rehype-prism-plus@2.0.0";
 import remarkGfm from "npm:remark-gfm@4.0.0";
 import rehypeSlug from "npm:rehype-slug@6.0.0";
+import { JSXElement } from "revolution/jsx-runtime";
 
 export function* defaultLinkResolver(
   symbol: string,
@@ -38,7 +39,7 @@ export type ResolveLinkFunction = (
 export function* useMarkdown(
   markdown: string,
   options?: UseMDXOptions & UseMarkdownOptions,
-) {
+): Operation<JSXElement> {
   /**
    * I'm doing this pre-processing here because MDX throws a parse error when it encounteres `{@link }`.
    * I can't use a remark/rehype plugin to change this because they are applied after MDX parses is successful.
@@ -86,7 +87,17 @@ export function* useMarkdown(
     remarkRehypeOptions: options?.remarkRehypeOptions,
   });
 
-  return yield* call(() => mod.default());
+  console.log({ mod })
+
+  return yield* call(async () => {
+    try {
+      const result = await mod.default();
+      return result;
+    } catch (e) {
+      console.error(`Failed to convert markdown to JSXElement for ${markdown}`, e);
+      return <></>
+    }
+  });
 }
 
 export function createJsDocSanitizer(

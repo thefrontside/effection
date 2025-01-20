@@ -9,6 +9,7 @@ import { DocPage } from "../hooks/use-deno-doc.tsx";
 import { createChildURL } from "./links-resolvers.ts";
 import { extractVersion, major, minor, rsort } from "../lib/semver.ts";
 import { ResolveLinkFunction } from "../hooks/use-markdown.tsx";
+import { Icon } from "../components/type/icon.tsx";
 
 export function apiIndexRoute({
   library,
@@ -83,11 +84,13 @@ export function apiIndexRoute({
               </p>
               <h3>Latest release: {v3version}</h3>
               <p>This release includes the following exports:</p>
-              <ul class="columns-3">
-                {yield* listPages({
-                  pages: v3docs["."],
-                  linkResolver: createChildURL("v3"),
-                })}
+              <ul class="columns-3 pl-0">
+                {
+                  yield* listPages({
+                    pages: v3docs["."],
+                    linkResolver: createChildURL("v3"),
+                  })
+                }
               </ul>
               <h3>Previous releases</h3>
               <ul>
@@ -113,11 +116,13 @@ export function apiIndexRoute({
               </p>
               <h3>Latest release: {v4version}</h3>
               <p>This release includes the following exports:</p>
-              <ul class="columns-3">
-                {yield* listPages({
-                  pages: v3docs["."],
-                  linkResolver: createChildURL("v4"),
-                })}
+              <ul class="columns-3 pl-0">
+                {
+                  yield* listPages({
+                    pages: v3docs["."],
+                    linkResolver: createChildURL("v4"),
+                  })
+                }
               </ul>
             </section>
           </article>
@@ -139,8 +144,11 @@ function* listPages({
   for (const page of pages.sort((a, b) => a.name.localeCompare(b.name))) {
     const link = yield* linkResolver(page.name);
     elements.push(
-      <li>
-        <a href={link}>{page.name}</a>
+      <li class="list-none pb-1">
+        <a href={link}>
+          <Icon kind={page.kind} class="mr-2" />
+          {page.name}
+        </a>
       </li>,
     );
   }

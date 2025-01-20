@@ -150,7 +150,7 @@ function NextPrevLinks(
             Previous
             <a
               class="py-2 block text-xl font-bold text-blue-primary no-underline tracking-wide leading-5 before:content-['«&nbsp;'] before:font-normal"
-              href={`${base}${prev.id}`}
+              href={`${base ?? ""}${prev.id}`}
             >
               {prev.title}
             </a>
@@ -163,7 +163,7 @@ function NextPrevLinks(
             Next
             <a
               class="py-2 block text-xl font-bold text-blue-primary no-underline tracking-wide leading-5 after:content-['&nbsp;»'] after:font-normal"
-              href={`${base}${next.id}`}
+              href={`${base ?? ""}${next.id}`}
             >
               {next.title}
             </a>

@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.2.0
+
+- ✨ Backfill the `scoped()` API
+  https://github.com/thefrontside/effection/pull/964
+- ✨ Backport `withResolvers()` from v4 to v3
+  https://github.com/thefrontside/effection/pull/963
+
 ## 3.1.0
 
 - 🐛 dynamically import node process

@@ -18,3 +18,4 @@ export * from "./signal.ts";
 export * from "./ensure.ts";
 export * from "./race.ts";
 export * from "./with-resolvers.ts";
+export * from "./scoped.ts";

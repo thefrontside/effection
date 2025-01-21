@@ -27,7 +27,11 @@ export function searchRoute(): SitemapRoute<JSXElement> {
             <script>
               {`
               window.addEventListener('DOMContentLoaded', (event) => {
-                new PagefindUI({ element: "#search", showSubResults: true, autofocus: true });
+                new PagefindUI({ 
+                  element: "#search", 
+                  showSubResults: true, 
+                  autofocus: true
+                });
               });
               `}
             </script>

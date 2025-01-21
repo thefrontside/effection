@@ -11,7 +11,7 @@ import { useDescription } from "../hooks/use-description-parse.tsx";
 import { RoutePath, SitemapRoute } from "../plugins/sitemap.ts";
 
 export function docsRoute(
-  { docs, base }: { docs: Docs; base: string },
+  { docs, base, search }: { docs: Docs; base: string; search: boolean },
 ): SitemapRoute<JSXElement> {
   return {
     *routemap(pathname) {
@@ -42,7 +42,7 @@ export function docsRoute(
       });
 
       return (
-        <AppHtml>
+        <AppHtml search={search}>
           <section class="min-h-0 mx-auto w-full justify-items-normal md:grid md:grid-cols-[225px_auto] lg:grid-cols-[225px_auto_200px] md:gap-4">
             <input class="hidden" id="nav-toggle" type="checkbox" checked />
             <aside

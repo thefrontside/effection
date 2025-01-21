@@ -20,12 +20,13 @@ export interface Options {
 
 export interface AppHtmlProps {
   children: JSXChild;
+  search?: boolean
 }
 
 export function* useAppHtml({
   title,
   description,
-}: Options): Operation<({ children }: AppHtmlProps) => JSX.Element> {
+}: Options): Operation<({ children, search }: AppHtmlProps) => JSX.Element> {
   let twitterImageURL = yield* useAbsoluteUrl(
     "/assets/images/meta-effection.png",
   );
@@ -75,7 +76,7 @@ export function* useAppHtml({
     </>,
   ];
 
-  return ({ children }) => (
+  return ({ children, search }) => (
     <html lang="en-US" dir="ltr">
       <head>
         <meta charset="UTF-8" />
@@ -114,7 +115,7 @@ export function* useAppHtml({
       </head>
       <body class="flex flex-col">
         <Header navLinks={navLinks} />
-        <main class="container max-w-screen-2xl mx-auto mb-auto p-5">
+        <main data-pagefind-body={search} class="container max-w-screen-2xl mx-auto mb-auto p-5">
           {children}
         </main>
         <Footer />

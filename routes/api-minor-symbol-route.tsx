@@ -13,8 +13,10 @@ import { createSibling } from "./links-resolvers.ts";
 
 export function apiMinorSymbolRoute({
   library,
+  search
 }: {
   library: Repository;
+  search: boolean;
 }): SitemapRoute<JSXElement> {
   return {
     *routemap(generate) {
@@ -99,7 +101,7 @@ export function apiMinorSymbolRoute({
         });
 
         return (
-          <AppHtml>
+          <AppHtml search={search}>
             <>
               {yield* ApiPage({
                 pages,

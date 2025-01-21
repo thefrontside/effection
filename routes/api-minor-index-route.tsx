@@ -12,8 +12,10 @@ import { Alert } from "../components/alert.tsx";
 
 export function apiMinorIndexRoute({
   library,
+  search,
 }: {
   library: Repository;
+  search: boolean;
 }): SitemapRoute<JSXElement> {
   return {
     *routemap(generate) {
@@ -64,7 +66,7 @@ export function apiMinorIndexRoute({
         const outdated = compare(version, latestVersion) < 0;
 
         return (
-          <AppHtml>
+          <AppHtml search={search}>
             <article class="prose m-auto">
               {outdated
                 ? (

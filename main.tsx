@@ -79,24 +79,34 @@ if (import.meta.main) {
       app: [
         route("/", indexRoute()),
         route("/search", searchRoute()),
-        route("/docs/v4/:id", docsRoute({ docs: docsV4, base: "/docs/v4/" })),
-        route("/docs/:id", docsRoute({ docs, base: "/docs/" })),
-        route("/contrib", contribIndexRoute(contrib)),
+        route(
+          "/docs/v4/:id",
+          docsRoute({ docs: docsV4, base: "/docs/v4/", search: true }),
+        ),
+        route("/docs/:id", docsRoute({ docs, base: "/docs/", search: true })),
+        route("/contrib", contribIndexRoute({ contrib, search: true })),
         route(
           "/contrib/:workspacePath",
-          contribPackageRoute({ contrib, library }),
+          contribPackageRoute({ contrib, library, search: true }),
         ),
-        route("/api", apiIndexRoute({ library })),
+        route("/api", apiIndexRoute({ library, search: true })),
         route(
           "/api/v3/:symbol",
-          apiReferenceRoute({ library, pattern: "effection-v3" }),
+          apiReferenceRoute({ library, pattern: "effection-v3", search: true }),
         ),
         route(
           "/api/v4/:symbol",
-          apiReferenceRoute({ library, pattern: "effection-v4" }),
+          apiReferenceRoute({
+            library,
+            pattern: "effection-v4",
+            search: false,
+          }),
         ),
-        route("/api/:minor", apiMinorIndexRoute({ library })),
-        route("/api/:minor/:symbol", apiMinorSymbolRoute({ library })),
+        route("/api/:minor", apiMinorIndexRoute({ library, search: false })),
+        route(
+          "/api/:minor/:symbol",
+          apiMinorSymbolRoute({ library, search: false }),
+        ),
         route("/pagefind(.*)", pagefindRoute({ pagefindDir: "pagefind" })),
         route("/assets(.*)", assetsRoute("assets")),
         route("/preview", previewRoute({ library })),

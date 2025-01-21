@@ -22,10 +22,10 @@ export function pagefindRoute({ pagefindDir }: { pagefindDir: string }) {
     if (!task) {
       const host = new URL(new URL(request.url).origin);
       task = yield* spawn(function* () {
-        yield* call(generate({ 
-          host, 
+        yield* call(generate({
+          host,
           output: pagefindDir,
-          rootSelector: "main"
+          rootSelector: "main",
         }));
       });
     }

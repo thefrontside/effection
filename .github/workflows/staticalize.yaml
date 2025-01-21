@@ -16,7 +16,7 @@ jobs:
         uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
-      
+
       - run: |
           deno task dev &
           until curl --output /dev/null --silent --head --fail http://127.0.0.1:8000; do

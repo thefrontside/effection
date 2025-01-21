@@ -20,7 +20,7 @@ export interface Options {
 
 export interface AppHtmlProps {
   children: JSXChild;
-  search?: boolean
+  search?: boolean;
 }
 
 export function* useAppHtml({
@@ -115,7 +115,10 @@ export function* useAppHtml({
       </head>
       <body class="flex flex-col">
         <Header navLinks={navLinks} />
-        <main data-pagefind-body={search} class="container max-w-screen-2xl mx-auto mb-auto p-5">
+        <main
+          data-pagefind-body={search}
+          class="container max-w-screen-2xl mx-auto mb-auto p-5"
+        >
           {children}
         </main>
         <Footer />

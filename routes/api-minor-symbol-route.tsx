@@ -13,7 +13,7 @@ import { createSibling } from "./links-resolvers.ts";
 
 export function apiMinorSymbolRoute({
   library,
-  search
+  search,
 }: {
   library: Repository;
   search: boolean;

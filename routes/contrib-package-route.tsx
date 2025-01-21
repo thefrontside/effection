@@ -26,7 +26,7 @@ interface ContribPackageRouteParams {
 export function contribPackageRoute({
   contrib,
   library,
-  search
+  search,
 }: ContribPackageRouteParams): SitemapRoute<JSXElement> {
   return {
     *routemap(pathname) {

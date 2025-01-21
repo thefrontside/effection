@@ -45,7 +45,7 @@ export function generate({ host, output, ...indexOptions }: GenerateOptions) {
       ]);
 
       log("Adding index");
-      
+
       const index = yield* createPagefindIndex(indexOptions);
 
       log(`Adding directory: ${tmp}`);

@@ -13,10 +13,10 @@ import { Icon } from "../components/type/icon.tsx";
 
 export function apiIndexRoute({
   library,
-  search
+  search,
 }: {
   library: Repository;
-  search: boolean
+  search: boolean;
 }): SitemapRoute<JSXElement> {
   return {
     *routemap(gen) {

@@ -13,7 +13,7 @@ import { DocsPages } from "../hooks/use-deno-doc.tsx";
 export function apiReferenceRoute({
   library,
   pattern,
-  search
+  search,
 }: {
   library: Repository;
   pattern: string;

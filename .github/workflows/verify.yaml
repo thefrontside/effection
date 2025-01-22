@@ -30,7 +30,7 @@ jobs:
 
       - name: test
         run: deno task test
-    
+
   test-node:
     runs-on: ubuntu-latest
     strategy:

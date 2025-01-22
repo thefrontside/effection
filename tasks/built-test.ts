@@ -5,9 +5,9 @@ const outDir = "./build/test";
 await emptyDir(outDir);
 
 const entryPoints = [
-  "./lib/mod.ts"
+  "./lib/mod.ts",
 ];
-for await (const entry of Deno.readDir('test')) {
+for await (const entry of Deno.readDir("test")) {
   if (entry.isFile) {
     entryPoints.push(`./test/${entry.name}`);
   }

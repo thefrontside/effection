@@ -1,12 +1,7 @@
 export { expect } from "@std/expect";
 export { afterEach, beforeEach, describe, it } from "@std/testing/bdd";
 export { expectType } from "ts-expect";
-import {
-  type KillSignal,
-  type Options,
-  type Output,
-  x as $x,
-} from "tinyexec";
+import { type KillSignal, type Options, type Output, x as $x } from "tinyexec";
 
 import type { Operation, Stream } from "../lib/types.ts";
 import { call, resource, sleep, spawn, stream } from "../mod.ts";
@@ -100,7 +95,7 @@ export function x(
       *kill(signal) {
         tinyexec.kill(signal);
         return yield* output;
-      }
+      },
     };
 
     try {

@@ -1,5 +1,9 @@
-import { $await, describe, expect, it, x } from "./suite.ts";
-import { each, type Operation, resource, run, sleep, spawn, type Stream } from "../mod.ts";
+import { describe, expect, it, x } from "./suite.ts";
+import {
+  each,
+  run,
+  type Stream,
+} from "../mod.ts";
 
 function* until(stream: Stream<string, void>, text: string) {
   for (const line of yield* each(stream)) {
@@ -18,7 +22,7 @@ describe("main", () => {
       yield* until(proc.lines, "started");
 
       const { exitCode, stdout } = yield* proc.kill("SIGINT");
-      
+
       expect(stdout).toContain("gracefully stopped");
 
       expect(exitCode).toBe(130);
@@ -34,7 +38,7 @@ describe("main", () => {
       const { exitCode, stdout } = yield* proc.kill("SIGTERM");
 
       expect(stdout).toContain("gracefully stopped");
-      
+
       expect(exitCode).toBe(143);
     });
   });
@@ -91,10 +95,9 @@ describe("main", () => {
       yield* until(proc.lines, "started");
 
       const { exitCode, stdout } = yield* proc.kill("SIGINT");
-      
+
       expect(exitCode).toBe(130);
       expect(stdout).toContain("gracefully stopped");
     });
   });
 });
-

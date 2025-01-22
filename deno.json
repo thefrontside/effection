@@ -46,6 +46,7 @@
   "imports": {
     "@std/testing": "jsr:@std/testing@1",
     "ts-expect": "npm:ts-expect@1.3.0",
-    "@std/expect": "jsr:@std/expect@1"
+    "@std/expect": "jsr:@std/expect@1",
+    "tinyexec": "npm:tinyexec@0.3.2"
   }
 }

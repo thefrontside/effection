@@ -1,9 +1,5 @@
 import { describe, expect, it, x } from "./suite.ts";
-import {
-  each,
-  run,
-  type Stream,
-} from "../mod.ts";
+import { each, run, type Stream } from "../mod.ts";
 
 function* until(stream: Stream<string, void>, text: string) {
   for (const line of yield* each(stream)) {

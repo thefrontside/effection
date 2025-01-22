@@ -8,7 +8,7 @@
   "lock": false,
   "tasks": {
     "test": "deno test --allow-run=deno",
-    "test:node": "deno task build:npm 0.0.0 && node test/main/node.mjs hello world",
+    "test:node": "deno run -A tasks/built-test.ts",
     "build:npm": "deno run -A tasks/build-npm.ts",
     "bench": "deno run -A tasks/bench.ts",
     "build:jsr": "deno run -A tasks/build-jsr.ts"

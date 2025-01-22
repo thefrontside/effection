@@ -10,8 +10,32 @@ permissions:
   contents: read
 
 jobs:
-  test:
+  test-deno:
     runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+
+      - name: setup deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: format
+        run: deno fmt --check
+
+      - name: lint
+        run: deno lint
+
+      - name: test
+        run: deno task test
+    
+  test-node:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18, 20, 22]
 
     steps:
       - name: checkout
@@ -25,16 +49,8 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
-          node-version: 20.x
+          node-version: ${{ matrix.node-version }}
           registry-url: https://registry.npmjs.com
 
-      - name: format
-        run: deno fmt --check
-
-      - name: lint
-        run: deno lint
-
-      - name: test
-        run: deno task test
       - name: test:node
         run: deno task test:node

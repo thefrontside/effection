@@ -1,15 +1,10 @@
-import { call, resource, sleep, spawn } from "../mod.ts";
+export { expect } from "@std/expect";
+export { afterEach, beforeEach, describe, it } from "@std/testing/bdd";
+export { expectType } from "ts-expect";
+import { type KillSignal, type Options, type Output, x as $x } from "tinyexec";
 
-import type { Operation } from "../lib/types.ts";
-
-export {
-  afterEach,
-  beforeEach,
-  describe,
-  it,
-} from "https://deno.land/std@0.223.0/testing/bdd.ts";
-export { expect } from "jsr:@std/expect";
-export { expectType } from "npm:ts-expect@1.3.0";
+import type { Operation, Stream } from "../lib/types.ts";
+import { call, resource, sleep, spawn, stream } from "../mod.ts";
 
 export function $await<T>(promise: Promise<T>): Operation<T> {
   return call(() => promise);
@@ -64,34 +59,49 @@ export function* syncReject(value: string): Operation<string> {
   throw new Error(`boom: ${value}`);
 }
 
-export function useCommand(
-  cmd: string,
-  options?: Deno.CommandOptions,
-): Operation<Deno.ChildProcess> {
-  return resource(function* (provide) {
-    let command = new Deno.Command(cmd, options);
-    let process = command.spawn();
-    try {
-      yield* provide(process);
-    } finally {
-      try {
-        process.kill("SIGINT");
-        yield* call(() => process.status);
-      } catch (error) {
-        // if the process already quit, then this error is expected.
-        // unfortunately there is no way (I know of) to check this
-        // before calling process.kill()
+export interface TinyProcess extends Operation<Output> {
+  /**
+   * A stream of lines coming from both stdin and stdout. The stream
+   * will terminate when stdout and stderr are closed which usually
+   * corresponds to the process ending.
+   */
+  lines: Stream<string, void>;
 
-        if (
-          !!error &&
-          !(error as Error).message.includes(
-            "Child process has already terminated",
-          )
-        ) {
-          // deno-lint-ignore no-unsafe-finally
-          throw error;
-        }
-      }
+  /**
+   * Send `signal` to this process
+   * @param signal - the OS signal to send to the process
+   * @returns void
+   */
+  kill(signal?: KillSignal): Operation<Output>;
+}
+
+export function x(
+  cmd: string,
+  args: string[] = [],
+  options?: Partial<Options>,
+): Operation<TinyProcess> {
+  return resource(function* (provide) {
+    let tinyexec = $x(cmd, args, { ...options });
+
+    let promise: Promise<Output> = tinyexec as unknown as Promise<Output>;
+
+    let output = call(() => promise);
+
+    let tinyproc: TinyProcess = {
+      *[Symbol.iterator]() {
+        return yield* output;
+      },
+      lines: stream(tinyexec),
+      *kill(signal) {
+        tinyexec.kill(signal);
+        return yield* output;
+      },
+    };
+
+    try {
+      yield* provide(tinyproc);
+    } finally {
+      yield* tinyproc.kill();
     }
   });
 }

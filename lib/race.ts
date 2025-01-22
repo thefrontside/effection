@@ -41,7 +41,7 @@ export function* race<T extends Operation<unknown>>(
   // encapsulate the race in a hermetic scope.
   let result = yield* trap(() =>
     encapsulate(function* () {
-      for (let operation of operations.toReversed()) {
+      for (let operation of operations.slice().reverse()) {
         tasks.push(
           yield* spawn(function* () {
             //          let contestant = yield* useScope();

@@ -1,10 +1,9 @@
-import { call, resource, sleep, spawn } from "../mod.ts";
+export { expect } from "@std/expect";
+export { afterEach, beforeEach, describe, it } from "@std/testing/bdd";
+export { expectType } from "ts-expect";
 
 import type { Operation } from "../lib/types.ts";
-
-export { afterEach, beforeEach, describe, it } from "jsr:@std/testing@1/bdd";
-export { expect } from "jsr:@std/expect@1";
-export { expectType } from "npm:ts-expect@1.3.0";
+import { call, resource, sleep, spawn } from "../mod.ts";
 
 export function $await<T>(promise: Promise<T>): Operation<T> {
   return call(() => promise);

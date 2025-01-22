@@ -42,5 +42,10 @@
       "dom",
       "dom.iterable"
     ]
+  },
+  "imports": {
+    "@std/testing": "jsr:@std/testing@1",
+    "ts-expect": "npm:ts-expect@1.3.0",
+    "@std/expect": "jsr:@std/expect@1"
   }
 }

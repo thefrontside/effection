@@ -2,13 +2,8 @@ import { call, resource, sleep, spawn } from "../mod.ts";
 
 import type { Operation } from "../lib/types.ts";
 
-export {
-  afterEach,
-  beforeEach,
-  describe,
-  it,
-} from "https://deno.land/std@0.223.0/testing/bdd.ts";
-export { expect } from "jsr:@std/expect";
+export { afterEach, beforeEach, describe, it } from "jsr:@std/testing@1/bdd";
+export { expect } from "jsr:@std/expect@1";
 export { expectType } from "npm:ts-expect@1.3.0";
 
 export function $await<T>(promise: Promise<T>): Operation<T> {

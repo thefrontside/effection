@@ -33,5 +33,3 @@ await build({
     sideEffects: false,
   },
 });
-
-await Deno.copyFile("README.md", `${outDir}/README.md`);

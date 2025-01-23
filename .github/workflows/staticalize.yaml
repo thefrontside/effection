@@ -8,6 +8,10 @@ jobs:
   staticalize:
     runs-on: ubuntu-latest
 
+    permissions:
+      id-token: write # Needed for auth with Deno Deploy
+      contents: read # Needed to clone the repository
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -43,7 +47,9 @@ jobs:
 
       - run: npx pagefind --site built
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload to Deno Deploy
+        uses: denoland/deployctl@v1
         with:
-          name: built
-          path: built
+          project: effection-www
+          entrypoint: "https://jsr.io/@std/http/1.0.12/file_server.ts"
+          root: built

@@ -1,18 +1,12 @@
+import { NavLinks } from "./nav-links.tsx";
 import { ProjectSelect } from "./project-select.tsx";
 
-interface HeaderProps {
-  navLinks: JSX.Element[];
-}
-
-export function Header({ navLinks }: HeaderProps) {
+export function* Header() {
   return (
     <header class="header w-full top-0 p-6 py-8 sticky tracking-wide z-10">
       <div class="flex items-center justify-between max-w-screen-2xl mx-auto">
-        <div class="flex">
-          <a
-            href="/"
-            class="flex items-end gap-x-2"
-          >
+        <div class="flex-none">
+          <a href="/" class="flex items-end gap-x-2">
             <img
               src="/assets/images/effection-logo.svg"
               alt="Effection Logo"
@@ -24,11 +18,10 @@ export function Header({ navLinks }: HeaderProps) {
             <ProjectSelect />
           </span>
         </div>
-        <nav aria-label="Site Nav" class="text-sm font-bold">
-          <ul class="flex items-center sm:gap-1.5 gap-3 md:gap-12">
-            {navLinks.map((link) => <li>{link}</li>)}
-          </ul>
+        <nav aria-label="Site Nav" class="grow text-sm font-bold">
+          {yield* NavLinks()}
         </nav>
+        {/* <div id="search"></div> */}
       </div>
     </header>
   );

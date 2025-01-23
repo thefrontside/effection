@@ -13,8 +13,10 @@ import { Icon } from "../components/type/icon.tsx";
 
 export function apiIndexRoute({
   library,
+  search,
 }: {
   library: Repository;
+  search: boolean;
 }): SitemapRoute<JSXElement> {
   return {
     *routemap(gen) {
@@ -74,7 +76,7 @@ export function apiIndexRoute({
       });
 
       return (
-        <AppHtml>
+        <AppHtml search={search}>
           <article class="prose m-auto">
             <h1>API Reference</h1>
             <section>

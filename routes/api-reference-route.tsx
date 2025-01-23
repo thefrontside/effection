@@ -13,9 +13,11 @@ import { DocsPages } from "../hooks/use-deno-doc.tsx";
 export function apiReferenceRoute({
   library,
   pattern,
+  search,
 }: {
   library: Repository;
   pattern: string;
+  search: boolean;
 }): SitemapRoute<JSXElement> {
   return {
     *routemap(generate) {
@@ -59,7 +61,7 @@ export function apiReferenceRoute({
         });
 
         return (
-          <AppHtml>
+          <AppHtml search={search}>
             {yield* ApiPage({
               pages,
               current: symbol,

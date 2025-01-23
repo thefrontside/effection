@@ -5,16 +5,27 @@
     "pagefind": "npx pagefind --site built"
   },
   "lint": {
-    "exclude": ["docs/esm"],
+    "exclude": [
+      "docs/esm"
+    ],
     "rules": {
-      "exclude": ["prefer-const", "require-yield"]
+      "exclude": [
+        "prefer-const",
+        "require-yield"
+      ]
     }
   },
   "fmt": {
-    "exclude": ["docs/esm"]
+    "exclude": [
+      "docs/esm"
+    ]
   },
   "compilerOptions": {
-    "lib": ["deno.ns", "dom.iterable", "dom"],
+    "lib": [
+      "deno.ns",
+      "dom.iterable",
+      "dom"
+    ],
     "jsx": "react-jsx",
     "jsxImportSource": "revolution"
   },
@@ -23,5 +34,10 @@
     "unified": "npm:unified@11.0.4",
     "revolution": "https://deno.land/x/revolution@0.6.0/mod.ts",
     "revolution/jsx-runtime": "https://deno.land/x/revolution@0.6.0/jsx-runtime.ts"
+  },
+  "deploy": {
+    "org": "Frontside",
+    "project": "effection-www",
+    "entrypoint": "https://jsr.io/@std/http/1.0.12/file_server.ts"
   }
 }

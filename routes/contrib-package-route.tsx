@@ -20,11 +20,13 @@ import { SourceCodeIcon } from "../components/icons/source-code.tsx";
 interface ContribPackageRouteParams {
   contrib: Repository;
   library: Repository;
+  search: boolean;
 }
 
 export function contribPackageRoute({
   contrib,
   library,
+  search,
 }: ContribPackageRouteParams): SitemapRoute<JSXElement> {
   return {
     *routemap(pathname) {
@@ -110,7 +112,7 @@ export function contribPackageRoute({
         };
 
         return (
-          <AppHTML>
+          <AppHTML search={search}>
             <>
               <div class="grid grid-cols-1 lg:grid-cols-10 gap-8 lg:gap-12">
                 <article class="min-w-0 lg:col-span-7 lg:row-start-1">

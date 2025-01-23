@@ -22,7 +22,7 @@ export function indexRoute(): SitemapRoute<JSXElement> {
         "https://frontside.com/blog/2023-12-18-announcing-effection-v3/";
 
       return (
-        <AppHtml>
+        <AppHtml search>
           <>
             <article class="p-4 md:px-12 mb-16">
               <section class="grid grid-cols-1 md:grid-cols-3 md:gap-4">

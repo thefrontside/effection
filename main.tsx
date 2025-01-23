@@ -30,6 +30,8 @@ import {
 } from "./context/repository.ts";
 import { previewRoute } from "./routes/preview-route.tsx";
 import { previewApiRoute } from "./routes/preview-api-route.tsx";
+import { pagefindRoute } from "./routes/pagefind-route.ts";
+import { searchRoute } from "./routes/search-route.tsx";
 
 // Learn more at https://docs.deno.com/runtime/manual/examples/module_metadata#concepts
 if (import.meta.main) {
@@ -76,24 +78,36 @@ if (import.meta.main) {
     let revolution = createRevolution({
       app: [
         route("/", indexRoute()),
-        route("/docs/v4/:id", docsRoute({ docs: docsV4, base: "/docs/v4/" })),
-        route("/docs/:id", docsRoute({ docs, base: "/docs/" })),
-        route("/contrib", contribIndexRoute(contrib)),
+        route("/search", searchRoute()),
+        route(
+          "/docs/v4/:id",
+          docsRoute({ docs: docsV4, base: "/docs/v4/", search: true }),
+        ),
+        route("/docs/:id", docsRoute({ docs, base: "/docs/", search: true })),
+        route("/contrib", contribIndexRoute({ contrib, search: true })),
         route(
           "/contrib/:workspacePath",
-          contribPackageRoute({ contrib, library }),
+          contribPackageRoute({ contrib, library, search: true }),
         ),
-        route("/api", apiIndexRoute({ library })),
+        route("/api", apiIndexRoute({ library, search: true })),
         route(
           "/api/v3/:symbol",
-          apiReferenceRoute({ library, pattern: "effection-v3" }),
+          apiReferenceRoute({ library, pattern: "effection-v3", search: true }),
         ),
         route(
           "/api/v4/:symbol",
-          apiReferenceRoute({ library, pattern: "effection-v4" }),
+          apiReferenceRoute({
+            library,
+            pattern: "effection-v4",
+            search: false,
+          }),
         ),
-        route("/api/:minor", apiMinorIndexRoute({ library })),
-        route("/api/:minor/:symbol", apiMinorSymbolRoute({ library })),
+        route("/api/:minor", apiMinorIndexRoute({ library, search: false })),
+        route(
+          "/api/:minor/:symbol",
+          apiMinorSymbolRoute({ library, search: false }),
+        ),
+        route("/pagefind(.*)", pagefindRoute({ pagefindDir: "pagefind" })),
         route("/assets(.*)", assetsRoute("assets")),
         route("/preview", previewRoute({ library })),
         route("/preview/api/:symbol", previewApiRoute({ library })),

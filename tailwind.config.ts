@@ -1,11 +1,9 @@
 import presetTailwind from "npm:@twind/preset-tailwind@1.1.4";
 import presetTypography from "npm:@twind/preset-typography@1.0.7";
 import defaultTheme from "npm:@twind/preset-tailwind@1.1.4/defaultTheme";
-
 import { defineConfig } from "npm:@twind/core@1.1.3";
 
 export const config = defineConfig({
-  //@ts-expect-error the tailwind preset types are wiggity whack.
   presets: [presetTailwind(), presetTypography(), presetFrontside()],
 });
 

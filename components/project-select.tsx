@@ -1,4 +1,6 @@
-export function ProjectSelect({ classnames }: { classnames?: string }) {
+import { JSXComponentProps } from "revolution/jsx-runtime";
+
+export function ProjectSelect(props: JSXComponentProps) {
   let uuid = self.crypto.randomUUID();
 
   let toggleId = `toggle-${uuid}`;
@@ -6,7 +8,7 @@ export function ProjectSelect({ classnames }: { classnames?: string }) {
   let closerId = `closer-${uuid}`;
 
   return (
-    <div class={classnames}>
+    <div class={props.class as string | undefined}>
       <style media="all">
         {`
         #${toggleId}:checked ~ label#${openerId} > aside {
@@ -34,7 +36,7 @@ export function ProjectSelect({ classnames }: { classnames?: string }) {
         `}
       </style>
       <input type="checkbox" class="hidden" id={toggleId} checked />
-      <label id={openerId} class="cursor-pointer" for={toggleId}>
+      <label id={openerId} class="sm:hidden cursor-pointer" for={toggleId}>
         <span class="sm:hidden">OSS</span>
         <aside class="absolute m-4 rounded-md text-blue-primary bg-white shadow-lg sm-max:right-0 sm:left-0 z-50">
           <h4 class="p-2.5 uppercase text-sm text-center font-normal min-w-max">
@@ -62,7 +64,7 @@ export function ProjectSelect({ classnames }: { classnames?: string }) {
 
       <label
         id={closerId}
-        class="absolute w-screen h-screen inset-0 z-40 hidden"
+        class="sm:hidden absolute w-screen h-screen inset-0 z-40 hidden"
         for={toggleId}
       />
     </div>

@@ -21,7 +21,7 @@ export function* Header() {
         <nav aria-label="Site Nav" class="grow text-sm font-bold">
           {yield* NavLinks()}
         </nav>
-        <div id="search" class="flex-none [&>.DocSearch-Button]:bg-white"></div>
+        {/* <div id="search"></div> */}
       </div>
     </header>
   );

@@ -60,8 +60,7 @@ export function* useAppHtml({
           <link rel="stylesheet" href="https://use.typekit.net/ugs0ewy.css" />
           <link rel="stylesheet" href="/assets/prism-atom-one-dark.css" />
         </noscript>
-        <link href="/pagefind/pagefind-ui.css" rel="stylesheet" />
-        <script src="/pagefind/pagefind-ui.js"></script>
+        <script type="module" src="https://esm.sh/@11ty/is-land@4.0.0" />
       </head>
       <body class="flex flex-col">
         {header}

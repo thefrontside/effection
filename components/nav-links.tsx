@@ -17,20 +17,20 @@ export function* NavLinks() {
   return (
     <ul class="grid grid-flow-col auto-col-auto float-right place-items-end items-center gap-3 md:gap-7 lg:gap-12 md:ml-5">
       <li>
-        <a href="/docs/installation hover:cursor-pointer">Guides</a>
+        <a href="/docs/installation">Guides</a>
       </li>
       <li>
-        <a href="/api hover:cursor-pointer">API</a>
+        <a href="/api">API</a>
       </li>
       <li class="hidden md:flex">
-        <a class="flex flex-row space-x-1 hover:cursor-pointer" href="/contrib">
+        <a class="flex flex-row space-x-1" href="/contrib">
           <span>Contrib</span>
           <span>({workspaces.length})</span>
         </a>
       </li>
       <li class="hidden md:flex">
         <a
-          class="flex flex-row hover:cursor-pointer"
+          class="flex flex-row"
           href="https://github.com/thefrontside/effection"
         >
           <span class="pr-1">
@@ -46,7 +46,7 @@ export function* NavLinks() {
       </li>
       <li class="hidden md:flex">
         <a
-          class="flex flex-row items-center space-x-1 hover:cursor-pointer"
+          class="flex flex-row items-center space-x-1"
           href="https://discord.gg/r6AvtnU"
         >
           <IconDiscord />
@@ -55,7 +55,7 @@ export function* NavLinks() {
       </li>
       <li class="hidden md:flex">
         <a
-          class="flex flex-row items-center space-x-1 hover:cursor-pointer"
+          class="flex flex-row items-center space-x-1"
           href="/search"
         >
           <span>Search</span>

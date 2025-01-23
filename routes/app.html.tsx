@@ -23,7 +23,7 @@ export function* useAppHtml({
     "/assets/images/meta-effection.png",
   );
   let homeURL = yield* useAbsoluteUrl("/");
-  
+
   const header = yield* Header();
 
   return ({ children, search }) => (

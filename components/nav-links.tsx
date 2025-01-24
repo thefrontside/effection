@@ -4,6 +4,7 @@ import {
 } from "../context/repository.ts";
 import { IconDiscord } from "./icons/discord.tsx";
 import { IconGithub } from "./icons/github.tsx";
+import { SearchIcon } from "./icons/search.tsx";
 import { StarIcon } from "./icons/star.tsx";
 import { Navburger } from "./navburger.tsx";
 import { ProjectSelect } from "./project-select.tsx";
@@ -54,27 +55,14 @@ export function* NavLinks() {
         </a>
       </li>
       <li class="hidden md:flex">
-        <a
-          class="flex flex-row items-center space-x-1"
-          href="/search"
-        >
-          <span>Search</span>
-        </a>
-      </li>
-      <li>
-        <ProjectSelect class="sm:hidden shrink-0" />
-        <p class="flex flex-row invisible hidden">
-          <label class="cursor-pointer" for="nav-toggle">
-            <Navburger />
+        <form method="get" action="search">
+          <label class="h-9 w-[90px] relative block">
+            <input type="search" name="q" class="relative block h-full w-full bg-slate-100 rounded-full text-slate-800 focus:outline-none focus:bg-white focus:border-slate-500 focus:ring-slate-500 focus:ring-2 pl-3 focus:w-[250px] focus:-ml-[160px] focus:z-1 transition-all text-lg" placeholder="⌘K"/>
+            <span class="absolute inset-y-0 right-0 flex items-center pr-2">
+              <SearchIcon class="w-6 mr-2 text-slate-400"/>
+            </span>
           </label>
-        </p>
-        <style media="all">
-          {`
-            #nav-toggle:checked ~ aside#docbar {
-            display: none;
-            }
-          `}
-        </style>
+        </form>
       </li>
     </ul>
   );

@@ -64,7 +64,7 @@ export function* NavLinks() {
                 placeholder="⌘K"
               />
               <span class="absolute inset-y-0 right-0 flex items-center pr-2">
-                <SearchIcon class="w-6 mr-2 text-slate-400"/>
+                <SearchIcon class="w-6 mr-2 text-slate-400" />
               </span>
             </label>
           </form>

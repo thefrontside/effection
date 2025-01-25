@@ -5,14 +5,14 @@ document.addEventListener("DOMContentLoaded", function () {
       searchElement.value = "";
     });
 
-        document.addEventListener('keydown', function(event) {
-            if (event.metaKey && event.key === 'k') {
-                event.preventDefault();
-                searchElement.focus();
-            }
-            if (event.key === 'Escape') {
-                searchElement.blur();
-            }
-        });
-    }
+    document.addEventListener("keydown", function (event) {
+      if (event.metaKey && event.key === "k") {
+        event.preventDefault();
+        searchElement.focus();
+      }
+      if (event.key === "Escape") {
+        searchElement.blur();
+      }
+    });
+  }
 });

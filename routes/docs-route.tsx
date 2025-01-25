@@ -1,15 +1,10 @@
 import type { JSXElement } from "revolution";
-import type { DocMeta, Docs } from "../resources/docs.ts";
-
-import { useAppHtml } from "./app.html.tsx";
 import { respondNotFound, useParams } from "revolution";
 
-import rehypeToc from "npm:@jsdevtools/rehype-toc@3.0.2";
-import { select } from "npm:unist-util-select@5.1.0";
 import { useDescription } from "../hooks/use-description-parse.tsx";
 import { RoutePath, SitemapRoute } from "../plugins/sitemap.ts";
-import { Plugin } from "unified";
-import { extractTOC, toc } from "../lib/toc.ts";
+import type { DocMeta, Docs } from "../resources/docs.ts";
+import { useAppHtml } from "./app.html.tsx";
 
 export function docsRoute({
   docs,

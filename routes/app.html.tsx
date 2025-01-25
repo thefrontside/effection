@@ -67,7 +67,7 @@ export function* useAppHtml({
         {header}
         <main
           data-pagefind-body={search}
-          class="container max-w-screen-2xl mx-auto mb-auto p-5 scroll-mt-[100px]"
+          class="container max-w-screen-2xl mx-auto mb-auto p-5"
         >
           {children}
         </main>

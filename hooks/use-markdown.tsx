@@ -25,20 +25,20 @@ export function* defaultLinkResolver(
   return "";
 }
 
-interface UseMarkdownOptions {
-  linkResolver?: ResolveLinkFunction;
-  slugPrefix?: string;
-}
-
 export type ResolveLinkFunction = (
   symbol: string,
   connector?: string,
   method?: string,
 ) => Operation<string>;
 
+export type UseMarkdownOptions = UseMDXOptions & {
+  linkResolver?: ResolveLinkFunction;
+  slugPrefix?: string;
+};
+
 export function* useMarkdown(
   markdown: string,
-  options?: UseMDXOptions & UseMarkdownOptions,
+  options?: UseMarkdownOptions,
 ): Operation<JSXElement> {
   /**
    * I'm doing this pre-processing here because MDX throws a parse error when it encounteres `{@link }`.

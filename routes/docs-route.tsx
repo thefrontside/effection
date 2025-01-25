@@ -3,16 +3,23 @@ import type { DocMeta, Docs } from "../resources/docs.ts";
 
 import { useAppHtml } from "./app.html.tsx";
 import { respondNotFound, useParams } from "revolution";
-import { Rehype } from "../components/rehype.tsx";
-import { Transform } from "../components/transform.tsx";
 
 import rehypeToc from "npm:@jsdevtools/rehype-toc@3.0.2";
+import { select } from "npm:unist-util-select@5.1.0";
 import { useDescription } from "../hooks/use-description-parse.tsx";
 import { RoutePath, SitemapRoute } from "../plugins/sitemap.ts";
+import { Plugin } from "unified";
+import { extractTOC, toc } from "../lib/toc.ts";
 
-export function docsRoute(
-  { docs, base, search }: { docs: Docs; base: string; search: boolean },
-): SitemapRoute<JSXElement> {
+export function docsRoute({
+  docs,
+  base,
+  search,
+}: {
+  docs: Docs;
+  base: string;
+  search: boolean;
+}): SitemapRoute<JSXElement> {
   return {
     *routemap(pathname) {
       let paths: RoutePath[] = [];
@@ -55,20 +62,18 @@ export function docsRoute(
                     <menu class="text-gray-700">
                       {topic.items.map((item) => (
                         <li class="mt-1">
-                          {doc.id !== item.id
-                            ? (
-                              <a
-                                class="rounded px-4 block w-full py-2 hover:bg-gray-100"
-                                href={`${base}${item.id}`}
-                              >
-                                {item.title}
-                              </a>
-                            )
-                            : (
-                              <a class="rounded px-4 block w-full py-2 bg-gray-100 cursor-default">
-                                {item.title}
-                              </a>
-                            )}
+                          {doc.id !== item.id ? (
+                            <a
+                              class="rounded px-4 block w-full py-2 hover:bg-gray-100"
+                              href={`${base}${item.id}`}
+                            >
+                              {item.title}
+                            </a>
+                          ) : (
+                            <a class="rounded px-4 block w-full py-2 bg-gray-100 cursor-default">
+                              {item.title}
+                            </a>
+                          )}
                         </li>
                       ))}
                     </menu>
@@ -88,20 +93,18 @@ export function docsRoute(
                     <menu class="text-gray-700">
                       {topic.items.map((item) => (
                         <li class="mt-1">
-                          {doc.id !== item.id
-                            ? (
-                              <a
-                                class="rounded px-4 block w-full py-2 hover:bg-gray-100"
-                                href={`${base}${item.id}`}
-                              >
-                                {item.title}
-                              </a>
-                            )
-                            : (
-                              <a class="rounded px-4 block w-full py-2 bg-gray-100 cursor-default">
-                                {item.title}
-                              </a>
-                            )}
+                          {doc.id !== item.id ? (
+                            <a
+                              class="rounded px-4 block w-full py-2 hover:bg-gray-100"
+                              href={`${base}${item.id}`}
+                            >
+                              {item.title}
+                            </a>
+                          ) : (
+                            <a class="rounded px-4 block w-full py-2 bg-gray-100 cursor-default">
+                              {item.title}
+                            </a>
+                          )}
                         </li>
                       ))}
                     </menu>
@@ -109,27 +112,12 @@ export function docsRoute(
                 ))}
               </nav>
             </aside>
-            <Transform fn={liftTOC}>
-              <article class="prose max-w-full px-6 py-2">
-                <h1>{doc.title}</h1>
-                <Rehype
-                  plugins={[
-                    // @ts-expect-error deno-ts(2322)
-                    [rehypeToc, {
-                      cssClasses: {
-                        toc:
-                          "hidden text-sm font-light tracking-wide leading-loose lg:block relative pt-2",
-                        list: "fixed w-[200px]",
-                        link: "hover:underline hover:underline-offset-2",
-                      },
-                    }],
-                  ]}
-                >
-                  <doc.MDXContent />
-                </Rehype>
-                <NextPrevLinks doc={doc} />
-              </article>
-            </Transform>
+            <article class="prose max-w-full px-6 py-2">
+              <h1>{doc.title}</h1>
+              <>{doc.content}</>
+              <NextPrevLinks doc={doc} />
+            </article>
+            <>{doc.toc}</>
           </section>
         </AppHtml>
       );
@@ -137,64 +125,42 @@ export function docsRoute(
   };
 }
 
-function NextPrevLinks(
-  { doc, base }: { doc: DocMeta; base?: string },
-): JSX.Element {
+function NextPrevLinks({
+  doc,
+  base,
+}: {
+  doc: DocMeta;
+  base?: string;
+}): JSX.Element {
   let { next, prev } = doc;
   return (
     <menu class="grid grid-cols-2 my-10 gap-x-2 xl:gap-x-20 2xl:gap-x-40 text-lg">
-      {prev
-        ? (
-          <li class="col-start-1 text-left font-light border-1 rounded-lg p-4">
-            Previous
-            <a
-              class="py-2 block text-xl font-bold text-blue-primary no-underline tracking-wide leading-5 before:content-['«&nbsp;'] before:font-normal"
-              href={`${base ?? ""}${prev.id}`}
-            >
-              {prev.title}
-            </a>
-          </li>
-        )
-        : <li />}
-      {next
-        ? (
-          <li class="col-start-2 text-right font-light border-1 rounded-lg p-4">
-            Next
-            <a
-              class="py-2 block text-xl font-bold text-blue-primary no-underline tracking-wide leading-5 after:content-['&nbsp;»'] after:font-normal"
-              href={`${base ?? ""}${next.id}`}
-            >
-              {next.title}
-            </a>
-          </li>
-        )
-        : <li />}
+      {prev ? (
+        <li class="col-start-1 text-left font-light border-1 rounded-lg p-4">
+          Previous
+          <a
+            class="py-2 block text-xl font-bold text-blue-primary no-underline tracking-wide leading-5 before:content-['«&nbsp;'] before:font-normal"
+            href={`${base ?? ""}${prev.id}`}
+          >
+            {prev.title}
+          </a>
+        </li>
+      ) : (
+        <li />
+      )}
+      {next ? (
+        <li class="col-start-2 text-right font-light border-1 rounded-lg p-4">
+          Next
+          <a
+            class="py-2 block text-xl font-bold text-blue-primary no-underline tracking-wide leading-5 after:content-['&nbsp;»'] after:font-normal"
+            href={`${base ?? ""}${next.id}`}
+          >
+            {next.title}
+          </a>
+        </li>
+      ) : (
+        <li />
+      )}
     </menu>
   );
-}
-
-/**
- * Lift the table of contents for the guide so that it is a peer
- * of the article, not contained within it.
- */
-function liftTOC(element: JSX.Element): JSX.Element {
-  if (element.type !== "element") {
-    return element;
-  }
-  let nav = element.children.find((child) =>
-    child.type === "element" && child.tagName === "nav"
-  );
-  if (!nav) {
-    return element;
-  }
-  return {
-    type: "root",
-    children: [
-      {
-        ...element,
-        children: element.children.filter((child) => child !== nav),
-      },
-      nav,
-    ],
-  };
 }

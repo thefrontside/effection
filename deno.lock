@@ -54,6 +54,7 @@
     "npm:effection@3.0.3": "3.0.3",
     "npm:effection@4.0.0-alpha.4": "4.0.0-alpha.4",
     "npm:hast-util-select@6.0.1": "6.0.1",
+    "npm:hast-util-select@6.0.3": "6.0.3",
     "npm:hast-util-to-html@9.0.0": "9.0.0",
     "npm:http-errors@2.0.0": "2.0.0",
     "npm:octokit@4.0.3": "4.0.3_@octokit+core@6.1.3",
@@ -71,6 +72,7 @@
     "npm:remark-rehype@11.1.1": "11.1.1",
     "npm:semver@7.6.3": "7.6.3",
     "npm:unified@11.0.4": "11.0.4",
+    "npm:unist-util-select@5.1.0": "5.1.0",
     "npm:unist-util-visit@5.0.0": "5.0.0",
     "npm:vfile@6.0.3": "6.0.3",
     "npm:zod@3.23.8": "3.23.8",
@@ -611,6 +613,9 @@
     "css-selector-parser@2.3.2": {
       "integrity": "sha512-JjnG6/pdLJh3iqipq7kteNVtbIczsU2A1cNxb+VAiniSuNmrB/NI3us4rSCfArvlwRXYly+jZhUUfEoInSH9Qg=="
     },
+    "css-selector-parser@3.0.5": {
+      "integrity": "sha512-3itoDFbKUNx1eKmVpYMFyqKX04Ww9osZ+dLgrk6GEv6KMVeXUhUnp4I5X+evw+u3ZxVU6RFXSSRxlTeMh8bA+g=="
+    },
     "csstype@3.1.3": {
       "integrity": "sha512-M1uQkMl8rQK/szD0LNhtqxIPLpimGm8sOBwU7lLnCpSbTyY3yeU1Vc7l4KT5zT4s/yOxHH5O7tIuuLOCnLADRw=="
     },
@@ -841,6 +846,26 @@
         "hast-util-to-string",
         "hast-util-whitespace@3.0.0",
         "not",
+        "nth-check@2.1.1",
+        "property-information@6.5.0",
+        "space-separated-tokens@2.0.2",
+        "unist-util-visit",
+        "zwitch@2.0.4"
+      ]
+    },
+    "hast-util-select@6.0.3": {
+      "integrity": "sha512-OVRQlQ1XuuLP8aFVLYmC2atrfWHS5UD3shonxpnyrjcCkwtvmt/+N6kYJdcY4mkMJhxp4kj2EFIxQ9kvkkt/eQ==",
+      "dependencies": [
+        "@types/hast@3.0.4",
+        "@types/unist@3.0.3",
+        "bcp-47-match",
+        "comma-separated-tokens@2.0.3",
+        "css-selector-parser@3.0.5",
+        "devlop",
+        "direction",
+        "hast-util-has-property@3.0.0",
+        "hast-util-to-string",
+        "hast-util-whitespace@3.0.0",
         "nth-check@2.1.1",
         "property-information@6.5.0",
         "space-separated-tokens@2.0.2",
@@ -1865,6 +1890,16 @@
       "dependencies": [
         "@types/unist@3.0.3",
         "unist-util-visit"
+      ]
+    },
+    "unist-util-select@5.1.0": {
+      "integrity": "sha512-4A5mfokSHG/rNQ4g7gSbdEs+H586xyd24sdJqF1IWamqrLHvYb+DH48fzxowyOhOfK7YSqX+XlCojAyuuyyT2A==",
+      "dependencies": [
+        "@types/unist@3.0.3",
+        "css-selector-parser@3.0.5",
+        "devlop",
+        "nth-check@2.1.1",
+        "zwitch@2.0.4"
       ]
     },
     "unist-util-stringify-position@4.0.0": {

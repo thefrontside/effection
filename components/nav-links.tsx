@@ -68,7 +68,8 @@ export function* NavLinks() {
               </span>
             </label>
           </form>
-          <style>{`
+          <style>
+            {`
             input[type="search"]::-webkit-search-cancel-button {
               -webkit-appearance: none;
               appearance: none;

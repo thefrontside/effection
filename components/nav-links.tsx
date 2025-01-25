@@ -56,7 +56,13 @@ export function* NavLinks() {
         <li class="hidden md:flex">
           <form method="get" action="search">
             <label class="h-9 w-[90px] relative block">
-              <input id="search" type="search" name="q" class="relative block h-full w-full bg-slate-100 rounded-full text-slate-800 focus:outline-none focus:bg-white focus:border-slate-500 focus:ring-slate-500 focus:ring-2 pl-3 focus:w-[250px] focus:-ml-[160px] focus:z-1 transition-all text-lg" placeholder="⌘K"/>
+              <input
+                id="search"
+                type="search"
+                name="q"
+                class="relative block h-full w-full bg-slate-100 rounded-full text-slate-800 focus:outline-none focus:bg-white focus:border-slate-500 focus:ring-slate-500 focus:ring-2 pl-3 focus:w-[250px] focus:-ml-[160px] focus:z-1 transition-all text-lg"
+                placeholder="⌘K"
+              />
               <span class="absolute inset-y-0 right-0 flex items-center pr-2">
                 <SearchIcon class="w-6 mr-2 text-slate-400"/>
               </span>

@@ -14,7 +14,7 @@ export function toc(root: Nodes, options?: Options) {
       cssClasses: {
         toc:
           "hidden text-sm font-light tracking-wide leading-loose lg:block relative pt-2",
-        list: "fixed w-[200px]",
+        list: "w-[200px]",
         link: "hover:underline hover:underline-offset-2",
       },
     },

@@ -1,3 +1,5 @@
+import { css } from "npm:@twind/core@1.1.3";
+
 import {
   ContribRepositoryContext,
   LibraryRepositoryContext,
@@ -6,6 +8,21 @@ import { IconDiscord } from "./icons/discord.tsx";
 import { IconGithub } from "./icons/github.tsx";
 import { SearchIcon } from "./icons/search.tsx";
 import { StarIcon } from "./icons/star.tsx";
+
+const colorful = css`
+  background-image: linear-gradient(
+    45deg,
+    #f74d7b -20%,
+    #8c7db3 95%
+  );
+  &:hover {
+    background-image: linear-gradient(
+    45deg,
+    #8c7db3 -20%,
+    #f74d7b 95%
+    );
+  }
+`;
 
 export function* NavLinks() {
   let library = yield* LibraryRepositoryContext.expect();
@@ -30,15 +47,14 @@ export function* NavLinks() {
         </li>
         <li class="hidden md:flex">
           <a
-            class="flex flex-row"
+            class={`flex flex-row ${colorful} p-1 rounded`}
             href="https://github.com/thefrontside/effection"
           >
-            <span class="pr-1">
+            <span class="flex items-center">
               <IconGithub />
             </span>
-            <span>GitHub</span>
-            <span class="flex flex-row items-center pl-1">
-              <StarIcon class="text-white pr-0.5" />
+            <span class={`flex flex-row items-center pl-1 text-white`}>
+              <StarIcon class="pr-0.5" />
               <span>{yield* library.starCount()}</span>
               <span class="font-black">+</span>
             </span>
@@ -55,7 +71,7 @@ export function* NavLinks() {
         </li>
         <li class="hidden md:flex">
           <form method="get" action="search">
-            <label class="h-9 w-[90px] relative block">
+            <label class="h-9 w-[90px] relative block hover:cursor-pointer">
               <input
                 id="search"
                 type="search"

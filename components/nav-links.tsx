@@ -74,7 +74,8 @@ export function* NavLinks() {
               -webkit-appearance: none;
               appearance: none;
             }
-          `}</style>
+          `}
+          </style>
         </li>
       </ul>
     </>

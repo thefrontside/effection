@@ -1,5 +1,4 @@
 import { NavLinks } from "./nav-links.tsx";
-import { ProjectSelect } from "./project-select.tsx";
 
 export function* Header() {
   return (
@@ -14,9 +13,6 @@ export function* Header() {
               height={24}
             />
           </a>
-          <span class="hidden sm:flex items-center">
-            <ProjectSelect />
-          </span>
         </div>
         <nav aria-label="Site Nav" class="grow text-sm font-bold">
           {yield* NavLinks()}

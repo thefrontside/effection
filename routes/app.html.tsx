@@ -61,6 +61,7 @@ export function* useAppHtml({
           <link rel="stylesheet" href="/assets/prism-atom-one-dark.css" />
         </noscript>
         <script type="module" src="https://esm.sh/@11ty/is-land@4.0.0" />
+        <script type="module" src="/assets/search.js" />
       </head>
       <body class="flex flex-col">
         {header}

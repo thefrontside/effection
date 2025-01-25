@@ -23,20 +23,26 @@ export function searchRoute(): SitemapRoute<JSXElement> {
           <>
             <div class="prose m-auto max-w-full">
               <h1>Search</h1>
-              <div id="search" />
+              <div id="search-page" />
             </div>
             <link href="/pagefind/pagefind-ui.css" rel="stylesheet" />
             <script src="/pagefind/pagefind-ui.js"></script>
             <is-land on:idle on:visible on:save-data="false">
               <script>
                 {`
-                new PagefindUI({ 
-                  element: "#search", 
+                const pagefindUI = new PagefindUI({ 
+                  element: "#search-page", 
                   showSubResults: true, 
                   autofocus: true,
                   showImages: false,
                   pageSize: 10
                 });
+
+                const urlParams = new URLSearchParams(window.location.search);
+                const query = urlParams.get('q');
+                if (query) {
+                  pagefindUI.triggerSearch(query);
+                }
               `}
               </script>
             </is-land>

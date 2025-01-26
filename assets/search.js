@@ -1,12 +1,12 @@
 import {
+  createChannel,
+  each,
   main,
   on,
-  each,
+  resource,
+  sleep,
   spawn,
   suspend,
-  resource,
-  createChannel,
-  sleep,
 } from "https://esm.sh/effection@4.0.0-alpha.5";
 
 await main(function* () {

@@ -94,15 +94,15 @@ export function* Header(props?: HeaderProps) {
                   <span>Discord</span>
                 </a>
               </li>
-              {props?.hasLeftSidebar ? (
-                <li class="flex flex-row md:hidden">
-                  <label class="cursor-pointer" for="nav-toggle">
-                    <Navburger />
-                  </label>
-                </li>
-              ) : (
-                <></>
-              )}
+              {props?.hasLeftSidebar
+                ? (
+                  <li class="flex flex-row md:hidden">
+                    <label class="cursor-pointer" for="nav-toggle">
+                      <Navburger />
+                    </label>
+                  </li>
+                )
+                : <></>}
               <li class={`${searchInput} hidden md:flex`}>
                 <form method="get" action="/search">
                   <label class="h-9 w-[90px] relative block">

@@ -107,7 +107,7 @@ if (import.meta.main) {
           "/api/:minor/:symbol",
           apiMinorSymbolRoute({ library, search: false }),
         ),
-        route("/pagefind(.*)", pagefindRoute({ pagefindDir: "pagefind" })),
+        route("/pagefind(.*)", pagefindRoute({ pagefindDir: "pagefind", publicDir: "./built/" })),
         route("/assets(.*)", assetsRoute("assets")),
         route("/preview", previewRoute({ library })),
         route("/preview/api/:symbol", previewApiRoute({ library })),

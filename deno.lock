@@ -11,6 +11,7 @@
     "jsr:@effection/effection@3.1.0": "3.1.0",
     "jsr:@frontside/continuation@0.1.6": "0.1.6",
     "jsr:@frontside/staticalize@0.1.0": "0.1.0",
+    "jsr:@frontside/staticalize@0.2.0": "0.2.0",
     "jsr:@libs/xml@*": "6.0.4",
     "jsr:@libs/xml@6": "6.0.4",
     "jsr:@std/assert@*": "1.0.10",
@@ -123,6 +124,16 @@
     },
     "@frontside/staticalize@0.1.0": {
       "integrity": "4f2f4e3739cde5ab13ea22f52db30e0607afc8ef8d86d786fd3d58b0ce84053a",
+      "dependencies": [
+        "jsr:@b-fuze/deno-dom",
+        "jsr:@libs/xml@6",
+        "jsr:@std/fs@1",
+        "jsr:@std/path@1",
+        "npm:effection@4.0.0-alpha.4"
+      ]
+    },
+    "@frontside/staticalize@0.2.0": {
+      "integrity": "2d0027c050fca52b825580eedc924f9be0fab88ac8c72b400646defed345b18e",
       "dependencies": [
         "jsr:@b-fuze/deno-dom",
         "jsr:@libs/xml@6",

@@ -130,7 +130,7 @@ export function* ApiReference({
 
   return (
     <section class="min-h-0 mx-auto w-full justify-items-normal md:grid md:grid-cols-[225px_auto] lg:grid-cols-[225px_auto_200px] md:gap-4">
-      <aside class="min-h-0 overflow-auto hidden md:block pt-2 top-24 sticky h-fit">
+      <aside class="min-h-0 overflow-auto hidden md:block top-[120px] sticky h-fit">
         <nav class="pl-4">
           <h3 class="text-xl flex flex-col mb-3">
             <span class="font-bold">API Reference</span>
@@ -148,7 +148,7 @@ export function* ApiReference({
           {yield* Menu({ pages, current, linkResolver })}
         </nav>
       </aside>
-      <article class="prose max-w-full px-6 py-2">{content}</article>
+      <article class="prose max-w-full px-6">{content}</article>
     </section>
   );
 }

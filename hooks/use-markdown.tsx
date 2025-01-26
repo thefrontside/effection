@@ -25,20 +25,20 @@ export function* defaultLinkResolver(
   return "";
 }
 
-interface UseMarkdownOptions {
-  linkResolver?: ResolveLinkFunction;
-  slugPrefix?: string;
-}
-
 export type ResolveLinkFunction = (
   symbol: string,
   connector?: string,
   method?: string,
 ) => Operation<string>;
 
+export type UseMarkdownOptions = UseMDXOptions & {
+  linkResolver?: ResolveLinkFunction;
+  slugPrefix?: string;
+};
+
 export function* useMarkdown(
   markdown: string,
-  options?: UseMDXOptions & UseMarkdownOptions,
+  options?: UseMarkdownOptions,
 ): Operation<JSXElement> {
   /**
    * I'm doing this pre-processing here because MDX throws a parse error when it encounteres `{@link }`.
@@ -78,7 +78,8 @@ export function* useMarkdown(
       [
         rehypeAddClasses,
         {
-          "h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]": "group",
+          "h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]":
+            "group scroll-mt-[100px]",
           pre: "grid",
         },
       ],

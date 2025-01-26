@@ -130,7 +130,7 @@ export function contribPackageRoute({
                     {yield* API({ pkg, linkResolver })}
                   </div>
                 </article>
-                <aside class="lg:col-[span_3/_-1] lg:top-0 lg:sticky lg:max-h-screen flex flex-col box-border gap-y-4 -mt-4 pt-4">
+                <aside class="lg:col-[span_3/_-1] top-[120px] lg:sticky lg:max-h-screen flex flex-col box-border gap-y-4">
                   {yield* ScoreCard(pkg)}
                 </aside>
               </div>

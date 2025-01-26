@@ -10,6 +10,8 @@ import { basename } from "jsr:@std/path@1.0.8";
 import { Repository } from "./repository.ts";
 import { z } from "npm:zod@3.23.8";
 import { useMarkdown } from "../hooks/use-markdown.tsx";
+import { toc } from "../lib/toc.ts";
+import { JSXElement } from "revolution/jsx-runtime";
 
 export interface DocModule {
   default: () => JSX.Element;
@@ -39,7 +41,8 @@ export interface DocMeta {
 }
 
 export interface Doc extends DocMeta {
-  MDXContent: () => JSX.Element;
+  content: JSXElement;
+  toc: JSXElement;
   markdown: string;
 }
 
@@ -100,13 +103,15 @@ export function loadDocs(
             meta.id,
             scope.run(function* () {
               let source = yield* call(() => ref.loadText(meta.filename));
-              let content = yield* useMarkdown(source);
+
+              const content = yield* useMarkdown(source);
 
               return {
                 ...meta,
                 markdown: source,
-                MDXContent: () => content,
-              } as Doc;
+                content,
+                toc: toc(content),
+              };
             }),
           );
         }

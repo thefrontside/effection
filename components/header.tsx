@@ -16,6 +16,19 @@ const colorful = css`
   }
 `;
 
+const searchInput = css`
+  @apply relative block h-full w-full bg-slate-100 rounded-full text-slate-800 transition-all text-lg pl-3;
+  
+  &:focus {
+    @apply outline-none bg-white border-slate-500 ring-slate-500 ring-2 pl-4 w-[220px] -ml-[130px] z-1;
+  }
+
+  &::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    appearance: none;
+  }
+`;
+
 export function* Header() {
   let library = yield* LibraryRepositoryContext.expect();
   let contrib = yield* ContribRepositoryContext.expect();
@@ -82,22 +95,14 @@ export function* Header() {
                       id="search"
                       type="search"
                       name="q"
-                      class="relative block h-full w-full bg-slate-100 rounded-full text-slate-800 focus:outline-none focus:bg-white focus:border-slate-500 focus:ring-slate-500 focus:ring-2 pl-3 focus:w-[250px] focus:-ml-[160px] focus:z-1 transition-all text-lg"
+                      class={searchInput}
                       placeholder="⌘K"
                     />
-                    <span class="absolute inset-y-0 right-0 flex items-center pr-2">
+                    <button class="absolute inset-y-0 right-0 flex items-center pr-2">
                       <SearchIcon class="w-6 mr-2 text-slate-400" />
-                    </span>
+                    </button>
                   </label>
                 </form>
-                <style>
-                  {`
-            input[type="search"]::-webkit-search-cancel-button {
-              -webkit-appearance: none;
-              appearance: none;
-            }
-          `}
-                </style>
               </li>
             </ul>
           </>

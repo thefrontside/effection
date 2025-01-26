@@ -76,7 +76,6 @@ export function* Header(props?: HeaderProps) {
                   <span class="flex items-center">
                     <IconGithub />
                   </span>
-                  <span>GitHub</span>
                   <span class="flex flex-row items-center pl-1 text-white">
                     <StarIcon class="pr-0.5" />
                     <span>{yield* library.starCount()}</span>

@@ -6,29 +6,14 @@ import {
 } from "../context/repository.ts";
 import { IconDiscord } from "./icons/discord.tsx";
 import { IconGithub } from "./icons/github.tsx";
-import { SearchIcon } from "./icons/search.tsx";
 import { StarIcon } from "./icons/star.tsx";
 import { Navburger } from "./navburger.tsx";
+import { SearchInput } from "./search-input.tsx";
 
 const colorful = css`
   background-image: linear-gradient(45deg, #f74d7b -20%, #8c7db3 95%);
   &:hover {
     background-image: linear-gradient(45deg, #8c7db3 -20%, #f74d7b 95%);
-  }
-`;
-
-const searchInput = css`
-  input {
-    @apply relative block h-full w-full bg-slate-100 rounded-full text-slate-800 transition-all text-lg pl-3;
-  }
-
-  input.focused {
-    @apply outline-none bg-white border-slate-500 ring-slate-500 ring-2 pl-4 w-[220px] -ml-[130px] z-1;
-  }
-
-  input::-webkit-search-cancel-button {
-    -webkit-appearance: none;
-    appearance: none;
   }
 `;
 
@@ -94,29 +79,17 @@ export function* Header(props?: HeaderProps) {
                   <span>Discord</span>
                 </a>
               </li>
-              {props?.hasLeftSidebar
-                ? (
-                  <li class="flex flex-row md:hidden">
-                    <label class="cursor-pointer" for="nav-toggle">
-                      <Navburger />
-                    </label>
-                  </li>
-                )
-                : <></>}
-              <li class={`${searchInput} hidden md:flex`}>
-                <form method="get" action="/search">
-                  <label class="h-9 w-[90px] relative block">
-                    <input
-                      id="search"
-                      type="search"
-                      name="q"
-                      placeholder="⌘K"
-                    />
-                    <button class="absolute inset-y-0 right-0 flex items-center pr-2">
-                      <SearchIcon class="w-6 mr-2 text-slate-400" />
-                    </button>
+              {props?.hasLeftSidebar ? (
+                <li class="flex flex-row md:hidden">
+                  <label class="cursor-pointer" for="nav-toggle">
+                    <Navburger />
                   </label>
-                </form>
+                </li>
+              ) : (
+                <></>
+              )}
+              <li class="hidden md:flex">
+                <SearchInput />
               </li>
             </ul>
           </>

@@ -18,13 +18,15 @@ const colorful = css`
 `;
 
 const searchInput = css`
-  @apply relative block h-full w-full bg-slate-100 rounded-full text-slate-800 transition-all text-lg pl-3;
+  input {
+    @apply relative block h-full w-full bg-slate-100 rounded-full text-slate-800 transition-all text-lg pl-3;
+  }
 
-  &:focus {
+  input.focused {
     @apply outline-none bg-white border-slate-500 ring-slate-500 ring-2 pl-4 w-[220px] -ml-[130px] z-1;
   }
 
-  &::-webkit-search-cancel-button {
+  input::-webkit-search-cancel-button {
     -webkit-appearance: none;
     appearance: none;
   }
@@ -92,29 +94,25 @@ export function* Header(props?: HeaderProps) {
                   <span>Discord</span>
                 </a>
               </li>
-              {props?.hasLeftSidebar
-                ? (
-                  <li class="flex flex-row md:hidden">
-                    <label class="cursor-pointer" for="nav-toggle">
-                      <Navburger />
-                    </label>
-                  </li>
-                )
-                : <></>}
-              <li class="hidden md:flex">
+              {props?.hasLeftSidebar ? (
+                <li class="flex flex-row md:hidden">
+                  <label class="cursor-pointer" for="nav-toggle">
+                    <Navburger />
+                  </label>
+                </li>
+              ) : (
+                <></>
+              )}
+              <li class={`${searchInput} hidden md:flex`}>
                 <form method="get" action="/search">
                   <label class="h-9 w-[90px] relative block">
                     <input
                       id="search"
                       type="search"
                       name="q"
-                      class={searchInput}
                       placeholder="⌘K"
                     />
-                    <button
-                      class="absolute inset-y-0 right-0 flex items-center pr-2"
-                      tabindex={-1}
-                    >
+                    <button class="absolute inset-y-0 right-0 flex items-center pr-2">
                       <SearchIcon class="w-6 mr-2 text-slate-400" />
                     </button>
                   </label>

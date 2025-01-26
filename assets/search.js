@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const searchElement = document.getElementById("search");
   if (searchElement) {
     searchElement.addEventListener("blur", function () {
-      searchElement.removeAttribute("value");
+      searchElement.value = "";
       searchElement.setAttribute("placeholder", "⌘K");
     });
 

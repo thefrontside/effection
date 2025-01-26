@@ -43,6 +43,7 @@ export function docsRoute({
       let AppHtml = yield* useAppHtml({
         title: `${doc.title} | Docs | Effection`,
         description,
+        hasLeftSidebar: true
       });
 
       return (

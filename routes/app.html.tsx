@@ -2,13 +2,13 @@ import type { Operation } from "effection";
 import type { JSXChild } from "revolution";
 
 import { Footer } from "../components/footer.tsx";
-import { Header } from "../components/header.tsx";
+import { Header, type HeaderProps } from "../components/header.tsx";
 import { useAbsoluteUrl } from "../plugins/rebase.ts";
 
-export interface Options {
+export type Options = {
   title: string;
   description: string;
-}
+} & HeaderProps;
 
 export interface AppHtmlProps {
   children: JSXChild;
@@ -18,13 +18,14 @@ export interface AppHtmlProps {
 export function* useAppHtml({
   title,
   description,
+  hasLeftSidebar,
 }: Options): Operation<({ children, search }: AppHtmlProps) => JSX.Element> {
   let twitterImageURL = yield* useAbsoluteUrl(
     "/assets/images/meta-effection.png",
   );
   let homeURL = yield* useAbsoluteUrl("/");
 
-  const header = yield* Header();
+  const header = yield* Header({ hasLeftSidebar });
 
   return ({ children, search }) => (
     <html lang="en-US" dir="ltr">

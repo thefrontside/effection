@@ -8,6 +8,7 @@ import { IconDiscord } from "./icons/discord.tsx";
 import { IconGithub } from "./icons/github.tsx";
 import { SearchIcon } from "./icons/search.tsx";
 import { StarIcon } from "./icons/star.tsx";
+import { Navburger } from "./navburger.tsx";
 
 const colorful = css`
   background-image: linear-gradient(45deg, #f74d7b -20%, #8c7db3 95%);
@@ -18,7 +19,7 @@ const colorful = css`
 
 const searchInput = css`
   @apply relative block h-full w-full bg-slate-100 rounded-full text-slate-800 transition-all text-lg pl-3;
-  
+
   &:focus {
     @apply outline-none bg-white border-slate-500 ring-slate-500 ring-2 pl-4 w-[220px] -ml-[130px] z-1;
   }
@@ -29,7 +30,11 @@ const searchInput = css`
   }
 `;
 
-export function* Header() {
+export interface HeaderProps {
+  hasLeftSidebar?: boolean;
+}
+
+export function* Header(props?: HeaderProps) {
   let library = yield* LibraryRepositoryContext.expect();
   let contrib = yield* ContribRepositoryContext.expect();
   let contribMain = yield* contrib.loadRef();
@@ -88,6 +93,15 @@ export function* Header() {
                   <span>Discord</span>
                 </a>
               </li>
+              {props?.hasLeftSidebar ? (
+                <li class="flex flex-row md:hidden">
+                  <label class="cursor-pointer" for="nav-toggle">
+                    <Navburger />
+                  </label>
+                </li>
+              ) : (
+                <></>
+              )}
               <li class="hidden md:flex">
                 <form method="get" action="/search">
                   <label class="h-9 w-[90px] relative block">
@@ -98,7 +112,10 @@ export function* Header() {
                       class={searchInput}
                       placeholder="⌘K"
                     />
-                    <button class="absolute inset-y-0 right-0 flex items-center pr-2">
+                    <button
+                      class="absolute inset-y-0 right-0 flex items-center pr-2"
+                      tabindex={-1}
+                    >
                       <SearchIcon class="w-6 mr-2 text-slate-400" />
                     </button>
                   </label>

@@ -5,7 +5,7 @@ import { PackageExports } from "../components/package/exports.tsx";
 import { PackageHeader } from "../components/package/header.tsx";
 import { ScoreCard } from "../components/score-card.tsx";
 import { DocPageContext } from "../context/doc-page.ts";
-import { DocsPages } from "../hooks/use-deno-doc.tsx";
+import { DocPage, DocsPages } from "../hooks/use-deno-doc.tsx";
 import { ResolveLinkFunction, useMarkdown } from "../hooks/use-markdown.tsx";
 import { major, minor } from "../lib/semver.ts";
 import type { RoutePath, SitemapRoute } from "../plugins/sitemap.ts";
@@ -71,39 +71,24 @@ export function contribPackageRoute({
             (page) => page.name === symbol && page.kind !== "import",
           );
 
-          let effectionDocs: DocsPages | undefined;
-          let version: string | undefined;
+          let effection;
           if (page) {
             // get internal link
             return `[${symbol}](#${page.kind}_${page.name})`;
           } else {
             // get external link
-            if (!effectionDocs) {
+            if (!effection) {
               const page = yield* DocPageContext.expect();
-              let effection = page.dependencies.find((dep) =>
-                ["effection", "@effection/effection"].includes(dep.name)
-              );
-              if (effection) {
-                version = effection.version.replace("^", "");
-                const ref = yield* library.loadRef(
-                  `tags/effection-v${version}`,
-                );
-                const pkg = yield* ref.loadRootPackage();
-                if (pkg) {
-                  effectionDocs = yield* pkg?.docs();
-                }
-              }
+              effection = yield* getEffectionDependency(page, library);
             }
-            if (version && effectionDocs) {
-              const page = effectionDocs["."].find(
+            if (effection.docs && effection.version) {
+              const page = effection.docs["."].find(
                 (page) => page.name === symbol,
               );
               if (page) {
-                return `[${symbol}](/api/${major(version)}.${
-                  minor(
-                    version,
-                  )
-                }/${symbol})`;
+                return `[${symbol}](/api/${major(effection.version)}.${minor(
+                  effection.version,
+                )}/${symbol})`;
               }
             }
           }
@@ -116,22 +101,23 @@ export function contribPackageRoute({
             <>
               <div class="grid grid-cols-1 lg:grid-cols-10 gap-8 lg:gap-12">
                 <article
-                  data-series=""
-                  data-pagefind-filter={`version[data-series], section=Contrib`}
+                  data-pagefind-filter={`section: Contrib`}
                   class="min-w-0 lg:col-span-7 lg:row-start-1"
                 >
                   {yield* PackageHeader(pkg)}
                   <div class="prose max-w-full">
                     <div class="mb-5">
-                      {yield* PackageExports({
-                        packageName: pkg.packageName,
-                        docs,
-                        linkResolver,
-                      })}
+                      {
+                        yield* PackageExports({
+                          packageName: pkg.packageName,
+                          docs,
+                          linkResolver,
+                        })
+                      }
                     </div>
                     {yield* useMarkdown(yield* pkg.readme(), { linkResolver })}
                     <h2 class="mb-0">API Reference</h2>
-                    {yield* API({ pkg, linkResolver })}
+                    {yield* API({ pkg, linkResolver, library })}
                   </div>
                 </article>
                 <aside class="lg:col-[span_3/_-1] top-[120px] lg:sticky lg:max-h-screen flex flex-col box-border gap-y-4">
@@ -160,21 +146,33 @@ export function contribPackageRoute({
 interface APIOptions {
   pkg: Package;
   linkResolver: ResolveLinkFunction;
+  library: Repository;
 }
 
-export function* API({ pkg, linkResolver }: APIOptions): Operation<JSXElement> {
+export function* API({
+  pkg,
+  linkResolver,
+  library,
+}: APIOptions): Operation<JSXElement> {
   const elements: JSXElement[] = [];
   const docs = yield* pkg.docs();
 
   for (const exportName of Object.keys(docs)) {
     const pages = docs[exportName];
     const withoutImports = pages.flatMap((page) =>
-      page.kind === "import" ? [] : [page]
+      page.kind === "import" ? [] : [page],
     );
     for (const page of withoutImports) {
+      const effection = yield* getEffectionDependency(page, library);
       for (const section of page.sections) {
         elements.push(
-          <section id={section.id} class="flex flex-col border-b-2 pb-5">
+          <section
+            id={section.id}
+            data-series={
+              effection.version ? `v${major(effection.version)}` : ""
+            }
+            class="flex flex-col border-b-2 pb-5"
+          >
             <div class="flex group">
               <h3 class="grow">{yield* Type({ node: section.node })}</h3>
               <a
@@ -185,17 +183,19 @@ export function* API({ pkg, linkResolver }: APIOptions): Operation<JSXElement> {
               </a>
             </div>
             <div class="[&>h3:first-child]:mt-0 [&>hr]:my-5 [&>h5]:font-semibold">
-              {yield* call(function* () {
-                yield* DocPageContext.set(page);
-                return yield* useMarkdown(
-                  section.markdown || NO_DOCS_AVAILABLE,
-                  {
-                    remarkPlugins: [[shiftHeadings, 1]],
-                    linkResolver,
-                    slugPrefix: section.id,
-                  },
-                );
-              })}
+              {
+                yield* call(function* () {
+                  yield* DocPageContext.set(page);
+                  return yield* useMarkdown(
+                    section.markdown || NO_DOCS_AVAILABLE,
+                    {
+                      remarkPlugins: [[shiftHeadings, 1]],
+                      linkResolver,
+                      slugPrefix: section.id,
+                    },
+                  );
+                })
+              }
             </div>
           </section>,
         );
@@ -204,4 +204,20 @@ export function* API({ pkg, linkResolver }: APIOptions): Operation<JSXElement> {
   }
 
   return <>{elements}</>;
+}
+
+function* getEffectionDependency(page: DocPage, library: Repository) {
+  let version, docs;
+  let effection = page.dependencies.find((dep) =>
+    ["effection", "@effection/effection"].includes(dep.name),
+  );
+  if (effection) {
+    version = effection.version.replace("^", "");
+    const ref = yield* library.loadRef(`tags/effection-v${version}`);
+    const pkg = yield* ref.loadRootPackage();
+    if (pkg) {
+      docs = yield* pkg?.docs();
+    }
+  }
+  return { version, docs };
 }

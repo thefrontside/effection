@@ -5,7 +5,7 @@ import { PackageExports } from "../components/package/exports.tsx";
 import { PackageHeader } from "../components/package/header.tsx";
 import { ScoreCard } from "../components/score-card.tsx";
 import { DocPageContext } from "../context/doc-page.ts";
-import { DocPage, DocsPages } from "../hooks/use-deno-doc.tsx";
+import { DocPage } from "../hooks/use-deno-doc.tsx";
 import { ResolveLinkFunction, useMarkdown } from "../hooks/use-markdown.tsx";
 import { major, minor } from "../lib/semver.ts";
 import type { RoutePath, SitemapRoute } from "../plugins/sitemap.ts";

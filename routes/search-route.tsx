@@ -35,7 +35,8 @@ export function searchRoute(): SitemapRoute<JSXElement> {
                   showSubResults: true, 
                   autofocus: true,
                   showImages: false,
-                  pageSize: 10
+                  pageSize: 10,
+                  openFilters: ['Section','Version']
                 });
 
                 const urlParams = new URLSearchParams(window.location.search);

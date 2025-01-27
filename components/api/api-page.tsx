@@ -4,7 +4,7 @@ import { ResolveLinkFunction, useMarkdown } from "../../hooks/use-markdown.tsx";
 import { RepositoryRef } from "../../resources/repository-ref.ts";
 import { createSibling } from "../../routes/links-resolvers.ts";
 import { Type } from "../type/jsx.tsx";
-import { extractVersion } from "../../lib/semver.ts";
+import { extractVersion, major } from "../../lib/semver.ts";
 import { IconExternal } from "../icons/external.tsx";
 import { Keyword } from "../type/tokens.tsx";
 import { GithubPill } from "../package/source-link.tsx";
@@ -148,7 +148,13 @@ export function* ApiReference({
           {yield* Menu({ pages, current, linkResolver })}
         </nav>
       </aside>
-      <article class="prose max-w-full px-6">{content}</article>
+      <article
+        class="prose max-w-full px-6"
+        data-pagefind-filter={`version[data-series], section:API Reference`}
+        data-series={`v${major(version)}`}
+      >
+        {content}
+      </article>
     </section>
   );
 }

@@ -115,7 +115,11 @@ export function contribPackageRoute({
           <AppHTML search={search}>
             <>
               <div class="grid grid-cols-1 lg:grid-cols-10 gap-8 lg:gap-12">
-                <article class="min-w-0 lg:col-span-7 lg:row-start-1">
+                <article
+                  data-series=""
+                  data-pagefind-filter={`version[data-series], section=Contrib`}
+                  class="min-w-0 lg:col-span-7 lg:row-start-1"
+                >
                   {yield* PackageHeader(pkg)}
                   <div class="prose max-w-full">
                     <div class="mb-5">

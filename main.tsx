@@ -81,9 +81,9 @@ if (import.meta.main) {
         route("/search", searchRoute()),
         route(
           "/docs/v4/:id",
-          docsRoute({ docs: docsV4, base: "/docs/v4/", search: true }),
+          docsRoute({ docs: docsV4, search: true, series: "v4" }),
         ),
-        route("/docs/:id", docsRoute({ docs, base: "/docs/", search: true })),
+        route("/docs/:id", docsRoute({ docs, search: true, series: "v3" })),
         route("/contrib", contribIndexRoute({ contrib, search: true })),
         route(
           "/contrib/:workspacePath",
@@ -99,7 +99,7 @@ if (import.meta.main) {
           apiReferenceRoute({
             library,
             pattern: "effection-v4",
-            search: false,
+            search: true,
           }),
         ),
         route("/api/:minor", apiMinorIndexRoute({ library, search: false })),
@@ -107,7 +107,10 @@ if (import.meta.main) {
           "/api/:minor/:symbol",
           apiMinorSymbolRoute({ library, search: false }),
         ),
-        route("/pagefind(.*)", pagefindRoute({ pagefindDir: "pagefind", publicDir: "./built/" })),
+        route(
+          "/pagefind(.*)",
+          pagefindRoute({ pagefindDir: "pagefind", publicDir: "./built/" }),
+        ),
         route("/assets(.*)", assetsRoute("assets")),
         route("/preview", previewRoute({ library })),
         route("/preview/api/:symbol", previewApiRoute({ library })),

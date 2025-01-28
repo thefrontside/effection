@@ -8,9 +8,8 @@ throw an error `Type 'Promise<number>' must have a '[Symbol.iterator]()' method 
 In JavaScript, it will just not work. This happens because neither the TypeScript nor the JavaScript runtimes know how to 
 convert a Promise into an iterator, which is required for yield* to work.
 
-We opted to choose not to monkey patch the Promise prototype by adding the integration needed to make `yield*` 
-promise work, because this would compromise the guarantees that are described in [Thinking in Effection](./thinking-in-effection)
-by bluring the line about where the guarantees apply. Right now, the line is very clear, anything on the 
+While adding the integration to make `yield*` work with a promise is possible by monkey patching the `Promise` prototype, we opted not to do so. Not only is monkey patching a global object from a library considered bad form, but it would also compromise the guarantees that are described in [Thinking in Effection](./thinking-in-effection)
+by blurring the line about where those guarantees apply. Right now, the line is very clear: anything on the 
 right side of `yield*` is guaranteed to exit fully and never outlive the operation where the `yield*` was 
 called. We can't make these guarantees with Promises for the reasons described in [The Await Event Horizon](https://frontside.com/blog/2023-12-11-await-event-horizon/)
 blog post.

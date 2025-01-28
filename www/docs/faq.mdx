@@ -33,9 +33,11 @@ declare global {
  interface Promise<T> extends Operation<T> {}
 }
 
-Promise.prototype[Symbol.iterator] = function*<T>() {
-  return yield* call(() => this);
-}
+Object.defineProperty(Promise.prototype, Symbol.iterator, {
+  value(): {
+    return call(() => this)[Symbol.iterator]();
+  }
+});
 ```
 
 ## Why can't I use `call(Promise.resolve(42))` anymore?

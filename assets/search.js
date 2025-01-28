@@ -1,4 +1,5 @@
 import {
+  all,
   createChannel,
   each,
   main,
@@ -6,7 +7,6 @@ import {
   resource,
   sleep,
   spawn,
-  suspend,
 } from "https://esm.sh/effection@4.0.0-alpha.5";
 
 await main(function* () {
@@ -32,15 +32,17 @@ await main(function* () {
     return;
   }
 
+  const events = yield* join([
+    on(input, "focus"),
+    on(button, "focus"),
+    on(input, "blur"),
+    on(button, "blur"),
+  ]);
+
+  /** @type {Task<void>} */
   let lastBlur;
-  yield* forEach(
-    yield* join([
-      on(input, "focus"),
-      on(button, "focus"),
-      on(input, "blur"),
-      on(button, "blur"),
-    ]),
-    function* (event) {
+  yield* spawn(function* () {
+    for (const event of yield* each(events)) {
       if (event.type === "blur") {
         lastBlur = yield* spawn(function* () {
           yield* sleep(15);
@@ -55,10 +57,11 @@ await main(function* () {
         input.removeAttribute("placeholder");
         input.classList.add("focused");
       }
-    },
-  );
+      yield* each.next();
+    }
+  });
 
-  yield* forEach(on(document, "keydown"), function* (event) {
+  for (const event of yield* each(on(document, "keydown"))) {
     if (event.metaKey && event.key === "k") {
       event.preventDefault();
       input.focus();
@@ -66,26 +69,12 @@ await main(function* () {
     if (event.key === "Escape") {
       input.blur();
     }
-  });
-
-  yield* suspend();
+    yield* each.next();
+  }
 });
 
 /**
- * @param {Stream<Event, void>} stream
- * @param {(event: Event) => Operation<void>} op
- * @returns
- */
-function forEach(stream, op) {
-  return spawn(function* () {
-    for (const event of yield* each(stream)) {
-      yield* op(event);
-      yield* each.next();
-    }
-  });
-}
-
-/**
+ * Combine multiple streams into a single stream
  * @template {T}
  * @param {Stream<T>[]} streams
  * @returns {Operation<Stream<T>>}
@@ -93,14 +82,16 @@ function forEach(stream, op) {
 function join(streams) {
   return resource(function* (provide) {
     const channel = createChannel();
+
     yield* spawn(function* () {
-      for (const stream of streams) {
-        yield* forEach(stream, function* (event) {
+      yield* all(streams.map(function* (stream) {
+        for (const event of yield* each(stream)) {
           yield* channel.send(event);
-        });
-      }
-      yield* suspend();
+          yield* each.next();
+        }
+      }));
     });
+
     yield* provide(channel);
   });
 }

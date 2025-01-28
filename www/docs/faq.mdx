@@ -16,7 +16,7 @@ blog post.
 
 ## Can I make Promise compatible with `yield*`?
 
-Yes, by monkeypatching the Promise prototype. Monkeypatching in JavaScript refers to the practice 
+Yes. You can `yield*` to a `Promise` by monkey patching the `Promise` prototype. "Monkey patching" in JavaScript refers to the practice 
 of modifying or extending existing objects or functions at runtime, typically without changing their 
 original source code. It's considered risky because it breaks the expectations that developers maintaining
 and running the code have of the JavaScript runtime. There are circumstances where the convenience of `yield*` 

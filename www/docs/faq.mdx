@@ -9,10 +9,10 @@ In JavaScript, it will just not work. This happens because neither TypeScript no
 convert a Promise into an iterator, which is required for yield* to work.
 
 We opted to choose not to monkey patch the Promise prototype by adding the integration needed to make `yield*` 
-promise work, because this would compromise the guarantees that are described in [Thinking in Effection] 
+promise work, because this would compromise the guarantees that are described in [Thinking in Effection](./thinking-in-effection)
 by bluring the line about where the guarantees apply. Right now, the line is very clear, anything on the 
 right side of `yield*` is guaranteed to exit fully and never outlive the operation where the `yield*` was 
-called. We can't make these guarantees with Promises for the reasons described in [The Await Event Horizon] 
+called. We can't make these guarantees with Promises for the reasons described in [The Await Event Horizon](https://frontside.com/blog/2023-12-11-await-event-horizon/)
 blog post.
 
 ## Can I make Promise compatible with `yield*`?
@@ -46,7 +46,3 @@ In Effection v3, it was possible to `yield* call(Promise.resolve(42))` but we re
 because we wanted to align call closer to `Function.prototype.call`. You can still use 
 `yield* call(() => Promise.resolve(42))` and `yield* call(async function() {})`. In v4, we plan to ship 
 a new function called `when` which will take a promise and wrap it in a constructor for convenience. 
-
-
-[The Await Event Horizon]: https://frontside.com/blog/2023-12-11-await-event-horizon/
-[Thinking in Effection]: thinking-in-effection

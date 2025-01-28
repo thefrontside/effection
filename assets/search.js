@@ -82,7 +82,6 @@ function forEach(stream, op) {
       yield* op(event);
       yield* each.next();
     }
-    yield* suspend();
   });
 }
 

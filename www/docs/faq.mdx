@@ -29,13 +29,13 @@ and import it when you want this effect.
 import { call, type Operation } from "effection";
 
 declare global {
- interface Promise<T> extends Operation<T> {}
+  interface Promise<T> extends Operation<T> {}
 }
 
 Object.defineProperty(Promise.prototype, Symbol.iterator, {
-  value(): {
+  value() {
     return call(() => this)[Symbol.iterator]();
-  }
+  },
 });
 ```
 

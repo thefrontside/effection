@@ -1,0 +1,52 @@
+This page covers questions users of Effection ask as they go through the journey
+of learning Effection.
+
+## Why can't I `yield*` to a promise?
+
+In TypeScript, if you tried to `yield* Promise.resolve(42)`, TypeScript compiler will
+throw an error `Type 'Promise<number>' must have a '[Symbol.iterator]()' method that returns an iterator.`.
+In JavaScript, it will just not work. This happens because neither TypeScript nor JavaScript runtimes know how to 
+convert a Promise into an iterator, which is required for yield* to work.
+
+We opted to choose not to monkey patch the Promise prototype by adding the integration needed to make `yield*` 
+promise work, because this would compromise the guarantees that are described in [Thinking in Effection] 
+by bluring the line about where the guarantees apply. Right now, the line is very clear, anything on the 
+right side of `yield*` is guaranteed to exit fully and never outlive the operation where the `yield*` was 
+called. We can't make these guarantees with Promises for the reasons described in [The Await Event Horizon] 
+blog post.
+
+## Can I make Promise compatible with `yield*`?
+
+Yes, by monkeypatching the Promise prototype. Monkeypatching in JavaScript refers to the practice 
+of modifying or extending existing objects or functions at runtime, typically without changing their 
+original source code. It's considered risky because it breaks the expectations that developers maintaining
+and running the code have of the JavaScript runtime. There are circumstances where the convenience of `yield*` 
+to promise outweighs the risks. We'll let you make the decision where those circumstances are for you. 
+
+You can use the following code to monkeypatch Promise if you choose to do so. You can put this code into a module
+and import it when you want this effect.
+
+```typescript
+import { call, type Effect } from "effection";
+
+declare global {
+  interface Promise<T> {
+    [Symbol.iterator](): Iterator<Effect<unknown>, T, unknown>;
+  }
+}
+
+Promise.prototype[Symbol.iterator] = function*<T>() {
+  return yield* call(() => this);
+}
+```
+
+## Why can't I use `call(Promise.resolve(42))` anymore?
+
+In Effection v3, it was possible to `yield* call(Promise.resolve(42))` but we removed this in Effection v4
+because we wanted to align call closer to `Function.prototype.call`. You can still use 
+`yield* call(() => Promise.resolve(42))` and `yield* call(async function() {})`. In v4, we plan to ship 
+a new function called `when` which will take a promise and wrap it in a constructor for convenience. 
+
+
+[The Await Event Horizon]: https://frontside.com/blog/2023-12-11-await-event-horizon/
+[Thinking in Effection]: thinking-in-effection

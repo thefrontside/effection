@@ -17,6 +17,7 @@
     ["context.mdx", "Context"]
   ],
   "Advanced": [
+    ["faq.mdx", "FAQ"],
     ["scope.mdx", "Scope"],
     ["processes.mdx", "Processes"]
   ]

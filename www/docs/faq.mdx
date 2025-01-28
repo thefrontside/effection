@@ -5,7 +5,7 @@ of learning Effection.
 
 In TypeScript, if you tried to `yield* Promise.resolve(42)`, TypeScript compiler will
 throw an error `Type 'Promise<number>' must have a '[Symbol.iterator]()' method that returns an iterator.`.
-In JavaScript, it will just not work. This happens because neither TypeScript nor JavaScript runtimes know how to 
+In JavaScript, it will just not work. This happens because neither the TypeScript nor the JavaScript runtimes know how to 
 convert a Promise into an iterator, which is required for yield* to work.
 
 We opted to choose not to monkey patch the Promise prototype by adding the integration needed to make `yield*` 

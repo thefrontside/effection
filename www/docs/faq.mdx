@@ -26,7 +26,7 @@ You can use the following code to monkeypatch Promise if you choose to do so. Yo
 and import it when you want this effect.
 
 ```typescript
-import { call, type Effect } from "effection";
+import { call, type Operation } from "effection";
 
 declare global {
  interface Promise<T> extends Operation<T> {}

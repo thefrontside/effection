@@ -10,12 +10,12 @@ import { Navburger } from "../components/navburger.tsx";
 
 export function docsRoute({
   docs,
-  base,
   search,
+  series,
 }: {
   docs: Docs;
-  base: string;
   search: boolean;
+  series: string;
 }): SitemapRoute<JSXElement> {
   return {
     *routemap(pathname) {
@@ -46,6 +46,38 @@ export function docsRoute({
         hasLeftSidebar: true,
       });
 
+      const topicsList = [];
+
+      for (const topic of topics) {
+        const items = [];
+        for (const item of topic.items) {
+          items.push(
+            <li class="mt-1">
+              {doc.id !== item.id
+                ? (
+                  <a
+                    class="rounded px-4 block w-full py-2 hover:bg-gray-100"
+                    href={yield* createSibling(item.id)}
+                  >
+                    {item.title}
+                  </a>
+                )
+                : (
+                  <a class="rounded px-4 block w-full py-2 bg-gray-100 cursor-default">
+                    {item.title}
+                  </a>
+                )}
+            </li>,
+          );
+        }
+        topicsList.push(
+          <hgroup class="mb-2">
+            <h3 class="text-lg">{topic.name}</h3>
+            <menu class="text-gray-700">{items}</menu>
+          </hgroup>,
+        );
+      }
+
       return (
         <AppHtml search={search}>
           <section class="min-h-0 mx-auto w-full justify-items-normal md:grid md:grid-cols-[225px_auto] lg:grid-cols-[225px_auto_200px] md:gap-4">
@@ -55,31 +87,7 @@ export function docsRoute({
               class="fixed top-0 h-full w-full grid grid-cols-2 md:hidden"
             >
               <nav class="bg-white p-2 border-r-2 h-full pt-24 min-h-0 h-full overflow-auto">
-                {topics.map((topic) => (
-                  <hgroup class="mb-2">
-                    <h3 class="text-lg">{topic.name}</h3>
-                    <menu class="text-gray-700">
-                      {topic.items.map((item) => (
-                        <li class="mt-1">
-                          {doc.id !== item.id
-                            ? (
-                              <a
-                                class="rounded px-4 block w-full py-2 hover:bg-gray-100"
-                                href={`${base}${item.id}`}
-                              >
-                                {item.title}
-                              </a>
-                            )
-                            : (
-                              <a class="rounded px-4 block w-full py-2 bg-gray-100 cursor-default">
-                                {item.title}
-                              </a>
-                            )}
-                        </li>
-                      ))}
-                    </menu>
-                  </hgroup>
-                ))}
+                {topicsList}
               </nav>
               <label
                 for="nav-toggle"
@@ -96,35 +104,13 @@ export function docsRoute({
               </style>
             </aside>
             <aside class="min-h-0 overflow-auto hidden md:block top-[120px] sticky h-fit">
-              <nav class="pl-4">
-                {topics.map((topic) => (
-                  <hgroup class="mb-2">
-                    <h3 class="text-lg">{topic.name}</h3>
-                    <menu class="text-gray-700">
-                      {topic.items.map((item) => (
-                        <li class="mt-1">
-                          {doc.id !== item.id
-                            ? (
-                              <a
-                                class="rounded px-4 block w-full py-2 hover:bg-gray-100"
-                                href={`${base}${item.id}`}
-                              >
-                                {item.title}
-                              </a>
-                            )
-                            : (
-                              <a class="rounded px-4 block w-full py-2 bg-gray-100 cursor-default">
-                                {item.title}
-                              </a>
-                            )}
-                        </li>
-                      ))}
-                    </menu>
-                  </hgroup>
-                ))}
-              </nav>
+              <nav class="pl-4">{topicsList}</nav>
             </aside>
-            <article class="prose max-w-full px-6 py-2">
+            <article
+              class="prose max-w-full px-6 py-2"
+              data-pagefind-filter={`version[data-series], section:Guides`}
+              data-series={series}
+            >
               <h1>{doc.title}</h1>
               <>{doc.content}</>
               {yield* NextPrevLinks({ doc })}

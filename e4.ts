@@ -14,48 +14,56 @@ import {
   SiteDirectory,
   WriteOptions,
 } from "npm:pagefind@1.3.0";
-import { staticalize } from "jsr:@frontside/staticalize@0.1.0";
+import { staticalize } from "jsr:@frontside/staticalize@0.2.0";
+import * as fs from "jsr:@std/fs@1";
 
-function makeTempDir(options?: Deno.MakeTempOptions): Operation<string> {
-  return call(() => Deno.makeTempDir(options));
+function exists(path: string | URL, options?: fs.ExistsOptions) {
+  return call(() => fs.exists(path, options));
 }
 
 type GenerateOptions = {
   host: URL;
-  output: string;
+  publicDir: string;
+  pagefindDir: string;
 } & PagefindServiceConfig;
 
 const log = (first: unknown, ...args: unknown[]) =>
   console.log(`💪: ${first}`, ...args);
 
-export function generate({ host, output, ...indexOptions }: GenerateOptions) {
+export function generate(
+  { host, publicDir, pagefindDir, ...indexOptions }: GenerateOptions,
+) {
   return async function () {
     return await run(function* () {
-      const tmp = yield* makeTempDir();
+      const built = new URL(publicDir, import.meta.url);
 
-      log(`Staticalizing: ${host} to ${tmp}`);
+      if (yield* exists(built, { isDirectory: true })) {
+        log(`Reusing existing staticalized ${built.pathname} directory`);
+      } else {
+        log(`Staticalizing: ${host} to ${built.pathname}`);
 
-      yield* race([
-        staticalize({
-          host,
-          base: host,
-          dir: tmp,
-        }),
-        sleep(60000),
-      ]);
+        yield* race([
+          staticalize({
+            host,
+            base: host,
+            dir: built.pathname,
+          }),
+          sleep(60000),
+        ]);
+      }
 
       log("Adding index");
 
       const index = yield* createPagefindIndex(indexOptions);
 
-      log(`Adding directory: ${tmp}`);
+      log(`Adding directory: ${built.pathname}`);
 
-      const added = yield* index.addDirectory({ path: tmp });
+      const added = yield* index.addDirectory({ path: built.pathname });
 
-      log(`Addedd ${added} pages from ${tmp}`);
+      log(`Addedd ${added} pages from ${built.pathname}`);
 
-      log(`Writing files ${output}`);
-      return yield* index.writeFiles({ outputPath: output });
+      log(`Writing files ${pagefindDir}`);
+      return yield* index.writeFiles({ outputPath: pagefindDir });
     });
   };
 }

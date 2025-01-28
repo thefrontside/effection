@@ -11,6 +11,7 @@
     "jsr:@effection/effection@3.1.0": "3.1.0",
     "jsr:@frontside/continuation@0.1.6": "0.1.6",
     "jsr:@frontside/staticalize@0.1.0": "0.1.0",
+    "jsr:@frontside/staticalize@0.2.0": "0.2.0",
     "jsr:@libs/xml@*": "6.0.4",
     "jsr:@libs/xml@6": "6.0.4",
     "jsr:@std/assert@*": "1.0.10",
@@ -123,6 +124,16 @@
     },
     "@frontside/staticalize@0.1.0": {
       "integrity": "4f2f4e3739cde5ab13ea22f52db30e0607afc8ef8d86d786fd3d58b0ce84053a",
+      "dependencies": [
+        "jsr:@b-fuze/deno-dom",
+        "jsr:@libs/xml@6",
+        "jsr:@std/fs@1",
+        "jsr:@std/path@1",
+        "npm:effection@4.0.0-alpha.4"
+      ]
+    },
+    "@frontside/staticalize@0.2.0": {
+      "integrity": "2d0027c050fca52b825580eedc924f9be0fab88ac8c72b400646defed345b18e",
       "dependencies": [
         "jsr:@b-fuze/deno-dom",
         "jsr:@libs/xml@6",
@@ -1966,6 +1977,9 @@
       "integrity": "sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A=="
     }
   },
+  "redirects": {
+    "https://esm.sh/effection@4.0.0.alpha.5": "https://esm.sh/effection@3.2.0"
+  },
   "remote": {
     "https://deno.land/std@0.140.0/_util/assert.ts": "e94f2eb37cebd7f199952e242c77654e43333c1ac4c5c700e929ea3aa5489f74",
     "https://deno.land/std@0.140.0/_util/os.ts": "3b4c6e27febd119d36a416d7a97bd3b0251b77c88942c8f16ee5953ea13e2e49",
@@ -2205,7 +2219,11 @@
     "https://deno.land/x/revolution@0.6.0/lib/server.ts": "560765955e3d6129f8f5d9fcaf4f598ddb0b9543db766f7a1a8d18d360b0a07c",
     "https://deno.land/x/revolution@0.6.0/lib/sse.ts": "3ace8fd4b2935e264940511366513bfeb5b414e457bc3d6a916d123b20a80d3c",
     "https://deno.land/x/revolution@0.6.0/lib/types.ts": "2f32cbc673d496b5a37e5b9ff829577866d66a19b993ed59840b92700861d237",
-    "https://deno.land/x/revolution@0.6.0/mod.ts": "ffae461c16d4a1bf24c2179582ab8d5c81ad0df61e4ae2fba51ef5e5bdf90345"
+    "https://deno.land/x/revolution@0.6.0/mod.ts": "ffae461c16d4a1bf24c2179582ab8d5c81ad0df61e4ae2fba51ef5e5bdf90345",
+    "https://esm.sh/effection@3.2.0": "2ddb773aebe996113bb54a0ee1dc4e6bf4120e746154d4f1d0bbd5f8a23f8577",
+    "https://esm.sh/effection@3.2.0/denonext/effection.mjs": "7ad88b07df5ff6c997a95c95dcf5c569e3a2b651796b9757f91aae3aaf73a532",
+    "https://esm.sh/effection@4.0.0-alpha.5": "1ceb25592760186e79e769cd9a3026f450a87f5c5b8b1af38f9719af740f7fcd",
+    "https://esm.sh/effection@4.0.0-alpha.5/denonext/effection.mjs": "8384de42269aebc28c1f0008ca690126eed82b0c4d20b7f9f8fa765cf53444c8"
   },
   "workspace": {
     "dependencies": [

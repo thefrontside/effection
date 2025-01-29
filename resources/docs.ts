@@ -70,7 +70,7 @@ export function loadDocs(
 
       const ref = yield* repo.loadRef(`tags/${latest.name}`);
 
-      const json = yield* ref.loadJson("www/docs/structure.json");
+      const json = yield* ref.loadJson("docs/structure.json");
 
       const structure = Structure.parse(json);
 
@@ -90,7 +90,7 @@ export function loadDocs(
           let meta: DocMeta = current = {
             id: basename(filename, ".mdx"),
             title,
-            filename: `www/docs/${filename}`,
+            filename: `docs/${filename}`,
             topics,
             prev,
           };

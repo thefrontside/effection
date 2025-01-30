@@ -4,11 +4,10 @@ import { customizationHooks } from "npm:@jsdevtools/rehype-toc@3.0.2/lib/customi
 import { findHeadings } from "npm:@jsdevtools/rehype-toc@3.0.2/lib/fiind-headings.js";
 import { findMainNode } from "npm:@jsdevtools/rehype-toc@3.0.2/lib/find-main-node.js";
 import { NormalizedOptions } from "npm:@jsdevtools/rehype-toc@3.0.2/lib/options.js";
-import type hast from "npm:@types/hast@3.0.4";
+import type { Nodes } from "npm:@types/hast@3.0.4";
+import { JSXElement } from "revolution/jsx-runtime";
 
-export type Nodes = hast.Nodes;
-
-export function toc(root: Nodes, options?: Options) {
+export function toc(root: Nodes, options?: Options): JSXElement {
   const _options = new NormalizedOptions(
     options ?? {
       cssClasses: {

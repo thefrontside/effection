@@ -13,13 +13,11 @@ export function* PackageHeader(pkg: Package) {
           </span>
           <span class="mx-2">v{pkg.version ? pkg.version : ""}</span>
         </span>
-        {
-          yield* GithubPill({
-            class: "mt-2 xl:mt-0",
-            url: pkg.source.toString(),
-            text: pkg.ref.repository.nameWithOwner,
-          })
-        }
+        {yield* GithubPill({
+          class: "mt-2 xl:mt-0",
+          url: pkg.source.toString(),
+          text: pkg.ref.repository.nameWithOwner,
+        })}
       </div>
       <div class="space-x-1">
         <a href={`${pkg.jsr}`} class="inline-block align-middle">

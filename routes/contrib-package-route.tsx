@@ -1,7 +1,6 @@
 import { type JSXElement, useParams } from "revolution";
 import { call } from "effection";
 import { shiftHeading } from "npm:hast-util-shift-heading@4.0.0";
-import rehypeAddClasses from "npm:rehype-add-classes@1.0.0";
 import type { Nodes } from "npm:@types/hast@3.0.4";
 
 import { PackageExports } from "../components/package/exports.tsx";
@@ -88,9 +87,11 @@ export function contribPackageRoute({
                 (page) => page.name === symbol,
               );
               if (page) {
-                return `[${symbol}](/api/${major(effection.version)}.${minor(
-                  effection.version,
-                )}/${symbol})`;
+                return `[${symbol}](/api/${major(effection.version)}.${
+                  minor(
+                    effection.version,
+                  )
+                }/${symbol})`;
               }
             }
           }
@@ -122,7 +123,8 @@ export function contribPackageRoute({
         const toc = createToc(content, {
           headings: ["h2", "h3"],
           cssClasses: {
-            toc: "hidden text-sm font-light tracking-wide leading-loose lg:block relative",
+            toc:
+              "hidden text-sm font-light tracking-wide leading-loose lg:block relative",
             link: "flex flex-row items-center",
           },
           customizeTOCItem(item, heading) {
@@ -141,17 +143,20 @@ export function contribPackageRoute({
               heading.properties["data-kind"] &&
               heading.properties["data-name"]
             ) {
-              item.properties.className += " mb-1"
+              item.properties.className += " mb-1";
               const a = select("a", item);
               if (a) {
                 a.children = [
                   <Icon class="-ml-6" kind={heading.properties["data-kind"]} />,
-                  <span class="hover:underline hover:underline-offset-2">{heading.properties["data-name"]}</span>,
+                  <span class="hover:underline hover:underline-offset-2">
+                    {heading.properties["data-name"]}
+                  </span>,
                 ];
               }
             } else {
               const a = select("a", item);
-              a.properties.className = `hover:underline hover:underline-offset-2`
+              a.properties.className =
+                `hover:underline hover:underline-offset-2`;
             }
             return item;
           },
@@ -168,13 +173,11 @@ export function contribPackageRoute({
                   {yield* PackageHeader(pkg)}
                   <div class="prose max-w-full">
                     <div class="mb-5">
-                      {
-                        yield* PackageExports({
-                          packageName: pkg.packageName,
-                          docs,
-                          linkResolver,
-                        })
-                      }
+                      {yield* PackageExports({
+                        packageName: pkg.packageName,
+                        docs,
+                        linkResolver,
+                      })}
                     </div>
                     {content}
                   </div>
@@ -182,7 +185,10 @@ export function contribPackageRoute({
                 <aside class="xl:w-[260px] lg:col-[span_3/_-1] top-[120px] lg:sticky lg:max-h-screen flex flex-col box-border gap-y-4">
                   {yield* ScoreCard(pkg)}
                   <div>
-                    <div aria-hidden="true" class="hidden mb-1 lg:block text-sm font-bold">
+                    <div
+                      aria-hidden="true"
+                      class="hidden mb-1 lg:block text-sm font-bold"
+                    >
                       On this page
                     </div>
                     {toc}
@@ -211,7 +217,7 @@ export function contribPackageRoute({
 function* getEffectionDependency(page: DocPage, library: Repository) {
   let version, docs;
   let effection = page.dependencies.find((dep) =>
-    ["effection", "@effection/effection"].includes(dep.name),
+    ["effection", "@effection/effection"].includes(dep.name)
   );
   if (effection) {
     version = effection.version.replace("^", "");

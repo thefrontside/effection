@@ -182,7 +182,7 @@ export function contribPackageRoute({
                 <aside class="xl:w-[260px] lg:col-[span_3/_-1] top-[120px] lg:sticky lg:max-h-screen flex flex-col box-border gap-y-4">
                   {yield* ScoreCard(pkg)}
                   <div>
-                    <div aria-hidden="true" class="hidden mb-1 md:block text-sm font-bold">
+                    <div aria-hidden="true" class="hidden mb-1 lg:block text-sm font-bold">
                       On this page
                     </div>
                     {toc}

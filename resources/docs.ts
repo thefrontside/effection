@@ -10,7 +10,7 @@ import { basename } from "jsr:@std/path@1.0.8";
 import { Repository } from "./repository.ts";
 import { z } from "npm:zod@3.23.8";
 import { useMarkdown } from "../hooks/use-markdown.tsx";
-import { toc } from "../lib/toc.ts";
+import { createToc } from "../lib/toc.ts";
 import { JSXElement } from "revolution/jsx-runtime";
 
 export interface DocModule {
@@ -110,7 +110,7 @@ export function loadDocs(
                 ...meta,
                 markdown: source,
                 content,
-                toc: toc(content),
+                toc: createToc(content),
               };
             }),
           );

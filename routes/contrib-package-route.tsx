@@ -16,6 +16,7 @@ import { Package } from "../resources/package.ts";
 import { Type } from "../components/type/jsx.tsx";
 import { NO_DOCS_AVAILABLE } from "../components/type/markdown.tsx";
 import { SourceCodeIcon } from "../components/icons/source-code.tsx";
+import { createToc } from "../lib/toc.ts";
 
 interface ContribPackageRouteParams {
   contrib: Repository;
@@ -86,17 +87,27 @@ export function contribPackageRoute({
                 (page) => page.name === symbol,
               );
               if (page) {
-                return `[${symbol}](/api/${major(effection.version)}.${
-                  minor(
-                    effection.version,
-                  )
-                }/${symbol})`;
+                return `[${symbol}](/api/${major(effection.version)}.${minor(
+                  effection.version,
+                )}/${symbol})`;
               }
             }
           }
 
           return symbol;
         };
+
+        const content = (
+          <>
+            {yield* useMarkdown(yield* pkg.readme(), { linkResolver })}
+            <h2 class="mb-0">API Reference</h2>
+            {yield* API({ pkg, linkResolver, library })}
+          </>
+        );
+
+        const toc = createToc(content, {
+          headings: ["h2", "h3"]
+        });
 
         return (
           <AppHTML search={search}>
@@ -109,19 +120,23 @@ export function contribPackageRoute({
                   {yield* PackageHeader(pkg)}
                   <div class="prose max-w-full">
                     <div class="mb-5">
-                      {yield* PackageExports({
-                        packageName: pkg.packageName,
-                        docs,
-                        linkResolver,
-                      })}
+                      {
+                        yield* PackageExports({
+                          packageName: pkg.packageName,
+                          docs,
+                          linkResolver,
+                        })
+                      }
                     </div>
-                    {yield* useMarkdown(yield* pkg.readme(), { linkResolver })}
-                    <h2 class="mb-0">API Reference</h2>
-                    {yield* API({ pkg, linkResolver, library })}
+                    {content}
                   </div>
                 </article>
-                <aside class="lg:col-[span_3/_-1] top-[120px] lg:sticky lg:max-h-screen flex flex-col box-border gap-y-4">
+                <aside class="xl:w-[260px] lg:col-[span_3/_-1] top-[120px] lg:sticky lg:max-h-screen flex flex-col box-border gap-y-4">
                   {yield* ScoreCard(pkg)}
+                  <div>
+                    <div aria-hidden="true" class="mb-1 text-sm font-bold">On this page</div>
+                    {toc}
+                  </div>
                 </aside>
               </div>
             </>
@@ -160,7 +175,7 @@ export function* API({
   for (const exportName of Object.keys(docs)) {
     const pages = docs[exportName];
     const withoutImports = pages.flatMap((page) =>
-      page.kind === "import" ? [] : [page]
+      page.kind === "import" ? [] : [page],
     );
     for (const page of withoutImports) {
       const effection = yield* getEffectionDependency(page, library);
@@ -168,9 +183,9 @@ export function* API({
         elements.push(
           <section
             id={section.id}
-            data-series={effection.version
-              ? `v${major(effection.version)}`
-              : ""}
+            data-series={
+              effection.version ? `v${major(effection.version)}` : ""
+            }
             class="flex flex-col border-b-2 pb-5"
           >
             <div class="flex group">
@@ -183,17 +198,19 @@ export function* API({
               </a>
             </div>
             <div class="[&>h3:first-child]:mt-0 [&>hr]:my-5 [&>h5]:font-semibold">
-              {yield* call(function* () {
-                yield* DocPageContext.set(page);
-                return yield* useMarkdown(
-                  section.markdown || NO_DOCS_AVAILABLE,
-                  {
-                    remarkPlugins: [[shiftHeadings, 1]],
-                    linkResolver,
-                    slugPrefix: section.id,
-                  },
-                );
-              })}
+              {
+                yield* call(function* () {
+                  yield* DocPageContext.set(page);
+                  return yield* useMarkdown(
+                    section.markdown || NO_DOCS_AVAILABLE,
+                    {
+                      remarkPlugins: [[shiftHeadings, 1]],
+                      linkResolver,
+                      slugPrefix: section.id,
+                    },
+                  );
+                })
+              }
             </div>
           </section>,
         );
@@ -207,7 +224,7 @@ export function* API({
 function* getEffectionDependency(page: DocPage, library: Repository) {
   let version, docs;
   let effection = page.dependencies.find((dep) =>
-    ["effection", "@effection/effection"].includes(dep.name)
+    ["effection", "@effection/effection"].includes(dep.name),
   );
   if (effection) {
     version = effection.version.replace("^", "");

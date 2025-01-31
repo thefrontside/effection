@@ -4,17 +4,22 @@ import { GithubPill } from "./source-link.tsx";
 export function* PackageHeader(pkg: Package) {
   return (
     <header class="space-y-3 mb-5">
-      <div class="flex flex-row">
-        <span class="text-3xl font-bold">
-          @{pkg.scope}
-          <span>/</span>
-          {pkg.name}
+      <div class="flex flex-col xl:flex-row">
+        <span class="text-3xl">
+          <span class="font-bold">
+            @{pkg.scope}
+            <span>/</span>
+            {pkg.name}
+          </span>
+          <span class="mx-2">v{pkg.version ? pkg.version : ""}</span>
         </span>
-        <span class="text-3xl mx-2">v{pkg.version ? pkg.version : ""}</span>
-        {yield* GithubPill({
-          url: pkg.source.toString(),
-          text: pkg.ref.repository.nameWithOwner,
-        })}
+        {
+          yield* GithubPill({
+            class: "mt-2 xl:mt-0",
+            url: pkg.source.toString(),
+            text: pkg.ref.repository.nameWithOwner,
+          })
+        }
       </div>
       <div class="space-x-1">
         <a href={`${pkg.jsr}`} class="inline-block align-middle">

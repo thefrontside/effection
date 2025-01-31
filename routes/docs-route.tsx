@@ -53,20 +53,18 @@ export function docsRoute({
         for (const item of topic.items) {
           items.push(
             <li class="mt-1">
-              {doc.id !== item.id
-                ? (
-                  <a
-                    class="rounded px-4 block w-full py-2 hover:bg-gray-100"
-                    href={yield* createSibling(item.id)}
-                  >
-                    {item.title}
-                  </a>
-                )
-                : (
-                  <a class="rounded px-4 block w-full py-2 bg-gray-100 cursor-default">
-                    {item.title}
-                  </a>
-                )}
+              {doc.id !== item.id ? (
+                <a
+                  class="rounded px-4 block w-full py-2 hover:bg-gray-100"
+                  href={yield* createSibling(item.id)}
+                >
+                  {item.title}
+                </a>
+              ) : (
+                <a class="rounded px-4 block w-full py-2 bg-gray-100 cursor-default">
+                  {item.title}
+                </a>
+              )}
             </li>,
           );
         }
@@ -117,7 +115,7 @@ export function docsRoute({
             </article>
             <aside class="min-h-0 overflow-auto sticky h-fit hidden md:block top-[120px]">
               <h3>On this page</h3>
-              <>{doc.toc}</>
+              <div class="w-[200px]">{doc.toc}</div>
             </aside>
           </section>
         </AppHtml>
@@ -135,32 +133,32 @@ function* NextPrevLinks({
   let { next, prev } = doc;
   return (
     <menu class="grid grid-cols-2 my-10 gap-x-2 xl:gap-x-20 2xl:gap-x-40 text-lg">
-      {prev
-        ? (
-          <li class="col-start-1 text-left font-light border-1 rounded-lg p-4">
-            Previous
-            <a
-              class="py-2 block text-xl font-bold text-blue-primary no-underline tracking-wide leading-5 before:content-['«&nbsp;'] before:font-normal"
-              href={yield* createSibling(prev.id)}
-            >
-              {prev.title}
-            </a>
-          </li>
-        )
-        : <li />}
-      {next
-        ? (
-          <li class="col-start-2 text-right font-light border-1 rounded-lg p-4">
-            Next
-            <a
-              class="py-2 block text-xl font-bold text-blue-primary no-underline tracking-wide leading-5 after:content-['&nbsp;»'] after:font-normal"
-              href={yield* createSibling(next.id)}
-            >
-              {next.title}
-            </a>
-          </li>
-        )
-        : <li />}
+      {prev ? (
+        <li class="col-start-1 text-left font-light border-1 rounded-lg p-4">
+          Previous
+          <a
+            class="py-2 block text-xl font-bold text-blue-primary no-underline tracking-wide leading-5 before:content-['«&nbsp;'] before:font-normal"
+            href={yield* createSibling(prev.id)}
+          >
+            {prev.title}
+          </a>
+        </li>
+      ) : (
+        <li />
+      )}
+      {next ? (
+        <li class="col-start-2 text-right font-light border-1 rounded-lg p-4">
+          Next
+          <a
+            class="py-2 block text-xl font-bold text-blue-primary no-underline tracking-wide leading-5 after:content-['&nbsp;»'] after:font-normal"
+            href={yield* createSibling(next.id)}
+          >
+            {next.title}
+          </a>
+        </li>
+      ) : (
+        <li />
+      )}
     </menu>
   );
 }

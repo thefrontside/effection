@@ -56,6 +56,7 @@
     "npm:effection@4.0.0-alpha.4": "4.0.0-alpha.4",
     "npm:hast-util-select@6.0.1": "6.0.1",
     "npm:hast-util-select@6.0.3": "6.0.3",
+    "npm:hast-util-shift-heading@4.0.0": "4.0.0",
     "npm:hast-util-to-html@9.0.0": "9.0.0",
     "npm:http-errors@2.0.0": "2.0.0",
     "npm:octokit@4.0.3": "4.0.3_@octokit+core@6.1.3",
@@ -882,6 +883,14 @@
         "space-separated-tokens@2.0.2",
         "unist-util-visit",
         "zwitch@2.0.4"
+      ]
+    },
+    "hast-util-shift-heading@4.0.0": {
+      "integrity": "sha512-1WzYRfcydfUIAn/N/QBDLlaG/JlXnE3Tx2ybuQFZKP4ZfM9v8FPJ/8i6pEaSoEtEI+FzjYmALlOJROkgRg3epg==",
+      "dependencies": [
+        "@types/hast@3.0.4",
+        "hast-util-heading-rank",
+        "unist-util-visit"
       ]
     },
     "hast-util-to-estree@3.1.1": {

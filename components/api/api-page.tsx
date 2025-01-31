@@ -53,21 +53,23 @@ export function* ApiPage({
 
   return (
     <>
-      {yield* ApiReference({
-        pages,
-        current,
-        ref,
-        content: (
-          <>
-            <>{banner}</>
-            {yield* SymbolHeader({ pkg, page })}
-            {yield* ApiBody({ page, linkResolver })}
-          </>
-        ),
-        linkResolver: function* (symbol) {
-          return yield* createSibling(symbol);
-        },
-      })}
+      {
+        yield* ApiReference({
+          pages,
+          current,
+          ref,
+          content: (
+            <>
+              <>{banner}</>
+              {yield* SymbolHeader({ pkg, page })}
+              {yield* ApiBody({ page, linkResolver })}
+            </>
+          ),
+          linkResolver: function* (symbol) {
+            return yield* createSibling(symbol);
+          },
+        })
+      }
     </>
   );
 }
@@ -84,12 +86,16 @@ export function* ApiBody({
   for (const [i, section] of Object.entries(page.sections)) {
     if (section.markdown) {
       elements.push(
-        <section
-          id={section.id}
-          class={`${i !== "0" ? "border-t-2" : ""} pb-7`}
-        >
+        <section class={`${i !== "0" ? "border-t-2" : ""} pb-7`}>
           <div class="flex mt-7 group">
-            <h2 class="my-0 grow">{yield* Type({ node: section.node })}</h2>
+            <h2
+              class="my-0 grow"
+              id={section.id}
+              data-kind={section.node.kind}
+              data-name={section.node.name}
+            >
+              {yield* Type({ node: section.node })}
+            </h2>
             <a
               class="opacity-0 before:content-['View_code'] group-hover:opacity-100 before:flex before:text-xs before:mr-1 hover:bg-gray-100 p-2 flex-none flex rounded no-underline items-center h-8"
               href={`${section.node.location.filename}#L${section.node.location.line}`}
@@ -98,10 +104,12 @@ export function* ApiBody({
             </a>
           </div>
           <div class="[&>hr]:my-5 [&>p]:mb-0">
-            {yield* useMarkdown(section.markdown, {
-              linkResolver,
-              slugPrefix: section.id,
-            })}
+            {
+              yield* useMarkdown(section.markdown, {
+                linkResolver,
+                slugPrefix: section.id,
+              })
+            }
           </div>
         </section>,
       );
@@ -124,9 +132,8 @@ export function* ApiReference({
   pages: DocPage[];
   linkResolver: ResolveLinkFunction;
 }) {
-  const version = extractVersion(ref.name) === "0.0.0"
-    ? ref.name
-    : extractVersion(ref.name);
+  const version =
+    extractVersion(ref.name) === "0.0.0" ? ref.name : extractVersion(ref.name);
 
   return (
     <section class="min-h-0 mx-auto w-full justify-items-normal md:grid md:grid-cols-[225px_auto] lg:grid-cols-[225px_auto_200px] md:gap-4">
@@ -168,10 +175,12 @@ export function* SymbolHeader({ page, pkg }: { page: DocPage; pkg: Package }) {
         </Keyword>{" "}
         {page.name}
       </h1>
-      {yield* GithubPill({
-        url: pkg.source.toString(),
-        text: pkg.ref.repository.nameWithOwner,
-      })}
+      {
+        yield* GithubPill({
+          url: pkg.source.toString(),
+          text: pkg.ref.repository.nameWithOwner,
+        })
+      }
     </header>
   );
 }
@@ -189,22 +198,20 @@ function* Menu({
   for (const page of pages.sort((a, b) => a.name.localeCompare(b.name))) {
     elements.push(
       <li>
-        {current === page.name
-          ? (
-            <span class="rounded px-2 block w-full py-2 bg-gray-100 cursor-default ">
-              <Icon kind={page.kind} />
-              {page.name}
-            </span>
-          )
-          : (
-            <a
-              class="rounded px-2 block w-full py-2 hover:bg-gray-100"
-              href={yield* linkResolver(page.name)}
-            >
-              <Icon kind={page.kind} />
-              {page.name}
-            </a>
-          )}
+        {current === page.name ? (
+          <span class="rounded px-2 block w-full py-2 bg-gray-100 cursor-default ">
+            <Icon kind={page.kind} />
+            {page.name}
+          </span>
+        ) : (
+          <a
+            class="rounded px-2 block w-full py-2 hover:bg-gray-100"
+            href={yield* linkResolver(page.name)}
+          >
+            <Icon kind={page.kind} />
+            {page.name}
+          </a>
+        )}
       </li>,
     );
   }

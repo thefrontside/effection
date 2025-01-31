@@ -22,7 +22,7 @@ export function* ScoreCard(pkg: Package) {
   return (
     <div class="flex flex-col w-full space-y-5 sm:items-end lg:space-y-5">
       <div class="grid grid-cols-4 lg:grid-cols-2">
-        <div class="text-sm font-bold">
+        <div class="text-sm font-bold md:mb-3">
           <div aria-hidden="true">Published on</div>
           <div class="space-x-2 pt-1">
             <a class="inline-block" href={`${pkg.jsr}`}>
@@ -33,7 +33,7 @@ export function* ScoreCard(pkg: Package) {
             </a>
           </div>
         </div>
-        <div class="text-sm font-bold md:ml-5">
+        <div class="text-sm font-bold md:ml-5 md:mb-3">
           <div>TypeScript</div>
           <span class="text-green-600 text-lg">Yes</span>
         </div>

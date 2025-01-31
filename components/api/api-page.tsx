@@ -84,12 +84,16 @@ export function* ApiBody({
   for (const [i, section] of Object.entries(page.sections)) {
     if (section.markdown) {
       elements.push(
-        <section
-          id={section.id}
-          class={`${i !== "0" ? "border-t-2" : ""} pb-7`}
-        >
+        <section class={`${i !== "0" ? "border-t-2" : ""} pb-7`}>
           <div class="flex mt-7 group">
-            <h2 class="my-0 grow">{yield* Type({ node: section.node })}</h2>
+            <h2
+              class="my-0 grow"
+              id={section.id}
+              data-kind={section.node.kind}
+              data-name={section.node.name}
+            >
+              {yield* Type({ node: section.node })}
+            </h2>
             <a
               class="opacity-0 before:content-['View_code'] group-hover:opacity-100 before:flex before:text-xs before:mr-1 hover:bg-gray-100 p-2 flex-none flex rounded no-underline items-center h-8"
               href={`${section.node.location.filename}#L${section.node.location.line}`}

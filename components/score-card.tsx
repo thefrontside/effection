@@ -20,88 +20,84 @@ export function* ScoreCard(pkg: Package) {
   const jsrScore = (details.success && details.data && details.data.score) || 0;
 
   return (
-    <div class="flex flex-col items-center space-y-5 w-full">
-      <>
-        <div class="flex flex-col md:flex-row gap-2 md:gap-8 items-between">
-          <div class="flex flex-row md:flex-col items-center md:items-end gap-2 md:gap-1.5 text-sm font-bold">
-            <div aria-hidden="true">Published on</div>
-            <div class="flex space-x-2">
-              <a href={`${pkg.jsr}`}>
-                <JSRIcon class="h-6" />
-              </a>
-              <a href={`${pkg.npm}`}>
-                <NPMIcon class="h-6" />
-              </a>
-            </div>
-          </div>
-          <div class="flex flex-row md:flex-col items-baseline md:items-end gap-2 md:gap-1.5 text-sm font-bold">
-            <div>TypeScript</div>
-            <span class="text-green-600 text-lg">Yes</span>
+    <div class="flex flex-col w-full space-y-5 sm:items-end lg:space-y-5">
+      <div class="grid grid-cols-4 lg:grid-cols-2">
+        <div class="text-sm font-bold md:mb-3">
+          <div aria-hidden="true">Published on</div>
+          <div class="space-x-2 pt-1">
+            <a class="inline-block" href={`${pkg.jsr}`}>
+              <JSRIcon class="h-6" />
+            </a>
+            <a class="inline-block" href={`${pkg.npm}`}>
+              <NPMIcon class="h-6" />
+            </a>
           </div>
         </div>
-        <div class="flex flex-col md:flex-row gap-2 md:gap-8 items-between">
-          <div class="flex flex-row md:flex-col items-center md:items-end gap-2 md:gap-1.5 text-sm font-bold">
-            <div aria-hidden="true">Works with</div>
-            <div class="min-w-content font-semibold select-none">
-              <div class="flex items-center *:mx-0.5 flex-row-reverse">
-                <SupportedEnvironment
-                  name="Cloudflare Workers"
-                  Icon={CloudflareWorkersIcon}
-                  width={416}
-                  height={375}
-                  enabled={details.data?.runtimeCompat.workerd ?? false}
-                />
-                <SupportedEnvironment
-                  name="Node.js"
-                  Icon={NodeIcon}
-                  width={256}
-                  height={292}
-                  enabled={details.data?.runtimeCompat.node ?? false}
-                />
-                <SupportedEnvironment
-                  name="Deno"
-                  Icon={DenoIcon}
-                  width={512}
-                  height={512}
-                  enabled={details.data?.runtimeCompat.deno ?? false}
-                />
-                <SupportedEnvironment
-                  name="Bun"
-                  Icon={BunIcon}
-                  width={435}
-                  height={435}
-                  enabled={details.data?.runtimeCompat.bun ?? false}
-                />
-                <SupportedEnvironment
-                  name="Browser"
-                  Icon={BrowserIcon}
-                  width={1200}
-                  height={500}
-                  enabled={details.data?.runtimeCompat.browser ?? false}
-                />
-              </div>
+        <div class="text-sm font-bold md:ml-5 md:mb-3">
+          <div>TypeScript</div>
+          <span class="text-green-600 text-lg">Yes</span>
+        </div>
+        <div class="text-sm font-bold">
+          <div class="pb-1" aria-hidden="true">Works with</div>
+          <div class="min-w-content font-semibold select-none">
+            <div class="flex *:mx-0.5">
+              <SupportedEnvironment
+                name="Cloudflare Workers"
+                Icon={CloudflareWorkersIcon}
+                width={416}
+                height={375}
+                enabled={details.data?.runtimeCompat.workerd ?? false}
+              />
+              <SupportedEnvironment
+                name="Node.js"
+                Icon={NodeIcon}
+                width={256}
+                height={292}
+                enabled={details.data?.runtimeCompat.node ?? false}
+              />
+              <SupportedEnvironment
+                name="Deno"
+                Icon={DenoIcon}
+                width={512}
+                height={512}
+                enabled={details.data?.runtimeCompat.deno ?? false}
+              />
+              <SupportedEnvironment
+                name="Bun"
+                Icon={BunIcon}
+                width={435}
+                height={435}
+                enabled={details.data?.runtimeCompat.bun ?? false}
+              />
+              <SupportedEnvironment
+                name="Browser"
+                Icon={BrowserIcon}
+                width={1200}
+                height={500}
+                enabled={details.data?.runtimeCompat.browser ?? false}
+              />
             </div>
           </div>
-          <a
-            class="flex flex-row md:flex-col items-baseline md:items-end gap-2 md:gap-1.5 text-sm font-bold"
-            href={`${new URL("./score/", pkg.jsr)}`}
+        </div>
+        <a
+          class="text-sm font-bold md:ml-5"
+          href={`${new URL("./score/", pkg.jsr)}`}
+        >
+          <div class="pb-1">JSR Score</div>
+          <div
+            class={`!leading-none md:text-xl ${
+              getScoreTextColorClass(
+                jsrScore,
+              )
+            }`}
           >
-            <div>JSR Score</div>
-            <div
-              class={`!leading-none md:text-xl ${
-                getScoreTextColorClass(
-                  jsrScore,
-                )
-              }`}
-            >
-              {jsrScore}%
-            </div>
-          </a>
-        </div>
-        {score.success && score.data
-          ? <ScoreDescription score={score.data} pkg={pkg} />
-          : <></>}
-      </>
+            {jsrScore}%
+          </div>
+        </a>
+      </div>
+      {score.success && score.data
+        ? <ScoreDescription score={score.data} pkg={pkg} />
+        : <></>}
     </div>
   );
 }

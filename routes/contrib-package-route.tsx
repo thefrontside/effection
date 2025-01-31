@@ -1,21 +1,22 @@
 import { type JSXElement, useParams } from "revolution";
-import { call, type Operation } from "effection";
+import { call } from "effection";
+import { shiftHeading } from "npm:hast-util-shift-heading@4.0.0";
+import type { Nodes } from "npm:@types/hast@3.0.4";
 
 import { PackageExports } from "../components/package/exports.tsx";
 import { PackageHeader } from "../components/package/header.tsx";
 import { ScoreCard } from "../components/score-card.tsx";
 import { DocPageContext } from "../context/doc-page.ts";
 import { DocPage } from "../hooks/use-deno-doc.tsx";
-import { ResolveLinkFunction, useMarkdown } from "../hooks/use-markdown.tsx";
+import { useMarkdown } from "../hooks/use-markdown.tsx";
 import { major, minor } from "../lib/semver.ts";
 import type { RoutePath, SitemapRoute } from "../plugins/sitemap.ts";
 import { Repository } from "../resources/repository.ts";
 import { useAppHtml } from "./app.html.tsx";
-import { shiftHeadings } from "../lib/shift-headings.ts";
-import { Package } from "../resources/package.ts";
-import { Type } from "../components/type/jsx.tsx";
-import { NO_DOCS_AVAILABLE } from "../components/type/markdown.tsx";
-import { SourceCodeIcon } from "../components/icons/source-code.tsx";
+import { createToc } from "../lib/toc.ts";
+import { ApiBody } from "../components/api/api-page.tsx";
+import { select } from "npm:hast-util-select@6.0.1";
+import { Icon } from "../components/type/icon.tsx";
 
 interface ContribPackageRouteParams {
   contrib: Repository;
@@ -98,6 +99,69 @@ export function contribPackageRoute({
           return symbol;
         };
 
+        const apiReference = [];
+
+        for (const page of docs["."]) {
+          apiReference.push(
+            yield* call(function* () {
+              yield* DocPageContext.set(page);
+              return yield* ApiBody({ page, linkResolver });
+            }),
+          );
+        }
+
+        apiReference.forEach((section) => shiftHeading(section, 1));
+
+        const content = (
+          <>
+            {yield* useMarkdown(yield* pkg.readme(), { linkResolver })}
+            <h2 id="api-reference">API Reference</h2>
+            <>{apiReference}</>
+          </>
+        );
+
+        const toc = createToc(content, {
+          headings: ["h2", "h3"],
+          cssClasses: {
+            toc:
+              "hidden text-sm font-light tracking-wide leading-loose lg:block relative",
+            link: "flex flex-row items-center",
+          },
+          customizeTOCItem(item, heading) {
+            heading.properties.class = [
+              heading.properties.class,
+              `group scroll-mt-[100px]`,
+            ]
+              .filter(Boolean)
+              .join("");
+
+            const ol = select("ol.toc-level-2, ol.toc-level-3", item as Nodes);
+            if (ol) {
+              ol.properties.className = `${ol.properties.className} ml-6`;
+            }
+            if (
+              heading.properties["data-kind"] &&
+              heading.properties["data-name"]
+            ) {
+              item.properties.className += " mb-1";
+              const a = select("a", item);
+              if (a) {
+                a.children = [
+                  <Icon class="-ml-6" kind={heading.properties["data-kind"]} />,
+                  <span class="hover:underline hover:underline-offset-2">
+                    {heading.properties["data-name"]}
+                  </span>,
+                ];
+              }
+            } else {
+              const a = select("a", item);
+              a.properties.className =
+                `hover:underline hover:underline-offset-2`;
+            }
+            return item;
+          },
+        });
+
         return (
           <AppHTML search={search}>
             <>
@@ -115,13 +179,20 @@ export function contribPackageRoute({
                         linkResolver,
                       })}
                     </div>
-                    {yield* useMarkdown(yield* pkg.readme(), { linkResolver })}
-                    <h2 class="mb-0">API Reference</h2>
-                    {yield* API({ pkg, linkResolver, library })}
+                    {content}
                   </div>
                 </article>
-                <aside class="lg:col-[span_3/_-1] top-[120px] lg:sticky lg:max-h-screen flex flex-col box-border gap-y-4">
+                <aside class="xl:w-[260px] lg:col-[span_3/_-1] top-[120px] lg:sticky lg:max-h-screen flex flex-col box-border gap-y-4">
                   {yield* ScoreCard(pkg)}
+                  <div>
+                    <div
+                      aria-hidden="true"
+                      class="hidden mb-1 lg:block text-sm font-bold"
+                    >
+                      On this page
+                    </div>
+                    {toc}
+                  </div>
                 </aside>
               </div>
             </>
@@ -141,67 +212,6 @@ export function contribPackageRoute({
       }
     },
   };
-}
-
-interface APIOptions {
-  pkg: Package;
-  linkResolver: ResolveLinkFunction;
-  library: Repository;
-}
-
-export function* API({
-  pkg,
-  linkResolver,
-  library,
-}: APIOptions): Operation<JSXElement> {
-  const elements: JSXElement[] = [];
-  const docs = yield* pkg.docs();
-
-  for (const exportName of Object.keys(docs)) {
-    const pages = docs[exportName];
-    const withoutImports = pages.flatMap((page) =>
-      page.kind === "import" ? [] : [page]
-    );
-    for (const page of withoutImports) {
-      const effection = yield* getEffectionDependency(page, library);
-      for (const section of page.sections) {
-        elements.push(
-          <section
-            id={section.id}
-            data-series={effection.version
-              ? `v${major(effection.version)}`
-              : ""}
-            class="flex flex-col border-b-2 pb-5"
-          >
-            <div class="flex group">
-              <h3 class="grow">{yield* Type({ node: section.node })}</h3>
-              <a
-                class="mt-8 opacity-0 before:content-['View_code'] group-hover:opacity-100 before:flex before:text-xs before:mr-1 hover:bg-gray-100 p-2 flex-none flex rounded no-underline items-center h-8"
-                href={`${section.node.location.filename}#L${section.node.location.line}`}
-              >
-                <SourceCodeIcon />
-              </a>
-            </div>
-            <div class="[&>h3:first-child]:mt-0 [&>hr]:my-5 [&>h5]:font-semibold">
-              {yield* call(function* () {
-                yield* DocPageContext.set(page);
-                return yield* useMarkdown(
-                  section.markdown || NO_DOCS_AVAILABLE,
-                  {
-                    remarkPlugins: [[shiftHeadings, 1]],
-                    linkResolver,
-                    slugPrefix: section.id,
-                  },
-                );
-              })}
-            </div>
-          </section>,
-        );
-      }
-    }
-  }
-
-  return <>{elements}</>;
 }
 
 function* getEffectionDependency(page: DocPage, library: Repository) {

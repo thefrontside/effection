@@ -117,7 +117,7 @@ export function docsRoute({
             </article>
             <aside class="min-h-0 overflow-auto sticky h-fit hidden md:block top-[120px]">
               <h3>On this page</h3>
-              <>{doc.toc}</>
+              <div class="w-[200px]">{doc.toc}</div>
             </aside>
           </section>
         </AppHtml>

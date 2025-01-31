@@ -5,7 +5,7 @@ export function Icon(props: { kind: string; class?: string }) {
         <span
           class={`${
             props.class ? props.class : ""
-          } rounded-full bg-sky-100 inline-block w-6 h-full mr-1 text-center`}
+          } rounded-full bg-sky-100 inline-block w-6 h-6 mr-1 text-center`}
         >
           f
         </span>
@@ -15,7 +15,7 @@ export function Icon(props: { kind: string; class?: string }) {
         <span
           class={`${
             props.class ? props.class : ""
-          } rounded-full bg-orange-50 text-orange-600 inline-block w-6 h-full mr-1 text-center`}
+          } rounded-full bg-orange-50 text-orange-600 inline-block w-6 h-6 mr-1 text-center`}
         >
           I
         </span>
@@ -25,7 +25,7 @@ export function Icon(props: { kind: string; class?: string }) {
         <span
           class={`${
             props.class ? props.class : ""
-          } rounded-full bg-red-50 text-red-600 inline-block w-6 h-full mr-1 text-center`}
+          } rounded-full bg-red-50 text-red-600 inline-block w-6 h-6 mr-1 text-center`}
         >
           T
         </span>
@@ -35,7 +35,7 @@ export function Icon(props: { kind: string; class?: string }) {
         <span
           class={`${
             props.class ? props.class : ""
-          } rounded-full bg-purple-200 text-violet-600 inline-block w-6 h-full mr-1 text-center`}
+          } rounded-full bg-purple-200 text-violet-600 inline-block w-6 h-6 mr-1 text-center`}
         >
           v
         </span>

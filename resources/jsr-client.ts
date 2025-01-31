@@ -38,7 +38,7 @@ const PackageDetails = z.object({
     name: z.string(),
     createdAt: z.string().datetime(),
     updatedAt: z.string().datetime(),
-  }),
+  }).nullable(),
   score: z.number().min(0).max(100),
 });
 

@@ -7,13 +7,12 @@ import { NormalizedOptions } from "npm:@jsdevtools/rehype-toc@3.0.2/lib/options.
 import type { Nodes } from "npm:@types/hast@3.0.4";
 import { JSXElement } from "revolution/jsx-runtime";
 
-export function toc(root: Nodes, options?: Options): JSXElement {
+export function createToc(root: Nodes, options?: Options): JSXElement {
   const _options = new NormalizedOptions(
     options ?? {
       cssClasses: {
         toc:
           "hidden text-sm font-light tracking-wide leading-loose lg:block relative pt-2",
-        list: "w-[200px]",
         link: "hover:underline hover:underline-offset-2",
       },
     },

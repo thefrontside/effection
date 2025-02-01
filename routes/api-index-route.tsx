@@ -114,7 +114,7 @@ export function apiIndexRoute({
                 new users. Reach out in Discord if you're unsure which version
                 is right for you.
               </p>
-              <h3>Latest release: {v4version}</h3>
+              <h3>Latest release: {v4version} <a href="/docs/v4/"></a></h3>
               <p>This release includes the following exports:</p>
               <ul class="columns-3 pl-0">
                 {yield* listPages({

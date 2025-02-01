@@ -24,6 +24,7 @@ export interface DocModule {
 export interface Docs {
   all(): Operation<Doc[]>;
   getDoc(id?: string): Operation<Doc | undefined>;
+  first(): Operation<Doc>;
 }
 
 export interface Topic {
@@ -61,7 +62,7 @@ export function loadDocs(
 
     let scope = yield* useScope();
 
-    function* load() {
+    function* fetchLoaders() {
       const latest = yield* repo.getLatestSemverTag(pattern);
 
       if (!latest) {
@@ -119,18 +120,25 @@ export function loadDocs(
       return tasks;
     }
 
+    function* load() {
+      if (!loaders) {
+        loaders = yield* fetchLoaders();
+      }
+      return loaders;
+    }
+
     yield* provide({
+      *first() {
+        const [[_id, task]] = (yield* load()).entries();
+        return yield* task;
+      },
       *all() {
-        if (!loaders) {
-          loaders = yield* load();
-        }
+        const loaders = yield* load();
         return yield* all([...loaders.values()]);
       },
       *getDoc(id) {
         if (id) {
-          if (!loaders) {
-            loaders = yield* load();
-          }
+          const loaders = yield* load();
           let task = loaders.get(id);
           if (task) {
             return yield* task;

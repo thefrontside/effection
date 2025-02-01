@@ -32,6 +32,7 @@ import { previewRoute } from "./routes/preview-route.tsx";
 import { previewApiRoute } from "./routes/preview-api-route.tsx";
 import { pagefindRoute } from "./routes/pagefind-route.ts";
 import { searchRoute } from "./routes/search-route.tsx";
+import { redirectRoute } from "./routes/redirect-route.tsx";
 
 // Learn more at https://docs.deno.com/runtime/manual/examples/module_metadata#concepts
 if (import.meta.main) {
@@ -83,7 +84,15 @@ if (import.meta.main) {
           "/docs/v4/:id",
           docsRoute({ docs: docsV4, search: true, series: "v4" }),
         ),
+        route(
+          "/docs/v4",
+          redirectRoute({ to: `/docs/${(yield* docsV4.first()).id}` }),
+        ),
         route("/docs/:id", docsRoute({ docs, search: true, series: "v3" })),
+        route(
+          "/docs",
+          redirectRoute({ to: `/docs/${(yield* docs.first()).id}` }),
+        ),
         route("/contrib", contribIndexRoute({ contrib, search: true })),
         route(
           "/contrib/:workspacePath",

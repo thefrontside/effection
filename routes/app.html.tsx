@@ -4,10 +4,12 @@ import type { JSXChild } from "revolution";
 import { Footer } from "../components/footer.tsx";
 import { Header, type HeaderProps } from "../components/header.tsx";
 import { useAbsoluteUrl } from "../plugins/rebase.ts";
+import { JSXElement } from "revolution/jsx-runtime";
 
 export type Options = {
   title: string;
   description: string;
+  head?: JSXElement
 } & HeaderProps;
 
 export interface AppHtmlProps {
@@ -19,6 +21,7 @@ export function* useAppHtml({
   title,
   description,
   hasLeftSidebar,
+  head
 }: Options): Operation<({ children, search }: AppHtmlProps) => JSX.Element> {
   let twitterImageURL = yield* useAbsoluteUrl(
     "/assets/images/meta-effection.png",
@@ -63,6 +66,7 @@ export function* useAppHtml({
         </noscript>
         <script type="module" src="https://esm.sh/@11ty/is-land@4.0.0" />
         <script type="module" src="/assets/search.js" />
+        {head ?? <></>}
       </head>
       <body class="flex flex-col">
         {header}

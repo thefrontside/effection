@@ -9,7 +9,7 @@ import { JSXElement } from "revolution/jsx-runtime";
 export type Options = {
   title: string;
   description: string;
-  head?: JSXElement
+  head?: JSXElement;
 } & HeaderProps;
 
 export interface AppHtmlProps {
@@ -21,7 +21,7 @@ export function* useAppHtml({
   title,
   description,
   hasLeftSidebar,
-  head
+  head,
 }: Options): Operation<({ children, search }: AppHtmlProps) => JSX.Element> {
   let twitterImageURL = yield* useAbsoluteUrl(
     "/assets/images/meta-effection.png",

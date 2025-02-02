@@ -2,9 +2,9 @@ import { useAppHtml } from "./app.html.tsx";
 
 /**
  * Redirect using HTML
- * @param req 
- * @param to 
- * @returns 
+ * @param req
+ * @param to
+ * @returns
  */
 export function* softRedirect(req: Request, to: string) {
   const url = new URL(to, new URL(req.url).origin);

@@ -17,7 +17,6 @@ import { contribIndexRoute } from "./routes/contrib-index-route.tsx";
 import { contribPackageRoute } from "./routes/contrib-package-route.tsx";
 
 import { patchDenoPermissionsQuerySync } from "./deno-deploy-patch.ts";
-import { loadDocs } from "./resources/docs.ts";
 import { loadRepository } from "./resources/repository.ts";
 import { initGithubClientContext } from "./context/github.ts";
 import { initJSRClient } from "./context/jsr.ts";
@@ -32,7 +31,6 @@ import { previewRoute } from "./routes/preview-route.tsx";
 import { previewApiRoute } from "./routes/preview-api-route.tsx";
 import { pagefindRoute } from "./routes/pagefind-route.ts";
 import { searchRoute } from "./routes/search-route.tsx";
-import { redirectRoute } from "./routes/redirect-route.tsx";
 
 // Learn more at https://docs.deno.com/runtime/manual/examples/module_metadata#concepts
 if (import.meta.main) {
@@ -71,27 +69,20 @@ if (import.meta.main) {
       owner: "thefrontside",
       name: "effection-contrib",
     });
-    yield* ContribRepositoryContext.set(contrib);
 
-    let docs = yield* loadDocs({ repo: library, pattern: "effection-v3" });
-    let docsV4 = yield* loadDocs({ repo: library, pattern: "effection-v4" });
+    yield* ContribRepositoryContext.set(contrib);
 
     let revolution = createRevolution({
       app: [
         route("/", indexRoute()),
         route("/search", searchRoute()),
         route(
-          "/docs/v4/:id",
-          docsRoute({ docs: docsV4, search: true, series: "v4" }),
+          "/docs/v4{/:id}",
+          docsRoute({ repository: library, search: true, series: "v4" }),
         ),
         route(
-          "/docs/v4",
-          redirectRoute({ to: `/docs/${(yield* docsV4.first()).id}` }),
-        ),
-        route("/docs/:id", docsRoute({ docs, search: true, series: "v3" })),
-        route(
-          "/docs",
-          redirectRoute({ to: `/docs/${(yield* docs.first()).id}` }),
+          "/docs{/:id}",
+          docsRoute({ repository: library, search: true, series: "v3" }),
         ),
         route("/contrib", contribIndexRoute({ contrib, search: true })),
         route(
@@ -117,10 +108,10 @@ if (import.meta.main) {
           apiMinorSymbolRoute({ library, search: false }),
         ),
         route(
-          "/pagefind(.*)",
+          "/pagefind{/*path}",
           pagefindRoute({ pagefindDir: "pagefind", publicDir: "./built/" }),
         ),
-        route("/assets(.*)", assetsRoute("assets")),
+        route("/assets{/*path}", assetsRoute("assets")),
         route("/preview", previewRoute({ library })),
         route("/preview/api/:symbol", previewApiRoute({ library })),
       ],

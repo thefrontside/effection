@@ -3,45 +3,81 @@ import { type JSXElement, respondNotFound, useParams } from "revolution";
 
 import { useDescription } from "../hooks/use-description-parse.tsx";
 import { RoutePath, SitemapRoute } from "../plugins/sitemap.ts";
-import type { DocMeta, Docs } from "../resources/docs.ts";
+import { guides, type GuidesMeta } from "../resources/guides.ts";
 import { useAppHtml } from "./app.html.tsx";
-import { createSibling } from "./links-resolvers.ts";
+import { createChildURL, createSibling } from "./links-resolvers.ts";
 import { Navburger } from "../components/navburger.tsx";
+import { Repository } from "../resources/repository.ts";
+import { softRedirect } from "./redirect.tsx";
+import { IconExternal } from "../components/icons/external.tsx";
+import { extractVersion } from "../lib/semver.ts";
 
-export function docsRoute({
-  docs,
-  search,
+function* getSeriesRef({
+  repository,
   series,
 }: {
-  docs: Docs;
+  repository: Repository;
+  series: string;
+}) {
+  const latest = yield* repository.getLatestSemverTag(`effection-${series}`);
+
+  if (!latest) {
+    throw new Error(`Could not retrieve latest tag for "effection-${series}"`);
+  }
+
+  return yield* repository.loadRef(`tags/${latest.name}`);
+}
+
+export function docsRoute({
+  search,
+  series,
+  repository,
+}: {
+  repository: Repository;
   search: boolean;
   series: string;
 }): SitemapRoute<JSXElement> {
   return {
     *routemap(pathname) {
-      let paths: RoutePath[] = [];
-      for (let doc of yield* docs.all()) {
+      let paths: RoutePath[] = [
+        {
+          // @ts-expect-error Type 'undefined' is not assignable to type 'string'.
+          pathname: pathname({ id: undefined }),
+        },
+      ];
+      const ref = yield* getSeriesRef({ repository, series });
+      const pages = yield* guides({ ref });
+
+      for (let page of yield* pages.all()) {
         paths.push({
-          pathname: pathname({ id: doc.id }),
+          pathname: pathname({ id: page.id }),
         });
       }
       return paths;
     },
-    *handler() {
-      let { id } = yield* useParams<{ id: string }>();
+    *handler(req) {
+      let { id } = yield* useParams<{ id: string | undefined }>();
 
-      const doc = yield* docs.getDoc(id);
+      const ref = yield* getSeriesRef({ repository, series });
+      const pages = yield* guides({ ref });
 
-      if (!doc) {
+      if (!id) {
+        const page = yield* pages.first();
+        return yield* softRedirect(req, yield* createChildURL()(page.id));
+      }
+
+      const page = yield* pages.get(id);
+
+      if (!page) {
         return yield* respondNotFound();
       }
 
-      let { topics } = doc;
+      let { topics } = page;
 
-      const description = yield* useDescription(doc.markdown);
+      const description = yield* useDescription(page.markdown);
 
       let AppHtml = yield* useAppHtml({
-        title: `${doc.title} | Docs | Effection`,
+        title: `${page.title} | Docs | Effection`,
         description,
         hasLeftSidebar: true,
       });
@@ -53,26 +89,24 @@ export function docsRoute({
         for (const item of topic.items) {
           items.push(
             <li class="mt-1">
-              {doc.id !== item.id
-                ? (
-                  <a
-                    class="rounded px-4 block w-full py-2 hover:bg-gray-100"
-                    href={yield* createSibling(item.id)}
-                  >
-                    {item.title}
-                  </a>
-                )
-                : (
-                  <a class="rounded px-4 block w-full py-2 bg-gray-100 cursor-default">
-                    {item.title}
-                  </a>
-                )}
+              {page.id !== item.id ? (
+                <a
+                  class="rounded px-4 block w-full py-2 hover:bg-gray-100"
+                  href={yield* createSibling(item.id)}
+                >
+                  {item.title}
+                </a>
+              ) : (
+                <a class="rounded px-4 block w-full py-2 bg-gray-100 cursor-default">
+                  {item.title}
+                </a>
+              )}
             </li>,
           );
         }
         topicsList.push(
           <hgroup class="mb-2">
-            <h3 class="text-lg">{topic.name}</h3>
+            <h3 class="font-semibold">{topic.name}</h3>
             <menu class="text-gray-700">{items}</menu>
           </hgroup>,
         );
@@ -104,20 +138,31 @@ export function docsRoute({
               </style>
             </aside>
             <aside class="min-h-0 overflow-auto hidden md:block top-[120px] sticky h-fit">
-              <nav class="pl-4">{topicsList}</nav>
+              <div class="text-xl flex flex-row items-baseline space-x-2 mb-3">
+                <span class="font-bold">Guides</span>
+                <a href={ref.url} class="text-base">
+                  {series}{" "}
+                  <IconExternal
+                    class="inline-block align-baseline"
+                    height="15"
+                    width="15"
+                  />
+                </a>
+              </div>
+              <nav>{topicsList}</nav>
             </aside>
             <article
               class="prose max-w-full px-6 py-2"
               data-pagefind-filter={`version[data-series], section:Guides`}
               data-series={series}
             >
-              <h1>{doc.title}</h1>
-              <>{doc.content}</>
-              {yield* NextPrevLinks({ doc })}
+              <h1>{page.title}</h1>
+              <>{page.content}</>
+              {yield* NextPrevLinks({ page })}
             </article>
             <aside class="min-h-0 overflow-auto sticky h-fit hidden md:block top-[120px]">
               <h3>On this page</h3>
-              <div class="w-[200px]">{doc.toc}</div>
+              <div class="w-[200px]">{page.toc}</div>
             </aside>
           </section>
         </AppHtml>
@@ -126,41 +171,36 @@ export function docsRoute({
   };
 }
 
-function* NextPrevLinks({
-  doc,
-}: {
-  doc: DocMeta;
-  base?: string;
-}): Operation<JSXElement> {
-  let { next, prev } = doc;
+function* NextPrevLinks({ page }: { page: GuidesMeta }): Operation<JSXElement> {
+  let { next, prev } = page;
   return (
     <menu class="grid grid-cols-2 my-10 gap-x-2 xl:gap-x-20 2xl:gap-x-40 text-lg">
-      {prev
-        ? (
-          <li class="col-start-1 text-left font-light border-1 rounded-lg p-4">
-            Previous
-            <a
-              class="py-2 block text-xl font-bold text-blue-primary no-underline tracking-wide leading-5 before:content-['«&nbsp;'] before:font-normal"
-              href={yield* createSibling(prev.id)}
-            >
-              {prev.title}
-            </a>
-          </li>
-        )
-        : <li />}
-      {next
-        ? (
-          <li class="col-start-2 text-right font-light border-1 rounded-lg p-4">
-            Next
-            <a
-              class="py-2 block text-xl font-bold text-blue-primary no-underline tracking-wide leading-5 after:content-['&nbsp;»'] after:font-normal"
-              href={yield* createSibling(next.id)}
-            >
-              {next.title}
-            </a>
-          </li>
-        )
-        : <li />}
+      {prev ? (
+        <li class="col-start-1 text-left font-light border-1 rounded-lg p-4">
+          Previous
+          <a
+            class="py-2 block text-xl font-bold text-blue-primary no-underline tracking-wide leading-5 before:content-['«&nbsp;'] before:font-normal"
+            href={yield* createSibling(prev.id)}
+          >
+            {prev.title}
+          </a>
+        </li>
+      ) : (
+        <li />
+      )}
+      {next ? (
+        <li class="col-start-2 text-right font-light border-1 rounded-lg p-4">
+          Next
+          <a
+            class="py-2 block text-xl font-bold text-blue-primary no-underline tracking-wide leading-5 after:content-['&nbsp;»'] after:font-normal"
+            href={yield* createSibling(next.id)}
+          >
+            {next.title}
+          </a>
+        </li>
+      ) : (
+        <li />
+      )}
     </menu>
   );
 }

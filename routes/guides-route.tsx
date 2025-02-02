@@ -1,4 +1,4 @@
-import { Operation } from "effection";
+import { all, Operation } from "effection";
 import { type JSXElement, respondNotFound, useParams } from "revolution";
 
 import { useDescription } from "../hooks/use-description-parse.tsx";
@@ -27,42 +27,59 @@ function* getSeriesRef({
   return yield* repository.loadRef(`tags/${latest.name}`);
 }
 
-export function docsRoute({
+const SERIES = ["v3", "v4"];
+const STABLE_SERIES = "v3";
+
+export function guidesRoute({
   search,
-  series,
   repository,
 }: {
   repository: Repository;
   search: boolean;
-  series: string;
 }): SitemapRoute<JSXElement> {
   return {
     *routemap(pathname) {
-      let paths: RoutePath[] = [
+      const routes = SERIES.map(function* (series) {
+        let paths: RoutePath[] = [
+          {
+            // @ts-expect-error Type 'undefined' is not assignable to type 'string'.
+            pathname: pathname({ id: undefined, series }),
+          },
+        ];
+        const ref = yield* getSeriesRef({ repository, series });
+        const pages = yield* guides({ ref });
+
+        for (let page of yield* pages.all()) {
+          paths.push({
+            pathname: pathname({ id: page.id, series }),
+          });
+        }
+        return paths;
+      });
+
+      return [
         {
           // @ts-expect-error Type 'undefined' is not assignable to type 'string'.
-          pathname: pathname({ id: undefined }),
+          pathname: pathname({ id: undefined, series: undefined }),
         },
-      ];
-      const ref = yield* getSeriesRef({ repository, series });
-      const pages = yield* guides({ ref });
-
-      for (let page of yield* pages.all()) {
-        paths.push({
-          pathname: pathname({ id: page.id }),
-        });
-      }
-      return paths;
+        ...(yield* all(routes)),
+      ].flat();
     },
     *handler(req) {
-      let { id } = yield* useParams<{ id: string | undefined }>();
+      let { id, series = STABLE_SERIES } = yield* useParams<{
+        id: string | undefined;
+        series: string | undefined;
+      }>();
 
       const ref = yield* getSeriesRef({ repository, series });
       const pages = yield* guides({ ref });
 
       if (!id) {
         const page = yield* pages.first();
-        return yield* softRedirect(req, yield* createChildURL()(page.id));
+        return yield* softRedirect(
+          req,
+          yield* createChildURL()(`${series}/${page.id}`),
+        );
       }
 
       const page = yield* pages.get(id);
@@ -88,20 +105,18 @@ export function docsRoute({
         for (const item of topic.items) {
           items.push(
             <li class="mt-1">
-              {page.id !== item.id
-                ? (
-                  <a
-                    class="rounded px-4 block w-full py-2 hover:bg-gray-100"
-                    href={yield* createSibling(item.id)}
-                  >
-                    {item.title}
-                  </a>
-                )
-                : (
-                  <a class="rounded px-4 block w-full py-2 bg-gray-100 cursor-default">
-                    {item.title}
-                  </a>
-                )}
+              {page.id !== item.id ? (
+                <a
+                  class="rounded px-4 block w-full py-2 hover:bg-gray-100"
+                  href={yield* createSibling(item.id)}
+                >
+                  {item.title}
+                </a>
+              ) : (
+                <a class="rounded px-4 block w-full py-2 bg-gray-100 cursor-default">
+                  {item.title}
+                </a>
+              )}
             </li>,
           );
         }
@@ -176,32 +191,32 @@ function* NextPrevLinks({ page }: { page: GuidesMeta }): Operation<JSXElement> {
   let { next, prev } = page;
   return (
     <menu class="grid grid-cols-2 my-10 gap-x-2 xl:gap-x-20 2xl:gap-x-40 text-lg">
-      {prev
-        ? (
-          <li class="col-start-1 text-left font-light border-1 rounded-lg p-4">
-            Previous
-            <a
-              class="py-2 block text-xl font-bold text-blue-primary no-underline tracking-wide leading-5 before:content-['«&nbsp;'] before:font-normal"
-              href={yield* createSibling(prev.id)}
-            >
-              {prev.title}
-            </a>
-          </li>
-        )
-        : <li />}
-      {next
-        ? (
-          <li class="col-start-2 text-right font-light border-1 rounded-lg p-4">
-            Next
-            <a
-              class="py-2 block text-xl font-bold text-blue-primary no-underline tracking-wide leading-5 after:content-['&nbsp;»'] after:font-normal"
-              href={yield* createSibling(next.id)}
-            >
-              {next.title}
-            </a>
-          </li>
-        )
-        : <li />}
+      {prev ? (
+        <li class="col-start-1 text-left font-light border-1 rounded-lg p-4">
+          Previous
+          <a
+            class="py-2 block text-xl font-bold text-blue-primary no-underline tracking-wide leading-5 before:content-['«&nbsp;'] before:font-normal"
+            href={yield* createSibling(prev.id)}
+          >
+            {prev.title}
+          </a>
+        </li>
+      ) : (
+        <li />
+      )}
+      {next ? (
+        <li class="col-start-2 text-right font-light border-1 rounded-lg p-4">
+          Next
+          <a
+            class="py-2 block text-xl font-bold text-blue-primary no-underline tracking-wide leading-5 after:content-['&nbsp;»'] after:font-normal"
+            href={yield* createSibling(next.id)}
+          >
+            {next.title}
+          </a>
+        </li>
+      ) : (
+        <li />
+      )}
     </menu>
   );
 }

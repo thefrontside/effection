@@ -10,7 +10,7 @@ import { route, sitemapPlugin } from "./plugins/sitemap.ts";
 import { twindPlugin } from "./plugins/twind.ts";
 
 import { assetsRoute } from "./routes/assets-route.ts";
-import { docsRoute } from "./routes/docs-route.tsx";
+import { docsRoute, guidesRoute } from "./routes/guides-route.tsx";
 import { indexRoute } from "./routes/index-route.tsx";
 import { apiReferenceRoute } from "./routes/api-reference-route.tsx";
 import { contribIndexRoute } from "./routes/contrib-index-route.tsx";
@@ -77,12 +77,8 @@ if (import.meta.main) {
         route("/", indexRoute()),
         route("/search", searchRoute()),
         route(
-          "/docs/v4{/:id}",
-          docsRoute({ repository: library, search: true, series: "v4" }),
-        ),
-        route(
-          "/docs{/:id}",
-          docsRoute({ repository: library, search: true, series: "v3" }),
+          "/docs{/:series}{/:id}",
+          guidesRoute({ repository: library, search: true }),
         ),
         route("/contrib", contribIndexRoute({ contrib, search: true })),
         route(

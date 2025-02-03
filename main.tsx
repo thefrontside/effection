@@ -10,7 +10,7 @@ import { route, sitemapPlugin } from "./plugins/sitemap.ts";
 import { twindPlugin } from "./plugins/twind.ts";
 
 import { assetsRoute } from "./routes/assets-route.ts";
-import { docsRoute, guidesRoute } from "./routes/guides-route.tsx";
+import { guidesRoute } from "./routes/guides-route.tsx";
 import { indexRoute } from "./routes/index-route.tsx";
 import { apiReferenceRoute } from "./routes/api-reference-route.tsx";
 import { contribIndexRoute } from "./routes/contrib-index-route.tsx";

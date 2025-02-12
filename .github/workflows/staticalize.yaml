@@ -1,4 +1,7 @@
 on:
+  workflow_dispatch: # Allows manual trigger
+  schedule:
+    - cron: "0 */8 * * *" # Runs every 8 hours
   pull_request:
   push:
     branches:

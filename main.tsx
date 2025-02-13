@@ -1,6 +1,6 @@
 import { main, suspend } from "effection";
-import { createRevolution, ServerInfo } from "revolution";
 import { initDenoDeploy } from "jsr:@effection-contrib/deno-deploy@0.1.0";
+import { createRevolution, ServerInfo } from "revolution";
 
 import { config } from "./tailwind.config.ts";
 
@@ -9,33 +9,30 @@ import { rebasePlugin } from "./plugins/rebase.ts";
 import { route, sitemapPlugin } from "./plugins/sitemap.ts";
 import { twindPlugin } from "./plugins/twind.ts";
 
-import { assetsRoute } from "./routes/assets-route.ts";
-import {
-  firstPage,
-  getFirstPageId,
-  guidesRoute,
-} from "./routes/guides-route.tsx";
-import { indexRoute } from "./routes/index-route.tsx";
 import { apiReferenceRoute } from "./routes/api-reference-route.tsx";
+import { assetsRoute } from "./routes/assets-route.ts";
 import { contribIndexRoute } from "./routes/contrib-index-route.tsx";
 import { contribPackageRoute } from "./routes/contrib-package-route.tsx";
+import { firstPage, guidesRoute } from "./routes/guides-route.tsx";
+import { indexRoute } from "./routes/index-route.tsx";
 
-import { patchDenoPermissionsQuerySync } from "./deno-deploy-patch.ts";
-import { loadRepository } from "./resources/repository.ts";
 import { initGithubClientContext } from "./context/github.ts";
 import { initJSRClient } from "./context/jsr.ts";
-import { apiIndexRoute } from "./routes/api-index-route.tsx";
-import { apiMinorIndexRoute } from "./routes/api-minor-index-route.tsx";
-import { apiMinorSymbolRoute } from "./routes/api-minor-symbol-route.tsx";
 import {
   ContribRepositoryContext,
   LibraryRepositoryContext,
 } from "./context/repository.ts";
-import { previewRoute } from "./routes/preview-route.tsx";
-import { previewApiRoute } from "./routes/preview-api-route.tsx";
+import { patchDenoPermissionsQuerySync } from "./deno-deploy-patch.ts";
+import { loadRepository } from "./resources/repository.ts";
+import { apiIndexRoute } from "./routes/api-index-route.tsx";
+import { apiMinorIndexRoute } from "./routes/api-minor-index-route.tsx";
+import { apiMinorSymbolRoute } from "./routes/api-minor-symbol-route.tsx";
 import { pagefindRoute } from "./routes/pagefind-route.ts";
+import { previewApiRoute } from "./routes/preview-api-route.tsx";
+import { previewRoute } from "./routes/preview-route.tsx";
+import { redirectDocsRoute } from "./routes/redirect-docs-route.tsx";
+import { redirectIndexRoute } from "./routes/redirect-index-route.tsx";
 import { searchRoute } from "./routes/search-route.tsx";
-import { guidesIndexRoute, redirectIndexRoute, redirectRoute } from "./routes/redirect-index-route.tsx";
 
 // Learn more at https://docs.deno.com/runtime/manual/examples/module_metadata#concepts
 if (import.meta.main) {
@@ -81,10 +78,14 @@ if (import.meta.main) {
       app: [
         route("/", indexRoute()),
         route("/search", searchRoute()),
-        // route(
-        //   "/docs/:id",
-        //   redirectGuides
-        // ),
+        route(
+          "/docs",
+          redirectIndexRoute(firstPage({ repository: library, series: "v3" })),
+        ),
+        route(
+          "/docs/:id",
+          redirectDocsRoute({ repository: library, series: "v3" }),
+        ),
         route(
           "/guides/v3",
           redirectIndexRoute(firstPage({ repository: library, series: "v3" })),

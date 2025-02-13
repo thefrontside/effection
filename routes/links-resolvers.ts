@@ -28,5 +28,5 @@ export function createRootUrl(prefix?: string) {
       ...[prefix, pathname].flatMap((s) => s ? [s] : []),
     );
     return url.toString().replace(url.origin, "");
-  }
+  };
 }

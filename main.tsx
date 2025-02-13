@@ -10,7 +10,11 @@ import { route, sitemapPlugin } from "./plugins/sitemap.ts";
 import { twindPlugin } from "./plugins/twind.ts";
 
 import { assetsRoute } from "./routes/assets-route.ts";
-import { guidesRoute } from "./routes/guides-route.tsx";
+import {
+  firstPage,
+  getFirstPageId,
+  guidesRoute,
+} from "./routes/guides-route.tsx";
 import { indexRoute } from "./routes/index-route.tsx";
 import { apiReferenceRoute } from "./routes/api-reference-route.tsx";
 import { contribIndexRoute } from "./routes/contrib-index-route.tsx";
@@ -31,7 +35,7 @@ import { previewRoute } from "./routes/preview-route.tsx";
 import { previewApiRoute } from "./routes/preview-api-route.tsx";
 import { pagefindRoute } from "./routes/pagefind-route.ts";
 import { searchRoute } from "./routes/search-route.tsx";
-import { guidesIndexRoute } from "./routes/guides-index-route.tsx";
+import { guidesIndexRoute, redirectRoute } from "./routes/redirect-route.tsx";
 
 // Learn more at https://docs.deno.com/runtime/manual/examples/module_metadata#concepts
 if (import.meta.main) {
@@ -78,8 +82,16 @@ if (import.meta.main) {
         route("/", indexRoute()),
         route("/search", searchRoute()),
         route(
-          "/docs/:series",
-          guidesIndexRoute({ repository: library }),
+          "/docs/v3",
+          redirectRoute({
+            redirect: firstPage({ repository: library, series: "v3" }),
+          }),
+        ),
+        route(
+          "/docs/v4",
+          redirectRoute({
+            redirect: firstPage({ repository: library, series: "v4" }),
+          }),
         ),
         route(
           "/docs/:series/:id",

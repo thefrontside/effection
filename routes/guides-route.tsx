@@ -27,6 +27,22 @@ function* getSeriesRef({
   return yield* repository.loadRef(`tags/${latest.name}`);
 }
 
+export function firstPage({
+  repository,
+  series,
+}: {
+  repository: Repository;
+  series: string;
+}) {
+  return function* () {
+    const ref = yield* getSeriesRef({ repository, series });
+    const pages = yield* guides({ ref });
+
+    const page = yield* pages.first();
+    return yield* createChildURL()(page.id);
+  };
+}
+
 const SERIES = ["v3", "v4"];
 const STABLE_SERIES = "v3";
 
@@ -39,13 +55,8 @@ export function guidesRoute({
 }): SitemapRoute<JSXElement> {
   return {
     *routemap(pathname) {
-      const routes = SERIES.map(function* (series) {
-        let paths: RoutePath[] = [
-          {
-            // @ts-expect-error Type 'undefined' is not assignable to type 'string'.
-            pathname: pathname({ id: undefined, series }),
-          },
-        ];
+      const paths = SERIES.map(function* (series) {
+        let paths: RoutePath[] = [];
         const ref = yield* getSeriesRef({ repository, series });
         const pages = yield* guides({ ref });
 
@@ -56,14 +67,7 @@ export function guidesRoute({
         }
         return paths;
       });
-
-      return [
-        {
-          // @ts-expect-error Type 'undefined' is not assignable to type 'string'.
-          pathname: pathname({ id: undefined, series: undefined }),
-        },
-        ...(yield* all(routes)),
-      ].flat();
+      return (yield* all(paths)).flat();
     },
     *handler(req) {
       let { id, series = STABLE_SERIES } = yield* useParams<{

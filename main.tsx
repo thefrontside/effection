@@ -31,6 +31,7 @@ import { previewRoute } from "./routes/preview-route.tsx";
 import { previewApiRoute } from "./routes/preview-api-route.tsx";
 import { pagefindRoute } from "./routes/pagefind-route.ts";
 import { searchRoute } from "./routes/search-route.tsx";
+import { guidesIndexRoute } from "./routes/guides-index-route.tsx";
 
 // Learn more at https://docs.deno.com/runtime/manual/examples/module_metadata#concepts
 if (import.meta.main) {
@@ -77,7 +78,11 @@ if (import.meta.main) {
         route("/", indexRoute()),
         route("/search", searchRoute()),
         route(
-          "/docs{/:series}{/:id}",
+          "/docs/:series",
+          guidesIndexRoute({ repository: library }),
+        ),
+        route(
+          "/docs/:series/:id",
           guidesRoute({ repository: library, search: true }),
         ),
         route("/contrib", contribIndexRoute({ contrib, search: true })),

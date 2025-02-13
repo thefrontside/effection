@@ -13,7 +13,7 @@ export function* softRedirect(req: Request, to: string) {
     title: `Redirect to ${to} | Effection`,
     description: `Redirect ${to}`,
     hasLeftSidebar: true,
-    head: <meta http-equiv="refresh" content={`0; url=${url}`} />,
+    head: <meta http-equiv="refresh" content={`0; url=${url.toString().replace(url.origin, "")}`} />,
   });
 
   return (

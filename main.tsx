@@ -35,7 +35,7 @@ import { previewRoute } from "./routes/preview-route.tsx";
 import { previewApiRoute } from "./routes/preview-api-route.tsx";
 import { pagefindRoute } from "./routes/pagefind-route.ts";
 import { searchRoute } from "./routes/search-route.tsx";
-import { guidesIndexRoute, redirectRoute } from "./routes/redirect-route.tsx";
+import { guidesIndexRoute, redirectIndexRoute, redirectRoute } from "./routes/redirect-index-route.tsx";
 
 // Learn more at https://docs.deno.com/runtime/manual/examples/module_metadata#concepts
 if (import.meta.main) {
@@ -81,20 +81,20 @@ if (import.meta.main) {
       app: [
         route("/", indexRoute()),
         route("/search", searchRoute()),
+        // route(
+        //   "/docs/:id",
+        //   redirectGuides
+        // ),
         route(
-          "/docs/v3",
-          redirectRoute({
-            redirect: firstPage({ repository: library, series: "v3" }),
-          }),
+          "/guides/v3",
+          redirectIndexRoute(firstPage({ repository: library, series: "v3" })),
         ),
         route(
-          "/docs/v4",
-          redirectRoute({
-            redirect: firstPage({ repository: library, series: "v4" }),
-          }),
+          "/guides/v4",
+          redirectIndexRoute(firstPage({ repository: library, series: "v4" })),
         ),
         route(
-          "/docs/:series/:id",
+          "/guides/:series/:id",
           guidesRoute({ repository: library, search: true }),
         ),
         route("/contrib", contribIndexRoute({ contrib, search: true })),

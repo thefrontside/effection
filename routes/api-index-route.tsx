@@ -117,7 +117,7 @@ export function apiIndexRoute({
               <div class="flex flex-row items-center mt-5 mb-3 space-x-2">
                 <h3 class="my-0">Latest release: {v4version}</h3>
                 <div class="h-fit">
-                  (<a class="text-sm" href="/docs/v4/">Guides</a>)
+                  (<a class="text-sm" href="/guides/v4/">Guides</a>)
                 </div>
               </div>
               <p>This release includes the following exports:</p>

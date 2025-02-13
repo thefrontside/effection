@@ -44,7 +44,7 @@ export function* Header(props?: HeaderProps) {
           <>
             <ul class="grid grid-flow-col auto-col-auto float-right place-items-end items-center gap-3 md:gap-7 lg:gap-12 md:ml-5">
               <li>
-                <a href="/docs/installation">Guides</a>
+                <a href="/guides/v3">Guides</a>
               </li>
               <li>
                 <a href="/api">API</a>

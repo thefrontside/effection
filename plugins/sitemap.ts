@@ -2,7 +2,7 @@ import type { Middleware, RevolutionPlugin } from "revolution";
 import { route as revolutionRoute, useRevolutionOptions } from "revolution";
 import type { Operation } from "effection";
 import { stringify } from "jsr:@libs/xml";
-import { compile } from "https://deno.land/x/path_to_regexp@v6.2.1/index.ts";
+import { compile } from "npm:path-to-regexp@8.2.0";
 import { useAbsoluteUrlFactory } from "./rebase.ts";
 
 export function sitemapPlugin(): RevolutionPlugin {

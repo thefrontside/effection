@@ -1,47 +1,103 @@
-import { Operation } from "effection";
+import { all, Operation } from "effection";
 import { type JSXElement, respondNotFound, useParams } from "revolution";
 
 import { useDescription } from "../hooks/use-description-parse.tsx";
 import { RoutePath, SitemapRoute } from "../plugins/sitemap.ts";
-import type { DocMeta, Docs } from "../resources/docs.ts";
+import { guides, type GuidesMeta } from "../resources/guides.ts";
 import { useAppHtml } from "./app.html.tsx";
-import { createSibling } from "./links-resolvers.ts";
+import { createChildURL, createSibling } from "./links-resolvers.ts";
 import { Navburger } from "../components/navburger.tsx";
+import { Repository } from "../resources/repository.ts";
+import { softRedirect } from "./redirect.tsx";
+import { IconExternal } from "../components/icons/external.tsx";
 
-export function docsRoute({
-  docs,
-  search,
+export function* getSeriesRef({
+  repository,
   series,
 }: {
-  docs: Docs;
-  search: boolean;
+  repository: Repository;
   series: string;
+}) {
+  const latest = yield* repository.getLatestSemverTag(`effection-${series}`);
+
+  if (!latest) {
+    throw new Error(`Could not retrieve latest tag for "effection-${series}"`);
+  }
+
+  return yield* repository.loadRef(`tags/${latest.name}`);
+}
+
+export function firstPage({
+  repository,
+  series,
+}: {
+  repository: Repository;
+  series: string;
+}) {
+  return function* () {
+    const ref = yield* getSeriesRef({ repository, series });
+    const pages = yield* guides({ ref });
+
+    const page = yield* pages.first();
+    return yield* createChildURL()(page.id);
+  };
+}
+
+const SERIES = ["v3", "v4"];
+const STABLE_SERIES = "v3";
+
+export function guidesRoute({
+  search,
+  repository,
+}: {
+  repository: Repository;
+  search: boolean;
 }): SitemapRoute<JSXElement> {
   return {
     *routemap(pathname) {
-      let paths: RoutePath[] = [];
-      for (let doc of yield* docs.all()) {
-        paths.push({
-          pathname: pathname({ id: doc.id }),
-        });
-      }
-      return paths;
+      const paths = SERIES.map(function* (series) {
+        let paths: RoutePath[] = [];
+        const ref = yield* getSeriesRef({ repository, series });
+        const pages = yield* guides({ ref });
+
+        for (let page of yield* pages.all()) {
+          paths.push({
+            pathname: pathname({ id: page.id, series }),
+          });
+        }
+        return paths;
+      });
+      return (yield* all(paths)).flat();
     },
-    *handler() {
-      let { id } = yield* useParams<{ id: string }>();
+    *handler(req) {
+      let { id, series = STABLE_SERIES } = yield* useParams<{
+        id: string | undefined;
+        series: string | undefined;
+      }>();
 
-      const doc = yield* docs.getDoc(id);
+      const ref = yield* getSeriesRef({ repository, series });
+      const pages = yield* guides({ ref });
 
-      if (!doc) {
+      if (!id) {
+        const page = yield* pages.first();
+        return yield* softRedirect(
+          req,
+          yield* createChildURL()(`${series}/${page.id}`),
+        );
+      }
+
+      const page = yield* pages.get(id);
+
+      if (!page) {
         return yield* respondNotFound();
       }
 
-      let { topics } = doc;
+      let { topics } = page;
 
-      const description = yield* useDescription(doc.markdown);
+      const description = yield* useDescription(page.markdown);
 
       let AppHtml = yield* useAppHtml({
-        title: `${doc.title} | Docs | Effection`,
+        title: `${page.title} | Docs | Effection`,
         description,
         hasLeftSidebar: true,
       });
@@ -53,7 +109,7 @@ export function docsRoute({
         for (const item of topic.items) {
           items.push(
             <li class="mt-1">
-              {doc.id !== item.id
+              {page.id !== item.id
                 ? (
                   <a
                     class="rounded px-4 block w-full py-2 hover:bg-gray-100"
@@ -72,7 +128,7 @@ export function docsRoute({
         }
         topicsList.push(
           <hgroup class="mb-2">
-            <h3 class="text-lg">{topic.name}</h3>
+            <h3 class="font-semibold">{topic.name}</h3>
             <menu class="text-gray-700">{items}</menu>
           </hgroup>,
         );
@@ -104,20 +160,31 @@ export function docsRoute({
               </style>
             </aside>
             <aside class="min-h-0 overflow-auto hidden md:block top-[120px] sticky h-fit">
-              <nav class="pl-4">{topicsList}</nav>
+              <div class="text-xl flex flex-row items-baseline space-x-2 mb-3">
+                <span class="font-bold">Guides</span>
+                <a href={ref.url} class="text-base">
+                  {series}{" "}
+                  <IconExternal
+                    class="inline-block align-baseline"
+                    height="15"
+                    width="15"
+                  />
+                </a>
+              </div>
+              <nav>{topicsList}</nav>
             </aside>
             <article
               class="prose max-w-full px-6 py-2"
               data-pagefind-filter={`version[data-series], section:Guides`}
               data-series={series}
             >
-              <h1>{doc.title}</h1>
-              <>{doc.content}</>
-              {yield* NextPrevLinks({ doc })}
+              <h1>{page.title}</h1>
+              <>{page.content}</>
+              {yield* NextPrevLinks({ page })}
             </article>
             <aside class="min-h-0 overflow-auto sticky h-fit hidden md:block top-[120px]">
               <h3>On this page</h3>
-              <div class="w-[200px]">{doc.toc}</div>
+              <div class="w-[200px]">{page.toc}</div>
             </aside>
           </section>
         </AppHtml>
@@ -126,13 +193,8 @@ export function docsRoute({
   };
 }
 
-function* NextPrevLinks({
-  doc,
-}: {
-  doc: DocMeta;
-  base?: string;
-}): Operation<JSXElement> {
-  let { next, prev } = doc;
+function* NextPrevLinks({ page }: { page: GuidesMeta }): Operation<JSXElement> {
+  let { next, prev } = page;
   return (
     <menu class="grid grid-cols-2 my-10 gap-x-2 xl:gap-x-20 2xl:gap-x-40 text-lg">
       {prev

@@ -32,8 +32,9 @@
   "imports": {
     "effection": "jsr:@effection/effection@3.1.0",
     "unified": "npm:unified@11.0.4",
-    "revolution": "https://deno.land/x/revolution@0.6.0/mod.ts",
-    "revolution/jsx-runtime": "https://deno.land/x/revolution@0.6.0/jsx-runtime.ts"
+    "revolution": "https://deno.land/x/revolution@0.6.1/mod.ts",
+    "revolution/jsx-runtime": "https://deno.land/x/revolution@0.6.1/jsx-runtime.ts",
+    "https://deno.land/x/path_to_regexp@v6.2.1/index.ts": "npm:path-to-regexp@8.2.0"
   },
   "deploy": {
     "org": "Frontside",

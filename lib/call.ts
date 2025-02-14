@@ -69,11 +69,12 @@ export function call<T, TArgs extends unknown[] = []>(
   fn: (...args: TArgs) => Promise<T>,
 ): Operation<T>;
 export function call<T, TArgs extends unknown[] = []>(
-  fn: (...args: TArgs) => T,
-): Operation<T>;
-export function call<T, TArgs extends unknown[] = []>(
   fn: (...args: TArgs) => Operation<T>,
 ): Operation<T>;
+export function call<T, TArgs extends unknown[] = []>(
+  fn: (...args: TArgs) => T,
+): Operation<T>;
+
 export function call<T, TArgs extends unknown[] = []>(
   callable: Callable<T, TArgs>,
   ...args: TArgs

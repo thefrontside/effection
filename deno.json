@@ -11,7 +11,10 @@
     "rules": {
       "exclude": [
         "prefer-const",
-        "require-yield"
+        "require-yield",
+        "jsx-curly-braces",
+        "jsx-key",
+        "jsx-no-useless-fragment"
       ]
     }
   },

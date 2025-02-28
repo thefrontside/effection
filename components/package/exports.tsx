@@ -20,14 +20,16 @@ export function* PackageExports({
   const elements: JSXElement[] = [];
 
   for (const [exportName, docPages] of Object.entries(docs)) {
-    elements.push(
-      yield* PackageExport({
-        linkResolver,
-        packageName,
-        exportName,
-        docPages,
-      }),
-    );
+    if (docPages.filter(page => page.kind !== "import").length > 0) {
+      elements.push(
+        yield* PackageExport({
+          linkResolver,
+          packageName,
+          exportName,
+          docPages,
+        }),
+      );
+    }
   }
 
   return elements;

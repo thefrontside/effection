@@ -100,7 +100,7 @@ export const DenoJson = z.object({
   exports: z.union([z.record(z.string()), z.string()]).optional(),
   license: z.string().optional(),
   workspace: z.array(z.string()).optional(),
-  imports: z.record(z.string()).optional()
+  imports: z.record(z.string()).optional(),
 });
 
 export type DenoJsonType = z.infer<typeof DenoJson>;

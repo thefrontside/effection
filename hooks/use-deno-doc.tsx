@@ -60,23 +60,23 @@ export function* useDocPages(specifier: string): Operation<DocsPages> {
   );
   const resolve = imports
     ? (specifier: string, referrer: string) => {
-        let resolved: string = specifier;
-        if (specifier in imports) {
-          resolved = imports[specifier];
-        } else if (specifier.startsWith(".")) {
-          resolved = new URL(specifier, referrer).toString();
-        } else if (specifier.startsWith("node:")) {
-          resolved = `npm:@types/node@^22.13.5`;
-        }
-        return resolved;
+      let resolved: string = specifier;
+      if (specifier in imports) {
+        resolved = imports[specifier];
+      } else if (specifier.startsWith(".")) {
+        resolved = new URL(specifier, referrer).toString();
+      } else if (specifier.startsWith("node:")) {
+        resolved = `npm:@types/node@^22.13.5`;
       }
+      return resolved;
+    }
     : undefined;
 
   const graph = yield* call(() =>
     createGraph([specifier], {
       load: loader,
       resolve,
-    }),
+    })
   );
 
   const externalDependencies: Dependency[] = graph.modules.flatMap((module) => {
@@ -105,9 +105,11 @@ export function* useDocPages(specifier: string): Operation<DocsPages> {
 
   for (const [url, all] of Object.entries(docs)) {
     const pages: DocPage[] = [];
-    for (const [symbol, nodes] of Object.entries(
-      Object.groupBy(all, (node) => node.name),
-    )) {
+    for (
+      const [symbol, nodes] of Object.entries(
+        Object.groupBy(all, (node) => node.name),
+      )
+    ) {
       if (nodes) {
         const sections: DocPageSection[] = [];
         for (const node of nodes) {
@@ -172,7 +174,7 @@ function docLoader(
             mediaType: {
               format: "raw",
             },
-          }),
+          })
         );
         return {
           kind: "module",
@@ -274,8 +276,9 @@ function* extractImports(
   const module = yield* loader(url);
 
   if (!module) return;
-  const content =
-    module.kind === "module" ? JSON.parse(`${module.content}`) : undefined;
+  const content = module.kind === "module"
+    ? JSON.parse(`${module.content}`)
+    : undefined;
   const { imports } = DenoJson.parse(content);
 
   return imports;

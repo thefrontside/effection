@@ -21,7 +21,10 @@ export function SearchInput() {
     <form method="get" action="/search">
       <label class={`${searchInput} h-9 w-[90px] relative block`}>
         <input id="search" type="search" name="q" placeholder="⌘K" />
-        <button class="absolute inset-y-0 right-0 flex items-center pr-2">
+        <button
+          type="submit"
+          class="absolute inset-y-0 right-0 flex items-center pr-2"
+        >
           <SearchIcon class="w-6 mr-2 text-slate-400" />
         </button>
       </label>

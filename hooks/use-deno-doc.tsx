@@ -5,14 +5,15 @@ import {
   type DocNode,
   type DocOptions,
   LoadResponse,
-} from "jsr:@deno/doc@0.164.0";
-import { createGraph } from "jsr:@deno/graph@0.86.7";
+} from "jsr:@deno/doc@0.169.0";
+import { createGraph } from "jsr:@deno/graph@0.89.0";
 // @deno-types="npm:@types/parse-github-url@1.0.3";
 import githubUrlParse from "npm:parse-github-url@1.0.3";
 
 import { useDescription } from "./use-description-parse.tsx";
 import { GithubClientContext } from "../context/github.ts";
 import { exportHash, extract } from "../components/type/markdown.tsx";
+import { DenoJson } from "../resources/package.ts";
 
 export type { DocNode };
 
@@ -53,10 +54,28 @@ export function* useDocPages(specifier: string): Operation<DocsPages> {
   const scope = yield* useScope();
 
   const loader = (specifier: string) => scope.run(docLoader(specifier));
+  const imports = yield* extractImports(
+    new URL("./deno.json", specifier).toString(),
+    loader,
+  );
+  const resolve = imports
+    ? (specifier: string, referrer: string) => {
+      let resolved: string = specifier;
+      if (specifier in imports) {
+        resolved = imports[specifier];
+      } else if (specifier.startsWith(".")) {
+        resolved = new URL(specifier, referrer).toString();
+      } else if (specifier.startsWith("node:")) {
+        resolved = `npm:@types/node@^22.13.5`;
+      }
+      return resolved;
+    }
+    : undefined;
 
   const graph = yield* call(() =>
     createGraph([specifier], {
       load: loader,
+      resolve,
     })
   );
 
@@ -79,6 +98,7 @@ export function* useDocPages(specifier: string): Operation<DocsPages> {
 
   const docs = yield* useDenoDoc([specifier], {
     load: loader,
+    resolve,
   });
 
   const entrypoints: Record<string, DocPage[]> = {};
@@ -247,4 +267,19 @@ function isDependency(value: unknown): value is Dependency {
     typeof dependency.name === "string" &&
     typeof dependency.version === "string"
   );
+}
+
+function* extractImports(
+  url: string,
+  loader: (specifier: string) => Operation<LoadResponse | undefined>,
+) {
+  const module = yield* loader(url);
+
+  if (!module) return;
+  const content = module.kind === "module"
+    ? JSON.parse(`${module.content}`)
+    : undefined;
+  const { imports } = DenoJson.parse(content);
+
+  return imports;
 }

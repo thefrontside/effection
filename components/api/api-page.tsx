@@ -84,7 +84,7 @@ export function* ApiBody({
   for (const [i, section] of Object.entries(page.sections)) {
     if (section.markdown) {
       elements.push(
-        <section class={`${i !== "0" ? "border-t-2" : ""} pb-7`}>
+        <div class={`${i !== "0" ? "border-t-2" : ""} pb-7`}>
           <div class="flex mt-7 group">
             <h2
               class="my-0 grow"
@@ -107,7 +107,7 @@ export function* ApiBody({
               slugPrefix: section.id,
             })}
           </div>
-        </section>,
+        </div>,
       );
     }
   }

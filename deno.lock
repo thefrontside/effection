@@ -4,8 +4,10 @@
     "jsr:@b-fuze/deno-dom@0.1.49": "0.1.49",
     "jsr:@deno/cache-dir@0.14": "0.14.0",
     "jsr:@deno/doc@0.164.0": "0.164.0",
+    "jsr:@deno/doc@0.169.0": "0.169.0",
     "jsr:@deno/graph@0.86": "0.86.7",
     "jsr:@deno/graph@0.86.7": "0.86.7",
+    "jsr:@deno/graph@0.89.0": "0.89.0",
     "jsr:@deno/graph@~0.82.3": "0.82.3",
     "jsr:@effection-contrib/deno-deploy@0.1.0": "0.1.0",
     "jsr:@effection/effection@3.1.0": "3.1.0",
@@ -103,11 +105,21 @@
         "jsr:@deno/graph@~0.82.3"
       ]
     },
+    "@deno/doc@0.169.0": {
+      "integrity": "0aa9810dd639d3b230b536e7984fb47d455ea93b9a0523a5c5f74b901ba4334e",
+      "dependencies": [
+        "jsr:@deno/cache-dir",
+        "jsr:@deno/graph@~0.82.3"
+      ]
+    },
     "@deno/graph@0.82.3": {
       "integrity": "5c1fe944368172a9c87588ac81b82eb027ca78002a57521567e6264be322637e"
     },
     "@deno/graph@0.86.7": {
       "integrity": "fb4e5ab648d1b9d464ea55e0f70cd489251b1926e622dd83697b4e28e59c7291"
+    },
+    "@deno/graph@0.89.0": {
+      "integrity": "0e5513bc97676035912e41d29282d0aaaa9fb752977bbb9a0690806b86e8d914"
     },
     "@effection-contrib/deno-deploy@0.1.0": {
       "integrity": "a8e20f746c330bc3dc38a0f6dd65829954e28a3cbeaf5c54d2f2b4569d5b9259",

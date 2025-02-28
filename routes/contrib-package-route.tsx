@@ -101,13 +101,31 @@ export function contribPackageRoute({
 
         const apiReference = [];
 
-        for (const page of docs["."]) {
-          apiReference.push(
-            yield* call(function* () {
+        const entrypoints = Object.entries(docs);
+
+        for (const [entrypoint, pages] of entrypoints) {
+          const sections = [];
+          for (const page of pages) {
+            const content = yield* call(function* () {
               yield* DocPageContext.set(page);
               return yield* ApiBody({ page, linkResolver });
-            }),
-          );
+            });
+            sections.push(content);
+          }
+          if (entrypoint.length === 1 && entrypoint === ".") {
+            apiReference.push(
+              <section>
+                <>{sections}</>
+              </section>,
+            );
+          } else if (pages.length > 0) {
+            apiReference.push(
+              <section>
+                <h1 id={entrypoint}>{entrypoint}</h1>
+                <>{sections}</>
+              </section>,
+            );
+          }
         }
 
         apiReference.forEach((section) => shiftHeading(section, 1));

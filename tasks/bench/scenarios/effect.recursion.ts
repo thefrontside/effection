@@ -2,8 +2,9 @@ import { Effect } from "npm:effect";
 import { call } from "../../../mod.ts";
 import { scenario } from "./scenario.ts";
 
-await scenario("effect.recursion", (depth) =>
-  call(() => Effect.runPromise(recurse(depth)))
+await scenario(
+  "effect.recursion",
+  (depth) => call(() => Effect.runPromise(recurse(depth))),
 );
 
 function recurse(depth: number): Effect.Effect<void, never, never> {

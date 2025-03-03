@@ -4,6 +4,7 @@ import {
   createScope,
   resource,
   run,
+  spawn,
   suspend,
   useScope,
 } from "../mod.ts";
@@ -98,7 +99,7 @@ describe("Scope", () => {
     });
   });
 
-  it("can get and set a context programatically", async () => {
+  it("can get and set and delete a context programatically", async () => {
     let context = createContext<string>("aString");
     let [scope] = createScope();
     expect(scope.get(context)).toEqual(void 0);
@@ -107,6 +108,44 @@ describe("Scope", () => {
     await expect(scope.run(() => context.expect())).resolves.toEqual(
       "Hello World!",
     );
+
+    scope.delete(context);
+
+    expect(scope.get(context)).toEqual(void 0);
+  });
+
+  it("can expect() a context and raise an error if not defined", () => {
+    let [scope] = createScope();
+    let msg = createContext<string>("msg.context");
+
+    expect(() => scope.expect(msg)).toThrow(/msg\.context/);
+
+    scope.set(msg, "hello world");
+
+    expect(scope.expect(msg)).toEqual("hello world");
+  });
+
+  it("can find out if a value is local to this context", async () => {
+    let context = createContext<string>("message");
+    let [parent] = createScope();
+    parent.set(context, "Hello World!");
+
+    await parent.run(function* () {
+      let child = yield* spawn(function* () {
+        let scope = yield* useScope();
+        return scope.hasOwn(context);
+      });
+      expect(yield* child).toEqual(false);
+    });
+
+    await parent.run(function* () {
+      let child = yield* spawn(function* () {
+        let scope = yield* useScope();
+        scope.set(context, "Hello Planet!");
+        return scope.hasOwn(context);
+      });
+      expect(yield* child).toEqual(true);
+    });
   });
 
   it("propagates uncaught errors within a scope", async () => {

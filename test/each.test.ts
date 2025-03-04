@@ -1,5 +1,14 @@
 import { describe, expect, it } from "./suite.ts";
-import { createChannel, each, run, spawn, suspend } from "../mod.ts";
+import {
+  createChannel,
+  createQueue,
+  each,
+  resource,
+  run,
+  spawn,
+  type Stream,
+  suspend,
+} from "../mod.ts";
 
 describe("each", () => {
   it("can be used to iterate a stream", async () => {
@@ -87,4 +96,38 @@ describe("each", () => {
       "MissingContextError",
     );
   });
+
+  it("closes the stream after exiting from the loop", async () => {
+    let state = { status: "pending" };
+    let stream: Stream<string, void> = resource(function* (provide) {
+      try {
+        state.status = "active";
+        yield* provide(yield* sequence("one", "two"));
+      } finally {
+        state.status = "closed";
+      }
+    });
+
+    await run(function* () {
+      yield* spawn(function* () {
+        for (let _ of yield* each(stream)) {
+          expect(state.status).toEqual("active");
+          yield* each.next();
+        }
+      });
+    });
+
+    expect(state.status).toEqual("closed");
+  });
 });
+
+function sequence(...values: string[]): Stream<string, void> {
+  return resource(function* (provide) {
+    let q = createQueue<string, void>();
+    for (let value of values) {
+      q.add(value);
+    }
+    q.close();
+    yield* provide(q);
+  });
+}

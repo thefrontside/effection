@@ -1,9 +1,10 @@
-import { Effect, Fiber, Sink, Stream } from "npm:effect";
+import { Effect, Fiber, Stream } from "npm:effect";
 import { call } from "../../../mod.ts";
 import { scenario } from "./scenario.ts";
 
-await scenario("effect.events", (depth) =>
-  call(() => Effect.runPromise(start(depth)))
+await scenario(
+  "effect.events",
+  (depth) => call(() => Effect.runPromise(start(depth))),
 );
 
 export function start(depth: number) {
@@ -21,7 +22,7 @@ export function start(depth: number) {
 
 function recurse(
   target: EventTarget,
-  depth: number
+  depth: number,
 ): Effect.Effect<void, never, never> {
   return Effect.gen(function* () {
     const eventStream = Stream.fromEventListener(target, "foo");
@@ -35,7 +36,7 @@ function recurse(
           return Effect.sync(() => {
             subTarget.dispatchEvent(new Event("foo"));
           });
-        })
+        }),
       );
     } else {
       yield* eventStream.pipe(Stream.runDrain);

@@ -1,7 +1,9 @@
 import { call } from "../../../mod.ts";
 import { scenario } from "./scenario.ts";
 
-await scenario("add-event-listener.events", (depth) => call(() => run(depth)));
+await scenario("add-event-listener.events", (depth, _exit) =>
+  call(() => run(depth)),
+);
 
 export async function run(depth: number): Promise<void> {
   const target = new EventTarget();
@@ -26,10 +28,10 @@ async function recurse(
   let resolve: (() => void) | undefined;
   let promise: Promise<void> | undefined;
   function finalize() {
-    abort && (signal.removeEventListener("abort", abort), abort = undefined);
+    abort && (signal.removeEventListener("abort", abort), (abort = undefined));
     handler &&
-      (target.removeEventListener("foo", handler), handler = undefined);
-    resolve && (resolve(), resolve = undefined);
+      (target.removeEventListener("foo", handler), (handler = undefined));
+    resolve && (resolve(), (resolve = undefined));
   }
   if (depth > 0) {
     const subTarget = new EventTarget();
@@ -40,7 +42,7 @@ async function recurse(
     target.addEventListener("foo", handler);
     await subPromise;
   } else {
-    promise = new Promise<void>((r) => resolve = r);
+    promise = new Promise<void>((r) => (resolve = r));
     abort = finalize;
     handler = function handler() {
       //probeMemory("bottom");

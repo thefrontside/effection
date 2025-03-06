@@ -1,17 +1,16 @@
-import { defer, from, Observable, repeat } from "npm:rxjs";
+import { Observable, defer, from, repeat } from "npm:rxjs";
+import { type Operation, action } from "../../../mod.ts";
 import { scenario } from "./scenario.ts";
-import { action, type Operation } from "../../../mod.ts";
 
 await scenario("rxjs.recursion", run);
 
-function run(depth: number): Operation<void> {
+function run(depth: number, _exit: (time: number) => void): Operation<void> {
   return action((resolve) => {
-    let observable = recurse(depth)
-      .subscribe({
-        complete() {
-          resolve();
-        },
-      });
+    let observable = recurse(depth).subscribe({
+      complete() {
+        resolve();
+      },
+    });
     return () => observable.unsubscribe();
   });
 }

@@ -1,10 +1,10 @@
-import { fromEvent, Observable, Subject, takeUntil } from "npm:rxjs";
+import { Observable, Subject, fromEvent, takeUntil } from "npm:rxjs";
+import { type Operation, action, sleep, spawn } from "../../../mod.ts";
 import { scenario } from "./scenario.ts";
-import { action, type Operation, sleep, spawn } from "../../../mod.ts";
 
 await scenario("rxjs.events", run);
 
-function* run(depth: number): Operation<void> {
+function* run(depth: number, _exit: (time: number) => void): Operation<void> {
   const target = new EventTarget();
   const abort = new Subject<void>();
   const promised = yield* spawn(() =>
@@ -17,7 +17,7 @@ function* run(depth: number): Operation<void> {
           },
         });
       return () => observable.unsubscribe();
-    })
+    }),
   );
   for (let i = 0; i < 100; i++) {
     yield* sleep(0);

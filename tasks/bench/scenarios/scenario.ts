@@ -2,11 +2,14 @@ import { callcc } from "../../../lib/callcc.ts";
 import { Err, Ok } from "../../../lib/result.ts";
 import { encapsulate } from "../../../lib/task-group.ts";
 import {
+  type Operation,
+  call,
   createChannel,
   each,
   main,
-  type Operation,
+  race,
   spawn,
+  withResolvers,
 } from "../../../mod.ts";
 import type {
   BenchmarkOptions,
@@ -21,7 +24,7 @@ const send = (event: BenchmarkWorkerEvent) => self.postMessage(event);
 
 export function scenario(
   name: string,
-  perform: (depth: number) => Operation<void>,
+  perform: (depth: number, exit: (time: number) => void) => Operation<void>,
 ) {
   return main(function* () {
     try {
@@ -40,19 +43,48 @@ export function scenario(
 
         for (let options of yield* each(work)) {
           let times: number[] = [];
+          let entryTimes: number[] = [];
+
           for (let i = 0; i < options.repeat; i++) {
             let start = performance.now();
 
-            yield* encapsulate(() => perform(options.depth));
+            const exitResolver = withResolvers<number | null>();
+
+            const task = yield* spawn(function* () {
+              yield* encapsulate(() =>
+                perform(options.depth, exitResolver.resolve),
+              );
+            });
+
+            // Avoid blocking indefinitely because not all benchmarks need the exit function
+            yield* race([
+              exitResolver.operation,
+              call(function* () {
+                yield* task;
+                exitResolver.resolve(null);
+              }),
+            ]);
+
+            const entryTime = yield* exitResolver.operation;
 
             let time = performance.now() - start;
             send({ type: "repeat", name, time, rep: i + 1 });
             times.push(time);
+
+            if (entryTime) {
+              entryTimes.push(entryTime);
+            }
           }
 
           let total = times.reduce((sum, time) => sum + time, 0);
           let avgTime = total / times.length;
-          let result = Ok({ avgTime, reps: options.repeat });
+
+          let startupTime = entryTimes.reduce((sum, time) => sum + time, 0);
+
+          let avgStartupTime =
+            entryTimes.length > 0 ? startupTime / entryTimes.length : 0;
+
+          let result = Ok({ avgTime, avgStartupTime, reps: options.repeat });
 
           send({ type: "done", name, result });
 

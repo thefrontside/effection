@@ -1,9 +1,12 @@
+import { type Operation, each, on, sleep, spawn } from "../../../mod.ts";
 import { scenario } from "./scenario.ts";
-import { each, on, type Operation, sleep, spawn } from "../../../mod.ts";
 
 await scenario("effection.events", start);
 
-export function* start(depth: number): Operation<void> {
+export function* start(
+  depth: number,
+  _exit: (time: number) => void,
+): Operation<void> {
   const target = new EventTarget();
   const task = yield* spawn(() => recurse(target, depth));
   for (let i = 0; i < 100; i++) {

@@ -71,7 +71,7 @@ export function scenario(
               times.push(time);
 
               if (entryTime) {
-                entryTimes.push(entryTime - start);
+                entryTimes.push(entryTime);
               }
             }
 

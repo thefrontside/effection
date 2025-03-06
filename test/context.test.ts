@@ -13,6 +13,21 @@ describe("context", () => {
     ).toEqual(3);
   });
 
+  it("can delimit the bounds of a context within a single scope", async () => {
+    let values = await run(function* () {
+      let before = yield* numbers.get();
+
+      let within = yield* numbers.with(22, function* () {
+        return yield* numbers.get();
+      });
+
+      let after = yield* numbers.get();
+      return [before, within, after];
+    });
+
+    expect(values).toEqual([3, 22, 3]);
+  });
+
   it("can be set within a given scope, but reverts after", async () => {
     let values = await run(function* () {
       let before = yield* numbers.expect();

@@ -31,5 +31,6 @@ export interface BenchmarkDoneEvent {
   result: Result<{
     reps: number;
     avgTime: number;
+    avgStartupTime: number;
   }>;
 }

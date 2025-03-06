@@ -8,4 +8,6 @@ export default [
   "./scenarios/rxjs.events.ts",
   "./scenarios/add-event-listener.events.ts",
   "./scenarios/effect.events.ts",
+  "./scenarios/effection.startup.ts",
+  "./scenarios/effect.startup.ts",
 ].map((mod) => import.meta.resolve(mod));

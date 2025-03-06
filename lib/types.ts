@@ -208,6 +208,29 @@ export interface Scope {
    * @returns - the value that was set
    */
   set<T>(context: Context<T>, value: T): T;
+
+  /**
+   * Get a {@link Context} value from outside of an operation, and throw
+   * a `MissingContextError` if this context is not specified for this scope.
+   *
+   * @param context - the context to get
+   * @returns the value of that context in this scope if it exists
+   */
+  expect<T>(context: Context<T>): T;
+
+  /**
+   * Remove a {@link Context} value from this scope.
+   *
+   * @param context - the context to delete
+   */
+  delete<T>(context: Context<T>): boolean;
+
+  /**
+   * Check if scope has its own unique value for `context`.
+   *
+   * @returns `true` if scope has its own context, `false` if context is not present, or inherited from its parent.
+   */
+  hasOwn<T>(context: Context<T>): boolean;
 }
 
 /**

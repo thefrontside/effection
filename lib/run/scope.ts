@@ -70,6 +70,22 @@ export function createScope(frame?: Frame): [Scope, () => Future<void>] {
       parent.context[key] = value;
       return value;
     },
+    expect<T>(context: Context<T>): T {
+      let value = scope.get(context);
+      if (typeof value === "undefined") {
+        let error = new Error(context.key);
+        error.name = `MissingContextError`;
+        throw error;
+      }
+      return value;
+    },
+    delete<T>(context: Context<T>): boolean {
+      let { key } = context;
+      return delete parent.context[key];
+    },
+    hasOwn<T>(context: Context<T>): boolean {
+      return !!Reflect.getOwnPropertyDescriptor(parent.context, context.key);
+    },
   });
 
   parent.enter();

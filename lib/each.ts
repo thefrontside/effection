@@ -1,5 +1,8 @@
 import type { Operation, Stream, Subscription } from "./types.ts";
 import { createContext } from "./context.ts";
+import { useScope } from "./run/scope.ts";
+import { resource, spawn } from "./instructions.ts";
+import { withResolvers } from "./with-resolvers.ts";
 
 /**
  * Consume an effection stream using a simple for-of loop.
@@ -28,32 +31,39 @@ import { createContext } from "./context.ts";
 export function each<T>(stream: Stream<T, unknown>): Operation<Iterable<T>> {
   return {
     *[Symbol.iterator]() {
-      let subscription = yield* stream;
-      let current = yield* subscription.next();
-      let stack = yield* EachStack.get();
-      if (!stack) {
-        stack = yield* EachStack.set([]);
-      }
+      let scope = yield* useScope();
+      let stack = scope.hasOwn(EachStack)
+        ? scope.expect(EachStack)
+        : yield* EachStack.set([]);
 
-      let context: EachLoop<T> = { subscription, current };
+      let loop = yield* resource<EachLoop<T>>(function* (provide) {
+        let subscription = yield* stream;
+        let current = yield* subscription.next();
+        let { operation: finished, resolve: finish } = withResolvers<void>();
 
-      stack.push(context);
+        yield* spawn(() => provide({ current, subscription, finish }));
+
+        yield* finished;
+      });
+
+      stack.push(loop);
 
       let iterator: Iterator<T> = {
         next() {
-          if (context.stale) {
+          if (loop.stale) {
             let error = new Error(
               `for each loop did not use each.next() operation before continuing`,
             );
             error.name = "IterationError";
             throw error;
           } else {
-            context.stale = true;
-            return context.current;
+            loop.stale = true;
+            return loop.current;
           }
         },
         return() {
-          stack!.pop();
+          stack.pop();
+          loop.finish();
           return { done: true, value: void 0 };
         },
       };
@@ -89,6 +99,7 @@ each.next = function next(): Operation<void> {
 interface EachLoop<T> {
   subscription: Subscription<T, unknown>;
   current: IteratorResult<T>;
+  finish(): void;
   stale?: true;
 }
 

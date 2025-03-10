@@ -298,6 +298,22 @@ export interface Context<T> extends Operation<T> {
    * @return an operation providing the context value in the current scope.
    */
   expect(): Operation<T>;
+
+  /**
+   * Evaluate an operation using `value` for the context. Once the operation is completed, the context
+   * will be reverted to its original value, or removed if it was not present originally.
+   *
+   * @example
+   * ```ts
+   * let user = yield* login();
+   * yield* UserContext.with(user, function*() {
+   *   //do stuff
+   * })
+   * ```
+   *
+   * @returns the result of evaluating the operation.
+   */
+  with<R>(value: T, operation: (value: T) => Operation<R>): Operation<R>;
 }
 
 /**

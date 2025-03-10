@@ -1,4 +1,4 @@
-import type { Context } from "./types.ts";
+import type { Context, Operation } from "./types.ts";
 import { create } from "./run/create.ts";
 import { useScope } from "./run/scope.ts";
 
@@ -14,6 +14,19 @@ export function createContext<T>(key: string, defaultValue?: T): Context<T> {
       return scope.set(context, value);
     },
     expect,
+    *with<R>(value: T, operation: (value: T) => Operation<R>): Operation<R> {
+      let scope = yield* useScope();
+      let original = scope.hasOwn(context) ? scope.get(context) : undefined;
+      try {
+        return yield* operation(scope.set(context, value));
+      } finally {
+        if (typeof original === "undefined") {
+          scope.delete(context);
+        } else {
+          scope.set(context, original);
+        }
+      }
+    },
     [Symbol.iterator]() {
       console.warn(
         `⚠️ using a context (${key}) directly as an operation is deprecated. Use context.expect() instead`,

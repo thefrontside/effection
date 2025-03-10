@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.3.0
+
+- 🎒Backport Context.with() https://github.com/thefrontside/effection/pull/982
+- 🎒backport `each()` 🐛 fixes to v3
+  https://github.com/thefrontside/effection/pull/980
+- 🎒backport advanced scope helpers from v4 -> v3
+  https://github.com/thefrontside/effection/pull/967
+
 ## 3.2.0
 
 - ✨ Backfill the `scoped()` API

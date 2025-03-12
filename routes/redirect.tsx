@@ -24,7 +24,7 @@ export function* softRedirect(req: Request, to: string) {
   return (
     <AppHtml search={false}>
       <p>
-        <a href={to}>Redirecting to ${to}</a>
+        <a href={to}>Redirecting to {to}</a>
       </p>
     </AppHtml>
   );

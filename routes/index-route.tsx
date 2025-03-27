@@ -18,8 +18,6 @@ export function indexRoute(): SitemapRoute<JSXElement> {
         description:
           "Effection is a structured concurrency and effects framework for JavaScript.",
       });
-      let announcementUrl =
-        "https://frontside.com/blog/2023-12-18-announcing-effection-v3/";
 
       return (
         <AppHtml search>
@@ -51,17 +49,6 @@ export function indexRoute(): SitemapRoute<JSXElement> {
                     >
                       API Reference
                     </a>
-                    <p class="col-span-6 text-center">
-                      <span class="inline-block bg-sky-100 text-blue-900 rounded py-1 px-4 w-fit border border-sky-200">
-                        December 18, 2023 - We're proud to{" "}
-                        <a
-                          class="underline underline-offset-4"
-                          href={announcementUrl}
-                        >
-                          announce the release of Effection 3.0.
-                        </a>
-                      </span>
-                    </p>
                   </div>
                 </hgroup>
               </section>

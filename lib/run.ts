@@ -16,8 +16,8 @@ export * from "./run/scope.ts";
  * async function fetchExample() {
  *   await run(function*() {
  *     let signal = yield* useAbortSignal();
- *     let response = yield* fetch('http://www.example.com', { signal });
- *     yield* response.text();
+ *     let response = yield* call(() => fetch('http://www.example.com', { signal }));
+ *     yield* call(() => response.text());
  *   });
  * });
  * ```

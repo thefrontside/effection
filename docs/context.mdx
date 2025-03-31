@@ -44,7 +44,7 @@ const GithubTokenContext = createContext("token");
 
 await main(function* () {
   // 2. set the context value
-  yield* TokenContext.set("gha-1234567890");
+  yield* GithubTokenContext.set("gha-1234567890");
 
   yield* fetchGithubData();
 })

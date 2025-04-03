@@ -1,6 +1,6 @@
 import { describe, expect, it } from "./suite.ts";
 
-import { call, run } from "../mod.ts";
+import { call, run, until } from "../mod.ts";
 
 describe("call", () => {
   it("evaluates an operation function", async () => {
@@ -20,6 +20,10 @@ describe("call", () => {
         return 42;
       })
     )).resolves.toEqual(42);
+  });
+
+  it("evaluates a promise directly with `until`", async () => {
+    await expect(run(() => until(Promise.resolve(42)))).resolves.toEqual(42);
   });
 
   it("evaluates a no-arg async function", async () => {

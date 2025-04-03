@@ -101,6 +101,22 @@ export function call<T, TArgs extends unknown[] = []>(
   };
 }
 
+/**
+ * It can be used to treat a promise as an operation. This function
+ * is a replacement to the v3 deprecated `call(promise)` function form.
+ *
+ * @example
+ * ```js
+ * let response = yield* until(fetch('https://google.com'));
+ * ```
+ * @template {T}
+ * @param promise
+ * @returns {Operation<T>}
+ */
+export function until<T>(promise: PromiseLike<T>): Operation<T> {
+  return call(async () => await promise);
+}
+
 function isPromise<T>(
   target: Operation<T> | Promise<T> | T,
 ): target is Promise<T> {

@@ -103,10 +103,10 @@ export function call<T>(callable: () => T): Operation<T>;
 
 /**
  * @deprecated calling bare promises, operations, and constants will
- * be removed in v4, always pass a function to call()
+ * be removed in v4 use {@link until} instead
  *
  * before: call(operation);
- * after:  call(() => operation);
+ * after:  until(operation);
  */
 export function call<T>(callable: Operation<T>): Operation<T>;
 
@@ -189,4 +189,19 @@ function isInstructionIterator<T>(it: unknown): it is Iterator<Instruction, T> {
 function isIterable<T>(it: unknown): it is Iterable<T> {
   if (!it) return false;
   return typeof (it as Iterable<T>)[Symbol.iterator] === "function";
+}
+
+/**
+ * It can be used to treat a promise as an operation. This function
+ * is a replacement to the deprecated `call(promise)` function form.
+ *
+ * @example
+ * ```js
+ * let response = yield* until(fetch('https://google.com'));
+ * ```
+ * @param promise 
+ * @returns 
+ */
+export function until<T>(promise: PromiseLike<T>): Operation<T> {
+  return call(async () => await promise);
 }

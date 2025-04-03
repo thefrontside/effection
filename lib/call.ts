@@ -200,7 +200,7 @@ function isIterable<T>(it: unknown): it is Iterable<T> {
  * let response = yield* until(fetch('https://google.com'));
  * ```
  * @template {T}
- * @param promise 
+ * @param promise
  * @returns {Operation<T>}
  */
 export function until<T>(promise: PromiseLike<T>): Operation<T> {

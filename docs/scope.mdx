@@ -291,7 +291,7 @@ Effection, and so we have to explicitly connect each request to an
 operation.
 
 ```js
-import { call, ensure, main, useScope, useAbortSignal, suspend } from "effection";
+import { until, ensure, main, useScope, useAbortSignal, suspend } from "effection";
 import express from "express";
 
 await main(function*() {
@@ -302,8 +302,8 @@ await main(function*() {
     // use the scope to spawn an operation within it.
     return await scope.run(function*() {
       let signal = yield* useAbortSignal();
-      let response = yield* call(fetch(`https://google.com?q=${req.params.q}`, { signal }));
-      res.send(yield* call(response.text()));
+      let response = yield* until(fetch(`https://google.com?q=${req.params.q}`, { signal }));
+      res.send(yield* until(response.text()));
     });
   });
 

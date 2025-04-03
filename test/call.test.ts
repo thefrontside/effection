@@ -46,7 +46,6 @@ describe("call", () => {
     await expect(run(() => until(Promise.resolve(42)))).resolves.toEqual(42);
   });
 
-
   it("can be used as an error boundary", async () => {
     let error = new Error("boom!");
     let result = await run(function* () {

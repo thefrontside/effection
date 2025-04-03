@@ -199,8 +199,9 @@ function isIterable<T>(it: unknown): it is Iterable<T> {
  * ```js
  * let response = yield* until(fetch('https://google.com'));
  * ```
+ * @template {T}
  * @param promise 
- * @returns 
+ * @returns {Operation<T>}
  */
 export function until<T>(promise: PromiseLike<T>): Operation<T> {
   return call(async () => await promise);

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "./suite.ts";
 
-import { call, run, spawn, suspend } from "../mod.ts";
+import { call, run, spawn, suspend, until } from "../mod.ts";
 
 describe("call", () => {
   it("evaluates an operation function", async () => {
@@ -41,6 +41,11 @@ describe("call", () => {
   it("evaluates a promise directly", async () => {
     await expect(run(() => call(Promise.resolve(42)))).resolves.toEqual(42);
   });
+
+  it("evaluates a promise directly with `until`", async () => {
+    await expect(run(() => until(Promise.resolve(42)))).resolves.toEqual(42);
+  });
+
 
   it("can be used as an error boundary", async () => {
     let error = new Error("boom!");

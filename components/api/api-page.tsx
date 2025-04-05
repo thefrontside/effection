@@ -1,7 +1,6 @@
 import type { JSXElement } from "revolution";
 import { DocPage } from "../../hooks/use-deno-doc.tsx";
 import {
-  defaultLinkResolver,
   ResolveLinkFunction,
   useMarkdown,
 } from "../../hooks/use-markdown.tsx";

@@ -41,12 +41,13 @@ export function* ApiPage({
     connector,
     method,
   ) {
-    const target =
-      pages &&
+    const target = pages &&
       pages.find((page) => page.name === symbol && page.kind !== "import");
-      
+
     if (target) {
-      return `[${[symbol, connector, method].join("")}](${yield* externalLinkResolver(
+      return `[${
+        [symbol, connector, method].join("")
+      }](${yield* externalLinkResolver(
         symbol,
         connector,
         method,
@@ -58,21 +59,19 @@ export function* ApiPage({
 
   return (
     <>
-      {
-        yield* ApiReference({
-          pages,
-          current,
-          ref,
-          content: (
-            <>
-              <>{banner}</>
-              {yield* SymbolHeader({ pkg, page })}
-              {yield* ApiBody({ page, linkResolver })}
-            </>
-          ),
-          linkResolver: createSibling,
-        })
-      }
+      {yield* ApiReference({
+        pages,
+        current,
+        ref,
+        content: (
+          <>
+            <>{banner}</>
+            {yield* SymbolHeader({ pkg, page })}
+            {yield* ApiBody({ page, linkResolver })}
+          </>
+        ),
+        linkResolver: createSibling,
+      })}
     </>
   );
 }
@@ -107,12 +106,10 @@ export function* ApiBody({
             </a>
           </div>
           <div class="[&>hr]:my-5 [&>p]:mb-0">
-            {
-              yield* useMarkdown(section.markdown, {
-                linkResolver,
-                slugPrefix: section.id,
-              })
-            }
+            {yield* useMarkdown(section.markdown, {
+              linkResolver,
+              slugPrefix: section.id,
+            })}
           </div>
         </div>,
       );
@@ -135,8 +132,9 @@ export function* ApiReference({
   pages: DocPage[];
   linkResolver: ResolveLinkFunction;
 }) {
-  const version =
-    extractVersion(ref.name) === "0.0.0" ? ref.name : extractVersion(ref.name);
+  const version = extractVersion(ref.name) === "0.0.0"
+    ? ref.name
+    : extractVersion(ref.name);
 
   return (
     <section class="min-h-0 mx-auto w-full justify-items-normal md:grid md:grid-cols-[225px_auto] lg:grid-cols-[225px_auto_200px] md:gap-4">
@@ -178,12 +176,10 @@ export function* SymbolHeader({ page, pkg }: { page: DocPage; pkg: Package }) {
         </Keyword>{" "}
         {page.name}
       </h1>
-      {
-        yield* GithubPill({
-          url: pkg.source.toString(),
-          text: pkg.ref.repository.nameWithOwner,
-        })
-      }
+      {yield* GithubPill({
+        url: pkg.source.toString(),
+        text: pkg.ref.repository.nameWithOwner,
+      })}
     </header>
   );
 }
@@ -201,20 +197,22 @@ function* Menu({
   for (const page of pages.sort((a, b) => a.name.localeCompare(b.name))) {
     elements.push(
       <li>
-        {current === page.name ? (
-          <span class="rounded px-2 block w-full py-2 bg-gray-100 cursor-default ">
-            <Icon kind={page.kind} />
-            {page.name}
-          </span>
-        ) : (
-          <a
-            class="rounded px-2 block w-full py-2 hover:bg-gray-100"
-            href={yield* linkResolver(page.name)}
-          >
-            <Icon kind={page.kind} />
-            {page.name}
-          </a>
-        )}
+        {current === page.name
+          ? (
+            <span class="rounded px-2 block w-full py-2 bg-gray-100 cursor-default ">
+              <Icon kind={page.kind} />
+              {page.name}
+            </span>
+          )
+          : (
+            <a
+              class="rounded px-2 block w-full py-2 hover:bg-gray-100"
+              href={yield* linkResolver(page.name)}
+            >
+              <Icon kind={page.kind} />
+              {page.name}
+            </a>
+          )}
       </li>,
     );
   }

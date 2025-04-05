@@ -1,11 +1,15 @@
 import { Operation } from "effection";
 import { CurrentRequest } from "../context/request.ts";
 import { dirname, join } from "jsr:@std/path@^1.0.8";
+import { ResolveLinkFunction } from "../hooks/use-markdown.tsx";
 
-export function* createSibling(pathname: string): Operation<string> {
+export const createSibling: ResolveLinkFunction = function* (pathname, connector, method): Operation<string> {
   const request = yield* CurrentRequest.expect();
   const url = new URL(request.url);
   url.pathname = join(dirname(url.pathname), pathname);
+  if (connector && method) {
+    url.hash = `#${method}`
+  }
   return url.toString().replace(url.origin, "");
 }
 

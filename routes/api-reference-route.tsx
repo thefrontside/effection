@@ -66,9 +66,7 @@ export function apiReferenceRoute({
               pages,
               current: symbol,
               ref,
-              externalLinkResolver: function* (symbol) {
-                return yield* createSibling(symbol);
-              },
+              externalLinkResolver: createSibling,
             })}
           </AppHtml>
         );

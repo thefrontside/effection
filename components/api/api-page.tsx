@@ -37,11 +37,13 @@ export function* ApiPage({
     connector,
     method,
   ) {
-    if (
-      pages &&
-      pages.find((page) => page.name === symbol && page.kind !== "import")
-    ) {
-      return `[${symbol}](${yield* externalLinkResolver(
+    const target = pages &&
+      pages.find((page) => page.name === symbol && page.kind !== "import");
+
+    if (target) {
+      return `[${
+        [symbol, connector, method].join("")
+      }](${yield* externalLinkResolver(
         symbol,
         connector,
         method,
@@ -64,9 +66,7 @@ export function* ApiPage({
             {yield* ApiBody({ page, linkResolver })}
           </>
         ),
-        linkResolver: function* (symbol) {
-          return yield* createSibling(symbol);
-        },
+        linkResolver: createSibling,
       })}
     </>
   );

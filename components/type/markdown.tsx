@@ -165,10 +165,10 @@ export function* extract(
         const returnType = method.returnType ? TypeDef(method.returnType) : "";
         const description = method.jsDoc?.doc || NO_DOCS_AVAILABLE;
         lines.push(
-          `<dt class="border-dotted [&:not(:first-child)]:border-t-2 [&:not(:first-child)]:pt-3 [&:not(:first-child)]:mt-2">**${method.name}**${
+          `<dt class="border-dotted [&:not(:first-child)]:border-t-2 [&:not(:first-child)]:pt-3 [&:not(:first-child)]:mt-2"><h4 id="${method.name}" class="inline scroll-mt-[100px]">${method.name}</h4>${
             typeParams ? `&lt;${typeParams}&gt;` : ""
           }(${params}): ${returnType}</dt>`,
-          `<dd class="flex flex-col [&>pre]:mb-3">`,
+          `<dd class="flex flex-col [&>pre]:mb-3 [&>p:not(:first-child)]:mt-0" >`,
           description,
           "</dd>",
         );

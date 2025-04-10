@@ -17,11 +17,49 @@ import { createToc } from "../lib/toc.ts";
 import { ApiBody } from "../components/api/api-page.tsx";
 import { select } from "npm:hast-util-select@6.0.1";
 import { Icon } from "../components/type/icon.tsx";
+import { softRedirect } from "./redirect.tsx";
+import { createSibling } from "./links-resolvers.ts";
 
 interface ContribPackageRouteParams {
   contrib: Repository;
   library: Repository;
   search: boolean;
+}
+
+function routemap(contrib: Repository): SitemapRoute<JSXElement>["routemap"] {
+  return function* (pathname) {
+    let paths: RoutePath[] = [];
+
+    const main = yield* contrib.loadRef();
+    const { workspace = [] } = yield* main.loadDenoJson();
+
+    for (let workspacePath of workspace) {
+      paths.push({
+        pathname: pathname({
+          workspacePath: workspacePath.replace(/^\.\//, ""),
+        }),
+      });
+    }
+
+    return paths;
+  };
+}
+
+export function contribPackageRedirect({
+  contrib,
+}: {
+  contrib: Repository;
+}): SitemapRoute<JSXElement> {
+  return {
+    routemap: routemap(contrib),
+    *handler(req) {
+      const params = yield* useParams<{ workspacePath: string }>();
+      return yield* softRedirect(
+        req,
+        yield* createSibling(params.workspacePath),
+      );
+    },
+  };
 }
 
 export function contribPackageRoute({
@@ -30,22 +68,7 @@ export function contribPackageRoute({
   search,
 }: ContribPackageRouteParams): SitemapRoute<JSXElement> {
   return {
-    *routemap(pathname) {
-      let paths: RoutePath[] = [];
-
-      const main = yield* contrib.loadRef();
-      const { workspace = [] } = yield* main.loadDenoJson();
-
-      for (let workspacePath of workspace) {
-        paths.push({
-          pathname: pathname({
-            workspacePath: workspacePath.replace(/^\.\//, ""),
-          }),
-        });
-      }
-
-      return paths;
-    },
+    routemap: routemap(contrib),
     *handler() {
       const params = yield* useParams<{ workspacePath: string }>();
 
@@ -87,11 +110,9 @@ export function contribPackageRoute({
                 (page) => page.name === symbol,
               );
               if (page) {
-                return `[${symbol}](/api/${major(effection.version)}.${
-                  minor(
-                    effection.version,
-                  )
-                }/${symbol})`;
+                return `[${symbol}](/api/${major(effection.version)}.${minor(
+                  effection.version,
+                )}/${symbol})`;
               }
             }
           }
@@ -141,8 +162,7 @@ export function contribPackageRoute({
         const toc = createToc(content, {
           headings: ["h2", "h3"],
           cssClasses: {
-            toc:
-              "hidden text-sm font-light tracking-wide leading-loose lg:block relative",
+            toc: "hidden text-sm font-light tracking-wide leading-loose lg:block relative",
             link: "flex flex-row items-center",
           },
           customizeTOCItem(item, heading) {
@@ -173,8 +193,7 @@ export function contribPackageRoute({
               }
             } else {
               const a = select("a", item);
-              a.properties.className =
-                `hover:underline hover:underline-offset-2`;
+              a.properties.className = `hover:underline hover:underline-offset-2`;
             }
             return item;
           },
@@ -191,11 +210,13 @@ export function contribPackageRoute({
                   {yield* PackageHeader(pkg)}
                   <div class="prose max-w-full">
                     <div class="mb-5">
-                      {yield* PackageExports({
-                        packageName: pkg.packageName,
-                        docs,
-                        linkResolver,
-                      })}
+                      {
+                        yield* PackageExports({
+                          packageName: pkg.packageName,
+                          docs,
+                          linkResolver,
+                        })
+                      }
                     </div>
                     {content}
                   </div>
@@ -235,7 +256,7 @@ export function contribPackageRoute({
 function* getEffectionDependency(page: DocPage, library: Repository) {
   let version, docs;
   let effection = page.dependencies.find((dep) =>
-    ["effection", "@effection/effection"].includes(dep.name)
+    ["effection", "@effection/effection"].includes(dep.name),
   );
   if (effection) {
     version = effection.version.replace("^", "");

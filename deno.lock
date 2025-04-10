@@ -9,7 +9,7 @@
     "jsr:@deno/graph@0.86.7": "0.86.7",
     "jsr:@deno/graph@0.89.0": "0.89.0",
     "jsr:@deno/graph@~0.82.3": "0.82.3",
-    "jsr:@effection-contrib/deno-deploy@0.1.0": "0.1.0",
+    "jsr:@effectionx/deno-deploy@0.1.0": "0.1.0",
     "jsr:@effection/effection@3.1.0": "3.1.0",
     "jsr:@frontside/continuation@0.1.6": "0.1.6",
     "jsr:@frontside/staticalize@0.1.0": "0.1.0",
@@ -121,7 +121,7 @@
     "@deno/graph@0.89.0": {
       "integrity": "0e5513bc97676035912e41d29282d0aaaa9fb752977bbb9a0690806b86e8d914"
     },
-    "@effection-contrib/deno-deploy@0.1.0": {
+    "@effectionx/deno-deploy@0.1.0": {
       "integrity": "a8e20f746c330bc3dc38a0f6dd65829954e28a3cbeaf5c54d2f2b4569d5b9259",
       "dependencies": [
         "npm:effection@3.0.3"

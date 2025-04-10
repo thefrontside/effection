@@ -1,5 +1,5 @@
 import { main, suspend } from "effection";
-import { initDenoDeploy } from "jsr:@effection-contrib/deno-deploy@0.1.0";
+import { initDenoDeploy } from "jsr:@effectionx/deno-deploy@0.1.0";
 import { createRevolution, ServerInfo } from "revolution";
 
 import { config } from "./tailwind.config.ts";
@@ -69,7 +69,7 @@ if (import.meta.main) {
 
     let contrib = yield* loadRepository({
       owner: "thefrontside",
-      name: "effection-contrib",
+      name: "effectionx",
     });
 
     yield* ContribRepositoryContext.set(contrib);

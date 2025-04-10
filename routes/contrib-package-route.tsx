@@ -78,7 +78,7 @@ export function contribPackageRoute({
         const docs = yield* pkg.docs();
 
         const AppHTML = yield* useAppHtml({
-          title: `${pkg.packageName} | Contrib | Effection`,
+          title: `${pkg.packageName} | Extensions | Effection`,
           description: yield* pkg.description(),
         });
 
@@ -208,7 +208,7 @@ export function contribPackageRoute({
             <>
               <div class="grid grid-cols-1 lg:grid-cols-10 gap-8 lg:gap-12">
                 <article
-                  data-pagefind-filter={`section: Contrib`}
+                  data-pagefind-filter={`section: Extensions`}
                   class="min-w-0 lg:col-span-7 lg:row-start-1"
                 >
                   {yield* PackageHeader(pkg)}

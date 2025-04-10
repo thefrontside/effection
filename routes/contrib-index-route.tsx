@@ -31,7 +31,7 @@ export function contribIndexRoute({
     },
     *handler() {
       const AppHTML = yield* useAppHtml({
-        title: "Contrib | Effection",
+        title: "Extensions | Effection",
         description:
           "List of community contributed modules that represent emerging consensus on how to do common JavaScript tasks with Effection.",
       });
@@ -43,7 +43,7 @@ export function contribIndexRoute({
         <AppHTML search={search}>
           <article class="prose m-auto">
             <header class="flex flex-row items-center space-x-2">
-              <h1 class="mb-0">Effection Contrib</h1>
+              <h1 class="mb-0">Effection Extensions</h1>
               {yield* GithubPill({
                 url: ref.getUrl().toString(),
                 text: ref.repository.nameWithOwner,

@@ -51,7 +51,7 @@ export function* Header(props?: HeaderProps) {
               </li>
               <li class="hidden md:flex">
                 <a class="flex flex-row space-x-1" href="/x">
-                  <span>Contrib</span>
+                  <span>Extensions</span>
                   <span>({workspaces.length})</span>
                 </a>
               </li>

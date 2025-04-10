@@ -1,5 +1,5 @@
 import { main, suspend } from "effection";
-import { initDenoDeploy } from "jsr:@effectionx/deno-deploy@0.1.0";
+import { initDenoDeploy } from "@effectionx/deno-deploy";
 import { createRevolution, ServerInfo } from "revolution";
 
 import { config } from "./tailwind.config.ts";

@@ -110,9 +110,11 @@ export function contribPackageRoute({
                 (page) => page.name === symbol,
               );
               if (page) {
-                return `[${symbol}](/api/${major(effection.version)}.${minor(
-                  effection.version,
-                )}/${symbol})`;
+                return `[${symbol}](/api/${major(effection.version)}.${
+                  minor(
+                    effection.version,
+                  )
+                }/${symbol})`;
               }
             }
           }
@@ -162,7 +164,8 @@ export function contribPackageRoute({
         const toc = createToc(content, {
           headings: ["h2", "h3"],
           cssClasses: {
-            toc: "hidden text-sm font-light tracking-wide leading-loose lg:block relative",
+            toc:
+              "hidden text-sm font-light tracking-wide leading-loose lg:block relative",
             link: "flex flex-row items-center",
           },
           customizeTOCItem(item, heading) {
@@ -193,7 +196,8 @@ export function contribPackageRoute({
               }
             } else {
               const a = select("a", item);
-              a.properties.className = `hover:underline hover:underline-offset-2`;
+              a.properties.className =
+                `hover:underline hover:underline-offset-2`;
             }
             return item;
           },
@@ -210,13 +214,11 @@ export function contribPackageRoute({
                   {yield* PackageHeader(pkg)}
                   <div class="prose max-w-full">
                     <div class="mb-5">
-                      {
-                        yield* PackageExports({
-                          packageName: pkg.packageName,
-                          docs,
-                          linkResolver,
-                        })
-                      }
+                      {yield* PackageExports({
+                        packageName: pkg.packageName,
+                        docs,
+                        linkResolver,
+                      })}
                     </div>
                     {content}
                   </div>
@@ -256,7 +258,7 @@ export function contribPackageRoute({
 function* getEffectionDependency(page: DocPage, library: Repository) {
   let version, docs;
   let effection = page.dependencies.find((dep) =>
-    ["effection", "@effection/effection"].includes(dep.name),
+    ["effection", "@effection/effection"].includes(dep.name)
   );
   if (effection) {
     version = effection.version.replace("^", "");

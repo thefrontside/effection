@@ -11,8 +11,14 @@ import { twindPlugin } from "./plugins/twind.ts";
 
 import { apiReferenceRoute } from "./routes/api-reference-route.tsx";
 import { assetsRoute } from "./routes/assets-route.ts";
-import { contribIndexRedirect, contribIndexRoute } from "./routes/contrib-index-route.tsx";
-import { contribPackageRedirect, contribPackageRoute } from "./routes/contrib-package-route.tsx";
+import {
+  contribIndexRedirect,
+  contribIndexRoute,
+} from "./routes/contrib-index-route.tsx";
+import {
+  contribPackageRedirect,
+  contribPackageRoute,
+} from "./routes/contrib-package-route.tsx";
 import { firstPage, guidesRoute } from "./routes/guides-route.tsx";
 import { indexRoute } from "./routes/index-route.tsx";
 

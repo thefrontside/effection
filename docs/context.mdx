@@ -55,7 +55,9 @@ function* fetchGithubData() {
 
 function* fetchRepositories() {
   // 3. use the context value in a child operation
-  const token = yield* GithubTokenContext;
+  const token = yield* GithubTokenContext.expect();
+  // or
+  // const token = yield* GithubTokenContext.expect();
 
   console.log(token);
   // -> gha-1234567890
@@ -110,7 +112,9 @@ await main(function* () {
 });
 
 function* logMyValue() {
-  const value = yield* MyValueContext;
+  const value = yield* MyValueContext.expect();
+  // or
+  // const value = yield* MyValueContext.get();
 
   console.log(value);
 }

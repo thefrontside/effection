@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.4.0
+
+- Introducing until helper to replace call(promise)
+  https://github.com/thefrontside/effection/pull/988
+
 ## 3.3.0
 
 - 🎒Backport Context.with() https://github.com/thefrontside/effection/pull/982

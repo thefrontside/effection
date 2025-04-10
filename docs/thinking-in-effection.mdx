@@ -14,12 +14,12 @@ have even dreamed before.
 In JavaScript, developers rarely have to think about memory allocation because memory lifetime is bound to the scope of
 the function that it was allocated for. When a function is finished, its scope is torn down and all of the memory
 allocated to variables in function's scope are released safely. Binding memory management to scope gives developers the
-freedom to focus on their application instead worrying about leaking memory.
+freedom to focus on their application instead of worrying about leaking memory.
 
 Structured concurrency establishes the same relationship between scope and asynchrony. Every Effection operation is
 bound to the lifetime of its parent. Because of this, Effection automatically tears down
 child operations when the parent operation completes or is halted. Like with memory management, binding asynchrony to
-scope frees developers to focus on writing their applications instead of worrying about where and when to run
+about the scope frees developers to focus on writing their applications instead of worrying about where and when to run
 asynchronous cleanup.
 
 The key to achieving this freedom is to make the following mental shift about the natural lifetime of an asynchronous 

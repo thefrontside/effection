@@ -112,7 +112,7 @@ await main(function*() {
 });
 ```
 
-Or, it can be embeded in an operation which itself is embedded in another
+Or, it can be embedded in an operation which itself is embedded in another
 operation:
 
 ```javascript
@@ -180,7 +180,7 @@ async function sleep(milliseconds) {
 await Promise.race([sleep(10), sleep(1000)]);
 ```
 
-The anwser is 1000ms even though our intuition tells us that it
+The answer is 1000ms even though our intuition tells us that it
 should be 10ms. It takes 1000ms because `setTimeout` installs a
 callback onto the Node run loop, and our process cannot exit until it is
 removed.
@@ -256,7 +256,7 @@ not the programmer's responsibility to un-render the children, only that they
 ensure each child is written to take whatever steps necessary to un-render
 itself.
 
-By the same token, Effection Operations seemlessly bundle setup and
+By the same token, Effection Operations seamlessly bundle setup and
 teardown together into composable units so that when any operation
 passes out of scope (or is un-rendered to use the parlance of the UI
 world) all subordinate operations also pass out of scope. This in turn

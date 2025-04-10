@@ -7,7 +7,7 @@ import { GithubPill } from "../components/package/source-link.tsx";
 import { softRedirect } from "./redirect.tsx";
 import { createChildURL, createSibling } from "./links-resolvers.ts";
 
-export function contribIndexRedirect(): SitemapRoute<JSXElement> {
+export function xIndexRedirect(): SitemapRoute<JSXElement> {
   return {
     *routemap(pathname) {
       return [{ pathname: pathname() }];
@@ -18,11 +18,11 @@ export function contribIndexRedirect(): SitemapRoute<JSXElement> {
   };
 }
 
-export function contribIndexRoute({
-  contrib,
+export function xIndexRoute({
+  x,
   search,
 }: {
-  contrib: Repository;
+  x: Repository;
   search: boolean;
 }): SitemapRoute<JSXElement> {
   return {
@@ -36,7 +36,7 @@ export function contribIndexRoute({
           "List of community contributed modules that represent emerging consensus on how to do common JavaScript tasks with Effection.",
       });
 
-      const ref = yield* contrib.loadRef();
+      const ref = yield* x.loadRef();
       const packages = yield* ref.loadWorkspaces();
 
       return (

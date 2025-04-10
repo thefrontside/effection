@@ -1,7 +1,7 @@
 import { css } from "npm:@twind/core@1.1.3";
 
 import {
-  ContribRepositoryContext,
+  XRepositoryContext,
   LibraryRepositoryContext,
 } from "../context/repository.ts";
 import { IconDiscord } from "./icons/discord.tsx";
@@ -23,9 +23,9 @@ export interface HeaderProps {
 
 export function* Header(props?: HeaderProps) {
   let library = yield* LibraryRepositoryContext.expect();
-  let contrib = yield* ContribRepositoryContext.expect();
-  let contribMain = yield* contrib.loadRef();
-  let workspaces = yield* contribMain.loadWorkspaces();
+  let x = yield* XRepositoryContext.expect();
+  let xMain = yield* x.loadRef();
+  let workspaces = yield* xMain.loadWorkspaces();
 
   return (
     <header class="header w-full top-0 p-6 py-8 sticky tracking-wide z-10">

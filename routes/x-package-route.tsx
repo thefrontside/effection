@@ -20,17 +20,17 @@ import { Icon } from "../components/type/icon.tsx";
 import { softRedirect } from "./redirect.tsx";
 import { createSibling } from "./links-resolvers.ts";
 
-interface ContribPackageRouteParams {
-  contrib: Repository;
+interface XPackageRouteParams {
+  x: Repository;
   library: Repository;
   search: boolean;
 }
 
-function routemap(contrib: Repository): SitemapRoute<JSXElement>["routemap"] {
+function routemap(x: Repository): SitemapRoute<JSXElement>["routemap"] {
   return function* (pathname) {
     let paths: RoutePath[] = [];
 
-    const main = yield* contrib.loadRef();
+    const main = yield* x.loadRef();
     const { workspace = [] } = yield* main.loadDenoJson();
 
     for (let workspacePath of workspace) {
@@ -45,13 +45,13 @@ function routemap(contrib: Repository): SitemapRoute<JSXElement>["routemap"] {
   };
 }
 
-export function contribPackageRedirect({
-  contrib,
+export function xPackageRedirect({
+  x,
 }: {
-  contrib: Repository;
+  x: Repository;
 }): SitemapRoute<JSXElement> {
   return {
-    routemap: routemap(contrib),
+    routemap: routemap(x),
     *handler(req) {
       const params = yield* useParams<{ workspacePath: string }>();
       return yield* softRedirect(
@@ -62,18 +62,18 @@ export function contribPackageRedirect({
   };
 }
 
-export function contribPackageRoute({
-  contrib,
+export function xPackageRoute({
+  x,
   library,
   search,
-}: ContribPackageRouteParams): SitemapRoute<JSXElement> {
+}: XPackageRouteParams): SitemapRoute<JSXElement> {
   return {
-    routemap: routemap(contrib),
+    routemap: routemap(x),
     *handler() {
       const params = yield* useParams<{ workspacePath: string }>();
 
       try {
-        const main = yield* contrib.loadRef();
+        const main = yield* x.loadRef();
         const pkg = yield* main.loadWorkspace(`./${params.workspacePath}`);
         const docs = yield* pkg.docs();
 

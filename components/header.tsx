@@ -50,8 +50,8 @@ export function* Header(props?: HeaderProps) {
                 <a href="/api">API</a>
               </li>
               <li class="hidden md:flex">
-                <a class="flex flex-row space-x-1" href="/contrib">
-                  <span>Contrib</span>
+                <a class="flex flex-row space-x-1" href="/x">
+                  <span>Extensions</span>
                   <span>({workspaces.length})</span>
                 </a>
               </li>

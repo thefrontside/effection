@@ -17,11 +17,49 @@ import { createToc } from "../lib/toc.ts";
 import { ApiBody } from "../components/api/api-page.tsx";
 import { select } from "npm:hast-util-select@6.0.1";
 import { Icon } from "../components/type/icon.tsx";
+import { softRedirect } from "./redirect.tsx";
+import { createSibling } from "./links-resolvers.ts";
 
 interface ContribPackageRouteParams {
   contrib: Repository;
   library: Repository;
   search: boolean;
+}
+
+function routemap(contrib: Repository): SitemapRoute<JSXElement>["routemap"] {
+  return function* (pathname) {
+    let paths: RoutePath[] = [];
+
+    const main = yield* contrib.loadRef();
+    const { workspace = [] } = yield* main.loadDenoJson();
+
+    for (let workspacePath of workspace) {
+      paths.push({
+        pathname: pathname({
+          workspacePath: workspacePath.replace(/^\.\//, ""),
+        }),
+      });
+    }
+
+    return paths;
+  };
+}
+
+export function contribPackageRedirect({
+  contrib,
+}: {
+  contrib: Repository;
+}): SitemapRoute<JSXElement> {
+  return {
+    routemap: routemap(contrib),
+    *handler(req) {
+      const params = yield* useParams<{ workspacePath: string }>();
+      return yield* softRedirect(
+        req,
+        yield* createSibling(params.workspacePath),
+      );
+    },
+  };
 }
 
 export function contribPackageRoute({
@@ -30,22 +68,7 @@ export function contribPackageRoute({
   search,
 }: ContribPackageRouteParams): SitemapRoute<JSXElement> {
   return {
-    *routemap(pathname) {
-      let paths: RoutePath[] = [];
-
-      const main = yield* contrib.loadRef();
-      const { workspace = [] } = yield* main.loadDenoJson();
-
-      for (let workspacePath of workspace) {
-        paths.push({
-          pathname: pathname({
-            workspacePath: workspacePath.replace(/^\.\//, ""),
-          }),
-        });
-      }
-
-      return paths;
-    },
+    routemap: routemap(contrib),
     *handler() {
       const params = yield* useParams<{ workspacePath: string }>();
 
@@ -55,7 +78,7 @@ export function contribPackageRoute({
         const docs = yield* pkg.docs();
 
         const AppHTML = yield* useAppHtml({
-          title: `${pkg.packageName} | Contrib | Effection`,
+          title: `${pkg.packageName} | Extensions | Effection`,
           description: yield* pkg.description(),
         });
 
@@ -185,7 +208,7 @@ export function contribPackageRoute({
             <>
               <div class="grid grid-cols-1 lg:grid-cols-10 gap-8 lg:gap-12">
                 <article
-                  data-pagefind-filter={`section: Contrib`}
+                  data-pagefind-filter={`section: Extensions`}
                   class="min-w-0 lg:col-span-7 lg:row-start-1"
                 >
                   {yield* PackageHeader(pkg)}

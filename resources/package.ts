@@ -16,7 +16,7 @@ export interface Package {
    */
   path: string;
   /**
-   * Name of the scope (without @) - should be effection-contrib
+   * Name of the scope (without @) - should be effectionx
    */
   scope: string;
   /**

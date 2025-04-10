@@ -9,14 +9,13 @@
     "jsr:@deno/graph@0.86.7": "0.86.7",
     "jsr:@deno/graph@0.89.0": "0.89.0",
     "jsr:@deno/graph@~0.82.3": "0.82.3",
-    "jsr:@effection-contrib/deno-deploy@0.1.0": "0.1.0",
-    "jsr:@effection/effection@3.1.0": "3.1.0",
+    "jsr:@effection/effection@3": "3.4.0",
+    "jsr:@effectionx/deno-deploy@0.1.1": "0.1.1",
     "jsr:@frontside/continuation@0.1.6": "0.1.6",
     "jsr:@frontside/staticalize@0.1.0": "0.1.0",
     "jsr:@frontside/staticalize@0.2.0": "0.2.0",
     "jsr:@libs/xml@*": "6.0.4",
     "jsr:@libs/xml@6": "6.0.4",
-    "jsr:@std/assert@*": "1.0.10",
     "jsr:@std/assert@1.0.10": "1.0.10",
     "jsr:@std/bytes@^1.0.2": "1.0.4",
     "jsr:@std/cache@0.1.3": "0.1.3",
@@ -121,17 +120,17 @@
     "@deno/graph@0.89.0": {
       "integrity": "0e5513bc97676035912e41d29282d0aaaa9fb752977bbb9a0690806b86e8d914"
     },
-    "@effection-contrib/deno-deploy@0.1.0": {
-      "integrity": "a8e20f746c330bc3dc38a0f6dd65829954e28a3cbeaf5c54d2f2b4569d5b9259",
-      "dependencies": [
-        "npm:effection@3.0.3"
-      ]
-    },
-    "@effection/effection@3.1.0": {
-      "integrity": "3891a1ad37df3b85f03bce582c61f47904576a001b31163af29ba79c3b677f5f",
+    "@effection/effection@3.4.0": {
+      "integrity": "a2d2d625c8c2016a5ffe42a905ff56fcfcceb2ba694e35973171439beaf3837c",
       "dependencies": [
         "jsr:@frontside/continuation",
-        "jsr:@std/assert@1.0.10"
+        "jsr:@std/assert"
+      ]
+    },
+    "@effectionx/deno-deploy@0.1.1": {
+      "integrity": "e32d1875087475f1e561017bc9e80705156d397849305255c5b42c7073d928c9",
+      "dependencies": [
+        "npm:effection@3.0.3"
       ]
     },
     "@frontside/continuation@0.1.6": {
@@ -2280,7 +2279,8 @@
   },
   "workspace": {
     "dependencies": [
-      "jsr:@effection/effection@3.1.0",
+      "jsr:@effection/effection@3",
+      "jsr:@effectionx/deno-deploy@0.1.1",
       "npm:path-to-regexp@8.2.0",
       "npm:unified@11.0.4"
     ]

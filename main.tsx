@@ -1,5 +1,5 @@
 import { main, suspend } from "effection";
-import { initDenoDeploy } from "jsr:@effection-contrib/deno-deploy@0.1.0";
+import { initDenoDeploy } from "@effectionx/deno-deploy";
 import { createRevolution, ServerInfo } from "revolution";
 
 import { config } from "./tailwind.config.ts";
@@ -11,8 +11,14 @@ import { twindPlugin } from "./plugins/twind.ts";
 
 import { apiReferenceRoute } from "./routes/api-reference-route.tsx";
 import { assetsRoute } from "./routes/assets-route.ts";
-import { contribIndexRoute } from "./routes/contrib-index-route.tsx";
-import { contribPackageRoute } from "./routes/contrib-package-route.tsx";
+import {
+  contribIndexRedirect,
+  contribIndexRoute,
+} from "./routes/contrib-index-route.tsx";
+import {
+  contribPackageRedirect,
+  contribPackageRoute,
+} from "./routes/contrib-package-route.tsx";
 import { firstPage, guidesRoute } from "./routes/guides-route.tsx";
 import { indexRoute } from "./routes/index-route.tsx";
 
@@ -69,7 +75,7 @@ if (import.meta.main) {
 
     let contrib = yield* loadRepository({
       owner: "thefrontside",
-      name: "effection-contrib",
+      name: "effectionx",
     });
 
     yield* ContribRepositoryContext.set(contrib);
@@ -98,9 +104,11 @@ if (import.meta.main) {
           "/guides/:series/:id",
           guidesRoute({ repository: library, search: true }),
         ),
-        route("/contrib", contribIndexRoute({ contrib, search: true })),
+        route("/contrib", contribIndexRedirect()),
+        route("/contrib/:workspacePath", contribPackageRedirect({ contrib })),
+        route("/x", contribIndexRoute({ contrib, search: true })),
         route(
-          "/contrib/:workspacePath",
+          "/x/:workspacePath",
           contribPackageRoute({ contrib, library, search: true }),
         ),
         route("/api", apiIndexRoute({ library, search: true })),

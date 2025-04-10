@@ -4,6 +4,19 @@ import type { JSXElement } from "revolution";
 import { useAppHtml } from "./app.html.tsx";
 import { Repository } from "../resources/repository.ts";
 import { GithubPill } from "../components/package/source-link.tsx";
+import { softRedirect } from "./redirect.tsx";
+import { createChildURL, createSibling } from "./links-resolvers.ts";
+
+export function contribIndexRedirect(): SitemapRoute<JSXElement> {
+  return {
+    *routemap(pathname) {
+      return [{ pathname: pathname() }];
+    },
+    *handler(req) {
+      return yield* softRedirect(req, yield* createSibling("x"));
+    },
+  };
+}
 
 export function contribIndexRoute({
   contrib,
@@ -18,7 +31,7 @@ export function contribIndexRoute({
     },
     *handler() {
       const AppHTML = yield* useAppHtml({
-        title: "Contrib | Effection",
+        title: "Extensions | Effection",
         description:
           "List of community contributed modules that represent emerging consensus on how to do common JavaScript tasks with Effection.",
       });
@@ -30,7 +43,7 @@ export function contribIndexRoute({
         <AppHTML search={search}>
           <article class="prose m-auto">
             <header class="flex flex-row items-center space-x-2">
-              <h1 class="mb-0">Effection Contrib</h1>
+              <h1 class="mb-0">Effection Extensions</h1>
               {yield* GithubPill({
                 url: ref.getUrl().toString(),
                 text: ref.repository.nameWithOwner,
@@ -47,7 +60,7 @@ export function contribIndexRoute({
                   return (
                     <li class="px-0">
                       <h3>
-                        <a href={`/contrib/${pkg.path}`}>
+                        <a href={yield* createChildURL()(pkg.path)}>
                           {yield* pkg.title()}
                         </a>
                       </h3>

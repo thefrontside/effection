@@ -1,14 +1,14 @@
 Let's write our first program using Effection.
 
 ``` javascript
-import { call, useAbortSignal } from "effection";
+import { until, useAbortSignal } from "effection";
 
 export function* fetchWeekDay(timezone) {
   let signal = yield* useAbortSignal();
 
-  let response = yield* call(fetch(`http://worldclockapi.com/api/json/${timezone}/now`, { signal }));
+  let response = yield* until(fetch(`http://worldclockapi.com/api/json/${timezone}/now`, { signal }));
 
-  let time = yield* call(response.json());
+  let time = yield* until(response.json());
 
   return time.dayOfTheWeek;
 }
@@ -50,7 +50,7 @@ operations out of existing ones. For example, we can add a time out of
 for that matter) by wrapping it in a `withTimeout` operation.
 
 ```javascript
-import { main, call, race } from 'effection';
+import { main, until, race } from 'effection';
 import { fetchWeekDay } from './fetch-week-day';
 
 await main(function*() {
@@ -59,7 +59,7 @@ await main(function*() {
 });
 
 function withTimeout(operation, delay) {
-  return race([operation, call(function*() {
+  return race([operation, until(function*() {
     yield* sleep(delay);
     throw new Error(`timeout!`);
   })]);

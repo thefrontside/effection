@@ -31,7 +31,7 @@
   also async functions and vanilla JavaScript functions
   https://github.com/thefrontside/effection/pull/832
 - Task.halt() now succeeds whenever the shutdown succeeds, regardless of whether
-  the task itself failed https://github.com/thefrontside/pull/effection/837
+  the task itself failed https://github.com/thefrontside/effection/pull/837
 - ✨allow custom `Queue` impl whenever creating a `Signal`
   https://github.com/thefrontside/effection/pull/826
 - 📄Represent `each` as a function, not a variable in the API docs
@@ -76,9 +76,9 @@
   https://github.com/thefrontside/effection/pull/729
 - add `main()` method for setting up Effection to work properly in working in
   deno, browser, and node
-- add `Context.set()` and `Context.get()` operations to make working w ith
+- add `Context.set()` and `Context.get()` operations to make working with
   Context convenient
-- convert `Subscription` interface from a bare operation to an "iterat or" style
+- convert `Subscription` interface from a bare operation to an "iterator" style
   interface. Succintly: `yield* subscription` -> `yield* subscription.next()`.
   For details https://github.com/thefrontside/effection/issues/693
 - add `on()` and `once()` operations for events and subscriptions to values that

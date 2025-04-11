@@ -2,8 +2,7 @@ import { action } from "./action.ts";
 import type { Operation } from "./types.ts";
 
 /**
- * It can be used to treat a promise as an operation. This function
- * is a replacement to the v3 deprecated `call(promise)` function form.
+ * Treat a promise as an {@link Operation}
  *
  * @example
  * ```js

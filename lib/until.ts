@@ -10,7 +10,7 @@ import type { Operation } from "./types.ts";
  * ```
  * @template {T}
  * @param promise
- * @returns {Operation<T>}
+ * @returns {Operation<T>} that succeeds or fails depending on the outcome of `promise`
  */
 export function until<T>(promise: Promise<T>): Operation<T> {
   return action((resolve, reject) => {

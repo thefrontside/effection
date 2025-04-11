@@ -25,7 +25,7 @@ export function useCommand(...args) {
     let stderr = createSignal();
 
 
-    // create a task that finishes the process finishes
+    // create a task that runs until the process finishes
     let exit = yield* spawn(function*() {
       // get the exit code
       let code = yield* action(function*(resolve) {

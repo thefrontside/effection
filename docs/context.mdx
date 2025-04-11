@@ -2,7 +2,7 @@ Effection contexts store ambient values that are needed by the operations in you
 use cases of `Context` are
 
 
-* **Configuration**: most apps require values that come from the environment such as evironment variables or configuration files. Use context to easily retrieve such values from within any operation.
+* **Configuration**: most apps require values that come from the environment such as environment variables or configuration files. Use context to easily retrieve such values from within any operation.
 * **Client APIs**: many APIs provide client libraries to connect with them. With an Effection context, you can create a client instance once and share it between all child operations.
 * **Services**: Database connections, Websockets, and many other types of APIs involve a handle to a stateful object that needs to be
 destroyed accordingly to a set lifecycle. Combined with [resource api][resources], Effection context allows you to share a service between child operations and also to guarantee that it is disposed of properly when it is no longer needed.
@@ -15,12 +15,12 @@ verbose and inconvenient when you have to pass them through many operations in
 the middle, or if many operations need the same information. Likewise, passing information
 via lexical scope is only possible if you define the child operation in the body of the
 parent operation. `Context` lets the parent operation make some information available to any
-operation in the tree below it-no matter how deep-without passing it explicitely through function
+operation in the tree below it-no matter how deep-without passing it explicitly through function
 arguments or lexical scope.
 
 > 💁 If you're familiar with React Context, you already know most of 
 > what you need to know about Effection Context. The biggest difference
-> is the API but general concepts are same. 
+> is the API but general concepts are the same. 
 
 ## What is argument drilling?
 
@@ -30,7 +30,7 @@ But passing arguments can become inconvenient when the child operation is nested
 the same arguments need to be passed to many operations. This situation is called "argument drilling".
 
 Wouldn't it be great if you could access information in a deeply nested operation from a parent operation without 
-modifying operations in the middle? That's exaclty what Effection Context does.
+modifying operations in the middle? That's exactly what Effection Context does.
 
 ## Context: an alternative to passing arguments
 
@@ -57,7 +57,7 @@ function* fetchRepositories() {
   // 3. use the context value in a child operation
   const token = yield* GithubTokenContext.expect();
   // or
-  // const token = yield* GithubTokenContext.expect();
+  // const token = yield* GithubTokenContext.get();
 
   console.log(token);
   // -> gha-1234567890
@@ -84,7 +84,7 @@ To use context in your operations, you need to do the following 3 steps:
 
 ### Step 1: Create a context.
 
-Effection provides a function for creating a context appropriatelly called `createContext`. This function will return
+Effection provides a function for creating a context appropriately called `createContext`. This function will return
 a reference that you use to identify the context value in the scope.
 
 ``` javascript

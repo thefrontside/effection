@@ -2,9 +2,7 @@
   "name": "@effection/effection",
   "exports": "./mod.ts",
   "license": "ISC",
-  "publish": {
-    "include": ["lib", "mod.ts", "README.md"]
-  },
+  "publish": { "include": ["lib", "mod.ts", "README.md"] },
   "lock": false,
   "tasks": {
     "test": "deno test --allow-run=deno --allow-read --allow-env",
@@ -14,39 +12,17 @@
     "build:jsr": "deno run -A tasks/build-jsr.ts"
   },
   "lint": {
-    "rules": {
-      "exclude": ["prefer-const", "require-yield"]
-    },
-    "exclude": [
-      "build",
-      "www"
-    ]
+    "rules": { "exclude": ["prefer-const", "require-yield"] },
+    "exclude": ["build", "www"]
   },
-  "fmt": {
-    "exclude": [
-      "build",
-      "www",
-      "CODE_OF_CONDUCT.md",
-      "README.md"
-    ]
-  },
-  "test": {
-    "exclude": [
-      "build"
-    ]
-  },
-  "compilerOptions": {
-    "lib": [
-      "deno.ns",
-      "esnext",
-      "dom",
-      "dom.iterable"
-    ]
-  },
+  "fmt": { "exclude": ["build", "www", "CODE_OF_CONDUCT.md", "README.md"] },
+  "test": { "exclude": ["build"] },
+  "compilerOptions": { "lib": ["deno.ns", "esnext", "dom", "dom.iterable"] },
   "imports": {
     "@std/testing": "jsr:@std/testing@1",
     "ts-expect": "npm:ts-expect@1.3.0",
     "@std/expect": "jsr:@std/expect@1",
     "tinyexec": "npm:tinyexec@0.3.2"
-  }
+  },
+  "version": "4.0.0-alpha.8"
 }

@@ -61,6 +61,18 @@ export function createScope(frame?: Frame): [Scope, () => Future<void>] {
 
       return frame.getTask();
     },
+
+    get spawn() {
+      let scope = this!;
+      return function spawn<T>(operation: () => Operation<T>) {
+        return {
+          *[Symbol.iterator]() {
+            return scope.run(operation);
+          },
+        };
+      };
+    },
+
     get<T>(context: Context<T>) {
       let { key, defaultValue } = context;
       return (parent.context[key] ?? defaultValue) as T | undefined;

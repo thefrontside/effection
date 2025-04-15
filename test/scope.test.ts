@@ -22,6 +22,22 @@ describe("Scope", () => {
     expect(await t2).toEqual(2);
   });
 
+  it("can be used to spawn", async () => {
+    let [scope] = createScope();
+    let t1 = run(() =>
+      scope.spawn(function* () {
+        return 1;
+      })
+    );
+    let t2 = run(() =>
+      scope.spawn(function* () {
+        return 2;
+      })
+    );
+    expect(await t1).toEqual(1);
+    expect(await t2).toEqual(2);
+  });
+
   it("succeeds on close if the frame has errored", async () => {
     let error = new Error("boom!");
     let [scope, close] = createScope();

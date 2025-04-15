@@ -194,6 +194,16 @@ export interface Scope {
    * @returns a task rep
    */
   run<T>(operation: () => Operation<T>): Task<T>;
+
+  /**
+   * Spawn an {@link Operation} within `Scope`.
+   *
+   * This is used to create concurrent tasks from _within_ a running
+   * operation. To create concurrent from outside of Effection, use
+   * {@link Scope#run}
+   */
+  spawn<T>(operation: () => Operation<T>): Operation<Task<T>>;
+
   /**
    * Get a {@link Context} value from outside of an operation.
    * @param context - the context to get

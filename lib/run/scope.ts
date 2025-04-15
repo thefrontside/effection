@@ -16,32 +16,53 @@ export function* useScope(): Operation<Scope> {
 }
 
 /**
- * Create a new scope to serve as an entry point from normal
- * JavaScript execution into Effection.
+ * Create a new {@link Scope} as a child of `parent`, inheriting all its contexts.
+ * along with a method to destroy the scope. Whenever the scope is destroyd, all
+ * tasks and resources it contains will be halted.
  *
- * When creating a fresh scope (as opposed to capturing a reference to
- * an existing one via {@link useScope}) it is the responsibility of
- * the creator of the new scope to destroy it when it is no longer needed.
+ * This function is used mostly by frameworks as an intergration point to enter
+ * Effection.
  *
  * @example
- * ```javascript
+ * ```js
+ * import { createScope, sleep, suspend } from "effection";
+ *
  * let [scope, destroy] = createScope();
- * let task = scope.run(function*() {
- *   //do some long running work
+ *
+ * let delay = scope.run(function*() {
+ *   yield* sleep(1000);
  * });
- *
- * //... later
- * await destroy();
- *
+ * scope.run(function*() {
+ *   try {
+ *     yield* suspend();
+ *    } finally {
+ *      console.log('done!');
+ *    }
+ * });
+ * await delay;
+ * await destroy(); // prints "done!";
  * ```
- * @returns a tuple containing the new scope, and a function to destroy it.
+ *
+ * @param parent scope. If no parent is specified it will be free standing.
+ * @returns a tuple containing the freshly created scope, along with a function to
+ *          destroy it.
  */
-export function createScope(frame?: Frame): [Scope, () => Future<void>] {
-  let parent = frame ?? createFrame({ operation: suspend });
+export function createScope(parent?: Scope): [Scope, () => Future<void>];
 
-  let scope = create<Scope>("Scope", {}, {
+/* @ignore */
+export function createScope(parent: Frame): [Scope, () => Future<void>];
+/* @ignore */
+export function createScope(
+  parent?: Frame | Scope,
+): [Scope, () => Future<void>] {
+  let frame = isScopeInternal(parent)
+    ? parent.frame.createChild(suspend)
+    : (parent as Frame) ?? createFrame({ operation: suspend });
+
+  let scope = create<ScopeInternal>("Scope", {}, {
+    frame,
     run<T>(operation: () => Operation<T>) {
-      if (parent.exited) {
+      if (frame.exited) {
         let error = new Error(
           `cannot call run() on a scope that has already been exited`,
         );
@@ -49,17 +70,17 @@ export function createScope(frame?: Frame): [Scope, () => Future<void>] {
         throw error;
       }
 
-      let frame = parent.createChild(operation);
-      frame.enter();
+      let child = frame.createChild(operation);
+      child.enter();
 
       evaluate(function* () {
-        let result = yield* frame;
+        let result = yield* child;
         if (!result.ok) {
-          yield* parent.crash(result.error);
+          yield* frame.crash(result.error);
         }
       });
 
-      return frame.getTask();
+      return child.getTask();
     },
 
     get spawn() {
@@ -75,11 +96,11 @@ export function createScope(frame?: Frame): [Scope, () => Future<void>] {
 
     get<T>(context: Context<T>) {
       let { key, defaultValue } = context;
-      return (parent.context[key] ?? defaultValue) as T | undefined;
+      return (frame.context[key] ?? defaultValue) as T | undefined;
     },
     set<T>(context: Context<T>, value: T) {
       let { key } = context;
-      parent.context[key] = value;
+      frame.context[key] = value;
       return value;
     },
     expect<T>(context: Context<T>): T {
@@ -93,14 +114,22 @@ export function createScope(frame?: Frame): [Scope, () => Future<void>] {
     },
     delete<T>(context: Context<T>): boolean {
       let { key } = context;
-      return delete parent.context[key];
+      return delete frame.context[key];
     },
     hasOwn<T>(context: Context<T>): boolean {
-      return !!Reflect.getOwnPropertyDescriptor(parent.context, context.key);
+      return !!Reflect.getOwnPropertyDescriptor(frame.context, context.key);
     },
   });
 
-  parent.enter();
+  frame.enter();
 
-  return [scope, parent.getTask().halt];
+  return [scope, frame.getTask().halt];
+}
+
+interface ScopeInternal extends Scope {
+  frame: Frame;
+}
+
+function isScopeInternal(value?: Frame | Scope): value is ScopeInternal {
+  return !!value && typeof (value as ScopeInternal).run === "function";
 }

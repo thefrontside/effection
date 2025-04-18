@@ -58,6 +58,7 @@ export function* useDocPages(specifier: string): Operation<DocsPages> {
     new URL("./deno.json", specifier).toString(),
     loader,
   );
+
   const resolve = imports
     ? (specifier: string, referrer: string) => {
       let resolved: string = specifier;

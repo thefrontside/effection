@@ -11,22 +11,16 @@ import { twindPlugin } from "./plugins/twind.ts";
 
 import { apiReferenceRoute } from "./routes/api-reference-route.tsx";
 import { assetsRoute } from "./routes/assets-route.ts";
-import {
-  contribIndexRedirect,
-  contribIndexRoute,
-} from "./routes/contrib-index-route.tsx";
-import {
-  contribPackageRedirect,
-  contribPackageRoute,
-} from "./routes/contrib-package-route.tsx";
+import { xIndexRedirect, xIndexRoute } from "./routes/x-index-route.tsx";
+import { xPackageRedirect, xPackageRoute } from "./routes/x-package-route.tsx";
 import { firstPage, guidesRoute } from "./routes/guides-route.tsx";
 import { indexRoute } from "./routes/index-route.tsx";
 
 import { initGithubClientContext } from "./context/github.ts";
 import { initJSRClient } from "./context/jsr.ts";
 import {
-  ContribRepositoryContext,
   LibraryRepositoryContext,
+  XRepositoryContext,
 } from "./context/repository.ts";
 import { patchDenoPermissionsQuerySync } from "./deno-deploy-patch.ts";
 import { loadRepository } from "./resources/repository.ts";
@@ -73,12 +67,12 @@ if (import.meta.main) {
     });
     yield* LibraryRepositoryContext.set(library);
 
-    let contrib = yield* loadRepository({
+    let x = yield* loadRepository({
       owner: "thefrontside",
       name: "effectionx",
     });
 
-    yield* ContribRepositoryContext.set(contrib);
+    yield* XRepositoryContext.set(x);
 
     let revolution = createRevolution({
       app: [
@@ -104,12 +98,12 @@ if (import.meta.main) {
           "/guides/:series/:id",
           guidesRoute({ repository: library, search: true }),
         ),
-        route("/contrib", contribIndexRedirect()),
-        route("/contrib/:workspacePath", contribPackageRedirect({ contrib })),
-        route("/x", contribIndexRoute({ contrib, search: true })),
+        route("/contrib", xIndexRedirect()),
+        route("/contrib/:workspacePath", xPackageRedirect({ x })),
+        route("/x", xIndexRoute({ x, search: true })),
         route(
           "/x/:workspacePath",
-          contribPackageRoute({ contrib, library, search: true }),
+          xPackageRoute({ x, library, search: true }),
         ),
         route("/api", apiIndexRoute({ library, search: true })),
         route(

@@ -1,5 +1,5 @@
 import { type JSXElement, useParams } from "revolution";
-import { call } from "effection";
+import { call, type Operation } from "effection";
 import { shiftHeading } from "npm:hast-util-shift-heading@4.0.0";
 import type { Nodes } from "npm:@types/hast@3.0.4";
 
@@ -7,7 +7,7 @@ import { PackageExports } from "../components/package/exports.tsx";
 import { PackageHeader } from "../components/package/header.tsx";
 import { ScoreCard } from "../components/score-card.tsx";
 import { DocPageContext } from "../context/doc-page.ts";
-import { DocPage } from "../hooks/use-deno-doc.tsx";
+import { DocPage, DocsPages } from "../hooks/use-deno-doc.tsx";
 import { useMarkdown } from "../hooks/use-markdown.tsx";
 import { major, minor } from "../lib/semver.ts";
 import type { RoutePath, SitemapRoute } from "../plugins/sitemap.ts";
@@ -19,6 +19,7 @@ import { select } from "npm:hast-util-select@6.0.1";
 import { Icon } from "../components/type/icon.tsx";
 import { softRedirect } from "./redirect.tsx";
 import { createSibling } from "./links-resolvers.ts";
+import { coerce, satisfies } from "npm:semver@7.6.3";
 
 interface XPackageRouteParams {
   x: Repository;
@@ -105,7 +106,7 @@ export function xPackageRoute({
               const page = yield* DocPageContext.expect();
               effection = yield* getEffectionDependency(page, library);
             }
-            if (effection.docs && effection.version) {
+            if (effection && effection.docs && effection.version) {
               const page = effection.docs["."].find(
                 (page) => page.name === symbol,
               );
@@ -255,18 +256,34 @@ export function xPackageRoute({
   };
 }
 
-function* getEffectionDependency(page: DocPage, library: Repository) {
-  let version, docs;
+function* getEffectionDependency(page: DocPage, library: Repository): Operation<{ version: string, docs: DocsPages } | undefined> {
+  console.log(`Searching for effection dependency in page ${page.name}`);
   let effection = page.dependencies.find((dep) =>
     ["effection", "@effection/effection"].includes(dep.name)
   );
   if (effection) {
-    version = effection.version.replace("^", "");
-    const ref = yield* library.loadRef(`tags/effection-v${version}`);
-    const pkg = yield* ref.loadRootPackage();
-    if (pkg) {
-      docs = yield* pkg?.docs();
+    const version = coerce(effection.version);
+    if (version) {
+      const versions = yield* library.getSemverTags(version.major.toString());
+      if (versions) {
+        let latest = versions.find(v => satisfies(v, effection.version));
+        if (latest) {
+          const ref = yield* library.loadRef(`tags/effection-v${latest}`);
+          const pkg = yield* ref.loadRootPackage();
+          if (pkg) {
+            return {
+              version: latest,
+              docs: yield* pkg.docs()
+            }
+          } else {
+            console.log(`Failed to load root package for version ${latest}`);
+          }
+        }
+      }
+    } else {
+      console.log(`Failed to coerce version string: ${effection.version}`);
     }
+  } else {
+    console.log(`No effection dependency found in page ${page.name}`);
   }
-  return { version, docs };
 }

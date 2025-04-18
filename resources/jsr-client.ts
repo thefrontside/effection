@@ -39,7 +39,7 @@ const PackageDetails = z.object({
     createdAt: z.string().datetime(),
     updatedAt: z.string().datetime(),
   }).nullable(),
-  score: z.number().min(0).max(100),
+  score: z.number().min(0).max(100).nullable(),
 });
 
 export type PackageScoreResult = z.infer<typeof PackageScore>;

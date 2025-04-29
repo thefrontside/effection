@@ -2,8 +2,10 @@
 
 ## 3.5.0
 
-- 🚛 Backport createScope(parent) to v3 https://github.com/thefrontside/effection/pull/996
-- 🚛 Backport Scope.spawn() to v3 https://github.com/thefrontside/effection/pull/995
+- 🚛 Backport createScope(parent) to v3
+  https://github.com/thefrontside/effection/pull/996
+- 🚛 Backport Scope.spawn() to v3
+  https://github.com/thefrontside/effection/pull/995
 
 ## 3.4.0
 

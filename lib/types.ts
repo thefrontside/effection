@@ -355,6 +355,7 @@ export interface Effect<T> {
  * @ignore
  */
 export interface Coroutine<T = unknown> {
+  version: number;
   scope: Scope;
   data: {
     discard(resolve: Resolve<Result<unknown>>): void;

@@ -30,6 +30,7 @@ export function createCoroutine<T>(
   let iterator: Coroutine<T>["data"]["iterator"] | undefined = undefined;
 
   let routine = {
+    version: 0,
     scope,
     data: {
       get iterator() {
@@ -52,12 +53,14 @@ export function createCoroutine<T>(
           exit.ok ? result : exit,
           send as Subscriber<unknown>,
           "next",
+          routine.version,
         ]);
       });
 
       return () => subscriber && subscribers.delete(subscriber);
     },
     return(result, subscriber?: Subscriber<void>) {
+      routine.version++;
       if (subscriber) {
         subscribers.add(subscriber as Subscriber<T>);
       }
@@ -69,6 +72,7 @@ export function createCoroutine<T>(
           exit.ok ? result : exit,
           send as Subscriber<unknown>,
           "return",
+          routine.version,
         ]);
       });
 

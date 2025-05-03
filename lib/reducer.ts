@@ -1,10 +1,11 @@
 import { createContext } from "./context.ts";
+import { PriorityQueue } from "./priority-queue.ts";
 import { Err, Ok, type Result } from "./result.ts";
 import type { Coroutine, Subscriber } from "./types.ts";
 
 export class Reducer {
   reducing = false;
-  readonly queue = createPriorityQueue();
+  readonly queue = createPriorityQueue2();
 
   reduce = (
     thunk: Thunk,
@@ -77,26 +78,61 @@ type Thunk = [
   Result<unknown>,
   Subscriber<unknown>,
   "return" | "next",
+  number,
 ];
 
-// This is a pretty hokey priority queue that uses an array for storage
-// so enqueue is O(n). However, `n` is generally small. revisit.
-function createPriorityQueue() {
-  let thunks: Thunk[] = [];
+// // This is a pretty hokey priority queue that uses an array for storage
+// // so enqueue is O(n). However, `n` is generally small. revisit.
+// function createPriorityQueue() {
+//   let thunks: Thunk[] = [];
+
+//   return {
+//     enqueue(thunk: Thunk): void {
+//       let [priority] = thunk;
+//       let index = thunks.findIndex(([p]) => p >= priority);
+//       if (index === -1) {
+//         thunks.push(thunk);
+//       } else {
+//         thunks.splice(index, 0, thunk);
+//       }
+//     },
+
+//     dequeue(): Thunk | undefined {
+//       return thunks.shift();
+//     },
+//   };
+// }
+
+function createPriorityQueue2() {
+  let q = new PriorityQueue<Thunk>();
 
   return {
     enqueue(thunk: Thunk): void {
       let [priority] = thunk;
-      let index = thunks.findIndex(([p]) => p >= priority);
-      if (index === -1) {
-        thunks.push(thunk);
-      } else {
-        thunks.splice(index, 0, thunk);
+      q.push(priority, thunk);
+    },
+    dequeue(): Thunk | undefined {
+      while (true) {
+        let top = q.pop();
+        if (!top) {
+          return undefined;
+        } else if (top[5] < top[1].version) {
+          continue;
+        } else {
+          return top;
+        }
       }
     },
-
-    dequeue(): Thunk | undefined {
-      return thunks.shift();
-    },
   };
+}
+
+function qdir(cxt: string, q: PriorityQueue<Thunk>): void {
+  console.log(cxt);
+  console.dir(
+    q.tiers.filter((t) => !!t).map((t) => ({
+      priority: t.priority,
+      items: t.items.map((i) => ({ c: i[1], r: i[2], t: i[4], v: i[5] })),
+    })),
+    { depth: 10 },
+  );
 }

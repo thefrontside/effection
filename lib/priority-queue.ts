@@ -56,18 +56,18 @@ export class PriorityQueue<T> {
                   current = right_i;
                 }
               } else {
-		break;
-	      }
+                break;
+              }
             } else if (left.priority < tier.priority) {
               this.heap[current] = left;
               this.heap[left_i] = tier;
               current = left_i;
             } else {
-	      break;
-	    }
+              break;
+            }
           } else {
-	    break;
-	  }
+            break;
+          }
         }
       }
     }

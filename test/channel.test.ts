@@ -7,7 +7,13 @@ import {
 } from "./suite.ts";
 
 import type { Channel, Operation } from "../mod.ts";
-import { createChannel, createScope, sleep, spawn } from "../mod.ts";
+import {
+  createChannel,
+  createScope,
+  sleep,
+  spawn,
+  withResolvers,
+} from "../mod.ts";
 
 let [scope, close] = createScope();
 
@@ -20,21 +26,31 @@ describe("Channel", () => {
   it("does not use the same event twice when serially subscribed to a channel", function* () {
     let input = createChannel<string, void>();
 
+    let proceed = withResolvers<void>();
+
     let actual: string[] = [];
     function* channel() {
-      yield* sleep(10);
       yield* input.send("one");
+
+      yield* proceed.operation;
+
       yield* input.send("two");
     }
 
     function* root() {
+      // subscribe once
+      let subscription = yield* input;
+
       yield* spawn(channel);
 
-      let subscription = yield* input;
       let result = yield* subscription.next();
       actual.push(result.value as string);
 
       subscription = yield* input;
+
+      // it's ok to emit the second output because we're listening for it
+      proceed.resolve();
+
       result = yield* subscription.next();
       actual.push(result.value as string);
     }

@@ -1,0 +1,37 @@
+name: preview
+
+on: [pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: setup deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Get Version
+        id: vars
+        # this will pull the last tag off the current branch
+        run: echo ::set-output name=version::$(git describe --abbrev=0 --tags | sed 's/^effection-v//')-pr+$(git rev-parse HEAD)
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          registry-url: https://registry.npmjs.com
+
+      - name: Build NPM
+        run: deno task build:npm ${{steps.vars.outputs.version}}
+
+      - name: Publish Preview Versions
+        run: npx pkg-pr-new publish './build/npm'

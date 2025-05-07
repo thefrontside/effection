@@ -34,4 +34,4 @@ jobs:
         run: deno task build:npm ${{steps.vars.outputs.version}}
 
       - name: Publish Preview Versions
-        run: npx pkg-pr-new publish './build'
+        run: npx pkg-pr-new publish './build/npm'

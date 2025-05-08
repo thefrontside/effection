@@ -6,10 +6,6 @@ import { type KillSignal, type Options, type Output, x as $x } from "tinyexec";
 import type { Operation, Stream } from "../lib/types.ts";
 import { call, resource, sleep, spawn, stream } from "../mod.ts";
 
-export function $await<T>(promise: Promise<T>): Operation<T> {
-  return call(() => promise);
-}
-
 export function* createNumber(value: number): Operation<number> {
   yield* sleep(1);
   return value;

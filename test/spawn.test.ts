@@ -1,13 +1,13 @@
 // deno-lint-ignore-file no-unsafe-finally
-import { $await, describe, expect, it } from "./suite.ts";
-import { run, sleep, spawn, suspend } from "../mod.ts";
+import { describe, expect, it } from "./suite.ts";
+import { run, sleep, spawn, suspend, until } from "../mod.ts";
 
 describe("spawn", () => {
   it("can spawn a new child task", async () => {
     let root = run(function* root() {
       let child = yield* spawn(function* child() {
-        let one = yield* $await(Promise.resolve(12));
-        let two = yield* $await(Promise.resolve(55));
+        let one = yield* until(Promise.resolve(12));
+        let two = yield* until(Promise.resolve(55));
         return one + two;
       });
       return yield* child;

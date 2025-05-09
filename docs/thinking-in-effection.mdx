@@ -59,7 +59,7 @@ However, the same guarantee is not provided for async functions.
 ```js {5} showLineNumbers
 async function main() {
   try {
-    await new Promise((resolve) => setTimeout(resolve, 100,000));
+    await new Promise((resolve) => setTimeout(resolve, 100000));
   } finally {
     // code here is NOT GUARANTEED to run
   }
@@ -82,7 +82,7 @@ import { main, action } from "effection";
 
 await main(function*() {
   try {
-    yield* action(function*(resolve) { setTimeout(resolve, 100,000) });
+    yield* action(function*(resolve) { setTimeout(resolve, 100000) });
   } finally {
     // code here is GUARANTEED to run
   }

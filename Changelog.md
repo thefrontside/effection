@@ -1,5 +1,79 @@
 # Changelog
 
+## 4.0.0-alpha.8
+
+- Add `until()` operation for turning promises into operations
+  https://github.com/thefrontside/effection/pull/990
+- Add Effect.js benchmarks for performance comparison
+  https://github.com/thefrontside/effection/pull/979
+
+## 4.0.0-alpha.7
+
+- Fix type definition for call operation
+  https://github.com/thefrontside/effection/pull/973
+- Fix missing tag issue https://github.com/thefrontside/effection/pull/970
+- Minor documentation improvements
+  https://github.com/thefrontside/effection/pull/971
+
+## 4.0.0-alpha.6
+
+- Remove unnecessary www from deploy preview URLs
+  https://github.com/thefrontside/effection/pull/969
+- Add promise helpers https://github.com/thefrontside/effection/pull/968
+
+## 4.0.0-alpha.5
+
+- Test against Node 16, 18, 20 versions
+  https://github.com/thefrontside/effection/pull/966
+- Add documentation for scope https://github.com/thefrontside/effection/pull/961
+- Add documentation for errors
+  https://github.com/thefrontside/effection/pull/960
+- Add documentation for call operation
+  https://github.com/thefrontside/effection/pull/954
+- Add documentation for suspend operation
+  https://github.com/thefrontside/effection/pull/957
+- Add documentation for constant operation
+  https://github.com/thefrontside/effection/pull/955
+- Add withResolvers test https://github.com/thefrontside/effection/pull/953
+- Fix typo in documentation https://github.com/thefrontside/effection/pull/952
+- Add documentation for action operation
+  https://github.com/thefrontside/effection/pull/951
+- Add contributors section to README
+  https://github.com/thefrontside/effection/pull/948
+- Add JSR publishing capability
+  https://github.com/thefrontside/effection/pull/947
+- Add withResolvers documentation
+  https://github.com/thefrontside/effection/pull/940
+- Remove v2 documentation https://github.com/thefrontside/effection/pull/938
+
+## 4.0.0-alpha.4
+
+- Add dynamic import for Node.js main
+  https://github.com/thefrontside/effection/pull/936
+- Add scoped operation https://github.com/thefrontside/effection/pull/933
+- Export Result interface from API
+  https://github.com/thefrontside/effection/pull/920
+- Add benchmark suite https://github.com/thefrontside/effection/pull/919
+
+## 4.0.0-alpha.3
+
+- Add do-effect helper https://github.com/thefrontside/effection/pull/918
+- Use Deno 2.0 https://github.com/thefrontside/effection/pull/917
+
+## 4.0.0-alpha.2
+
+- Make Task implement Operation
+  https://github.com/thefrontside/effection/pull/915
+
+## 4.0.0-alpha.1
+
+- Export async helpers in main API
+  https://github.com/thefrontside/effection/pull/913
+
+## 4.0.0-alpha.0
+
+- Initial v4 release with delimited continuations
+
 ## 3.0.3
 
 - this is just a placeholder release in order to workaround an issue. It is 100%

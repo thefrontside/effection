@@ -357,7 +357,7 @@ export interface Effect<T> {
 export interface Coroutine<T = unknown> {
   scope: Scope;
   data: {
-    discard(resolve: Resolve<Result<unknown>>): void;
+    exit(resolve: Resolve<Result<unknown>>): void;
     iterator: Iterator<Effect<unknown>, T, unknown>;
   };
   next(result: Result<unknown>, subscriber?: Subscriber<T>): () => void;

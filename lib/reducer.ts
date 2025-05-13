@@ -31,7 +31,7 @@ export class Reducer {
                 notify({ done: true, value: Ok(next.value) });
               } else {
                 let action = next.value;
-                routine.data.discard = action.enter(routine.next, routine);
+                routine.data.exit = action.enter(routine.next, routine);
               }
             } else if (iterator.return) {
               let next = iterator.return(result.value);
@@ -39,7 +39,7 @@ export class Reducer {
                 notify({ done: true, value: Ok(result) });
               } else {
                 let action = next.value;
-                routine.data.discard = action.enter(routine.next, routine);
+                routine.data.exit = action.enter(routine.next, routine);
               }
             } else {
               notify({ done: true, value: result });
@@ -50,7 +50,7 @@ export class Reducer {
               notify({ done: true, value: Ok(next.value) });
             } else {
               let action = next.value;
-              routine.data.discard = action.enter(routine.next, routine);
+              routine.data.exit = action.enter(routine.next, routine);
             }
           } else {
             throw result.error;

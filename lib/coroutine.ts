@@ -38,18 +38,18 @@ export function createCoroutine<T>(
         }
         return iterator;
       },
-      discard: (resolve) => resolve(Ok()),
+      exit: (resolve) => resolve(Ok()),
     },
     next(result, subscriber) {
       if (subscriber) {
         subscribers.add(subscriber);
       }
-      routine.data.discard((exit) => {
-        routine.data.discard = (resolve) => resolve(Ok());
+      routine.data.exit((exitResult) => {
+        routine.data.exit = (didExit) => didExit(Ok());
         reducer.reduce([
           scope.expect(Generation),
           routine,
-          exit.ok ? result : exit,
+          exitResult.ok ? result : exitResult,
           send as Subscriber<unknown>,
           "next",
         ]);
@@ -61,12 +61,12 @@ export function createCoroutine<T>(
       if (subscriber) {
         subscribers.add(subscriber as Subscriber<T>);
       }
-      routine.data.discard((exit) => {
-        routine.data.discard = (resolve) => resolve(Ok());
+      routine.data.exit((exitResult) => {
+        routine.data.exit = (didExit) => didExit(Ok());
         reducer.reduce([
           scope.expect(Generation),
           routine,
-          exit.ok ? result : exit,
+          exitResult.ok ? result : exitResult,
           send as Subscriber<unknown>,
           "return",
         ]);

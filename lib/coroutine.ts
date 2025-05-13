@@ -11,19 +11,6 @@ export interface CoroutineOptions<T> {
 export function createCoroutine<T>(
   { operation, scope }: CoroutineOptions<T>,
 ): Coroutine<T> {
-  let subscribers = new Set<Subscriber<T>>();
-
-  let send: Subscriber<T> = (item) => {
-    try {
-      for (let subscriber of subscribers) {
-        subscriber(item);
-      }
-    } finally {
-      if (item.done) {
-        subscribers.clear();
-      }
-    }
-  };
 
   let reducer = scope.expect(ReducerContext);
 
@@ -40,40 +27,29 @@ export function createCoroutine<T>(
       },
       exit: (resolve) => resolve(Ok()),
     },
-    next(result, subscriber) {
-      if (subscriber) {
-        subscribers.add(subscriber);
-      }
+    next(result) {
       routine.data.exit((exitResult) => {
         routine.data.exit = (didExit) => didExit(Ok());
         reducer.reduce([
           scope.expect(Generation),
           routine,
           exitResult.ok ? result : exitResult,
-          send as Subscriber<unknown>,
+          () => {},
           "next",
         ]);
       });
-
-      return () => subscriber && subscribers.delete(subscriber);
     },
-    return(result, subscriber?: Subscriber<void>) {
-      if (subscriber) {
-        subscribers.add(subscriber as Subscriber<T>);
-      }
+    return(result) {
       routine.data.exit((exitResult) => {
         routine.data.exit = (didExit) => didExit(Ok());
         reducer.reduce([
           scope.expect(Generation),
           routine,
           exitResult.ok ? result : exitResult,
-          send as Subscriber<unknown>,
+          () => {},
           "return",
         ]);
       });
-
-      return () =>
-        subscriber && subscribers.delete(subscriber as Subscriber<T>);
     },
   } as Coroutine<T>;
 

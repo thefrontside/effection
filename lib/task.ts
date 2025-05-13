@@ -5,6 +5,7 @@ import { box } from "./box.ts";
 import { Err, Ok, type Result } from "./result.ts";
 import { createFuture } from "./future.ts";
 import assert from "node:assert";
+import { createContext } from "./context.ts";
 
 export interface TaskOptions<T> {
   owner: ScopeInternal;
@@ -37,6 +38,11 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
   let { owner, operation } = options;
   let [scope, destroy] = createScopeInternal(owner);
 
+  let link = owner.expect(TaskLinkContext);
+  let children = new TaskTree((error) => routine.return(Err(error)));
+  scope.set(TaskLinkContext, children);
+  scope.ensure(() => children.destroy());
+
   let state: { current: TaskState<T> } = {
     current: { status: "pending", halted: false },
   };
@@ -60,6 +66,7 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
               ? outcome.ok ? Ok() : outcome
               : Ok(),
           };
+
           yield* destroy();
           state.current = {
             status: "finalized",
@@ -86,6 +93,7 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
         }
         let { current } = state;
         assert(current.status === "finalized");
+        link.finalized(task, current);
         if (!current.halted) {
           halted.resolve();
           if (current.computation.ok) {
@@ -154,9 +162,63 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
     },
   }) as Task<T>;
 
+  link.add(task);
+
   let start = () => routine.next(Ok());
 
   return { task, scope, routine, start };
+}
+
+const TaskLinkContext = createContext<TaskLink>("@effection/tasks", {
+  add() {},
+  finalized() {},
+});
+
+interface TaskLink {
+  add(task: Task<unknown>): void;
+  finalized(
+    task: Task<unknown>,
+    state: Extract<TaskState<unknown>, { status: "finalized" }>,
+  ): void;
+}
+
+class TaskTree implements TaskLink {
+  tasks = new Set<Task<unknown>>();
+  constructor(public crash: (error: Error) => void) {}
+  add(task: Task<unknown>) {
+    this.tasks.add(task);
+  }
+  finalized(
+    task: Task<unknown>,
+    state: Extract<TaskState<unknown>, { status: "finalized" }>,
+  ) {
+    this.tasks.delete(task);
+    if (!state.finalization.ok) {
+      this.crash(state.finalization.error);
+    } else if (!state.halted && !state.computation.ok) {
+      this.crash(state.computation.error);
+    }
+  }
+
+  *destroy() {
+    let result = Ok();
+    while (this.tasks.size > 0) {
+      let tasks = [...this.tasks].reverse();
+      for (let task of tasks) {
+        this.tasks.delete(task);
+      }
+      for (let task of tasks) {
+        try {
+          yield* task.halt();
+        } catch (error) {
+          result = Err(error as Error);
+        }
+      }
+    }
+    if (!result.ok) {
+      throw result.error;
+    }
+  }
 }
 
 export function trap<T>(op: () => Operation<T>): Operation<T> {

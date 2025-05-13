@@ -22,13 +22,13 @@ export class Reducer {
       while (item) {
         let [, routine, result, notify, method = "next" as const] = item;
         try {
-          notify({ done: false, value: result });
+	  //          notify({ done: false, value: result });
           const iterator = routine.data.iterator;
           if (result.ok) {
             if (method === "next") {
               let next = iterator.next(result.value);
               if (next.done) {
-                notify({ done: true, value: Ok(next.value) });
+		//    notify({ done: true, value: Ok(next.value) });
               } else {
                 let action = next.value;
                 routine.data.exit = action.enter(routine.next, routine);
@@ -36,18 +36,18 @@ export class Reducer {
             } else if (iterator.return) {
               let next = iterator.return(result.value);
               if (next.done) {
-                notify({ done: true, value: Ok(result) });
+		//                notify({ done: true, value: Ok(result) });
               } else {
                 let action = next.value;
                 routine.data.exit = action.enter(routine.next, routine);
               }
             } else {
-              notify({ done: true, value: result });
+	      //              notify({ done: true, value: result });
             }
           } else if (iterator.throw) {
             let next = iterator.throw(result.error);
             if (next.done) {
-              notify({ done: true, value: Ok(next.value) });
+	      //              notify({ done: true, value: Ok(next.value) });
             } else {
               let action = next.value;
               routine.data.exit = action.enter(routine.next, routine);
@@ -56,7 +56,8 @@ export class Reducer {
             throw result.error;
           }
         } catch (error) {
-          notify({ done: true, value: Err(error as Error) });
+	  routine.next(Err(error as Error));
+	  //          notify({ done: true, value: Err(error as Error) });
         }
         item = queue.dequeue();
       }

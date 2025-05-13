@@ -360,8 +360,8 @@ export interface Coroutine<T = unknown> {
     exit(resolve: Resolve<Result<unknown>>): void;
     iterator: Iterator<Effect<unknown>, T, unknown>;
   };
-  next(result: Result<unknown>, subscriber?: Subscriber<T>): () => void;
-  return<R>(result: Result<R>, subcriber?: Subscriber<void>): () => void;
+  next(result: Result<unknown>): void;
+  return<R>(result: Result<R>): void;
 }
 
 /**

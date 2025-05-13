@@ -193,7 +193,7 @@ describe("run()", () => {
     expect(things).toEqual(["first", "second"]);
   });
 
-  it.skip("can be halted while in the generator", async () => {
+  it("can be halted while in the generator", async () => {
     let task = run(function* Main() {
       yield* spawn(function* Boomer() {
         throw new Error("boom");
@@ -228,7 +228,7 @@ describe("run()", () => {
     await expect(task).rejects.toMatchObject({ message: "halted" });
   });
 
-  it.skip("can delay halt if child fails", async () => {
+  it("can delay halt if child fails", async () => {
     let didRun = false;
     let task = run(function* Main() {
       yield* spawn(function* willBoom() {
@@ -246,7 +246,7 @@ describe("run()", () => {
     expect(didRun).toEqual(true);
   });
 
-  it.skip("handles error in entering suspend point", async () => {
+  it("handles error in entering suspend point", async () => {
     let error = new Error("boom!");
     let task = run(function* () {
       yield* action(() => {
@@ -268,7 +268,7 @@ describe("run()", () => {
     await expect(task.halt()).rejects.toEqual(error);
   });
 
-  it.skip("can throw error when child blows up", async () => {
+  it("can throw error when child blows up", async () => {
     let task = run(function* Main() {
       yield* spawn(function* Boomer() {
         throw new Error("boom");
@@ -283,46 +283,46 @@ describe("run()", () => {
     await expect(task).rejects.toHaveProperty("message", "bang");
   });
 
-  // it("throws an error in halt() if its finally block blows up", async () => {
-  //   let task = run(function* main() {
-  //     try {
-  //       yield* suspend();
-  //     } finally {
-  //       throw new Error("moo");
-  //     }
-  //   });
+  it.skip("throws an error in halt() if its finally block blows up", async () => {
+    let task = run(function* main() {
+      try {
+        yield* suspend();
+      } finally {
+        throw new Error("moo");
+      }
+    });
 
-  //   await expect(task.halt()).rejects.toMatchObject({ message: "moo" });
-  // });
+    await expect(task.halt()).rejects.toMatchObject({ message: "moo" });
+  });
 
-  // it("propagates errors", async () => {
-  //   try {
-  //     await run(function* () {
-  //       throw new Error("boom");
-  //     });
-  //     throw new Error("expected error to propagate");
-  //   } catch (error) {
-  //     expect((error as Error).message).toEqual("boom");
-  //   }
-  // });
+  it("propagates errors", async () => {
+    try {
+      await run(function* () {
+        throw new Error("boom");
+      });
+      throw new Error("expected error to propagate");
+    } catch (error) {
+      expect((error as Error).message).toEqual("boom");
+    }
+  });
 
-  // it("propagates errors from promises", async () => {
-  //   try {
-  //     await run(function* () {
-  //       yield* until(Promise.reject(new Error("boom")));
-  //     });
-  //     throw new Error("expected error to propagate");
-  //   } catch (error) {
-  //     expect((error as Error).message).toEqual("boom");
-  //   }
-  // });
+  it("propagates errors from promises", async () => {
+    try {
+      await run(function* () {
+        yield* until(Promise.reject(new Error("boom")));
+      });
+      throw new Error("expected error to propagate");
+    } catch (error) {
+      expect((error as Error).message).toEqual("boom");
+    }
+  });
 
-  // it("successfully halts when task fails, but shutdown succeeds ", async () => {
-  //   let task = run(function* () {
-  //     throw new Error("boom!");
-  //   });
+  it("successfully halts when task fails, but shutdown succeeds ", async () => {
+    let task = run(function* () {
+      throw new Error("boom!");
+    });
 
-  //   await expect(task).rejects.toHaveProperty("message", "boom!");
-  //   await expect(task.halt()).resolves.toBe(undefined);
-  // });
+    await expect(task).rejects.toHaveProperty("message", "boom!");
+    await expect(task.halt()).resolves.toBe(undefined);
+  });
 });

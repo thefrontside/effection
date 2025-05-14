@@ -34,8 +34,11 @@ export class Reducer {
                 routine.data.exit = action.enter(routine.next, routine);
               }
             } else if (iterator.return) {
+
               let next = iterator.return(result.value);
               if (next.done) {
+		console.log({ return: next });
+		
 		//                notify({ done: true, value: Ok(result) });
               } else {
                 let action = next.value;
@@ -56,6 +59,7 @@ export class Reducer {
             throw result.error;
           }
         } catch (error) {
+	  //	  console.log({ error });
 	  routine.next(Err(error as Error));
 	  //          notify({ done: true, value: Err(error as Error) });
         }

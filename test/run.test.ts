@@ -154,7 +154,7 @@ describe("run()", () => {
     expect(completed).toEqual(true);
   });
 
-  // it("cannot explicitly suspend in a finally block", async () => {
+  // it.skip("cannot explicitly suspend in a finally block", async () => {
   //   let done = false;
   //   let task = run(function* () {
   //     try {
@@ -283,7 +283,7 @@ describe("run()", () => {
     await expect(task).rejects.toHaveProperty("message", "bang");
   });
 
-  it.skip("throws an error in halt() if its finally block blows up", async () => {
+  it.only("throws an error in halt() if its finally block blows up", async () => {
     let task = run(function* main() {
       try {
         yield* suspend();

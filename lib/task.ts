@@ -4,8 +4,8 @@ import type { Coroutine, Operation, Scope, Task } from "./types.ts";
 import { box } from "./box.ts";
 import { Err, Ok, type Result } from "./result.ts";
 import { createFuture } from "./future.ts";
-import assert from "node:assert";
 import { createContext } from "./context.ts";
+import { Do } from "./do.ts";
 
 export interface TaskOptions<T> {
   owner: ScopeInternal;
@@ -57,57 +57,58 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
       let outcome: Result<T> | undefined = undefined;
       try {
         outcome = yield* box(operation);
-        try {
-          state.current = {
-            status: "finalizing",
-            halted: state.current.halted,
-            computation: outcome,
-            finalization: state.current.halted
-              ? outcome.ok ? Ok() : outcome
-              : Ok(),
-          };
-
-          yield* destroy();
-          state.current = {
-            status: "finalized",
-            halted: state.current.halted,
-            computation: outcome,
-            finalization: state.current.finalization,
-          };
-        } catch (error) {
-          state.current = {
-            status: "finalized",
-            halted: state.current.halted,
-            computation: outcome,
-            finalization: Err(error as Error),
-          };
-        }
       } finally {
-        if (state.current.status === "pending") {
-          state.current = {
-            status: "finalized",
-            halted: true,
-            computation: Err(new Error("halted")),
-            finalization: Ok(),
-          };
-        }
-        let { current } = state;
-        assert(current.status === "finalized");
-        link.finalized(task, current);
-        if (!current.halted) {
+
+        // yield {
+        //   description: "some effect",
+        //   enter(resolve) {
+        //     resolve(Ok());
+        //     return (didExit) => {
+        //       didExit(Ok());
+        //     };
+        //   },
+        // };
+
+        let computation = outcome ?? Err(new Error("halted"));
+
+        let finalizing = state.current = {
+          status: "finalizing",
+          halted: state.current.halted,
+          computation,
+          finalization: Ok(),
+        };
+
+        let finalization = yield* box(destroy);
+	
+        let finalized = state.current = {
+          status: "finalized",
+          halted: state.current.halted,
+          computation: finalizing.computation,
+          finalization:
+            finalization.ok && finalizing.halted && outcome && !outcome.ok
+              ? outcome
+              : finalization,
+        };
+
+        console.log({ finalized });
+
+        link.finalized(task, finalized);
+
+        if (!finalized.halted) {
           halted.resolve();
-          if (current.computation.ok) {
-            future.resolve(current.computation.value);
+          if (!finalization.ok) {
+            future.reject(finalization.error);
+          } else if (!computation.ok) {
+            future.reject(computation.error);
           } else {
-            future.reject(current.computation.error);
+            future.resolve(computation.value);
           }
         } else {
           future.reject(new Error("halted"));
-          let { finalization } = current;
-          if (!finalization.ok) {
-            halted.reject(finalization.error);
-          } else {
+          if (finalized.finalization.ok) {
             halted.resolve();
+          } else {
+            halted.reject(finalized.finalization.error);
           }
         }
       }
@@ -159,6 +160,10 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
     [Symbol.iterator]: {
       enumerable: false,
       value: future.future[Symbol.iterator],
+    },
+    [Symbol.toStringTag]: {
+      enumerable: false,
+      value: "Task",
     },
   }) as Task<T>;
 

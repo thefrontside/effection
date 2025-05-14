@@ -28,6 +28,7 @@ export function createFuture<T>(): FutureWithResolvers<T> {
     },
     [Symbol.toStringTag]: {
       enumerable: false,
+      configurable: true,
       value: "Future",
     },
   }) as Future<T>;

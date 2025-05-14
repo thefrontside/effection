@@ -283,7 +283,7 @@ describe("run()", () => {
     await expect(task).rejects.toHaveProperty("message", "bang");
   });
 
-  it.only("throws an error in halt() if its finally block blows up", async () => {
+  it("throws an error in halt() if its finally block blows up", async () => {
     let task = run(function* main() {
       try {
         yield* suspend();

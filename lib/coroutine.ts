@@ -11,7 +11,6 @@ export interface CoroutineOptions<T> {
 export function createCoroutine<T>(
   { operation, scope }: CoroutineOptions<T>,
 ): Coroutine<T> {
-
   let reducer = scope.expect(ReducerContext);
 
   let iterator: Coroutine<T>["data"]["iterator"] | undefined = undefined;

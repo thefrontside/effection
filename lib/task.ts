@@ -5,7 +5,7 @@ import { box } from "./box.ts";
 import { Err, Ok, type Result } from "./result.ts";
 import { createFuture } from "./future.ts";
 import { createContext } from "./context.ts";
-import { Do } from "./do.ts";
+import { Just, type Maybe, Nothing } from "./maybe.ts";
 
 export interface TaskOptions<T> {
   owner: ScopeInternal;
@@ -34,6 +34,34 @@ export type TaskState<T> = {
   finalization: Result<void>;
 };
 
+interface Trap<T> {
+  outcome: Result<Maybe<T>>;
+}
+
+function* trapset<T>(
+  trap: Trap<T>,
+  op: () => Operation<T>,
+): Operation<Result<Maybe<T>>> {
+  let original = trap.outcome;
+  try {
+    let value = yield* op();
+    if (trap.outcome === original) {
+      trap.outcome = Ok(Just(value));
+    }
+  } catch (error) {
+    trap.outcome = Err(error as Error);
+  } finally {
+    // deno-lint-ignore no-unsafe-finally
+    return (yield {
+      description: "trapset return",
+      enter(resolve) {
+        resolve(Ok(trap.outcome));
+        return (didExit) => didExit(Ok());
+      },
+    }) as typeof trap.outcome;
+  }
+}
+
 export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
   let { owner, operation } = options;
   let [scope, destroy] = createScopeInternal(owner);
@@ -51,65 +79,42 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
 
   let halted = createFuture<void>();
 
+  let trap: Trap<T> = {
+    outcome: Ok(Nothing<T>()),
+  };
+
   let routine = createCoroutine<void>({
     scope,
     *operation() {
-      let outcome: Result<T> | undefined = undefined;
-      try {
-        outcome = yield* box(operation);
-      } finally {
+      let outcome = yield* trapset(trap, operation);
 
-        // yield {
-        //   description: "some effect",
-        //   enter(resolve) {
-        //     resolve(Ok());
-        //     return (didExit) => {
-        //       didExit(Ok());
-        //     };
-        //   },
-        // };
+      let finalization = state.current.halted && !outcome.ok ? outcome : Ok();
 
-        let computation = outcome ?? Err(new Error("halted"));
+      let destruction = yield* box(destroy);
 
-        let finalizing = state.current = {
-          status: "finalizing",
-          halted: state.current.halted,
-          computation,
-          finalization: Ok(),
-        };
+      finalization = !destruction.ok ? destruction : finalization;
 
-        let finalization = yield* box(destroy);
-	
-        let finalized = state.current = {
-          status: "finalized",
-          halted: state.current.halted,
-          computation: finalizing.computation,
-          finalization:
-            finalization.ok && finalizing.halted && outcome && !outcome.ok
-              ? outcome
-              : finalization,
-        };
+      link.finalized(task, outcome, finalization);
 
-        console.log({ finalized });
-
-        link.finalized(task, finalized);
-
-        if (!finalized.halted) {
-          halted.resolve();
-          if (!finalization.ok) {
-            future.reject(finalization.error);
-          } else if (!computation.ok) {
-            future.reject(computation.error);
-          } else {
-            future.resolve(computation.value);
-          }
+      if (!state.current.halted) {
+        halted.resolve();
+        if (!finalization.ok) {
+          future.reject(finalization.error);
+        } else if (!outcome.ok) {
+          future.reject(outcome.error);
         } else {
-          future.reject(new Error("halted"));
-          if (finalized.finalization.ok) {
-            halted.resolve();
+          if (outcome.value.exists) {
+            future.resolve(outcome.value.value);
           } else {
-            halted.reject(finalized.finalization.error);
+            future.reject(new Error("halted"));
           }
+        }
+      } else {
+        future.reject(new Error("halted"));
+        if (finalization.ok) {
+          halted.resolve();
+        } else {
+          halted.reject(finalization.error);
         }
       }
     },
@@ -118,6 +123,7 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
   let halt = () => {
     halt = () => {};
     state.current.halted = true;
+    trap.outcome = Ok(Nothing());
     routine.return(Ok());
   };
 
@@ -183,7 +189,8 @@ interface TaskLink {
   add(task: Task<unknown>): void;
   finalized(
     task: Task<unknown>,
-    state: Extract<TaskState<unknown>, { status: "finalized" }>,
+    outcome: Result<Maybe<unknown>>,
+    finalization: Result<void>,
   ): void;
 }
 
@@ -195,13 +202,14 @@ class TaskTree implements TaskLink {
   }
   finalized(
     task: Task<unknown>,
-    state: Extract<TaskState<unknown>, { status: "finalized" }>,
+    outcome: Result<Maybe<unknown>>,
+    finalization: Result<void>,
   ) {
     this.tasks.delete(task);
-    if (!state.finalization.ok) {
-      this.crash(state.finalization.error);
-    } else if (!state.halted && !state.computation.ok) {
-      this.crash(state.computation.error);
+    if (!finalization.ok) {
+      this.crash(finalization.error);
+    } else if (!outcome.ok) {
+      this.crash(outcome.error);
     }
   }
 

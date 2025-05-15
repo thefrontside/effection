@@ -1,5 +1,5 @@
 import { createContext } from "./context.ts";
-import { Err, Ok, type Result } from "./result.ts";
+import { Err, type Result } from "./result.ts";
 import type { Coroutine, Subscriber } from "./types.ts";
 
 export class Reducer {
@@ -20,7 +20,7 @@ export class Reducer {
 
       let item = queue.dequeue();
       while (item) {
-        let [, routine, result, notify, method = "next" as const] = item;
+        let [, routine, result, _ , method = "next" as const] = item;
         try {
           //          notify({ done: false, value: result });
           const iterator = routine.data.iterator;

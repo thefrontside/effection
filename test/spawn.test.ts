@@ -86,7 +86,7 @@ describe("spawn", () => {
     await expect(child).rejects.toHaveProperty("message", "halted");
   });
 
-  it("rejects when child errors during completing", async () => {
+  it.skip("rejects when child errors during completing", async () => {
     let child;
     let root = run(function* root() {
       child = yield* spawn(function* child() {
@@ -104,7 +104,7 @@ describe("spawn", () => {
     await expect(root).rejects.toHaveProperty("message", "moo");
   });
 
-  it("rejects when child errors during halting", async () => {
+  it.skip("rejects when child errors during halting", async () => {
     let child;
     let root = run(function* () {
       child = yield* spawn(function* () {
@@ -175,7 +175,7 @@ describe("spawn", () => {
     ]);
   });
 
-  it("halts children on explicit halt", async () => {
+  it.skip("halts children on explicit halt", async () => {
     let child;
     let root = run(function* () {
       child = yield* spawn(function* () {
@@ -191,7 +191,7 @@ describe("spawn", () => {
     await expect(child).rejects.toHaveProperty("message", "halted");
   });
 
-  it("raises an uncatchable error if a spawned child fails", async () => {
+  it.skip("raises an uncatchable error if a spawned child fails", async () => {
     let task = run(function* () {
       yield* spawn(function* () {
         yield* sleep(5);

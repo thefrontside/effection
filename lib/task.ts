@@ -79,6 +79,12 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
 
   let halted = createFuture<void>();
 
+  let halt = () => {
+    halt = () => {};
+    halted.resolve();
+    future.reject(new Error("halted"));
+  };
+
   let trap: Trap<T> = {
     outcome: Ok(Nothing<T>()),
   };
@@ -86,6 +92,12 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
   let routine = createCoroutine<void>({
     scope,
     *operation() {
+      halt = () => {
+        halt = () => {};
+        state.current.halted = true;
+        trap.outcome = Ok(Nothing());
+        routine.return(Ok());
+      };
       let outcome = yield* trapset(trap, operation);
 
       let finalization = state.current.halted && !outcome.ok ? outcome : Ok();
@@ -119,13 +131,6 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
       }
     },
   });
-
-  let halt = () => {
-    halt = () => {};
-    state.current.halted = true;
-    trap.outcome = Ok(Nothing());
-    routine.return(Ok());
-  };
 
   let task = Object.defineProperties(future.future, {
     halt: {

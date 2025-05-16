@@ -1,7 +1,7 @@
 import { createContext } from "./context.ts";
 import { PriorityQueue } from "./priority-queue.ts";
-import { Err, Ok, type Result } from "./result.ts";
-import type { Coroutine, Subscriber } from "./types.ts";
+import { Err, type Result } from "./result.ts";
+import type { Coroutine } from "./types.ts";
 
 export class Reducer {
   reducing = false;
@@ -67,7 +67,7 @@ type Thunk = [
   number,
   Coroutine<unknown>,
   Result<unknown>,
-  Subscriber<unknown>,
+  () => void,
   "return" | "next",
   number,
 ];

@@ -368,13 +368,6 @@ export interface Coroutine<T = unknown> {
 /**
  * @ignore
  */
-export interface Subscriber<T> {
-  (result: IteratorResult<Result<unknown>, Result<T>>): void;
-}
-
-/**
- * @ignore
- */
 export interface Resolve<T> {
   (value: T): void;
 }

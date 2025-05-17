@@ -67,7 +67,10 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
   let [scope, destroy] = createScopeInternal(owner);
 
   let link = owner.expect(TaskLinkContext);
-  let children = new TaskTree((error) => routine.return(Err(error)));
+  let children = new TaskTree((error) => {
+    trap.outcome = Err(error);
+    routine.return(Ok());
+  });
   scope.set(TaskLinkContext, children);
   scope.ensure(() => children.destroy());
 
@@ -81,6 +84,7 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
 
   let halt = () => {
     halt = () => {};
+    routine.runLevel = 1;
     halted.resolve();
     future.reject(new Error("halted"));
   };
@@ -92,8 +96,10 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
   let routine = createCoroutine<void>({
     scope,
     *operation() {
+      routine.runLevel = 1;
       halt = () => {
         halt = () => {};
+        routine.runLevel = 2;
         state.current.halted = true;
         trap.outcome = Ok(Nothing());
         routine.return(Ok());
@@ -101,6 +107,8 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
       let outcome = yield* trapset(trap, operation);
 
       let finalization = state.current.halted && !outcome.ok ? outcome : Ok();
+
+      children.linked = false;
 
       let destruction = yield* box(destroy);
 
@@ -200,6 +208,7 @@ interface TaskLink {
 }
 
 class TaskTree implements TaskLink {
+  linked = true;
   tasks = new Set<Task<unknown>>();
   constructor(public crash: (error: Error) => void) {}
   add(task: Task<unknown>) {
@@ -211,10 +220,12 @@ class TaskTree implements TaskLink {
     finalization: Result<void>,
   ) {
     this.tasks.delete(task);
-    if (!finalization.ok) {
-      this.crash(finalization.error);
-    } else if (!outcome.ok) {
-      this.crash(outcome.error);
+    if (this.linked) {
+      if (!finalization.ok) {
+        this.crash(finalization.error);
+      } else if (!outcome.ok) {
+        this.crash(outcome.error);
+      }
     }
   }
 

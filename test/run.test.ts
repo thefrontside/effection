@@ -1,7 +1,15 @@
 // deno-lint-ignore-file no-unsafe-finally
 
 import { blowUp, createNumber, describe, expect, it } from "./suite.ts";
-import { action, run, sleep, spawn, suspend, type Task, until } from "../mod.ts";
+import {
+  action,
+  run,
+  sleep,
+  spawn,
+  suspend,
+  type Task,
+  until,
+} from "../mod.ts";
 
 describe("run()", () => {
   it("can run an operation", async () => {

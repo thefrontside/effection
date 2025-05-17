@@ -113,15 +113,15 @@ function sequence(...values: string[]): Stream<string, void> {
     *[Symbol.iterator]() {
       let items = values.slice();
       return {
-	*next(): Operation<IteratorResult<string, void>> {
-	  let value = items.shift();
-	  if (typeof value !== "undefined") {
-	    return { done: false, value };
-	  } else {
-	    return { done: true, value: undefined }
-	  }
-	}
-      }
-    }
-  }
+        *next(): Operation<IteratorResult<string, void>> {
+          let value = items.shift();
+          if (typeof value !== "undefined") {
+            return { done: false, value };
+          } else {
+            return { done: true, value: undefined };
+          }
+        },
+      };
+    },
+  };
 }

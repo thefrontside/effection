@@ -107,7 +107,7 @@ function createPriorityQueue2() {
         let top = q.pop();
         if (!top) {
           return undefined;
-        } else if (top[5] < top[1].version) {
+        } else if (top[5] < top[1].runLevel) {
           continue;
         } else {
           return top;

@@ -16,7 +16,7 @@ export function createCoroutine<T>(
   let iterator: Coroutine<T>["data"]["iterator"] | undefined = undefined;
 
   let routine = {
-    version: 0,
+    runLevel: 0,
     scope,
     data: {
       get iterator() {
@@ -36,7 +36,7 @@ export function createCoroutine<T>(
           exitResult.ok ? result : exitResult,
           () => {},
           "next",
-          routine.version,
+          routine.runLevel,
         ]);
       });
     },
@@ -49,7 +49,7 @@ export function createCoroutine<T>(
           exitResult.ok ? result : exitResult,
           () => {},
           "return",
-          routine.version,
+          routine.runLevel,
         ]);
       });
     },

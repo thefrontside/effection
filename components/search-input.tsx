@@ -3,11 +3,13 @@ import { SearchIcon } from "./icons/search.tsx";
 
 const searchInput = css`
   input {
-    @apply relative block h-full w-full bg-slate-100 rounded-full text-slate-800 transition-all text-lg pl-3;
+    @apply relative block h-full w-full bg-slate-100 rounded-full text-slate-800
+      transition-all text-lg pl-3;
   }
 
   input.focused {
-    @apply outline-none bg-white border-slate-500 ring-slate-500 ring-2 pl-4 w-[220px] -ml-[130px] z-1;
+    @apply outline-none bg-white border-slate-500 ring-slate-500 ring-2 pl-4
+      w-[220px] -ml-[130px] z-1;
   }
 
   input::-webkit-search-cancel-button {

@@ -271,7 +271,7 @@ export function TypeDef(typeDef: TsTypeDef): string {
       const tparams = typeDef.fnOrConstructor.typeParams
         .map(TypeParam)
         .join(", ");
-      return `(${params})${tparams.length > 0 ? `<${tparams}>` : ""} => ${
+      return `${tparams.length > 0 ? `&lt;${tparams}&gt;` : ""}(${params}) => ${
         TypeDef(
           typeDef.fnOrConstructor.tsType,
         )

@@ -256,7 +256,10 @@ export function xPackageRoute({
   };
 }
 
-function* getEffectionDependency(page: DocPage, library: Repository): Operation<{ version: string, docs: DocsPages } | undefined> {
+function* getEffectionDependency(
+  page: DocPage,
+  library: Repository,
+): Operation<{ version: string; docs: DocsPages } | undefined> {
   console.log(`Searching for effection dependency in page ${page.name}`);
   let effection = page.dependencies.find((dep) =>
     ["effection", "@effection/effection"].includes(dep.name)
@@ -266,15 +269,15 @@ function* getEffectionDependency(page: DocPage, library: Repository): Operation<
     if (version) {
       const versions = yield* library.getSemverTags(version.major.toString());
       if (versions) {
-        let latest = versions.find(v => satisfies(v, effection.version));
+        let latest = versions.find((v) => satisfies(v, effection.version));
         if (latest) {
           const ref = yield* library.loadRef(`tags/effection-v${latest}`);
           const pkg = yield* ref.loadRootPackage();
           if (pkg) {
             return {
               version: latest,
-              docs: yield* pkg.docs()
-            }
+              docs: yield* pkg.docs(),
+            };
           } else {
             console.log(`Failed to load root package for version ${latest}`);
           }

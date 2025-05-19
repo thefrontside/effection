@@ -54,10 +54,10 @@ export interface Repository {
 
   /**
    * Get a list of versions from tags matching a major version
-   * @param major 
+   * @param major
    * return list of tags
    */
-  getSemverTags(major: string): Operation<string[] | undefined>
+  getSemverTags(major: string): Operation<string[] | undefined>;
 
   /**
    * Get contents of a repository
@@ -141,7 +141,7 @@ export function loadRepository(
 
         return rsort(
           tags.map((tag) => tag.name).map(extractVersion),
-        )
+        );
       },
       *getLatestSemverTag(glob: string) {
         const tags = yield* this.tags(glob);

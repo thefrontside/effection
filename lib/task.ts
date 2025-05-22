@@ -38,6 +38,8 @@ interface Trap<T> {
   outcome: Result<Maybe<T>>;
 }
 
+const TrapContext = createContext<Trap<unknown>>("@effection/trap");
+
 function* trapset<T>(
   trap: Trap<T>,
   op: () => Operation<T>,
@@ -62,12 +64,41 @@ function* trapset<T>(
   }
 }
 
+export function* trap<T>(op: () => Operation<T>): Operation<T> {
+  let original = yield* TrapContext.expect();
+  let trap: Trap<T> = { outcome: Ok(Nothing<T>()) };
+  yield* TrapContext.set(trap);
+  try {
+    let outcome = yield* trapset(trap, op);
+    if (!outcome.ok) {
+      throw outcome.error;
+    } else {
+      if (outcome.value.exists) {
+        return outcome.value.value;
+      } else {
+        original.outcome = outcome;
+        yield {
+          description: "propagate halt",
+          enter(_, routine) {
+            routine.return(Ok());
+            return (didExit) => didExit(Ok());
+          },
+        };
+        throw `this never happens`;
+      }
+    }
+  } finally {
+    yield* TrapContext.set(original);
+  }
+}
+
 export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
   let { owner, operation } = options;
-  let [scope, destroy] = createScopeInternal(owner);
+  let [scope] = createScopeInternal(owner);
 
   let link = owner.expect(TaskLinkContext);
   let children = new TaskTree((error) => {
+    let trap = scope.expect(TrapContext);
     trap.outcome = Err(error);
     routine.return(Ok());
   });
@@ -89,9 +120,13 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
     future.reject(new Error("halted"));
   };
 
-  let trap: Trap<T> = {
+  // let trap: Trap<T> = {
+  //   outcome: Ok(Nothing<T>()),
+  // };
+
+  scope.set(TrapContext, {
     outcome: Ok(Nothing<T>()),
-  };
+  });
 
   let routine = createCoroutine<void>({
     scope,
@@ -101,9 +136,13 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
         halt = () => {};
         routine.runLevel = 2;
         state.current.halted = true;
+        let trap = scope.expect(TrapContext);
         trap.outcome = Ok(Nothing());
         routine.return(Ok());
       };
+
+      let trap = scope.expect(TrapContext) as Trap<T>;
+
       let outcome = yield* trapset(trap, operation);
 
       let finalization = state.current.halted && !outcome.ok ? outcome : Ok();
@@ -248,10 +287,6 @@ class TaskTree implements TaskLink {
       throw result.error;
     }
   }
-}
-
-export function trap<T>(op: () => Operation<T>): Operation<T> {
-  return op();
 }
 
 export function encapsulate<T>(op: () => Operation<T>): Operation<T> {

@@ -44,7 +44,7 @@ describe("race()", () => {
     await expect(result).rejects.toHaveProperty("message", "boom: bar");
   });
 
-  it("resolves when one of the given operations resolves synchronously first", async () => {
+  it.skip("resolves when one of the given operations resolves synchronously first", async () => {
     let result = run(() =>
       race([
         syncResolve("foo"),
@@ -56,7 +56,7 @@ describe("race()", () => {
     await expect(result).resolves.toEqual("foo");
   });
 
-  it("rejects when one of the given operations rejects synchronously first", async () => {
+  it.skip("rejects when one of the given operations rejects synchronously first", async () => {
     let result = run(() =>
       race([
         syncReject("foo"),

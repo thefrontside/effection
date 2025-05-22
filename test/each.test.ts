@@ -26,11 +26,11 @@ describe("each", () => {
     });
   });
 
-  it.skip("can be used to iterate nested streams", async () => {
+  it("can be used to iterate nested streams", async () => {
     await run(function* () {
       let actual = [] as string[];
       let outer = sequence("one", "two");
-      let inner = sequence("three");
+      let inner = sequence("three", "four", "five");
 
       for (let value of yield* each(outer)) {
         actual.push(value);

@@ -52,13 +52,13 @@ describe("resource", () => {
     let task = run(function* () {
       yield* resource<void>(function* (provide) {
         yield* spawn(function* () {
-          yield* sleep(5);
+          yield* sleep(1);
           throw new Error("moo");
         });
         yield* provide();
       });
       try {
-        yield* sleep(10);
+        yield* sleep(5);
       } catch (error) {
         return error;
       }
@@ -82,7 +82,7 @@ describe("resource", () => {
 
     await task.halt();
 
-    expect(state.status).toEqual("pending");
+    expect(state.status).toEqual("finalized");
   });
 });
 
@@ -92,8 +92,6 @@ function createResource(container: State): Operation<State> {
       yield* sleep(5);
       container.status = "active";
     });
-
-    yield* sleep(1);
 
     try {
       yield* provide(container);

@@ -32,9 +32,9 @@ export function Do<T>(effect: Effect<T>): Operation<T> {
             return { done: false, value: perform };
           }
         },
-	throw(error) {
-	  throw error;
-	}
+        throw(error) {
+          throw error;
+        },
       };
     },
   };

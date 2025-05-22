@@ -72,7 +72,7 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
     routine.return(Ok());
   });
   scope.set(TaskLinkContext, children);
-  scope.ensure(() => children.destroy());
+  scope.ensure(() => task.halt());
 
   let state: { current: TaskState<T> } = {
     current: { status: "pending", halted: false },
@@ -110,7 +110,7 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
 
       children.linked = false;
 
-      let destruction = yield* box(destroy);
+      let destruction = yield* box(() => children.destroy());
 
       finalization = !destruction.ok ? destruction : finalization;
 

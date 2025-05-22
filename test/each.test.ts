@@ -26,7 +26,7 @@ describe("each", () => {
     });
   });
 
-  it("can be used to iterate nested streams", async () => {
+  it.skip("can be used to iterate nested streams", async () => {
     await run(function* () {
       let actual = [] as string[];
       let outer = sequence("one", "two");

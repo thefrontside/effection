@@ -65,33 +65,32 @@ function* trapset<T>(
 }
 
 export function* trap<T>(op: () => Operation<T>): Operation<T> {
-  return yield* op();
-  // let original = yield* TrapContext.expect();
-  // let trap: Trap<T> = { outcome: Ok(Nothing<T>()) };
-  // yield* TrapContext.set(trap);
-  // try {
-  //   yield* trapset(trap, op);
-  // } finally {
-  //   yield* TrapContext.set(original);
-  //   const { outcome } = trap;
-  //   if (!outcome.ok) {
-  //     throw outcome.error;
-  //   } else {
-  //     const { value } = outcome;
-  //     if (value.exists) {
-  //       return value.value;
-  //     } else {
-  //       return (yield {
-  //         description: "propagate halt",
-  //         enter(_, routine) {
-  //           original.outcome = Ok(Nothing());
-  //           routine.return(Ok());
-  //           return (didExit) => didExit(Ok());
-  //         },
-  //       }) as T;
-  //     }
-  //   }
-  // }
+  let original = yield* TrapContext.expect();
+  let trap: Trap<T> = { outcome: Nothing<Result<T>>() };
+  yield* TrapContext.set(trap);
+  try {
+    yield* trapset(trap, op);
+  } finally {
+    yield* TrapContext.set(original);
+    const { outcome } = trap;
+    if (outcome.exists) {
+      const { value: result } = outcome;
+      if (result.ok) {
+        return result.value;
+      } else {
+        throw result.error;
+      }
+    } else {
+      return (yield {
+        description: "propagate halt",
+        enter(_, routine) {
+          original.outcome = Nothing();
+          routine.return(Ok());
+          return (didExit) => didExit(Ok());
+        },
+      }) as T;
+    }
+  }
 }
 
 export function createTask<T>(options: TaskOptions<T>): NewTask<T> {

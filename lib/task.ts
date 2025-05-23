@@ -1,3 +1,4 @@
+// deno-lint-ignore-file no-unsafe-finally
 import { createCoroutine } from "./coroutine.ts";
 import { createScopeInternal, type ScopeInternal } from "./scope-internal.ts";
 import type { Coroutine, Operation, Scope, Task } from "./types.ts";
@@ -53,7 +54,6 @@ function* trapset<T>(
   } catch (error) {
     trap.outcome = Err(error as Error);
   } finally {
-    // deno-lint-ignore no-unsafe-finally
     return (yield {
       description: "trapset return",
       enter(resolve) {
@@ -65,30 +65,32 @@ function* trapset<T>(
 }
 
 export function* trap<T>(op: () => Operation<T>): Operation<T> {
+  //return yield* op();
   let original = yield* TrapContext.expect();
   let trap: Trap<T> = { outcome: Ok(Nothing<T>()) };
   yield* TrapContext.set(trap);
   try {
-    let outcome = yield* trapset(trap, op);
+    yield* trapset(trap, op);
+  } finally {
+    yield* TrapContext.set(original);
+    const { outcome } = trap;
     if (!outcome.ok) {
       throw outcome.error;
     } else {
-      if (outcome.value.exists) {
-        return outcome.value.value;
+      const { value } = outcome;
+      if (value.exists) {
+        return value.value;
       } else {
-        original.outcome = outcome;
-        yield {
+        return (yield {
           description: "propagate halt",
           enter(_, routine) {
+            original.outcome = Ok(Nothing());
             routine.return(Ok());
             return (didExit) => didExit(Ok());
           },
-        };
-        throw `this never happens`;
+        }) as T;
       }
     }
-  } finally {
-    yield* TrapContext.set(original);
   }
 }
 

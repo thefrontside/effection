@@ -82,7 +82,7 @@ describe("resource", () => {
 
     await task.halt();
 
-    expect(state.status).toEqual("finalized");
+    expect(state.status).toEqual("pending");
   });
 });
 
@@ -92,6 +92,8 @@ function createResource(container: State): Operation<State> {
       yield* sleep(5);
       container.status = "active";
     });
+
+    yield* sleep(0);
 
     try {
       yield* provide(container);

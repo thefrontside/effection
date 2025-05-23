@@ -57,7 +57,6 @@ function* trapset<T>(
     return (yield {
       description: "trapset return",
       enter(resolve) {
-	//console.log({ trap });
         resolve(Ok(trap.outcome));
         return (didExit) => didExit(Ok());
       },
@@ -68,9 +67,12 @@ function* trapset<T>(
 export function* trap<T>(op: () => Operation<T>): Operation<T> {
   let original = yield* TrapContext.expect();
   let trap: Trap<T> = { outcome: Nothing<Result<T>>() };
-  yield* TrapContext.set(trap);
   try {
-    yield* trapset(trap, op);
+    yield* TrapContext.set(trap);
+    let value = yield* op();
+    trap.outcome = Just(Ok(value));
+  } catch (error) {
+    trap.outcome = Just(Err(error as Error));
   } finally {
     yield* TrapContext.set(original);
     const { outcome } = trap;
@@ -102,7 +104,6 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
   let children = new TaskTree((error) => {
     let trap = routine.scope.expect(TrapContext);
     trap.outcome = Just(Err(error));
-    //    console.log({ crash: trap });
     routine.return(Ok());
   });
   scope.set(TaskLinkContext, children);
@@ -261,7 +262,6 @@ class TaskTree implements TaskLink {
     outcome: Maybe<Result<unknown>>,
     finalization: Result<void>,
   ) {
-    //    console.log({ finalized: { linked: this.linked, outcome, finalization }});
     this.tasks.delete(task);
     if (this.linked) {
       if (!finalization.ok) {

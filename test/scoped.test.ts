@@ -57,8 +57,8 @@ describe("scoped", () => {
         }
       }));
 
-    it("delimits error boundaries", () =>
-      run(function* () {
+    it("delimits error boundaries", async () =>
+      await run(function* () {
         try {
           yield* scoped(function* () {
             yield* spawn(function* () {

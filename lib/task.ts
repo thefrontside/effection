@@ -100,7 +100,7 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
 
   let link = owner.expect(TaskLinkContext);
   let children = new TaskTree((error) => {
-    let trap = scope.expect(TrapContext);
+    let trap = routine.scope.expect(TrapContext);
     trap.outcome = Just(Err(error));
     //    console.log({ crash: trap });
     routine.return(Ok());

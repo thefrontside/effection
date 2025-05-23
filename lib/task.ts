@@ -36,7 +36,7 @@ export type TaskState<T> = {
 };
 
 interface Trap<T> {
-  outcome: Result<Maybe<T>>;
+  outcome: Maybe<Result<T>>;
 }
 
 const TrapContext = createContext<Trap<unknown>>("@effection/trap");
@@ -44,15 +44,15 @@ const TrapContext = createContext<Trap<unknown>>("@effection/trap");
 function* trapset<T>(
   trap: Trap<T>,
   op: () => Operation<T>,
-): Operation<Result<Maybe<T>>> {
+): Operation<Maybe<Result<T>>> {
   let original = trap.outcome;
   try {
     let value = yield* op();
     if (trap.outcome === original) {
-      trap.outcome = Ok(Just(value));
+      trap.outcome = Just(Ok(value));
     }
   } catch (error) {
-    trap.outcome = Err(error as Error);
+    trap.outcome = Just(Err(error as Error));
   } finally {
     return (yield {
       description: "trapset return",
@@ -65,33 +65,33 @@ function* trapset<T>(
 }
 
 export function* trap<T>(op: () => Operation<T>): Operation<T> {
-  //return yield* op();
-  let original = yield* TrapContext.expect();
-  let trap: Trap<T> = { outcome: Ok(Nothing<T>()) };
-  yield* TrapContext.set(trap);
-  try {
-    yield* trapset(trap, op);
-  } finally {
-    yield* TrapContext.set(original);
-    const { outcome } = trap;
-    if (!outcome.ok) {
-      throw outcome.error;
-    } else {
-      const { value } = outcome;
-      if (value.exists) {
-        return value.value;
-      } else {
-        return (yield {
-          description: "propagate halt",
-          enter(_, routine) {
-            original.outcome = Ok(Nothing());
-            routine.return(Ok());
-            return (didExit) => didExit(Ok());
-          },
-        }) as T;
-      }
-    }
-  }
+  return yield* op();
+  // let original = yield* TrapContext.expect();
+  // let trap: Trap<T> = { outcome: Ok(Nothing<T>()) };
+  // yield* TrapContext.set(trap);
+  // try {
+  //   yield* trapset(trap, op);
+  // } finally {
+  //   yield* TrapContext.set(original);
+  //   const { outcome } = trap;
+  //   if (!outcome.ok) {
+  //     throw outcome.error;
+  //   } else {
+  //     const { value } = outcome;
+  //     if (value.exists) {
+  //       return value.value;
+  //     } else {
+  //       return (yield {
+  //         description: "propagate halt",
+  //         enter(_, routine) {
+  //           original.outcome = Ok(Nothing());
+  //           routine.return(Ok());
+  //           return (didExit) => didExit(Ok());
+  //         },
+  //       }) as T;
+  //     }
+  //   }
+  // }
 }
 
 export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
@@ -101,7 +101,7 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
   let link = owner.expect(TaskLinkContext);
   let children = new TaskTree((error) => {
     let trap = scope.expect(TrapContext);
-    trap.outcome = Err(error);
+    trap.outcome = Just(Err(error));
     routine.return(Ok());
   });
   scope.set(TaskLinkContext, children);
@@ -127,7 +127,7 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
   // };
 
   scope.set(TrapContext, {
-    outcome: Ok(Nothing<T>()),
+    outcome: Nothing<Result<T>>(),
   });
 
   let routine = createCoroutine<void>({
@@ -139,7 +139,7 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
         routine.runLevel = 2;
         state.current.halted = true;
         let trap = scope.expect(TrapContext);
-        trap.outcome = Ok(Nothing());
+        trap.outcome = Nothing();
         routine.return(Ok());
       };
 
@@ -147,7 +147,10 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
 
       let outcome = yield* trapset(trap, operation);
 
-      let finalization = state.current.halted && !outcome.ok ? outcome : Ok();
+      let finalization =
+        state.current.halted && outcome.exists && !outcome.value.ok
+          ? outcome.value
+          : Ok();
 
       children.linked = false;
 
@@ -161,14 +164,15 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
         halted.resolve();
         if (!finalization.ok) {
           future.reject(finalization.error);
-        } else if (!outcome.ok) {
-          future.reject(outcome.error);
-        } else {
-          if (outcome.value.exists) {
-            future.resolve(outcome.value.value);
+        } else if (outcome.exists) {
+          const { value: result } = outcome;
+          if (result.ok) {
+            future.resolve(result.value);
           } else {
-            future.reject(new Error("halted"));
+            future.reject(result.error);
           }
+        } else {
+          future.reject(new Error("halted"));
         }
       } else {
         future.reject(new Error("halted"));
@@ -243,7 +247,7 @@ interface TaskLink {
   add(task: Task<unknown>): void;
   finalized(
     task: Task<unknown>,
-    outcome: Result<Maybe<unknown>>,
+    outcome: Maybe<Result<unknown>>,
     finalization: Result<void>,
   ): void;
 }
@@ -257,15 +261,15 @@ class TaskTree implements TaskLink {
   }
   finalized(
     task: Task<unknown>,
-    outcome: Result<Maybe<unknown>>,
+    outcome: Maybe<Result<unknown>>,
     finalization: Result<void>,
   ) {
     this.tasks.delete(task);
     if (this.linked) {
       if (!finalization.ok) {
         this.crash(finalization.error);
-      } else if (!outcome.ok) {
-        this.crash(outcome.error);
+      } else if (outcome.exists && !outcome.value.ok) {
+        this.crash(outcome.value.error);
       }
     }
   }

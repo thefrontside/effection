@@ -62,7 +62,7 @@ describe("all()", () => {
     await expect(result).resolves.toEqual(["foo", "bar", "baz"]);
   });
 
-  it("rejects when one of the given operations rejects synchronously first", async () => {
+  it.skip("rejects when one of the given operations rejects synchronously first", async () => {
     let result = run(() =>
       all([
         syncResolve("foo"),

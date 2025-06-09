@@ -156,7 +156,7 @@ describe("scoped", () => {
       }));
   });
 
-  it.skip("throws errors at the correct point when there are multiple nested scopes", async () =>{
+  it.skip("throws errors at the correct point when there are multiple nested scopes", async () => {
     let task = run(function* () {
       return yield* scoped(function* () {
         yield* spawn(function* () {

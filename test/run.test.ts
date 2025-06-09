@@ -310,7 +310,7 @@ describe("run()", () => {
     }
   });
 
-  it.skip("successfully halts when task fails, but shutdown succeeds ", async () => {
+  it("successfully halts when task fails, but shutdown succeeds ", async () => {
     let task = run(function* () {
       throw new Error("boom!");
     });

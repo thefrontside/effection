@@ -43,12 +43,14 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
   });
 
   function* halt(): Operation<void> {
+    let interrupted = routine.runLevel < 2;
+
     yield* destroy();
     let { outcome, teardown } = yield* finalized.future;
     if (!teardown.ok) {
       throw teardown.error;
     }
-    if (outcome.exists && !outcome.value.ok) {
+    if (outcome.exists && interrupted && !outcome.value.ok) {
       throw outcome.value.error;
     }
   }
@@ -118,7 +120,7 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
             future.resolve(result.value);
           } else {
             future.reject(result.error);
-	    crash(trap, result.error);
+            crash(trap, result.error);
           }
         } else {
           future.reject(new Error("halted"));

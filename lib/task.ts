@@ -28,12 +28,21 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
     { outcome: Maybe<Result<T>>; teardown: Result<void> }
   >();
 
+  let trap = owner.expect(TrapContext);
+
+  scope.set(TrapContext, { outcome: Nothing<Result<T>>() });
+
   scope.ensure(function* teardown(): Operation<void> {
     routine.scope.expect(TrapContext).outcome = Nothing();
     routine.return(Ok());
   });
 
-  function* halt() {
+  scope.set(CrashContext, (trap, error) => {
+    trap.outcome = Just(Err(error));
+    routine.return(Ok());
+  });
+
+  function* halt(): Operation<void> {
     yield* destroy();
     let { outcome, teardown } = yield* finalized.future;
     if (!teardown.ok) {
@@ -84,14 +93,15 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
     },
   }) as Task<T>;
 
-  scope.set(TrapContext, { outcome: Nothing<Result<T>>() });
-
   let routine = createCoroutine<void>({
     scope,
     *operation() {
       routine.runLevel = 1;
 
       let outcome = yield* trapsafe(operation);
+
+      scope.set(CrashContext, () => {});
+      let crash = owner.expect(CrashContext);
 
       routine.runLevel = 2;
 
@@ -100,6 +110,7 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
 
       if (!teardown.ok) {
         future.reject(teardown.error);
+        crash(trap, teardown.error);
       } else {
         if (outcome.exists) {
           let result = outcome.value;
@@ -107,6 +118,7 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
             future.resolve(result.value);
           } else {
             future.reject(result.error);
+	    crash(trap, result.error);
           }
         } else {
           future.reject(new Error("halted"));
@@ -119,6 +131,11 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
 
   return { task, scope, routine, start };
 }
+
+const CrashContext = createContext<(trap: Trap<unknown>, error: Error) => void>(
+  "@effection/crash",
+  () => {},
+);
 
 // type TaskState<T> = {
 //   status: "pending";
@@ -139,7 +156,9 @@ interface Trap<T> {
   outcome: Maybe<Result<T>>;
 }
 
-const TrapContext = createContext<Trap<unknown>>("@effection/trap");
+const TrapContext = createContext<Trap<unknown>>("@effection/trap", {
+  outcome: Just(Err(new Error("bare trap"))),
+});
 
 function* trapsafe<T>(
   op: () => Operation<T>,

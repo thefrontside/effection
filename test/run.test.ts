@@ -186,7 +186,7 @@ describe("run()", () => {
     expect(things).toEqual(["first", "second"]);
   });
 
-  it.only("can be halted while in the generator", async () => {
+  it("can be halted while in the generator", async () => {
     let task = run(function* Main() {
       yield* spawn(function* Boomer() {
         throw new Error("boom");
@@ -221,7 +221,7 @@ describe("run()", () => {
     await expect(task).rejects.toMatchObject({ message: "halted" });
   });
 
-  it.skip("can delay halt if child fails", async () => {
+  it("can delay halt if child fails", async () => {
     let didRun = false;
     let task = run(function* Main() {
       yield* spawn(function* willBoom() {
@@ -261,7 +261,7 @@ describe("run()", () => {
     await expect(task.halt()).rejects.toEqual(error);
   });
 
-  it.skip("can throw error when child blows up", async () => {
+  it("can throw error when child blows up", async () => {
     let task = run(function* Main() {
       yield* spawn(function* Boomer() {
         throw new Error("boom");

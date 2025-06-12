@@ -3,7 +3,7 @@ import { createContext } from "./context.ts";
 import { createCoroutine } from "./coroutine.ts";
 import { createFuture } from "./future.ts";
 import { Just, type Maybe, Nothing } from "./maybe.ts";
-import { Err, Ok, type Result } from "./result.ts";
+import { Err, Ok, type Result, unbox } from "./result.ts";
 import { createScopeInternal, type ScopeInternal } from "./scope-internal.ts";
 import type { Coroutine, Operation, Scope, Task } from "./types.ts";
 
@@ -21,7 +21,7 @@ export interface NewTask<T> {
 
 export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
   let { owner, operation } = options;
-  let [scope, destroy] = createScopeInternal(owner);
+  let [scope] = createScopeInternal(owner);
 
   let future = createFuture<T>();
   let finalized = createFuture<
@@ -30,28 +30,41 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
 
   let trap = owner.expect(TrapContext);
 
-  scope.set(TrapContext, { outcome: Nothing<Result<T>>() });
-
-  scope.ensure(function* teardown(): Operation<void> {
-    routine.scope.expect(TrapContext).outcome = Nothing();
-    routine.return(Ok());
-  });
-
   scope.set(CrashContext, (trap, error) => {
     trap.outcome = Just(Err(error));
     routine.return(Ok());
   });
 
+  scope.set(TrapContext, { outcome: Nothing<Result<T>>() });
+
+  let group = owner.expect(TaskGroupContext);
+
+  let children = scope.set(TaskGroupContext, new TaskGroup());
+
+  scope.ensure(halt);
+
   function* halt(): Operation<void> {
     let interrupted = routine.runLevel < 2;
 
-    yield* destroy();
-    let { outcome, teardown } = yield* finalized.future;
-    if (!teardown.ok) {
-      throw teardown.error;
-    }
-    if (outcome.exists && interrupted && !outcome.value.ok) {
-      throw outcome.value.error;
+    // halt was called before the task could ever run.
+    if (routine.runLevel === 0) {
+      routine.runLevel = 2;
+      finalized.resolve({ outcome: Nothing(), teardown: Ok() });
+      future.reject(new Error("halted"));
+    } else {
+      routine.scope.expect(TrapContext).outcome = Nothing();
+      routine.return(Ok());
+
+      let { outcome, teardown } = yield* finalized.future;
+
+      group.delete(task);
+
+      if (!teardown.ok) {
+        throw teardown.error;
+      }
+      if (outcome.exists && interrupted && !outcome.value.ok) {
+        throw outcome.value.error;
+      }
     }
   }
 
@@ -95,6 +108,8 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
     },
   }) as Task<T>;
 
+  group.add(task);
+
   let routine = createCoroutine<void>({
     scope,
     *operation() {
@@ -107,7 +122,7 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
 
       routine.runLevel = 2;
 
-      let teardown = yield* box(destroy);
+      let teardown = yield* box(() => children.halt());
       finalized.resolve({ outcome, teardown });
 
       if (!teardown.ok) {
@@ -139,20 +154,37 @@ const CrashContext = createContext<(trap: Trap<unknown>, error: Error) => void>(
   () => {},
 );
 
-// type TaskState<T> = {
-//   status: "pending";
-//   halted: boolean;
-// } | {
-//   status: "finalizing";
-//   halted: boolean;
-//   computation: Result<T>;
-//   finalization: Result<void>;
-// } | {
-//   status: "finalized";
-//   halted: boolean;
-//   computation: Result<T>;
-//   finalization: Result<void>;
-// };
+class TaskGroup {
+  tasks = new Set<Task<unknown>>();
+
+  add(task: Task<unknown>) {
+    this.tasks.add(task);
+  }
+
+  delete(task: Task<unknown>) {
+    this.tasks.delete(task);
+  }
+
+  *halt() {
+    let total = Ok();
+    while (this.tasks.size > 0) {
+      let tasks = [...this.tasks].reverse();
+      this.tasks.clear();
+      for (let task of tasks) {
+        let result = yield* box(task.halt);
+        if (!result.ok) {
+          total = result;
+        }
+      }
+    }
+    unbox(total);
+  }
+}
+
+const TaskGroupContext = createContext<TaskGroup>(
+  "@effection/task-group",
+  new TaskGroup(),
+);
 
 interface Trap<T> {
   outcome: Maybe<Result<T>>;

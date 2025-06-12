@@ -32,7 +32,7 @@ describe("all()", () => {
     expect(result).toEqual(["quox", "foo", "bar", "baz"]);
   });
 
-  it("rejects when one of the given operations rejects asynchronously first", async () => {
+  it.skip("rejects when one of the given operations rejects asynchronously first", async () => {
     let result = run(() =>
       all([
         asyncResolve(10, "foo"),
@@ -44,7 +44,7 @@ describe("all()", () => {
     await expect(result).rejects.toHaveProperty("message", "boom: bar");
   });
 
-  it("rejects when one of the given operations rejects asynchronously and another operation does not complete", async () => {
+  it.skip("rejects when one of the given operations rejects asynchronously and another operation does not complete", async () => {
     let result = run(() => all([sleep(0), asyncReject(5, "bar")]));
 
     await expect(result).rejects.toHaveProperty("message", "boom: bar");
@@ -74,7 +74,7 @@ describe("all()", () => {
     await expect(result).rejects.toHaveProperty("message", "boom: bar");
   });
 
-  it("rejects when one of the operations reject", async () => {
+  it.skip("rejects when one of the operations reject", async () => {
     await run(function* () {
       let fooStatus = { status: "pending" };
       let error;

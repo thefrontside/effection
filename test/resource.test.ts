@@ -58,12 +58,12 @@ describe("resource", () => {
         yield* provide();
       });
       try {
-        yield* sleep(5);
+        yield* suspend();
       } catch (error) {
         return error;
       }
     });
-    await expect(task).rejects.toHaveProperty("message", "moo");
+    await expect(task).rejects.toMatchObject({ message: "moo" });
   });
 
   it("terminates resource when task completes", async () => {

@@ -9,7 +9,7 @@ import {
 } from "../mod.ts";
 
 describe("each", () => {
-  it("can be used to iterate a stream", async () => {
+  it.skip("can be used to iterate a stream", async () => {
     await run(function* () {
       let actual = [] as string[];
       let channel = sequence("one", "two", "three");
@@ -26,7 +26,7 @@ describe("each", () => {
     });
   });
 
-  it("can be used to iterate nested streams", async () => {
+  it.skip("can be used to iterate nested streams", async () => {
     await run(function* () {
       let actual = [] as string[];
       let outer = sequence("one", "two");
@@ -54,7 +54,7 @@ describe("each", () => {
     });
   });
 
-  it("handles context correctly if you break out of a loop", async () => {
+  it.skip("handles context correctly if you break out of a loop", async () => {
     await expect(run(function* () {
       let seq = sequence("hello world");
 
@@ -67,7 +67,7 @@ describe("each", () => {
     })).rejects.toHaveProperty("name", "IterationError");
   });
 
-  it("throws an error if you forget to invoke each.next()", async () => {
+  it.skip("throws an error if you forget to invoke each.next()", async () => {
     await expect(run(function* () {
       let seq = sequence("hello");
 

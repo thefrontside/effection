@@ -233,6 +233,16 @@ export function* trap<T>(op: () => Operation<T>): Operation<T> {
   } finally {
     yield* TrapContext.set(original);
     const { outcome } = trap;
+
+    Object.defineProperty(trap, "outcome", {
+      set(value: Maybe<Result<T>>) {
+        original.outcome = value;
+      },
+      get() {
+        return original.outcome;
+      },
+    });
+
     if (outcome.exists) {
       const { value: result } = outcome;
       if (result.ok) {

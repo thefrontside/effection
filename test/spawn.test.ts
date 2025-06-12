@@ -106,7 +106,7 @@ describe("spawn", () => {
     await expect(root).rejects.toHaveProperty("message", "moo");
   });
 
-  it.skip("rejects when child errors during halting", async () => {
+  it("rejects when child errors during halting", async () => {
     let child;
     let root = run(function* () {
       child = yield* spawn(function* () {

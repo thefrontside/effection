@@ -355,7 +355,7 @@ export interface Effect<T> {
  * @ignore
  */
 export interface Coroutine<T = unknown> {
-  runLevel: 0 | 1 | 2;
+  runLevel: 0 | 1 | 2 | 3;
   scope: Scope;
   data: {
     exit(resolve: Resolve<Result<unknown>>): void;

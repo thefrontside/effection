@@ -1,3 +1,4 @@
+// deno-lint-ignore-file no-unsafe-finally
 import { box } from "./box.ts";
 import { createContext } from "./context.ts";
 import { createCoroutine } from "./coroutine.ts";
@@ -43,28 +44,28 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
 
   scope.ensure(halt);
 
-  function* halt(): Operation<void> {
-    let interrupted = routine.runLevel < 2;
+  let interrupted = false;
 
+  function* halt(): Operation<void> {
     // halt was called before the task could ever run.
     if (routine.runLevel === 0) {
-      routine.runLevel = 2;
+      routine.runLevel = 3;
       finalized.resolve({ outcome: Nothing(), teardown: Ok() });
       future.reject(new Error("halted"));
-    } else {
+    } else if (routine.runLevel < 3) {
+      interrupted = routine.runLevel < 2;
       routine.scope.expect(TrapContext).outcome = Nothing();
       routine.return(Ok());
-
-      let { outcome, teardown } = yield* finalized.future;
-
       group.delete(task);
+    }
 
-      if (!teardown.ok) {
-        throw teardown.error;
-      }
-      if (outcome.exists && interrupted && !outcome.value.ok) {
-        throw outcome.value.error;
-      }
+    let { outcome, teardown } = yield* finalized.future;
+
+    if (!teardown.ok) {
+      throw teardown.error;
+    }
+    if (outcome.exists && interrupted && !outcome.value.ok) {
+      throw outcome.value.error;
     }
   }
 
@@ -123,6 +124,9 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
       routine.runLevel = 2;
 
       let teardown = yield* box(() => children.halt());
+
+      routine.runLevel = 3;
+
       finalized.resolve({ outcome, teardown });
 
       if (!teardown.ok) {
@@ -207,7 +211,6 @@ function* trapsafe<T>(
   } catch (error) {
     trap.outcome = Just(Err(error as Error));
   } finally {
-    // deno-lint-ignore no-unsafe-finally
     return (yield {
       description: "trapset return",
       enter(resolve) {
@@ -218,37 +221,37 @@ function* trapsafe<T>(
   }
 }
 
-// export function* trap<T>(op: () => Operation<T>): Operation<T> {
-//   let original = yield* TrapContext.expect();
-//   let trap: Trap<T> = { outcome: Nothing<Result<T>>() };
-//   try {
-//     yield* TrapContext.set(trap);
-//     let value = yield* op();
-//     trap.outcome = Just(Ok(value));
-//   } catch (error) {
-//     trap.outcome = Just(Err(error as Error));
-//   } finally {
-//     yield* TrapContext.set(original);
-//     const { outcome } = trap;
-//     if (outcome.exists) {
-//       const { value: result } = outcome;
-//       if (result.ok) {
-//         return result.value;
-//       } else {
-//         throw result.error;
-//       }
-//     } else {
-//       return (yield {
-//         description: "propagate halt",
-//         enter(_, routine) {
-// 	  original.outcome = Nothing();
-//           routine.return(Ok());
-//           return (didExit) => didExit(Ok());
-//         },
-//       }) as T;
-//     }
-//   }
-// }
+export function* trap<T>(op: () => Operation<T>): Operation<T> {
+  let original = yield* TrapContext.expect();
+  let trap: Trap<T> = { outcome: Nothing<Result<T>>() };
+  try {
+    yield* TrapContext.set(trap);
+    let value = yield* op();
+    trap.outcome = Just(Ok(value));
+  } catch (error) {
+    trap.outcome = Just(Err(error as Error));
+  } finally {
+    yield* TrapContext.set(original);
+    const { outcome } = trap;
+    if (outcome.exists) {
+      const { value: result } = outcome;
+      if (result.ok) {
+        return result.value;
+      } else {
+        throw result.error;
+      }
+    } else {
+      return (yield {
+        description: "propagate halt",
+        enter(_, routine) {
+          original.outcome = Nothing();
+          routine.return(Ok());
+          return (didExit) => didExit(Ok());
+        },
+      }) as T;
+    }
+  }
+}
 
 // export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
 //   let { owner, operation } = options;
@@ -448,12 +451,18 @@ function* trapsafe<T>(
 // }
 
 export function encapsulate<T>(op: () => Operation<T>): Operation<T> {
-  return op();
+  return TaskGroupContext.with(new TaskGroup(), function* (group) {
+    try {
+      return yield* op();
+    } finally {
+      yield* group.halt();
+    }
+  });
 }
 
-export function trap<T>(op: () => Operation<T>): Operation<T> {
-  return op();
-}
+// export function trap<T>(op: () => Operation<T>): Operation<T> {
+//   return op();
+// }
 
 // export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
 //   let { owner, operation } = options;

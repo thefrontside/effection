@@ -54,6 +54,7 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
       future.reject(new Error("halted"));
     } else if (routine.runLevel < 3) {
       interrupted = routine.runLevel < 2;
+      routine.runLevel = 2;
       routine.scope.expect(TrapContext).outcome = Nothing();
       routine.return(Ok());
       group.delete(task);
@@ -169,7 +170,7 @@ class TaskGroup {
     this.tasks.delete(task);
   }
 
-  *halt() {
+  *halt(): Operation<void> {
     let total = Ok();
     while (this.tasks.size > 0) {
       let tasks = [...this.tasks].reverse();

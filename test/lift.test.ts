@@ -1,9 +1,8 @@
-
 import { lift, run, spawn, withResolvers } from "../mod.ts";
 import { describe, expect, it } from "./suite.ts";
 
 describe("lift", () => {
-  it.skip("safely does not continue if the call stops the operation", async () => {
+  it("safely does not continue if the call stops the operation", async () => {
     let reached = false;
 
     await run(function* main() {

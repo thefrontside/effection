@@ -3,6 +3,7 @@ import { encapsulate, trap } from "./task.ts";
 import type { Operation, Task, Yielded } from "./types.ts";
 import { withResolvers } from "./with-resolvers.ts";
 import { Err, Ok, type Result } from "./result.ts";
+import { lift } from "./lift.ts";
 //import { useScope } from "./scope.ts";
 //import { transfer } from "./scope.ts";
 
@@ -39,27 +40,24 @@ export function* race<T extends Operation<unknown>>(
   let tasks: Task<unknown>[] = [];
 
   // encapsulate the race in a hermetic scope.
-  let result = yield* trap(() =>
-    encapsulate(function* () {
-      for (let operation of operations.slice()) {
-        tasks.push(
-          yield* spawn(function* () {
-            //          let contestant = yield* useScope();
-            try {
-              let value = yield* operation;
-
-              // Transfer the winner to the contestant
-              //        transfer({ from: contestant, to: caller });
-              winner.resolve(Ok(value as Yielded<T>));
-            } catch (error) {
-              winner.resolve(Err(error as Error));
-            }
-          }),
-        );
-      }
-      return yield* winner.operation;
-    })
-  );
+  let result = yield* trap(function* () {
+    for (let operation of operations.slice()) {
+      tasks.push(
+        yield* spawn(function* candidate() {
+          //          let contestant = yield* useScope();
+          try {
+            let value = yield* operation;
+            // Transfer the winner to the contestant
+            //        transfer({ from: contestant, to: caller });
+            winner.resolve(Ok(value as Yielded<T>));
+          } catch (error) {
+            winner.resolve(Err(error as Error));
+          }
+        }),
+      );
+    }
+    return yield* winner.operation;
+  });
 
   let shutdown: Task<void>[] = [];
 

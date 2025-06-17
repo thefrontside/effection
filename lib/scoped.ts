@@ -1,5 +1,5 @@
 import type { Operation } from "./types.ts";
-import { trap } from "./task.ts";
+import { encapsulate, trap } from "./task.ts";
 import { useCoroutine } from "./coroutine.ts";
 import { createScopeInternal } from "./scope-internal.ts";
 
@@ -33,7 +33,7 @@ export function scoped<T>(operation: () => Operation<T>): Operation<T> {
       let [scope, destroy] = createScopeInternal(original);
       try {
         routine.scope = scope;
-        return yield* trap(operation);
+        return yield* trap(() => encapsulate(operation));
       } finally {
         routine.scope = original;
         yield* destroy();

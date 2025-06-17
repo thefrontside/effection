@@ -10,7 +10,7 @@ function* until(stream: Stream<string, void>, text: string) {
   }
 }
 
-describe.skip("main", () => {
+describe("main", () => {
   it("gracefully shuts down on SIGINT", async () => {
     await run(function* () {
       let proc = yield* x("deno", ["run", "test/main/ok.daemon.ts"]);

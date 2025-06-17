@@ -44,19 +44,19 @@ describe("race()", () => {
     await expect(result).rejects.toHaveProperty("message", "boom: bar");
   });
 
-  it.skip("resolves when one of the given operations resolves synchronously first", async () => {
+  it("resolves when one of the given operations resolves synchronously first", async () => {
     let result = run(() =>
       race([
         syncResolve("foo"),
         syncResolve("bar"),
-        syncReject("baz"),
+	syncReject("baz"),
       ])
     );
 
     await expect(result).resolves.toEqual("foo");
   });
 
-  it.skip("rejects when one of the given operations rejects synchronously first", async () => {
+  it("rejects when one of the given operations rejects synchronously first", async () => {
     let result = run(() =>
       race([
         syncReject("foo"),

@@ -47,7 +47,7 @@ describe("all()", () => {
   it.skip("rejects when one of the given operations rejects asynchronously and another operation does not complete", async () => {
     let result = run(() => all([sleep(0), asyncReject(5, "bar")]));
 
-    await expect(result).rejects.toMatchObject({ message: "boom: bar"});
+    await expect(result).rejects.toMatchObject({ message: "boom: bar" });
   });
 
   it("resolves when all of the given operations resolve synchronously", async () => {

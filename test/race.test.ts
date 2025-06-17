@@ -49,7 +49,7 @@ describe("race()", () => {
       race([
         syncResolve("foo"),
         syncResolve("bar"),
-	syncReject("baz"),
+        syncReject("baz"),
       ])
     );
 

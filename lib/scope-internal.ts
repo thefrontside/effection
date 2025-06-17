@@ -2,7 +2,7 @@ import { Children, Generation } from "./contexts.ts";
 import { Err, Ok, unbox } from "./result.ts";
 import { createTask } from "./task.ts";
 import type { Context, Operation, Scope, Task } from "./types.ts";
-import { WithResolvers, withResolvers } from "./with-resolvers.ts";
+import { type WithResolvers, withResolvers } from "./with-resolvers.ts";
 
 export function createScopeInternal(
   parent?: Scope,

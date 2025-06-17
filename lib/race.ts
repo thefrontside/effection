@@ -1,9 +1,9 @@
 import { spawn } from "./spawn.ts";
-import { encapsulate, trap } from "./task.ts";
+import { trap } from "./task.ts";
 import type { Operation, Task, Yielded } from "./types.ts";
 import { withResolvers } from "./with-resolvers.ts";
 import { Err, Ok, type Result } from "./result.ts";
-import { lift } from "./lift.ts";
+
 //import { useScope } from "./scope.ts";
 //import { transfer } from "./scope.ts";
 

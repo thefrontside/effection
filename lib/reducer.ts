@@ -5,7 +5,7 @@ import type { Coroutine } from "./types.ts";
 
 export class Reducer {
   reducing = false;
-  readonly queue = createPriorityQueue();
+  readonly queue = new InstructionQueue();
 
   reduce = (
     thunk: Thunk,
@@ -27,12 +27,14 @@ export class Reducer {
           if (result.ok) {
             if (method === "next") {
               let next = iterator.next(result.value);
+              console.log({ next });
               if (!next.done) {
                 let action = next.value;
                 routine.data.exit = action.enter(routine.next, routine);
               }
             } else if (iterator.return) {
               let next = iterator.return(result.value);
+              console.log({ return: next });
               if (!next.done) {
                 let action = next.value;
                 routine.data.exit = action.enter(routine.next, routine);
@@ -40,6 +42,7 @@ export class Reducer {
             }
           } else if (iterator.throw) {
             let next = iterator.throw(result.error);
+            console.log({ throw: next });
             if (!next.done) {
               let action = next.value;
               routine.data.exit = action.enter(routine.next, routine);
@@ -48,6 +51,7 @@ export class Reducer {
             throw result.error;
           }
         } catch (error) {
+          console.log({ reducer: error });
           routine.next(Err(error as Error));
         }
         item = queue.dequeue();
@@ -58,10 +62,7 @@ export class Reducer {
   };
 }
 
-export const ReducerContext = createContext<Reducer>(
-  "@effection/reducer",
-  new Reducer(),
-);
+
 
 type Thunk = [
   number,
@@ -72,25 +73,26 @@ type Thunk = [
   number,
 ];
 
-function createPriorityQueue() {
-  let q = new PriorityQueue<Thunk>();
-
-  return {
-    enqueue(thunk: Thunk): void {
-      let [priority] = thunk;
-      q.push(priority, thunk);
-    },
-    dequeue(): Thunk | undefined {
-      while (true) {
-        let top = q.pop();
-        if (!top) {
-          return undefined;
-        } else if (top[5] < top[1].runLevel) {
-          continue;
-        } else {
-          return top;
-        }
+class InstructionQueue extends PriorityQueue<Thunk> {
+  enqueue(thunk: Thunk): void {
+    let [priority] = thunk;
+    this.push(priority, thunk);
+  }
+  dequeue(): Thunk | undefined {
+    while (true) {
+      let top = this.pop();
+      if (!top) {
+        return undefined;
+      } else if (top[5] < top[1].runLevel) {
+        continue;
+      } else {
+        return top;
       }
-    },
-  };
+    }
+  }
 }
+
+export const ReducerContext = createContext<Reducer>(
+  "@effection/reducer",
+  new Reducer(),
+);

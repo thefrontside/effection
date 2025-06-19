@@ -6,6 +6,7 @@ import { createFuture } from "./future.ts";
 import { Just, type Maybe, Nothing } from "./maybe.ts";
 import { Err, Ok, type Result, unbox } from "./result.ts";
 import { createScopeInternal, type ScopeInternal } from "./scope-internal.ts";
+import { useScope } from "./scope.ts";
 import type { Coroutine, Operation, Scope, Task } from "./types.ts";
 
 export interface TaskOptions<T> {
@@ -32,6 +33,7 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
   let trap = owner.expect(TrapContext);
 
   scope.set(CrashContext, (trap, error) => {
+    console.log('crash');
     trap.outcome = Just(Err(error));
     routine.return(Ok());
   });
@@ -211,28 +213,34 @@ function* trapsafe<T>(
     }
   } catch (error) {
     trap.outcome = Just(Err(error as Error));
+    console.log({ "trapsafe.catch": error});
   } finally {
-    return (yield {
+    console.log(`trapsafe.finally = `, trap.outcome);
+    const trapped =  (yield {
       description: "trapset return",
       enter(resolve) {
         resolve(Ok(trap.outcome));
         return (didExit) => didExit(Ok());
       },
     }) as Maybe<Result<T>>;
+    console.log({ trapped });
+    return trapped;
   }
 }
 
 export function* trap<T>(op: () => Operation<T>): Operation<T> {
   let original = yield* TrapContext.expect();
   let trap: Trap<T> = { outcome: Nothing<Result<T>>() };
+  let scope = yield* useScope();
   try {
-    yield* TrapContext.set(trap);
+    scope.set(TrapContext, trap);
     let value = yield* op();
     trap.outcome = Just(Ok(value));
   } catch (error) {
     trap.outcome = Just(Err(error as Error));
+    console.log({ "trap.catch": trap.outcome});
   } finally {
-    yield* TrapContext.set(original);
+    scope.set(TrapContext, original);
     const { outcome } = trap;
 
     Object.defineProperty(trap, "outcome", {
@@ -249,6 +257,7 @@ export function* trap<T>(op: () => Operation<T>): Operation<T> {
       if (result.ok) {
         return result.value;
       } else {
+	//	console.log("throw", result.error);
         throw result.error;
       }
     } else {

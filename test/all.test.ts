@@ -10,7 +10,7 @@ import {
   syncResolve,
 } from "./suite.ts";
 
-import { all, call, type Operation, run, sleep } from "../mod.ts";
+import { all, call, type Operation, run, sleep, suspend } from "../mod.ts";
 
 describe("all()", () => {
   it("resolves when the given list is empty", async () => {
@@ -44,8 +44,14 @@ describe("all()", () => {
     await expect(result).rejects.toHaveProperty("message", "boom: bar");
   });
 
-  it.skip("rejects when one of the given operations rejects asynchronously and another operation does not complete", async () => {
-    let result = run(() => all([sleep(0), asyncReject(5, "bar")]));
+  it("rejects when one of the given operations rejects asynchronously and another operation does not complete", async () => {
+    let result = run(() => all([suspend(), asyncReject(1, "bar")]));
+
+    await expect(result).rejects.toMatchObject({ message: "boom: bar" });
+  });
+
+  it.only("rejects when one of the given operations rejects asynchronously and another resolves asynchronously", async () => {
+    let result = run(() => all([asyncResolve(1, "foo"), asyncReject(2, "bar")]));
 
     await expect(result).rejects.toMatchObject({ message: "boom: bar" });
   });

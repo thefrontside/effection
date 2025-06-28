@@ -1,4 +1,5 @@
 // deno-lint-ignore-file no-unsafe-finally
+import { type Boundary, BoundaryContext } from "./boundary.ts";
 import { box } from "./box.ts";
 import { createContext } from "./context.ts";
 import { createCoroutine } from "./coroutine.ts";
@@ -29,14 +30,14 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
     { outcome: Maybe<Result<T>>; teardown: Result<void> }
   >();
 
-  let trap = owner.expect(TrapContext);
+  let trap = owner.expect(BoundaryContext);
 
   scope.set(CrashContext, (trap, error) => {
     trap.outcome = Just(Err(error));
     routine.return(Ok());
   });
 
-  scope.set(TrapContext, { outcome: Nothing<Result<T>>() });
+  scope.set(BoundaryContext, { outcome: Nothing<Result<T>>(), runLevel: 0 });
 
   let group = owner.expect(TaskGroupContext);
 
@@ -55,7 +56,7 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
     } else if (routine.runLevel < 3) {
       interrupted = routine.runLevel < 2;
       routine.runLevel = 2;
-      routine.scope.expect(TrapContext).outcome = Nothing();
+      routine.scope.expect(BoundaryContext).outcome = Nothing();
       routine.return(Ok());
       group.delete(task);
     }
@@ -154,7 +155,7 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
   return { task, scope, routine, start };
 }
 
-const CrashContext = createContext<(trap: Trap<unknown>, error: Error) => void>(
+const CrashContext = createContext<(trap: Boundary<unknown>, error: Error) => void>(
   "@effection/crash",
   () => {},
 );
@@ -191,18 +192,10 @@ const TaskGroupContext = createContext<TaskGroup>(
   new TaskGroup(),
 );
 
-interface Trap<T> {
-  outcome: Maybe<Result<T>>;
-}
-
-const TrapContext = createContext<Trap<unknown>>("@effection/trap", {
-  outcome: Just(Err(new Error("bare trap"))),
-});
-
 function* trapsafe<T>(
   op: () => Operation<T>,
 ): Operation<Maybe<Result<T>>> {
-  let trap = yield* TrapContext.expect();
+  let trap = yield* BoundaryContext.expect();
   let original = trap.outcome;
   try {
     let value = yield* op();
@@ -223,16 +216,16 @@ function* trapsafe<T>(
 }
 
 export function* trap<T>(op: () => Operation<T>): Operation<T> {
-  let original = yield* TrapContext.expect();
-  let trap: Trap<T> = { outcome: Nothing<Result<T>>() };
+  let original = yield* BoundaryContext.expect();
+  let trap: Boundary<T> = { outcome: Nothing<Result<T>>(), runLevel: 0 };
   try {
-    yield* TrapContext.set(trap);
+    yield* BoundaryContext.set(trap);
     let value = yield* op();
     trap.outcome = Just(Ok(value));
   } catch (error) {
     trap.outcome = Just(Err(error as Error));
   } finally {
-    yield* TrapContext.set(original);
+    yield* BoundaryContext.set(original);
     const { outcome } = trap;
 
     Object.defineProperty(trap, "outcome", {

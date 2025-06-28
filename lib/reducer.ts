@@ -8,11 +8,11 @@ export class Reducer {
   readonly queue = createPriorityQueue();
 
   reduce = (
-    thunk: Thunk,
+    instruction: Instruction,
   ) => {
     let { queue } = this;
 
-    queue.enqueue(thunk);
+    queue.enqueue(instruction);
 
     if (this.reducing) return;
 
@@ -63,7 +63,7 @@ export const ReducerContext = createContext<Reducer>(
   new Reducer(),
 );
 
-type Thunk = [
+type Instruction = [
   number,
   Coroutine<unknown>,
   Result<unknown>,
@@ -73,14 +73,14 @@ type Thunk = [
 ];
 
 function createPriorityQueue() {
-  let q = new PriorityQueue<Thunk>();
+  let q = new PriorityQueue<Instruction>();
 
   return {
-    enqueue(thunk: Thunk): void {
-      let [priority] = thunk;
-      q.push(priority, thunk);
+    enqueue(instruction: Instruction): void {
+      let [priority] = instruction;
+      q.push(priority, instruction);
     },
-    dequeue(): Thunk | undefined {
+    dequeue(): Instruction | undefined {
       while (true) {
         let top = q.pop();
         if (!top) {

@@ -155,7 +155,9 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
   return { task, scope, routine, start };
 }
 
-const CrashContext = createContext<(trap: Boundary<unknown>, error: Error) => void>(
+const CrashContext = createContext<
+  (trap: Boundary<unknown>, error: Error) => void
+>(
   "@effection/crash",
   () => {},
 );

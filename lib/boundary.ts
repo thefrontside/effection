@@ -7,7 +7,10 @@ export interface Boundary<T> {
   runLevel: 0;
 }
 
-export const BoundaryContext = createContext<Boundary<unknown>>("@effection/trap", {
-  outcome: Just(Err(new Error("unbounded context"))),
-  runLevel: 0,
-});
+export const BoundaryContext = createContext<Boundary<unknown>>(
+  "@effection/trap",
+  {
+    outcome: Just(Err(new Error("unbounded context"))),
+    runLevel: 0,
+  },
+);

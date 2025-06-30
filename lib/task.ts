@@ -2,7 +2,7 @@
 import { type Boundary, BoundaryContext } from "./boundary.ts";
 import { box } from "./box.ts";
 import { createContext } from "./context.ts";
-import { createCoroutine } from "./coroutine.ts";
+import { createCoroutine, useCoroutine } from "./coroutine.ts";
 import { createFuture } from "./future.ts";
 import { Just, type Maybe, Nothing } from "./maybe.ts";
 import { Err, Ok, type Result, unbox } from "./result.ts";
@@ -53,8 +53,12 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
       routine.runLevel = 3;
       finalized.resolve({ outcome: Nothing(), teardown: Ok() });
       future.reject(new Error("halted"));
-    } else if (routine.runLevel < 3) {
-      interrupted = routine.runLevel < 2;
+    } else if (routine.runLevel === 2) {
+      //console.log("HALTING LEVEL 2");
+      // happens when a child is completing, and waiting for trap safe return
+      // but parent decides to halt it.
+    } else if (routine.runLevel < 2) {
+      interrupted = true;
       routine.runLevel = 2;
       routine.scope.expect(BoundaryContext).outcome = Nothing();
       routine.return(Ok());
@@ -119,6 +123,8 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
       routine.runLevel = 1;
 
       let outcome = yield* trapsafe(operation);
+
+      group.delete(task);
 
       scope.set(CrashContext, () => {});
       let crash = owner.expect(CrashContext);
@@ -197,6 +203,7 @@ const TaskGroupContext = createContext<TaskGroup>(
 function* trapsafe<T>(
   op: () => Operation<T>,
 ): Operation<Maybe<Result<T>>> {
+  let routine = yield* useCoroutine();
   let trap = yield* BoundaryContext.expect();
   let original = trap.outcome;
   try {
@@ -207,6 +214,7 @@ function* trapsafe<T>(
   } catch (error) {
     trap.outcome = Just(Err(error as Error));
   } finally {
+    routine.runLevel = 2;
     return (yield {
       description: "trapset return",
       enter(resolve) {

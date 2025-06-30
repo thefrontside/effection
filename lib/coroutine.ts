@@ -1,3 +1,4 @@
+import { BoundaryContext } from "./boundary.ts";
 import { Generation } from "./contexts.ts";
 import { ReducerContext } from "./reducer.ts";
 import { Ok } from "./result.ts";
@@ -30,6 +31,7 @@ export function createCoroutine<T>(
     next(result) {
       routine.data.exit((exitResult) => {
         routine.data.exit = (didExit) => didExit(Ok());
+        const boundary = routine.scope.expect(BoundaryContext);
         reducer.reduce([
           scope.expect(Generation),
           routine,
@@ -37,12 +39,15 @@ export function createCoroutine<T>(
           () => {},
           "next",
           routine.runLevel,
+          boundary,
+          boundary.runLevel,
         ]);
       });
     },
     return(result) {
       routine.data.exit((exitResult) => {
         routine.data.exit = (didExit) => didExit(Ok());
+        const boundary = routine.scope.expect(BoundaryContext);
         reducer.reduce([
           scope.expect(Generation),
           routine,
@@ -50,6 +55,8 @@ export function createCoroutine<T>(
           () => {},
           "return",
           routine.runLevel,
+          boundary,
+          boundary.runLevel,
         ]);
       });
     },

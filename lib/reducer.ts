@@ -1,3 +1,4 @@
+import { type Boundary, BoundaryContext } from "./boundary.ts";
 import { createContext } from "./context.ts";
 import { PriorityQueue } from "./priority-queue.ts";
 import { Err, type Result } from "./result.ts";
@@ -5,7 +6,7 @@ import type { Coroutine } from "./types.ts";
 
 export class Reducer {
   reducing = false;
-  readonly queue = createPriorityQueue();
+  readonly queue = new InstructionQueue();
 
   reduce = (
     instruction: Instruction,
@@ -58,11 +59,6 @@ export class Reducer {
   };
 }
 
-export const ReducerContext = createContext<Reducer>(
-  "@effection/reducer",
-  new Reducer(),
-);
-
 type Instruction = [
   number,
   Coroutine<unknown>,
@@ -70,27 +66,37 @@ type Instruction = [
   () => void,
   "return" | "next",
   number,
+  Boundary<unknown>,
+  number,
 ];
 
-function createPriorityQueue() {
-  let q = new PriorityQueue<Instruction>();
-
-  return {
-    enqueue(instruction: Instruction): void {
-      let [priority] = instruction;
-      q.push(priority, instruction);
-    },
-    dequeue(): Instruction | undefined {
-      while (true) {
-        let top = q.pop();
-        if (!top) {
-          return undefined;
-        } else if (top[5] < top[1].runLevel) {
+class InstructionQueue extends PriorityQueue<Instruction> {
+  enqueue(instruction: Instruction): void {
+    let [priority] = instruction;
+    this.push(priority, instruction);
+  }
+  dequeue(): Instruction | undefined {
+    while (true) {
+      let top = this.pop();
+      if (!top) {
+        return undefined;
+      } else if (top[5] < top[1].runLevel) {
+        continue;
+      } else {
+        let coroutine = top[1];
+        let boundary = top[6];
+        let level = top[7];
+        let current = coroutine.scope.expect(BoundaryContext);
+        if (current !== boundary || current.runLevel !== level) {
           continue;
-        } else {
-          return top;
         }
+        return top;
       }
-    },
-  };
+    }
+  }
 }
+
+export const ReducerContext = createContext<Reducer>(
+  "@effection/reducer",
+  new Reducer(),
+);

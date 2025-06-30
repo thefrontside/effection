@@ -3,6 +3,7 @@ import { type Boundary, BoundaryContext } from "./boundary.ts";
 import { box } from "./box.ts";
 import { createContext } from "./context.ts";
 import { createCoroutine, useCoroutine } from "./coroutine.ts";
+import { Delimiter } from "./delimiter.ts";
 import { createFuture } from "./future.ts";
 import { Just, type Maybe, Nothing } from "./maybe.ts";
 import { Err, Ok, type Result, unbox } from "./result.ts";
@@ -24,56 +25,23 @@ export interface NewTask<T> {
 export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
   let { owner, operation } = options;
   let [scope] = createScopeInternal(owner);
-
   let future = createFuture<T>();
-  let finalized = createFuture<
-    { outcome: Maybe<Result<T>>; teardown: Result<void> }
-  >();
 
-  let trap = owner.expect(BoundaryContext);
-
-  scope.set(CrashContext, (trap, error) => {
-    trap.outcome = Just(Err(error));
-    routine.return(Ok());
-  });
-
-  scope.set(BoundaryContext, { outcome: Nothing<Result<T>>(), runLevel: 0 });
-
-  let group = owner.expect(TaskGroupContext);
-
-  let children = scope.set(TaskGroupContext, new TaskGroup());
-
-  scope.ensure(halt);
-
-  let interrupted = false;
-
-  function* halt(): Operation<void> {
-    // halt was called before the task could ever run.
-    if (routine.runLevel === 0) {
-      routine.runLevel = 3;
-      finalized.resolve({ outcome: Nothing(), teardown: Ok() });
+  let top = new Delimiter<T>(operation);
+  top.then = (outcome) => {
+    if (outcome.exists) {
+      let result = outcome.value;
+      if (result.ok) {
+        future.resolve(result.value);
+      } else {
+        future.reject(result.error);
+      }
+    } else {
       future.reject(new Error("halted"));
-    } else if (routine.runLevel === 2) {
-      //console.log("HALTING LEVEL 2");
-      // happens when a child is completing, and waiting for trap safe return
-      // but parent decides to halt it.
-    } else if (routine.runLevel < 2) {
-      interrupted = true;
-      routine.runLevel = 2;
-      routine.scope.expect(BoundaryContext).outcome = Nothing();
-      routine.return(Ok());
-      group.delete(task);
     }
+  };
 
-    let { outcome, teardown } = yield* finalized.future;
-
-    if (!teardown.ok) {
-      throw teardown.error;
-    }
-    if (outcome.exists && interrupted && !outcome.value.ok) {
-      throw outcome.value.error;
-    }
-  }
+  let halt = () => top.close();
 
   let task = Object.defineProperties(future.future, {
     halt: {
@@ -115,158 +83,275 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
     },
   }) as Task<T>;
 
-  group.add(task);
-
-  let routine = createCoroutine<void>({
+  let routine = top.routine = createCoroutine({
     scope,
-    *operation() {
-      routine.runLevel = 1;
-
-      let outcome = yield* trapsafe(operation);
-
-      group.delete(task);
-
-      scope.set(CrashContext, () => {});
-      let crash = owner.expect(CrashContext);
-
-      routine.runLevel = 2;
-
-      let teardown = yield* box(() => children.halt());
-
-      routine.runLevel = 3;
-
-      finalized.resolve({ outcome, teardown });
-
-      if (!teardown.ok) {
-        future.reject(teardown.error);
-        crash(trap, teardown.error);
-      } else {
-        if (outcome.exists) {
-          let result = outcome.value;
-          if (result.ok) {
-            future.resolve(result.value);
-          } else {
-            future.reject(result.error);
-            crash(trap, result.error);
-          }
-        } else {
-          future.reject(new Error("halted"));
-        }
-      }
-    },
+    operation: () => top,
   });
 
   let start = () => routine.next(Ok());
 
-  return { task, scope, routine, start };
+  return { scope, routine, task, start };
 }
 
-const CrashContext = createContext<
-  (trap: Boundary<unknown>, error: Error) => void
->(
-  "@effection/crash",
-  () => {},
-);
-
-class TaskGroup {
-  tasks = new Set<Task<unknown>>();
-
-  add(task: Task<unknown>) {
-    this.tasks.add(task);
-  }
-
-  delete(task: Task<unknown>) {
-    this.tasks.delete(task);
-  }
-
-  *halt(): Operation<void> {
-    let total = Ok();
-    while (this.tasks.size > 0) {
-      let tasks = [...this.tasks].reverse();
-      this.tasks.clear();
-      for (let task of tasks) {
-        let result = yield* box(task.halt);
-        if (!result.ok) {
-          total = result;
-        }
-      }
-    }
-    unbox(total);
+export function* trap<T>(operation: () => Operation<T>): Operation<T> {
+  let outcome = yield* new Delimiter(operation, yield* useCoroutine());
+  if (outcome.exists) {
+    return unbox(outcome.value);
+  } else {
+    throw new Error("TODO: propagate halt");
   }
 }
 
-const TaskGroupContext = createContext<TaskGroup>(
-  "@effection/task-group",
-  new TaskGroup(),
-);
-
-function* trapsafe<T>(
-  op: () => Operation<T>,
-): Operation<Maybe<Result<T>>> {
-  let routine = yield* useCoroutine();
-  let trap = yield* BoundaryContext.expect();
-  let original = trap.outcome;
-  try {
-    let value = yield* op();
-    if (trap.outcome === original) {
-      trap.outcome = Just(Ok(value));
-    }
-  } catch (error) {
-    trap.outcome = Just(Err(error as Error));
-  } finally {
-    routine.runLevel = 2;
-    return (yield {
-      description: "trapset return",
-      enter(resolve) {
-        resolve(Ok(trap.outcome));
-        return (didExit) => didExit(Ok());
-      },
-    }) as Maybe<Result<T>>;
-  }
+export function* encapsulate<T>(operation: () => Operation<T>): Operation<T> {
+  return yield* operation();
 }
 
-export function* trap<T>(op: () => Operation<T>): Operation<T> {
-  let original = yield* BoundaryContext.expect();
-  let trap: Boundary<T> = { outcome: Nothing<Result<T>>(), runLevel: 0 };
-  try {
-    yield* BoundaryContext.set(trap);
-    let value = yield* op();
-    trap.outcome = Just(Ok(value));
-  } catch (error) {
-    trap.outcome = Just(Err(error as Error));
-  } finally {
-    yield* BoundaryContext.set(original);
-    const { outcome } = trap;
+// export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
+//   let { owner, operation } = options;
+//   let [scope] = createScopeInternal(owner);
 
-    Object.defineProperty(trap, "outcome", {
-      set(value: Maybe<Result<T>>) {
-        original.outcome = value;
-      },
-      get() {
-        return original.outcome;
-      },
-    });
+//   let future = createFuture<T>();
+//   let finalized = createFuture<
+//     { outcome: Maybe<Result<T>>; teardown: Result<void> }
+//   >();
 
-    if (outcome.exists) {
-      const { value: result } = outcome;
-      if (result.ok) {
-        return result.value;
-      } else {
-        throw result.error;
-      }
-    } else {
-      return (yield {
-        description: "propagate halt",
-        enter(_, routine) {
-          original.outcome = Nothing();
-          routine.return(Ok());
-          return (didExit) => didExit(Ok());
-        },
-      }) as T;
-    }
-  }
-}
+//   let trap = owner.expect(BoundaryContext);
 
+//   scope.set(CrashContext, (trap, error) => {
+//     trap.outcome = Just(Err(error));
+//     routine.return(Ok());
+//   });
+
+//   scope.set(BoundaryContext, { outcome: Nothing<Result<T>>(), runLevel: 0 });
+
+//   let group = owner.expect(TaskGroupContext);
+
+//   let children = scope.set(TaskGroupContext, new TaskGroup());
+
+//   scope.ensure(halt);
+
+//   let interrupted = false;
+
+//   function* halt(): Operation<void> {
+//     // halt was called before the task could ever run.
+//     if (routine.runLevel === 0) {
+//       routine.runLevel = 3;
+//       finalized.resolve({ outcome: Nothing(), teardown: Ok() });
+//       future.reject(new Error("halted"));
+//     } else if (routine.runLevel === 2) {
+//       //console.log("HALTING LEVEL 2");
+//       // happens when a child is completing, and waiting for trap safe return
+//       // but parent decides to halt it.
+//     } else if (routine.runLevel < 2) {
+//       interrupted = true;
+//       routine.runLevel = 2;
+//       routine.scope.expect(BoundaryContext).outcome = Nothing();
+//       routine.return(Ok());
+//       group.delete(task);
+//     }
+
+//     let { outcome, teardown } = yield* finalized.future;
+
+//     if (!teardown.ok) {
+//       throw teardown.error;
+//     }
+//     if (outcome.exists && interrupted && !outcome.value.ok) {
+//       throw outcome.value.error;
+//     }
+//   }
+
+//   let task = Object.defineProperties(future.future, {
+//     halt: {
+//       enumerable: false,
+//       value() {
+//         return Object.defineProperties(Object.create(Promise.prototype), {
+//           [Symbol.iterator]: {
+//             enumerable: false,
+//             value: halt,
+//           },
+//           then: {
+//             enumerable: false,
+//             value(...args: Parameters<Promise<void>["then"]>) {
+//               return owner.run(halt).then(...args);
+//             },
+//           },
+//           catch: {
+//             enumerable: false,
+//             value(...args: Parameters<Promise<void>["catch"]>) {
+//               return owner.run(halt).catch(...args);
+//             },
+//           },
+//           finally: {
+//             enumerable: false,
+//             value(...args: Parameters<Promise<void>["finally"]>) {
+//               return owner.run(halt).finally(...args);
+//             },
+//           },
+//         });
+//       },
+//     },
+//     [Symbol.iterator]: {
+//       enumerable: false,
+//       value: future.future[Symbol.iterator],
+//     },
+//     [Symbol.toStringTag]: {
+//       enumerable: false,
+//       value: "Task",
+//     },
+//   }) as Task<T>;
+
+//   group.add(task);
+
+//   let routine = createCoroutine<void>({
+//     scope,
+//     *operation() {
+//       routine.runLevel = 1;
+
+//       let outcome = yield* trapsafe(operation);
+
+//       group.delete(task);
+
+//       scope.set(CrashContext, () => {});
+//       let crash = owner.expect(CrashContext);
+
+//       routine.runLevel = 2;
+
+//       let teardown = yield* box(() => children.halt());
+
+//       routine.runLevel = 3;
+
+//       finalized.resolve({ outcome, teardown });
+
+//       if (!teardown.ok) {
+//         future.reject(teardown.error);
+//         crash(trap, teardown.error);
+//       } else {
+//         if (outcome.exists) {
+//           let result = outcome.value;
+//           if (result.ok) {
+//             future.resolve(result.value);
+//           } else {
+//             future.reject(result.error);
+//             crash(trap, result.error);
+//           }
+//         } else {
+//           future.reject(new Error("halted"));
+//         }
+//       }
+//     },
+//   });
+
+//   let start = () => routine.next(Ok());
+
+//   return { task, scope, routine, start };
+// }
+
+// const CrashContext = createContext<
+//   (trap: Boundary<unknown>, error: Error) => void
+// >(
+//   "@effection/crash",
+//   () => {},
+// );
+
+// class TaskGroup {
+//   tasks = new Set<Task<unknown>>();
+
+//   add(task: Task<unknown>) {
+//     this.tasks.add(task);
+//   }
+
+//   delete(task: Task<unknown>) {
+//     this.tasks.delete(task);
+//   }
+
+//   *halt(): Operation<void> {
+//     let total = Ok();
+//     while (this.tasks.size > 0) {
+//       let tasks = [...this.tasks].reverse();
+//       this.tasks.clear();
+//       for (let task of tasks) {
+//         let result = yield* box(task.halt);
+//         if (!result.ok) {
+//           total = result;
+//         }
+//       }
+//     }
+//     unbox(total);
+//   }
+// }
+
+// const TaskGroupContext = createContext<TaskGroup>(
+//   "@effection/task-group",
+//   new TaskGroup(),
+// );
+
+// function* trapsafe<T>(
+//   op: () => Operation<T>,
+// ): Operation<Maybe<Result<T>>> {
+//   let routine = yield* useCoroutine();
+//   let trap = yield* BoundaryContext.expect();
+//   let original = trap.outcome;
+//   try {
+//     let value = yield* op();
+//     if (trap.outcome === original) {
+//       trap.outcome = Just(Ok(value));
+//     }
+//   } catch (error) {
+//     trap.outcome = Just(Err(error as Error));
+//   } finally {
+//     routine.runLevel = 2;
+//     return (yield {
+//       description: "trapset return",
+//       enter(resolve) {
+//         resolve(Ok(trap.outcome));
+//         return (didExit) => didExit(Ok());
+//       },
+//     }) as Maybe<Result<T>>;
+//   }
+// }
+
+// export function* trap<T>(op: () => Operation<T>): Operation<T> {
+//   let original = yield* BoundaryContext.expect();
+//   let trap: Boundary<T> = { outcome: Nothing<Result<T>>(), runLevel: 0 };
+//   try {
+//     yield* BoundaryContext.set(trap);
+//     let value = yield* op();
+//     trap.outcome = Just(Ok(value));
+//   } catch (error) {
+//     trap.outcome = Just(Err(error as Error));
+//   } finally {
+//     yield* BoundaryContext.set(original);
+//     const { outcome } = trap;
+
+//     Object.defineProperty(trap, "outcome", {
+//       set(value: Maybe<Result<T>>) {
+//         original.outcome = value;
+//       },
+//       get() {
+//         return original.outcome;
+//       },
+//     });
+
+//     if (outcome.exists) {
+//       const { value: result } = outcome;
+//       if (result.ok) {
+//         return result.value;
+//       } else {
+//         throw result.error;
+//       }
+//     } else {
+//       return (yield {
+//         description: "propagate halt",
+//         enter(_, routine) {
+//           original.outcome = Nothing();
+//           routine.return(Ok());
+//           return (didExit) => didExit(Ok());
+//         },
+//       }) as T;
+//     }
+//   }
+// }
+//
 // export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
 //   let { owner, operation } = options;
 //   let [scope] = createScopeInternal(owner);
@@ -464,15 +549,15 @@ export function* trap<T>(op: () => Operation<T>): Operation<T> {
 //   }
 // }
 
-export function encapsulate<T>(op: () => Operation<T>): Operation<T> {
-  return TaskGroupContext.with(new TaskGroup(), function* (group) {
-    try {
-      return yield* op();
-    } finally {
-      yield* group.halt();
-    }
-  });
-}
+// export function encapsulate<T>(op: () => Operation<T>): Operation<T> {
+//   return TaskGroupContext.with(new TaskGroup(), function* (group) {
+//     try {
+//       return yield* op();
+//     } finally {
+//       yield* group.halt();
+//     }
+//   });
+// }
 
 // export function trap<T>(op: () => Operation<T>): Operation<T> {
 //   return op();

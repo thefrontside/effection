@@ -1,12 +1,9 @@
-// deno-lint-ignore-file no-unsafe-finally
-import { type Boundary, BoundaryContext } from "./boundary.ts";
-import { box } from "./box.ts";
-import { createContext } from "./context.ts";
-import { createCoroutine, useCoroutine } from "./coroutine.ts";
+import { ErrorContext } from "./delimiter.ts";
+import { createCoroutine } from "./coroutine.ts";
 import { Delimiter } from "./delimiter.ts";
 import { createFuture } from "./future.ts";
-import { Just, type Maybe, Nothing } from "./maybe.ts";
-import { Err, Ok, type Result, unbox } from "./result.ts";
+import { Nothing } from "./maybe.ts";
+import { Ok, type Result, unbox } from "./result.ts";
 import { createScopeInternal, type ScopeInternal } from "./scope-internal.ts";
 import type { Coroutine, Operation, Scope, Task } from "./types.ts";
 
@@ -28,18 +25,10 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
   let future = createFuture<T>();
 
   let top = new Delimiter<T>(operation);
-  top.then = (outcome) => {
-    if (outcome.exists) {
-      let result = outcome.value;
-      if (result.ok) {
-        future.resolve(result.value);
-      } else {
-        future.reject(result.error);
-      }
-    } else {
-      future.reject(new Error("halted"));
-    }
-  };
+
+  let boundary = owner.expect(ErrorContext);
+
+  scope.set(ErrorContext, top);
 
   let halt = () => top.close();
 
@@ -85,7 +74,25 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
 
   let routine = top.routine = createCoroutine({
     scope,
-    operation: () => top,
+    *operation() {
+      try {
+	yield* top;
+      } finally {
+	let { outcome } = top;
+        if (outcome!.exists) {
+          let result = outcome!.value;
+          if (result.ok) {
+            future.resolve(result.value);
+          } else {
+	    let { error } = result;
+            future.reject(error);
+	    boundary.raise(error)
+          }
+        } else {
+          future.reject(new Error("halted"));
+        }	
+      }
+    },
   });
 
   let start = () => routine.next(Ok());
@@ -94,7 +101,7 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
 }
 
 export function* trap<T>(operation: () => Operation<T>): Operation<T> {
-  let outcome = yield* new Delimiter(operation, yield* useCoroutine());
+  let outcome = yield* new Delimiter(operation);
   if (outcome.exists) {
     return unbox(outcome.value);
   } else {
@@ -115,14 +122,14 @@ export function* encapsulate<T>(operation: () => Operation<T>): Operation<T> {
 //     { outcome: Maybe<Result<T>>; teardown: Result<void> }
 //   >();
 
-//   let trap = owner.expect(BoundaryContext);
+//   let trap = owner.expect(ErrorContext);
 
 //   scope.set(CrashContext, (trap, error) => {
 //     trap.outcome = Just(Err(error));
 //     routine.return(Ok());
 //   });
 
-//   scope.set(BoundaryContext, { outcome: Nothing<Result<T>>(), runLevel: 0 });
+//   scope.set(ErrorContext, { outcome: Nothing<Result<T>>(), runLevel: 0 });
 
 //   let group = owner.expect(TaskGroupContext);
 
@@ -145,7 +152,7 @@ export function* encapsulate<T>(operation: () => Operation<T>): Operation<T> {
 //     } else if (routine.runLevel < 2) {
 //       interrupted = true;
 //       routine.runLevel = 2;
-//       routine.scope.expect(BoundaryContext).outcome = Nothing();
+//       routine.scope.expect(ErrorContext).outcome = Nothing();
 //       routine.return(Ok());
 //       group.delete(task);
 //     }
@@ -289,7 +296,7 @@ export function* encapsulate<T>(operation: () => Operation<T>): Operation<T> {
 //   op: () => Operation<T>,
 // ): Operation<Maybe<Result<T>>> {
 //   let routine = yield* useCoroutine();
-//   let trap = yield* BoundaryContext.expect();
+//   let trap = yield* ErrorContext.expect();
 //   let original = trap.outcome;
 //   try {
 //     let value = yield* op();
@@ -311,16 +318,16 @@ export function* encapsulate<T>(operation: () => Operation<T>): Operation<T> {
 // }
 
 // export function* trap<T>(op: () => Operation<T>): Operation<T> {
-//   let original = yield* BoundaryContext.expect();
+//   let original = yield* ErrorContext.expect();
 //   let trap: Boundary<T> = { outcome: Nothing<Result<T>>(), runLevel: 0 };
 //   try {
-//     yield* BoundaryContext.set(trap);
+//     yield* ErrorContext.set(trap);
 //     let value = yield* op();
 //     trap.outcome = Just(Ok(value));
 //   } catch (error) {
 //     trap.outcome = Just(Err(error as Error));
 //   } finally {
-//     yield* BoundaryContext.set(original);
+//     yield* ErrorContext.set(original);
 //     const { outcome } = trap;
 
 //     Object.defineProperty(trap, "outcome", {

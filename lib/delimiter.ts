@@ -1,31 +1,30 @@
 // deno-lint-ignore-file no-unsafe-finally
+import { createContext } from "./context.ts";
+import { useCoroutine } from "./coroutine.ts";
 import { Just, type Maybe, Nothing } from "./maybe.ts";
 import { Err, Ok, type Result } from "./result.ts";
 import type { Coroutine, Operation } from "./types.ts";
 import { withResolvers } from "./with-resolvers.ts";
 
-export class Delimiter<T> implements Operation<Maybe<Result<T>>> {
+export class Delimiter<T>
+  implements Operation<Maybe<Result<T>>>, ErrorBoundary {
   level = 0;
-  outcome = withResolvers<Maybe<Result<T>>>();
+  future = withResolvers<Maybe<Result<T>>>();
   computed = false;
-  then: (outcome: Maybe<Result<T>>) => void = () => {};
+  routine?: Coroutine;
+  outcome?: Maybe<Result<T>>;
 
   constructor(
     public readonly operation: () => Operation<T>,
-    public routine?: Coroutine,
   ) {}
 
-  exit(outcome: Maybe<Result<T>>, override = false): void {
-    if (this.level === 0) {
-      this.outcome.resolve(outcome);
-    } else if (override || this.level++ === 1) {
-      this.routine?.return(Ok(outcome));
-    }
+  raise(error: Error): void {
+    this.exit(Just(Err(error)));
   }
 
   *close(): Operation<void> {
-    let done = this.outcome.operation;
-    let interrupted = !this.computed; 
+    let done = this.future.operation;
+    let interrupted = !this.computed;
     this.close = function* close() {
       let outcome = yield* done;
       if (interrupted && outcome.exists && !outcome.value.ok) {
@@ -36,22 +35,42 @@ export class Delimiter<T> implements Operation<Maybe<Result<T>>> {
     yield* this.close();
   }
 
+  private exit(outcome: Maybe<Result<T>>): void {
+    this.outcome = outcome;
+    if (!this.routine) {
+      this.future.resolve(outcome);
+    } else {
+      this.level++;
+      this.routine.return(Ok(outcome));
+    }
+  }
+
   [Symbol.iterator] = function* delimiter(this: Delimiter<T>) {
-    let outcome = Nothing<Result<T>>();
+    this.routine = yield* useCoroutine();
     try {
-      this.level = 1;
       let value = yield* this.operation();
-      if (this.level === 1) {
-	this.computed = true;
-        outcome = Just(Ok(value));
+      if (this.level === 0) {
+        this.computed = true;
+        this.outcome = Just(Ok(value));
       }
     } catch (error) {
       this.computed = true;
-      outcome = Just(Err(error as Error));
+      this.outcome = Just(Err(error as Error));
     } finally {
-      this.outcome.resolve(outcome);
-      this.then(outcome);
-      return outcome;
+      this.outcome = this.outcome ?? Nothing();
+      this.future.resolve(this.outcome);
+      return this.outcome;
     }
   };
 }
+
+export interface ErrorBoundary {
+  raise(error: Error): void;
+}
+
+export const ErrorContext = createContext<ErrorBoundary>(
+  "@effection/boundary",
+  {
+    raise: () => {},
+  },
+);

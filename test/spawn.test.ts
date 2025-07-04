@@ -15,7 +15,7 @@ describe("spawn", () => {
     await expect(root).resolves.toEqual(67);
   });
 
-  it.skip("halts child when halted", async () => {
+  it("halts child when halted", async () => {
     let child;
     let root = run(function* root() {
       child = yield* spawn(function* child() {
@@ -30,7 +30,7 @@ describe("spawn", () => {
     await expect(child).rejects.toHaveProperty("message", "halted");
   });
 
-  it.skip("halts child when finishing normally", async () => {
+  it("halts child when finishing normally", async () => {
     let child;
     let result = run(function* parent() {
       child = yield* spawn(function* () {
@@ -46,7 +46,7 @@ describe("spawn", () => {
     await expect(child).rejects.toHaveProperty("message", "halted");
   });
 
-  it.skip("halts child when errored", async () => {
+  it("halts child when errored", async () => {
     let child;
     let root = run(function* () {
       child = yield* spawn(function* () {
@@ -90,7 +90,7 @@ describe("spawn", () => {
     await expect(child).rejects.toHaveProperty("message", "halted");
   });
 
-  it.skip("rejects when child errors during completing", async () => {
+  it("rejects when child errors during completing", async () => {
     let root = run(function* root() {
       yield* spawn(function* child() {
         try {
@@ -106,7 +106,7 @@ describe("spawn", () => {
     await expect(root).rejects.toHaveProperty("message", "moo");
   });
 
-  it.skip("rejects when child errors during halting", async () => {
+  it("rejects when child errors during halting", async () => {
     let child;
     let root = run(function* () {
       child = yield* spawn(function* () {
@@ -144,7 +144,7 @@ describe("spawn", () => {
     expect(didFinish).toEqual(true);
   });
 
-  it.skip("runs destructors in reverse order and in series", async () => {
+  it("runs destructors in reverse order and in series", async () => {
     let result: string[] = [];
 
     await run(function* () {

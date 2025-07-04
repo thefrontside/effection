@@ -6,6 +6,7 @@ import { Nothing } from "./maybe.ts";
 import { Ok, type Result, unbox } from "./result.ts";
 import { createScopeInternal, type ScopeInternal } from "./scope-internal.ts";
 import type { Coroutine, Operation, Scope, Task } from "./types.ts";
+import { encapsulate, TaskGroupContext } from "./task-group.ts";
 
 export interface TaskOptions<T> {
   owner: ScopeInternal;
@@ -24,11 +25,7 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
   let [scope] = createScopeInternal(owner);
   let future = createFuture<T>();
 
-  let top = new Delimiter<T>(operation);
-
-  let boundary = owner.expect(ErrorContext);
-
-  scope.set(ErrorContext, top);
+  let top = new Delimiter<T>(() => encapsulate(operation));
 
   let halt = () => top.close();
 
@@ -72,25 +69,33 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
     },
   }) as Task<T>;
 
-  let routine = top.routine = createCoroutine({
+  let boundary = owner.expect(ErrorContext);
+
+  scope.set(ErrorContext, top);
+
+  let group = scope.expect(TaskGroupContext);
+
+  let routine = createCoroutine({
     scope,
     *operation() {
       try {
-	yield* top;
+        group.add(task);
+        yield* top;
       } finally {
-	let { outcome } = top;
+        group.delete(task);
+        let { outcome } = top;
         if (outcome!.exists) {
           let result = outcome!.value;
           if (result.ok) {
             future.resolve(result.value);
           } else {
-	    let { error } = result;
+            let { error } = result;
             future.reject(error);
-	    boundary.raise(error)
+            boundary.raise(error);
           }
         } else {
           future.reject(new Error("halted"));
-        }	
+        }
       }
     },
   });
@@ -107,10 +112,6 @@ export function* trap<T>(operation: () => Operation<T>): Operation<T> {
   } else {
     throw new Error("TODO: propagate halt");
   }
-}
-
-export function* encapsulate<T>(operation: () => Operation<T>): Operation<T> {
-  return yield* operation();
 }
 
 // export function createTask<T>(options: TaskOptions<T>): NewTask<T> {

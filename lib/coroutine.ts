@@ -1,5 +1,5 @@
-import { BoundaryContext } from "./boundary.ts";
 import { Generation } from "./contexts.ts";
+import { DelimiterContext } from "./delimiter.ts";
 import { ReducerContext } from "./reducer.ts";
 import { Ok } from "./result.ts";
 import type { Coroutine, Operation, Scope } from "./types.ts";
@@ -31,32 +31,24 @@ export function createCoroutine<T>(
     next(result) {
       routine.data.exit((exitResult) => {
         routine.data.exit = (didExit) => didExit(Ok());
-        const boundary = routine.scope.expect(BoundaryContext);
         reducer.reduce([
           scope.expect(Generation),
           routine,
           exitResult.ok ? result : exitResult,
-          () => {},
+          scope.expect(DelimiterContext).validator,
           "next",
-          routine.runLevel,
-          boundary,
-          boundary.runLevel,
         ]);
       });
     },
     return(result) {
       routine.data.exit((exitResult) => {
         routine.data.exit = (didExit) => didExit(Ok());
-        const boundary = routine.scope.expect(BoundaryContext);
         reducer.reduce([
           scope.expect(Generation),
           routine,
           exitResult.ok ? result : exitResult,
-          () => {},
+          scope.expect(DelimiterContext).validator,
           "return",
-          routine.runLevel,
-          boundary,
-          boundary.runLevel,
         ]);
       });
     },

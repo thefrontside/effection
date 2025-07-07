@@ -9,6 +9,7 @@ import { withResolvers } from "./with-resolvers.ts";
 export class Delimiter<T>
   implements Operation<Maybe<Result<T>>>, ErrorBoundary {
   level = 0;
+  finalized = false;
   future = withResolvers<Maybe<Result<T>>>();
   computed = false;
   routine?: Coroutine;
@@ -37,12 +38,18 @@ export class Delimiter<T>
 
   private exit(outcome: Maybe<Result<T>>): void {
     this.outcome = outcome;
+    this.level++;
     if (!this.routine) {
+      this.finalized = true;
       this.future.resolve(outcome);
     } else {
-      this.level++;
       this.routine.return(Ok(outcome));
     }
+  }
+
+  get validator(): () => boolean {
+    let { level } = this;
+    return () => !this.finalized && this.level === level;
   }
 
   [Symbol.iterator] = function* delimiter(this: Delimiter<T>) {
@@ -58,11 +65,16 @@ export class Delimiter<T>
       this.outcome = Just(Err(error as Error));
     } finally {
       this.outcome = this.outcome ?? Nothing();
+      this.finalized = true;
       this.future.resolve(this.outcome);
       return this.outcome;
     }
   };
 }
+
+export const DelimiterContext = createContext<Delimiter<unknown>>(
+  "@effection/delimiter",
+);
 
 export interface ErrorBoundary {
   raise(error: Error): void;

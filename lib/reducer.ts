@@ -1,5 +1,6 @@
 import { type Boundary, BoundaryContext } from "./boundary.ts";
 import { createContext } from "./context.ts";
+import { DelimiterContext } from "./delimiter.ts";
 import { PriorityQueue } from "./priority-queue.ts";
 import { Err, type Result } from "./result.ts";
 import type { Coroutine } from "./types.ts";
@@ -63,11 +64,8 @@ type Instruction = [
   number,
   Coroutine<unknown>,
   Result<unknown>,
-  () => void,
+  () => boolean,
   "return" | "next",
-  number,
-  Boundary<unknown>,
-  number,
 ];
 
 class InstructionQueue extends PriorityQueue<Instruction> {
@@ -80,14 +78,9 @@ class InstructionQueue extends PriorityQueue<Instruction> {
       let top = this.pop();
       if (!top) {
         return undefined;
-      } else if (top[5] < top[1].runLevel) {
-        continue;
       } else {
-        let coroutine = top[1];
-        let boundary = top[6];
-        let level = top[7];
-        let current = coroutine.scope.expect(BoundaryContext);
-        if (current !== boundary || current.runLevel !== level) {
+	let validate = top[3];
+        if (!validate()) {
           continue;
         }
         return top;

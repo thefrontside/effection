@@ -1,9 +1,8 @@
-import { ErrorContext } from "./delimiter.ts";
+import { DelimiterContext, ErrorContext } from "./delimiter.ts";
 import { createCoroutine } from "./coroutine.ts";
 import { Delimiter } from "./delimiter.ts";
 import { createFuture } from "./future.ts";
-import { Nothing } from "./maybe.ts";
-import { Ok, type Result, unbox } from "./result.ts";
+import { Ok, unbox } from "./result.ts";
 import { createScopeInternal, type ScopeInternal } from "./scope-internal.ts";
 import type { Coroutine, Operation, Scope, Task } from "./types.ts";
 import { encapsulate, TaskGroupContext } from "./task-group.ts";
@@ -26,8 +25,12 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
   let future = createFuture<T>();
 
   let top = new Delimiter<T>(() => encapsulate(operation));
+  scope.set(DelimiterContext, top as Delimiter<unknown>);
 
-  let halt = () => top.close();
+  let halt = function* halt() {
+    yield* top.close();
+    future.reject(new Error("halted"));
+  }
 
   let task = Object.defineProperties(future.future, {
     halt: {
@@ -74,12 +77,12 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
   scope.set(ErrorContext, top);
 
   let group = scope.expect(TaskGroupContext);
+  group.add(task);
 
   let routine = createCoroutine({
     scope,
     *operation() {
       try {
-        group.add(task);
         yield* top;
       } finally {
         group.delete(task);

@@ -1,6 +1,4 @@
-import { type Boundary, BoundaryContext } from "./boundary.ts";
 import { createContext } from "./context.ts";
-import { DelimiterContext } from "./delimiter.ts";
 import { PriorityQueue } from "./priority-queue.ts";
 import { Err, type Result } from "./result.ts";
 import type { Coroutine } from "./types.ts";
@@ -79,7 +77,7 @@ class InstructionQueue extends PriorityQueue<Instruction> {
       if (!top) {
         return undefined;
       } else {
-	let validate = top[3];
+        let validate = top[3];
         if (!validate()) {
           continue;
         }

@@ -1,11 +1,13 @@
+// deno-lint-ignore-file no-unsafe-finally
 import { DelimiterContext, ErrorContext } from "./delimiter.ts";
 import { createCoroutine } from "./coroutine.ts";
 import { Delimiter } from "./delimiter.ts";
 import { createFuture } from "./future.ts";
-import { Ok, unbox } from "./result.ts";
+import { Ok } from "./result.ts";
 import { createScopeInternal, type ScopeInternal } from "./scope-internal.ts";
 import type { Coroutine, Operation, Scope, Task } from "./types.ts";
 import { encapsulate, TaskGroupContext } from "./task-group.ts";
+import { useScope } from "./scope.ts";
 
 export interface TaskOptions<T> {
   owner: ScopeInternal;
@@ -30,7 +32,7 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
   let halt = function* halt() {
     yield* top.close();
     future.reject(new Error("halted"));
-  }
+  };
 
   scope.ensure(halt);
 
@@ -111,11 +113,46 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
 }
 
 export function* trap<T>(operation: () => Operation<T>): Operation<T> {
-  let outcome = yield* new Delimiter(operation);
-  if (outcome.exists) {
-    return unbox(outcome.value);
-  } else {
-    throw new Error("TODO: propagate halt");
+  let scope = yield* useScope();
+
+  let original = {
+    error: scope.expect(ErrorContext),
+    delimiter: scope.expect(DelimiterContext),
+  };
+
+  let delimiter = new Delimiter(operation, original.delimiter);
+
+  scope.set(ErrorContext, delimiter);
+  scope.set(DelimiterContext, delimiter as Delimiter<unknown>);
+  try {
+    yield* delimiter;
+  } finally {
+    scope.set(ErrorContext, original.error);
+    scope.set(DelimiterContext, original.delimiter);
+    let outcome = delimiter.outcome!;
+    return (yield {
+      description: "trap return",
+      enter(resolve) {
+        if (outcome.exists) {
+          resolve(outcome.value);
+        } else {
+          original.delimiter.interrupt();
+        }
+        return (didExit) => didExit(Ok());
+      },
+    }) as T;
+
+    // console.log("</trap>", outcome);
+    // if (outcome.exists) {
+    //   let result = outcome.value;
+    //   if (result.ok) {
+    //     return result.value;
+    //   } else {
+    //     throw result.error;
+    //   }
+    // } else {
+    //   throw new TypeError(`TODO: propagate halt`);
+    // }
   }
 }
 

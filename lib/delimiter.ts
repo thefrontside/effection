@@ -17,10 +17,20 @@ export class Delimiter<T>
 
   constructor(
     public readonly operation: () => Operation<T>,
+    public readonly parent?: Delimiter<unknown>,
   ) {}
 
   raise(error: Error): void {
-    this.exit(Just(Err(error)));
+    let failure = Just(Err<T>(error));
+    if (this.finalized) {
+      this.parent?.exit(failure);
+    } else {
+      this.exit(failure);
+    }
+  }
+
+  interrupt(): void {
+    this.exit(Nothing());
   }
 
   *close(): Operation<void> {
@@ -32,11 +42,14 @@ export class Delimiter<T>
         throw outcome.value.error;
       }
     };
-    this.exit(Nothing());
+    this.interrupt();
     yield* this.close();
   }
 
   private exit(outcome: Maybe<Result<T>>): void {
+    if (this.finalized) {
+      return;
+    }
     this.outcome = outcome;
     this.level++;
     if (!this.routine) {
@@ -54,6 +67,7 @@ export class Delimiter<T>
 
   [Symbol.iterator] = function* delimiter(this: Delimiter<T>) {
     this.routine = yield* useCoroutine();
+
     try {
       let value = yield* this.operation();
       if (this.level === 0) {
@@ -64,8 +78,8 @@ export class Delimiter<T>
       this.computed = true;
       this.outcome = Just(Err(error as Error));
     } finally {
-      this.outcome = this.outcome ?? Nothing();
       this.finalized = true;
+      this.outcome = this.outcome ?? Nothing();
       this.future.resolve(this.outcome);
       return this.outcome;
     }

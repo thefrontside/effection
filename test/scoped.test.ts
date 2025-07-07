@@ -124,6 +124,7 @@ describe("scoped", () => {
               });
               yield* provide();
             });
+
             yield* suspend();
           });
         } catch (error) {

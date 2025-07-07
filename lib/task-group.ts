@@ -36,11 +36,11 @@ export const TaskGroupContext = createContext<TaskGroup>(
 );
 
 export function encapsulate<T>(operation: () => Operation<T>): Operation<T> {
-  return TaskGroupContext.with(new TaskGroup(), function*(group) {
+  return TaskGroupContext.with(new TaskGroup(), function* (group) {
     try {
       return yield* operation();
     } finally {
       yield* group.halt();
     }
-  })
+  });
 }

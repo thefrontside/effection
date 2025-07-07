@@ -35,7 +35,7 @@ describe("resource", () => {
   });
 
   it("can catch an error in init", async () => {
-    let task = run(function* () {
+    let result = await run(function* () {
       try {
         yield* resource(function* () {
           throw new Error("moo");
@@ -45,7 +45,7 @@ describe("resource", () => {
       }
     });
 
-    await expect(task).resolves.toMatchObject({ message: "moo" });
+    expect(result).toMatchObject({ message: "moo" });
   });
 
   it("raises an error if an error occurs after init", async () => {

@@ -32,6 +32,8 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
     future.reject(new Error("halted"));
   }
 
+  scope.ensure(halt);
+
   let task = Object.defineProperties(future.future, {
     halt: {
       enumerable: false,

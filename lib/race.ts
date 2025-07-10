@@ -4,9 +4,6 @@ import type { Operation, Task, Yielded } from "./types.ts";
 import { withResolvers } from "./with-resolvers.ts";
 import { Err, Ok, type Result } from "./result.ts";
 
-//import { useScope } from "./scope.ts";
-//import { transfer } from "./scope.ts";
-
 /**
  * Race the given operations against each other and return the value of
  * whichever operation returns first. This has the same purpose as
@@ -34,7 +31,6 @@ import { Err, Ok, type Result } from "./result.ts";
 export function* race<T extends Operation<unknown>>(
   operations: readonly T[],
 ): Operation<Yielded<T>> {
-  //  let caller = yield* useScope();
   let winner = withResolvers<Result<Yielded<T>>>("await winner");
 
   let tasks: Task<unknown>[] = [];
@@ -44,11 +40,8 @@ export function* race<T extends Operation<unknown>>(
     for (let operation of operations.slice()) {
       tasks.push(
         yield* spawn(function* candidate() {
-          //          let contestant = yield* useScope();
           try {
             let value = yield* operation;
-            // Transfer the winner to the contestant
-            //        transfer({ from: contestant, to: caller });
             winner.resolve(Ok(value as Yielded<T>));
           } catch (error) {
             winner.resolve(Err(error as Error));

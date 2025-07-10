@@ -2,6 +2,7 @@ import { Children, Generation } from "./contexts.ts";
 import { Err, Ok, unbox } from "./result.ts";
 import { createTask } from "./task.ts";
 import type { Context, Operation, Scope, Task } from "./types.ts";
+import { type WithResolvers, withResolvers } from "./with-resolvers.ts";
 
 export function createScopeInternal(
   parent?: Scope,
@@ -62,18 +63,33 @@ export function createScopeInternal(
 
   let unbind = parent ? (parent as ScopeInternal).ensure(destroy) : () => {};
 
+  let destruction: WithResolvers<void> | undefined = undefined;
+
   function* destroy(): Operation<void> {
+    if (destruction) {
+      return yield* destruction.operation;
+    }
+    destruction = withResolvers<void>();
     parent?.expect(Children).delete(scope);
     unbind();
     let outcome = Ok();
-    for (let destructor of [...destructors].reverse()) {
-      try {
-        destructors.delete(destructor);
-        yield* destructor();
-      } catch (error) {
-        outcome = Err(error as Error);
+    try {
+      for (let destructor of [...destructors].reverse()) {
+        try {
+          destructors.delete(destructor);
+          yield* destructor();
+        } catch (error) {
+          outcome = Err(error as Error);
+        }
+      }
+    } finally {
+      if (outcome.ok) {
+        destruction.resolve();
+      } else {
+        destruction.reject(outcome.error);
       }
     }
+
     unbox(outcome);
   }
 

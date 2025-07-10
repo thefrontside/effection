@@ -38,19 +38,34 @@ describe("Scope", () => {
     await expect(close()).resolves.toBeUndefined();
   });
 
+  it("halts tasks that it contains when it is destroyed", async () => {
+    let [scope, destroy] = createScope();
+    let halted = false;
+    scope.run(function* () {
+      try {
+        yield* suspend();
+      } finally {
+        halted = true;
+      }
+    });
+
+    await expect(destroy()).resolves.toBeUndefined();
+    expect(halted).toEqual(true);
+  });
+
   it("errors on close if there is an problem in teardown", async () => {
     let error = new Error("boom!");
     let [scope, close] = createScope();
-    run(() =>
-      scope.spawn(function* () {
-        try {
-          yield* suspend();
-        } finally {
-          // deno-lint-ignore no-unsafe-finally
-          throw error;
-        }
-      })
-    );
+
+    scope.run(function* () {
+      try {
+        yield* suspend();
+      } finally {
+        // deno-lint-ignore no-unsafe-finally
+        throw error;
+      }
+    });
+
     await expect(close()).rejects.toEqual(error);
   });
 
@@ -59,18 +74,15 @@ describe("Scope", () => {
     let [scope, close] = createScope();
     let tester: Tester = {};
 
-    run(() =>
-      scope.spawn(function* () {
-        yield* useTester(tester);
-        yield* suspend();
-      })
-    );
+    scope.run(function* () {
+      yield* useTester(tester);
+      yield* suspend();
+    });
 
-    run(() =>
-      scope.spawn(function* () {
-        throw error;
-      })
-    );
+    scope.run(function* () {
+      throw error;
+    });
+
     await expect(close()).resolves.toBeUndefined();
     expect(tester.status).toEqual("closed");
   });

@@ -10,7 +10,9 @@ import {
   syncResolve,
 } from "./suite.ts";
 
-import { all, call, type Operation, run, sleep } from "../mod.ts";
+import { all, call, type Operation, run, sleep, suspend } from "../mod.ts";
+import { box } from "../lib/box.ts";
+import assert from "node:assert";
 
 describe("all()", () => {
   it("resolves when the given list is empty", async () => {
@@ -47,7 +49,7 @@ describe("all()", () => {
   it("rejects when one of the given operations rejects asynchronously and another operation does not complete", async () => {
     let result = run(() => all([sleep(0), asyncReject(5, "bar")]));
 
-    await expect(result).rejects.toHaveProperty("message", "boom: bar");
+    await expect(result).rejects.toMatchObject({ message: "boom: bar" });
   });
 
   it("resolves when all of the given operations resolve synchronously", async () => {
@@ -103,5 +105,26 @@ describe("all()", () => {
     expectType<Operation<[string, number]>>(
       all([resolve("hello"), resolve(42)]),
     );
+  });
+
+  it("shuts down all tasks when anything fails", async () => {
+    let teardown = false;
+    await run(function* () {
+      let result = yield* box(() =>
+        all([
+          asyncReject(0, "foo"),
+          call(function* () {
+            try {
+              yield* suspend();
+            } finally {
+              teardown = true;
+            }
+          }),
+        ])
+      );
+
+      assert(!result.ok, "all should fail");
+      expect(teardown).toEqual(true);
+    });
   });
 });

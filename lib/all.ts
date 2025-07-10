@@ -1,6 +1,6 @@
 import type { Operation, Task, Yielded } from "./types.ts";
 import { spawn } from "./spawn.ts";
-import { encapsulate, trap } from "./task.ts";
+import { trap } from "./task.ts";
 
 /**
  * Block and wait for all of the given operations to complete. Returns
@@ -30,20 +30,26 @@ import { encapsulate, trap } from "./task.ts";
 export function* all<T extends readonly Operation<unknown>[] | []>(
   ops: T,
 ): Operation<All<T>> {
-  return yield* trap(() =>
-    encapsulate(function* (): Operation<All<T>> {
-      let tasks: Task<unknown>[] = [];
-
+  let tasks: Task<unknown>[] = [];
+  try {
+    return yield* trap(function* (): Operation<All<T>> {
       for (let operation of ops) {
-        tasks.push(yield* spawn(() => operation));
+        const member = () => operation;
+        tasks.push(yield* spawn(member));
       }
-      let results = [];
+      let results: unknown[] = [];
       for (let task of tasks) {
-        results.push(yield* task);
+        let result = yield* task;
+        results.push(result);
       }
       return results as All<T>;
-    })
-  );
+    });
+  } catch (error) {
+    for (let task of tasks) {
+      yield* task.halt();
+    }
+    throw error;
+  }
 }
 
 /**

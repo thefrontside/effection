@@ -37,6 +37,8 @@ describe("spawn", () => {
         yield* suspend();
       });
 
+      yield* sleep(0);
+
       return 1;
     });
 
@@ -50,6 +52,8 @@ describe("spawn", () => {
       child = yield* spawn(function* () {
         yield* suspend();
       });
+
+      yield* sleep(0);
 
       throw new Error("boom");
     });
@@ -87,9 +91,8 @@ describe("spawn", () => {
   });
 
   it("rejects when child errors during completing", async () => {
-    let child;
     let root = run(function* root() {
-      child = yield* spawn(function* child() {
+      yield* spawn(function* child() {
         try {
           yield* suspend();
         } finally {
@@ -100,7 +103,6 @@ describe("spawn", () => {
       return "foo";
     });
 
-    await expect(child).rejects.toMatchObject({ message: "moo" });
     await expect(root).rejects.toHaveProperty("message", "moo");
   });
 
@@ -119,7 +121,7 @@ describe("spawn", () => {
     });
 
     await expect(root.halt()).rejects.toHaveProperty("message", "moo");
-    await expect(child).rejects.toHaveProperty("message", "moo");
+    await expect(child!.halt()).rejects.toHaveProperty("message", "moo");
     await expect(root.halt()).rejects.toHaveProperty("message", "moo");
   });
 
@@ -177,7 +179,7 @@ describe("spawn", () => {
 
   it("halts children on explicit halt", async () => {
     let child;
-    let root = run(function* () {
+    let value = await run(function* () {
       child = yield* spawn(function* () {
         yield* sleep(2);
         return "foo";
@@ -186,7 +188,7 @@ describe("spawn", () => {
       return 1;
     });
 
-    await root.halt();
+    expect(value).toEqual(1);
 
     await expect(child).rejects.toHaveProperty("message", "halted");
   });

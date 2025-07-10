@@ -1,17 +1,18 @@
 import { createContext } from "./context.ts";
-import { Err, Ok, type Result } from "./result.ts";
-import type { Coroutine, Subscriber } from "./types.ts";
+import { PriorityQueue } from "./priority-queue.ts";
+import { Err, type Result } from "./result.ts";
+import type { Coroutine } from "./types.ts";
 
 export class Reducer {
   reducing = false;
-  readonly queue = createPriorityQueue();
+  readonly queue = new InstructionQueue();
 
   reduce = (
-    thunk: Thunk,
+    instruction: Instruction,
   ) => {
     let { queue } = this;
 
-    queue.enqueue(thunk);
+    queue.enqueue(instruction);
 
     if (this.reducing) return;
 
@@ -20,43 +21,34 @@ export class Reducer {
 
       let item = queue.dequeue();
       while (item) {
-        let [, routine, result, notify, method = "next" as const] = item;
+        let [, routine, result, _, method = "next" as const] = item;
         try {
-          notify({ done: false, value: result });
           const iterator = routine.data.iterator;
           if (result.ok) {
             if (method === "next") {
               let next = iterator.next(result.value);
-              if (next.done) {
-                notify({ done: true, value: Ok(next.value) });
-              } else {
+              if (!next.done) {
                 let action = next.value;
-                routine.data.discard = action.enter(routine.next, routine);
+                routine.data.exit = action.enter(routine.next, routine);
               }
             } else if (iterator.return) {
               let next = iterator.return(result.value);
-              if (next.done) {
-                notify({ done: true, value: Ok(result) });
-              } else {
+              if (!next.done) {
                 let action = next.value;
-                routine.data.discard = action.enter(routine.next, routine);
+                routine.data.exit = action.enter(routine.next, routine);
               }
-            } else {
-              notify({ done: true, value: result });
             }
           } else if (iterator.throw) {
             let next = iterator.throw(result.error);
-            if (next.done) {
-              notify({ done: true, value: Ok(next.value) });
-            } else {
+            if (!next.done) {
               let action = next.value;
-              routine.data.discard = action.enter(routine.next, routine);
+              routine.data.exit = action.enter(routine.next, routine);
             }
           } else {
             throw result.error;
           }
         } catch (error) {
-          notify({ done: true, value: Err(error as Error) });
+          routine.next(Err(error as Error));
         }
         item = queue.dequeue();
       }
@@ -66,37 +58,36 @@ export class Reducer {
   };
 }
 
+type Instruction = [
+  number,
+  Coroutine<unknown>,
+  Result<unknown>,
+  () => boolean,
+  "return" | "next",
+];
+
+class InstructionQueue extends PriorityQueue<Instruction> {
+  enqueue(instruction: Instruction): void {
+    let [priority] = instruction;
+    this.push(priority, instruction);
+  }
+  dequeue(): Instruction | undefined {
+    while (true) {
+      let top = this.pop();
+      if (!top) {
+        return undefined;
+      } else {
+        let validate = top[3];
+        if (!validate()) {
+          continue;
+        }
+        return top;
+      }
+    }
+  }
+}
+
 export const ReducerContext = createContext<Reducer>(
   "@effection/reducer",
   new Reducer(),
 );
-
-type Thunk = [
-  number,
-  Coroutine<unknown>,
-  Result<unknown>,
-  Subscriber<unknown>,
-  "return" | "next",
-];
-
-// This is a pretty hokey priority queue that uses an array for storage
-// so enqueue is O(n). However, `n` is generally small. revisit.
-function createPriorityQueue() {
-  let thunks: Thunk[] = [];
-
-  return {
-    enqueue(thunk: Thunk): void {
-      let [priority] = thunk;
-      let index = thunks.findIndex(([p]) => p >= priority);
-      if (index === -1) {
-        thunks.push(thunk);
-      } else {
-        thunks.splice(index, 0, thunk);
-      }
-    },
-
-    dequeue(): Thunk | undefined {
-      return thunks.shift();
-    },
-  };
-}

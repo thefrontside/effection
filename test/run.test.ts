@@ -1,4 +1,5 @@
 // deno-lint-ignore-file no-unsafe-finally
+
 import { blowUp, createNumber, describe, expect, it } from "./suite.ts";
 import {
   action,
@@ -160,21 +161,6 @@ describe("run()", () => {
 
     expect(completed).toEqual(true);
   });
-
-  // // it("cannot explicitly suspend in a finally block", async () => {
-  // //   let done = false;
-  // //   let task = run(function* () {
-  // //     try {
-  // //       yield* suspend();
-  // //     } finally {
-  // //       yield* suspend();
-  // //       done = true;
-  // //     }
-  // //   });
-
-  // //   await run(task.halt);
-  // //   expect(done).toEqual(true);
-  // // });
 
   it("can suspend in yielded finally block", async () => {
     let things: string[] = [];

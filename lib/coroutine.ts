@@ -1,7 +1,8 @@
 import { Generation } from "./contexts.ts";
+import { DelimiterContext } from "./delimiter.ts";
 import { ReducerContext } from "./reducer.ts";
 import { Ok } from "./result.ts";
-import type { Coroutine, Operation, Scope, Subscriber } from "./types.ts";
+import type { Coroutine, Operation, Scope } from "./types.ts";
 
 export interface CoroutineOptions<T> {
   scope: Scope;
@@ -11,25 +12,12 @@ export interface CoroutineOptions<T> {
 export function createCoroutine<T>(
   { operation, scope }: CoroutineOptions<T>,
 ): Coroutine<T> {
-  let subscribers = new Set<Subscriber<T>>();
-
-  let send: Subscriber<T> = (item) => {
-    try {
-      for (let subscriber of subscribers) {
-        subscriber(item);
-      }
-    } finally {
-      if (item.done) {
-        subscribers.clear();
-      }
-    }
-  };
-
   let reducer = scope.expect(ReducerContext);
 
   let iterator: Coroutine<T>["data"]["iterator"] | undefined = undefined;
 
   let routine = {
+    runLevel: 0,
     scope,
     data: {
       get iterator() {
@@ -38,42 +26,31 @@ export function createCoroutine<T>(
         }
         return iterator;
       },
-      discard: (resolve) => resolve(Ok()),
+      exit: (resolve) => resolve(Ok()),
     },
-    next(result, subscriber) {
-      if (subscriber) {
-        subscribers.add(subscriber);
-      }
-      routine.data.discard((exit) => {
-        routine.data.discard = (resolve) => resolve(Ok());
+    next(result) {
+      routine.data.exit((exitResult) => {
+        routine.data.exit = (didExit) => didExit(Ok());
         reducer.reduce([
           scope.expect(Generation),
           routine,
-          exit.ok ? result : exit,
-          send as Subscriber<unknown>,
+          exitResult.ok ? result : exitResult,
+          scope.expect(DelimiterContext).validator,
           "next",
         ]);
       });
-
-      return () => subscriber && subscribers.delete(subscriber);
     },
-    return(result, subscriber?: Subscriber<void>) {
-      if (subscriber) {
-        subscribers.add(subscriber as Subscriber<T>);
-      }
-      routine.data.discard((exit) => {
-        routine.data.discard = (resolve) => resolve(Ok());
+    return(result) {
+      routine.data.exit((exitResult) => {
+        routine.data.exit = (didExit) => didExit(Ok());
         reducer.reduce([
           scope.expect(Generation),
           routine,
-          exit.ok ? result : exit,
-          send as Subscriber<unknown>,
+          exitResult.ok ? result : exitResult,
+          scope.expect(DelimiterContext).validator,
           "return",
         ]);
       });
-
-      return () =>
-        subscriber && subscribers.delete(subscriber as Subscriber<T>);
     },
   } as Coroutine<T>;
 

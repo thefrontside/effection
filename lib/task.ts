@@ -1,13 +1,13 @@
-import { createContext } from "./context.ts";
-import { Routine } from "./contexts.ts";
+// deno-lint-ignore-file no-unsafe-finally
+import { DelimiterContext, ErrorContext } from "./delimiter.ts";
 import { createCoroutine } from "./coroutine.ts";
-import { drain } from "./drain.ts";
-import { lazyPromise, lazyPromiseWithResolvers } from "./lazy-promise.ts";
-import { Just, type Maybe, Nothing } from "./maybe.ts";
-import { Err, Ok, type Result, unbox } from "./result.ts";
+import { Delimiter } from "./delimiter.ts";
+import { createFuture } from "./future.ts";
+import { Ok } from "./result.ts";
 import { createScopeInternal, type ScopeInternal } from "./scope-internal.ts";
-import type { Coroutine, Operation, Resolve, Scope, Task } from "./types.ts";
-import { withResolvers } from "./with-resolvers.ts";
+import type { Coroutine, Operation, Scope, Task } from "./types.ts";
+import { encapsulate, TaskGroupContext } from "./task-group.ts";
+import { useScope } from "./scope.ts";
 
 export interface TaskOptions<T> {
   owner: ScopeInternal;
@@ -16,243 +16,130 @@ export interface TaskOptions<T> {
 
 export interface NewTask<T> {
   scope: Scope;
-  routine: Coroutine<Maybe<T>>;
+  routine: Coroutine;
   task: Task<T>;
   start(): void;
 }
 
 export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
   let { owner, operation } = options;
-  let [scope, destroy] = createScopeInternal(owner);
+  let [scope] = createScopeInternal(owner);
+  let future = createFuture<T>();
 
-  TaskGroup.ensureOwn(scope);
+  let top = new Delimiter<T>(() => encapsulate(operation));
+  scope.set(DelimiterContext, top as Delimiter<unknown>);
 
-  let routine = createCoroutine({
-    scope,
-    operation: () => trapset(() => after(operation, destroy)),
-  });
-
-  let promise = lazyPromiseWithResolvers<T>();
-  let future = withResolvers<T>();
-
-  let resolve = (value: T) => {
-    promise.resolve(value);
-    future.resolve(value);
+  let halt = function* halt() {
+    yield* top.close();
+    future.reject(new Error("halted"));
   };
 
-  let reject = (error: Error) => {
-    promise.reject(error);
-    future.reject(error);
-  };
+  scope.ensure(halt);
 
-  let initiateHalt = (resolve: Resolve<Result<void>>) => {
-    if (scope.hasOwn(TrapContext)) {
-      let trap = scope.expect(TrapContext);
-      let current = routine.data.discard;
-      routine.data.discard = (exit) =>
-        current((result) => {
-          if (!result.ok) {
-            trap.result = result;
-          }
-          exit(result);
+  let task = Object.defineProperties(future.future, {
+    halt: {
+      enumerable: false,
+      value() {
+        return Object.defineProperties(Object.create(Promise.prototype), {
+          [Symbol.iterator]: {
+            enumerable: false,
+            value: halt,
+          },
+          then: {
+            enumerable: false,
+            value(...args: Parameters<Promise<void>["then"]>) {
+              return owner.run(halt).then(...args);
+            },
+          },
+          catch: {
+            enumerable: false,
+            value(...args: Parameters<Promise<void>["catch"]>) {
+              return owner.run(halt).catch(...args);
+            },
+          },
+          finally: {
+            enumerable: false,
+            value(...args: Parameters<Promise<void>["finally"]>) {
+              return owner.run(halt).finally(...args);
+            },
+          },
         });
-      return routine.return(
-        trap.result = Ok(Nothing()),
-        drain((result) => resolve(result.ok ? Ok() : result)),
-      );
-    } else {
-      return routine.return(
-        Ok(Nothing()),
-        drain((result) => resolve(result.ok ? Ok() : result)),
-      );
-    }
-  };
-
-  let halt = lazyPromise<void>((resolve, reject) => {
-    initiateHalt((result) => result.ok ? resolve() : reject(result.error));
-  });
-
-  Object.defineProperty(halt, Symbol.iterator, {
-    enumerable: false,
-    *value(): Operation<void> {
-      yield ({
-        description: "halt",
-        enter: (resolve) => {
-          let unsubscribe = initiateHalt(resolve);
-
-          return (done) => {
-            unsubscribe();
-            done(Ok());
-          };
-        },
-      });
+      },
     },
-  });
-
-  let task = Object.defineProperties(promise.promise, {
+    [Symbol.iterator]: {
+      enumerable: false,
+      value: future.future[Symbol.iterator],
+    },
     [Symbol.toStringTag]: {
       enumerable: false,
       value: "Task",
     },
-    [Symbol.iterator]: {
-      enumerable: false,
-      value: future.operation[Symbol.iterator],
-    },
-    halt: {
-      enumerable: false,
-      value: () => halt,
-    },
   }) as Task<T>;
 
-  let group = TaskGroup.ensureOwn(owner);
+  let boundary = owner.expect(ErrorContext);
 
-  let link = group.link(owner, task);
+  scope.set(ErrorContext, top);
 
-  scope.set(Routine, routine);
+  let group = scope.expect(TaskGroupContext);
+  group.add(task);
 
-  let start = () =>
-    routine.next(
-      Ok(),
-      drain((result) => {
-        link.close(result);
-        if (result.ok) {
-          if (result.value.exists) {
-            resolve(result.value.value);
+  let routine = createCoroutine({
+    scope,
+    *operation() {
+      try {
+        yield* top;
+      } finally {
+        group.delete(task);
+        let { outcome } = top;
+        if (outcome!.exists) {
+          let result = outcome!.value;
+          if (result.ok) {
+            future.resolve(result.value);
           } else {
-            reject(new Error("halted"));
+            let { error } = result;
+            future.reject(error);
+            boundary.raise(error);
           }
         } else {
-          reject(result.error);
+          future.reject(new Error("halted"));
         }
-      }),
-    );
-
-  return { task, scope, routine, start };
-}
-
-export const TaskGroupContext = createContext<TaskGroup>("@effection/tasks");
-
-export function encapsulate<T>(operation: () => Operation<T>): Operation<T> {
-  return TaskGroupContext.with(new TaskGroup(), function* (group) {
-    try {
-      return yield* operation();
-    } finally {
-      yield* group.halt();
-    }
+      }
+    },
   });
+
+  let start = () => routine.next(Ok());
+
+  return { scope, routine, task, start };
 }
 
-class TaskGroup {
-  static ensureOwn(scope: ScopeInternal): TaskGroup {
-    if (!scope.hasOwn(TaskGroupContext)) {
-      let group = scope.set(TaskGroupContext, new TaskGroup());
-      scope.ensure(() => group.halt());
-    }
-    return scope.expect(TaskGroupContext);
-  }
+export function* trap<T>(operation: () => Operation<T>): Operation<T> {
+  let scope = yield* useScope();
 
-  links = new Set<TaskLink<unknown>>();
+  let original = {
+    error: scope.expect(ErrorContext),
+    delimiter: scope.expect(DelimiterContext),
+  };
 
-  link<T>(owner: Scope, task: Task<T>) {
-    return new TaskLink(owner, task, this.links);
-  }
+  let delimiter = new Delimiter(operation, original.delimiter);
 
-  *halt() {
-    let links = [...this.links].reverse();
-    links.forEach((link) => link.sever());
-    let outcome = Ok();
-    for (let link of links) {
-      let result = yield* box(link.task.halt);
-      if (!result.ok) {
-        outcome = result;
-      }
-    }
-    return unbox(outcome);
-  }
-}
-
-class TaskLink<T> {
-  constructor(
-    public owner: Scope,
-    public task: Task<T>,
-    public links: Set<TaskLink<unknown>>,
-  ) {
-    this.links.add(this);
-  }
-
-  close(result: Result<Maybe<T>>) {
-    this.links.delete(this);
-    if (!result.ok) {
-      let trap = this.owner.get(TrapContext);
-      if (trap) {
-        trap.result = result;
-        this.owner.get(Routine)?.return(trap.result);
-      }
-    }
-  }
-
-  sever() {
-    this.links.delete(this);
-    this.close = () => {};
-  }
-}
-
-function* box<T>(op: () => Operation<T>): Operation<Result<T>> {
+  scope.set(ErrorContext, delimiter);
+  scope.set(DelimiterContext, delimiter as Delimiter<unknown>);
   try {
-    return Ok(yield* op());
-  } catch (error) {
-    return Err(error as Error);
-  }
-}
-
-const TrapContext = createContext<{ result: Result<Maybe<unknown>> }>(
-  "@effection/trap",
-);
-
-function trapset<T>(op: () => Operation<T>): Operation<Maybe<T>> {
-  let result = Ok(Nothing<T>());
-  return TrapContext.with({ result }, function* (trap) {
-    try {
-      let value = yield* op();
-      if (trap.result === result) {
-        trap.result = Ok(Just(value));
-      }
-    } catch (error) {
-      trap.result = Err(error as Error);
-    } finally {
-      // deno-lint-ignore no-unsafe-finally
-      return unbox(trap.result) as Maybe<T>;
-    }
-  });
-}
-
-export function* trap<T>(op: () => Operation<T>): Operation<T> {
-  let outcome = yield* trapset(op);
-  if (outcome.exists) {
-    return outcome.value;
-  } else {
+    yield* delimiter;
+  } finally {
+    scope.set(ErrorContext, original.error);
+    scope.set(DelimiterContext, original.delimiter);
+    let outcome = delimiter.outcome!;
     return (yield {
-      description: "propagate halt",
-      enter: (resolve, routine) => {
-        let trap = routine.scope.expect(TrapContext);
-        trap.result = Ok(Nothing());
-        routine.return(trap.result);
-        resolve(Ok());
-        return (resolve) => {
-          resolve(Ok());
-        };
+      description: "trap return",
+      enter(resolve) {
+        if (outcome.exists) {
+          resolve(outcome.value);
+        } else {
+          original.delimiter.interrupt();
+        }
+        return (didExit) => didExit(Ok());
       },
     }) as T;
-  }
-}
-
-function* after<T>(
-  op: () => Operation<T>,
-  epilogue: () => Operation<void>,
-): Operation<T> {
-  try {
-    return yield* op();
-  } finally {
-    yield* epilogue();
   }
 }

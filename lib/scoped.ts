@@ -27,7 +27,7 @@ import { createScopeInternal } from "./scope-internal.ts";
  */
 export function scoped<T>(operation: () => Operation<T>): Operation<T> {
   return {
-    *[Symbol.iterator]() {
+    [Symbol.iterator]: function* scoped() {
       let routine = yield* useCoroutine();
       let original = routine.scope;
       let [scope, destroy] = createScopeInternal(original);

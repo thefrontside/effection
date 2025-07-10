@@ -57,8 +57,8 @@ describe("scoped", () => {
         }
       }));
 
-    it("delimits error boundaries", () =>
-      run(function* () {
+    it("delimits error boundaries", async () =>
+      await run(function* () {
         try {
           yield* scoped(function* () {
             yield* spawn(function* () {
@@ -124,6 +124,7 @@ describe("scoped", () => {
               });
               yield* provide();
             });
+
             yield* suspend();
           });
         } catch (error) {
@@ -154,5 +155,26 @@ describe("scoped", () => {
           expect(yield* context.get()).toEqual("hi");
         }
       }));
+  });
+
+  it.skip("throws errors at the correct point when there are multiple nested scopes", async () => {
+    let task = run(function* () {
+      return yield* scoped(function* () {
+        yield* spawn(function* () {
+          yield* sleep(1);
+          throw new Error("boom!");
+        });
+
+        try {
+          return yield* scoped(function* () {
+            yield* suspend();
+          });
+        } catch (error) {
+          return error;
+        }
+      });
+    });
+
+    await expect(task).rejects.toMatchObject({ message: "boom!" });
   });
 });

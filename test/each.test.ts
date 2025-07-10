@@ -1,7 +1,7 @@
 import { describe, expect, it } from "./suite.ts";
 import {
-  createQueue,
   each,
+  type Operation,
   resource,
   run,
   spawn,
@@ -32,18 +32,14 @@ describe("each", () => {
       let outer = sequence("one", "two");
       let inner = sequence("three", "four", "five");
 
-      let consumer = yield* spawn(function* () {
-        for (let value of yield* each(outer)) {
+      for (let value of yield* each(outer)) {
+        actual.push(value);
+        for (let value of yield* each(inner)) {
           actual.push(value);
-          for (let value of yield* each(inner)) {
-            actual.push(value);
-            yield* each.next();
-          }
           yield* each.next();
         }
-      });
-
-      yield* consumer;
+        yield* each.next();
+      }
 
       expect(actual).toEqual([
         "one",
@@ -113,12 +109,19 @@ describe("each", () => {
 });
 
 function sequence(...values: string[]): Stream<string, void> {
-  return resource(function* (provide) {
-    let q = createQueue<string, void>();
-    for (let value of values) {
-      q.add(value);
-    }
-    q.close();
-    yield* provide(q);
-  });
+  return {
+    *[Symbol.iterator]() {
+      let items = values.slice();
+      return {
+        *next(): Operation<IteratorResult<string, void>> {
+          let value = items.shift();
+          if (typeof value !== "undefined") {
+            return { done: false, value };
+          } else {
+            return { done: true, value: undefined };
+          }
+        },
+      };
+    },
+  };
 }

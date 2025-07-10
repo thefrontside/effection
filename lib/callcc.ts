@@ -3,7 +3,7 @@ import { Err, Ok, type Result, unbox } from "./result.ts";
 import type { Operation } from "./types.ts";
 import { withResolvers } from "./with-resolvers.ts";
 import { spawn } from "./spawn.ts";
-import { encapsulate } from "./task.ts";
+import { encapsulate } from "./task-group.ts";
 
 export function* callcc<T>(
   op: (

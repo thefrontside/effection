@@ -1,6 +1,6 @@
 import { describe, expect, it } from "./suite.ts";
 
-import { ensure, run, sleep } from "../mod.ts";
+import { ensure, run, sleep, spawn } from "../mod.ts";
 
 describe("ensure", () => {
   it("runs the given operation at the end of the task", async () => {
@@ -37,5 +37,19 @@ describe("ensure", () => {
     expect(state).toEqual("pending");
     await root;
     expect(state).toEqual("completed");
+  });
+
+  it("can block a task conmpleting until a subtask completes", async () => {
+    let reached = false;
+
+    await run(function* () {
+      let task = yield* spawn(function* () {
+        yield* sleep(0);
+        reached = true;
+      });
+      yield* ensure(() => task);
+    });
+
+    expect(reached).toEqual(true);
   });
 });

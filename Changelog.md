@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.5.1
+
+- 🐛 Fix Webpack compatibility through a specific comment to ignore the dynamic
+  `node:process` import https://github.com/thefrontside/effection/pull/1007
+
 ## 3.5.0
 
 - 🚛 Backport createScope(parent) to v3

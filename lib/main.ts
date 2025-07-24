@@ -96,8 +96,10 @@ export async function main(
             }
           },
           *node() {
+            // Annotate dynamic import so that webpack ignores it.
+            // See https://webpack.js.org/api/module-methods/#webpackignore
             let { default: process } = yield* call(() =>
-              import("node:process")
+              import(/* webpackIgnore: true */ "node:process")
             );
             hardexit = (status) => process.exit(status);
             try {

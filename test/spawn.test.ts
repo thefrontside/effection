@@ -207,4 +207,23 @@ describe("spawn", () => {
     });
     await expect(task).rejects.toHaveProperty("message", "moo");
   });
+
+  it("executes tasks first in first out within a priority group", async () => {
+    let order: string[] = [];
+    await run(function* () {
+      yield* spawn(function* () {
+        order.push("one");
+      });
+
+      yield* spawn(function* () {
+        order.push("two");
+      });
+
+      order.push("zero");
+
+      yield* sleep(0);
+    });
+
+    expect(order).toEqual(["zero", "one", "two"]);
+  });
 });

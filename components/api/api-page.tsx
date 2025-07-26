@@ -42,12 +42,10 @@ export function* ApiPage({
 
     if (target) {
       return `[${
-        [symbol, connector, method].join("")
-      }](${yield* externalLinkResolver(
-        symbol,
-        connector,
-        method,
-      )})`;
+        [symbol, connector, method].join(
+          "",
+        )
+      }](${yield* externalLinkResolver(symbol, connector, method)})`;
     } else {
       return symbol;
     }
@@ -134,7 +132,7 @@ export function* ApiReference({
 
   return (
     <section class="min-h-0 mx-auto w-full justify-items-normal md:grid md:grid-cols-[225px_auto] lg:grid-cols-[225px_auto_200px] md:gap-4">
-      <aside class="min-h-0 overflow-auto hidden md:block top-[120px] sticky h-fit">
+      <aside class="min-h-0 overflow-auto hidden md:block top-[120px] sticky h-fit bg-white dark:bg-gray-900 dark:text-gray-200">
         <nav class="pl-4">
           <h3 class="text-xl flex flex-col mb-3">
             <span class="font-bold">API Reference</span>

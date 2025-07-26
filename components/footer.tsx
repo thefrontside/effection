@@ -2,44 +2,53 @@ import { IconExternal } from "./icons/external.tsx";
 
 export function Footer(): JSX.Element {
   return (
-    <footer class="grid grid-cols-3 text-center text-gray-500 tracking-wide bg-gray-100 py-8 gap-y-4 leading-8 justify-self-end">
+    <footer class="grid grid-cols-3 text-center text-gray-500 tracking-wide bg-gray-100 dark:bg-gray-900 dark:text-gray-400 py-8 gap-y-4 leading-8 justify-self-end">
       <section class="flex flex-col gap-y-1">
-        <h1 class="text-sm uppercase font-bold text-blue-primary mb-4">
+        <h1 class="text-sm uppercase font-bold text-blue-primary dark:text-blue-secondary mb-4">
           About
         </h1>
-        <a class="text-gray-800" href="https://frontside.com">
+        <a
+          class="text-gray-800 dark:text-gray-200"
+          href="https://frontside.com"
+        >
           Maintained by Frontside <IconExternal />
         </a>
         <a
-          class="text-gray-800"
+          class="text-gray-800 dark:text-gray-200"
           href="https://frontside.com/blog/2023-12-18-announcing-effection-v3/"
         >
           Effection v3 Release Post <IconExternal />
         </a>
       </section>
       <section class="flex flex-col gap-y-1">
-        <h1 class="text-sm uppercase font-bold text-blue-primary mb-4">
+        <h1 class="text-sm uppercase font-bold text-blue-primary dark:text-blue-secondary mb-4">
           OSS Projects
         </h1>
-        <a href="https://frontside.com/interactors" class="text-gray-800">
+        <a
+          href="https://frontside.com/interactors"
+          class="text-gray-800 dark:text-gray-200"
+        >
           Interactors <IconExternal />
         </a>
       </section>
       <section class="flex flex-col gap-y-1">
-        <h1 class="text-sm uppercase font-bold text-blue-primary mb-4">
+        <h1 class="text-sm uppercase font-bold text-blue-primary dark:text-blue-secondary mb-4">
           Community
         </h1>
-        <a href="https://discord.gg/r6AvtnU" class="text-gray-800">
+        <a
+          href="https://discord.gg/r6AvtnU"
+          class="text-gray-800 dark:text-gray-200"
+        >
           Discord <IconExternal />
         </a>
         <a
           href="https://github.com/thefrontside/effection"
-          class="text-gray-800"
+          class="text-gray-800 dark:text-gray-200"
         >
           GitHub <IconExternal />
         </a>
       </section>
-      <p class="col-span-3 text-blue-primary text-xs">
+      <p class="col-span-3 text-blue-primary dark:text-blue-secondary text-xs">
         Copyright © 2019 - {new Date().getFullYear()}{" "}
         The Frontside Software, Inc.
       </p>

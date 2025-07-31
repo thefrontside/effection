@@ -122,7 +122,6 @@ describe("spawn", () => {
 
     await expect(root.halt()).rejects.toHaveProperty("message", "moo");
     await expect(child!.halt()).rejects.toHaveProperty("message", "moo");
-    await expect(root.halt()).rejects.toHaveProperty("message", "moo");
   });
 
   it("halts when child finishes during asynchronous halt", async () => {

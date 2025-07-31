@@ -50,13 +50,16 @@ export class Delimiter<T>
     if (this.finalized) {
       return;
     }
-    this.outcome = outcome;
+    this.outcome =
+      (this.outcome && this.outcome.exists && !this.outcome.value.ok)
+        ? this.outcome
+        : outcome;
     this.level++;
     if (!this.routine) {
       this.finalized = true;
-      this.future.resolve(outcome);
+      this.future.resolve(this.outcome);
     } else {
-      this.routine.return(Ok(outcome));
+      this.routine.return(Ok(this.outcome));
     }
   }
 

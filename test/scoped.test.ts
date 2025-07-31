@@ -1,3 +1,4 @@
+import { box } from "../lib/box.ts";
 import {
   createContext,
   resource,
@@ -157,7 +158,7 @@ describe("scoped", () => {
       }));
   });
 
-  it.skip("throws errors at the correct point when there are multiple nested scopes", async () => {
+  it("throws errors at the correct point when there are multiple nested scopes", async () => {
     let task = run(function* () {
       return yield* scoped(function* () {
         yield* spawn(function* () {
@@ -165,13 +166,13 @@ describe("scoped", () => {
           throw new Error("boom!");
         });
 
-        try {
-          return yield* scoped(function* () {
-            yield* suspend();
-          });
-        } catch (error) {
-          return error;
-        }
+        yield* box(() =>
+          scoped(function* () {
+            yield* scoped(function* () {
+              yield* suspend();
+            });
+          })
+        );
       });
     });
 

@@ -62,27 +62,29 @@ pre {
  * Based on Atom's One Dark theme: https://github.com/atom/atom/tree/master/packages/one-dark-syntax
  */
 
-:root {
-  /* One Dark colours (accurate as of commit 8ae45ca on 6 Sep 2018) */
-  --prism-mono-1: hsl(220, 14%, 71%);
-  --prism-mono-2: hsl(220, 9%, 55%);
-  --prism-mono-3: hsl(220, 10%, 40%);
-  --prism-hue-1: hsl(187, 47%, 55%);
-  --prism-hue-2: hsl(207, 82%, 66%);
-  --prism-hue-3: hsl(286, 60%, 67%);
-  --prism-hue-4: hsl(95, 38%, 62%);
-  --prism-hue-5: hsl(355, 65%, 65%);
-  --prism-hue-5-2: hsl(5, 48%, 51%);
-  --prism-hue-6: hsl(29, 54%, 61%);
-  --prism-hue-6-2: hsl(39, 67%, 69%);
-  --prism-syntax-fg: hsl(220, 14%, 71%);
-  --prism-syntax-bg: hsl(220, 13%, 18%);
-  --prism-syntax-gutter: hsl(220, 14%, 45%);
-  --prism-syntax-guide: hsla(220, 14%, 71%, 0.15);
-  --prism-syntax-accent: hsl(220, 100%, 66%);
-  --prism-syntax-selection-color: hsl(220, 13%, 28%);
-  --prism-syntax-gutter-background-color-selected: hsl(220, 13%, 26%);
-  --prism-syntax-cursor-line: hsla(220, 100%, 80%, 0.04);
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* One Dark colours (accurate as of commit 8ae45ca on 6 Sep 2018) */
+    --prism-mono-1: hsl(220, 14%, 71%);
+    --prism-mono-2: hsl(220, 9%, 55%);
+    --prism-mono-3: hsl(220, 10%, 40%);
+    --prism-hue-1: hsl(187, 47%, 55%);
+    --prism-hue-2: hsl(207, 82%, 66%);
+    --prism-hue-3: hsl(286, 60%, 67%);
+    --prism-hue-4: hsl(95, 38%, 62%);
+    --prism-hue-5: hsl(355, 65%, 65%);
+    --prism-hue-5-2: hsl(5, 48%, 51%);
+    --prism-hue-6: hsl(29, 54%, 61%);
+    --prism-hue-6-2: hsl(39, 67%, 69%);
+    --prism-syntax-fg: hsl(220, 14%, 71%);
+    --prism-syntax-bg: hsl(220, 13%, 18%);
+    --prism-syntax-gutter: hsl(220, 14%, 45%);
+    --prism-syntax-guide: hsla(220, 14%, 71%, 0.15);
+    --prism-syntax-accent: hsl(220, 100%, 66%);
+    --prism-syntax-selection-color: hsl(220, 13%, 28%);
+    --prism-syntax-gutter-background-color-selected: hsl(220, 13%, 26%);
+    --prism-syntax-cursor-line: hsla(220, 55%, 36%, 0.04);
+  }
 }
 
 code[class*="language-"],

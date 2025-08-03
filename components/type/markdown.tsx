@@ -5,7 +5,7 @@ import type {
   ParamDef,
   TsTypeDef,
   TsTypeParamDef,
-} from "jsr:@deno/doc@0.164.0/types";
+} from "@deno/doc";
 import { toHtml } from "npm:hast-util-to-html@9.0.0";
 import { DocPage } from "../../hooks/use-deno-doc.tsx";
 import { Icon } from "./icon.tsx";

@@ -85,7 +85,7 @@ export function* ApiBody({
         <div class={`${i !== "0" ? "border-t-2" : ""} pb-7`}>
           <div class="flex mt-7 group">
             <h2
-              class="my-0 grow"
+              class="my-0! grow"
               id={section.id}
               data-kind={section.node.kind}
               data-name={section.node.name}
@@ -93,7 +93,7 @@ export function* ApiBody({
               {yield* Type({ node: section.node })}
             </h2>
             <a
-              class="opacity-0 before:content-['View_code'] group-hover:opacity-100 before:flex before:text-xs before:mr-1 hover:bg-gray-100 p-2 flex-none flex rounded no-underline items-center h-8"
+              class="opacity-0 before:content-['View_code'] group-hover:opacity-100 before:flex before:text-xs before:mr-1 p-2 flex-none flex rounded no-underline items-center h-8"
               href={`${section.node.location.filename}#L${section.node.location.line}`}
             >
               <SourceCodeIcon />
@@ -151,7 +151,7 @@ export function* ApiReference({
         </nav>
       </aside>
       <article
-        class="prose max-w-full px-6"
+        class="prose dark:prose-invert max-w-full px-6"
         data-pagefind-filter={`version[data-series], section:API Reference`}
         data-series={`v${major(version)}`}
       >

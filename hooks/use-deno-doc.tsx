@@ -5,7 +5,7 @@ import {
   type DocNode,
   type DocOptions,
   LoadResponse,
-} from "jsr:@deno/doc@0.169.0";
+} from "@deno/doc";
 import { createGraph } from "jsr:@deno/graph@0.89.0";
 // @deno-types="npm:@types/parse-github-url@1.0.3";
 import githubUrlParse from "npm:parse-github-url@1.0.3";

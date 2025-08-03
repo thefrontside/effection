@@ -213,7 +213,7 @@ export function xPackageRoute({
                   class="min-w-0 lg:col-span-7 lg:row-start-1"
                 >
                   {yield* PackageHeader(pkg)}
-                  <div class="prose max-w-full">
+                  <div class="prose dark:prose-invert max-w-full">
                     <div class="mb-5">
                       {yield* PackageExports({
                         packageName: pkg.packageName,

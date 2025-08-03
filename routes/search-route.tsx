@@ -21,7 +21,7 @@ export function searchRoute(): SitemapRoute<JSXElement> {
       return (
         <AppHtml>
           <>
-            <div class="prose m-auto max-w-full">
+            <div class="prose dark:prose-invert m-auto max-w-full">
               <h1>Search</h1>
               <div id="search-page" />
             </div>

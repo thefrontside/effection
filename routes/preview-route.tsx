@@ -42,7 +42,7 @@ export function previewRoute({
 
         return (
           <AppHtml>
-            <article class="prose m-auto">
+            <article class="prose dark:prose-invert m-auto">
               <Alert level="info" title={`Preview for ${branch}`}>
                 <p>
                   You’re viewing the API reference for branch{" "}

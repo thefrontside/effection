@@ -33,7 +33,8 @@
     "revolution/jsx-runtime": "https://deno.land/x/revolution@0.6.1/jsx-runtime.ts",
     "https://deno.land/x/path_to_regexp@v6.2.1/index.ts": "npm:path-to-regexp@8.2.0",
     "@tailwindcss/typography": "npm:@tailwindcss/typography@^0.5.16",
-    "tailwindcss": "npm:tailwindcss@^4.1.0"
+    "tailwindcss": "npm:tailwindcss@^4.1.0",
+    "@deno/doc": "jsr:@deno/doc@0.181.0"
   },
   "deploy": {
     "org": "Frontside",

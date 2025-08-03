@@ -43,7 +43,7 @@ export function xIndexRoute({
 
       return (
         <AppHTML search={search}>
-          <article class="prose dark:prose-invert m-auto bg-white dark:bg-gray-900 dark:text-gray-200 prose-headings:text-gray-900 dark:prose-headings:text-gray-100 prose-p:text-gray-800 dark:prose-p:text-gray-200 prose-a:text-cyan-700 dark:prose-a:text-cyan-400 prose-strong:text-gray-900 dark:prose-strong:text-gray-100">
+          <article class="prose dark:prose-invert m-auto bg-white dark:bg-gray-900 dark:text-gray-200 prose-headings:text-gray-900 dark:prose-headings:text-gray-100 prose-p:text-gray-800 dark:prose-p:text-gray-200  prose-strong:text-gray-900 dark:prose-strong:text-gray-100">
             <header class="flex flex-row items-center space-x-2">
               <h1 class="mb-0 text-gray-900 dark:text-gray-200">
                 Effection Extensions
@@ -68,9 +68,9 @@ export function xIndexRoute({
                 <li>
                   <a
                     href="http://starfx.bower.sh"
-                    class="grid grid-flow-row no-underline pb-4 pt-4 px-4 text-cyan-700 dark:text-cyan-400"
+                    class="grid grid-flow-row no-underline pb-4 pt-4 px-4 text-cyan-700 dark:text-blue-400"
                   >
-                    <span class="text-cyan-700 dark:text-cyan-400 text-lg font-semibold">
+                    <span class="text-cyan-700 dark:text-blue-400 text-lg font-semibold">
                       StarFX
                     </span>
                     <span class="text-gray-800 dark:text-gray-200">
@@ -103,9 +103,9 @@ export function xIndexRoute({
                       <li>
                         <a
                           href={yield* makeChildUrl(pkg.path)}
-                          class="grid grid-flow-row no-underline pb-4 pt-4 px-4 text-cyan-700 dark:text-cyan-400"
+                          class="grid grid-flow-row no-underline pb-4 pt-4 px-4 text-cyan-700 dark:text-blue-400"
                         >
-                          <span class="text-cyan-700 dark:text-cyan-400 text-lg font-semibold">
+                          <span class="text-cyan-700 dark:text-blue-400 text-lg font-semibold">
                             {title}
                           </span>
                           <span class="text-gray-800 dark:text-gray-200">

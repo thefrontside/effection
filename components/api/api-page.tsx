@@ -193,7 +193,7 @@ function* Menu({
       <li>
         {current === page.name
           ? (
-            <span class="rounded px-2 block w-full py-2 bg-gray-100 cursor-default ">
+            <span class="rounded px-2 block w-full py-2 bg-gray-100 dark:bg-gray-700 cursor-default ">
               <Icon kind={page.kind} />
               {page.name}
             </span>

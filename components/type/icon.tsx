@@ -5,7 +5,7 @@ export function Icon(props: { kind: string; class?: string }) {
         <span
           class={`${
             props.class ? props.class : ""
-          } rounded-full bg-sky-100 inline-block w-6 h-6 mr-1 text-center`}
+          } rounded-full bg-sky-100 dark:text-black inline-block w-6 h-6 mr-1 text-center`}
         >
           f
         </span>

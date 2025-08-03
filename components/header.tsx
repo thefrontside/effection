@@ -61,7 +61,7 @@ export function* Header(props?: HeaderProps) {
             </li>
             <li class="hidden md:flex">
               <a
-                class="flex flex-row items-center p-1 rounded bg-gradient-to-r from-pink-secondary via-purple-400 to-blue-secondary hover:from-blue-secondary hover:to-pink-secondary dark:from-gray-800 dark:via-gray-700 dark:to-gray-900 text-white shadow-md"
+                class="flex flex-row items-center p-1 rounded bg-linear-45 hover:bg-linear-270 from-pink-secondary via-purple-400 to-blue-secondary hover:from-blue-secondary hover:to-pink-secondary dark:from-blue-500 dark:via-indigo-700 dark:to-violet-900 text-white shadow-md"
                 href="https://github.com/thefrontside/effection"
               >
                 <span class="flex items-center">

@@ -62,6 +62,31 @@ pre {
  * Based on Atom's One Dark theme: https://github.com/atom/atom/tree/master/packages/one-dark-syntax
  */
 
+@media (prefers-color-scheme: light) {
+  :root {
+    /* One Light colours */
+    --prism-mono-1: hsl(230, 8%, 24%);
+    --prism-mono-2: hsl(230, 6%, 44%);
+    --prism-mono-3: hsl(230, 4%, 64%);
+    --prism-hue-1: hsl(198, 99%, 37%);
+    --prism-hue-2: hsl(221, 87%, 60%);
+    --prism-hue-3: hsl(301, 63%, 40%);
+    --prism-hue-4: hsl(119, 34%, 47%);
+    --prism-hue-5: hsl(5, 74%, 59%);
+    --prism-hue-5-2: hsl(344, 84%, 43%);
+    --prism-hue-6: hsl(35, 99%, 36%);
+    --prism-hue-6-2: hsl(35, 99%, 40%);
+    --prism-syntax-fg: hsl(230, 8%, 24%);
+    --prism-syntax-bg: hsl(230, 1%, 98%);
+    --prism-syntax-gutter: hsl(230, 1%, 62%);
+    --prism-syntax-guide: hsla(230, 8%, 24%, 0.2);
+    --prism-syntax-accent: hsl(230, 100%, 66%);
+    --prism-syntax-selection-color: hsl(230, 1%, 90%);
+    --prism-syntax-gutter-background-color-selected: hsl(230, 1%, 92%);
+    --prism-syntax-cursor-line: hsla(230, 8%, 24%, 0.04);
+  }
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     /* One Dark colours (accurate as of commit 8ae45ca on 6 Sep 2018) */

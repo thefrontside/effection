@@ -55,10 +55,10 @@ export function indexRoute(): SitemapRoute<JSXElement> {
 
               <section class="my-20">
                 <hgroup class="mx-auto max-w-2xl lg:text-center">
-                  <h2 class="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+                  <h2 class="mt-2 text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-200 sm:text-4xl">
                     Latest video
                   </h2>
-                  <p class="mt-6 text-lg leading-8 text-gray-600 mb-2">
+                  <p class="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-300 mb-2">
                     Watch Charles Lowell, the creator of Effection, explain
                     Effection and answer frequenty asked questions.
                   </p>
@@ -77,10 +77,10 @@ export function indexRoute(): SitemapRoute<JSXElement> {
 
               <section class="my-20">
                 <hgroup class="mx-auto max-w-2xl lg:text-center">
-                  <h2 class="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+                  <h2 class="mt-2 text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-300 sm:text-4xl">
                     Stop worrying about asynchrony
                   </h2>
-                  <p class="mt-6 text-lg leading-8 text-gray-600">
+                  <p class="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-300">
                     Effection gives you control over asyncronous operations with
                     {" "}
                     <a
@@ -123,10 +123,10 @@ export function indexRoute(): SitemapRoute<JSXElement> {
 
               <section class="mt-20">
                 <hgroup class="mx-auto max-w-2xl lg:text-center">
-                  <h2 class="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+                  <h2 class="mt-2 text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-300 sm:text-4xl">
                     It's just JavaScript
                   </h2>
-                  <p class="mt-6 text-lg leading-8 text-gray-600">
+                  <p class="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-300">
                     Effection is a light-weight alternative to{" "}
                     <code>async/await</code>{" "}
                     with Structured Concurrency guarantees. It only requires
@@ -219,7 +219,7 @@ function Feature({
 }) {
   return (
     <div class="relative pl-16 mb-8">
-      <dt class="text-base font-semibold leading-7 text-gray-900">
+      <dt class="text-base font-semibold leading-7 text-gray-900 dark:text-gray-300">
         <div
           class={`absolute left-0 top-0 flex items-center justify-center rounded-lg ${iconSize}`}
         >
@@ -227,7 +227,7 @@ function Feature({
         </div>
         {summary}
       </dt>
-      <dd class="mt-2 text-base leading-7 text-gray-600">{children}</dd>
+      <dd class="mt-2 text-base leading-7 text-gray-600 dark:text-gray-300">{children}</dd>
     </div>
   );
 }

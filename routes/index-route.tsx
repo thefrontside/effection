@@ -8,9 +8,11 @@ import { SitemapRoute } from "../plugins/sitemap.ts";
 export function indexRoute(): SitemapRoute<JSXElement> {
   return {
     *routemap(generate) {
-      return [{
-        pathname: generate(),
-      }];
+      return [
+        {
+          pathname: generate(),
+        },
+      ];
     },
     handler: function* () {
       let AppHtml = yield* useAppHtml({
@@ -140,9 +142,8 @@ export function indexRoute(): SitemapRoute<JSXElement> {
                     summary="Use familiar language constructs"
                   >
                     <>
-                      Use <code>let</code>, <code>const</code>,{" "}
-                      <code>for</code>, <code>while</code>,{" "}
-                      <code>switch/case</code> and{" "}
+                      Use <code>let</code>, <code>const</code>, <code>for</code>
+                      , <code>while</code>, <code>switch/case</code> and{" "}
                       <code>try/catch/finally</code>{" "}
                       to write asyncrous operations. They work as you'd expect.
                     </>
@@ -164,10 +165,7 @@ export function indexRoute(): SitemapRoute<JSXElement> {
                       nothing else.
                     </>
                   </Feature>
-                  <Feature
-                    icon={"🏺"}
-                    summary="Async/Await Alternatives"
-                  >
+                  <Feature icon={"🏺"} summary="Async/Await Alternatives">
                     <>
                       For every Async/Await/Promise API we provide Structured
                       Concurrency compliant Effection alternative. Checkout our
@@ -226,7 +224,9 @@ function Feature({
         </div>
         {summary}
       </dt>
-      <dd class="mt-2 text-base leading-7 text-gray-600 dark:text-gray-300">{children}</dd>
+      <dd class="mt-2 text-base leading-7 text-gray-600 dark:text-gray-300">
+        {children}
+      </dd>
     </div>
   );
 }

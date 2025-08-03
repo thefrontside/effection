@@ -110,6 +110,13 @@ pre {
     --prism-syntax-gutter-background-color-selected: hsl(220, 13%, 26%);
     --prism-syntax-cursor-line: hsla(220, 55%, 36%, 0.04);
   }
+
+  /* Global code block overrides for dark mode */
+  code,
+  code::before,
+  code::after {
+    color: var(--prism-syntax-fg) !important;
+  }
 }
 
 code[class*="language-"],

@@ -165,9 +165,8 @@ export function indexRoute(): SitemapRoute<JSXElement> {
                     </>
                   </Feature>
                   <Feature
-                    icon={<IconCartouche />}
-                    summary="Async/Await/Promise alternatives"
-                    iconSize="h-14 w-14"
+                    icon={"🏺"}
+                    summary="Async/Await Alternatives"
                   >
                     <>
                       For every Async/Await/Promise API we provide Structured

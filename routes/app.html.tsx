@@ -24,7 +24,7 @@ export function* useAppHtml({
   head,
 }: Options): Operation<({ children, search }: AppHtmlProps) => JSX.Element> {
   let twitterImageURL = yield* useAbsoluteUrl(
-    "/assets/images/meta-effection.png"
+    "/assets/images/meta-effection.png",
   );
   let homeURL = yield* useAbsoluteUrl("/");
 

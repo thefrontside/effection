@@ -5,6 +5,7 @@ export * from "./context.ts";
 export * from "./scope.ts";
 export * from "./suspend.ts";
 export * from "./sleep.ts";
+export * from "./interval.ts";
 export * from "./run.ts";
 export * from "./spawn.ts";
 export * from "./resource.ts";

@@ -24,7 +24,7 @@ export function* useAppHtml({
   head,
 }: Options): Operation<({ children, search }: AppHtmlProps) => JSX.Element> {
   let twitterImageURL = yield* useAbsoluteUrl(
-    "/assets/images/meta-effection.png",
+    "/assets/images/meta-effection.png"
   );
   let homeURL = yield* useAbsoluteUrl("/");
 
@@ -68,7 +68,7 @@ export function* useAppHtml({
         <script type="module" src="/assets/search.js" />
         {head ?? <></>}
       </head>
-      <body class="flex flex-col bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-200">
+      <body class="flex flex-col bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-200">
         {header}
         <main
           data-pagefind-body={search}

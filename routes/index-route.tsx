@@ -2,7 +2,6 @@ import type { JSXChild, JSXElement } from "revolution";
 
 import { useAppHtml } from "./app.html.tsx";
 import { IconTSLogo } from "../components/icons/typescript.tsx";
-import { IconCartouche } from "../components/icons/cartouche.tsx";
 import { SitemapRoute } from "../plugins/sitemap.ts";
 
 export function indexRoute(): SitemapRoute<JSXElement> {

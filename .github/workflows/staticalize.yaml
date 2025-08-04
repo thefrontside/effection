@@ -10,6 +10,7 @@ on:
 jobs:
   staticalize:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     permissions:
       id-token: write # Needed for auth with Deno Deploy
@@ -33,6 +34,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           JSR_API: ${{ secrets.JSR_API }}
+        timeout-minutes: 5
 
       - name: Download Staticalize
         run: |

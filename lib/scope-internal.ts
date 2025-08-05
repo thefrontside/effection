@@ -1,4 +1,4 @@
-import { Children, Generation } from "./contexts.ts";
+import { Children, Priority } from "./contexts.ts";
 import { Err, Ok, unbox } from "./result.ts";
 import { createTask } from "./task.ts";
 import type { Context, Operation, Scope, Task } from "./types.ts";
@@ -57,7 +57,7 @@ export function createScopeInternal(
     },
   });
 
-  scope.set(Generation, scope.expect(Generation) + 1);
+  scope.set(Priority, scope.expect(Priority) + 1);
   scope.set(Children, new Set());
   parent?.expect(Children).add(scope);
 

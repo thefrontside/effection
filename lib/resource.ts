@@ -1,9 +1,10 @@
 import { suspend } from "./suspend.ts";
-import { spawn } from "./spawn.ts";
 import type { Operation } from "./types.ts";
-import { trap } from "./task.ts";
+import { createTask, trap } from "./task.ts";
 import { Ok } from "./result.ts";
 import { useCoroutine } from "./coroutine.ts";
+import type { ScopeInternal } from "./scope-internal.ts";
+import { Priority } from "./contexts.ts";
 
 /**
  * Define an Effection [resource](https://frontside.com/effection/docs/resources)
@@ -57,7 +58,16 @@ export function resource<T>(
       // establishing a control boundary lets us catch errors in
       // resource initializer
       return yield* trap<T>(function* () {
-        yield* spawn(() => op(provide));
+        let { scope, start } = createTask<void>({
+          owner: caller.scope as ScopeInternal,
+          operation: () => op(provide),
+        });
+
+        // a resource runs at the priority of its parent
+        scope.set(Priority, caller.scope.expect(Priority));
+
+        start();
+
         return (yield {
           description: "await resource",
           enter: () => (uninstalled) => uninstalled(Ok()),

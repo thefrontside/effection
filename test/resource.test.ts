@@ -84,6 +84,29 @@ describe("resource", () => {
 
     expect(state.status).toEqual("pending");
   });
+
+  it("does not relinquish control when a resource initialized synchronously", async () => {
+    let sequence: number[] = [];
+
+    await run(function* () {
+      sequence.push(1);
+
+      let task = yield* spawn(function* () {
+        sequence.push(4);
+      });
+
+      yield* resource<void>(function* (provide) {
+        sequence.push(2);
+        yield* provide();
+      });
+
+      sequence.push(3);
+
+      yield* task;
+    });
+
+    expect(sequence).toEqual([1, 2, 3, 4]);
+  });
 });
 
 function createResource(container: State): Operation<State> {

@@ -5,7 +5,7 @@ export const Routine = createContext<Coroutine<unknown>>(
   "@effection/coroutine",
 );
 
-export const Generation = createContext<number>(
+export const Priority = createContext<number>(
   "@effection/scope.generation",
   0,
 );

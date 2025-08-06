@@ -1,4 +1,4 @@
-import { Generation } from "./contexts.ts";
+import { Priority } from "./contexts.ts";
 import { DelimiterContext } from "./delimiter.ts";
 import { ReducerContext } from "./reducer.ts";
 import { Ok } from "./result.ts";
@@ -32,7 +32,7 @@ export function createCoroutine<T>(
       routine.data.exit((exitResult) => {
         routine.data.exit = (didExit) => didExit(Ok());
         reducer.reduce([
-          scope.expect(Generation),
+          scope.expect(Priority),
           routine,
           exitResult.ok ? result : exitResult,
           scope.expect(DelimiterContext).validator,
@@ -44,7 +44,7 @@ export function createCoroutine<T>(
       routine.data.exit((exitResult) => {
         routine.data.exit = (didExit) => didExit(Ok());
         reducer.reduce([
-          scope.expect(Generation),
+          scope.expect(Priority),
           routine,
           exitResult.ok ? result : exitResult,
           scope.expect(DelimiterContext).validator,

@@ -5,6 +5,7 @@ export * from "./instructions.ts";
 export * from "./call.ts";
 export * from "./run.ts";
 export * from "./sleep.ts";
+export * from "./interval.ts";
 export * from "./async.ts";
 export * from "./abort-signal.ts";
 export * from "./result.ts";

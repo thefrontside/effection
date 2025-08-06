@@ -25,7 +25,6 @@ export function searchRoute(): SitemapRoute<JSXElement> {
               <h1>Search</h1>
               <div id="search-page" />
             </div>
-            <link href="/pagefind/pagefind-ui.css" rel="stylesheet" />
             <script src="/pagefind/pagefind-ui.js"></script>
             <is-land on:idle on:visible on:save-data="false">
               <script>
@@ -36,7 +35,8 @@ export function searchRoute(): SitemapRoute<JSXElement> {
                   autofocus: true,
                   showImages: false,
                   pageSize: 10,
-                  openFilters: ['Section','Version']
+                  openFilters: ['Section','Version'],
+                  resetStyles: false
                 });
 
                 const urlParams = new URLSearchParams(window.location.search);

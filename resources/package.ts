@@ -81,8 +81,8 @@ export interface Package {
    */
   jsrPackageDetails: () => Operation<
     [
-      z.SafeParseReturnType<unknown, PackageDetailsResult>,
-      z.SafeParseReturnType<unknown, PackageScoreResult>,
+      z.SafeParseReturnType<unknown, PackageDetailsResult> | null,
+      z.SafeParseReturnType<unknown, PackageScoreResult> | null,
     ]
   >;
   /**
@@ -178,31 +178,38 @@ export function loadPackage(
       version: denoJson.version,
       *jsrPackageDetails(): Operation<
         [
-          z.SafeParseReturnType<unknown, PackageDetailsResult>,
-          z.SafeParseReturnType<unknown, PackageScoreResult>,
+          z.SafeParseReturnType<unknown, PackageDetailsResult> | null,
+          z.SafeParseReturnType<unknown, PackageScoreResult> | null,
         ]
       > {
         const client = yield* useJSRClient();
-        const [details, score] = yield* all([
-          client.getPackageDetails({ scope, package: name }),
-          client.getPackageScore({ scope, package: name }),
-        ]);
 
-        if (!details.success) {
-          console.info(
-            `JSR package details response failed validation`,
-            details.error.format(),
-          );
+        try {
+          const [details, score] = yield* all([
+            client.getPackageDetails({ scope, package: name }),
+            client.getPackageScore({ scope, package: name }),
+          ]);
+
+          if (!details.success) {
+            console.info(
+              `JSR package details response failed validation`,
+              details.error.format(),
+            );
+          }
+
+          if (!score.success) {
+            console.info(
+              `JSR score response failed validation`,
+              score.error.format(),
+            );
+          }
+
+          return [details, score];
+        } catch (e) {
+          console.error(e);
         }
 
-        if (!score.success) {
-          console.info(
-            `JSR score response failed validation`,
-            score.error.format(),
-          );
-        }
-
-        return [details, score];
+        return [null, null];
       },
       *MDXContent(): Operation<JSX.Element> {
         let readme = yield* pkg.readme();

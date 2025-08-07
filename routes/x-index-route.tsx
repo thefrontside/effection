@@ -91,7 +91,7 @@ export function xIndexRoute({
 
                     let title;
                     let description;
-                    if (details.success) {
+                    if (details && details.success) {
                       title = `@${details.data.scope}/${details.data.name}`;
                       description = details.data.description;
                     } else {

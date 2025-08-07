@@ -87,7 +87,14 @@
   }
 
   .pagefind-ui__result-link {
-    @apply text-gray-900 dark:text-gray-200 no-underline! hover:underline!;
+    @apply relative text-gray-900 dark:text-gray-200 no-underline! hover:underline!;
+  }
+
+  .pagefind-ui__result-nested .pagefind-ui__result-link:before {
+    content: "\2937  ";
+    position: absolute;
+    top: -2;
+    right: calc(100% + .1em);
   }
 
   .pagefind-ui__result-excerpt {

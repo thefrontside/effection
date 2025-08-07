@@ -38,7 +38,7 @@ jobs:
 
       - name: Download Staticalize
         run: |
-          wget https://github.com/thefrontside/staticalize/releases/download/v0.0.1/staticalize-linux.tar.gz \
+          wget https://github.com/thefrontside/staticalize/releases/download/v0.2.1/staticalize-linux.tar.gz \
             -O /tmp/staticalize-linux.tar.gz
           tar -xzf /tmp/staticalize-linux.tar.gz -C /usr/local/bin
           chmod +x /usr/local/bin/staticalize-linux

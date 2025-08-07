@@ -1,9 +1,9 @@
-import { exists } from "jsr:@std/fs";
+import { emptyDir, exists } from "jsr:@std/fs";
 import { join } from "jsr:@std/path";
 import { crypto } from "jsr:@std/crypto";
 import { encodeHex } from "jsr:@std/encoding/hex";
 import { x } from "jsr:@effection-contrib/tinyexec";
-import { call, Operation } from "effection";
+import { call, Operation, until } from "effection";
 import type { RevolutionPlugin } from "revolution";
 import { select } from "npm:hast-util-select";
 import { serveFile } from "https://deno.land/std@0.206.0/http/file_server.ts";
@@ -16,6 +16,8 @@ export interface TailwindOptions {
 export function* tailwindPlugin(
   options: TailwindOptions,
 ): Operation<RevolutionPlugin> {
+  yield* until(emptyDir(options.outdir));
+
   let css = yield* compileCSS(options);
 
   return {

@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "node",
+      "args": ["/Users/tarasmankovski/.volta/tools/image/node/22.16.0/lib/node_modules/@playwright/mcp/cli.js"],
+      "env": {}
+    }
+  }
+}

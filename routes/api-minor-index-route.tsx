@@ -67,7 +67,7 @@ export function apiMinorIndexRoute({
 
         return (
           <AppHtml search={search}>
-            <article class="prose m-auto">
+            <article class="prose dark:prose-invert m-auto">
               {outdated
                 ? (
                   <Alert level="info" class="mb-6">

@@ -74,7 +74,12 @@ export function createJSRClient(token: string): Operation<JSRClient> {
           return yield* call(() => PackageScore.safeParseAsync(json));
         }
 
-        throw new Error(`${response.status}: ${response.statusText}`);
+        throw new Error(
+          `Could not get package score for @${params.scope}/${params.package}`,
+          {
+            cause: `${response.status}: ${response.statusText}`,
+          },
+        );
       },
       *getPackageDetails(params) {
         const response = yield* call(() =>
@@ -93,7 +98,12 @@ export function createJSRClient(token: string): Operation<JSRClient> {
           return yield* call(() => PackageDetails.safeParseAsync(json));
         }
 
-        throw new Error(`${response.status}: ${response.statusText}`);
+        throw new Error(
+          `Could not get package details for @${params.scope}/${params.package}`,
+          {
+            cause: `${response.status}: ${response.statusText}`,
+          },
+        );
       },
     });
   });

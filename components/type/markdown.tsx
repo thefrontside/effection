@@ -5,7 +5,7 @@ import type {
   ParamDef,
   TsTypeDef,
   TsTypeParamDef,
-} from "jsr:@deno/doc@0.164.0/types";
+} from "@deno/doc";
 import { toHtml } from "npm:hast-util-to-html@9.0.0";
 import { DocPage } from "../../hooks/use-deno-doc.tsx";
 import { Icon } from "./icon.tsx";
@@ -146,7 +146,7 @@ export function* extract(
         const typeDef = property.tsType ? TypeDef(property.tsType) : "";
         const description = property.jsDoc?.doc || NO_DOCS_AVAILABLE;
         lines.push(
-          `<dt class="border-dotted [&:not(:first-child)]:border-t-2 [&:not(:first-child)]:pt-3 [&:not(:first-child)]:mt-2">**${property.name}**${
+          `<dt class="border-dotted dark:border-blue-900 [&:not(:first-child)]:border-t-1 [&:not(:first-child)]:pt-3 [&:not(:first-child)]:mt-2">**${property.name}**${
             property.readonly ? READONLY : ""
           }${property.optional ? OPTIONAL : ""}: ${typeDef}</dt>`,
           `<dd class="flex flex-col [&>pre]:mb-3">`,

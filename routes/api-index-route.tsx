@@ -77,7 +77,7 @@ export function apiIndexRoute({
 
       return (
         <AppHtml search={search}>
-          <article class="prose m-auto">
+          <article class="prose dark:prose-invert m-auto bg-white dark:bg-gray-900 dark:text-gray-200 prose-headings:text-gray-900 dark:prose-headings:text-gray-100 prose-p:text-gray-800 dark:prose-p:text-gray-200 prose-a:text-blue-700 dark:prose-a:text-blue-400 prose-strong:text-gray-900 dark:prose-strong:text-gray-100">
             <h1>API Reference</h1>
             <section>
               <h2>Stable</h2>
@@ -101,7 +101,12 @@ export function apiIndexRoute({
                   .filter(([_series, version]) => version !== v3version)
                   .map(([series, _version]) => (
                     <li class="inline-block pr-10">
-                      <a href={`/api/${series}/`}>{series}</a>
+                      <a
+                        class="text-blue-700 dark:text-blue-400"
+                        href={`/api/${series}/`}
+                      >
+                        {series}
+                      </a>
                     </li>
                   ))}
               </ul>
@@ -117,7 +122,14 @@ export function apiIndexRoute({
               <div class="flex flex-row items-center mt-5 mb-3 space-x-2">
                 <h3 class="my-0">Latest release: {v4version}</h3>
                 <div class="h-fit">
-                  (<a class="text-sm" href="/guides/v4/">Guides</a>)
+                  (
+                  <a
+                    class="text-sm text-blue-700 dark:text-blue-400"
+                    href="/guides/v4/"
+                  >
+                    Guides
+                  </a>
+                  )
                 </div>
               </div>
               <p>This release includes the following exports:</p>
@@ -148,7 +160,7 @@ function* listPages({
     const link = yield* linkResolver(page.name);
     elements.push(
       <li class="list-none pb-1">
-        <a href={link}>
+        <a class="text-blue-700 dark:text-blue-400" href={link}>
           <Icon kind={page.kind} class="mr-2" />
           {page.name}
         </a>

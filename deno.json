@@ -1,13 +1,11 @@
 {
   "tasks": {
-    "dev": "deno run -A --watch main.tsx",
+    "dev": "deno run -A @effectionx/watch deno run -A main.tsx",
     "staticalize": "deno run -A jsr:@frontside/staticalize@0.2.0/cli --site http://localhost:8000 --output=built --base=http://localhost:8000",
     "pagefind": "npx pagefind --site built"
   },
   "lint": {
-    "exclude": [
-      "docs/esm"
-    ],
+    "exclude": ["docs/esm"],
     "rules": {
       "exclude": [
         "prefer-const",
@@ -19,26 +17,25 @@
     }
   },
   "fmt": {
-    "exclude": [
-      "docs/esm"
-    ]
+    "exclude": ["docs/esm"]
   },
   "compilerOptions": {
-    "lib": [
-      "deno.ns",
-      "dom.iterable",
-      "dom"
-    ],
+    "lib": ["deno.ns", "dom.iterable", "dom"],
     "jsx": "react-jsx",
     "jsxImportSource": "revolution"
   },
+  "nodeModulesDir": "auto",
   "imports": {
     "effection": "jsr:@effection/effection@^3",
     "@effectionx/deno-deploy": "jsr:@effectionx/deno-deploy@0.1.1",
+    "@effectionx/watch": "jsr:@effectionx/watch@0.1.2",
     "unified": "npm:unified@11.0.4",
     "revolution": "https://deno.land/x/revolution@0.6.1/mod.ts",
     "revolution/jsx-runtime": "https://deno.land/x/revolution@0.6.1/jsx-runtime.ts",
-    "https://deno.land/x/path_to_regexp@v6.2.1/index.ts": "npm:path-to-regexp@8.2.0"
+    "https://deno.land/x/path_to_regexp@v6.2.1/index.ts": "npm:path-to-regexp@8.2.0",
+    "@tailwindcss/typography": "npm:@tailwindcss/typography@^0.5.16",
+    "tailwindcss": "npm:tailwindcss@^4.1.0",
+    "@deno/doc": "jsr:@deno/doc@0.181.0"
   },
   "deploy": {
     "org": "Frontside",

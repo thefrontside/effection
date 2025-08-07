@@ -1,33 +1,22 @@
-import { css } from "npm:@twind/core@1.1.3";
 import { SearchIcon } from "./icons/search.tsx";
-
-const searchInput = css`
-  input {
-    @apply relative block h-full w-full bg-slate-100 rounded-full text-slate-800
-      transition-all text-lg pl-3;
-  }
-
-  input.focused {
-    @apply outline-none bg-white border-slate-500 ring-slate-500 ring-2 pl-4
-      w-[220px] -ml-[130px] z-1;
-  }
-
-  input::-webkit-search-cancel-button {
-    -webkit-appearance: none;
-    appearance: none;
-  }
-`;
 
 export function SearchInput() {
   return (
     <form method="get" action="/search">
-      <label class={`${searchInput} h-9 w-[90px] relative block`}>
-        <input id="search" type="search" name="q" placeholder="⌘K" />
+      <label class="h-9 w-[90px] relative block">
+        <input
+          id="search"
+          type="search"
+          name="q"
+          placeholder="⌘K"
+          class="relative block h-full w-full bg-slate-100 dark:bg-gray-800 rounded-full text-slate-800 dark:text-gray-200 transition-all text-lg pl-3 focus:outline-none focus:bg-white dark:focus:bg-gray-900 focus:border-slate-500 dark:focus:border-blue-secondary focus:ring-slate-500 dark:focus:ring-blue-secondary focus:ring-2 focus:pl-4 focus:w-[220px] focus:-ml-[130px] focus:z-10"
+        />
         <button
           type="submit"
           class="absolute inset-y-0 right-0 flex items-center pr-2"
+          title="Search"
         >
-          <SearchIcon class="w-6 mr-2 text-slate-400" />
+          <SearchIcon class="w-6 mr-2 text-slate-400 dark:text-gray-400" />
         </button>
       </label>
     </form>

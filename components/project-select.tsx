@@ -38,7 +38,7 @@ export function ProjectSelect(props: JSXComponentProps) {
       <input type="checkbox" class="hidden" id={toggleId} checked />
       <label id={openerId} class="sm:hidden cursor-pointer" for={toggleId}>
         <span class="sm:hidden">OSS</span>
-        <aside class="absolute m-4 rounded-md text-blue-primary bg-white shadow-lg sm-max:right-0 sm:left-0 z-50">
+        <aside class="absolute m-4 rounded-md text-blue-primary bg-white dark:bg-gray-900 dark:text-gray-200 shadow-lg sm-max:right-0 sm:left-0 z-50">
           <h4 class="p-2.5 uppercase text-sm text-center font-normal min-w-max">
             Frontside Open Source
           </h4>

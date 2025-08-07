@@ -68,11 +68,11 @@ export function* useAppHtml({
         <script type="module" src="/assets/search.js" />
         {head ?? <></>}
       </head>
-      <body class="flex flex-col">
+      <body class="flex flex-col bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-200">
         {header}
         <main
           data-pagefind-body={search}
-          class="container max-w-screen-2xl mx-auto mb-auto p-5"
+          class="container max-w-screen-2xl mx-auto mb-auto p-5 bg-white dark:bg-gray-900 dark:text-gray-200"
         >
           {children}
         </main>

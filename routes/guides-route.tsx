@@ -112,14 +112,14 @@ export function guidesRoute({
               {page.id !== item.id
                 ? (
                   <a
-                    class="rounded px-4 block w-full py-2 hover:bg-gray-100"
+                    class="rounded px-4 block w-full py-2 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     href={yield* createSibling(item.id)}
                   >
                     {item.title}
                   </a>
                 )
                 : (
-                  <a class="rounded px-4 block w-full py-2 bg-gray-100 cursor-default">
+                  <a class="rounded px-4 block w-full py-2 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 cursor-default">
                     {item.title}
                   </a>
                 )}
@@ -128,8 +128,10 @@ export function guidesRoute({
         }
         topicsList.push(
           <hgroup class="mb-2">
-            <h3 class="font-semibold">{topic.name}</h3>
-            <menu class="text-gray-700">{items}</menu>
+            <h3 class="font-semibold text-gray-900 dark:text-gray-200">
+              {topic.name}
+            </h3>
+            <menu class="text-gray-700 dark:text-gray-300">{items}</menu>
           </hgroup>,
         );
       }
@@ -140,7 +142,7 @@ export function guidesRoute({
             <input class="hidden" id="nav-toggle" type="checkbox" checked />
             <aside
               id="docbar"
-              class="fixed top-0 h-full w-full grid grid-cols-2 md:hidden"
+              class="fixed top-0 h-full w-full grid grid-cols-2 md:hidden bg-white dark:bg-gray-900 dark:text-gray-200"
             >
               <nav class="bg-white p-2 border-r-2 h-full pt-24 min-h-0 h-full overflow-auto">
                 {topicsList}
@@ -154,12 +156,12 @@ export function guidesRoute({
               <style media="all">
                 {`
       #nav-toggle:checked ~ aside#docbar {
-	display: none;
+  display: none;
       }
-	  `}
+    `}
               </style>
             </aside>
-            <aside class="min-h-0 overflow-auto hidden md:block top-[120px] sticky h-fit">
+            <aside class="min-h-0 overflow-auto hidden md:block top-[120px] sticky h-fit bg-white dark:bg-gray-900 dark:text-gray-200">
               <div class="text-xl flex flex-row items-baseline space-x-2 mb-3">
                 <span class="font-bold">Guides</span>
                 <a href={ref.url} class="text-base">
@@ -174,7 +176,7 @@ export function guidesRoute({
               <nav>{topicsList}</nav>
             </aside>
             <article
-              class="prose max-w-full px-6 py-2"
+              class="prose max-w-full px-6 py-2 bg-white dark:bg-gray-900 dark:text-gray-200 prose-headings:text-gray-900 dark:prose-headings:text-gray-100 prose-p:text-gray-800 dark:prose-p:text-gray-200 prose-a:text-blue-700 dark:prose-a:text-blue-400 prose-strong:text-gray-900 dark:prose-strong:text-gray-100"
               data-pagefind-filter={`version[data-series], section:Guides`}
               data-series={series}
             >
@@ -182,9 +184,11 @@ export function guidesRoute({
               <>{page.content}</>
               {yield* NextPrevLinks({ page })}
             </article>
-            <aside class="min-h-0 overflow-auto sticky h-fit hidden md:block top-[120px]">
-              <h3>On this page</h3>
-              <div class="w-[200px]">{page.toc}</div>
+            <aside class="min-h-0 overflow-auto sticky h-fit hidden md:block top-[120px] bg-white dark:bg-gray-900 dark:text-gray-200">
+              <h3 class="text-gray-900 dark:text-gray-200">On this page</h3>
+              <div class="w-[200px] text-gray-800 dark:text-gray-200">
+                {page.toc}
+              </div>
             </aside>
           </section>
         </AppHtml>

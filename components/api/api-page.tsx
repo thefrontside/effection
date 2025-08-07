@@ -42,12 +42,10 @@ export function* ApiPage({
 
     if (target) {
       return `[${
-        [symbol, connector, method].join("")
-      }](${yield* externalLinkResolver(
-        symbol,
-        connector,
-        method,
-      )})`;
+        [symbol, connector, method].join(
+          "",
+        )
+      }](${yield* externalLinkResolver(symbol, connector, method)})`;
     } else {
       return symbol;
     }
@@ -87,7 +85,7 @@ export function* ApiBody({
         <div class={`${i !== "0" ? "border-t-2" : ""} pb-7`}>
           <div class="flex mt-7 group">
             <h2
-              class="my-0 grow"
+              class="my-0! grow"
               id={section.id}
               data-kind={section.node.kind}
               data-name={section.node.name}
@@ -95,7 +93,7 @@ export function* ApiBody({
               {yield* Type({ node: section.node })}
             </h2>
             <a
-              class="opacity-0 before:content-['View_code'] group-hover:opacity-100 before:flex before:text-xs before:mr-1 hover:bg-gray-100 p-2 flex-none flex rounded no-underline items-center h-8"
+              class="opacity-0 before:content-['View_code'] group-hover:opacity-100 before:flex before:text-xs before:mr-1 p-2 flex-none flex rounded no-underline items-center h-8"
               href={`${section.node.location.filename}#L${section.node.location.line}`}
             >
               <SourceCodeIcon />
@@ -134,7 +132,7 @@ export function* ApiReference({
 
   return (
     <section class="min-h-0 mx-auto w-full justify-items-normal md:grid md:grid-cols-[225px_auto] lg:grid-cols-[225px_auto_200px] md:gap-4">
-      <aside class="min-h-0 overflow-auto hidden md:block top-[120px] sticky h-fit">
+      <aside class="min-h-0 overflow-auto hidden md:block top-[120px] sticky h-fit bg-white dark:bg-gray-900 dark:text-gray-200">
         <nav class="pl-4">
           <h3 class="text-xl flex flex-col mb-3">
             <span class="font-bold">API Reference</span>
@@ -153,7 +151,7 @@ export function* ApiReference({
         </nav>
       </aside>
       <article
-        class="prose max-w-full px-6"
+        class="prose dark:prose-invert max-w-full px-6"
         data-pagefind-filter={`version[data-series], section:API Reference`}
         data-series={`v${major(version)}`}
       >
@@ -195,7 +193,7 @@ function* Menu({
       <li>
         {current === page.name
           ? (
-            <span class="rounded px-2 block w-full py-2 bg-gray-100 cursor-default ">
+            <span class="rounded px-2 block w-full py-2 bg-gray-100 dark:bg-gray-700 cursor-default ">
               <Icon kind={page.kind} />
               {page.name}
             </span>

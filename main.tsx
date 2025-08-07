@@ -2,12 +2,10 @@ import { main, suspend } from "effection";
 import { initDenoDeploy } from "@effectionx/deno-deploy";
 import { createRevolution, ServerInfo } from "revolution";
 
-import { config } from "./tailwind.config.ts";
-
 import { etagPlugin } from "./plugins/etag.ts";
 import { rebasePlugin } from "./plugins/rebase.ts";
 import { route, sitemapPlugin } from "./plugins/sitemap.ts";
-import { twindPlugin } from "./plugins/twind.ts";
+import { tailwindPlugin } from "./plugins/tailwind.ts";
 
 import { apiReferenceRoute } from "./routes/api-reference-route.tsx";
 import { assetsRoute } from "./routes/assets-route.ts";
@@ -101,10 +99,7 @@ if (import.meta.main) {
         route("/contrib", xIndexRedirect()),
         route("/contrib/:workspacePath", xPackageRedirect({ x })),
         route("/x", xIndexRoute({ x, search: true })),
-        route(
-          "/x/:workspacePath",
-          xPackageRoute({ x, library, search: true }),
-        ),
+        route("/x/:workspacePath", xPackageRoute({ x, library, search: true })),
         route("/api", apiIndexRoute({ library, search: true })),
         route(
           "/api/v3/:symbol",
@@ -132,7 +127,7 @@ if (import.meta.main) {
         route("/preview/api/:symbol", previewApiRoute({ library })),
       ],
       plugins: [
-        twindPlugin({ config }),
+        yield* tailwindPlugin({ input: "main.css", outdir: "tailwind" }),
         etagPlugin(),
         rebasePlugin(),
         sitemapPlugin(),

@@ -58,7 +58,7 @@ function* PackageExport({
     exports.push(
       ...[
         <a
-          class="no-underline text-slate-300 hover:underline underline-offset-4"
+          class="no-underline dark:text-slate-300 invert:text-slate-300 hover:underline underline-offset-4"
           href={yield* linkResolver(page.kind, "_", page.name)}
         >
           {["enum", "typeAlias", "namespace", "interface"].includes(

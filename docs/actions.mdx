@@ -1,11 +1,10 @@
-In this section, we'll how we can use `action` as a safe alternative to
+In this section, we'll see how we can use `action` as a safe alternative to
 the [Promise constructor][promise-constructor].
 
 ## Example: Sleep
 
 Let's revisit our sleep operation from the [introduction to
 operations](../operations):
-
 
 ```js
 export function sleep(duration: number): Operation<void> {
@@ -57,7 +56,8 @@ an abort signal was there without sacrificing any clarity in achieving it.
 
 ## Action Constructor
 
-The [`action()`][action] function provides a callback based API to create Effection operations. You don't need it all that often, but when you do it functions almost exactly like the 
+The [`action()`][action] function provides a callback based API to create Effection operations.
+You don't need it all that often, but when you do it functions almost exactly like the
 [promise constructor][promise-constructor]. To see this, let's
 use [one of the examples from MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/Promise#examples)
 that uses promises to make a crude replica of the global [`fetch()`][fetch]
@@ -89,7 +89,7 @@ function* fetch(url) {
     xhr.onload = () => resolve(xhr.responseText);
     xhr.onerror = () => reject(xhr.statusText);
     xhr.send();
-	return () => { } // "finally" function place holder.
+    return () => {}; // "finally" function place holder.
   });
 }
 ```
@@ -108,11 +108,11 @@ until _both_ requests are have received a response.
 ```js
 await Promise.race([
   fetch("https://openweathermap.org"),
-  fetch("https://open-meteo.org")
-])
+  fetch("https://open-meteo.org"),
+]);
 ```
 
-With Effection, this is easily fixed by calling `abort()` in the finally function to 
+With Effection, this is easily fixed by calling `abort()` in the finally function to
 make sure that the request is cancelled when it is either resolved, rejected, or
 passes out of scope.
 
@@ -124,14 +124,15 @@ function* fetch(url) {
     xhr.onload = () => resolve(xhr.responseText);
     xhr.onerror = () => reject(xhr.statusText);
     xhr.send();
-    return () => { xhr.abort(); }; // called in all cases
+    return () => {
+      xhr.abort();
+    }; // called in all cases
   });
 }
 ```
 
->💡Almost every usage of the [promise concurrency primitives][promise-concurrency]
+> 💡Almost every usage of the [promise concurrency primitives][promise-concurrency]
 > will contain bugs born of leaked effects.
-
 
 [abort-signal]: https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal
 [fetch]: https://developer.mozilla.org/en-US/docs/Web/API/fetch

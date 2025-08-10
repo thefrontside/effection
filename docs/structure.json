@@ -8,13 +8,13 @@
   ],
   "Learn Effection": [
     ["operations.mdx", "Operations"],
-    ["actions.mdx", "Actions and Suspensions"],
-    ["resources.mdx", "Resources"],
     ["spawn.mdx", "Spawn"],
+    ["resources.mdx", "Resources"],
     ["collections.mdx", "Streams and Subscriptions"],
     ["events.mdx", "Events"],
     ["errors.mdx", "Error Handling"],
-    ["context.mdx", "Context"]
+    ["context.mdx", "Context"],
+    ["actions.mdx", "Actions"]
   ],
   "Advanced": [
     ["faq.mdx", "FAQ"],

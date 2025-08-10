@@ -3,12 +3,6 @@ If you encounter obstacles integrating with your environment, please create a [G
 
 ## Node.js & Browser
 
-<p class="inline-flex my-0 flex-wrap gap-1">
-  <img class="my-1" src="https://badgen.net/bundlephobia/min/effection" alt="Bundlephobia badge showing effection minified" />
-  <img class="my-1" src="https://badgen.net/bundlephobia/minzip/effection" alt="Bundlephobia badge showing effection gzipped size" />
-  <img class="my-1" src="https://badgen.net/bundlephobia/tree-shaking/effection" alt="Bundlephobia badge showing it's treeshackable" />
-</p>
-
 Effection is available on [NPM][npm], as well as derived registries such as [Yarn][yarn] and [UNPKG][unpkg]. It comes with TypeScript types and can be consumed as both ESM and CommonJS.
 
 ```bash
@@ -24,7 +18,7 @@ yarn add effection
 Effection has first class support for Deno because it is developed with [Deno](https://deno.land). Releases are published to [https://deno.land/x/effection](https://deno.land/x/effection). For example, to import the `main()` function:
 
 ```ts
-import { main } from "https://deno.land/x/effection/mod.ts";
+import { main } from "jsr:@effection/effection@4.0.0-beta.2";
 ```
 
 > 💡 If you're curious how we keep NPM/YARN and Deno packages in-sync, you can [checkout the blog post on how publish Deno packages to NPM.][deno-npm-publish].

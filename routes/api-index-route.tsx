@@ -93,7 +93,7 @@ export function apiIndexRoute({
                 })}
               </ul>
               <h3>Previous releases</h3>
-              <ul>
+              <ul class="pl-0">
                 {(yield* fetchMinorVersions({
                   repository: library,
                   pattern: "effection-v3",
@@ -121,10 +121,10 @@ export function apiIndexRoute({
               </p>
               <div class="flex flex-row items-center mt-5 mb-3 space-x-2">
                 <h3 class="my-0">Latest release: {v4version}</h3>
-                <div class="h-fit">
+                <div class="mt-5">
                   (
                   <a
-                    class="text-sm text-blue-700 dark:text-blue-400"
+                    class="text-blue-700 dark:text-blue-400"
                     href="/guides/v4/"
                   >
                     Guides

@@ -75,7 +75,7 @@ export function guidesRoute({
         series: string | undefined;
       }>();
 
-      const ref = yield* getSeriesRef({ repository, series });
+      const ref = yield* repository.loadRef(`heads/${series}`);
       const pages = yield* guides({ ref });
 
       if (!id) {
@@ -136,6 +136,8 @@ export function guidesRoute({
         );
       }
 
+      const latest = yield* getSeriesRef({ repository, series });
+
       return (
         <AppHtml search={search}>
           <section class="min-h-0 mx-auto w-full justify-items-normal md:grid md:grid-cols-[225px_auto] lg:grid-cols-[225px_auto_200px] md:gap-4">
@@ -164,7 +166,7 @@ export function guidesRoute({
             <aside class="min-h-0 overflow-auto hidden md:block top-[120px] sticky h-fit bg-white dark:bg-gray-900 dark:text-gray-200">
               <div class="text-xl flex flex-row items-baseline space-x-2 mb-3">
                 <span class="font-bold">Guides</span>
-                <a href={ref.url} class="text-base">
+                <a href={latest.url} class="text-base">
                   {series}{" "}
                   <IconExternal
                     class="inline-block align-baseline"

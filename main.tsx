@@ -31,15 +31,16 @@ import { previewRoute } from "./routes/preview-route.tsx";
 import { redirectDocsRoute } from "./routes/redirect-docs-route.tsx";
 import { redirectIndexRoute } from "./routes/redirect-index-route.tsx";
 import { searchRoute } from "./routes/search-route.tsx";
+import { setupUrlReader } from "./context/url-reader.ts";
 
 // Learn more at https://docs.deno.com/runtime/manual/examples/module_metadata#concepts
 if (import.meta.main) {
   await main(function* () {
-    const denoDeploy = yield* initDenoDeploy();
+    // const denoDeploy = yield* initDenoDeploy();
 
-    if (denoDeploy.isDenoDeploy) {
-      patchDenoPermissionsQuerySync();
-    }
+    // if (denoDeploy.isDenoDeploy) {
+    //   patchDenoPermissionsQuerySync();
+    // }
 
     const jsrToken = Deno.env.get("JSR_API") ?? "";
     if (jsrToken === "") {
@@ -54,6 +55,8 @@ if (import.meta.main) {
     if (!githubToken) {
       throw new Error(`GITHUB_TOKEN environment variable is missing`);
     }
+
+    yield* setupUrlReader();
 
     yield* initGithubClientContext({
       token: githubToken,

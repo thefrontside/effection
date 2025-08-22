@@ -31,11 +31,6 @@ export interface RepositoryRef {
   url: string;
 
   /**
-   * Retrieve tag information
-   */
-  get(): Operation<Ref>;
-
-  /**
    * Read a text file
    * @param path
    */
@@ -89,117 +84,102 @@ export interface RepositoryRef {
   getUrl(base?: string, target?: string, isFile?: boolean): URL;
 }
 
-export function loadRepositoryRef(
-  { ref: _ref, repository }: { ref: string; repository: Repository },
-) {
-  return resource<RepositoryRef>(function* (provide) {
-    const ref = matchRef(_ref);
+export function loadRepositoryRef({
+  ref: _ref,
+  repository,
+}: {
+  ref: string;
+  repository: Repository;
+}) {
+  const ref = matchRef(_ref);
 
-    if (!ref) throw new Error(`Could not normalize ${_ref}`);
+  if (!ref) throw new Error(`Could not normalize ${_ref}`);
 
-    const url = getRefUrl(repository, ref);
+  const url = getRefUrl(repository, ref);
 
-    const repositoryRef: RepositoryRef = {
-      repository,
-      ...ref,
-      url,
+  const repositoryRef: RepositoryRef = {
+    repository,
+    ...ref,
+    url,
 
-      getUrl(base, target, isFile) {
-        return new URL(
-          [
-            isFile ? "blob" : "tree",
-            ref.name,
-            repositoryRef.getPath(base ?? "", target ?? ""),
-          ].filter(Boolean).join("/"),
-          `https://github.com/${repository.nameWithOwner}/`,
-        );
-      },
+    getUrl(base, target, isFile) {
+      return new URL(
+        [
+          isFile ? "blob" : "tree",
+          ref.name,
+          repositoryRef.getPath(base ?? "", target ?? ""),
+        ]
+          .filter(Boolean)
+          .join("/"),
+        `https://github.com/${repository.nameWithOwner}/`,
+      );
+    },
 
-      getPath(base, target) {
-        return [base, target].filter(Boolean).join("/").replace(
-          /^\.\//,
-          "",
-        );
-      },
+    getPath(base, target) {
+      return [base, target].filter(Boolean).join("/").replace(/^\.\//, "");
+    },
 
-      *get() {
-        const github = yield* GithubClientContext.expect();
+    *loadText(path: string) {
+      const response = yield* repository.getContent({
+        path,
+        ref: ref.name,
+        mediaType: {
+          format: "raw",
+        },
+      });
 
-        const response = yield* call(() =>
-          github.rest.git.getRef({
-            owner: repository.owner,
-            repo: repository.name,
-            ref: ref.ref,
-          })
-        );
+      return response.data.toString();
+    },
 
-        return response.data;
-      },
+    *loadReadme(base: string = ""): Operation<string> {
+      return yield* this.loadText(repositoryRef.getPath(base, "README.md"));
+    },
 
-      *loadText(path: string) {
-        const response = yield* repository.getContent({
-          path,
-          ref: ref.name,
-          mediaType: {
-            format: "raw",
-          },
-        });
+    *loadJson<T>(path: string): Operation<T> {
+      const response = yield* repository.getContent({
+        path: path,
+        ref: ref.name,
+        mediaType: {
+          format: "raw",
+        },
+      });
 
-        return response.data.toString();
-      },
+      const text = response.data.toString();
 
-      *loadReadme(base: string = ""): Operation<string> {
-        return yield* this.loadText(repositoryRef.getPath(base, "README.md"));
-      },
+      return JSON.parse(text) as T;
+    },
 
-      *loadJson<T>(path: string): Operation<T> {
-        const response = yield* repository.getContent({
-          path: path,
-          ref: ref.name,
-          mediaType: {
-            format: "raw",
-          },
-        });
+    *loadDenoJson(base: string = "") {
+      const path = repositoryRef.getPath(base, "deno.json");
+      const json = yield* this.loadJson(path);
+      return DenoJson.parse(json);
+    },
 
-        const text = response.data.toString();
+    *loadRootPackage() {
+      return yield* loadPackage({ workspacePath: "", ref: repositoryRef });
+    },
 
-        return JSON.parse(text) as T;
-      },
+    *loadWorkspace(workspacePath: string) {
+      const { workspace } = yield* repositoryRef.loadDenoJson();
+      if (!workspace?.includes(workspacePath)) {
+        throw new Error(`${workspacePath} is not a valid workspace`);
+      }
 
-      *loadDenoJson(base: string = "") {
-        const path = repositoryRef.getPath(base, "deno.json");
-        const json = yield* this.loadJson(path);
-        return DenoJson.parse(json);
-      },
+      return yield* loadPackage({ workspacePath, ref: repositoryRef });
+    },
 
-      *loadRootPackage() {
-        return yield* loadPackage(
-          { workspacePath: "", ref: repositoryRef },
-        );
-      },
+    *loadWorkspaces() {
+      const { workspace = [] } = yield* repositoryRef.loadDenoJson();
 
-      *loadWorkspace(workspacePath: string) {
-        const { workspace } = yield* repositoryRef.loadDenoJson();
-        if (!workspace?.includes(workspacePath)) {
-          throw new Error(`${workspacePath} is not a valid workspace`);
-        }
+      return yield* all(
+        workspace.map((workspacePath) =>
+          repositoryRef.loadWorkspace(workspacePath),
+        ),
+      );
+    },
+  };
 
-        return yield* loadPackage({ workspacePath, ref: repositoryRef });
-      },
-
-      *loadWorkspaces() {
-        const { workspace = [] } = yield* repositoryRef.loadDenoJson();
-
-        return yield* all(
-          workspace.map((workspacePath) =>
-            repositoryRef.loadWorkspace(workspacePath)
-          ),
-        );
-      },
-    };
-
-    yield* provide(repositoryRef);
-  });
+  return repositoryRef;
 }
 
 interface BranchRef {

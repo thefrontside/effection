@@ -6,10 +6,7 @@
     "jsr:@deno/doc@0.181.0": "0.181.0",
     "jsr:@deno/graph@0.89.0": "0.89.0",
     "jsr:@effection-contrib/tinyexec@*": "0.1.1",
-    "jsr:@effection/effection@3": "3.6.0",
-    "jsr:@effectionx/deno-deploy@0.1.1": "0.1.1",
     "jsr:@effectionx/watch@0.1.2": "0.1.2",
-    "jsr:@frontside/continuation@0.1.6": "0.1.6",
     "jsr:@frontside/staticalize@0.2.0": "0.2.0",
     "jsr:@gordonb/pipe@0.1.0": "0.1.0",
     "jsr:@libs/xml@*": "7.0.0",
@@ -19,13 +16,12 @@
     "jsr:@std/cli@^1.0.21": "1.0.21",
     "jsr:@std/crypto@*": "1.0.5",
     "jsr:@std/encoding@*": "1.0.10",
-    "jsr:@std/encoding@1": "1.0.10",
     "jsr:@std/encoding@^1.0.10": "1.0.10",
     "jsr:@std/fmt@^1.0.3": "1.0.8",
     "jsr:@std/fmt@^1.0.8": "1.0.8",
     "jsr:@std/fs@*": "1.0.19",
     "jsr:@std/fs@1": "1.0.19",
-    "jsr:@std/fs@^1.0.11": "1.0.17",
+    "jsr:@std/fs@^1.0.11": "1.0.19",
     "jsr:@std/fs@^1.0.19": "1.0.19",
     "jsr:@std/fs@^1.0.6": "1.0.19",
     "jsr:@std/html@^1.0.4": "1.0.4",
@@ -39,10 +35,10 @@
     "jsr:@std/path@1.0.6": "1.0.6",
     "jsr:@std/path@1.0.8": "1.0.8",
     "jsr:@std/path@^1.0.8": "1.1.1",
-    "jsr:@std/path@^1.0.9": "1.0.9",
     "jsr:@std/path@^1.1.1": "1.1.1",
     "jsr:@std/streams@^1.0.10": "1.0.10",
     "jsr:@takker/md5@0.1.0": "0.1.0",
+    "npm:@effectionx/deno-deploy@0.1.1": "0.1.1",
     "npm:@jsdevtools/rehype-toc@3.0.2": "3.0.2",
     "npm:@mdx-js/mdx@3.1.0": "3.1.0",
     "npm:@octokit/endpoint@10.1.2": "10.1.2",
@@ -58,13 +54,15 @@
     "npm:@types/semver@7.5.8": "7.5.8",
     "npm:chokidar@^4.0.3": "4.0.3",
     "npm:effection@3.0.3": "3.0.3",
+    "npm:effection@3.6.0": "3.6.0",
     "npm:effection@4.0.0-alpha.4": "4.0.0-alpha.4",
-    "npm:effection@^4.0.0-alpha.6": "4.0.0-beta.1",
+    "npm:effection@^4.0.0-alpha.6": "4.0.0-beta.2",
+    "npm:git-url-parse@16.1.0": "16.1.0",
     "npm:hast-util-select@*": "6.0.1",
     "npm:hast-util-select@6.0.1": "6.0.1",
     "npm:hast-util-shift-heading@4.0.0": "4.0.0",
     "npm:hast-util-to-html@9.0.0": "9.0.0",
-    "npm:ignore@^7.0.3": "7.0.4",
+    "npm:ignore@^7.0.3": "7.0.5",
     "npm:octokit@4.0.3": "4.0.3_@octokit+core@6.1.6",
     "npm:pagefind@1.3.0": "1.3.0",
     "npm:parse-github-url@1.0.3": "1.0.3",
@@ -88,7 +86,7 @@
     "npm:vfile@6.0.3": "6.0.3",
     "npm:zod-opts@0.1.8": "0.1.8",
     "npm:zod@3.23.8": "3.23.8",
-    "npm:zod@^3.20.2": "3.25.76"
+    "npm:zod@^3.20.2": "3.23.8"
   },
   "jsr": {
     "@b-fuze/deno-dom@0.1.49": {
@@ -122,18 +120,6 @@
     "@effection/effection@3.5.1": {
       "integrity": "89c7c67579f47e73d01f570c588b3f63e90d9cb10a403653bf09a98f0fff31e9"
     },
-    "@effection/effection@3.6.0": {
-      "integrity": "4d3db4b121b0ec25892420b13c0e358a9924d3ec5c344220e48d7bb374855627",
-      "dependencies": [
-        "jsr:@frontside/continuation"
-      ]
-    },
-    "@effectionx/deno-deploy@0.1.1": {
-      "integrity": "e32d1875087475f1e561017bc9e80705156d397849305255c5b42c7073d928c9",
-      "dependencies": [
-        "npm:effection@3.0.3"
-      ]
-    },
     "@effectionx/watch@0.1.2": {
       "integrity": "913eddc00a60d6f7e0d54dfe99d5db302cbcc493a370d52d7565a6f7088c2fa9",
       "dependencies": [
@@ -146,9 +132,6 @@
         "npm:zod-opts",
         "npm:zod@^3.20.2"
       ]
-    },
-    "@frontside/continuation@0.1.6": {
-      "integrity": "f36a3b9ccdf49f0b15778a5e11a37d91bb097f67522f17ca5fbd668560b31c17"
     },
     "@frontside/staticalize@0.2.0": {
       "integrity": "2d0027c050fca52b825580eedc924f9be0fab88ac8c72b400646defed345b18e",
@@ -186,12 +169,6 @@
     },
     "@std/fmt@1.0.8": {
       "integrity": "71e1fc498787e4434d213647a6e43e794af4fd393ef8f52062246e06f7e372b7"
-    },
-    "@std/fs@1.0.17": {
-      "integrity": "1c00c632677c1158988ef7a004cb16137f870aafdb8163b9dce86ec652f3952b",
-      "dependencies": [
-        "jsr:@std/path@^1.0.9"
-      ]
     },
     "@std/fs@1.0.19": {
       "integrity": "051968c2b1eae4d2ea9f79a08a3845740ef6af10356aff43d3e2ef11ed09fb06",
@@ -238,9 +215,6 @@
     "@std/path@1.0.8": {
       "integrity": "548fa456bb6a04d3c1a1e7477986b6cffbce95102d0bb447c67c4ee70e0364be"
     },
-    "@std/path@1.0.9": {
-      "integrity": "260a49f11edd3db93dd38350bf9cd1b4d1366afa98e81b86167b4e3dd750129e"
-    },
     "@std/path@1.1.1": {
       "integrity": "fe00026bd3a7e6a27f73709b83c607798be40e20c81dde655ce34052fd82ec76",
       "dependencies": [
@@ -263,6 +237,12 @@
       "dependencies": [
         "@jridgewell/gen-mapping",
         "@jridgewell/trace-mapping"
+      ]
+    },
+    "@effectionx/deno-deploy@0.1.1": {
+      "integrity": "sha512-P0nO2PT0OdP+R/0zSpn++e8GobECLwPfkml8weDDUlnx6+J/kCopHB0SaTTZmzhfy50xgu2v0M2UjRkeOC1fUg==",
+      "dependencies": [
+        "effection@3.0.3"
       ]
     },
     "@emnapi/core@1.4.5": {
@@ -916,6 +896,13 @@
         "@types/node"
       ]
     },
+    "@types/parse-path@7.1.0": {
+      "integrity": "sha512-EULJ8LApcVEPbrfND0cRQqutIOdiIgJ1Mgrhpy755r14xMohPTEpkV/k28SJvuOs9bHRFW8x+KeDAEPiGQPB9Q==",
+      "dependencies": [
+        "parse-path"
+      ],
+      "deprecated": true
+    },
     "@types/prismjs@1.26.5": {
       "integrity": "sha512-AUZTa7hQ2KY5L7AmtSiqxlhWxb4ina0yd8hNbl4TWuqnv/pFP0nDMb3YrfSBf4hJVGLh2YEIBfKaBW/9UEl6IQ=="
     },
@@ -1137,11 +1124,14 @@
     "effection@3.0.3": {
       "integrity": "sha512-9ASCaJ44flDoEKUUJtn9drfIomn2z30sZUw7//crbq+eltMu09AyILcouXwpMkcHR8TsD5hDvTTsOLHswWRxXQ=="
     },
+    "effection@3.6.0": {
+      "integrity": "sha512-+AKmSbgcjytcx4IYmd+n10IV5cuiLTl8YDXNYX0lNx70wwRS43VV0MEJAB1RD1X7FOOOWERRCJpFdRZXHmK/Og=="
+    },
     "effection@4.0.0-alpha.4": {
       "integrity": "sha512-xor8XVkRGy6pvBoZBlBoZ0NIXBLzNHSgWQn29itt+6Fy42bqMPRhbUtyxwDI4LRlkmlVhPWk60mZPflNlDTSIQ=="
     },
-    "effection@4.0.0-beta.1": {
-      "integrity": "sha512-maSrMoB1eUSJK499/DJ6sE/Br6Etiy9xDTIyDHygDVhHOsLfAH8o4vhBfKkb1r1FxmhjdYycwlnHe1KmxKCuSw=="
+    "effection@4.0.0-beta.2": {
+      "integrity": "sha512-iqEBfInNx3rB2DhQYYu6LcJ7zRn4yFo+DjUntcWNZeYWh1LiucMXb2JMiD1OA8WPgc3KOwQBxXfOwby1v34WdQ=="
     },
     "emoji-regex@8.0.0": {
       "integrity": "sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A=="
@@ -1268,6 +1258,19 @@
     },
     "function-bind@1.1.2": {
       "integrity": "sha512-7XHNxH7qX9xG5mIwxkhumTox/MIRNcOgDrxWsMt2pAr23WHp6MrRlN7FBSFpCpr+oVO0F744iUgR82nJMfG2SA=="
+    },
+    "git-up@8.1.1": {
+      "integrity": "sha512-FDenSF3fVqBYSaJoYy1KSc2wosx0gCvKP+c+PRBht7cAaiCeQlBtfBDX9vgnNOHmdePlSFITVcn4pFfcgNvx3g==",
+      "dependencies": [
+        "is-ssh",
+        "parse-url"
+      ]
+    },
+    "git-url-parse@16.1.0": {
+      "integrity": "sha512-cPLz4HuK86wClEW7iDdeAKcCVlWXmrLpb2L+G9goW0Z1dtpNS6BXXSOckUTlJT/LDQViE1QZKstNORzHsLnobw==",
+      "dependencies": [
+        "git-up"
+      ]
     },
     "github-slugger@2.0.0": {
       "integrity": "sha512-IaOQ9puYtjrkq7Y0Ygl9KDZnrf/aiUJYUpVf89y8kyaxbRG7Y1SrX/jaumrv81vc61+kiMempujsM3Yw7w5qcw=="
@@ -1560,8 +1563,8 @@
     "html-void-elements@3.0.0": {
       "integrity": "sha512-bEqo66MRXsUGxWHV5IP0PUiAWwoEjba4VCzg0LjFJBpchPaTfyfCKTG6bc5F8ucKec3q5y6qOdGyYTSBEvhCrg=="
     },
-    "ignore@7.0.4": {
-      "integrity": "sha512-gJzzk+PQNznz8ysRrC0aOkBNVRBDtE1n53IqyqEf3PXrYwomFs5q4pGMizBMJF+ykh03insJ27hB8gSrD2Hn8A=="
+    "ignore@7.0.5": {
+      "integrity": "sha512-Hs59xBNfUIunMFgWAbGX5cq6893IbWg4KnrjbYwX3tx0ztorVgTDA6B2sxf8ejHJ4wz8BqGUMYlnzNBer5NvGg=="
     },
     "inline-style-parser@0.2.4": {
       "integrity": "sha512-0aO8FkhNZlj/ZIbNi7Lxxr12obT7cL1moPfE4tg1LkX7LlLfC6DeX4l2ZEud1ukP9jNQyNnfzQVqwbwmAATY4Q=="
@@ -1611,6 +1614,12 @@
     },
     "is-plain-obj@4.1.0": {
       "integrity": "sha512-+Pgi+vMuUNkJyExiMBt5IlFoMyKnr5zhJ4Uspz58WOhBF5QoIZkFyNHIbBAtHwzVAgk5RtndVNsDRN61/mmDqg=="
+    },
+    "is-ssh@1.4.1": {
+      "integrity": "sha512-JNeu1wQsHjyHgn9NcWTaXq6zWSR6hqE0++zhfZlkFBbScNkyvxCdeV8sRkSBaeLKxmbpR21brail63ACNxJ0Tg==",
+      "dependencies": [
+        "protocols"
+      ]
     },
     "isexe@2.0.0": {
       "integrity": "sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw=="
@@ -2361,6 +2370,19 @@
     "parse-numeric-range@1.3.0": {
       "integrity": "sha512-twN+njEipszzlMJd4ONUYgSfZPDxgHhT9Ahed5uTigpQn90FggW4SA/AIPq/6a149fTbE9qBEcSwE3FAEp6wQQ=="
     },
+    "parse-path@7.1.0": {
+      "integrity": "sha512-EuCycjZtfPcjWk7KTksnJ5xPMvWGA/6i4zrLYhRG0hGvC3GPU/jGUj3Cy+ZR0v30duV3e23R95T1lE2+lsndSw==",
+      "dependencies": [
+        "protocols"
+      ]
+    },
+    "parse-url@9.2.0": {
+      "integrity": "sha512-bCgsFI+GeGWPAvAiUv63ZorMeif3/U0zaXABGJbOWt5OH2KCaPHF6S+0ok4aqM9RuIPGyZdx9tR9l13PsW4AYQ==",
+      "dependencies": [
+        "@types/parse-path",
+        "parse-path"
+      ]
+    },
     "parse5@7.3.0": {
       "integrity": "sha512-IInvU7fabl34qmi9gY8XOVxhYyMyuH2xUNpb2q8/Y+7552KlejkRvqvD19nMoUW/uQGGbqNpA6Tufu5FL5BZgw==",
       "dependencies": [
@@ -2462,6 +2484,9 @@
     },
     "property-information@7.1.0": {
       "integrity": "sha512-TwEZ+X+yCJmYfL7TPUOcvBZ4QfoT5YenQiJuX//0th53DE6w0xxLEtfK3iyryQFddXuvkIk51EEgrJQ0WJkOmQ=="
+    },
+    "protocols@2.0.2": {
+      "integrity": "sha512-hHVTzba3wboROl0/aWRRG9dMytgH6ow//STBZh43l/wQgmMhYhOFi0EHWAPtoCz9IAUymsyP0TSBHkhgMEGNnQ=="
     },
     "queue-microtask@1.2.3": {
       "integrity": "sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A=="
@@ -2988,14 +3013,11 @@
     "zod-opts@0.1.8": {
       "integrity": "sha512-YZhdEcIL3D2W9fXCCf/UBgrBS90c8w25RTteh5GihGIZzadYr/qIFxyM2L98zHUkZ2S8MMxwn3ny8fzPNnvPlg==",
       "dependencies": [
-        "zod@3.25.76"
+        "zod"
       ]
     },
     "zod@3.23.8": {
       "integrity": "sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g=="
-    },
-    "zod@3.25.76": {
-      "integrity": "sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ=="
     },
     "zwitch@1.0.5": {
       "integrity": "sha512-V50KMwwzqJV0NpZIZFwfOD5/lyny3WlSzRiXgA0G7VUnRlqttta1L6UQIHzd6EuBY/cHGfwTIck7w1yH6Q5zUw=="
@@ -3241,10 +3263,11 @@
   "workspace": {
     "dependencies": [
       "jsr:@deno/doc@0.181.0",
-      "jsr:@effection/effection@3",
-      "jsr:@effectionx/deno-deploy@0.1.1",
       "jsr:@effectionx/watch@0.1.2",
+      "npm:@effectionx/deno-deploy@0.1.1",
       "npm:@tailwindcss/typography@~0.5.16",
+      "npm:effection@3.6.0",
+      "npm:git-url-parse@16.1.0",
       "npm:path-to-regexp@8.2.0",
       "npm:tailwindcss@^4.1.0",
       "npm:unified@11.0.4"

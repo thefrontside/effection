@@ -187,7 +187,7 @@ export function loadRepository(
             `Expected ref in format heads/<ref> or tags/<ref> (refs/ is ignored) but got ${ref}`,
           );
         }
-        return yield* loadRepositoryRef({ ref, repository });
+        return loadRepositoryRef({ ref, repository });
       },
     };
 

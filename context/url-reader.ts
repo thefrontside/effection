@@ -8,6 +8,7 @@ interface UrlReader {
 
 export const urlReaderApi = createApi<UrlReader>("url-reader", {
   readUrl(url, options) {
+    console.log("Using fetch at the end")
     return until(fetch(url, options))
   }
 });

@@ -1,4 +1,4 @@
-import { main, suspend } from "effection";
+import { main, suspend, useScope } from "effection";
 import { initDenoDeploy } from "@effectionx/deno-deploy";
 import { createRevolution, ServerInfo } from "revolution";
 
@@ -36,11 +36,11 @@ import { setupUrlReader } from "./context/url-reader.ts";
 // Learn more at https://docs.deno.com/runtime/manual/examples/module_metadata#concepts
 if (import.meta.main) {
   await main(function* () {
-    // const denoDeploy = yield* initDenoDeploy();
+    const denoDeploy = yield* initDenoDeploy();
 
-    // if (denoDeploy.isDenoDeploy) {
-    //   patchDenoPermissionsQuerySync();
-    // }
+    if (denoDeploy.isDenoDeploy) {
+      patchDenoPermissionsQuerySync();
+    }
 
     const jsrToken = Deno.env.get("JSR_API") ?? "";
     if (jsrToken === "") {
@@ -58,8 +58,11 @@ if (import.meta.main) {
 
     yield* setupUrlReader();
 
+    const scope = yield* useScope();
+
     yield* initGithubClientContext({
       token: githubToken,
+      scope
     });
 
     let library = yield* loadRepository({

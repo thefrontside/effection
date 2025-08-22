@@ -1,4 +1,4 @@
-import { createContext, until, useScope } from "effection";
+import { createContext, until, Scope } from "effection";
 import type {
   EndpointDefaults,
   EndpointInterface,
@@ -13,14 +13,14 @@ type ParseResult = ReturnType<EndpointInterface<object>["parse"]>;
 
 export const GithubClientContext = createContext<Octokit>("github-client");
 
-export function* initGithubClientContext({ token }: { token: string }) {
-  const scope = yield* useScope();
+export function* initGithubClientContext({ token, scope }: { token: string, scope: Scope }) {
   const octokit = new Octokit({ auth: token });
 
   octokit.hook.wrap(
     "request",
     (request, options: Required<EndpointDefaults>) => {
       return scope.run<OctokitResponse<unknown, number>>(function*() {
+        console.log("wrapping request")
         if (options.url.startsWith("https://")) {
           const response = yield* readUrl(new URL(options.url), options);
           return {

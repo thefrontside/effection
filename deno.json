@@ -1,6 +1,6 @@
 {
   "tasks": {
-    "dev": "deno run -A main.tsx --watch",
+    "dev": "deno run -A @effectionx/watch deno run -A main.tsx",
     "staticalize": "deno run -A jsr:@frontside/staticalize@0.2.1/cli --site http://localhost:8000 --output=built --base=http://localhost:8000",
     "pagefind": "npx pagefind --site built"
   },

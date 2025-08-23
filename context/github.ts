@@ -1,42 +1,31 @@
-import { createContext, until, Scope } from "effection";
+import { createContext, Scope } from "effection";
 import type {
-  EndpointDefaults,
   EndpointInterface,
-  OctokitResponse
 } from "npm:@octokit/types@13.6.2";
 
 import { Octokit } from "npm:octokit@4.0.3";
 
-import { readUrl } from './url-reader.ts';
+import { readUrl } from "./url-reader.ts";
 
 type ParseResult = ReturnType<EndpointInterface<object>["parse"]>;
 
 export const GithubClientContext = createContext<Octokit>("github-client");
 
-export function* initGithubClientContext({ token, scope }: { token: string, scope: Scope }) {
-  const octokit = new Octokit({ auth: token });
-
-  octokit.hook.wrap(
-    "request",
-    (request, options: Required<EndpointDefaults>) => {
-      return scope.run<OctokitResponse<unknown, number>>(function*() {
-        console.log("wrapping request")
-        if (options.url.startsWith("https://")) {
-          const response = yield* readUrl(new URL(options.url), options);
-          return {
-            headers: Object.fromEntries(response.headers),
-            status: response.status,
-            url: response.url,
-            data: yield* until(response.text())
-          } as OctokitResponse<unknown, number>
-        }
-        const result = yield* until(Promise.resolve(request(options)))
-        return result;
+export function* initGithubClientContext({
+  token,
+  scope,
+}: {
+  token: string;
+  scope: Scope;
+}) {
+  const octokit = new Octokit({ 
+    auth: token,
+    request: {
+      fetch: (url: string, options: Record<string, unknown>) => scope.run(function* () {
+        return yield* readUrl(typeof url === "string" ? new URL(url) : url, options);
       })
-    },
-  );
+    } 
+  });
 
   return yield* GithubClientContext.set(octokit);
 }
-
-

@@ -69,6 +69,7 @@ if (import.meta.main) {
       owner: "thefrontside",
       name: "effection",
     });
+    
     yield* LibraryRepositoryContext.set(library);
 
     let x = yield* loadRepository({

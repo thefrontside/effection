@@ -70,11 +70,3 @@ export function createApi<A extends {}>(name: string, handler: A): Api<A> {
 
   return { operations, around };
 }
-
-type A = Around<{
-  add: (left: number) => Operation<number>;
-}>;
-
-type O = Operations<{
-  add: (left: number) => Operation<number>;
-}>;

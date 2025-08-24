@@ -1,4 +1,4 @@
-import { call, type Operation, resource } from "effection";
+import { call, type Operation, resource, until } from "effection";
 import { Endpoints, RequestParameters } from "npm:@octokit/types@13.6.2";
 
 import { GithubClientContext } from "../context/github.ts";
@@ -78,7 +78,7 @@ export interface Repository {
   >;
 
   loadRef(
-    ref?: string | undefined,
+    ref?: string,
   ): Operation<RepositoryRef>;
 }
 
@@ -94,12 +94,10 @@ export function loadRepository(
       name,
 
       *get() {
-        const result = yield* call(() =>
-          github.rest.repos.get({
+        const result = yield* until(github.rest.repos.get({
             repo: name,
             owner: owner,
-          })
-        );
+          }));
 
         return result.data;
       },
@@ -174,7 +172,7 @@ export function loadRepository(
 
         return response;
       },
-      *loadRef(ref?: string | undefined): Operation<RepositoryRef> {
+      *loadRef(ref?: string): Operation<RepositoryRef> {
         if (!ref) {
           const repository = yield* this.get();
           ref = `heads/${repository.default_branch}`;

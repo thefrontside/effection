@@ -1,0 +1,24 @@
+name: Suggest
+
+on: [pull_request]
+
+permissions:
+  contents: read
+  checks: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  deno:
+    name: Deno Suggester
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - run: deno fmt
+      - run: deno lint --fix
+      - uses: reviewdog/action-suggester@v1
+        with:
+          tool_name: deno

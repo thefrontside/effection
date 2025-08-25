@@ -1,13 +1,9 @@
 import { all, Operation } from "effection";
 
-import { Endpoints } from "npm:@octokit/types@13.6.2";
 import { DenoJson, DenoJsonType, loadPackage, Package } from "./package.ts";
 import { Repository } from "./repository.ts";
 
 export const REF_PATTERN = /^(\/?refs\/)?(heads|tags)\/(.*)$/;
-
-type Ref =
-  Endpoints["GET /repos/{owner}/{repo}/git/ref/{ref}"]["response"]["data"];
 
 export interface RepositoryRef {
   repository: Repository;
@@ -118,32 +114,16 @@ export function loadRepositoryRef({
       return [base, target].filter(Boolean).join("/").replace(/^\.\//, "");
     },
 
-    *loadText(path: string) {
-      const response = yield* repository.getContent({
-        path,
-        ref: ref.name,
-        mediaType: {
-          format: "raw",
-        },
-      });
-
-      return response.data.toString();
+    loadText(path: string) {
+      return repository.getContent(path, ref.name);
     },
 
-    *loadReadme(base: string = ""): Operation<string> {
-      return yield* this.loadText(repositoryRef.getPath(base, "README.md"));
+    loadReadme(base: string = ""): Operation<string> {
+      return this.loadText(repositoryRef.getPath(base, "README.md"));
     },
 
     *loadJson<T>(path: string): Operation<T> {
-      const response = yield* repository.getContent({
-        path: path,
-        ref: ref.name,
-        mediaType: {
-          format: "raw",
-        },
-      });
-
-      const text = response.data.toString();
+      const text = yield* repository.getContent(path, ref.name);
 
       return JSON.parse(text) as T;
     },
@@ -154,8 +134,8 @@ export function loadRepositoryRef({
       return DenoJson.parse(json);
     },
 
-    *loadRootPackage() {
-      return yield* loadPackage({ workspacePath: "", ref: repositoryRef });
+    loadRootPackage() {
+      return loadPackage({ workspacePath: "", ref: repositoryRef });
     },
 
     *loadWorkspace(workspacePath: string) {

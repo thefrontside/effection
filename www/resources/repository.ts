@@ -1,5 +1,4 @@
-import { call, type Operation, resource, until } from "effection";
-import { Endpoints, RequestParameters } from "npm:@octokit/types@13.6.2";
+import { call, type Operation, until } from "effection";
 
 import { GithubClientContext } from "../context/github.ts";
 import {
@@ -7,6 +6,7 @@ import {
   REF_PATTERN,
   RepositoryRef,
 } from "./repository-ref.ts";
+
 import { extractVersion, rsort } from "../lib/semver.ts";
 
 export interface Repository {
@@ -15,8 +15,6 @@ export interface Repository {
   owner: string;
 
   nameWithOwner: string;
-
-  get(): Operation<Endpoints["GET /repos/{owner}/{repo}"]["response"]["data"]>;
 
   getDefaultBranch(): Operation<string>;
 
@@ -57,20 +55,8 @@ export interface Repository {
 
   /**
    * Get contents of a repository
-   *
-   * @param params.path path to the content
-   * @param params.ref optional branch, tag or commit (defaults to default branch when emitted)
-   * @returns
    */
-  getContent(
-    params: Omit<
-      Endpoints["GET /repos/{owner}/{repo}/contents/{path}"]["parameters"],
-      "owner" | "repo"
-    > &
-      RequestParameters,
-  ): Operation<
-    Endpoints["GET /repos/{owner}/{repo}/contents/{path}"]["response"]
-  >;
+  getContent(path: string, ref?: string): Operation<string>;
 
   loadRef(ref?: string): Operation<RepositoryRef>;
 }
@@ -89,27 +75,26 @@ export function* loadRepository({
     owner,
     name,
 
-    *get() {
-      const result = yield* until(
+    *getDefaultBranch() {
+      const response = yield* until(
         github.rest.repos.get({
           repo: name,
           owner: owner,
         }),
       );
-
-      return result.data;
-    },
-
-    *getDefaultBranch() {
-      const repository = yield* this.get();
-      return repository.default_branch;
+      return response.data.default_branch;
     },
 
     *starCount() {
-      const repo = yield* repository.get();
-
-      return repo.stargazers_count;
+      const response = yield* until(
+        github.rest.repos.get({
+          repo: name,
+          owner: owner,
+        }),
+      );
+      return response.data.stargazers_count;
     },
+
     *tags(searchQuery: string) {
       const result = yield* call(() =>
         github.graphql<{
@@ -152,29 +137,25 @@ export function* loadRepository({
 
       return tags.find((tag) => tag.name.endsWith(latest));
     },
-    *getContent(
-      params: Omit<
-        Endpoints["GET /repos/{owner}/{repo}/contents/{path}"]["parameters"],
-        "owner" | "repo"
-      > &
-        RequestParameters,
-    ): Operation<
-      Endpoints["GET /repos/{owner}/{repo}/contents/{path}"]["response"]
-    > {
-      const response = yield* call(() =>
+    *getContent(path, ref) {
+      const response = yield* until(
         github.rest.repos.getContent({
           repo: name,
           owner: owner,
-          ...params,
+          path,
+          ref,
+          mediaType: {
+            format: "raw",
+          },
         }),
       );
 
-      return response;
+      return response.data.toString();
     },
     *loadRef(ref?: string): Operation<RepositoryRef> {
       if (!ref) {
-        const repository = yield* this.get();
-        ref = `heads/${repository.default_branch}`;
+        const default_branch = yield* this.getDefaultBranch();
+        ref = `heads/${default_branch}`;
       }
       const parts = ref.match(REF_PATTERN);
       if (parts) {

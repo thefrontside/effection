@@ -16,9 +16,9 @@ export interface Repository {
 
   nameWithOwner: string;
 
-  get(): Operation<
-    Endpoints["GET /repos/{owner}/{repo}"]["response"]["data"]
-  >;
+  get(): Operation<Endpoints["GET /repos/{owner}/{repo}"]["response"]["data"]>;
+
+  getDefaultBranch(): Operation<string>;
 
   starCount(): Operation<number>;
 
@@ -36,11 +36,7 @@ export interface Repository {
    *
    * @returns tag objects
    */
-  tags(
-    searchQuery?: string,
-  ): Operation<
-    { name: string }[]
-  >;
+  tags(searchQuery?: string): Operation<{ name: string }[]>;
 
   /**
    * Find the latest Semver tag that matches a specific search query.
@@ -67,54 +63,64 @@ export interface Repository {
    * @returns
    */
   getContent(
-    params:
-      & Omit<
-        Endpoints["GET /repos/{owner}/{repo}/contents/{path}"]["parameters"],
-        "owner" | "repo"
-      >
-      & RequestParameters,
+    params: Omit<
+      Endpoints["GET /repos/{owner}/{repo}/contents/{path}"]["parameters"],
+      "owner" | "repo"
+    > &
+      RequestParameters,
   ): Operation<
     Endpoints["GET /repos/{owner}/{repo}/contents/{path}"]["response"]
   >;
 
-  loadRef(
-    ref?: string,
-  ): Operation<RepositoryRef>;
+  loadRef(ref?: string): Operation<RepositoryRef>;
 }
 
-export function loadRepository(
-  { owner, name }: { owner: string; name: string },
-) {
-  return resource<Repository>(function* (provide) {
-    const github = yield* GithubClientContext.expect();
+export function* loadRepository({
+  owner,
+  name,
+}: {
+  owner: string;
+  name: string;
+}) {
+  const github = yield* GithubClientContext.expect();
 
-    const repository: Repository = {
-      nameWithOwner: `${owner}/${name}`,
-      owner,
-      name,
+  const repository: Repository = {
+    nameWithOwner: `${owner}/${name}`,
+    owner,
+    name,
 
-      *get() {
-        const result = yield* until(github.rest.repos.get({
-            repo: name,
-            owner: owner,
-          }));
+    *get() {
+      const result = yield* until(
+        github.rest.repos.get({
+          repo: name,
+          owner: owner,
+        }),
+      );
 
-        return result.data;
-      },
-      *starCount() {
-        const repo = yield* repository.get();
+      return result.data;
+    },
 
-        return repo.stargazers_count;
-      },
-      *tags(
-        searchQuery: string,
-      ) {
-        const result = yield* call(() =>
-          github.graphql<
-            { repository: { refs: { nodes: { name: string }[] } } }
-          >(
-            /* GraphQL */ `
-            query RepositoryTags($owner: String!, $name: String!, $searchQuery: String!) {
+    *getDefaultBranch() {
+      const repository = yield* this.get();
+      return repository.default_branch;
+    },
+
+    *starCount() {
+      const repo = yield* repository.get();
+
+      return repo.stargazers_count;
+    },
+    *tags(searchQuery: string) {
+      const result = yield* call(() =>
+        github.graphql<{
+          repository: { refs: { nodes: { name: string }[] } };
+        }>(
+          /* GraphQL */ `
+            query RepositoryTags(
+              $owner: String!
+              $name: String!
+              $searchQuery: String!
+            ) {
               repository(owner: $owner, name: $name) {
                 refs(query: $searchQuery, refPrefix: "refs/tags/", first: 100) {
                   nodes {
@@ -123,72 +129,64 @@ export function loadRepository(
                 }
               }
             }
-            `,
-            {
-              name: name,
-              owner: owner,
-              searchQuery,
-            },
-          )
-        );
-
-        return result.repository.refs.nodes;
-      },
-      *getSemverTags(major: string) {
-        const tags = yield* this.tags(`tags/effection-v${major}*`);
-
-        return rsort(
-          tags.map((tag) => tag.name).map(extractVersion),
-        );
-      },
-      *getLatestSemverTag(glob: string) {
-        const tags = yield* this.tags(glob);
-
-        const [latest] = rsort(
-          tags.map((tag) => tag.name).map(extractVersion),
-        );
-
-        return tags.find((tag) => tag.name.endsWith(latest));
-      },
-      *getContent(
-        params:
-          & Omit<
-            Endpoints["GET /repos/{owner}/{repo}/contents/{path}"][
-              "parameters"
-            ],
-            "owner" | "repo"
-          >
-          & RequestParameters,
-      ): Operation<
-        Endpoints["GET /repos/{owner}/{repo}/contents/{path}"]["response"]
-      > {
-        const response = yield* call(() =>
-          github.rest.repos.getContent({
-            repo: name,
+          `,
+          {
+            name: name,
             owner: owner,
-            ...params,
-          })
+            searchQuery,
+          },
+        ),
+      );
+
+      return result.repository.refs.nodes;
+    },
+    *getSemverTags(major: string) {
+      const tags = yield* this.tags(`tags/effection-v${major}*`);
+
+      return rsort(tags.map((tag) => tag.name).map(extractVersion));
+    },
+    *getLatestSemverTag(glob: string) {
+      const tags = yield* this.tags(glob);
+
+      const [latest] = rsort(tags.map((tag) => tag.name).map(extractVersion));
+
+      return tags.find((tag) => tag.name.endsWith(latest));
+    },
+    *getContent(
+      params: Omit<
+        Endpoints["GET /repos/{owner}/{repo}/contents/{path}"]["parameters"],
+        "owner" | "repo"
+      > &
+        RequestParameters,
+    ): Operation<
+      Endpoints["GET /repos/{owner}/{repo}/contents/{path}"]["response"]
+    > {
+      const response = yield* call(() =>
+        github.rest.repos.getContent({
+          repo: name,
+          owner: owner,
+          ...params,
+        }),
+      );
+
+      return response;
+    },
+    *loadRef(ref?: string): Operation<RepositoryRef> {
+      if (!ref) {
+        const repository = yield* this.get();
+        ref = `heads/${repository.default_branch}`;
+      }
+      const parts = ref.match(REF_PATTERN);
+      if (parts) {
+        ref = parts[0];
+      } else {
+        throw new Error(
+          `Expected ref in format heads/<ref> or tags/<ref> (refs/ is ignored) but got ${ref}`,
         );
+      }
+      return loadRepositoryRef({ ref, repository });
+    },
+  };
 
-        return response;
-      },
-      *loadRef(ref?: string): Operation<RepositoryRef> {
-        if (!ref) {
-          const repository = yield* this.get();
-          ref = `heads/${repository.default_branch}`;
-        }
-        const parts = ref.match(REF_PATTERN);
-        if (parts) {
-          ref = parts[0];
-        } else {
-          throw new Error(
-            `Expected ref in format heads/<ref> or tags/<ref> (refs/ is ignored) but got ${ref}`,
-          );
-        }
-        return loadRepositoryRef({ ref, repository });
-      },
-    };
-
-    yield* provide(repository);
-  });
+  return repository;
 }

@@ -17,7 +17,7 @@ import {
 export function* ScoreCard(pkg: Package) {
   const [details, score] = yield* pkg.jsrPackageDetails();
 
-  const jsrScore = (details.success && details.data && details.data.score) || 0;
+  const jsrScore = (details?.success && details.data && details.data.score) || 0;
 
   return (
     <div class="flex flex-col w-full space-y-5 sm:items-end lg:space-y-5">
@@ -46,35 +46,35 @@ export function* ScoreCard(pkg: Package) {
                 Icon={CloudflareWorkersIcon}
                 width={416}
                 height={375}
-                enabled={details.data?.runtimeCompat.workerd ?? false}
+                enabled={details?.data?.runtimeCompat.workerd ?? false}
               />
               <SupportedEnvironment
                 name="Node.js"
                 Icon={NodeIcon}
                 width={256}
                 height={292}
-                enabled={details.data?.runtimeCompat.node ?? false}
+                enabled={details?.data?.runtimeCompat.node ?? false}
               />
               <SupportedEnvironment
                 name="Deno"
                 Icon={DenoIcon}
                 width={512}
                 height={512}
-                enabled={details.data?.runtimeCompat.deno ?? false}
+                enabled={details?.data?.runtimeCompat.deno ?? false}
               />
               <SupportedEnvironment
                 name="Bun"
                 Icon={BunIcon}
                 width={435}
                 height={435}
-                enabled={details.data?.runtimeCompat.bun ?? false}
+                enabled={details?.data?.runtimeCompat.bun ?? false}
               />
               <SupportedEnvironment
                 name="Browser"
                 Icon={BrowserIcon}
                 width={1200}
                 height={500}
-                enabled={details.data?.runtimeCompat.browser ?? false}
+                enabled={details?.data?.runtimeCompat.browser ?? false}
               />
             </div>
           </div>
@@ -95,7 +95,7 @@ export function* ScoreCard(pkg: Package) {
           </div>
         </a>
       </div>
-      {score.success && score.data
+      {score?.success && score.data
         ? <ScoreDescription score={score.data} pkg={pkg} />
         : <></>}
     </div>

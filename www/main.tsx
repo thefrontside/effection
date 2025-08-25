@@ -36,8 +36,6 @@ import { redirectDocsRoute } from "./routes/redirect-docs-route.tsx";
 import { redirectIndexRoute } from "./routes/redirect-index-route.tsx";
 import { searchRoute } from "./routes/search-route.tsx";
 import { initFetch } from "./context/fetch.ts";
-import { urlRewriteApi } from "./context/url-rewrite.ts";
-import { parse } from "node:path";
 
 // Learn more at https://docs.deno.com/runtime/manual/examples/module_metadata#concepts
 if (import.meta.main) {

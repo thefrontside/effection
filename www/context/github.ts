@@ -115,10 +115,29 @@ export function* rewriteContentsApiToGit(shouldRewrite: ShouldRewrite) {
 }
 
 /**
+ * Rewrites git:// protocol URLs to file:// URLs based on a local base path.
  * 
- * @param base 
+ * This function intercepts requests to git:// URLs, parses them using parseGitUrl,
+ * and redirects them to local file paths relative to the provided base URL.
+ * 
+ * @param base - The base file:// URL to resolve relative file paths against (must start with 'file:/' and end with '/')
+ * @yields A URL rewrite middleware that transforms git:// URLs to local file URLs
+ * @throws {Error} When base doesn't start with 'file:/' or doesn't end with '/'
+ * 
+ * @example
+ * ```typescript
+ * yield* rewriteGitToFile("file:///path/to/local/repo/");
+ * // git://github.com/owner/repo#src/file.ts → file:///path/to/local/repo/src/file.ts
+ * ```
  */
 export function* rewriteGitToFile(base: string) {
+  if (!base.startsWith('file:/')) {
+    throw new Error(`Base URL must start with 'file:/' but got: ${base}`);
+  }
+  if (!base.endsWith('/')) {
+    throw new Error(`Base URL must end with '/' but got: ${base}`);
+  }
+  
   yield* urlRewriteApi.around({
     *rewrite([url, input, init], next) {
       if (url.protocol === 'git:') {

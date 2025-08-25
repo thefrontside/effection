@@ -1,4 +1,4 @@
-import { Operation, until, useAbortSignal } from "effection";
+import { Operation, until } from "effection";
 import { createApi } from "./context-api.ts";
 import { rewrite } from "./url-rewrite.ts";
 

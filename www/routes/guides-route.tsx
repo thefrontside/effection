@@ -7,7 +7,7 @@ import { guides, type GuidesMeta } from "../resources/guides.ts";
 import { useAppHtml } from "./app.html.tsx";
 import { createChildURL, createSibling } from "./links-resolvers.ts";
 import { Navburger } from "../components/navburger.tsx";
-import { Repository } from "../resources/repository.ts";
+import { findLatestSemverTag, Repository } from "../resources/repository.ts";
 import { softRedirect } from "./redirect.tsx";
 import { IconExternal } from "../components/icons/external.tsx";
 
@@ -18,7 +18,8 @@ export function* getSeriesRef({
   repository: Repository;
   series: string;
 }) {
-  const latest = yield* repository.getLatestSemverTag(`effection-${series}`);
+  const tags = yield* repository.tags(`effection-${series}`);
+  const latest = findLatestSemverTag(tags);
 
   if (!latest) {
     throw new Error(`Could not retrieve latest tag for "effection-${series}"`);

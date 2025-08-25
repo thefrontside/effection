@@ -1,7 +1,7 @@
 import { type JSXElement, useParams } from "revolution";
 
 import { SitemapRoute } from "../plugins/sitemap.ts";
-import { Repository } from "../resources/repository.ts";
+import { findLatestSemverTag, Repository } from "../resources/repository.ts";
 import { useAppHtml } from "./app.html.tsx";
 import { fetchMinorVersions } from "./api-index-route.tsx";
 import { all, Operation } from "effection";
@@ -67,7 +67,8 @@ export function apiMinorSymbolRoute({
       }>();
 
       try {
-        const latest = yield* library.getLatestSemverTag("effection-v3");
+        const tags = yield* library.tags("effection-v3");
+        const latest = findLatestSemverTag(tags);
 
         if (!latest) {
           throw new Error(
@@ -75,7 +76,8 @@ export function apiMinorSymbolRoute({
           );
         }
 
-        const tag = yield* library.getLatestSemverTag(minor);
+        const minorTags = yield* library.tags(minor);
+        const tag = findLatestSemverTag(minorTags);
         if (!tag) {
           throw new Error(`Failed to retrieve latest version for ${minor}`);
         }

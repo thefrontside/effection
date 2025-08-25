@@ -9,6 +9,20 @@ import {
 
 import { extractVersion, rsort } from "../lib/semver.ts";
 
+/**
+ * Find the latest Semver tag from an array of tags.
+ *
+ * @param tags - Array of tag objects with name property
+ * @returns a tag if found or undefined
+ */
+export function findLatestSemverTag(
+  tags: { name: string }[],
+): { name: string } | undefined {
+  const [latest] = rsort(tags.map((tag) => tag.name).map(extractVersion));
+
+  return tags.find((tag) => tag.name.endsWith(latest));
+}
+
 export interface Repository {
   name: string;
 
@@ -36,15 +50,6 @@ export interface Repository {
    */
   tags(searchQuery?: string): Operation<{ name: string }[]>;
 
-  /**
-   * Find the latest Semver tag that matches a specific search query.
-   *
-   * @param glob
-   * @returns a tag if found or undefined
-   */
-  getLatestSemverTag(
-    searchQuery: string,
-  ): Operation<{ name: string } | undefined>;
 
   /**
    * Get a list of versions from tags matching a major version
@@ -129,13 +134,6 @@ export function* loadRepository({
       const tags = yield* this.tags(`tags/effection-v${major}*`);
 
       return rsort(tags.map((tag) => tag.name).map(extractVersion));
-    },
-    *getLatestSemverTag(glob: string) {
-      const tags = yield* this.tags(glob);
-
-      const [latest] = rsort(tags.map((tag) => tag.name).map(extractVersion));
-
-      return tags.find((tag) => tag.name.endsWith(latest));
     },
     *getContent(path, ref) {
       const response = yield* until(

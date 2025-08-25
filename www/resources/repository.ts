@@ -23,6 +23,18 @@ export function findLatestSemverTag(
   return tags.find((tag) => tag.name.endsWith(latest));
 }
 
+/**
+ * Extract and sort semver versions from an array of tags.
+ *
+ * @param tags - Array of tag objects with name property
+ * @returns sorted array of version strings
+ */
+export function extractSemverVersions(
+  tags: { name: string }[],
+): string[] {
+  return rsort(tags.map((tag) => tag.name).map(extractVersion));
+}
+
 export interface Repository {
   name: string;
 
@@ -51,12 +63,6 @@ export interface Repository {
   tags(searchQuery?: string): Operation<{ name: string }[]>;
 
 
-  /**
-   * Get a list of versions from tags matching a major version
-   * @param major
-   * return list of tags
-   */
-  getSemverTags(major: string): Operation<string[] | undefined>;
 
   /**
    * Get contents of a repository
@@ -129,11 +135,6 @@ export function* loadRepository({
       );
 
       return result.repository.refs.nodes;
-    },
-    *getSemverTags(major: string) {
-      const tags = yield* this.tags(`tags/effection-v${major}*`);
-
-      return rsort(tags.map((tag) => tag.name).map(extractVersion));
     },
     *getContent(path, ref) {
       const response = yield* until(

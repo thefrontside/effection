@@ -11,7 +11,7 @@ import { DocPage, DocsPages } from "../hooks/use-deno-doc.tsx";
 import { useMarkdown } from "../hooks/use-markdown.tsx";
 import { major, minor } from "../lib/semver.ts";
 import type { RoutePath, SitemapRoute } from "../plugins/sitemap.ts";
-import { Repository } from "../resources/repository.ts";
+import { extractSemverVersions, Repository } from "../resources/repository.ts";
 import { useAppHtml } from "./app.html.tsx";
 import { createToc } from "../lib/toc.ts";
 import { ApiBody } from "../components/api/api-page.tsx";
@@ -267,7 +267,8 @@ function* getEffectionDependency(
   if (effection) {
     const version = coerce(effection.version);
     if (version) {
-      const versions = yield* library.getSemverTags(version.major.toString());
+      const tags = yield* library.tags(`tags/effection-v${version.major}*`);
+      const versions = extractSemverVersions(tags);
       if (versions) {
         let latest = versions.find((v) => satisfies(v, effection.version));
         if (latest) {

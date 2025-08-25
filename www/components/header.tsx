@@ -69,7 +69,7 @@ export function* Header(props?: HeaderProps) {
                 </span>
                 <span class="flex flex-row items-center pl-1">
                   <StarIcon class="pr-0.5" />
-                  <span>{yield* library.starCount()}</span>
+                  <span>{yield* library.getStarCount()}</span>
                   <span class="font-black">+</span>
                 </span>
               </a>

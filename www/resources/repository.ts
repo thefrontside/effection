@@ -32,7 +32,7 @@ export interface Repository {
 
   getDefaultBranch(): Operation<string>;
 
-  starCount(): Operation<number>;
+  getStarCount(): Operation<number>;
 
   /**
    * Retrieve tags for the current repository.
@@ -90,7 +90,7 @@ export function* loadRepository({
       return response.data.default_branch;
     },
 
-    *starCount() {
+    *getStarCount() {
       const response = yield* until(
         github.rest.repos.get({
           repo: name,

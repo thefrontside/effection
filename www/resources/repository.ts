@@ -104,7 +104,7 @@ export interface Repository {
 
   /**
    * Get contents of a repository on main branch.
-   * To read content on other branches, use loadRef to create 
+   * To read content on other branches, use loadRef to create
    * a RepositoryRef instance with it's own getContent method.
    */
   getContent(path: string): Operation<string>;

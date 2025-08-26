@@ -11,7 +11,11 @@ import { DocPage, DocsPages } from "../hooks/use-deno-doc.tsx";
 import { useMarkdown } from "../hooks/use-markdown.tsx";
 import { major, minor } from "../lib/semver.ts";
 import type { RoutePath, SitemapRoute } from "../plugins/sitemap.ts";
-import { loadDenoJson, loadRootPackage, loadWorkspace } from "../resources/repository-ref.ts";
+import {
+  loadDenoJson,
+  loadRootPackage,
+  loadWorkspace,
+} from "../resources/repository-ref.ts";
 import { extractSemverVersions, Repository } from "../resources/repository.ts";
 import { useAppHtml } from "./app.html.tsx";
 import { createToc } from "../lib/toc.ts";

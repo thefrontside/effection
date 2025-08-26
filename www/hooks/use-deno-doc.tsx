@@ -14,6 +14,7 @@ import { useDescription } from "./use-description-parse.tsx";
 import { GithubClientContext } from "../context/github.ts";
 import { exportHash, extract } from "../components/type/markdown.tsx";
 import { DenoJson } from "../resources/package.ts";
+import { operations } from "../context/fetch.ts";
 
 export type { DocNode };
 

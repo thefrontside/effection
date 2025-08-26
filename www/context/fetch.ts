@@ -20,7 +20,7 @@ export function* initFetch() {
   yield* fetchApi.around({
     *fetch([input, init], next) {
       let request = input instanceof Request ? input : new Request(input, init);
-      if (request.method === 'GET') {
+      if (request.method === "GET") {
         const response = yield* until(cache.match(request));
         if (response) {
           return response;
@@ -36,8 +36,9 @@ export function* initFetch() {
 
   yield* fetchApi.around({
     *fetch([input, init], next) {
-      const url =
-        input instanceof Request ? new URL(input.url) : new URL(input);
+      const url = input instanceof Request
+        ? new URL(input.url)
+        : new URL(input);
 
       if (url.protocol === "file:") {
         console.log(`Reading file system file from ${url}`);
@@ -61,8 +62,9 @@ export function* initFetch() {
 
   yield* fetchApi.around({
     *fetch([input, init], next) {
-      const url =
-        input instanceof Request ? new URL(input.url) : new URL(input);
+      const url = input instanceof Request
+        ? new URL(input.url)
+        : new URL(input);
       const newUrl = yield* rewrite(url, input, init);
       if (url !== newUrl) {
         console.log(`Rewrite ${url} to ${newUrl}`);

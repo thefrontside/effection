@@ -17,7 +17,8 @@ import {
 export function* ScoreCard(pkg: Package) {
   const [details, score] = yield* pkg.jsrPackageDetails();
 
-  const jsrScore = (details?.success && details.data && details.data.score) || 0;
+  const jsrScore = (details?.success && details.data && details.data.score) ||
+    0;
 
   return (
     <div class="flex flex-col w-full space-y-5 sm:items-end lg:space-y-5">

@@ -11,6 +11,7 @@ import { DocPage, DocsPages } from "../hooks/use-deno-doc.tsx";
 import { useMarkdown } from "../hooks/use-markdown.tsx";
 import { major, minor } from "../lib/semver.ts";
 import type { RoutePath, SitemapRoute } from "../plugins/sitemap.ts";
+import { loadDenoJson } from "../resources/repository-ref.ts";
 import { extractSemverVersions, Repository } from "../resources/repository.ts";
 import { useAppHtml } from "./app.html.tsx";
 import { createToc } from "../lib/toc.ts";
@@ -32,7 +33,7 @@ function routemap(x: Repository): SitemapRoute<JSXElement>["routemap"] {
     let paths: RoutePath[] = [];
 
     const main = yield* x.loadRef();
-    const { workspace = [] } = yield* main.loadDenoJson();
+    const { workspace = [] } = yield* loadDenoJson(main);
 
     for (let workspacePath of workspace) {
       paths.push({

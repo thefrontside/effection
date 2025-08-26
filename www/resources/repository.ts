@@ -2,6 +2,7 @@ import { call, type Operation, until } from "effection";
 
 import { GithubClientContext } from "../context/github.ts";
 import {
+  getPath,
   loadRepositoryRef,
   REF_PATTERN,
   RepositoryRef,
@@ -29,10 +30,42 @@ export function findLatestSemverTag(
  * @param tags - Array of tag objects with name property
  * @returns sorted array of version strings
  */
-export function extractSemverVersions(
-  tags: { name: string }[],
-): string[] {
+export function extractSemverVersions(tags: { name: string }[]): string[] {
   return rsort(tags.map((tag) => tag.name).map(extractVersion));
+}
+
+/**
+ * Load and parse JSON file from a repository at a specific ref and path.
+ *
+ * @param repository - The repository to load from
+ * @param ref - The git reference (branch/tag name)
+ * @param path - Path to the JSON file
+ * @returns Parsed JSON content
+ */
+export function* loadJson<T = unknown>(
+  repository: Repository,
+  ref: string,
+  path: string,
+): Operation<T> {
+  const text = yield* repository.getContent(path, ref);
+  return JSON.parse(text) as T;
+}
+
+/**
+ * Load README.md file from a repository at a specific ref and base path.
+ *
+ * @param repository - The repository to load from
+ * @param ref - The git reference (branch/tag name)
+ * @param base - Base path within the repository (defaults to "")
+ * @returns Content of README.md file
+ */
+export function* loadReadme(
+  repository: Repository,
+  ref: string,
+  base: string = "",
+): Operation<string> {
+  const path = getPath(base, "README.md");
+  return yield* repository.getContent(path, ref);
 }
 
 export interface Repository {
@@ -61,8 +94,6 @@ export interface Repository {
    * @returns tag objects
    */
   tags(searchQuery?: string): Operation<{ name: string }[]>;
-
-
 
   /**
    * Get contents of a repository

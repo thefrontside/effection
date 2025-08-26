@@ -12,6 +12,7 @@ import { JSXElement } from "revolution/jsx-runtime";
 
 import { useMarkdown } from "../hooks/use-markdown.tsx";
 import { createToc } from "../lib/toc.ts";
+import { loadJson } from "./repository.ts";
 import { RepositoryRef } from "./repository-ref.ts";
 
 export interface DocModule {
@@ -64,7 +65,7 @@ export function guides(
     let scope = yield* useScope();
 
     function* fetchLoaders() {
-      const json = yield* ref.loadJson("docs/structure.json");
+      const json = yield* loadJson(ref.repository, ref.name, "docs/structure.json");
 
       const structure = Structure.parse(json);
 
@@ -96,7 +97,7 @@ export function guides(
           tasks.set(
             meta.id,
             scope.run(function* () {
-              let source = yield* call(() => ref.loadText(meta.filename));
+              let source = yield* call(() => ref.getContent(meta.filename));
 
               const content = yield* useMarkdown(source);
 

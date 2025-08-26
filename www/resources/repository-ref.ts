@@ -1,9 +1,34 @@
 import { all, Operation } from "effection";
 
 import { DenoJson, DenoJsonType, loadPackage, Package } from "./package.ts";
-import { Repository } from "./repository.ts";
+import { loadJson, Repository } from "./repository.ts";
 
 export const REF_PATTERN = /^(\/?refs\/)?(heads|tags)\/(.*)$/;
+
+/**
+ * Return relative path that can be used to retrieve file content
+ * @param base - Base path
+ * @param target - Target path
+ * @returns Combined path with leading "./" removed
+ */
+export function getPath(base: string, target: string): string {
+  return [base, target].filter(Boolean).join("/").replace(/^\.\//, "");
+}
+
+/**
+ * Load and parse deno.json from a repository ref
+ * @param ref - Repository reference
+ * @param base - Base path (defaults to "")
+ * @returns Parsed deno.json content
+ */
+export function* loadDenoJson(
+  ref: RepositoryRef,
+  base: string = "",
+): Operation<DenoJsonType> {
+  const path = getPath(base, "deno.json");
+  const json = yield* loadJson(ref.repository, ref.name, path);
+  return DenoJson.parse(json);
+}
 
 export interface RepositoryRef {
   repository: Repository;
@@ -26,28 +51,10 @@ export interface RepositoryRef {
   url: string;
 
   /**
-   * Read a text file
-   * @param path
+   * Get contents of a file at the specified path
+   * @param path - Path to the file
    */
-  loadText(path: string): Operation<string>;
-
-  /**
-   * Get readme file at the root of the ref
-   *
-   * @return string
-   */
-  loadReadme(base?: string): Operation<string>;
-
-  /**
-   * Read content of a json file specified path
-   * @param path
-   */
-  loadJson<T = unknown>(path: string): Operation<T>;
-
-  /**
-   * Get the parsed version of deno.json at the root
-   */
-  loadDenoJson(base?: string): Operation<DenoJsonType>;
+  getContent(path: string): Operation<string>;
 
   /**
    * Load a package at given workspace path
@@ -63,13 +70,6 @@ export interface RepositoryRef {
    * Load packages declarated in workspaces
    */
   loadWorkspaces(): Operation<Package[]>;
-
-  /**
-   * Return relative path that can be to retrieve file content
-   * @param base
-   * @param target
-   */
-  getPath(base: string, target: string): string;
 
   /**
    * Return complete URL of a file or a directory in GitHub API
@@ -99,39 +99,15 @@ export function loadRepositoryRef({
 
     getUrl(base, target, isFile) {
       return new URL(
-        [
-          isFile ? "blob" : "tree",
-          ref.name,
-          repositoryRef.getPath(base ?? "", target ?? ""),
-        ]
+        [isFile ? "blob" : "tree", ref.name, getPath(base ?? "", target ?? "")]
           .filter(Boolean)
           .join("/"),
         `https://github.com/${repository.nameWithOwner}/`,
       );
     },
 
-    getPath(base, target) {
-      return [base, target].filter(Boolean).join("/").replace(/^\.\//, "");
-    },
-
-    loadText(path: string) {
+    getContent(path: string) {
       return repository.getContent(path, ref.name);
-    },
-
-    loadReadme(base: string = ""): Operation<string> {
-      return this.loadText(repositoryRef.getPath(base, "README.md"));
-    },
-
-    *loadJson<T>(path: string): Operation<T> {
-      const text = yield* repository.getContent(path, ref.name);
-
-      return JSON.parse(text) as T;
-    },
-
-    *loadDenoJson(base: string = "") {
-      const path = repositoryRef.getPath(base, "deno.json");
-      const json = yield* this.loadJson(path);
-      return DenoJson.parse(json);
     },
 
     loadRootPackage() {
@@ -139,7 +115,7 @@ export function loadRepositoryRef({
     },
 
     *loadWorkspace(workspacePath: string) {
-      const { workspace } = yield* repositoryRef.loadDenoJson();
+      const { workspace } = yield* loadDenoJson(repositoryRef);
       if (!workspace?.includes(workspacePath)) {
         throw new Error(`${workspacePath} is not a valid workspace`);
       }
@@ -148,7 +124,7 @@ export function loadRepositoryRef({
     },
 
     *loadWorkspaces() {
-      const { workspace = [] } = yield* repositoryRef.loadDenoJson();
+      const { workspace = [] } = yield* loadDenoJson(repositoryRef);
 
       return yield* all(
         workspace.map((workspacePath) =>

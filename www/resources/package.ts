@@ -7,7 +7,8 @@ import { DocsPages, useDocPages } from "../hooks/use-deno-doc.tsx";
 import { useDescription, useTitle } from "../hooks/use-description-parse.tsx";
 import { useMDX } from "../hooks/use-mdx.tsx";
 import { PackageDetailsResult, PackageScoreResult } from "./jsr-client.ts";
-import { RepositoryRef } from "./repository-ref.ts";
+import { loadReadme } from "./repository.ts";
+import { loadDenoJson, RepositoryRef } from "./repository-ref.ts";
 
 export interface Package {
   ref: RepositoryRef;
@@ -111,7 +112,7 @@ export function loadPackage(
   { ref, workspacePath }: { workspacePath: string; ref: RepositoryRef },
 ) {
   return resource<Package>(function* (provide) {
-    const denoJson = yield* ref.loadDenoJson(workspacePath);
+    const denoJson = yield* loadDenoJson(ref, workspacePath);
 
     const [, scope, name] = denoJson?.name?.match(/@(.*)\/(.*)/) ?? [];
 
@@ -155,7 +156,7 @@ export function loadPackage(
       source: ref.getUrl(workspacePath),
       name,
       *readme() {
-        return yield* ref.loadReadme(workspacePath);
+        return yield* loadReadme(ref.repository, ref.name, workspacePath);
       },
       get entrypoints() {
         const entrypoints: Record<string, URL> = {};

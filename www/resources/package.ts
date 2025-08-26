@@ -156,7 +156,7 @@ export function loadPackage(
       source: ref.getUrl(workspacePath),
       name,
       *readme() {
-        return yield* loadReadme(ref.repository, ref.name, workspacePath);
+        return yield* loadReadme(ref, workspacePath);
       },
       get entrypoints() {
         const entrypoints: Record<string, URL> = {};

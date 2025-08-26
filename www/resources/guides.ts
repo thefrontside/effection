@@ -65,7 +65,7 @@ export function guides(
     let scope = yield* useScope();
 
     function* fetchLoaders() {
-      const json = yield* loadJson(ref.repository, ref.name, "docs/structure.json");
+      const json = yield* loadJson(ref, "docs/structure.json");
 
       const structure = Structure.parse(json);
 

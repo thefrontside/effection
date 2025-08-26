@@ -1,7 +1,8 @@
-import { all, Operation } from "effection";
+import { all, Operation, until } from "effection";
 
 import { DenoJson, DenoJsonType, loadPackage, Package } from "./package.ts";
-import { loadJson, Repository } from "./repository.ts";
+import { loadJson, Repository, type ContentProvider } from "./repository.ts";
+import { GithubClientContext } from "../context/github.ts";
 
 export const REF_PATTERN = /^(\/?refs\/)?(heads|tags)\/(.*)$/;
 
@@ -16,21 +17,21 @@ export function getPath(base: string, target: string): string {
 }
 
 /**
- * Load and parse deno.json from a repository ref
- * @param ref - Repository reference
+ * Load and parse deno.json from a content provider
+ * @param contentProvider - Object that can provide file content
  * @param base - Base path (defaults to "")
  * @returns Parsed deno.json content
  */
 export function* loadDenoJson(
-  ref: RepositoryRef,
+  contentProvider: ContentProvider,
   base: string = "",
 ): Operation<DenoJsonType> {
   const path = getPath(base, "deno.json");
-  const json = yield* loadJson(ref.repository, ref.name, path);
+  const json = yield* loadJson(contentProvider, path);
   return DenoJson.parse(json);
 }
 
-export interface RepositoryRef {
+export interface RepositoryRef extends ContentProvider {
   repository: Repository;
 
   /**
@@ -79,13 +80,15 @@ export interface RepositoryRef {
   getUrl(base?: string, target?: string, isFile?: boolean): URL;
 }
 
-export function loadRepositoryRef({
+export function* loadRepositoryRef({
   ref: _ref,
   repository,
 }: {
   ref: string;
   repository: Repository;
 }) {
+  const github = yield* GithubClientContext.expect();
+
   const ref = matchRef(_ref);
 
   if (!ref) throw new Error(`Could not normalize ${_ref}`);
@@ -106,8 +109,20 @@ export function loadRepositoryRef({
       );
     },
 
-    getContent(path: string) {
-      return repository.getContent(path, ref.name);
+    *getContent(path: string) {
+      const response = yield* until(
+        github.rest.repos.getContent({
+          repo: repository.name,
+          owner: repository.owner,
+          path,
+          ref: ref.name,
+          mediaType: {
+            format: "raw",
+          },
+        }),
+      );
+
+      return response.data.toString();
     },
 
     loadRootPackage() {

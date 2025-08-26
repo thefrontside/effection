@@ -11,6 +11,17 @@ import {
 import { extractVersion, rsort } from "../lib/semver.ts";
 
 /**
+ * Interface for objects that can provide file content
+ */
+export interface ContentProvider {
+  /**
+   * Get contents of a file at the specified path
+   * @param path - Path to the file
+   */
+  getContent(path: string): Operation<string>;
+}
+
+/**
  * Find the latest Semver tag from an array of tags.
  *
  * @param tags - Array of tag objects with name property
@@ -35,37 +46,33 @@ export function extractSemverVersions(tags: { name: string }[]): string[] {
 }
 
 /**
- * Load and parse JSON file from a repository at a specific ref and path.
+ * Load and parse JSON file from a content provider.
  *
- * @param repository - The repository to load from
- * @param ref - The git reference (branch/tag name)
+ * @param contentProvider - Object that can provide file content
  * @param path - Path to the JSON file
  * @returns Parsed JSON content
  */
 export function* loadJson<T = unknown>(
-  repository: Repository,
-  ref: string,
+  contentProvider: ContentProvider,
   path: string,
 ): Operation<T> {
-  const text = yield* repository.getContent(path, ref);
+  const text = yield* contentProvider.getContent(path);
   return JSON.parse(text) as T;
 }
 
 /**
- * Load README.md file from a repository at a specific ref and base path.
+ * Load README.md file from a content provider at a base path.
  *
- * @param repository - The repository to load from
- * @param ref - The git reference (branch/tag name)
+ * @param contentProvider - Object that can provide file content
  * @param base - Base path within the repository (defaults to "")
  * @returns Content of README.md file
  */
 export function* loadReadme(
-  repository: Repository,
-  ref: string,
+  contentProvider: ContentProvider,
   base: string = "",
 ): Operation<string> {
   const path = getPath(base, "README.md");
-  return yield* repository.getContent(path, ref);
+  return yield* contentProvider.getContent(path);
 }
 
 export interface Repository {
@@ -167,13 +174,13 @@ export function* loadRepository({
 
       return result.repository.refs.nodes;
     },
-    *getContent(path, ref) {
+    *getContent(path) {
       const response = yield* until(
         github.rest.repos.getContent({
           repo: name,
           owner: owner,
           path,
-          ref,
+          ref: yield* this.getDefaultBranch(),
           mediaType: {
             format: "raw",
           },
@@ -195,7 +202,8 @@ export function* loadRepository({
           `Expected ref in format heads/<ref> or tags/<ref> (refs/ is ignored) but got ${ref}`,
         );
       }
-      return loadRepositoryRef({ ref, repository });
+
+      return yield* loadRepositoryRef({ ref, repository });
     },
   };
 

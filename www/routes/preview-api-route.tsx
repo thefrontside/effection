@@ -2,6 +2,7 @@ import { type JSXElement, useParams } from "revolution";
 
 import { SitemapRoute } from "../plugins/sitemap.ts";
 import { useAppHtml } from "./app.html.tsx";
+import { loadRootPackage } from "../resources/repository-ref.ts";
 import { Repository } from "../resources/repository.ts";
 import { ApiPage } from "../components/api/api-page.tsx";
 import { createSibling } from "./links-resolvers.ts";
@@ -29,7 +30,7 @@ export function previewApiRoute({
 
         const ref = yield* library.loadRef(`heads/${branch}`);
 
-        const pkg = yield* ref.loadRootPackage();
+        const pkg = yield* loadRootPackage(ref);
 
         if (!pkg) {
           throw new Error(`Failed to load root package for ${branch} branch`);

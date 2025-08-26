@@ -1,7 +1,7 @@
 import type { JSXElement } from "revolution";
 import { DocPage } from "../../hooks/use-deno-doc.tsx";
 import { ResolveLinkFunction, useMarkdown } from "../../hooks/use-markdown.tsx";
-import { RepositoryRef } from "../../resources/repository-ref.ts";
+import { loadRootPackage, RepositoryRef } from "../../resources/repository-ref.ts";
 import { createSibling } from "../../routes/links-resolvers.ts";
 import { Type } from "../type/jsx.tsx";
 import { extractVersion, major } from "../../lib/semver.ts";
@@ -25,7 +25,7 @@ export function* ApiPage({
   banner?: JSXElement;
   externalLinkResolver: ResolveLinkFunction;
 }) {
-  const pkg = yield* ref.loadRootPackage();
+  const pkg = yield* loadRootPackage(ref);
   if (!pkg) throw new Error(`Fail to retrieve root package for ${ref.name}`);
 
   const page = pages.find((node) => node.name === current);

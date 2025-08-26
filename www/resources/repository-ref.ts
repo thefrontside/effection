@@ -1,7 +1,7 @@
 import { all, Operation, until } from "effection";
 
 import { DenoJson, DenoJsonType, loadPackage, Package } from "./package.ts";
-import { loadJson, Repository, type ContentProvider } from "./repository.ts";
+import { type ContentProvider, loadJson, Repository } from "./repository.ts";
 import { GithubClientContext } from "../context/github.ts";
 
 export const REF_PATTERN = /^(\/?refs\/)?(heads|tags)\/(.*)$/;
@@ -31,6 +31,46 @@ export function* loadDenoJson(
   return DenoJson.parse(json);
 }
 
+/**
+ * Load a package at given workspace path from a repository ref
+ * @param ref - Repository reference
+ * @param workspacePath - Path to the workspace
+ * @returns Package at the workspace path
+ */
+export function* loadWorkspace(
+  ref: RepositoryRef,
+  workspacePath: string,
+): Operation<Package> {
+  const { workspace } = yield* loadDenoJson(ref);
+  if (!workspace?.includes(workspacePath)) {
+    throw new Error(`${workspacePath} is not a valid workspace`);
+  }
+
+  return yield* loadPackage({ workspacePath, ref });
+}
+
+/**
+ * Load all packages declared in workspaces from a repository ref
+ * @param ref - Repository reference
+ * @returns Array of packages from all workspaces
+ */
+export function* loadWorkspaces(ref: RepositoryRef): Operation<Package[]> {
+  const { workspace = [] } = yield* loadDenoJson(ref);
+
+  return yield* all(
+    workspace.map((workspacePath) => loadWorkspace(ref, workspacePath)),
+  );
+}
+
+/**
+ * Load package located at the root of the repository ref
+ * @param ref - Repository reference
+ * @returns Package at the root, or undefined if it doesn't exist
+ */
+export function loadRootPackage(ref: RepositoryRef): Operation<Package> {
+  return loadPackage({ workspacePath: "", ref });
+}
+
 export interface RepositoryRef extends ContentProvider {
   repository: Repository;
 
@@ -56,21 +96,6 @@ export interface RepositoryRef extends ContentProvider {
    * @param path - Path to the file
    */
   getContent(path: string): Operation<string>;
-
-  /**
-   * Load a package at given workspace path
-   */
-  loadWorkspace(workspacePath: string): Operation<Package>;
-
-  /**
-   * Load package located at the root of the ref
-   */
-  loadRootPackage(): Operation<Package | undefined>;
-
-  /**
-   * Load packages declarated in workspaces
-   */
-  loadWorkspaces(): Operation<Package[]>;
 
   /**
    * Return complete URL of a file or a directory in GitHub API
@@ -123,29 +148,6 @@ export function* loadRepositoryRef({
       );
 
       return response.data.toString();
-    },
-
-    loadRootPackage() {
-      return loadPackage({ workspacePath: "", ref: repositoryRef });
-    },
-
-    *loadWorkspace(workspacePath: string) {
-      const { workspace } = yield* loadDenoJson(repositoryRef);
-      if (!workspace?.includes(workspacePath)) {
-        throw new Error(`${workspacePath} is not a valid workspace`);
-      }
-
-      return yield* loadPackage({ workspacePath, ref: repositoryRef });
-    },
-
-    *loadWorkspaces() {
-      const { workspace = [] } = yield* loadDenoJson(repositoryRef);
-
-      return yield* all(
-        workspace.map((workspacePath) =>
-          repositoryRef.loadWorkspace(workspacePath),
-        ),
-      );
     },
   };
 

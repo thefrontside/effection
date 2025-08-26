@@ -3,6 +3,7 @@ import { type JSXElement, useParams } from "revolution";
 
 import { SitemapRoute } from "../plugins/sitemap.ts";
 import { RepositoryRef } from "../resources/repository-ref.ts";
+import { loadRootPackage } from "../resources/repository-ref.ts";
 import { findLatestSemverTag, Repository } from "../resources/repository.ts";
 import { useAppHtml } from "./app.html.tsx";
 
@@ -95,7 +96,7 @@ export function* getApiForLatestTag(
 
   if (latest) {
     const ref = yield* repository.loadRef(`tags/${latest.name}`);
-    const pkg = yield* ref.loadRootPackage();
+    const pkg = yield* loadRootPackage(ref);
     if (pkg) {
       return [ref, yield* pkg.docs()];
     }

@@ -11,7 +11,7 @@ import { DocPage, DocsPages } from "../hooks/use-deno-doc.tsx";
 import { useMarkdown } from "../hooks/use-markdown.tsx";
 import { major, minor } from "../lib/semver.ts";
 import type { RoutePath, SitemapRoute } from "../plugins/sitemap.ts";
-import { loadDenoJson } from "../resources/repository-ref.ts";
+import { loadDenoJson, loadRootPackage, loadWorkspace } from "../resources/repository-ref.ts";
 import { extractSemverVersions, Repository } from "../resources/repository.ts";
 import { useAppHtml } from "./app.html.tsx";
 import { createToc } from "../lib/toc.ts";
@@ -76,7 +76,7 @@ export function xPackageRoute({
 
       try {
         const main = yield* x.loadRef();
-        const pkg = yield* main.loadWorkspace(`./${params.workspacePath}`);
+        const pkg = yield* loadWorkspace(main, `./${params.workspacePath}`);
         const docs = yield* pkg.docs();
 
         const AppHTML = yield* useAppHtml({
@@ -274,7 +274,7 @@ function* getEffectionDependency(
         let latest = versions.find((v) => satisfies(v, effection.version));
         if (latest) {
           const ref = yield* library.loadRef(`tags/effection-v${latest}`);
-          const pkg = yield* ref.loadRootPackage();
+          const pkg = yield* loadRootPackage(ref);
           if (pkg) {
             return {
               version: latest,

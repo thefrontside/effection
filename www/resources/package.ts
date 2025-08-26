@@ -1,4 +1,4 @@
-import { all, type Operation, resource } from "effection";
+import { all, type Operation } from "effection";
 
 import { z } from "npm:zod@3.23.8";
 
@@ -108,126 +108,128 @@ export type DenoJsonType = z.infer<typeof DenoJson>;
 
 export const DEFAULT_MODULE_KEY = ".";
 
-export function loadPackage(
-  { ref, workspacePath }: { workspacePath: string; ref: RepositoryRef },
-) {
-  return resource<Package>(function* (provide) {
-    const denoJson = yield* loadDenoJson(ref, workspacePath);
+export function* loadPackage({
+  ref,
+  workspacePath,
+}: {
+  workspacePath: string;
+  ref: RepositoryRef;
+}) {
+  const denoJson = yield* loadDenoJson(ref, workspacePath);
 
-    const [, scope, name] = denoJson?.name?.match(/@(.*)\/(.*)/) ?? [];
+  const [, scope, name] = denoJson?.name?.match(/@(.*)\/(.*)/) ?? [];
 
-    let pkg: Package = {
-      ref,
-      get exports() {
-        if (typeof denoJson.exports === "string") {
-          return { [DEFAULT_MODULE_KEY]: denoJson.exports };
-        } else if (denoJson.exports === undefined) {
-          return { [DEFAULT_MODULE_KEY]: "./mod.ts" };
-        } else {
-          return denoJson.exports;
-        }
-      },
-      path: workspacePath,
-      jsr: new URL(`./${denoJson.name}/`, "https://jsr.io/"),
-      jsrBadge: new URL(`./${denoJson.name}`, "https://jsr.io/badges/"),
-      npm: new URL(`./${denoJson.name}`, "https://www.npmjs.com/package/"),
-      bundleSizeBadge: new URL(
-        `./${denoJson.name}@${denoJson.version}`,
-        "https://img.shields.io/bundlephobia/minzip/",
-      ),
-      npmVersionBadge: new URL(
-        `./${denoJson.name}`,
-        "https://img.shields.io/npm/v/",
-      ),
-      bundlephobia: new URL(
-        `./${denoJson.name}@${denoJson.version}`,
-        "https://bundlephobia.com/package/",
-      ),
-      dependencyCountBadge: new URL(
-        `./${denoJson.name}`,
-        "https://badgen.net/bundlephobia/dependency-count/",
-      ),
-      treeShakingSupportBadge: new URL(
-        `./${denoJson.name}`,
-        "https://badgen.net/bundlephobia/tree-shaking/",
-      ),
-      packageName: denoJson.name ?? "",
-      scope,
-      source: ref.getUrl(workspacePath),
-      name,
-      *readme() {
-        return yield* loadReadme(ref, workspacePath);
-      },
-      get entrypoints() {
-        const entrypoints: Record<string, URL> = {};
-        for (const key of Object.keys(pkg.exports)) {
-          entrypoints[key] = ref.getUrl(workspacePath, pkg.exports[key], true);
-        }
-        return entrypoints;
-      },
-      *docs() {
-        const docs: DocsPages = {};
+  let pkg: Package = {
+    ref,
+    get exports() {
+      if (typeof denoJson.exports === "string") {
+        return { [DEFAULT_MODULE_KEY]: denoJson.exports };
+      } else if (denoJson.exports === undefined) {
+        return { [DEFAULT_MODULE_KEY]: "./mod.ts" };
+      } else {
+        return denoJson.exports;
+      }
+    },
+    path: workspacePath,
+    jsr: new URL(`./${denoJson.name}/`, "https://jsr.io/"),
+    jsrBadge: new URL(`./${denoJson.name}`, "https://jsr.io/badges/"),
+    npm: new URL(`./${denoJson.name}`, "https://www.npmjs.com/package/"),
+    bundleSizeBadge: new URL(
+      `./${denoJson.name}@${denoJson.version}`,
+      "https://img.shields.io/bundlephobia/minzip/",
+    ),
+    npmVersionBadge: new URL(
+      `./${denoJson.name}`,
+      "https://img.shields.io/npm/v/",
+    ),
+    bundlephobia: new URL(
+      `./${denoJson.name}@${denoJson.version}`,
+      "https://bundlephobia.com/package/",
+    ),
+    dependencyCountBadge: new URL(
+      `./${denoJson.name}`,
+      "https://badgen.net/bundlephobia/dependency-count/",
+    ),
+    treeShakingSupportBadge: new URL(
+      `./${denoJson.name}`,
+      "https://badgen.net/bundlephobia/tree-shaking/",
+    ),
+    packageName: denoJson.name ?? "",
+    scope,
+    source: ref.getUrl(workspacePath),
+    name,
+    *readme() {
+      return yield* loadReadme(ref, workspacePath);
+    },
+    get entrypoints() {
+      const entrypoints: Record<string, URL> = {};
+      for (const key of Object.keys(pkg.exports)) {
+        entrypoints[key] = ref.getUrl(workspacePath, pkg.exports[key], true);
+      }
+      return entrypoints;
+    },
+    *docs() {
+      const docs: DocsPages = {};
 
-        for (const [entrypoint, url] of Object.entries(pkg.entrypoints)) {
-          const pages = yield* useDocPages(`${url}`);
+      for (const [entrypoint, url] of Object.entries(pkg.entrypoints)) {
+        const pages = yield* useDocPages(`${url}`);
 
-          docs[entrypoint] = pages[`${url}`];
-        }
+        docs[entrypoint] = pages[`${url}`];
+      }
 
-        return docs;
-      },
-      version: denoJson.version,
-      *jsrPackageDetails(): Operation<
-        [
-          z.SafeParseReturnType<unknown, PackageDetailsResult> | null,
-          z.SafeParseReturnType<unknown, PackageScoreResult> | null,
-        ]
-      > {
-        const client = yield* useJSRClient();
+      return docs;
+    },
+    version: denoJson.version,
+    *jsrPackageDetails(): Operation<
+      [
+        z.SafeParseReturnType<unknown, PackageDetailsResult> | null,
+        z.SafeParseReturnType<unknown, PackageScoreResult> | null,
+      ]
+    > {
+      const client = yield* useJSRClient();
 
-        try {
-          const [details, score] = yield* all([
-            client.getPackageDetails({ scope, package: name }),
-            client.getPackageScore({ scope, package: name }),
-          ]);
+      try {
+        const [details, score] = yield* all([
+          client.getPackageDetails({ scope, package: name }),
+          client.getPackageScore({ scope, package: name }),
+        ]);
 
-          if (!details.success) {
-            console.info(
-              `JSR package details response failed validation`,
-              details.error.format(),
-            );
-          }
-
-          if (!score.success) {
-            console.info(
-              `JSR score response failed validation`,
-              score.error.format(),
-            );
-          }
-
-          return [details, score];
-        } catch (e) {
-          console.error(e);
+        if (!details.success) {
+          console.info(
+            `JSR package details response failed validation`,
+            details.error.format(),
+          );
         }
 
-        return [null, null];
-      },
-      *MDXContent(): Operation<JSX.Element> {
-        let readme = yield* pkg.readme();
-        let mod = yield* useMDX(readme);
+        if (!score.success) {
+          console.info(
+            `JSR score response failed validation`,
+            score.error.format(),
+          );
+        }
 
-        return mod.default({});
-      },
-      *title(): Operation<string> {
-        let readme = yield* pkg.readme();
-        return yield* useTitle(readme);
-      },
-      *description(): Operation<string> {
-        let readme = yield* pkg.readme();
-        return yield* useDescription(readme);
-      },
-    };
+        return [details, score];
+      } catch (e) {
+        console.error(e);
+      }
 
-    yield* provide(pkg);
-  });
+      return [null, null];
+    },
+    *MDXContent(): Operation<JSX.Element> {
+      let readme = yield* pkg.readme();
+      let mod = yield* useMDX(readme);
+
+      return mod.default({});
+    },
+    *title(): Operation<string> {
+      let readme = yield* pkg.readme();
+      return yield* useTitle(readme);
+    },
+    *description(): Operation<string> {
+      let readme = yield* pkg.readme();
+      return yield* useDescription(readme);
+    },
+  };
+
+  return pkg;
 }

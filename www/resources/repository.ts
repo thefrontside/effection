@@ -103,9 +103,11 @@ export interface Repository {
   tags(searchQuery?: string): Operation<{ name: string }[]>;
 
   /**
-   * Get contents of a repository
+   * Get contents of a repository on main branch.
+   * To read content on other branches, use loadRef to create 
+   * a RepositoryRef instance with it's own getContent method.
    */
-  getContent(path: string, ref?: string): Operation<string>;
+  getContent(path: string): Operation<string>;
 
   loadRef(ref?: string): Operation<RepositoryRef>;
 }
@@ -169,7 +171,7 @@ export function* loadRepository({
             owner: owner,
             searchQuery,
           },
-        ),
+        )
       );
 
       return result.repository.refs.nodes;

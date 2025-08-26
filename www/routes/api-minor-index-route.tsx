@@ -2,6 +2,7 @@ import { type JSXElement, useParams } from "revolution";
 
 import { SitemapRoute } from "../plugins/sitemap.ts";
 import { useAppHtml } from "./app.html.tsx";
+import { loadRootPackage } from "../resources/repository-ref.ts";
 import { findLatestSemverTag, Repository } from "../resources/repository.ts";
 import { DocPage } from "../hooks/use-deno-doc.tsx";
 import { compare, extractVersion } from "../lib/semver.ts";
@@ -51,7 +52,7 @@ export function apiMinorIndexRoute({
 
         const ref = yield* library.loadRef(`tags/${tag.name}`);
 
-        const pkg = yield* ref.loadRootPackage();
+        const pkg = yield* loadRootPackage(ref);
 
         if (!pkg) throw new Error(`Failed to load root package for ${minor}`);
 

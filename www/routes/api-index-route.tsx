@@ -4,6 +4,7 @@ import { type JSXElement, respondNotFound } from "revolution";
 import { SitemapRoute } from "../plugins/sitemap.ts";
 import { useAppHtml } from "./app.html.tsx";
 import { getApiForLatestTag } from "./api-reference-route.tsx";
+import { loadRootPackage } from "../resources/repository-ref.ts";
 import { Repository } from "../resources/repository.ts";
 import { DocPage } from "../hooks/use-deno-doc.tsx";
 import { createChildURL } from "./links-resolvers.ts";
@@ -38,7 +39,7 @@ export function apiIndexRoute({
         return yield* respondNotFound();
       }
 
-      const v3pkg = yield* v3ref.loadRootPackage();
+      const v3pkg = yield* loadRootPackage(v3ref);
 
       if (!v3pkg) {
         console.error(
@@ -59,7 +60,7 @@ export function apiIndexRoute({
         return yield* respondNotFound();
       }
 
-      const v4pkg = yield* v3ref.loadRootPackage();
+      const v4pkg = yield* loadRootPackage(v3ref);
 
       if (!v4pkg) {
         console.error(

@@ -1,6 +1,7 @@
 import { type JSXElement, useParams } from "revolution";
 
 import { SitemapRoute } from "../plugins/sitemap.ts";
+import { loadRootPackage } from "../resources/repository-ref.ts";
 import { findLatestSemverTag, Repository } from "../resources/repository.ts";
 import { useAppHtml } from "./app.html.tsx";
 import { fetchMinorVersions } from "./api-index-route.tsx";
@@ -32,7 +33,7 @@ export function apiMinorSymbolRoute({
         > {
           try {
             const ref = yield* library.loadRef(`tags/effection-v${version}`);
-            const pkg = yield* ref.loadRootPackage();
+            const pkg = yield* loadRootPackage(ref);
             if (pkg) {
               return [series, version, yield* pkg?.docs()];
             } else {
@@ -83,7 +84,7 @@ export function apiMinorSymbolRoute({
         }
 
         const ref = yield* library.loadRef(`tags/${tag?.name}`);
-        const pkg = yield* ref.loadRootPackage();
+        const pkg = yield* loadRootPackage(ref);
 
         if (!pkg) throw new Error(`Failed to load root package for ${minor}`);
 

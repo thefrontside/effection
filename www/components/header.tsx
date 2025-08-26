@@ -2,6 +2,7 @@ import {
   LibraryRepositoryContext,
   XRepositoryContext,
 } from "../context/repository.ts";
+import { loadWorkspaces } from "../resources/repository-ref.ts";
 import { IconDiscord } from "./icons/discord.tsx";
 import { IconGithub } from "./icons/github.tsx";
 import { StarIcon } from "./icons/star.tsx";
@@ -16,7 +17,7 @@ export function* Header(props?: HeaderProps) {
   let library = yield* LibraryRepositoryContext.expect();
   let x = yield* XRepositoryContext.expect();
   let xMain = yield* x.loadRef();
-  let workspaces = yield* xMain.loadWorkspaces();
+  let workspaces = yield* loadWorkspaces(xMain);
 
   return (
     <header class="sticky top-0 w-full z-10 tracking-wide text-white [background-image:linear-gradient(45deg,#14315d_-5%,#44378a,#26abe8_105%)] dark:bg-gray-900 dark:text-gray-200">

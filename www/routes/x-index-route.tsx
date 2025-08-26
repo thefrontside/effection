@@ -2,6 +2,7 @@ import { all } from "effection";
 import type { SitemapRoute } from "../plugins/sitemap.ts";
 import type { JSXElement } from "revolution";
 import { useAppHtml } from "./app.html.tsx";
+import { loadWorkspaces } from "../resources/repository-ref.ts";
 import { Repository } from "../resources/repository.ts";
 import { GithubPill } from "../components/package/source-link.tsx";
 import { softRedirect } from "./redirect.tsx";
@@ -37,7 +38,7 @@ export function xIndexRoute({
       });
 
       const ref = yield* x.loadRef();
-      const packages = yield* ref.loadWorkspaces();
+      const packages = yield* loadWorkspaces(ref);
 
       const makeChildUrl = createChildURL();
 

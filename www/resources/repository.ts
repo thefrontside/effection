@@ -100,7 +100,7 @@ export interface Repository {
    *
    * @returns tag objects
    */
-  tags(searchQuery?: string): Operation<{ name: string }[]>;
+  tags(ref?: string): Operation<{ name: string }[]>;
 
   /**
    * Get contents of a repository on main branch.
@@ -146,35 +146,16 @@ export function* loadRepository({
       return response.data.stargazers_count;
     },
 
-    *tags(searchQuery: string) {
-      const result = yield* call(() =>
-        github.graphql<{
-          repository: { refs: { nodes: { name: string }[] } };
-        }>(
-          /* GraphQL */ `
-            query RepositoryTags(
-              $owner: String!
-              $name: String!
-              $searchQuery: String!
-            ) {
-              repository(owner: $owner, name: $name) {
-                refs(query: $searchQuery, refPrefix: "refs/tags/", first: 100) {
-                  nodes {
-                    name
-                  }
-                }
-              }
-            }
-          `,
-          {
-            name: name,
-            owner: owner,
-            searchQuery,
-          },
-        )
+    *tags(ref: string) {
+      const result = yield* until(
+        github.rest.git.listMatchingRefs({
+          owner,
+          repo: name,
+          ref: `tags/${ref}`,
+        }),
       );
 
-      return result.repository.refs.nodes;
+      return result.data.map((ref) => ({ name: ref.ref }));
     },
     *getContent(path) {
       const response = yield* until(

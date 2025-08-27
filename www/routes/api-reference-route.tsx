@@ -89,9 +89,9 @@ export function apiReferenceRoute({
 
 export function* getApiForLatestTag(
   repository: Repository,
-  searchQuery: string,
+  ref: string,
 ): Operation<[RepositoryRef | undefined, DocsPages | undefined]> {
-  const tags = yield* repository.tags(searchQuery);
+  const tags = yield* repository.tags(ref);
   const latest = findLatestSemverTag(tags);
 
   if (latest) {

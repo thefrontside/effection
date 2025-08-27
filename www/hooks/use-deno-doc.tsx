@@ -162,7 +162,6 @@ function docLoader(
     if (url?.host === "github.com") {
       const response = yield* operations.fetch(specifier);
       const content = yield* until(response.text());
-      console.log({ response, content })
       if (response.ok) {
         return {
           kind: "module",

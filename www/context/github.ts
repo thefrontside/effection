@@ -13,8 +13,10 @@ export function* initGithubClientContext({ token }: { token: string }) {
   const octokit = new Octokit({
     auth: token,
     request: {
-      fetch: (url: string, init?: RequestInit) =>
-        scope.run(() => operations.fetch(url, init)),
+      fetch: (url: string, init?: RequestInit) => {
+        console.log(url)
+        return scope.run(() => operations.fetch(url, init));
+      }
     },
   });
 
@@ -22,6 +24,8 @@ export function* initGithubClientContext({ token }: { token: string }) {
     *fetch([input, init], next) {
       if (typeof input === "string" && !init) {
         const match = GITHUB_BLOB_URL.exec(input);
+
+        console.log(match)
 
         if (match?.groups) {
           const { owner, repo, ref, path } = match.groups;
@@ -57,7 +61,7 @@ const GITHUB_GIT_URL =
   /^git:\/\/github\.com\/(?<owner>[^/]+)\/(?<repo>[^/?#]+)(?<ref>\?[^#]*)?#(?<path>.+)$/;
 
 const GITHUB_BLOB_URL =
-  /^https:\/\/github\.com\/(?<owner>[^/]+)\/(?<repo>[^/]+)\/blob\/(?<ref>[^/]+)\/(?<path>.*)$/;
+  /^https:\/\/github\.com\/(?<owner>[^/]+)\/(?<repo>[^/]+)\/blob\/(?<ref>(?:refs\/(?:heads\/|tags\/)?)?[^/]+)\/(?<path>.*)$/;
 
 /**
  * Parses a git:// URL and returns the decoded components.

@@ -12,6 +12,8 @@ import { compare, extractVersion } from "../lib/semver.ts";
 import { Alert } from "../components/alert.tsx";
 import { createSibling } from "./links-resolvers.ts";
 
+const SERIES = "v3";
+
 export function apiMinorSymbolRoute({
   library,
   search,
@@ -24,7 +26,7 @@ export function apiMinorSymbolRoute({
       // skip the first version because it's covered by /api/v3 route
       const [, ...versions] = yield* fetchMinorVersions({
         repository: library,
-        pattern: "effection-v3",
+        pattern: `effection-${SERIES}`,
       });
 
       const fetched = yield* all(
@@ -68,16 +70,16 @@ export function apiMinorSymbolRoute({
       }>();
 
       try {
-        const tags = yield* library.tags("effection-v3");
+        const tags = yield* library.tags(`effection-${SERIES}`);
         const latest = findLatestSemverTag(tags);
 
         if (!latest) {
           throw new Error(
-            `Failed to retrieve latest version for "effection-v3" tag`,
+            `Failed to retrieve latest version for "effection-${SERIES}" tag`,
           );
         }
 
-        const minorTags = yield* library.tags(minor);
+        const minorTags = yield* library.tags(`effection-v${minor}`);
         const tag = findLatestSemverTag(minorTags);
         if (!tag) {
           throw new Error(`Failed to retrieve latest version for ${minor}`);
@@ -120,7 +122,7 @@ export function apiMinorSymbolRoute({
                         Version {version} is behind the current release:{" "}
                         <a
                           class="underline font-bold"
-                          href={`/api/v3/${page.name}`}
+                          href={`/api/${latestVersion}/${page.name}`}
                         >
                           jump to latest version
                         </a>{" "}

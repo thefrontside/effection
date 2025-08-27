@@ -272,7 +272,7 @@ function* getEffectionDependency(
   if (effection) {
     const version = coerce(effection.version);
     if (version) {
-      const tags = yield* library.tags(`tags/effection-v${version.major}*`);
+      const tags = yield* library.tags(`effection-v${version.major}`);
       const versions = extractSemverVersions(tags);
       if (versions) {
         let latest = versions.find((v) => satisfies(v, effection.version));

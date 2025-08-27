@@ -11,6 +11,8 @@ import { ResolveLinkFunction } from "../hooks/use-markdown.tsx";
 import { createChildURL } from "./links-resolvers.ts";
 import { Alert } from "../components/alert.tsx";
 
+const SERIES = "v3";
+
 export function apiMinorIndexRoute({
   library,
   search,
@@ -23,7 +25,7 @@ export function apiMinorIndexRoute({
       // skip the first version because it's covered by /api/v3 route
       const [, ...minors] = yield* fetchMinorVersions({
         repository: library,
-        pattern: "effection-v3",
+        pattern: `effection-${SERIES}`,
       });
 
       return minors.map(([minor]) => ({
@@ -36,16 +38,16 @@ export function apiMinorIndexRoute({
       let { minor } = yield* useParams<{ minor: string }>();
 
       try {
-        const tags = yield* library.tags("effection-v3");
+        const tags = yield* library.tags(`effection-${SERIES}`);
         const latest = findLatestSemverTag(tags);
 
         if (!latest) {
           throw new Error(
-            `Failed to retrieve latest version for "effection-v3" tag`,
+            `Failed to retrieve latest version for "effection-${SERIES}" tag`,
           );
         }
 
-        const minorTags = yield* library.tags(minor);
+        const minorTags = yield* library.tags(`effection-v${minor}`);
         const tag = findLatestSemverTag(minorTags);
 
         if (!tag) throw new Error(`Failed to retrieve latest tag for ${minor}`);
@@ -76,7 +78,7 @@ export function apiMinorIndexRoute({
                   <Alert level="info" class="mb-6">
                     <p>
                       Version {version} is behind the current release:{" "}
-                      <a class="underline font-bold" href={`/api/v3`}>
+                      <a class="underline font-bold" href={`/api/${latestVersion}`}>
                         jump to latest version
                       </a>{" "}
                       ({latestVersion}).

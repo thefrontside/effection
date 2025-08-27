@@ -1,8 +1,8 @@
-import { createContext, useScope } from "effection";
+import { createContext, until, useScope } from "effection";
 
 import { Octokit } from "npm:octokit@4.0.3";
 
-import { operations } from "./fetch.ts";
+import { fetchApi, operations } from "./fetch.ts";
 import { urlRewriteApi } from "./url-rewrite.ts";
 
 export const GithubClientContext = createContext<Octokit>("github-client");
@@ -15,6 +15,35 @@ export function* initGithubClientContext({ token }: { token: string }) {
     request: {
       fetch: (url: string, init?: RequestInit) =>
         scope.run(() => operations.fetch(url, init)),
+    },
+  });
+
+  yield* fetchApi.around({
+    *fetch([input, init], next) {
+      if (typeof input === "string" && !init) {
+        const match = GITHUB_BLOB_URL.exec(input);
+
+        if (match?.groups) {
+          const { owner, repo, ref, path } = match.groups;
+
+          const response = yield* until(
+            octokit.rest.repos.getContent({
+              owner,
+              repo,
+              ref,
+              path,
+              mediaType: {
+                format: "raw",
+              },
+            }),
+          );
+
+          return new Response(response.data.toString(), {
+            status: response.status,
+          });
+        }
+      }
+      return yield* next(input, init);
     },
   });
 
@@ -111,7 +140,8 @@ interface ShouldRewrite {
 export function* rewriteContentsApiToGit(shouldRewrite: ShouldRewrite) {
   yield* urlRewriteApi.around({
     *rewrite([url, input, init], next) {
-      const match = GITHUB_CONTENTS_URL.exec(String(url)) ||
+      const match =
+        GITHUB_CONTENTS_URL.exec(String(url)) ||
         GITHUB_BLOB_URL.exec(String(url));
 
       if (!match?.groups) {

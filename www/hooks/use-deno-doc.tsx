@@ -1,4 +1,4 @@
-import { call, type Operation, useScope } from "effection";
+import { call, type Operation, until, useScope } from "effection";
 import {
   CacheSetting,
   doc,
@@ -7,11 +7,8 @@ import {
   LoadResponse,
 } from "@deno/doc";
 import { createGraph } from "jsr:@deno/graph@0.89.0";
-// @deno-types="npm:@types/parse-github-url@1.0.3";
-import githubUrlParse from "npm:parse-github-url@1.0.3";
 
 import { useDescription } from "./use-description-parse.tsx";
-import { GithubClientContext } from "../context/github.ts";
 import { exportHash, extract } from "../components/type/markdown.tsx";
 import { DenoJson } from "../resources/package.ts";
 import { operations } from "../context/fetch.ts";
@@ -160,31 +157,22 @@ function docLoader(
   _checksum?: string,
 ): () => Operation<LoadResponse | undefined> {
   return function* downloadDocModules() {
-    const github = yield* GithubClientContext.expect();
-
     const url = URL.parse(specifier);
 
     if (url?.host === "github.com") {
-      const gh = githubUrlParse(specifier);
-      if (gh && gh.owner && gh.name && gh.filepath) {
-        const result = yield* call(() =>
-          github.rest.repos.getContent({
-            owner: gh.owner!,
-            repo: gh.name!,
-            path: gh.filepath!,
-            ref: gh.branch,
-            mediaType: {
-              format: "raw",
-            },
-          })
-        );
+      const response = yield* operations.fetch(specifier);
+      const content = yield* until(response.text());
+      console.log({ response, content })
+      if (response.ok) {
         return {
           kind: "module",
           specifier,
-          content: `${result.data}`,
+          content,
         };
       } else {
-        throw new Error(`Could not parse ${specifier} as Github URL`);
+        throw new Error(`Could not parse ${specifier} as Github URL`, {
+          cause: response
+        });
       }
     }
 

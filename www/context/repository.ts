@@ -1,18 +1,31 @@
-import { Operation, spawn } from "effection";
+import { each, Operation, spawn } from "effection";
 import type { Repository } from "../resources/repository.ts";
+import {
+  getPath,
+  getRefUrl,
+  matchRef,
+  REF_PATTERN,
+  type RepositoryRef,
+} from "../resources/repository-ref.ts";
 import { createApi } from "./context-api.ts";
 import { useProcess } from "./process.ts";
 
-interface UrlRepositoryParams {
+interface UseRepositoryParams {
   owner: string;
   name: string;
 }
 
-interface Repositories {
-  useRepository({ owner, name }: UrlRepositoryParams): Operation<Repository>;
+interface UseRefParams {
+  repository: Repository;
+  ref: string;
 }
 
-export const RepositoriesApi = createApi<Repositories>("repositories", {
+interface Repositories {
+  useRepository({ owner, name }: UseRepositoryParams): Operation<Repository>;
+  useRef({ repository, ref }: UseRefParams): Operation<RepositoryRef>;
+}
+
+export const repositoriesApi = createApi<Repositories>("repositories", {
   *useRepository({ owner, name }) {
     const nameWithOwner = `${owner}/${name}`;
     const url = `git@github.com:${nameWithOwner}.git`;
@@ -22,7 +35,7 @@ export const RepositoriesApi = createApi<Repositories>("repositories", {
       yield* fetchRemote(nameWithOwner);
     }
 
-    return {
+    const repository: Repository = {
       owner,
       name,
       nameWithOwner,
@@ -39,10 +52,66 @@ export const RepositoriesApi = createApi<Repositories>("repositories", {
         const defaultBranch = yield* getDefaultBranch(nameWithOwner);
         return yield* getContent(nameWithOwner, defaultBranch, path);
       },
-      loadRef() {},
+      *loadRef(ref?: string) {
+        if (!ref) {
+          const default_branch = yield* getDefaultBranch(nameWithOwner);
+          ref = `heads/${default_branch}`;
+        }
+        const parts = ref.match(REF_PATTERN);
+        if (parts) {
+          ref = parts[0];
+        } else {
+          throw new Error(
+            `Expected ref in format heads/<ref> or tags/<ref> (refs/ is ignored) but got ${ref}`,
+          );
+        }
+
+        return yield* useRef({
+          repository,
+          ref,
+        });
+      },
     };
+
+    return repository;
+  },
+
+  *useRef({ repository, ref: _ref }) {
+    const ref = matchRef(_ref);
+
+    if (!ref) throw new Error(`Could not normalize ${_ref}`);
+
+    const url = getRefUrl(repository, ref);
+
+    const repositoryRef: RepositoryRef = {
+      repository,
+      ...ref,
+
+      url,
+
+      getUrl(base, target, isFile) {
+        return new URL(
+          [
+            isFile ? "blob" : "tree",
+            ref.name,
+            getPath(base ?? "", target ?? ""),
+          ]
+            .filter(Boolean)
+            .join("/"),
+          `https://github.com/${repository.nameWithOwner}/`,
+        );
+      },
+
+      getContent(path: string) {
+        return getContent(repository.nameWithOwner, _ref, path);
+      },
+    };
+
+    return repositoryRef;
   },
 });
+
+export const { useRepository, useRef } = repositoriesApi.operations;
 
 function* checkRemoteExists(remoteName: string): Operation<boolean> {
   const process = yield* useProcess(`git remote get-url ${remoteName}`);
@@ -77,8 +146,9 @@ function* getDefaultBranch(remote: string): Operation<string> {
 
   let output = "";
   yield* spawn(function* () {
-    for (const chunk of process.stdout) {
+    for (const chunk of yield* each(process.stdout)) {
       output += chunk;
+      yield* each.next();
     }
   });
 
@@ -98,15 +168,16 @@ function* getDefaultBranch(remote: string): Operation<string> {
 function* getMatchingTags(
   remote: string,
   pattern?: string,
-): Operation<string[]> {
+): Operation<{ name: string }[]> {
   const process = yield* useProcess(
     `git ls-remote --tags ${remote} "${pattern}"`,
   );
 
   let output = "";
   yield* spawn(function* () {
-    for (const chunk of process.stdout) {
+    for (const chunk of yield* each(process.stdout)) {
       output += chunk;
+      yield* each.next();
     }
   });
 
@@ -123,7 +194,8 @@ function* getMatchingTags(
         return match ? match[1] : null;
       })
       .filter((tag): tag is string => tag !== null)
-      .filter((tag, index, arr) => arr.indexOf(tag) === index); // Remove duplicates
+      .filter((tag, index, arr) => arr.indexOf(tag) === index)
+      .map((name) => ({ name })); // Remove duplicates
   }
 
   return [];
@@ -133,7 +205,7 @@ function* getContent(
   remote: string,
   ref: string,
   path: string,
-): Operation<string | null> {
+): Operation<string> {
   const process = yield* useProcess(`git show 
   ${remote}/${ref}:${path}`);
 
@@ -141,14 +213,16 @@ function* getContent(
   let errorOutput = "";
 
   yield* spawn(function* () {
-    for (const chunk of process.stdout) {
+    for (const chunk of yield* each(process.stdout)) {
       output += chunk;
+      yield* each.next();
     }
   });
 
   yield* spawn(function* () {
-    for (const chunk of process.stderr) {
+    for (const chunk of yield* each(process.stderr)) {
       errorOutput += chunk;
+      yield* each.next();
     }
   });
 
@@ -157,8 +231,6 @@ function* getContent(
   if (result.code === 0) {
     return output;
   } else {
-    console.error(`Failed to get remote file content: 
-  ${errorOutput}`);
-    return null;
+    throw new Error(`Failed to get remote file content: ${errorOutput}`);
   }
 }

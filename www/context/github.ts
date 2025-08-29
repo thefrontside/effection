@@ -14,9 +14,9 @@ export function* initGithubClientContext({ token }: { token: string }) {
     auth: token,
     request: {
       fetch: (url: string, init?: RequestInit) => {
-        console.log(url)
+        console.log(url);
         return scope.run(() => operations.fetch(url, init));
-      }
+      },
     },
   });
 
@@ -25,7 +25,7 @@ export function* initGithubClientContext({ token }: { token: string }) {
       if (typeof input === "string" && !init) {
         const match = GITHUB_BLOB_URL.exec(input);
 
-        console.log(match)
+        console.log(match);
 
         if (match?.groups) {
           const { owner, repo, ref, path } = match.groups;
@@ -144,8 +144,7 @@ interface ShouldRewrite {
 export function* rewriteContentsApiToGit(shouldRewrite: ShouldRewrite) {
   yield* urlRewriteApi.around({
     *rewrite([url, input, init], next) {
-      const match =
-        GITHUB_CONTENTS_URL.exec(String(url)) ||
+      const match = GITHUB_CONTENTS_URL.exec(String(url)) ||
         GITHUB_BLOB_URL.exec(String(url));
 
       if (!match?.groups) {

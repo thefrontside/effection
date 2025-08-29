@@ -78,7 +78,10 @@ export function apiMinorIndexRoute({
                   <Alert level="info" class="mb-6">
                     <p>
                       Version {version} is behind the current release:{" "}
-                      <a class="underline font-bold" href={`/api/${latestVersion}`}>
+                      <a
+                        class="underline font-bold"
+                        href={`/api/${latestVersion}`}
+                      >
                         jump to latest version
                       </a>{" "}
                       ({latestVersion}).

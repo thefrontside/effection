@@ -1,4 +1,4 @@
-import { call, type Operation, until } from "effection";
+import { type Operation, until } from "effection";
 
 import { GithubClientContext } from "../context/github.ts";
 import {

@@ -170,7 +170,7 @@ function docLoader(
         };
       } else {
         throw new Error(`Could not parse ${specifier} as Github URL`, {
-          cause: response
+          cause: response,
         });
       }
     }

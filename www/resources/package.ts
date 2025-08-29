@@ -176,7 +176,7 @@ export function* loadPackage({
 
         docs[entrypoint] = pages[`${url}`];
       }
-      
+
       return docs;
     },
     version: denoJson.version,

@@ -14,10 +14,8 @@ import { xPackageRedirect, xPackageRoute } from "./routes/x-package-route.tsx";
 import { firstPage, guidesRoute } from "./routes/guides-route.tsx";
 import { indexRoute } from "./routes/index-route.tsx";
 
-import {
-  initOctokitContext,
-  rewriteContentsApiToGit,
-} from "./context/github.ts";
+import { initOctokitContext } from "./repository/octokit-context.ts";
+import { rewriteContentsApiToGit } from "./repository/middleware.ts";
 import { initJSRClient } from "./context/jsr.ts";
 import { patchDenoPermissionsQuerySync } from "./deno-deploy-patch.ts";
 import { apiIndexRoute } from "./routes/api-index-route.tsx";

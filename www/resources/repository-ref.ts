@@ -2,7 +2,7 @@ import { all, Operation, until } from "effection";
 
 import { DenoJson, DenoJsonType, loadPackage, Package } from "./package.ts";
 import { type ContentProvider, loadJson, Repository } from "./repository.ts";
-import { GithubClientContext } from "../context/github.ts";
+import { OctokitContext } from "../context/github.ts";
 
 export const REF_PATTERN = /^(\/?refs\/)?(heads|tags)\/(.*)$/;
 
@@ -112,7 +112,7 @@ export function* loadRepositoryRef({
   ref: string;
   repository: Repository;
 }) {
-  const github = yield* GithubClientContext.expect();
+  const github = yield* OctokitContext.expect();
 
   const ref = matchRef(_ref);
 

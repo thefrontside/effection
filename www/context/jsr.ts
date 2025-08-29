@@ -3,7 +3,12 @@ import { createJSRClient, JSRClient } from "../resources/jsr-client.ts";
 
 const JSRClientContext = createContext<JSRClient>("jsr-client");
 
-export function* initJSRClient({ token }: { token: string }) {
+export function* initJSRClient() {
+  const token = Deno.env.get("JSR_API") ?? "";
+  if (token === "") {
+    console.log("Missing JSR API token; expect score card not to load.");
+  }
+  
   let client = yield* createJSRClient(token);
 
   return yield* JSRClientContext.set(client);

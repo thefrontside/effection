@@ -5,9 +5,14 @@ import { Octokit } from "npm:octokit@4.0.3";
 import { fetchApi, operations } from "./fetch.ts";
 import { urlRewriteApi } from "./url-rewrite.ts";
 
-export const GithubClientContext = createContext<Octokit>("github-client");
+export const OctokitContext = createContext<Octokit>("github-client");
 
-export function* initGithubClientContext({ token }: { token: string }) {
+export function* initOctokitContext() {
+  const token = Deno.env.get("GITHUB_TOKEN");
+  if (!token) {
+    throw new Error(`GITHUB_TOKEN environment variable is missing`);
+  }
+
   const scope = yield* useScope();
 
   const octokit = new Octokit({
@@ -48,7 +53,7 @@ export function* initGithubClientContext({ token }: { token: string }) {
     },
   });
 
-  return yield* GithubClientContext.set(octokit);
+  return yield* OctokitContext.set(octokit);
 }
 
 const GITHUB_CONTENTS_URL =

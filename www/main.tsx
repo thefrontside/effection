@@ -15,13 +15,11 @@ import { firstPage, guidesRoute } from "./routes/guides-route.tsx";
 import { indexRoute } from "./routes/index-route.tsx";
 
 import {
-  initGithubClientContext,
+  initOctokitContext,
   rewriteContentsApiToGit,
-  rewriteGitToFile,
 } from "./context/github.ts";
 import { initJSRClient } from "./context/jsr.ts";
 import { patchDenoPermissionsQuerySync } from "./deno-deploy-patch.ts";
-import { loadRepository } from "./resources/repository.ts";
 import { apiIndexRoute } from "./routes/api-index-route.tsx";
 import { apiMinorIndexRoute } from "./routes/api-minor-index-route.tsx";
 import { apiMinorSymbolRoute } from "./routes/api-minor-symbol-route.tsx";
@@ -43,29 +41,14 @@ if (import.meta.main) {
       patchDenoPermissionsQuerySync();
     }
 
-    const jsrToken = Deno.env.get("JSR_API") ?? "";
-    if (jsrToken === "") {
-      console.log("Missing JSR API token; expect score card not to load.");
-    }
-
-    yield* initJSRClient({
-      token: jsrToken,
-    });
-
-    const githubToken = Deno.env.get("GITHUB_TOKEN");
-    if (!githubToken) {
-      throw new Error(`GITHUB_TOKEN environment variable is missing`);
-    }
-
+    yield* initJSRClient();
     yield* initFetch();
 
     yield* rewriteContentsApiToGit(
       (parts) => parts.owner === "thefrontside" && parts.repo === "effection",
     );
 
-    yield* initGithubClientContext({
-      token: githubToken,
-    });
+    yield* initOctokitContext();
 
     let library = yield* useRepository({
       owner: "thefrontside",

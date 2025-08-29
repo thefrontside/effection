@@ -1,6 +1,6 @@
 import { type Operation, until } from "effection";
 
-import { GithubClientContext } from "../context/github.ts";
+import { OctokitContext } from "../context/github.ts";
 import {
   getPath,
   loadRepositoryRef,
@@ -116,7 +116,7 @@ export interface Repository {
  * Get default branch for a repository
  */
 function* getDefaultBranch(nameWithOwner: string): Operation<string> {
-  const github = yield* GithubClientContext.expect();
+  const github = yield* OctokitContext.expect();
   const [owner, name] = nameWithOwner.split('/');
   const response = yield* until(
     github.rest.repos.get({
@@ -131,7 +131,7 @@ function* getDefaultBranch(nameWithOwner: string): Operation<string> {
  * Get star count for a repository
  */
 function* getStarCount(nameWithOwner: string): Operation<number> {
-  const github = yield* GithubClientContext.expect();
+  const github = yield* OctokitContext.expect();
   const [owner, name] = nameWithOwner.split('/');
   const response = yield* until(
     github.rest.repos.get({
@@ -149,7 +149,7 @@ function* getMatchingTags(
   nameWithOwner: string,
   pattern?: string,
 ): Operation<{ name: string }[]> {
-  const github = yield* GithubClientContext.expect();
+  const github = yield* OctokitContext.expect();
   const [owner, name] = nameWithOwner.split('/');
   const result = yield* until(
     github.rest.git.listMatchingRefs({
@@ -170,7 +170,7 @@ function* getContent(
   ref: string,
   path: string,
 ): Operation<string> {
-  const github = yield* GithubClientContext.expect();
+  const github = yield* OctokitContext.expect();
   const [owner, name] = nameWithOwner.split('/');
   const response = yield* until(
     github.rest.repos.getContent({

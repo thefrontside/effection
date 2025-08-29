@@ -2,7 +2,7 @@ import { type JSXElement, useParams } from "revolution";
 
 import { SitemapRoute } from "../plugins/sitemap.ts";
 import { guides } from "../resources/guides.ts";
-import { Repository } from "../resources/repository.ts";
+import type { Repository } from "../repository/types.ts";
 import { getSeriesRef } from "./guides-route.tsx";
 import { createRootUrl } from "./links-resolvers.ts";
 import { softRedirect } from "./redirect.tsx";

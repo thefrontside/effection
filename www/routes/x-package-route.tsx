@@ -15,8 +15,9 @@ import {
   loadDenoJson,
   loadRootPackage,
   loadWorkspace,
-} from "../resources/repository-ref.ts";
-import { extractSemverVersions, Repository } from "../resources/repository.ts";
+} from "../repository/workspace.ts";
+import { extractSemverVersions } from "../repository/utils.ts";
+import type { Repository } from "../repository/types.ts";
 import { useAppHtml } from "./app.html.tsx";
 import { createToc } from "../lib/toc.ts";
 import { ApiBody } from "../components/api/api-page.tsx";

@@ -2,9 +2,10 @@ import type { Operation } from "effection";
 import { type JSXElement, useParams } from "revolution";
 
 import { SitemapRoute } from "../plugins/sitemap.ts";
-import { RepositoryRef } from "../resources/repository-ref.ts";
-import { loadRootPackage } from "../resources/repository-ref.ts";
-import { findLatestSemverTag, Repository } from "../resources/repository.ts";
+import type { RepositoryRef } from "../repository/types.ts";
+import { loadRootPackage } from "../repository/workspace.ts";
+import { findLatestSemverTag } from "../repository/utils.ts";
+import type { Repository } from "../repository/types.ts";
 import { useAppHtml } from "./app.html.tsx";
 
 import { createSibling } from "./links-resolvers.ts";

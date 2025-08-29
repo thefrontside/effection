@@ -1,10 +1,8 @@
 import type { JSXElement } from "revolution";
 import { DocPage } from "../../hooks/use-deno-doc.tsx";
 import { ResolveLinkFunction, useMarkdown } from "../../hooks/use-markdown.tsx";
-import {
-  loadRootPackage,
-  RepositoryRef,
-} from "../../resources/repository-ref.ts";
+import { loadRootPackage } from "../../repository/workspace.ts";
+import type { RepositoryRef } from "../../repository/types.ts";
 import { createSibling } from "../../routes/links-resolvers.ts";
 import { Type } from "../type/jsx.tsx";
 import { extractVersion, major } from "../../lib/semver.ts";

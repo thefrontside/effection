@@ -7,7 +7,8 @@ import { guides, type GuidesMeta } from "../resources/guides.ts";
 import { useAppHtml } from "./app.html.tsx";
 import { createChildURL, createSibling } from "./links-resolvers.ts";
 import { Navburger } from "../components/navburger.tsx";
-import { findLatestSemverTag, Repository } from "../resources/repository.ts";
+import { findLatestSemverTag } from "../repository/utils.ts";
+import type { Repository } from "../repository/types.ts";
 import { softRedirect } from "./redirect.tsx";
 import { IconExternal } from "../components/icons/external.tsx";
 

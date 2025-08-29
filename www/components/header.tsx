@@ -1,5 +1,5 @@
 import { useRepository } from "../context/repository.ts";
-import { loadWorkspaces } from "../resources/repository-ref.ts";
+import { loadWorkspaces } from "../repository/workspace.ts";
 import { IconDiscord } from "./icons/discord.tsx";
 import { IconGithub } from "./icons/github.tsx";
 import { StarIcon } from "./icons/star.tsx";

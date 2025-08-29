@@ -1,12 +1,10 @@
 import { each, Operation, spawn } from "effection";
-import type { Repository } from "../resources/repository.ts";
+import type { Repository, RepositoryRef } from "../repository/types.ts";
 import {
   getPath,
   getRefUrl,
-  matchRef,
-  REF_PATTERN,
-  type RepositoryRef,
-} from "../resources/repository-ref.ts";
+  matchRef,\n  REF_PATTERN,
+} from "../repository/utils.ts";
 import { createApi } from "./context-api.ts";
 import { useProcess } from "./process.ts";
 

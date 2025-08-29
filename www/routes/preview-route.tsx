@@ -2,8 +2,8 @@ import { type JSXElement } from "revolution";
 
 import { SitemapRoute } from "../plugins/sitemap.ts";
 import { useAppHtml } from "./app.html.tsx";
-import { loadRootPackage } from "../resources/repository-ref.ts";
-import { Repository } from "../resources/repository.ts";
+import { loadRootPackage } from "../repository/workspace.ts";
+import type { Repository } from "../repository/types.ts";
 import { listPages } from "./api-minor-index-route.tsx";
 import { createChildURL } from "./links-resolvers.ts";
 import { Alert } from "../components/alert.tsx";

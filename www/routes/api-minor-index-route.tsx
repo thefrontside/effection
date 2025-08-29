@@ -2,8 +2,9 @@ import { type JSXElement, useParams } from "revolution";
 
 import { SitemapRoute } from "../plugins/sitemap.ts";
 import { useAppHtml } from "./app.html.tsx";
-import { loadRootPackage } from "../resources/repository-ref.ts";
-import { findLatestSemverTag, Repository } from "../resources/repository.ts";
+import { loadRootPackage } from "../repository/workspace.ts";
+import { findLatestSemverTag } from "../repository/utils.ts";
+import type { Repository } from "../repository/types.ts";
 import { DocPage } from "../hooks/use-deno-doc.tsx";
 import { compare, extractVersion } from "../lib/semver.ts";
 import { fetchMinorVersions } from "./api-index-route.tsx";

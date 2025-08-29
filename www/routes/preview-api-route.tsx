@@ -2,8 +2,8 @@ import { type JSXElement, useParams } from "revolution";
 
 import { SitemapRoute } from "../plugins/sitemap.ts";
 import { useAppHtml } from "./app.html.tsx";
-import { loadRootPackage } from "../resources/repository-ref.ts";
-import { Repository } from "../resources/repository.ts";
+import { loadRootPackage } from "../repository/workspace.ts";
+import type { Repository } from "../repository/types.ts";
 import { ApiPage } from "../components/api/api-page.tsx";
 import { createSibling } from "./links-resolvers.ts";
 import { Alert } from "../components/alert.tsx";

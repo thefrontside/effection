@@ -112,6 +112,104 @@ export interface Repository {
   loadRef(ref?: string): Operation<RepositoryRef>;
 }
 
+/**
+ * Get default branch for a repository
+ */
+function* getDefaultBranch(nameWithOwner: string): Operation<string> {
+  const github = yield* GithubClientContext.expect();
+  const [owner, name] = nameWithOwner.split('/');
+  const response = yield* until(
+    github.rest.repos.get({
+      repo: name,
+      owner: owner,
+    }),
+  );
+  return response.data.default_branch;
+}
+
+/**
+ * Get star count for a repository
+ */
+function* getStarCount(nameWithOwner: string): Operation<number> {
+  const github = yield* GithubClientContext.expect();
+  const [owner, name] = nameWithOwner.split('/');
+  const response = yield* until(
+    github.rest.repos.get({
+      repo: name,
+      owner: owner,
+    }),
+  );
+  return response.data.stargazers_count;
+}
+
+/**
+ * Get tags for a repository matching a pattern
+ */
+function* getMatchingTags(
+  nameWithOwner: string,
+  pattern?: string,
+): Operation<{ name: string }[]> {
+  const github = yield* GithubClientContext.expect();
+  const [owner, name] = nameWithOwner.split('/');
+  const result = yield* until(
+    github.rest.git.listMatchingRefs({
+      owner,
+      repo: name,
+      ref: `tags/${pattern}`,
+    }),
+  );
+
+  return result.data.map((ref) => ({ name: ref.ref }));
+}
+
+/**
+ * Get content of a file from repository
+ */
+function* getContent(
+  nameWithOwner: string,
+  ref: string,
+  path: string,
+): Operation<string> {
+  const github = yield* GithubClientContext.expect();
+  const [owner, name] = nameWithOwner.split('/');
+  const response = yield* until(
+    github.rest.repos.getContent({
+      repo: name,
+      owner: owner,
+      path,
+      ref,
+      mediaType: {
+        format: "raw",
+      },
+    }),
+  );
+
+  return response.data.toString();
+}
+
+/**
+ * Load a repository reference
+ */
+function* loadRepositoryRefForRepository(
+  repository: Repository,
+  ref?: string,
+): Operation<RepositoryRef> {
+  if (!ref) {
+    const default_branch = yield* getDefaultBranch(repository.nameWithOwner);
+    ref = `heads/${default_branch}`;
+  }
+  const parts = ref.match(REF_PATTERN);
+  if (parts) {
+    ref = parts[0];
+  } else {
+    throw new Error(
+      `Expected ref in format heads/<ref> or tags/<ref> (refs/ is ignored) but got ${ref}`,
+    );
+  }
+
+  return yield* loadRepositoryRef({ ref, repository });
+}
+
 export function* loadRepository({
   owner,
   name,
@@ -119,74 +217,32 @@ export function* loadRepository({
   owner: string;
   name: string;
 }) {
-  const github = yield* GithubClientContext.expect();
+  const nameWithOwner = `${owner}/${name}`;
 
   const repository: Repository = {
-    nameWithOwner: `${owner}/${name}`,
+    nameWithOwner,
     owner,
     name,
 
-    *getDefaultBranch() {
-      const response = yield* until(
-        github.rest.repos.get({
-          repo: name,
-          owner: owner,
-        }),
-      );
-      return response.data.default_branch;
+    getDefaultBranch() {
+      return getDefaultBranch(nameWithOwner);
     },
 
-    *getStarCount() {
-      const response = yield* until(
-        github.rest.repos.get({
-          repo: name,
-          owner: owner,
-        }),
-      );
-      return response.data.stargazers_count;
+    getStarCount() {
+      return getStarCount(nameWithOwner);
     },
 
-    *tags(ref: string) {
-      const result = yield* until(
-        github.rest.git.listMatchingRefs({
-          owner,
-          repo: name,
-          ref: `tags/${ref}`,
-        }),
-      );
-
-      return result.data.map((ref) => ({ name: ref.ref }));
+    tags(ref: string) {
+      return getMatchingTags(nameWithOwner, `${ref}*`);
     },
-    *getContent(path) {
-      const response = yield* until(
-        github.rest.repos.getContent({
-          repo: name,
-          owner: owner,
-          path,
-          ref: yield* this.getDefaultBranch(),
-          mediaType: {
-            format: "raw",
-          },
-        }),
-      );
 
-      return response.data.toString();
+    *getContent(path: string) {
+      const defaultBranch = yield* getDefaultBranch(nameWithOwner);
+      return yield* getContent(nameWithOwner, defaultBranch, path);
     },
-    *loadRef(ref?: string): Operation<RepositoryRef> {
-      if (!ref) {
-        const default_branch = yield* this.getDefaultBranch();
-        ref = `heads/${default_branch}`;
-      }
-      const parts = ref.match(REF_PATTERN);
-      if (parts) {
-        ref = parts[0];
-      } else {
-        throw new Error(
-          `Expected ref in format heads/<ref> or tags/<ref> (refs/ is ignored) but got ${ref}`,
-        );
-      }
 
-      return yield* loadRepositoryRef({ ref, repository });
+    loadRef(ref?: string) {
+      return loadRepositoryRefForRepository(repository, ref);
     },
   };
 

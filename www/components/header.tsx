@@ -1,7 +1,4 @@
-import {
-  LibraryRepositoryContext,
-  XRepositoryContext,
-} from "../context/repository.ts";
+import { useRepository } from "../context/repository.ts";
 import { loadWorkspaces } from "../resources/repository-ref.ts";
 import { IconDiscord } from "./icons/discord.tsx";
 import { IconGithub } from "./icons/github.tsx";
@@ -14,8 +11,16 @@ export interface HeaderProps {
 }
 
 export function* Header(props?: HeaderProps) {
-  let library = yield* LibraryRepositoryContext.expect();
-  let x = yield* XRepositoryContext.expect();
+  let library = yield* useRepository({
+    owner: "thefrontside",
+    name: "effection",
+  });
+
+  let x = yield* useRepository({
+    owner: "thefrontside",
+    name: "effectionx",
+  });
+  
   let xMain = yield* x.loadRef();
   let workspaces = yield* loadWorkspaces(xMain);
 

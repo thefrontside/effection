@@ -14,7 +14,6 @@ export function* initGithubClientContext({ token }: { token: string }) {
     auth: token,
     request: {
       fetch: (url: string, init?: RequestInit) => {
-        console.log(url);
         return scope.run(() => operations.fetch(url, init));
       },
     },
@@ -24,8 +23,6 @@ export function* initGithubClientContext({ token }: { token: string }) {
     *fetch([input, init], next) {
       if (typeof input === "string" && !init) {
         const match = GITHUB_BLOB_URL.exec(input);
-
-        console.log(match);
 
         if (match?.groups) {
           const { owner, repo, ref, path } = match.groups;

@@ -112,6 +112,7 @@ function* getContent(
   ref: string,
   path: string,
 ): Operation<string> {
+  console.log({ remote, ref, path })
   const process = yield* useProcess(`git show ${remote}/${ref}:${path}`);
 
   let output = "";

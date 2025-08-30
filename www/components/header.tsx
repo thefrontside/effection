@@ -1,4 +1,4 @@
-import { useRepository } from "../context/repository.ts";
+import { useRepository } from "../repository/api.ts";
 import { loadWorkspaces } from "../repository/workspace.ts";
 import { IconDiscord } from "./icons/discord.tsx";
 import { IconGithub } from "./icons/github.tsx";

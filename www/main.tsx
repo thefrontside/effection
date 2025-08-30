@@ -15,7 +15,6 @@ import { firstPage, guidesRoute } from "./routes/guides-route.tsx";
 import { indexRoute } from "./routes/index-route.tsx";
 
 import { initOctokitContext } from "./repository/octokit-context.ts";
-import { rewriteContentsApiToGit } from "./repository/middleware.ts";
 import { initJSRClient } from "./context/jsr.ts";
 import { patchDenoPermissionsQuerySync } from "./deno-deploy-patch.ts";
 import { apiIndexRoute } from "./routes/api-index-route.tsx";
@@ -28,7 +27,7 @@ import { redirectDocsRoute } from "./routes/redirect-docs-route.tsx";
 import { redirectIndexRoute } from "./routes/redirect-index-route.tsx";
 import { searchRoute } from "./routes/search-route.tsx";
 import { initFetch } from "./context/fetch.ts";
-import { useRepository } from "./context/repository.ts";
+import { useRepository } from "./repository/api.ts";
 
 // Learn more at https://docs.deno.com/runtime/manual/examples/module_metadata#concepts
 if (import.meta.main) {
@@ -41,10 +40,6 @@ if (import.meta.main) {
 
     yield* initJSRClient();
     yield* initFetch();
-
-    yield* rewriteContentsApiToGit(
-      (parts) => parts.owner === "thefrontside" && parts.repo === "effection",
-    );
 
     yield* initOctokitContext();
 

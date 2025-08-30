@@ -12,8 +12,8 @@ import { JSXElement } from "revolution/jsx-runtime";
 
 import { useMarkdown } from "../hooks/use-markdown.tsx";
 import { createToc } from "../lib/toc.ts";
-import { loadJson } from "./repository.ts";
-import { RepositoryRef } from "./repository-ref.ts";
+import { RepositoryRef } from "../repository/types.ts";
+import { loadJson } from "../repository/utils.ts";
 
 export interface DocModule {
   default: () => JSX.Element;

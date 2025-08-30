@@ -7,8 +7,9 @@ import { DocsPages, useDocPages } from "../hooks/use-deno-doc.tsx";
 import { useDescription, useTitle } from "../hooks/use-description-parse.tsx";
 import { useMDX } from "../hooks/use-mdx.tsx";
 import { PackageDetailsResult, PackageScoreResult } from "./jsr-client.ts";
-import { loadReadme } from "./repository.ts";
-import { loadDenoJson, RepositoryRef } from "./repository-ref.ts";
+import { RepositoryRef } from "../repository/types.ts";
+import { loadDenoJson } from "../repository/workspace.ts";
+import { loadReadme } from "../repository/utils.ts";
 
 export interface Package {
   ref: RepositoryRef;

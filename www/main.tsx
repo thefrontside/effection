@@ -27,7 +27,7 @@ import { redirectDocsRoute } from "./routes/redirect-docs-route.tsx";
 import { redirectIndexRoute } from "./routes/redirect-index-route.tsx";
 import { searchRoute } from "./routes/search-route.tsx";
 import { initFetch } from "./context/fetch.ts";
-import { useRepository } from "./repository/api.ts";
+import { initGitRepositoryProvider, useRepository } from "./repository/api.ts";
 
 // Learn more at https://docs.deno.com/runtime/manual/examples/module_metadata#concepts
 if (import.meta.main) {
@@ -42,6 +42,7 @@ if (import.meta.main) {
     yield* initFetch();
 
     yield* initOctokitContext();
+    yield* initGitRepositoryProvider();
 
     let library = yield* useRepository({
       owner: "thefrontside",

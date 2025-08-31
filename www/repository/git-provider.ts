@@ -112,8 +112,8 @@ function* getContent(
   ref: string,
   path: string,
 ): Operation<string> {
-  console.log({ remote, ref, path })
-  const process = yield* useProcess(`git show ${remote}/${ref}:${path}`);
+  const command = `git show ${remote}/${ref}:${path}`
+  const process = yield* useProcess(command);
 
   let output = "";
   let errorOutput = "";
@@ -137,7 +137,9 @@ function* getContent(
   if (result.code === 0) {
     return output;
   } else {
-    throw new Error(`Failed to get remote file content: ${errorOutput}`);
+    throw new Error(`[${result.code}] ${command}`, {
+      cause: errorOutput
+    });
   }
 }
 

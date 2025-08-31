@@ -67,8 +67,11 @@ deno task pagefind
 
 - **Generator functions**: Core library heavily uses generator functions with `function*` and `yield*`
 - **Operations**: All async work is modeled as `Operation<T>` types
+- **Synchronous by default**: Operations are synchronous until an operation makes them asynchronous
+- **Spawn usage**: Only use `spawn()` when you want to continue executing while running another operation concurrently
+- **Signals as queues**: Signals accumulate state until something subscribes - you can write to them immediately without spawn
 - **Structured concurrency**: Use `spawn()`, `all()`, `race()` for concurrent operations
-- **Resources**: Use `resource()` for managing lifecycle and cleanup
+- **Resources**: Only use `resource()` if the value returned by the operation has a lifecycle (needs shutdown/cleanup when parent operation terminates)
 - **Context**: Use Effection's context system for dependency injection
 
 ## Website Architecture

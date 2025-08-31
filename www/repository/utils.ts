@@ -74,7 +74,6 @@ export function* loadJson<T = unknown>(
   contentProvider: ContentProvider,
   path: string,
 ): Operation<T> {
-  console.log({ contentProvider, path })
   const text = yield* contentProvider.getContent(path);
   return JSON.parse(text) as T;
 }

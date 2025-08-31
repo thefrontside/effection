@@ -2,10 +2,13 @@ import type { Operation, Stream } from "effection";
 import {
   action,
   createSignal,
+  each,
   resource,
   spawn,
+  until,
   withResolvers,
 } from "effection";
+import md5 from "md5";
 import { createApi } from "./context-api.ts";
 
 export interface ProcessResult {
@@ -124,3 +127,90 @@ export const processApi = createApi<ProcessApi>("process", {
 });
 
 export const { useProcess } = processApi.operations;
+
+export function urlFromCommand(command: string): URL {
+  return new URL(`https://cache.local/${md5(command)}`);
+}
+
+export function* ProcessOutputCache(patterns: RegExp[]): Operation<void> {
+  const cache = yield* until(caches.open("command-cache"));
+  
+  yield* processApi.around({
+    *useProcess([command], next) {
+      // Check if command matches any of the patterns
+      const shouldCache = patterns.some(pattern => pattern.test(command));
+      
+      if (!shouldCache) {
+        return yield* next(command);
+      }
+      
+      const url = urlFromCommand(command);
+      
+      // Check if we have cached result
+      const cachedResponse = yield* until(cache.match(url));
+      
+      if (cachedResponse) {
+        // Return cached process with cached output
+        return yield* createCachedProcess(cachedResponse);
+      }
+      
+      // Execute the process normally
+      const process = yield* next(command);
+      
+      // Capture stdout for caching
+      let stdoutContent = "";
+      
+      const originalProcess = {
+        [Symbol.iterator]: process[Symbol.iterator],
+        stdout: createSignal<string, void>(),
+        stderr: process.stderr,
+        send: process.send,
+      };
+      
+      // Proxy stdout and capture content
+      yield* spawn(function* () {
+        for (const chunk of yield* each(process.stdout)) {
+          stdoutContent += chunk;
+          originalProcess.stdout.send(chunk);
+          yield* each.next();
+        }
+        originalProcess.stdout.close();
+      });
+      
+      // Wait for process completion and cache result if successful
+      yield* spawn(function* () {
+        const result = yield* process;
+        
+        // Only cache successful operations
+        if (result.code === 0) {
+          yield* until(cache.put(url, new Response(stdoutContent.trim())));
+        }
+      });
+      
+      return originalProcess;
+    }
+  });
+}
+
+function* createCachedProcess(cachedResponse: Response): Operation<Process> {
+  const stdoutContent = yield* until(cachedResponse.text());
+  
+  const stdout = createSignal<string, void>();
+  const stderr = createSignal<string, void>();
+  
+  // Since signals are queues, we can write to them immediately
+  stdout.send(stdoutContent.trim());
+  stdout.close();
+  stderr.close();
+  
+  return {
+    *[Symbol.iterator] () {
+      return { code: 0, signal: undefined };
+    },
+    stdout,
+    stderr,
+    *send(_signal: Deno.Signal) {
+      // No-op for cached processes
+    },
+  } as Process;
+}

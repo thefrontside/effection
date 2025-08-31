@@ -1,5 +1,5 @@
 import { assertEquals } from "jsr:@std/assert@1.0.10";
-import { matchRef } from "./repository-ref.ts";
+import { matchRef } from "../repository/utils.ts";
 
 Deno.test("normalizes ref ", () => {
   assertEquals(matchRef("/refs/heads/main"), {

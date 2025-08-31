@@ -5,6 +5,7 @@ import {
   createOctokitRepositoryRef,
 } from "./octokit-provider.ts";
 import { createGitRepository, createGitRepositoryRef } from "./git-provider.ts";
+import { processApi } from "../context/process.ts";
 
 /**
  * Default repository API that requires a provider to be installed via middleware

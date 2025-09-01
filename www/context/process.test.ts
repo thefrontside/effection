@@ -1,14 +1,12 @@
-import {
-  each,
-  Operation,
-  spawn,
-  Stream,
-  until,
-  withResolvers,
-} from "effection";
+import { until } from "effection";
 import { describe, it } from "../testing.ts";
-import { urlFromCommand, useProcess, ProcessOutputCache } from "./process.ts";
+import {
+  ProcessOutputCache,
+  urlFromCommand,
+  useProcess,
+} from "./process.ts";
 import { expect } from "expect";
+import { capture } from "../testing/helpers.ts";
 
 describe("urlFromCommand", () => {
   it("returns an URL with md5", function* () {
@@ -30,11 +28,9 @@ describe("ProcessOutputCache", () => {
 
     yield* ProcessOutputCache([/hello/]);
 
-    const process = yield* useProcess("hello world");
+    const process = yield* capture(useProcess("hello world"));
 
-    yield* process;
-
-    expect(yield* drain(process.stdout)).toBe("hello world");
+    expect(process.stdout).toBe("hello world");
   });
   it("caches the result after first execution", function* () {
     const cache = yield* until(caches.open("command-cache"));
@@ -45,24 +41,10 @@ describe("ProcessOutputCache", () => {
 
     expect(yield* until(cache.match(url))).toBeUndefined();
 
-    const process = yield* useProcess("echo hello world");
+    const process = yield* capture(useProcess("echo hello world"));
 
-    expect(yield* drain(process.stdout)).toBe("hello world");
+    expect(process.stdout).toBe("hello world");
 
     expect(yield* until(cache.match(url))).resolves.toBeInstanceOf(Response);
   });
 });
-
-function* drain(source: Stream<string, void>): Operation<string> {
-  const complete = withResolvers<string>();
-  yield* spawn(function* () {
-    let chunks = "";
-    for (const chunk of yield* each(source)) {
-      chunks += chunk;
-      yield* each.next();
-    }
-    complete.resolve(chunks);
-  });
-
-  return yield* complete.operation;
-}

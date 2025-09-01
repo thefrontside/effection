@@ -1,6 +1,10 @@
 import { each, Operation, spawn } from "effection";
 import { useProcess } from "../context/process.ts";
-import type { Repository, RepositoryRef, UseRepositoryParams } from "./types.ts";
+import type {
+  Repository,
+  RepositoryRef,
+  UseRepositoryParams,
+} from "./types.ts";
 import { getPath, getRefUrl, matchRef } from "./utils.ts";
 import { getStarCount } from "./octokit-provider.ts";
 
@@ -107,12 +111,66 @@ function* getMatchingTags(
 /**
  * Get content of a file from repository using git commands
  */
+export function* lookupTagCommit({ remoteName, tagName, workingDir }: {
+  remoteName: string;
+  tagName: string;
+  workingDir?: string;
+}): Operation<string | undefined> {
+  const gitCmd = `git ${
+    workingDir ? `-C "${workingDir}"` : ""
+  } ls-remote --tags ${remoteName}`;
+
+  const listTagsProcess = yield* useProcess(gitCmd);
+
+  let tagOutput = "";
+  yield* spawn(function* () {
+    for (const chunk of yield* each(listTagsProcess.stdout)) {
+      tagOutput += chunk;
+      yield* each.next();
+    }
+  });
+
+  const result = yield* listTagsProcess;
+
+  if (result.code === 0) {
+    const lines = tagOutput.trim().split("\n").filter((line) =>
+      line.length > 0
+    );
+    
+    // Look for the dereferenced tag (^{}) which points to the actual commit
+    const dereferencedLine = lines.find((line) =>
+      line.includes(`refs/tags/${tagName}^{}`)
+    );
+    
+    if (dereferencedLine) {
+      // Return the commit hash from the dereferenced tag
+      return dereferencedLine.split("\t")[0];
+    }
+    
+    // Fallback to the tag object hash if no dereferenced tag found
+    const tagLine = lines.find((line) =>
+      line.includes(`refs/tags/${tagName}`) && !line.includes("^{}")
+    );
+
+    if (!tagLine) {
+      return void 0;
+    }
+
+    // Extract the tag object hash (for lightweight tags, this is the commit)
+    return tagLine.split("\t")[0];
+  }
+
+  throw new Error(`[${result.code}]: ${gitCmd}`, {
+    cause: result.code
+  });
+}
+
 function* getContent(
   remote: string,
   ref: string,
   path: string,
 ): Operation<string> {
-  const command = `git show ${remote}/${ref}:${path}`
+  const command = `git show ${remote}/${ref}:${path}`;
   const process = yield* useProcess(command);
 
   let output = "";
@@ -138,7 +196,7 @@ function* getContent(
     return output;
   } else {
     throw new Error(`[${result.code}] ${command}`, {
-      cause: errorOutput
+      cause: errorOutput,
     });
   }
 }

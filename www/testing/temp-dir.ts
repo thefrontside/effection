@@ -1,5 +1,5 @@
 import { type Operation, resource, until } from "effection";
-import { ensureFile, ensureDir } from "@std/fs";
+import { ensureDir, ensureFile } from "@std/fs";
 import { join } from "@std/path";
 
 function* writeFiles(
@@ -21,29 +21,32 @@ export interface TempDir {
   path: string;
 }
 
+interface CreateTempDirParams {
+  autoClean?: boolean;
+  baseDir?: string;
+}
+
 export function createTempDir(
-  { 
-    prefix = "ex-publisher-test-", 
-    baseDir 
-  }: { 
-    prefix?: string; 
-    baseDir?: string; 
-  } = {},
+  params?: CreateTempDirParams,
 ): Operation<TempDir> {
   return resource(function* (provide) {
+    const {
+      baseDir,
+      autoClean,
+    } = params || {};
     let dir: string;
-    
+
     if (baseDir) {
       // Create directory in specified base directory
       yield* until(ensureDir(baseDir));
       const timestamp = Date.now().toString(36);
       const randomSuffix = Math.random().toString(36).substring(2, 8);
-      const dirName = `${prefix}${timestamp}-${randomSuffix}`;
+      const dirName = `${timestamp}-${randomSuffix}`;
       dir = join(baseDir, dirName);
       yield* until(ensureDir(dir));
     } else {
       // Fall back to system temp directory
-      dir = yield* until(Deno.makeTempDir({ prefix }));
+      dir = yield* until(Deno.makeTempDir());
     }
 
     try {
@@ -60,7 +63,7 @@ export function createTempDir(
       });
     } finally {
       // Only remove if we created it (not if it's in a managed base directory)
-      if (!baseDir) {
+      if (autoClean) {
         yield* until(Deno.remove(dir, { recursive: true }));
       }
     }

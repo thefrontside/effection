@@ -1,5 +1,6 @@
 import { each, Operation, spawn } from "effection";
 import { useProcess } from "../context/process.ts";
+import { $ } from "../context/shell.ts";
 import type {
   Repository,
   RepositoryRef,
@@ -109,60 +110,39 @@ function* getMatchingTags(
 }
 
 /**
- * Get content of a file from repository using git commands
+ * Get commit hash for a tag from a remote repository
  */
-export function* lookupTagCommit({ remoteName, tagName, workingDir }: {
+export function* lookupTagCommit({ remoteName, tagName }: {
   remoteName: string;
   tagName: string;
-  workingDir?: string;
 }): Operation<string | undefined> {
-  const gitCmd = `git ${
-    workingDir ? `-C "${workingDir}"` : ""
-  } ls-remote --tags ${remoteName}`;
+  const result = yield* $(`git ls-remote --tags ${remoteName}`);
 
-  const listTagsProcess = yield* useProcess(gitCmd);
+  const lines = result.stdout.split("\n").filter((line) =>
+    line.length > 0
+  );
+  
+  // Look for the dereferenced tag (^{}) which points to the actual commit
+  const dereferencedLine = lines.find((line) =>
+    line.includes(`refs/tags/${tagName}^{}`)
+  );
+  
+  if (dereferencedLine) {
+    // Return the commit hash from the dereferenced tag
+    return dereferencedLine.split("\t")[0];
+  }
+  
+  // Fallback to the tag object hash if no dereferenced tag found
+  const tagLine = lines.find((line) =>
+    line.includes(`refs/tags/${tagName}`) && !line.includes("^{}")
+  );
 
-  let tagOutput = "";
-  yield* spawn(function* () {
-    for (const chunk of yield* each(listTagsProcess.stdout)) {
-      tagOutput += chunk;
-      yield* each.next();
-    }
-  });
-
-  const result = yield* listTagsProcess;
-
-  if (result.code === 0) {
-    const lines = tagOutput.trim().split("\n").filter((line) =>
-      line.length > 0
-    );
-    
-    // Look for the dereferenced tag (^{}) which points to the actual commit
-    const dereferencedLine = lines.find((line) =>
-      line.includes(`refs/tags/${tagName}^{}`)
-    );
-    
-    if (dereferencedLine) {
-      // Return the commit hash from the dereferenced tag
-      return dereferencedLine.split("\t")[0];
-    }
-    
-    // Fallback to the tag object hash if no dereferenced tag found
-    const tagLine = lines.find((line) =>
-      line.includes(`refs/tags/${tagName}`) && !line.includes("^{}")
-    );
-
-    if (!tagLine) {
-      return void 0;
-    }
-
-    // Extract the tag object hash (for lightweight tags, this is the commit)
-    return tagLine.split("\t")[0];
+  if (!tagLine) {
+    return void 0;
   }
 
-  throw new Error(`[${result.code}]: ${gitCmd}`, {
-    cause: result.code
-  });
+  // Extract the tag object hash (for lightweight tags, this is the commit)
+  return tagLine.split("\t")[0];
 }
 
 function* getContent(

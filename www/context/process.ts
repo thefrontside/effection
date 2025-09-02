@@ -121,11 +121,6 @@ export const processApi = createApi<ProcessApi>("process", {
         
         // Log command completion with status
         yield* log.debug(`[${status.code}]: "${command}" in ${options?.cwd ?? Deno.cwd()}`);
-        
-        // if (status.code !== 0) {
-        //   yield* log.debug(yield* drain(stdout))
-        //   yield* log.error(yield* drain(stderr));
-        // }
 
         closed.resolve({
           code: status.code,
@@ -164,10 +159,12 @@ export function* capture(
     stderr.resolve(yield* drain(process.stderr));
   });
 
+  const result = yield* process;
+  
   return {
-    ...yield* process,
-    stdout: yield* stdout.operation,
-    stderr: yield* stderr.operation,
+    ...result,
+    stdout: (yield* stdout.operation).trim(),
+    stderr: (yield* stderr.operation).trim(),
   };
 }
 

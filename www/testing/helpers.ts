@@ -1,4 +1,5 @@
 import {
+createContext,
   each,
   type Operation,
   spawn,
@@ -8,6 +9,8 @@ import {
 } from "effection";
 import { Process, useProcess } from "../context/process.ts";
 import * as fs from "@std/fs";
+import { log } from "../context/logging.ts";
+import { join } from "@std/path";
 
 export function ensureDir(dir: string | URL) {
   return until(fs.ensureDir(dir));
@@ -95,4 +98,34 @@ export function* drain(source: Stream<string, void>): Operation<string> {
   });
 
   return yield* complete.operation;
+}
+
+const CwdContext = createContext<string | URL>(Deno.cwd());
+
+export function* $(command: string): Operation<void> {
+  const cwd = yield* CwdContext.expect();
+  const result = yield* capture(useProcess(command, { cwd }));
+  if (result.code !== 0) {
+    yield* log.debug(result.stdout);
+    throw new Error(`Failed to execute ${command}`, {
+      cause: result.stderr
+    })
+  }
+}
+
+export function* cwd(directory: string | URL, ops: Operation<void>[]) {
+  yield* CwdContext.with(directory, function*() {
+    for (const op of ops) {
+      yield* op;
+    }
+  });
+}
+
+export function* $echo(data: string | ReadableStream<string>, filename: string | URL): Operation<void> {
+  const cwd = yield* CwdContext.expect();
+  if (typeof filename === "string") {
+    yield* until(Deno.writeTextFile(join(cwd, filename), data));
+    return;
+  }
+  yield* until(Deno.writeTextFile(new URL(filename, cwd), data));
 }

@@ -147,6 +147,44 @@ export const processApi = createApi<ProcessApi>("process", {
 
 export const { useProcess } = processApi.operations;
 
+export function* capture(
+  op: Operation<Process>,
+): Operation<
+  { stdout: string; stderr: string; code: number; signal?: Deno.Signal }
+> {
+  const process = yield* op;
+  
+  const stdout = withResolvers<string>();
+  const stderr = withResolvers<string>();
+
+  yield* spawn(function* () {
+    stdout.resolve(yield* drain(process.stdout));
+  });
+  yield* spawn(function* () {
+    stderr.resolve(yield* drain(process.stderr));
+  });
+
+  return {
+    ...yield* process,
+    stdout: yield* stdout.operation,
+    stderr: yield* stderr.operation,
+  };
+}
+
+export function* drain(source: Stream<string, void>): Operation<string> {
+  const complete = withResolvers<string>();
+  yield* spawn(function* () {
+    let chunks = "";
+    for (const chunk of yield* each(source)) {
+      chunks += chunk;
+      yield* each.next();
+    }
+    complete.resolve(chunks);
+  });
+
+  return yield* complete.operation;
+}
+
 export function urlFromCommand(command: string): URL {
   return new URL(`https://cache.local/${md5(command)}`);
 }

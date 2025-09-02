@@ -4,9 +4,9 @@ import {
   ProcessOutputCache,
   urlFromCommand,
   useProcess,
+  capture,
 } from "./process.ts";
 import { expect } from "expect";
-import { capture } from "../testing/helpers.ts";
 
 describe("urlFromCommand", () => {
   it("returns an URL with md5", function* () {

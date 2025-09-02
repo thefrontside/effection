@@ -3,7 +3,9 @@ import { useProcess } from "../context/process.ts";
 import { createTempDir, type TempDir } from "../testing/temp-dir.ts";
 import { join } from "@std/path";
 import { Operation } from "effection";
-import { capture, ensureDir, writeTextFile, getGitHistory, cwd, $, $echo } from "../testing/helpers.ts";
+import { ensureDir, writeTextFile, getGitHistory } from "../testing/helpers.ts";
+import { capture } from "../context/process.ts";
+import { cwd, $, $echo } from "../context/shell.ts";
 import { expect } from "expect";
 import { lookupTagCommit } from "./git-provider.ts";
 

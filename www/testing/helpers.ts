@@ -1,5 +1,4 @@
 import {
-createContext,
   each,
   type Operation,
   spawn,
@@ -7,10 +6,8 @@ createContext,
   until,
   withResolvers,
 } from "effection";
-import { Process, useProcess } from "../context/process.ts";
+import { Process, useProcess, capture } from "../context/process.ts";
 import * as fs from "@std/fs";
-import { log } from "../context/logging.ts";
-import { join } from "@std/path";
 
 export function ensureDir(dir: string | URL) {
   return until(fs.ensureDir(dir));
@@ -18,30 +15,6 @@ export function ensureDir(dir: string | URL) {
 
 export function writeTextFile(path: string | URL, data: string | ReadableStream<string>, options?: Deno.WriteFileOptions) {
   return until(Deno.writeTextFile(path, data, options));
-}
-
-export function* capture(
-  op: Operation<Process>,
-): Operation<
-  { stdout: string; stderr: string; code: number; signal?: Deno.Signal }
-> {
-  const process = yield* op;
-  
-  const stdout = withResolvers<string>();
-  const stderr = withResolvers<string>();
-
-  yield* spawn(function* () {
-    stdout.resolve(yield* drain(process.stdout));
-  });
-  yield* spawn(function* () {
-    stderr.resolve(yield* drain(process.stderr));
-  });
-
-  return {
-    ...yield* process,
-    stdout: yield* stdout.operation,
-    stderr: yield* stderr.operation,
-  };
 }
 
 export interface GitCommit {
@@ -86,46 +59,3 @@ export function* getGitHistory(repoDir: string): Operation<GitCommit[]> {
   return commits;
 }
 
-export function* drain(source: Stream<string, void>): Operation<string> {
-  const complete = withResolvers<string>();
-  yield* spawn(function* () {
-    let chunks = "";
-    for (const chunk of yield* each(source)) {
-      chunks += chunk;
-      yield* each.next();
-    }
-    complete.resolve(chunks);
-  });
-
-  return yield* complete.operation;
-}
-
-const CwdContext = createContext<string | URL>(Deno.cwd());
-
-export function* $(command: string): Operation<void> {
-  const cwd = yield* CwdContext.expect();
-  const result = yield* capture(useProcess(command, { cwd }));
-  if (result.code !== 0) {
-    yield* log.debug(result.stdout);
-    throw new Error(`Failed to execute ${command}`, {
-      cause: result.stderr
-    })
-  }
-}
-
-export function* cwd(directory: string | URL, ops: Operation<void>[]) {
-  yield* CwdContext.with(directory, function*() {
-    for (const op of ops) {
-      yield* op;
-    }
-  });
-}
-
-export function* $echo(data: string | ReadableStream<string>, filename: string | URL): Operation<void> {
-  const cwd = yield* CwdContext.expect();
-  if (typeof filename === "string") {
-    yield* until(Deno.writeTextFile(join(cwd, filename), data));
-    return;
-  }
-  yield* until(Deno.writeTextFile(new URL(filename, cwd), data));
-}

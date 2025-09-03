@@ -1,11 +1,13 @@
 import { Operation } from "effection";
 import { $ } from "../context/shell.ts";
 import type {
+  GitRef,
+  RefTypeInfo,
   Repository,
   RepositoryRef,
   UseRepositoryParams,
 } from "./types.ts";
-import { getPath, getRefUrl, matchRef } from "./utils.ts";
+import { getPath } from "./utils.ts";
 import { getStarCount } from "./octokit-provider.ts";
 
 /**
@@ -136,7 +138,7 @@ export function* lookupTagCommit({ remoteName, tagName }: {
 export function* determineRefType(
   remote: string,
   ref: string,
-): Operation<{ type: "tag" | "branch", name: string, normalized: string }> {
+): Operation<RefTypeInfo> {
   // First, normalize ref format to determine if it's a tag or branch
   let preliminaryResult: { type: 'tag' | 'branch', name: string };
   
@@ -289,22 +291,18 @@ export function* createGitRepositoryRef({
     _ref = `heads/${default_branch}`;
   }
 
-  // Parse and normalize the ref
-  const REF_PATTERN = /^(\/?refs\/)?(heads|tags)\/(.*)$/;
-  const parts = _ref.match(REF_PATTERN);
-  let normalizedRef: string;
-  if (parts) {
-    normalizedRef = parts[0];
-  } else {
-    throw new Error(
-      `Expected ref in format heads/<ref> or tags/<ref> (refs/ is ignored) but got ${_ref}`,
-    );
-  }
+  // Use determineRefType for comprehensive ref parsing and normalization
+  const refInfo = yield* determineRefType(repository.nameWithOwner, _ref);
+  
+  // Create GitRef object compatible with existing utils
+  const ref: GitRef = {
+    type: refInfo.type === "branch" ? "branch" : "tag",
+    name: refInfo.name,
+    ref: `${refInfo.type === "branch" ? "heads" : "tags"}/${refInfo.name}`,
+  };
 
-  const ref = matchRef(normalizedRef);
-  if (!ref) throw new Error(`Could not normalize ${normalizedRef}`);
-
-  const url = getRefUrl(repository, ref);
+  // Generate URL directly using refInfo.name (same as getRefUrl but more direct)
+  const url = `https://github.com/${repository.owner}/${repository.name}/tree/${refInfo.name}/`;
 
   const repositoryRef: RepositoryRef = {
     repository,

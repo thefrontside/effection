@@ -103,6 +103,19 @@ export interface TagRef {
 export type GitRef = BranchRef | TagRef;
 
 /**
+ * Interface for the result of determineRefType function
+ * Contains the type, clean name, and normalized full reference
+ */
+export interface RefTypeInfo {
+  /** The type of reference - either "tag" or "branch" */
+  type: "tag" | "branch";
+  /** The clean reference name without prefixes (e.g., "main", "v1.0.0") */
+  name: string;
+  /** The normalized full Git reference (e.g., "refs/heads/main", "refs/tags/v1.0.0") */
+  normalized: string;
+}
+
+/**
  * Repository reference interface - represents a specific branch or tag
  */
 export interface RepositoryRef extends ContentProvider {

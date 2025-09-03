@@ -11,11 +11,7 @@ import { DocPage, DocsPages } from "../hooks/use-deno-doc.tsx";
 import { useMarkdown } from "../hooks/use-markdown.tsx";
 import { major, minor } from "../lib/semver.ts";
 import type { RoutePath, SitemapRoute } from "../plugins/sitemap.ts";
-import {
-  loadDenoJson,
-  loadRootPackage,
-  loadWorkspace,
-} from "../repository/workspace.ts";
+import { loadDenoJson, loadRootPackage } from "../repository/workspace.ts";
 import { extractSemverVersions } from "../repository/utils.ts";
 import type { Repository } from "../repository/types.ts";
 import { useAppHtml } from "./app.html.tsx";
@@ -26,6 +22,7 @@ import { Icon } from "../components/type/icon.tsx";
 import { softRedirect } from "./redirect.tsx";
 import { createSibling } from "./links-resolvers.ts";
 import { coerce, satisfies } from "npm:semver@7.6.3";
+import { loadPackage } from "../resources/package.ts";
 
 interface XPackageRouteParams {
   x: Repository;
@@ -81,7 +78,10 @@ export function xPackageRoute({
 
       try {
         const main = yield* x.loadRef();
-        const pkg = yield* loadWorkspace(main, `./${params.workspacePath}`);
+        const pkg = yield* loadPackage({
+          ref: main,
+          workspacePath: `./${params.workspacePath}`,
+        });
         const docs = yield* pkg.docs();
 
         const AppHTML = yield* useAppHtml({

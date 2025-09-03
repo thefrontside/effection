@@ -284,19 +284,19 @@ export function* createGitRepository({
  */
 export function* createGitRepositoryRef({
   repository,
-  ref: _ref,
+  ref: rawRef,
 }: {
   repository: Repository;
   ref?: string;
 }): Operation<RepositoryRef> {
   // Default to main branch if no ref provided
-  if (!_ref) {
+  if (!rawRef) {
     const default_branch = yield* getDefaultBranch(repository.nameWithOwner);
-    _ref = `heads/${default_branch}`;
+    rawRef = `heads/${default_branch}`;
   }
 
   // Use determineRefType for comprehensive ref parsing and normalization
-  const refInfo = yield* determineRefType(repository.nameWithOwner, _ref);
+  const refInfo = yield* determineRefType(repository.nameWithOwner, rawRef);
 
   // Generate URL directly using refInfo.name (same as getRefUrl but more direct)
   const url = `https://github.com/${repository.owner}/${repository.name}/tree/${refInfo.name}/`;
@@ -316,7 +316,7 @@ export function* createGitRepositoryRef({
     },
 
     getContent: (path: string) =>
-      getContent(repository.nameWithOwner, _ref!, path),
+      getContent(repository.nameWithOwner, rawRef, path),
   };
 
   return repositoryRef;

@@ -1,9 +1,9 @@
 import { createContext, type Operation, scoped, until } from "effection";
 import { capture, useProcess } from "./process.ts";
-import { indent, log, loggerApi, namespace } from "./logging.ts";
+import { indent, log, } from "./logging.ts";
 import { join } from "@std/path";
 
-const CwdContext = createContext<string | URL>(Deno.cwd());
+const CwdContext = createContext<string | URL>("cwd", Deno.cwd());
 
 export function* $(
   command: string,

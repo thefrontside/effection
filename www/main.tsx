@@ -28,6 +28,7 @@ import { redirectIndexRoute } from "./routes/redirect-index-route.tsx";
 import { searchRoute } from "./routes/search-route.tsx";
 import { initFetch } from "./context/fetch.ts";
 import { initGitRepositoryProvider, useRepository } from "./repository/api.ts";
+import { initGithubBlobFetchMiddleware, rewriteContentsApiToGit } from "./repository/middleware.ts";
 
 // Learn more at https://docs.deno.com/runtime/manual/examples/module_metadata#concepts
 if (import.meta.main) {
@@ -53,6 +54,13 @@ if (import.meta.main) {
       owner: "thefrontside",
       name: "effectionx",
     });
+
+    yield* rewriteContentsApiToGit(({ owner, repo }) =>
+      owner === "thefrontside" && ["effectionx", "effection"].includes(repo)
+    );
+
+    yield* initGithubBlobFetchMiddleware();
+    
 
     let revolution = createRevolution({
       app: [

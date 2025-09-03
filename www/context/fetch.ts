@@ -1,6 +1,7 @@
 import { Operation, until } from "effection";
 import { createApi } from "./context-api.ts";
 import { rewrite } from "./url-rewrite.ts";
+import { log } from "./logging.ts";
 
 interface FetchApi {
   fetch(input: RequestInfo | URL, init?: RequestInit): Operation<Response>;
@@ -41,7 +42,7 @@ export function* initFetch() {
         : new URL(input);
 
       if (url.protocol === "file:") {
-        console.log(`Reading file system file from ${url}`);
+        yield* log.debug(`Reading file system file from ${url}`)
         try {
           const file = yield* until(Deno.open(url.pathname));
           return new Response(file.readable);
@@ -67,7 +68,7 @@ export function* initFetch() {
         : new URL(input);
       const newUrl = yield* rewrite(url, input, init);
       if (url !== newUrl) {
-        console.log(`Rewrite ${url} to ${newUrl}`);
+        yield* log.debug(`Rewrite ${url} to ${newUrl}`)
       }
       return yield* next(newUrl, init);
     },

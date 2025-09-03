@@ -1,5 +1,10 @@
 import { all, type Operation } from "effection";
-import { DenoJson, DenoJsonType, loadPackage, Package } from "../resources/package.ts";
+import {
+  DenoJson,
+  DenoJsonType,
+  loadPackage,
+  Package,
+} from "../resources/package.ts";
 import type { ContentProvider, RepositoryRef } from "./types.ts";
 import { getPath, loadJson } from "./utils.ts";
 
@@ -19,33 +24,14 @@ export function* loadDenoJson(
 }
 
 /**
- * Load a package at given workspace path from a repository ref
- * @param ref - Repository reference
- * @param workspacePath - Path to the workspace
- * @returns Package at the workspace path
- */
-export function* loadWorkspace(
-  ref: RepositoryRef,
-  workspacePath: string,
-): Operation<Package> {
-  const { workspace } = yield* loadDenoJson(ref);
-  if (!workspace?.includes(workspacePath)) {
-    throw new Error(`${workspacePath} is not a valid workspace`);
-  }
-
-  return yield* loadPackage({ workspacePath, ref });
-}
-
-/**
  * Load all packages declared in workspaces from a repository ref
  * @param ref - Repository reference
  * @returns Array of packages from all workspaces
  */
 export function* loadWorkspaces(ref: RepositoryRef): Operation<Package[]> {
   const { workspace = [] } = yield* loadDenoJson(ref);
-
   return yield* all(
-    workspace.map((workspacePath) => loadWorkspace(ref, workspacePath)),
+    workspace.map((workspacePath) => loadPackage({ ref, workspacePath })),
   );
 }
 

@@ -263,7 +263,6 @@ function* extractImports(
   loader: (specifier: string) => Operation<LoadResponse | undefined>,
 ) {
   const module = yield* loader(url);
-
   if (!module) return;
   const content = module.kind === "module"
     ? JSON.parse(`${module.content}`)

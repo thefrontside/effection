@@ -1,10 +1,11 @@
-import type { Operation, Stream } from "effection";
+import type { Operation, Queue, Stream, Scope, Subscription } from "effection";
 import {
   createSignal,
   each,
   resource,
   spawn,
   until,
+  useScope,
   withResolvers,
 } from "effection";
 import md5 from "md5";
@@ -37,6 +38,8 @@ export const processApi = createApi<ProcessApi>("process", {
   useProcess(command: string, options): Operation<Process> {
     return resource(function* (provide) {
       let closed = withResolvers<ProcessResult>();
+      let stdoutComplete = withResolvers<void>();
+      let stderrComplete = withResolvers<void>();
       let stdout = createSignal<string, void>();
       let stderr = createSignal<string, void>();
 
@@ -73,13 +76,14 @@ export const processApi = createApi<ProcessApi>("process", {
               yield* log.error(`Failed to read stdout`, { cause: e });
               throw e;
             }
-            if (result.done) break;
 
             const text = decoder.decode(result.value, { stream: true });
             stdout.send(text);
+            if (result.done) break;
           }
         } finally {
           reader.releaseLock();
+          stdoutComplete.resolve();
         }
       });
 
@@ -97,13 +101,15 @@ export const processApi = createApi<ProcessApi>("process", {
               yield* log.error(`Failed to read stderr`, { cause: e });
               throw e;
             }
-            if (result.done) break;
 
             const text = decoder.decode(result.value, { stream: true });
             stdout.send(text);
+
+            if (result.done) break;
           }
         } finally {
           reader.releaseLock();
+          stderrComplete.resolve();
         }
       });
 
@@ -116,7 +122,10 @@ export const processApi = createApi<ProcessApi>("process", {
           throw new Error(`Command failed: ${command}`, { cause: e });
         }
 
+        yield* stdoutComplete.operation;
         stdout.close();
+
+        yield* stderrComplete.operation;
         stderr.close();
 
         // Log command completion with status
@@ -159,18 +168,23 @@ export function* capture(
   const stderr = withResolvers<string>();
 
   yield* spawn(function* () {
-    stdout.resolve(yield* drain(process.stdout));
+    const output = yield* drain(process.stdout);
+    stdout.resolve(output);
   });
   yield* spawn(function* () {
-    stderr.resolve(yield* drain(process.stderr));
+    const output = yield* drain(process.stderr);
+    stderr.resolve(output);
   });
 
   const result = yield* process;
 
+  const stdoutResult = yield* stdout.operation;
+  const stderrResult = yield* stderr.operation;
+
   return {
     ...result,
-    stdout: (yield* stdout.operation).trim(),
-    stderr: (yield* stderr.operation).trim(),
+    stdout: stdoutResult.trim(),
+    stderr: stderrResult.trim(),
   };
 }
 
@@ -213,64 +227,68 @@ export function* ProcessOutputCache(patterns: RegExp[]): Operation<void> {
         // Return cached process with cached output
         return yield* createCachedProcess(cachedResponse);
       }
-
+      
       // Execute the process normally
       const process = yield* next(command);
 
-      // Capture stdout for caching
-      let stdoutContent = "";
-
-      const originalProcess = {
-        [Symbol.iterator]: process[Symbol.iterator],
-        stdout: createSignal<string, void>(),
-        stderr: process.stderr,
-        send: process.send,
-      };
-
-      // Proxy stdout and capture content
-      yield* spawn(function* () {
-        for (const chunk of yield* each(process.stdout)) {
-          stdoutContent += chunk;
-          originalProcess.stdout.send(chunk);
-          yield* each.next();
-        }
-        originalProcess.stdout.close();
+      yield* spawn(function*() {
+        const subscription = yield* process.stdout;
+        const scope = yield* useScope();
+        const iterable = toAsyncIterable(subscription, scope);
+        yield* until(cache.put(url, new Response(ReadableStream.from(iterable))));
+        console.log('finished')
       });
 
-      // Wait for process completion and cache result if successful
-      yield* spawn(function* () {
-        const result = yield* process;
-
-        // Only cache successful operations
-        if (result.code === 0) {
-          yield* until(cache.put(url, new Response(stdoutContent.trim())));
-        }
-      });
-
-      return originalProcess;
+      return process;
     },
   });
 }
 
-function* createCachedProcess(cachedResponse: Response): Operation<Process> {
-  const stdoutContent = yield* until(cachedResponse.text());
-
-  const stdout = createSignal<string, void>();
-  const stderr = createSignal<string, void>();
-
-  // Since signals are queues, we can write to them immediately
-  stdout.send(stdoutContent.trim());
-  stdout.close();
-  stderr.close();
-
+export function toAsyncIterable<T>(
+  subscription: Subscription<T, unknown>,
+  scope: Scope,
+): AsyncIterable<T> {
   return {
-    *[Symbol.iterator]() {
-      return { code: 0, signal: undefined };
+    async *[Symbol.asyncIterator]() {
+      let next = await scope.run(subscription.next);
+
+      while (true) {
+        if (!next.done) {
+          yield next.value;
+        } else {
+          break;
+        }
+        next = await scope.run(subscription.next);
+      }
+      return next.value;
     },
-    stdout,
-    stderr,
-    *send(_signal: Deno.Signal) {
-      // No-op for cached processes
-    },
-  } as Process;
+  };
+}
+
+function createCachedProcess(cachedResponse: Response): Operation<Process> {
+  return resource(function* (provide) {
+    const stdoutContent = yield* until(cachedResponse.text());
+
+    const stdout = createSignal<string, void>();
+    const stderr = createSignal<string, void>();
+
+    // Since signals are queues, we can write to them immediately
+    stdout.send(stdoutContent);
+
+    try {
+      return yield* provide({
+        *[Symbol.iterator]() {
+          return { code: 0, signal: undefined };
+        },
+        stdout,
+        stderr,
+        *send(_signal: Deno.Signal) {
+          // No-op for cached processes
+        },
+      });
+    } finally {
+      stdout.close();
+      stderr.close();
+    }
+  });
 }

@@ -1,11 +1,9 @@
 import { fetchApi } from "../context/fetch.ts";
+import { log } from "../context/logging.ts";
 import { urlRewriteApi } from "../context/url-rewrite.ts";
-import { useRepository, useRef } from "./api.ts";
-import { 
-  GITHUB_CONTENTS_URL, 
-  GITHUB_BLOB_URL, 
-  parseGitUrl 
-} from "./utils.ts";
+import { useRef, useRepository } from "./api.ts";
+import { determineRefType } from "./git-provider.ts";
+import { GITHUB_BLOB_URL, GITHUB_CONTENTS_URL, parseGitUrl } from "./utils.ts";
 
 /**
  * Initialize GitHub blob fetch middleware
@@ -19,19 +17,24 @@ export function* initGithubBlobFetchMiddleware() {
         const match = GITHUB_BLOB_URL.exec(input);
 
         if (match?.groups) {
-          const { owner, repo, ref, path } = match.groups;
-          
+          const { owner, repo, ref: rawRef, path } = match.groups;
+
           // Use repository API instead of direct Octokit calls
-          const repository = yield* useRepository({ 
-            owner: owner, 
-            name: repo 
+          const repository = yield* useRepository({
+            owner: owner,
+            name: repo,
           });
-          
-          const repositoryRef = yield* useRef({ 
-            repository, 
-            ref: `heads/${ref}` 
+
+          const ref = yield* determineRefType(
+            `${repository.owner}/${repository.name}`,
+            rawRef,
+          );
+
+          const repositoryRef = yield* useRef({
+            repository,
+            ref: ref.normalized,
           });
-          
+
           const content = yield* repositoryRef.getContent(path);
 
           return new Response(content, {
@@ -56,7 +59,7 @@ export interface ShouldRewrite {
 
 /**
  * Rewrites GitHub Contents API URLs to git:// protocol URLs.
- * 
+ *
  * Transforms URLs from:
  *   https://api.github.com/repos/thefrontside/effection/contents/docs%2Finstallation.md?ref=v3
  * To:
@@ -113,7 +116,7 @@ export function* rewriteGitToFile(base: string) {
         const parsed = parseGitUrl(String(url));
         if (parsed) {
           const fileUrl = new URL(`./${parsed.path}`, base);
-          console.log(`Rewrote ${url} ➡️ ${fileUrl}`);
+          yield* log.debug(`Rewrote ${url} ➡️ ${fileUrl}`);
           return yield* next(fileUrl, input, init);
         }
       }

@@ -61,12 +61,13 @@ export function* getDefaultBranch(remote: string): Operation<string> {
 /**
  * Get tags for a repository matching a pattern using git commands
  */
-function* getMatchingTags(
+export function* getMatchingTags(
   remote: string,
   pattern?: string,
 ): Operation<{ name: string }[]> {
   try {
-    const result = yield* $(`git ls-remote --tags ${remote} "${pattern}"`);
+    const command = `git ls-remote --tags ${remote}${pattern ? ` "${pattern}"` : ''}`;
+    const result = yield* $(command);
 
     // Parse output: "hash    refs/tags/tagname"
     return result.stdout

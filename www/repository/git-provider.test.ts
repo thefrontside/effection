@@ -7,6 +7,7 @@ import { createTempDir, type TempDir } from "../testing/temp-dir.ts";
 import {
   getContent,
   getDefaultBranch,
+  getMatchingTags,
   lookupTagCommit,
 } from "./git-provider.ts";
 
@@ -50,6 +51,8 @@ describe("lookupHeadCommit", () => {
       $echo("fourth", "file4.txt"),
       $(`git add file4.txt`),
       $(`git commit -m "Fourth commit"`),
+      // create tag off 4th commit with v2
+      $(`git tag -a v2.0.0 HEAD -m "version 2.0.0"`),
       // Checkout new branch
       $(`git checkout -b feature-branch`),
       // Fifth commit on feature branch
@@ -131,6 +134,26 @@ describe("lookupHeadCommit", () => {
           getContent("external", "feature-branch", "feature.txt"),
         ]);
         expect(content).toEqual("feature");
+      });
+    });
+
+    describe("finding tags matching patterns", () => {
+      it("finds all tags when no pattern specified", function*() {
+        const [allTags] = yield* cwd(workspaceDir, [getMatchingTags("external")]);
+        expect(allTags).toHaveLength(2);
+        expect(allTags.map(t => t.name)).toContain("v1.0.0");
+        expect(allTags.map(t => t.name)).toContain("v2.0.0");
+      });
+
+      it("finds tags matching v1 pattern", function*() {
+        const [v1Tags] = yield* cwd(workspaceDir, [getMatchingTags("external", "v1*")]);
+        expect(v1Tags).toHaveLength(1);
+        expect(v1Tags[0].name).toBe("v1.0.0");
+      });
+
+      it("returns empty array for pattern with no matches", function*() {
+        const [noMatches] = yield* cwd(workspaceDir, [getMatchingTags("external", "v3*")]);
+        expect(noMatches).toHaveLength(0);
       });
     });
   });

@@ -10,3 +10,7 @@ Example:
 
 Code written by: [Developer Name]
 ```
+
+## Testing
+
+Run tests with: `deno test --trace-leaks --allow-run --allow-write --allow-read`

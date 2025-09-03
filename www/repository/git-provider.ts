@@ -23,15 +23,15 @@ export function* checkRemoteExists(remoteName: string): Operation<boolean> {
 /**
  * Add a git remote
  */
-function* addRemote(remote: string, url: string): Operation<void> {
+export function* addRemote(remote: string, url: string): Operation<void> {
   yield* $(`git remote add ${remote} ${url}`);
 }
 
 /**
  * Fetch from a git remote
  */
-function* fetchRemote(remote: string): Operation<void> {
-  yield* $(`git fetch ${remote}`);
+export function* fetchRemote(remote: string, tags?: boolean | undefined): Operation<void> {
+  yield* $(`git fetch ${remote}${tags ? " --tags" : ""}`);
 }
 
 /**

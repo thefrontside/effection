@@ -5,7 +5,9 @@ import { beforeEach, describe, it } from "../testing.ts";
 import { ensureDir, getGitHistory } from "../testing/helpers.ts";
 import { createTempDir, type TempDir } from "../testing/temp-dir.ts";
 import {
+  addRemote,
   checkRemoteExists,
+  fetchRemote,
   getContent,
   getDefaultBranch,
   getMatchingTags,
@@ -63,18 +65,60 @@ describe("lookupHeadCommit", () => {
       // Switch back to develop branch (default)
       $(`git checkout develop`),
     ]);
+
+    yield* cwd(workspaceDir, [
+      $(`git init`),
+      $(`git config user.email "test@example.com"`),
+      $(`git config user.name "Test User"`),
+    ]);
+  });
+
+  describe("fetching remote", () => {
+    beforeEach(function* () {
+      // Add remote first
+      yield* cwd(workspaceDir, [addRemote("external", externalDir)]);
+    });
+
+    it("fetches branches", function* () {
+      // Fetch from remote
+      yield* cwd(workspaceDir, [fetchRemote("external")]);
+
+      // Verify we can now access remote branches
+      const [result] = yield* cwd(workspaceDir, [$(`git branch -r`)]);
+      expect(result.stdout).toContain("external/develop");
+      expect(result.stdout).toContain("external/feature-branch");
+    });
+
+    it("fetches tags", function* () {
+      // Fetch with tags
+      yield* cwd(workspaceDir, [fetchRemote("external", true)]);
+
+      // Verify we can access remote tags
+      const [tags] = yield* cwd(workspaceDir, [getMatchingTags("external")]);
+      expect(tags).toHaveLength(2);
+    });
+  });
+
+  describe("adding remote", () => {
+    it("adds a new remote successfully", function* () {
+      // Add remote to workspace
+      yield* cwd(workspaceDir, [addRemote("test-remote", externalDir)]);
+
+      // Verify remote exists
+      const [exists] = yield* cwd(workspaceDir, [
+        checkRemoteExists("test-remote"),
+      ]);
+      expect(exists).toBe(true);
+    });
   });
 
   describe("reading from remote", () => {
     beforeEach(function* () {
       // setup workspace repository with a remote pointing to external
       yield* cwd(workspaceDir, [
-        $(`git init`),
-        $(`git config user.email "test@example.com"`),
-        $(`git config user.name "Test User"`),
         // in workspace: add external as remote
-        $(`git remote add external ${externalDir}`),
-        $(`git fetch external --tags`),
+        addRemote("external", externalDir),
+        fetchRemote("external", true),
       ]);
     });
 
@@ -91,13 +135,6 @@ describe("lookupHeadCommit", () => {
         ]);
         expect(exists).toEqual(false);
       });
-    });
-
-    describe("fetch remote", () => {
-    });
-
-    describe("add remote", () => {
-
     });
 
     it("gets commit of tag HEAD from external via remote while in workspace", function* () {

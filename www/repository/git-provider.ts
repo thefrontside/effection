@@ -1,4 +1,4 @@
-import { each, Operation, spawn } from "effection";
+import { Operation } from "effection";
 import { useProcess } from "../context/process.ts";
 import { $ } from "../context/shell.ts";
 import type {
@@ -46,25 +46,13 @@ function* fetchRemote(remote: string): Operation<void> {
 /**
  * Get default branch for a repository using git commands
  */
-function* getDefaultBranch(remote: string): Operation<string> {
-  const process = yield* useProcess(`git ls-remote --symref ${remote} HEAD`);
+export function* getDefaultBranch(remote: string): Operation<string> {
+  const result = yield* $(`git ls-remote --symref ${remote} HEAD`);
 
-  let output = "";
-  yield* spawn(function* () {
-    for (const chunk of yield* each(process.stdout)) {
-      output += chunk;
-      yield* each.next();
-    }
-  });
-
-  const result = yield* process;
-
-  if (result.code === 0) {
-    // Output looks like: "ref: refs/heads/main    HEAD"
-    const match = output.match(/^ref: refs\/heads\/(.+?)\s+HEAD/m);
-    if (match) {
-      return match[1];
-    }
+  // Output looks like: "ref: refs/heads/main    HEAD"
+  const match = result.stdout.match(/^ref: refs\/heads\/(.+?)\s+HEAD/m);
+  if (match) {
+    return match[1];
   }
 
   throw new Error(`Failed to get default branch`);
@@ -77,24 +65,11 @@ function* getMatchingTags(
   remote: string,
   pattern?: string,
 ): Operation<{ name: string }[]> {
-  const process = yield* useProcess(
-    `git ls-remote --tags ${remote} "${pattern}"`,
-  );
+  try {
+    const result = yield* $(`git ls-remote --tags ${remote} "${pattern}"`);
 
-  let output = "";
-  yield* spawn(function* () {
-    for (const chunk of yield* each(process.stdout)) {
-      output += chunk;
-      yield* each.next();
-    }
-  });
-
-  const result = yield* process;
-
-  if (result.code === 0) {
     // Parse output: "hash    refs/tags/tagname"
-    return output
-      .trim()
+    return result.stdout
       .split("\n")
       .filter((line) => line.length > 0)
       .map((line) => {
@@ -104,9 +79,9 @@ function* getMatchingTags(
       .filter((tag): tag is string => tag !== null)
       .filter((tag, index, arr) => arr.indexOf(tag) === index)
       .map((name) => ({ name })); // Remove duplicates
+  } catch {
+    return [];
   }
-
-  return [];
 }
 
 /**
@@ -145,40 +120,31 @@ export function* lookupTagCommit({ remoteName, tagName }: {
   return tagLine.split("\t")[0];
 }
 
-function* getContent(
+export function* getContent(
   remote: string,
   ref: string,
   path: string,
 ): Operation<string> {
-  const command = `git show ${remote}/${ref}:${path}`;
-  const process = yield* useProcess(command);
-
-  let output = "";
-  let errorOutput = "";
-
-  yield* spawn(function* () {
-    for (const chunk of yield* each(process.stdout)) {
-      output += chunk;
-      yield* each.next();
-    }
-  });
-
-  yield* spawn(function* () {
-    for (const chunk of yield* each(process.stderr)) {
-      errorOutput += chunk;
-      yield* each.next();
-    }
-  });
-
-  const result = yield* process;
-
-  if (result.code === 0) {
-    return output;
-  } else {
-    throw new Error(`[${result.code}] ${command}`, {
-      cause: errorOutput,
+  // If ref looks like a tag (not branch), try to lookup commit hash
+  let actualRef = ref;
+  if (!ref.startsWith("refs/") && !ref.includes("/")) {
+    // Try to resolve as tag first
+    const commitHash = yield* lookupTagCommit({ 
+      remoteName: remote, 
+      tagName: ref 
     });
+    if (commitHash) {
+      actualRef = commitHash;
+    } else {
+      // Fallback to using as branch reference
+      actualRef = `${remote}/${ref}`;
+    }
+  } else {
+    actualRef = `${remote}/${ref}`;
   }
+  
+  const result = yield* $(`git show ${actualRef}:${path}`);
+  return result.stdout;
 }
 
 /**

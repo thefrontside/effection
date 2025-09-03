@@ -8,12 +8,13 @@ export interface Logger {
   error: (message: string, ...args: unknown[]) => Operation<void>;
 }
 
-const colors = {
+export const colors = {
   reset: "\x1b[0m",
   red: "\x1b[31m",
   yellow: "\x1b[33m",
   blue: "\x1b[34m",
   gray: "\x1b[90m",
+  green: "\x1b[32m",
 };
 
 const consoleLogger: Logger = {
@@ -68,6 +69,23 @@ export function* namespace(namespace: string) {
     },
     *error(args, next) {
       yield* next(`[${namespace}] ${args[0]}`, ...args.slice(1));
+    },
+  });
+}
+
+export function* indent() {
+  yield* loggerApi.around({
+    *info(args, next) {
+      yield* next(`   ${args[0]}`, ...args.slice(1));
+    },
+    *warn(args, next) {
+      yield* next(`   ${args[0]}`, ...args.slice(1));
+    },
+    *debug(args, next) {
+      yield* next(`   ${args[0]}`, ...args.slice(1));
+    },
+    *error(args, next) {
+      yield* next(`   ${args[0]}`, ...args.slice(1));
     },
   });
 }

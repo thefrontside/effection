@@ -1,15 +1,18 @@
-import { createContext, type Operation, until } from "effection";
+import { createContext, type Operation, scoped, until } from "effection";
 import { capture, useProcess } from "./process.ts";
-import { log } from "./logging.ts";
+import { indent, log, loggerApi, namespace } from "./logging.ts";
 import { join } from "@std/path";
 
 const CwdContext = createContext<string | URL>(Deno.cwd());
 
 export function* $(
   command: string,
-): Operation<
-  { stdout: string; stderr: string; code: number; signal?: Deno.Signal }
-> {
+): Operation<{
+  stdout: string;
+  stderr: string;
+  code: number;
+  signal?: Deno.Signal;
+}> {
   const cwd = yield* CwdContext.expect();
   const result = yield* capture(useProcess(command, { cwd }));
   if (result.code !== 0) {
@@ -22,15 +25,20 @@ export function* $(
 }
 
 export function* cwd<T extends readonly Operation<unknown>[]>(
-  directory: string | URL, 
-  ops: T
+  directory: string | URL,
+  ops: T,
 ): Operation<{ [K in keyof T]: T[K] extends Operation<infer R> ? R : never }> {
-  return yield* CwdContext.with(directory, function* () {
-    const results = [];
-    for (const op of ops) {
-      results.push(yield* op);
-    }
-    return results as any;
+  return yield* scoped(function* () {
+    yield* log.debug(`cwd: ${directory}`);
+    const result = yield* CwdContext.with(directory, function* () {
+      yield* indent();
+      const results = [];
+      for (const op of ops) {
+        results.push(yield* op);
+      }
+      return results as any;
+    });
+    return result;
   });
 }
 

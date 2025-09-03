@@ -9,7 +9,7 @@ import {
 } from "effection";
 import md5 from "md5";
 import { createApi } from "./context-api.ts";
-import { log } from "./logging.ts";
+import { colors, log } from "./logging.ts";
 import { splitCommand } from "../lib/command-parser.ts";
 
 export interface ProcessResult {
@@ -48,7 +48,7 @@ export const processApi = createApi<ProcessApi>("process", {
         args,
         stdout: "piped",
         stderr: "piped",
-        ...options
+        ...options,
       });
 
       let childProcess: Deno.ChildProcess;
@@ -113,14 +113,20 @@ export const processApi = createApi<ProcessApi>("process", {
         try {
           status = yield* until(childProcess.status);
         } catch (e) {
-          throw new Error(`Command failed: ${command}`, { cause: e })
+          throw new Error(`Command failed: ${command}`, { cause: e });
         }
 
         stdout.close();
         stderr.close();
-        
+
         // Log command completion with status
-        yield* log.debug(`[${status.code}]: "${command}" in ${options?.cwd ?? Deno.cwd()}`);
+        yield* log.debug(
+          `${
+            status.code === 0
+              ? `${colors.green}0${colors.reset}`
+              : `${colors.red}${status.code}${colors.reset}`
+          }: ${command}`,
+        );
 
         closed.resolve({
           code: status.code,
@@ -148,7 +154,7 @@ export function* capture(
   { stdout: string; stderr: string; code: number; signal?: Deno.Signal }
 > {
   const process = yield* op;
-  
+
   const stdout = withResolvers<string>();
   const stderr = withResolvers<string>();
 
@@ -160,7 +166,7 @@ export function* capture(
   });
 
   const result = yield* process;
-  
+
   return {
     ...result,
     stdout: (yield* stdout.operation).trim(),

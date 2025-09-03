@@ -5,6 +5,7 @@ import { beforeEach, describe, it } from "../testing.ts";
 import { ensureDir, getGitHistory } from "../testing/helpers.ts";
 import { createTempDir, type TempDir } from "../testing/temp-dir.ts";
 import {
+  checkRemoteExists,
   getContent,
   getDefaultBranch,
   getMatchingTags,
@@ -77,6 +78,28 @@ describe("lookupHeadCommit", () => {
       ]);
     });
 
+    describe("check if remote exists", () => {
+      it("returns true when exists", function* () {
+        const [exists] = yield* cwd(workspaceDir, [
+          checkRemoteExists("external"),
+        ]);
+        expect(exists).toEqual(true);
+      });
+      it("returns false when doesn't exist", function* () {
+        const [exists] = yield* cwd(workspaceDir, [
+          checkRemoteExists("not-real"),
+        ]);
+        expect(exists).toEqual(false);
+      });
+    });
+
+    describe("fetch remote", () => {
+    });
+
+    describe("add remote", () => {
+
+    });
+
     it("gets commit of tag HEAD from external via remote while in workspace", function* () {
       // Get the commit history with full details from external repo
       const [commits] = yield* cwd(externalDir, [getGitHistory()]);
@@ -138,21 +161,27 @@ describe("lookupHeadCommit", () => {
     });
 
     describe("finding tags matching patterns", () => {
-      it("finds all tags when no pattern specified", function*() {
-        const [allTags] = yield* cwd(workspaceDir, [getMatchingTags("external")]);
+      it("finds all tags when no pattern specified", function* () {
+        const [allTags] = yield* cwd(workspaceDir, [
+          getMatchingTags("external"),
+        ]);
         expect(allTags).toHaveLength(2);
-        expect(allTags.map(t => t.name)).toContain("v1.0.0");
-        expect(allTags.map(t => t.name)).toContain("v2.0.0");
+        expect(allTags.map((t) => t.name)).toContain("v1.0.0");
+        expect(allTags.map((t) => t.name)).toContain("v2.0.0");
       });
 
-      it("finds tags matching v1 pattern", function*() {
-        const [v1Tags] = yield* cwd(workspaceDir, [getMatchingTags("external", "v1*")]);
+      it("finds tags matching v1 pattern", function* () {
+        const [v1Tags] = yield* cwd(workspaceDir, [
+          getMatchingTags("external", "v1*"),
+        ]);
         expect(v1Tags).toHaveLength(1);
         expect(v1Tags[0].name).toBe("v1.0.0");
       });
 
-      it("returns empty array for pattern with no matches", function*() {
-        const [noMatches] = yield* cwd(workspaceDir, [getMatchingTags("external", "v3*")]);
+      it("returns empty array for pattern with no matches", function* () {
+        const [noMatches] = yield* cwd(workspaceDir, [
+          getMatchingTags("external", "v3*"),
+        ]);
         expect(noMatches).toHaveLength(0);
       });
     });

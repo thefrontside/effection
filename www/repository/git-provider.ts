@@ -1,5 +1,4 @@
 import { Operation } from "effection";
-import { useProcess } from "../context/process.ts";
 import { $ } from "../context/shell.ts";
 import type {
   Repository,
@@ -12,35 +11,27 @@ import { getStarCount } from "./octokit-provider.ts";
 /**
  * Check if a git remote exists
  */
-function* checkRemoteExists(remoteName: string): Operation<boolean> {
-  const process = yield* useProcess(`git remote get-url ${remoteName}`);
-  const result = yield* process;
-  // Exit code 0 means remote exists, non-zero means it doesn't
-  return result.code === 0;
+export function* checkRemoteExists(remoteName: string): Operation<boolean> {
+  try {
+    yield* $(`git remote get-url ${remoteName}`);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /**
  * Add a git remote
  */
 function* addRemote(remote: string, url: string): Operation<void> {
-  const addProcess = yield* useProcess(`git remote add ${remote} ${url}`);
-  const addResult = yield* addProcess;
-
-  if (addResult.code !== 0) {
-    throw new Error(`Failed to add remote: exit code ${addResult.code}`);
-  }
+  yield* $(`git remote add ${remote} ${url}`);
 }
 
 /**
  * Fetch from a git remote
  */
 function* fetchRemote(remote: string): Operation<void> {
-  const fetchProcess = yield* useProcess(`git fetch ${remote}`);
-  const fetchResult = yield* fetchProcess;
-
-  if (fetchResult.code !== 0) {
-    throw new Error(`Failed to fetch: exit code ${fetchResult.code}`);
-  }
+  yield* $(`git fetch ${remote}`);
 }
 
 /**

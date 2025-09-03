@@ -1,7 +1,6 @@
 import { Operation } from "effection";
 import { $ } from "../context/shell.ts";
 import type {
-  GitRef,
   RefTypeInfo,
   Repository,
   RepositoryRef,
@@ -169,14 +168,19 @@ export function* determineRefType(
     preliminaryResult = { type: 'branch', name: ref };
   }
 
-  // Generate normalized full reference format
+  // Generate normalized full reference format and ref format
   const normalized = preliminaryResult.type === 'tag' 
     ? `refs/tags/${preliminaryResult.name}`
     : `refs/heads/${preliminaryResult.name}`;
+  
+  const refFormat = preliminaryResult.type === 'tag'
+    ? `tags/${preliminaryResult.name}`
+    : `heads/${preliminaryResult.name}`;
 
   return {
     type: preliminaryResult.type,
     name: preliminaryResult.name,
+    ref: refFormat,
     normalized: normalized,
   };
 }
@@ -293,25 +297,18 @@ export function* createGitRepositoryRef({
 
   // Use determineRefType for comprehensive ref parsing and normalization
   const refInfo = yield* determineRefType(repository.nameWithOwner, _ref);
-  
-  // Create GitRef object compatible with existing utils
-  const ref: GitRef = {
-    type: refInfo.type === "branch" ? "branch" : "tag",
-    name: refInfo.name,
-    ref: `${refInfo.type === "branch" ? "heads" : "tags"}/${refInfo.name}`,
-  };
 
   // Generate URL directly using refInfo.name (same as getRefUrl but more direct)
   const url = `https://github.com/${repository.owner}/${repository.name}/tree/${refInfo.name}/`;
 
   const repositoryRef: RepositoryRef = {
     repository,
-    ...ref,
+    ...refInfo,
     url,
 
     getUrl(base, target, isFile) {
       return new URL(
-        [isFile ? "blob" : "tree", ref.name, getPath(base ?? "", target ?? "")]
+        [isFile ? "blob" : "tree", refInfo.name, getPath(base ?? "", target ?? "")]
           .filter(Boolean)
           .join("/"),
         `https://github.com/${repository.nameWithOwner}/`,

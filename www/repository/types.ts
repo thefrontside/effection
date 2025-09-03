@@ -79,28 +79,6 @@ export interface Repository {
   loadRef(ref?: string): Operation<RepositoryRef>;
 }
 
-/**
- * Branch reference type
- */
-export interface BranchRef {
-  name: string;
-  ref: string;
-  type: "branch";
-}
-
-/**
- * Tag reference type
- */
-export interface TagRef {
-  name: string;
-  ref: string;
-  type: "tag";
-}
-
-/**
- * Union type for Git references
- */
-export type GitRef = BranchRef | TagRef;
 
 /**
  * Interface for the result of determineRefType function
@@ -111,6 +89,8 @@ export interface RefTypeInfo {
   type: "tag" | "branch";
   /** The clean reference name without prefixes (e.g., "main", "v1.0.0") */
   name: string;
+  /** Ref in format heads/<name> for a branch and tags/<name> for a tag */
+  ref: string;
   /** The normalized full Git reference (e.g., "refs/heads/main", "refs/tags/v1.0.0") */
   normalized: string;
 }
@@ -118,20 +98,8 @@ export interface RefTypeInfo {
 /**
  * Repository reference interface - represents a specific branch or tag
  */
-export interface RepositoryRef extends ContentProvider {
+export interface RepositoryRef extends ContentProvider, RefTypeInfo {
   repository: Repository;
-
-  /**
-   * Name of the ref without heads/ or tags/ prefix
-   */
-  name: string;
-
-  type: "branch" | "tag";
-
-  /**
-   * Ref in format heads/<name> for a branch and tags/<name> for a tag
-   */
-  ref: string;
 
   /**
    * Github web app url

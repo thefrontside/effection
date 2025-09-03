@@ -1,7 +1,7 @@
 import { type Operation } from "effection";
 import { extractVersion, rsort } from "../lib/semver.ts";
 import type { 
-  GitRef, 
+  RefTypeInfo, 
   Repository, 
   ContentProvider,
 } from "./types.ts";
@@ -31,9 +31,9 @@ export function getPath(base: string, target: string): string {
 /**
  * Parse and normalize a Git reference string
  * @param ref - Reference string (e.g., "heads/main", "refs/tags/v1.0.0", "main")
- * @returns Normalized BranchRef or TagRef object, or undefined if invalid
+ * @returns Normalized RefTypeInfo object, or undefined if invalid
  */
-export function matchRef(ref: string): GitRef | undefined {
+export function matchRef(ref: string): RefTypeInfo | undefined {
   const REF_PATTERN = /^(\/?refs\/)?(heads|tags)\/(.*)$/;
   const parts = ref.match(REF_PATTERN);
   if (parts) {
@@ -43,12 +43,14 @@ export function matchRef(ref: string): GitRef | undefined {
         type: "branch",
         name,
         ref: `${group}/${name}`,
+        normalized: `refs/${group}/${name}`,
       };
     } else if (group === "tags") {
       return {
         type: "tag",
         name,
         ref: `${group}/${name}`,
+        normalized: `refs/${group}/${name}`,
       };
     }
   }
@@ -60,7 +62,7 @@ export function matchRef(ref: string): GitRef | undefined {
  * @param ref - Git reference (branch or tag)
  * @returns GitHub tree URL for the reference
  */
-export function getRefUrl(repository: Repository, ref: GitRef): string {
+export function getRefUrl(repository: Repository, ref: RefTypeInfo): string {
   return `https://github.com/${repository.owner}/${repository.name}/tree/${ref.name}/`;
 }
 

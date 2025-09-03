@@ -7,14 +7,16 @@ import { createTempDir, type TempDir } from "../testing/temp-dir.ts";
 import {
   addRemote,
   checkRemoteExists,
+  createGitRepository,
   fetchRemote,
   getContent,
   getDefaultBranch,
   getMatchingTags,
   lookupTagCommit,
 } from "./git-provider.ts";
+import { Repository, RepositoryRef } from "./types.ts";
 
-describe("lookupHeadCommit", () => {
+describe("git-provider", () => {
   let tempDir: TempDir;
   let workspaceDir: string;
   let externalDir: string;
@@ -195,6 +197,52 @@ describe("lookupHeadCommit", () => {
         ]);
         expect(content).toEqual("feature");
       });
+
+      it("gets content from tag with tags/ prefix", function* () {
+        // Get content using tags/ prefix
+        const [content] = yield* cwd(workspaceDir, [
+          getContent("external", "tags/v1.0.0", "file2.txt"),
+        ]);
+        expect(content).toEqual("second");
+      });
+
+      it("gets content from branch with heads/ prefix", function* () {
+        // Get content using heads/ prefix
+        const [content] = yield* cwd(workspaceDir, [
+          getContent("external", "heads/develop", "file4.txt"),
+        ]);
+        expect(content).toEqual("fourth");
+      });
+
+      it("gets content from tag with refs/tags/ prefix", function* () {
+        // Get content using full refs/tags/ prefix
+        const [content] = yield* cwd(workspaceDir, [
+          getContent("external", "refs/tags/v1.0.0", "file2.txt"),
+        ]);
+        expect(content).toEqual("second");
+      });
+
+      it("gets content from branch with refs/heads/ prefix", function* () {
+        // Get content using full refs/heads/ prefix
+        const [content] = yield* cwd(workspaceDir, [
+          getContent("external", "refs/heads/develop", "file4.txt"),
+        ]);
+        expect(content).toEqual("fourth");
+      });
+
+      it("throws error for non-existent tag with tags/ prefix", function* () {
+        expect.assertions(1);
+        // Should throw error for non-existent tag
+        try {
+          yield* cwd(workspaceDir, [
+            getContent("external", "tags/non-existent", "file.txt"),
+          ]);
+          // this shold never happen
+          expect(true).toBe(false);
+        } catch (error) {
+          expect(`${error}`).toContain("Tag non-existent not found");
+        }
+      });
     });
 
     describe("finding tags matching patterns", () => {
@@ -220,6 +268,102 @@ describe("lookupHeadCommit", () => {
           getMatchingTags("external", "v3*"),
         ]);
         expect(noMatches).toHaveLength(0);
+      });
+    });
+  });
+
+  describe("createGitRepository", () => {
+    let repo: Repository;
+    beforeEach(function* () {
+      // Create repository instance in workspace context
+      const [repository] = yield* cwd(workspaceDir, [
+        createGitRepository({
+          owner: "external",
+          name: "repo",
+          repository: externalDir,
+        }),
+      ]);
+      repo = repository;
+    });
+
+    it("gets default branch", function* () {
+      const [defaultBranch] = yield* cwd(workspaceDir, [
+        repo.getDefaultBranch(),
+      ]);
+      expect(defaultBranch).toBe("develop");
+    });
+
+    it("gets tags", function* () {
+      const [tags] = yield* cwd(workspaceDir, [repo.tags("v")]);
+      expect(tags).toHaveLength(2);
+      expect(tags.map((t) => t.name)).toContain("v1.0.0");
+      expect(tags.map((t) => t.name)).toContain("v2.0.0");
+    });
+
+    it("gets content", function* () {
+      const [content] = yield* cwd(workspaceDir, [
+        repo.getContent("file4.txt"),
+      ]);
+      expect(content).toBe("fourth");
+    });
+
+    describe("loads ref", () => {
+      describe("branch", () => {
+        let branchRef: RepositoryRef;
+
+        beforeEach(function* () {
+          const [ref] = yield* cwd(workspaceDir, [
+            repo.loadRef("heads/develop"),
+          ]);
+          branchRef = ref;
+        });
+
+        it("loads branch", function* () {
+          expect(branchRef.type).toBe("branch");
+          expect(branchRef.name).toBe("develop");
+        });
+
+        it("getContents", function* () {
+          const [content] = yield* cwd(workspaceDir, [
+            branchRef.getContent("file4.txt"),
+          ]);
+          expect(content).toBe("fourth");
+        });
+
+        it("getUrl", function* () {
+          const url = branchRef.getUrl("", "file4.txt", true);
+          expect(url.href).toBe(
+            "https://github.com/external/repo/blob/develop/file4.txt",
+          );
+        });
+      });
+
+      describe("tags", () => {
+        let tagRef: RepositoryRef;
+
+        beforeEach(function* () {
+          const [ref] = yield* cwd(workspaceDir, [repo.loadRef("tags/v1.0.0")]);
+          tagRef = ref;
+        });
+
+        it("loads tags", function* () {
+          expect(tagRef.type).toBe("tag");
+          expect(tagRef.name).toBe("v1.0.0");
+        });
+
+        it("getContents", function* () {
+          const [content] = yield* cwd(workspaceDir, [
+            tagRef.getContent("file2.txt"),
+          ]);
+          expect(content).toBe("second");
+        });
+
+        it("getUrl", function* () {
+          const url = tagRef.getUrl("", "file2.txt", true);
+          expect(url.href).toBe(
+            "https://github.com/external/repo/blob/v1.0.0/file2.txt",
+          );
+        });
       });
     });
   });

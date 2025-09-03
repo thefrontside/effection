@@ -23,6 +23,7 @@ export interface ContentProvider {
 export interface UseRepositoryParams {
   owner: string;
   name: string;
+  repository?: string;
 }
 
 /**

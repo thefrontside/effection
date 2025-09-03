@@ -27,6 +27,7 @@ export function describe(name: string, body: () => void) {
 }
 
 describe.skip = $describe.skip;
+describe.only = $describe.only;
 
 export function beforeEach(body: () => Operation<void>) {
   current?.addSetup(body);

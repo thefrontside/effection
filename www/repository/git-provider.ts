@@ -30,7 +30,10 @@ export function* addRemote(remote: string, url: string): Operation<void> {
 /**
  * Fetch from a git remote
  */
-export function* fetchRemote(remote: string, tags?: boolean | undefined): Operation<void> {
+export function* fetchRemote(
+  remote: string,
+  tags?: boolean | undefined,
+): Operation<void> {
   yield* $(`git fetch ${remote}${tags ? " --tags" : ""}`);
 }
 
@@ -57,7 +60,9 @@ export function* getMatchingTags(
   pattern?: string,
 ): Operation<{ name: string }[]> {
   try {
-    const command = `git ls-remote --tags ${remote}${pattern ? ` "${pattern}"` : ''}`;
+    const command = `git ls-remote --tags ${remote}${
+      pattern ? ` "${pattern}"` : ""
+    }`;
     const result = yield* $(command);
 
     // Parse output: "hash    refs/tags/tagname"
@@ -85,20 +90,18 @@ export function* lookupTagCommit({ remoteName, tagName }: {
 }): Operation<string | undefined> {
   const result = yield* $(`git ls-remote --tags ${remoteName}`);
 
-  const lines = result.stdout.split("\n").filter((line) =>
-    line.length > 0
-  );
-  
+  const lines = result.stdout.split("\n").filter((line) => line.length > 0);
+
   // Look for the dereferenced tag (^{}) which points to the actual commit
   const dereferencedLine = lines.find((line) =>
     line.includes(`refs/tags/${tagName}^{}`)
   );
-  
+
   if (dereferencedLine) {
     // Return the commit hash from the dereferenced tag
     return dereferencedLine.split("\t")[0];
   }
-  
+
   // Fallback to the tag object hash if no dereferenced tag found
   const tagLine = lines.find((line) =>
     line.includes(`refs/tags/${tagName}`) && !line.includes("^{}")
@@ -112,18 +115,78 @@ export function* lookupTagCommit({ remoteName, tagName }: {
   return tagLine.split("\t")[0];
 }
 
+/**
+ * Get file content from a git remote at a specific reference
+ * @param remote - The git remote name (e.g., "origin", "upstream")
+ * @param ref - The git reference to fetch content from. Can be:
+ *   - Branch name: "main", "develop", "feature-branch"
+ *   - Tag name: "v1.0.0", "release-2.1"
+ *   - Commit hash: "abc123def456"
+ *   - Full ref: "refs/heads/main", "refs/tags/v1.0.0"
+ * @param path - The file path within the repository
+ * @returns The file content as a string
+ * 
+ * @example
+ * ```typescript
+ * // Get content from a branch
+ * const content = yield* getContent("origin", "main", "README.md");
+ * 
+ * // Get content from a tag
+ * const content = yield* getContent("origin", "v1.0.0", "package.json");
+ * 
+ * // Get content from a commit
+ * const content = yield* getContent("origin", "abc123", "src/index.ts");
+ * ```
+ */
 export function* getContent(
   remote: string,
   ref: string,
   path: string,
 ): Operation<string> {
-  // If ref looks like a tag (not branch), try to lookup commit hash
   let actualRef = ref;
-  if (!ref.startsWith("refs/") && !ref.includes("/")) {
+  
+  // Handle different ref formats
+  if (ref.startsWith("refs/tags/")) {
+    // Full tag ref format: refs/tags/v1.0.0
+    const tagName = ref.substring(10); // Remove "refs/tags/" prefix
+    const commitHash = yield* lookupTagCommit({
+      remoteName: remote,
+      tagName: tagName,
+    });
+    if (commitHash) {
+      actualRef = commitHash;
+    } else {
+      throw new Error(`Tag ${tagName} not found in remote ${remote}`);
+    }
+  } else if (ref.startsWith("refs/heads/")) {
+    // Full branch ref format: refs/heads/main
+    const branchName = ref.substring(11); // Remove "refs/heads/" prefix
+    actualRef = `${remote}/${branchName}`;
+  } else if (ref.startsWith("refs/")) {
+    // Other refs/ format - use as is with remote prefix
+    actualRef = `${remote}/${ref}`;
+  } else if (ref.startsWith("tags/")) {
+    // tags/ prefix: extract tag name and lookup commit hash
+    const tagName = ref.substring(5); // Remove "tags/" prefix
+    const commitHash = yield* lookupTagCommit({
+      remoteName: remote,
+      tagName: tagName,
+    });
+    if (commitHash) {
+      actualRef = commitHash;
+    } else {
+      throw new Error(`Tag ${tagName} not found in remote ${remote}`);
+    }
+  } else if (ref.startsWith("heads/")) {
+    // heads/ prefix: extract branch name and use remote/branch format
+    const branchName = ref.substring(6); // Remove "heads/" prefix
+    actualRef = `${remote}/${branchName}`;
+  } else if (!ref.includes("/")) {
+    // Simple ref name: could be tag or branch
     // Try to resolve as tag first
-    const commitHash = yield* lookupTagCommit({ 
-      remoteName: remote, 
-      tagName: ref 
+    const commitHash = yield* lookupTagCommit({
+      remoteName: remote,
+      tagName: ref,
     });
     if (commitHash) {
       actualRef = commitHash;
@@ -132,9 +195,10 @@ export function* getContent(
       actualRef = `${remote}/${ref}`;
     }
   } else {
+    // Already formatted as remote/branch or other format
     actualRef = `${remote}/${ref}`;
   }
-  
+
   const result = yield* $(`git show ${actualRef}:${path}`);
   return result.stdout;
 }
@@ -147,9 +211,10 @@ export function* getContent(
 export function* createGitRepository({
   owner,
   name,
+  repository,
 }: UseRepositoryParams): Operation<Repository> {
   const nameWithOwner = `${owner}/${name}`;
-  const url = `git@github.com:${nameWithOwner}.git`;
+  const url = repository ?? `git@github.com:${nameWithOwner}.git`;
 
   // Ensure remote exists and is fetched
   if (!(yield* checkRemoteExists(nameWithOwner))) {
@@ -157,34 +222,21 @@ export function* createGitRepository({
     yield* fetchRemote(nameWithOwner);
   }
 
-  const repository: Repository = {
+  return {
     nameWithOwner,
     owner,
     name,
-
-    getDefaultBranch() {
-      return getDefaultBranch(nameWithOwner);
-    },
-
-    getStarCount() {
-      return getStarCount(nameWithOwner);
-    },
-
-    tags(ref: string) {
-      return getMatchingTags(nameWithOwner, `${ref}*`);
-    },
-
+    getDefaultBranch: () => getDefaultBranch(nameWithOwner),
+    getStarCount: () => getStarCount(nameWithOwner),
+    tags: (ref: string) => getMatchingTags(nameWithOwner, `${ref}*`),
     *getContent(path: string) {
       const defaultBranch = yield* getDefaultBranch(nameWithOwner);
       return yield* getContent(nameWithOwner, defaultBranch, path);
     },
-
     loadRef(ref?: string) {
-      return createGitRepositoryRef({ repository, ref });
+      return createGitRepositoryRef({ repository: this, ref });
     },
   };
-
-  return repository;
 }
 
 /**
@@ -236,9 +288,8 @@ export function* createGitRepositoryRef({
       );
     },
 
-    getContent(path: string) {
-      return getContent(repository.nameWithOwner, _ref!, path);
-    },
+    getContent: (path: string) =>
+      getContent(repository.nameWithOwner, _ref!, path),
   };
 
   return repositoryRef;

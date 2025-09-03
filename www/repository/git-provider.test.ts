@@ -8,6 +8,7 @@ import {
   addRemote,
   checkRemoteExists,
   createGitRepository,
+  determineRefType,
   fetchRemote,
   getContent,
   getDefaultBranch,
@@ -268,6 +269,28 @@ describe("git-provider", () => {
           getMatchingTags("external", "v3*"),
         ]);
         expect(noMatches).toHaveLength(0);
+      });
+    });
+
+    describe("determineRefType", () => {
+      it("identifies tags and branches", function* () {
+        const results = yield* cwd(workspaceDir, [
+          determineRefType("external", "refs/heads/develop"),
+          determineRefType("external", "heads/develop"),
+          determineRefType("external", "develop"),
+          determineRefType("external", "refs/tags/v1.0.0"),
+          determineRefType("external", "tags/v1.0.0"),
+          determineRefType("external", "v1.0.0"),
+        ]);
+
+        expect(results).toMatchObject([
+          { type: "branch", name: "develop", normalized: "refs/heads/develop" },
+          { type: "branch", name: "develop", normalized: "refs/heads/develop" },  
+          { type: "branch", name: "develop", normalized: "refs/heads/develop" },
+          { type: "tag", name: "v1.0.0", normalized: "refs/tags/v1.0.0" },
+          { type: "tag", name: "v1.0.0", normalized: "refs/tags/v1.0.0" },
+          { type: "tag", name: "v1.0.0", normalized: "refs/tags/v1.0.0" },
+        ]);
       });
     });
   });

@@ -143,60 +143,50 @@ export function* getContent(
   ref: string,
   path: string,
 ): Operation<string> {
-  let actualRef = ref;
+  // Normalize ref format to determine if it's a tag or branch
+  let normalizedRef: { type: 'tag' | 'branch', name: string };
   
-  // Handle different ref formats
   if (ref.startsWith("refs/tags/")) {
-    // Full tag ref format: refs/tags/v1.0.0
-    const tagName = ref.substring(10); // Remove "refs/tags/" prefix
-    const commitHash = yield* lookupTagCommit({
-      remoteName: remote,
-      tagName: tagName,
-    });
-    if (commitHash) {
-      actualRef = commitHash;
-    } else {
-      throw new Error(`Tag ${tagName} not found in remote ${remote}`);
-    }
+    normalizedRef = { type: 'tag', name: ref.substring(10) };
   } else if (ref.startsWith("refs/heads/")) {
-    // Full branch ref format: refs/heads/main
-    const branchName = ref.substring(11); // Remove "refs/heads/" prefix
-    actualRef = `${remote}/${branchName}`;
-  } else if (ref.startsWith("refs/")) {
-    // Other refs/ format - use as is with remote prefix
-    actualRef = `${remote}/${ref}`;
+    normalizedRef = { type: 'branch', name: ref.substring(11) };
   } else if (ref.startsWith("tags/")) {
-    // tags/ prefix: extract tag name and lookup commit hash
-    const tagName = ref.substring(5); // Remove "tags/" prefix
-    const commitHash = yield* lookupTagCommit({
-      remoteName: remote,
-      tagName: tagName,
-    });
-    if (commitHash) {
-      actualRef = commitHash;
-    } else {
-      throw new Error(`Tag ${tagName} not found in remote ${remote}`);
-    }
+    normalizedRef = { type: 'tag', name: ref.substring(5) };
   } else if (ref.startsWith("heads/")) {
-    // heads/ prefix: extract branch name and use remote/branch format
-    const branchName = ref.substring(6); // Remove "heads/" prefix
-    actualRef = `${remote}/${branchName}`;
+    normalizedRef = { type: 'branch', name: ref.substring(6) };
+  } else if (ref.startsWith("refs/")) {
+    // Other refs/ format - assume branch
+    normalizedRef = { type: 'branch', name: ref };
   } else if (!ref.includes("/")) {
-    // Simple ref name: could be tag or branch
-    // Try to resolve as tag first
+    // Simple ref name: try as tag first, fallback to branch determined later
+    normalizedRef = { type: 'tag', name: ref };
+  } else {
+    // Assume it's already a remote/branch format or similar
+    normalizedRef = { type: 'branch', name: ref };
+  }
+
+  // Handle tag vs branch logic
+  let actualRef: string;
+  if (normalizedRef.type === 'tag') {
     const commitHash = yield* lookupTagCommit({
       remoteName: remote,
-      tagName: ref,
+      tagName: normalizedRef.name,
     });
     if (commitHash) {
       actualRef = commitHash;
+    } else if (!ref.includes("/")) {
+      // For simple names, fallback to branch if tag not found
+      actualRef = `${remote}/${normalizedRef.name}`;
     } else {
-      // Fallback to using as branch reference
-      actualRef = `${remote}/${ref}`;
+      throw new Error(`Tag ${normalizedRef.name} not found in remote ${remote}`);
     }
   } else {
-    // Already formatted as remote/branch or other format
-    actualRef = `${remote}/${ref}`;
+    // Branch handling
+    if (normalizedRef.name.includes("/") && !normalizedRef.name.startsWith(remote)) {
+      actualRef = `${remote}/${normalizedRef.name}`;
+    } else {
+      actualRef = normalizedRef.name.startsWith(remote) ? normalizedRef.name : `${remote}/${normalizedRef.name}`;
+    }
   }
 
   const result = yield* $(`git show ${actualRef}:${path}`);

@@ -1,7 +1,8 @@
-import type { Operation, Queue, Stream, Scope, Subscription } from "effection";
+import type { Operation, Scope, Stream, Subscription } from "effection";
 import {
   createSignal,
   each,
+  ensure,
   resource,
   spawn,
   until,
@@ -222,35 +223,59 @@ export function* ProcessOutputCache(patterns: RegExp[]): Operation<void> {
 
       // Check if we have cached result
       const cachedResponse = yield* until(cache.match(url));
-
       if (cachedResponse) {
         // Return cached process with cached output
         return yield* createCachedProcess(cachedResponse);
       }
-      
       // Execute the process normally
       const process = yield* next(command);
 
-      yield* spawn(function*() {
-        const subscription = yield* process.stdout;
-        const scope = yield* useScope();
-        const iterable = toAsyncIterable(subscription, scope);
-        yield* until(cache.put(url, new Response(ReadableStream.from(iterable))));
-        console.log('finished')
-      });
+      const iterable = yield* toAsyncIterable(yield* process.stdout);
 
+      // Convert string iterable to Uint8Array iterable for ReadableStream
+      const encoder = new TextEncoder();
+      const byteIterable = async function* () {
+        for await (const chunk of iterable) {
+          if (typeof chunk === "string") {
+            yield encoder.encode(chunk);
+          } else {
+            yield chunk;
+          }
+        }
+      }();
+
+      yield* until(
+        cache.put(url, new Response(ReadableStream.from(byteIterable))),
+      );
+
+      const result = yield* until(cache.match(url));
+
+      if (result) {
+        return yield* createCachedProcess(result);
+      }
+
+      // Fallback to original process if caching failed
       return process;
     },
   });
 }
 
-export function toAsyncIterable<T>(
+export function* toAsyncIterable<T>(
   subscription: Subscription<T, unknown>,
-  scope: Scope,
-): AsyncIterable<T> {
+): Operation<AsyncIterable<T>> {
+  const scope = yield* useScope();
+
   return {
     async *[Symbol.asyncIterator]() {
-      let next = await scope.run(subscription.next);
+      function* pullNext() {
+        try {
+          return yield* subscription.next();
+        } catch (e) {
+          yield* log.error(`toAsyncIterable encountered ${e}`);
+          throw e;
+        }
+      }
+      let next = await scope.run(pullNext);
 
       while (true) {
         if (!next.done) {
@@ -258,7 +283,7 @@ export function toAsyncIterable<T>(
         } else {
           break;
         }
-        next = await scope.run(subscription.next);
+        next = await scope.run(pullNext);
       }
       return next.value;
     },
@@ -267,28 +292,23 @@ export function toAsyncIterable<T>(
 
 function createCachedProcess(cachedResponse: Response): Operation<Process> {
   return resource(function* (provide) {
-    const stdoutContent = yield* until(cachedResponse.text());
-
     const stdout = createSignal<string, void>();
     const stderr = createSignal<string, void>();
 
-    // Since signals are queues, we can write to them immediately
-    stdout.send(stdoutContent);
-
-    try {
-      return yield* provide({
-        *[Symbol.iterator]() {
-          return { code: 0, signal: undefined };
-        },
-        stdout,
-        stderr,
-        *send(_signal: Deno.Signal) {
-          // No-op for cached processes
-        },
-      });
-    } finally {
-      stdout.close();
-      stderr.close();
-    }
+    yield* provide({
+      *[Symbol.iterator]() {
+        // Since signals are queues, we can write to them immediately
+        stdout.send(yield* until(cachedResponse.text()));
+        stderr.send("");
+        stdout.close();
+        stderr.close();
+        return { code: 0, signal: undefined };
+      },
+      stdout,
+      stderr,
+      *send(_signal: Deno.Signal) {
+        // No-op for cached processes
+      },
+    });
   });
 }

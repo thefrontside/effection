@@ -28,7 +28,11 @@ import { redirectIndexRoute } from "./routes/redirect-index-route.tsx";
 import { searchRoute } from "./routes/search-route.tsx";
 import { initFetch } from "./context/fetch.ts";
 import { initGitRepositoryProvider, useRepository } from "./repository/api.ts";
-import { initGithubBlobFetchMiddleware, rewriteContentsApiToGit } from "./repository/middleware.ts";
+import {
+  initGithubBlobFetchMiddleware,
+  rewriteContentsApiToGit,
+} from "./repository/middleware.ts";
+import { ProcessOutputCache } from "./context/process.ts";
 
 // Learn more at https://docs.deno.com/runtime/manual/examples/module_metadata#concepts
 if (import.meta.main) {
@@ -42,8 +46,20 @@ if (import.meta.main) {
     yield* initJSRClient();
     yield* initFetch();
 
+    // configures Octokit client
     yield* initOctokitContext();
+    // middleware that converts repository api into git-cli commands
     yield* initGitRepositoryProvider();
+    // middleware that turns GitHub URLs into git://
+    yield* rewriteContentsApiToGit(({ owner }) => owner === "thefrontside");
+    // middleware that converts git:// into repository api invocations
+    yield* initGithubBlobFetchMiddleware();
+    // caches output from git commands to prevent unnecessary reads
+    yield* ProcessOutputCache([
+      /git show/,
+      /git ls-remote/,
+      /git remote get-url/
+    ])
 
     let library = yield* useRepository({
       owner: "thefrontside",
@@ -54,13 +70,6 @@ if (import.meta.main) {
       owner: "thefrontside",
       name: "effectionx",
     });
-
-    yield* rewriteContentsApiToGit(({ owner, repo }) =>
-      owner === "thefrontside" && ["effectionx", "effection"].includes(repo)
-    );
-
-    yield* initGithubBlobFetchMiddleware();
-    
 
     let revolution = createRevolution({
       app: [

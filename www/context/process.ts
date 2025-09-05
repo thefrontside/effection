@@ -225,7 +225,7 @@ export function* ProcessOutputCache(patterns: RegExp[]): Operation<void> {
       const cachedResponse = yield* until(cache.match(url));
       if (cachedResponse) {
         // Return cached process with cached output
-        return yield* createCachedProcess(cachedResponse);
+        return createCachedProcess(cachedResponse);
       }
       // Execute the process normally
       const process = yield* next(command);
@@ -251,7 +251,7 @@ export function* ProcessOutputCache(patterns: RegExp[]): Operation<void> {
       const result = yield* until(cache.match(url));
 
       if (result) {
-        return yield* createCachedProcess(result);
+        return createCachedProcess(result);
       }
 
       // Fallback to original process if caching failed
@@ -290,25 +290,23 @@ export function* toAsyncIterable<T>(
   };
 }
 
-function createCachedProcess(cachedResponse: Response): Operation<Process> {
-  return resource(function* (provide) {
-    const stdout = createSignal<string, void>();
-    const stderr = createSignal<string, void>();
+function createCachedProcess(cachedResponse: Response): Process {
+  const stdout = createSignal<string, void>();
+  const stderr = createSignal<string, void>();
 
-    yield* provide({
-      *[Symbol.iterator]() {
-        // Since signals are queues, we can write to them immediately
-        stdout.send(yield* until(cachedResponse.text()));
-        stderr.send("");
-        stdout.close();
-        stderr.close();
-        return { code: 0, signal: undefined };
-      },
-      stdout,
-      stderr,
-      *send(_signal: Deno.Signal) {
-        // No-op for cached processes
-      },
-    });
-  });
+  return {
+    *[Symbol.iterator]() {
+      // Since signals are queues, we can write to them immediately
+      stdout.send(yield* until(cachedResponse.text()));
+      stderr.send("");
+      stdout.close();
+      stderr.close();
+      return { code: 0, signal: undefined };
+    },
+    stdout,
+    stderr,
+    *send(_signal: Deno.Signal) {
+      // No-op for cached processes
+    },
+  };
 }

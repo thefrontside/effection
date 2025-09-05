@@ -124,12 +124,12 @@ export function* lookupTagCommit({ remoteName, tagName }: {
  *   - Prefixed: "heads/main", "tags/v1.0.0"
  *   - Simple name: "main", "v1.0.0"
  * @returns Object with type, clean name, and normalized full reference
- * 
+ *
  * @example
  * ```typescript
  * const result = yield* determineRefType("origin", "v1.0.0");
  * // { type: "tag", name: "v1.0.0", normalized: "refs/tags/v1.0.0" }
- * 
+ *
  * const result = yield* determineRefType("origin", "heads/main");
  * // { type: "branch", name: "main", normalized: "refs/heads/main" }
  * ```
@@ -139,19 +139,19 @@ export function* determineRefType(
   ref: string,
 ): Operation<RefTypeInfo> {
   // First, normalize ref format to determine if it's a tag or branch
-  let preliminaryResult: { type: 'tag' | 'branch', name: string };
-  
+  let preliminaryResult: { type: "tag" | "branch"; name: string };
+
   if (ref.startsWith("refs/tags/")) {
-    preliminaryResult = { type: 'tag', name: ref.substring(10) };
+    preliminaryResult = { type: "tag", name: ref.substring(10) };
   } else if (ref.startsWith("refs/heads/")) {
-    preliminaryResult = { type: 'branch', name: ref.substring(11) };
+    preliminaryResult = { type: "branch", name: ref.substring(11) };
   } else if (ref.startsWith("tags/")) {
-    preliminaryResult = { type: 'tag', name: ref.substring(5) };
+    preliminaryResult = { type: "tag", name: ref.substring(5) };
   } else if (ref.startsWith("heads/")) {
-    preliminaryResult = { type: 'branch', name: ref.substring(6) };
+    preliminaryResult = { type: "branch", name: ref.substring(6) };
   } else if (ref.startsWith("refs/")) {
     // Other refs/ format - assume branch
-    preliminaryResult = { type: 'branch', name: ref.substring(5) };
+    preliminaryResult = { type: "branch", name: ref.substring(5) };
   } else if (!ref.includes("/")) {
     // Simple ref name: check if it's actually a tag
     const commitHash = yield* lookupTagCommit({
@@ -159,21 +159,21 @@ export function* determineRefType(
       tagName: ref,
     });
     if (commitHash) {
-      preliminaryResult = { type: 'tag', name: ref };
+      preliminaryResult = { type: "tag", name: ref };
     } else {
-      preliminaryResult = { type: 'branch', name: ref };
+      preliminaryResult = { type: "branch", name: ref };
     }
   } else {
     // Assume it's already a remote/branch format or similar - treat as branch
-    preliminaryResult = { type: 'branch', name: ref };
+    preliminaryResult = { type: "branch", name: ref };
   }
 
   // Generate normalized full reference format and ref format
-  const normalized = preliminaryResult.type === 'tag' 
+  const normalized = preliminaryResult.type === "tag"
     ? `refs/tags/${preliminaryResult.name}`
     : `refs/heads/${preliminaryResult.name}`;
-  
-  const refFormat = preliminaryResult.type === 'tag'
+
+  const refFormat = preliminaryResult.type === "tag"
     ? `tags/${preliminaryResult.name}`
     : `heads/${preliminaryResult.name}`;
 
@@ -195,15 +195,15 @@ export function* determineRefType(
  *   - Full ref: "refs/heads/main", "refs/tags/v1.0.0"
  * @param path - The file path within the repository
  * @returns The file content as a string
- * 
+ *
  * @example
  * ```typescript
  * // Get content from a branch
  * const content = yield* getContent("origin", "main", "README.md");
- * 
+ *
  * // Get content from a tag
  * const content = yield* getContent("origin", "v1.0.0", "package.json");
- * 
+ *
  * // Get content from a commit
  * const content = yield* getContent("origin", "abc123", "src/index.ts");
  * ```
@@ -218,7 +218,7 @@ export function* getContent(
 
   // Handle tag vs branch logic
   let actualRef: string;
-  if (refInfo.type === 'tag') {
+  if (refInfo.type === "tag") {
     const commitHash = yield* lookupTagCommit({
       remoteName: remote,
       tagName: refInfo.name,
@@ -233,7 +233,9 @@ export function* getContent(
     if (refInfo.name.includes("/") && !refInfo.name.startsWith(remote)) {
       actualRef = `${remote}/${refInfo.name}`;
     } else {
-      actualRef = refInfo.name.startsWith(remote) ? refInfo.name : `${remote}/${refInfo.name}`;
+      actualRef = refInfo.name.startsWith(remote)
+        ? refInfo.name
+        : `${remote}/${refInfo.name}`;
     }
   }
 
@@ -299,7 +301,8 @@ export function* createGitRepositoryRef({
   const refInfo = yield* determineRefType(repository.nameWithOwner, rawRef);
 
   // Generate URL directly using refInfo.name (same as getRefUrl but more direct)
-  const url = `https://github.com/${repository.owner}/${repository.name}/tree/${refInfo.name}/`;
+  const url =
+    `https://github.com/${repository.owner}/${repository.name}/tree/${refInfo.name}/`;
 
   const repositoryRef: RepositoryRef = {
     repository,
@@ -308,7 +311,11 @@ export function* createGitRepositoryRef({
 
     getUrl(base, target, isFile) {
       return new URL(
-        [isFile ? "blob" : "tree", refInfo.name, getPath(base ?? "", target ?? "")]
+        [
+          isFile ? "blob" : "tree",
+          refInfo.name,
+          getPath(base ?? "", target ?? ""),
+        ]
           .filter(Boolean)
           .join("/"),
         `https://github.com/${repository.nameWithOwner}/`,

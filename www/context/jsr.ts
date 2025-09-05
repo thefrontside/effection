@@ -8,7 +8,7 @@ export function* initJSRClient() {
   if (token === "") {
     console.log("Missing JSR API token; expect score card not to load.");
   }
-  
+
   let client = yield* createJSRClient(token);
 
   return yield* JSRClientContext.set(client);

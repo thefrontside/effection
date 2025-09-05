@@ -1,10 +1,6 @@
 import { type Operation } from "effection";
 import { extractVersion, rsort } from "../lib/semver.ts";
-import type { 
-  RefTypeInfo, 
-  Repository, 
-  ContentProvider,
-} from "./types.ts";
+import type { ContentProvider, RefTypeInfo, Repository } from "./types.ts";
 
 /**
  * GitHub URL patterns for parsing different URL formats

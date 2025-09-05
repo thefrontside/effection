@@ -2,7 +2,9 @@
 
 ## Project Overview
 
-Effection is a structured concurrency and effects library for JavaScript that runs on Node.js, Browser, and Deno. This is a monorepo containing the core library and website.
+Effection is a structured concurrency and effects library for JavaScript that
+runs on Node.js, Browser, and Deno. This is a monorepo containing the core
+library and website.
 
 ## Project Structure
 
@@ -22,6 +24,7 @@ Effection is a structured concurrency and effects library for JavaScript that ru
 ## Common Commands
 
 ### Core Library
+
 ```bash
 # Run all tests
 deno task test
@@ -43,6 +46,7 @@ deno lint
 ```
 
 ### Website (in www/ directory)
+
 ```bash
 cd www/
 
@@ -58,20 +62,27 @@ deno task pagefind
 
 ## Code Style
 
-- **Linting**: Uses Deno's built-in linter with custom rules excluding `prefer-const` and `require-yield`
+- **Linting**: Uses Deno's built-in linter with custom rules excluding
+  `prefer-const` and `require-yield`
 - **Formatting**: Uses Deno's built-in formatter
 - **JSX**: Uses Revolution framework with React JSX transform
 - **TypeScript**: Strict mode with DOM and Deno namespace libs
 
 ## Key Conventions
 
-- **Generator functions**: Core library heavily uses generator functions with `function*` and `yield*`
+- **Generator functions**: Core library heavily uses generator functions with
+  `function*` and `yield*`
 - **Operations**: All async work is modeled as `Operation<T>` types
-- **Synchronous by default**: Operations are synchronous until an operation makes them asynchronous
-- **Spawn usage**: Only use `spawn()` when you want to continue executing while running another operation concurrently
-- **Signals as queues**: Signals accumulate state until something subscribes - you can write to them immediately without spawn
-- **Structured concurrency**: Use `spawn()`, `all()`, `race()` for concurrent operations
-- **Resources**: Only use `resource()` if the value returned by the operation has a lifecycle (needs shutdown/cleanup when parent operation terminates)
+- **Synchronous by default**: Operations are synchronous until an operation
+  makes them asynchronous
+- **Spawn usage**: Only use `spawn()` when you want to continue executing while
+  running another operation concurrently
+- **Signals as queues**: Signals accumulate state until something subscribes -
+  you can write to them immediately without spawn
+- **Structured concurrency**: Use `spawn()`, `all()`, `race()` for concurrent
+  operations
+- **Resources**: Only use `resource()` if the value returned by the operation
+  has a lifecycle (needs shutdown/cleanup when parent operation terminates)
 - **Context**: Use Effection's context system for dependency injection
 
 ## Website Architecture
@@ -113,4 +124,5 @@ deno task pagefind
 
 - **Core**: Pure TypeScript, no external dependencies
 - **Website**: Revolution, Tailwind, @deno/doc, Octokit, unified ecosystem
-- **Build**: Deno's built-in tools, custom build scripts for cross-platform publishing
+- **Build**: Deno's built-in tools, custom build scripts for cross-platform
+  publishing

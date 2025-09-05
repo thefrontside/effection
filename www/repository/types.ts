@@ -79,7 +79,6 @@ export interface Repository {
   loadRef(ref?: string): Operation<RepositoryRef>;
 }
 
-
 /**
  * Interface for the result of determineRefType function
  * Contains the type, clean name, and normalized full reference

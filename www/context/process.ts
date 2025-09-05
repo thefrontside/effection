@@ -1,8 +1,7 @@
-import type { Operation, Scope, Stream, Subscription } from "effection";
+import type { Operation, Stream, Subscription } from "effection";
 import {
   createSignal,
   each,
-  ensure,
   resource,
   spawn,
   until,

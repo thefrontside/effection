@@ -1,6 +1,6 @@
 import { createContext, type Operation, scoped, until } from "effection";
 import { capture, useProcess } from "./process.ts";
-import { indent, log, } from "./logging.ts";
+import { indent, log } from "./logging.ts";
 import { join } from "@std/path";
 
 const CwdContext = createContext<string | URL>("cwd", Deno.cwd());
@@ -36,6 +36,7 @@ export function* cwd<T extends readonly Operation<unknown>[]>(
       for (const op of ops) {
         results.push(yield* op);
       }
+      // deno-lint-ignore no-explicit-any
       return results as any;
     });
     return result;

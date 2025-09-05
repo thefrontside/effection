@@ -20,7 +20,7 @@ export function* Header(props?: HeaderProps) {
     owner: "thefrontside",
     name: "effectionx",
   });
-  
+
   let xMain = yield* x.loadRef();
   let workspaces = yield* loadWorkspaces(xMain);
 

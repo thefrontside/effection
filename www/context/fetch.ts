@@ -42,7 +42,7 @@ export function* initFetch() {
         : new URL(input);
 
       if (url.protocol === "file:") {
-        yield* log.debug(`Reading file system file from ${url}`)
+        yield* log.debug(`Reading file system file from ${url}`);
         try {
           const file = yield* until(Deno.open(url.pathname));
           return new Response(file.readable);
@@ -68,7 +68,7 @@ export function* initFetch() {
         : new URL(input);
       const newUrl = yield* rewrite(url, input, init);
       if (url !== newUrl) {
-        yield* log.debug(`Rewrite ${url} to ${newUrl}`)
+        yield* log.debug(`Rewrite ${url} to ${newUrl}`);
       }
       return yield* next(newUrl, init);
     },

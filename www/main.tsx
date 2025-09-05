@@ -58,8 +58,8 @@ if (import.meta.main) {
     yield* ProcessOutputCache([
       /git show/,
       /git ls-remote/,
-      /git remote get-url/
-    ])
+      /git remote get-url/,
+    ]);
 
     let library = yield* useRepository({
       owner: "thefrontside",

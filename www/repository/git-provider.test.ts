@@ -285,7 +285,7 @@ describe("git-provider", () => {
 
         expect(results).toMatchObject([
           { type: "branch", name: "develop", normalized: "refs/heads/develop" },
-          { type: "branch", name: "develop", normalized: "refs/heads/develop" },  
+          { type: "branch", name: "develop", normalized: "refs/heads/develop" },
           { type: "branch", name: "develop", normalized: "refs/heads/develop" },
           { type: "tag", name: "v1.0.0", normalized: "refs/tags/v1.0.0" },
           { type: "tag", name: "v1.0.0", normalized: "refs/tags/v1.0.0" },

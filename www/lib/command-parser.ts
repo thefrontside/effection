@@ -4,7 +4,7 @@
  */
 export interface ParsedCommand {
   _: string[];
-  [key: string]: any;
+  [key: string]: string | true | string[];
 }
 
 /**
@@ -56,7 +56,7 @@ function parseSimple(input: string): ParsedCommand {
 
 function parseWithQuotes(input: string): ParsedCommand {
   const wrongPieces = input.split(" ");
-  
+
   let goodPieces = solveQuotes(wrongPieces, '"');
   goodPieces = solveQuotes(goodPieces, "'");
 
@@ -113,8 +113,7 @@ function solveQuotes(pieces: string[], quoteChar: string): string[] {
         const qIndex = getFirstQuote(pieces[i], quoteChar);
         if (qIndex !== pieces[i].length - 1) {
           // Closing quote is not the last character
-          pieces[i + 1] =
-            pieces[i].substring(qIndex + 1) +
+          pieces[i + 1] = pieces[i].substring(qIndex + 1) +
             (pieces[i + 1] !== undefined ? pieces[i + 1] : "");
           pieces[i] = pieces[i].substring(0, qIndex + 1);
         }
@@ -127,7 +126,7 @@ function solveQuotes(pieces: string[], quoteChar: string): string[] {
     } else {
       if (hasQuote(pieces[i], quoteChar)) {
         const quoteCount = countQuotes(pieces[i], quoteChar);
-        
+
         if (quoteCount === 1) {
           result.push(pieces[i]);
           unclosedQuote = true;
@@ -150,7 +149,7 @@ function solveQuotes(pieces: string[], quoteChar: string): string[] {
             result.push(next);
           } else {
             throw new Error(
-              "Unexpected behavior in command parsing. Please report this bug."
+              "Unexpected behavior in command parsing. Please report this bug.",
             );
           }
         }
@@ -164,10 +163,10 @@ function solveQuotes(pieces: string[], quoteChar: string): string[] {
 
 function parseTokens(tokens: string[]): ParsedCommand {
   const result: ParsedCommand = { _: [] };
-  
+
   for (let i = 0; i < tokens.length; i++) {
     const token = tokens[i];
-    
+
     if (token.startsWith("--")) {
       // Long option
       const equalIndex = token.indexOf("=");
@@ -187,10 +186,10 @@ function parseTokens(tokens: string[]): ParsedCommand {
     } else if (token.startsWith("-") && token.length > 1) {
       // Short option(s)
       const flags = token.substring(1);
-      
+
       for (let j = 0; j < flags.length; j++) {
         const flag = flags[j];
-        
+
         if (j === flags.length - 1) {
           // Last flag - might have a value
           if (i + 1 < tokens.length && !tokens[i + 1].startsWith("-")) {
@@ -207,6 +206,6 @@ function parseTokens(tokens: string[]): ParsedCommand {
       result._.push(token);
     }
   }
-  
+
   return result;
 }

@@ -7,7 +7,7 @@
   },
   "lock": false,
   "tasks": {
-    "test": "deno test --allow-run=deno",
+    "test": "deno test --allow-run=deno --allow-run=git --allow-write --allow-read",
     "test:node": "deno task build:npm 0.0.0 && node test/main/node.mjs hello world",
     "build:jsr": "deno run -A tasks/build-jsr.ts",
     "build:npm": "deno run -A tasks/build-npm.ts"
@@ -50,7 +50,7 @@
   "deploy": {
     "org": "Frontside",
     "project": "effection-www",
-    "entrypoint": "https://jsr.io/@std/http/1.0.12/file_server.ts",
+    "entrypoint": "https://jsr.io/@std/http/1.0.20/file_server.ts",
     "root": "./www"
   },
   "nodeModulesDir": "auto",

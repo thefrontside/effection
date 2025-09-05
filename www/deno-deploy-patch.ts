@@ -12,6 +12,7 @@ export function patchDenoPermissionsQuerySync() {
 
   Deno.permissions.querySync ??= ({ name }) => {
     return {
+      // @ts-expect-error deno-ts(7053)
       state: permissions[name],
       onchange: null,
       partial: false,

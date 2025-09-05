@@ -38,7 +38,6 @@
     "tailwindcss": "npm:tailwindcss@^4.1.0",
     "@deno/doc": "jsr:@deno/doc@0.181.0",
     "git-url-parse": "npm:git-url-parse@16.1.0",
-    "https://deno.land/x/effection@3.0.3/mod.ts": "npm:effection@3.6.0",
     "@std/fs": "jsr:@std/fs@1",
     "@std/path": "jsr:@std/path@1",
     "@std/testing": "jsr:@std/testing@1",

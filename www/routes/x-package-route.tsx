@@ -192,9 +192,10 @@ export function xPackageRoute({
               heading.properties["data-name"]
             ) {
               item.properties.className += " mb-1";
-              const a = select("a", item);
+              const a = select("a", item as Nodes);
               if (a) {
-                a.children = [
+                // deno-lint-ignore no-explicit-any
+                (a as any).children = [
                   <Icon class="-ml-6" kind={heading.properties["data-kind"]} />,
                   <span class="hover:underline hover:underline-offset-2">
                     {heading.properties["data-name"]}
@@ -202,9 +203,11 @@ export function xPackageRoute({
                 ];
               }
             } else {
-              const a = select("a", item);
-              a.properties.className =
+              const a = select("a", item as Nodes);
+              if (a) {
+                a.properties.className =
                 `hover:underline hover:underline-offset-2`;
+              }
             }
             return item;
           },

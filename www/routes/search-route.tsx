@@ -26,6 +26,7 @@ export function searchRoute(): SitemapRoute<JSXElement> {
               <div id="search-page" />
             </div>
             <script src="/pagefind/pagefind-ui.js"></script>
+            {/* @ts-expect-error Custom element is-land from @11ty/is-land */}
             <is-land on:idle on:visible on:save-data="false">
               <script>
                 {`
@@ -46,6 +47,7 @@ export function searchRoute(): SitemapRoute<JSXElement> {
                 }
               `}
               </script>
+            {/* @ts-expect-error Custom element is-land from @11ty/is-land */}
             </is-land>
           </>
         </AppHtml>

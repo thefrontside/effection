@@ -28,5 +28,5 @@ export function createToc(root: Nodes, options?: Options): JSXElement {
   let tocNode = createTOC(headings, _options);
 
   // Allow the user to customize the table of contents before we add it to the page
-  return customizationHooks(tocNode, _options);
+  return customizationHooks(tocNode, _options) as unknown as JSXElement;
 }

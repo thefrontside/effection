@@ -52,5 +52,9 @@
     "project": "effection-www",
     "entrypoint": "https://jsr.io/@std/http/1.0.12/file_server.ts",
     "root": "./www"
-  }
+  },
+  "nodeModulesDir": "auto",
+  "workspace": [
+    "./www"
+  ]
 }

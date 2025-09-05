@@ -56,5 +56,8 @@
   "nodeModulesDir": "auto",
   "workspace": [
     "./www"
-  ]
+  ],
+  "imports": {
+    "https://deno.land/x/path_to_regexp@v6.2.1/index.ts": "npm:path-to-regexp@8.2.0"
+  }
 }

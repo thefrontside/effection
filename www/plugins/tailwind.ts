@@ -54,6 +54,7 @@ function* compileCSS(options: TailwindOptions): Operation<CSS> {
   let outpath = join(outdir, input);
   let proc = yield* x("deno", [
     "run",
+    "--unstable-detect-cjs",
     "-A",
     "npm:@tailwindcss/cli@^4.0.0",
     "--config",

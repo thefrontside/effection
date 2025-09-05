@@ -25,6 +25,7 @@
     "jsx": "react-jsx",
     "jsxImportSource": "revolution"
   },
+  "nodeModulesDir": "auto",
   "imports": {
     "effection": "npm:effection@3.6.0",
     "@effectionx/deno-deploy": "npm:@effectionx/deno-deploy@0.1.1",

@@ -13,6 +13,7 @@ import {
   getContent,
   getDefaultBranch,
   getMatchingTags,
+  getUncommittedChanges,
   lookupTagCommit,
 } from "./git-provider.ts";
 import { Repository, RepositoryRef } from "./types.ts";
@@ -293,6 +294,37 @@ describe("git-provider", () => {
         ]);
       });
     });
+
+    describe("reading uncommitted changes", () => {
+      beforeEach(function*() {
+        // create a directory first
+        yield* ensureDir(join(workspaceDir, "src"));
+        
+        // checkout feature branch
+        yield* cwd(workspaceDir, [
+          $(`git checkout feature-branch`),
+          // create a new file and stage it but don't commit
+          $echo("staged content", "staged-file.txt"),
+          $(`git add staged-file.txt`),
+          // create a new file in directory but don't stage it
+          $echo("unstaged content", "src/unstaged-file.txt"),
+          // modify an existing file but don't stage it
+          $echo("modified content", "file1.txt"),
+        ]);
+      });
+      
+      it("includes staged and unstaged changes", function*() {
+        // verify that calling the function returns a list of both staged and unstaged files
+        const [changes] = yield* cwd(workspaceDir, [
+          getUncommittedChanges(),
+        ]);
+        
+        expect(changes).toContain("staged-file.txt");         // staged new file
+        expect(changes).toContain("src/unstaged-file.txt");   // unstaged new file in directory
+        expect(changes).toContain("file1.txt");               // modified existing file
+        expect(changes).toHaveLength(3);
+      });
+    })
   });
 
   describe("createGitRepository", () => {

@@ -83,6 +83,37 @@ export function* getMatchingTags(
 }
 
 /**
+ * Get list of files with uncommitted changes (both staged and unstaged)
+ */
+export function* getUncommittedChanges(): Operation<string[]> {
+  try {
+    // Get staged files
+    const stagedResult = yield* $(`git diff --cached --name-only`);
+    const stagedFiles = stagedResult.stdout
+      .split('\n')
+      .filter(line => line.trim().length > 0);
+
+    // Get unstaged files (modified and untracked)
+    const unstagedResult = yield* $(`git diff --name-only`);
+    const modifiedFiles = unstagedResult.stdout
+      .split('\n')
+      .filter(line => line.trim().length > 0);
+
+    // Get untracked files
+    const untrackedResult = yield* $(`git ls-files --others --exclude-standard`);
+    const untrackedFiles = untrackedResult.stdout
+      .split('\n')
+      .filter(line => line.trim().length > 0);
+
+    // Combine all and remove duplicates
+    const allChanges = [...stagedFiles, ...modifiedFiles, ...untrackedFiles];
+    return [...new Set(allChanges)];
+  } catch {
+    return [];
+  }
+}
+
+/**
  * Get commit hash for a tag from a remote repository
  */
 export function* lookupTagCommit({ remoteName, tagName }: {

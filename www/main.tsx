@@ -52,7 +52,7 @@ if (import.meta.main) {
     yield* initGitRepositoryProvider();
     // middleware that turns GitHub URLs into git://
     yield* rewriteContentsApiToGit(({ owner }) => owner === "thefrontside");
-    // middleware that converts git:// into repository api invocations
+    // middleware that converts blob URls into repository api invocations
     yield* initGithubBlobFetchMiddleware();
     // caches output from git commands to prevent unnecessary reads
     yield* ProcessOutputCache([

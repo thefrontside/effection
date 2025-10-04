@@ -25,19 +25,21 @@ describe("main", () => {
     });
   });
 
-  it("gracefully shuts down on SIGTERM", async () => {
-    await run(function* () {
-      let proc = yield* x("deno", ["run", "test/main/ok.daemon.ts"]);
+  if (Deno.build.os !== "windows") {
+    it("gracefully shuts down on SIGTERM", async () => {
+      await run(function* () {
+        let proc = yield* x("deno", ["run", "test/main/ok.daemon.ts"]);
 
-      yield* until(proc.lines, "started");
+        yield* until(proc.lines, "started");
 
-      const { exitCode, stdout } = yield* proc.kill("SIGTERM");
+        const { exitCode, stdout } = yield* proc.kill("SIGTERM");
 
-      expect(stdout).toContain("gracefully stopped");
+        expect(stdout).toContain("gracefully stopped");
 
-      expect(exitCode).toBe(143);
+        expect(exitCode).toBe(143);
+      });
     });
-  });
+  }
 
   it("exits gracefully on explicit exit()", async () => {
     await run(function* () {

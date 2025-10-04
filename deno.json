@@ -7,7 +7,7 @@
   },
   "lock": false,
   "tasks": {
-    "test": "deno test --allow-run=deno --allow-ffi",
+    "test": "deno test --allow-run --allow-ffi",
     "test:node": "deno task build:npm 0.0.0 && node test/main/node.mjs hello world",
     "build:jsr": "deno run -A tasks/build-jsr.ts",
     "build:npm": "deno run -A tasks/build-npm.ts"

@@ -1,16 +1,9 @@
-export * from "https://deno.land/std@0.163.0/testing/bdd.ts";
-export { expect } from "jsr:@std/expect";
-export { expectType } from "https://esm.sh/ts-expect@1.3.0?pin=v123";
+export * from "@std/testing/bdd";
+export { expect } from "@std/expect";
+export { expectType } from "ts-expect";
 
-import { ctrlc } from "npm:ctrlc-windows";
-import {
-  action,
-  call,
-  type Operation,
-  resource,
-  sleep,
-  spawn,
-} from "../mod.ts";
+import { ctrlc } from "ctrlc-windows";
+import { action, type Operation, resource, sleep, spawn } from "../mod.ts";
 
 declare global {
   interface Promise<T> extends Operation<T> {}

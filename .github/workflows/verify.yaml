@@ -10,8 +10,11 @@ permissions:
   contents: read
 
 jobs:
-  test-deno:
-    runs-on: ubuntu-latest
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
 
     steps:
       - name: checkout

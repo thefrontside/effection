@@ -78,16 +78,18 @@ export function useCommand(
     let command = new Deno.Command(cmd, options);
     let process = command.spawn();
 
-    // Wrap the kill method to use ctrlc-windows on Windows
-    // See: https://github.com/denoland/deno/issues/29599
-    const originalKill = process.kill.bind(process);
-    process.kill = (signal) => {
-      if (Deno.build.os === "windows" && signal === "SIGINT") {
-        ctrlc(process.pid);
-      } else {
-        originalKill(signal);
-      }
-    };
+    if (Deno.build.os === "windows") {
+      // Wrap the kill method to use ctrlc-windows on Windows
+      // See: https://github.com/denoland/deno/issues/29599
+      const originalKill = process.kill.bind(process);
+      process.kill = (signal) => {
+        if (signal === "SIGINT") {
+          ctrlc(process.pid);
+        } else {
+          originalKill(signal);
+        }
+      };
+    }
 
     try {
       yield* provide(process);

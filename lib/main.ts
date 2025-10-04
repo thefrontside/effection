@@ -1,6 +1,7 @@
 import { createContext } from "./context.ts";
 import type { Operation } from "./types.ts";
 import { action } from "./instructions.ts";
+import process from "node:process";
 import { run } from "./run.ts";
 import { call } from "./call.ts";
 
@@ -83,11 +84,18 @@ export async function main(
             hardexit = (status) => Deno.exit(status);
             try {
               Deno.addSignalListener("SIGINT", interrupt.SIGINT);
-              Deno.addSignalListener("SIGTERM", interrupt.SIGTERM);
+              /**
+               * Windows only supports ctrl-c (SIGINT), ctrl-break (SIGBREAK), and ctrl-close (SIGUP)
+               */
+              if (Deno.build.os !== "windows") {
+                Deno.addSignalListener("SIGTERM", interrupt.SIGTERM);
+              }
               yield* body(Deno.args.slice());
             } finally {
               Deno.removeSignalListener("SIGINT", interrupt.SIGINT);
-              Deno.removeSignalListener("SIGTERM", interrupt.SIGTERM);
+              if (Deno.build.os !== "windows") {
+                Deno.removeSignalListener("SIGTERM", interrupt.SIGTERM);
+              }
             }
           },
           *node() {
@@ -99,11 +107,15 @@ export async function main(
             hardexit = (status) => process.exit(status);
             try {
               process.on("SIGINT", interrupt.SIGINT);
-              process.on("SIGTERM", interrupt.SIGTERM);
+              if (process.platform !== "win32") {
+                process.on("SIGTERM", interrupt.SIGTERM);
+              }
               yield* body(process.argv.slice(2));
             } finally {
               process.off("SIGINT", interrupt.SIGINT);
-              process.off("SIGTERM", interrupt.SIGINT);
+              if (process.platform !== "win32") {
+                process.off("SIGTERM", interrupt.SIGINT);
+              }
             }
           },
           *browser() {

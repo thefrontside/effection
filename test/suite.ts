@@ -1,15 +1,9 @@
-export * from "https://deno.land/std@0.163.0/testing/bdd.ts";
-export { expect } from "jsr:@std/expect";
-export { expectType } from "https://esm.sh/ts-expect@1.3.0?pin=v123";
+export * from "@std/testing/bdd";
+export { expect } from "@std/expect";
+export { expectType } from "ts-expect";
 
-import {
-  action,
-  call,
-  type Operation,
-  resource,
-  sleep,
-  spawn,
-} from "../mod.ts";
+import { ctrlc } from "ctrlc-windows";
+import { action, type Operation, resource, sleep, spawn } from "../mod.ts";
 
 declare global {
   interface Promise<T> extends Operation<T> {}
@@ -83,12 +77,26 @@ export function useCommand(
   return resource(function* (provide) {
     let command = new Deno.Command(cmd, options);
     let process = command.spawn();
+
+    if (Deno.build.os === "windows") {
+      // Wrap the kill method to use ctrlc-windows on Windows
+      // See: https://github.com/denoland/deno/issues/29599
+      const originalKill = process.kill.bind(process);
+      process.kill = (signal) => {
+        if (signal === "SIGINT") {
+          ctrlc(process.pid);
+        } else {
+          originalKill(signal);
+        }
+      };
+    }
+
     try {
       yield* provide(process);
     } finally {
       try {
         process.kill("SIGINT");
-        yield* call(process.status);
+        yield* process.status;
       } catch (error) {
         // if the process already quit, then this error is expected.
         // unfortunately there is no way (I know of) to check this

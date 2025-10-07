@@ -13,7 +13,7 @@
   },
   "lint": {
     "rules": { "exclude": ["prefer-const", "require-yield"] },
-    "exclude": ["build", "www"]
+    "exclude": ["build", "www", "docs", "tasks"]
   },
   "fmt": { "exclude": ["build", "www", "CODE_OF_CONDUCT.md", "README.md"] },
   "test": { "exclude": ["build"] },

@@ -5,7 +5,7 @@
   "publish": { "include": ["lib", "mod.ts", "README.md"] },
   "lock": false,
   "tasks": {
-    "test": "deno test --allow-run=deno --allow-read --allow-env --allow-ffi",
+    "test": "deno test --allow-run --allow-read --allow-env --allow-ffi",
     "test:node": "deno run -A tasks/built-test.ts",
     "build:npm": "deno run -A tasks/build-npm.ts",
     "bench": "deno run -A tasks/bench.ts",

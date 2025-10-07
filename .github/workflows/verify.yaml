@@ -31,7 +31,13 @@ jobs:
       - name: lint
         run: deno lint
 
-      - name: test
+      - name: test (Windows)
+        if: runner.os == 'Windows'
+        run: deno task test
+        shell: cmd
+
+      - name: test (Unix)
+        if: runner.os != 'Windows'
         run: deno task test
 
   test-node:

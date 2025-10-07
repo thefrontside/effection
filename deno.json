@@ -5,7 +5,7 @@
   "publish": { "include": ["lib", "mod.ts", "README.md"] },
   "lock": false,
   "tasks": {
-    "test": "deno test --allow-run=deno --allow-read --allow-env",
+    "test": "deno test --allow-run=deno --allow-read --allow-env --allow-ffi",
     "test:node": "deno run -A tasks/built-test.ts",
     "build:npm": "deno run -A tasks/build-npm.ts",
     "bench": "deno run -A tasks/bench.ts",
@@ -22,7 +22,7 @@
     "@std/testing": "jsr:@std/testing@1",
     "ts-expect": "npm:ts-expect@1.3.0",
     "@std/expect": "jsr:@std/expect@1",
-    "tinyexec": "npm:tinyexec@0.3.2"
+    "ctrlc-windows": "npm:ctrlc-windows@2.2.0"
   },
   "version": "4.0.0-alpha.8"
 }

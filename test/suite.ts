@@ -1,10 +1,12 @@
-export { expect } from "@std/expect";
+import { expect } from "@std/expect";
 export { afterEach, beforeEach, describe, it } from "@std/testing/bdd";
 export { expectType } from "ts-expect";
-import { type KillSignal, type Options, type Output, x as $x } from "tinyexec";
+export { expect };
 
-import type { Operation, Stream } from "../lib/types.ts";
-import { call, resource, sleep, spawn, stream } from "../mod.ts";
+import { ctrlc } from "ctrlc-windows";
+
+import type { Operation } from "../lib/types.ts";
+import { resource, sleep, spawn, until } from "../mod.ts";
 
 export function* createNumber(value: number): Operation<number> {
   yield* sleep(1);
@@ -55,49 +57,91 @@ export function* syncReject(value: string): Operation<string> {
   throw new Error(`boom: ${value}`);
 }
 
-export interface TinyProcess extends Operation<Output> {
-  /**
-   * A stream of lines coming from both stdin and stdout. The stream
-   * will terminate when stdout and stderr are closed which usually
-   * corresponds to the process ending.
-   */
-  lines: Stream<string, void>;
-
-  /**
-   * Send `signal` to this process
-   * @param signal - the OS signal to send to the process
-   * @returns void
-   */
-  kill(signal?: KillSignal): Operation<Output>;
-}
-
-export function x(
+export function useCommand(
   cmd: string,
-  args: string[] = [],
-  options?: Partial<Options>,
-): Operation<TinyProcess> {
+  options?: Deno.CommandOptions,
+): Operation<Deno.ChildProcess> {
   return resource(function* (provide) {
-    let tinyexec = $x(cmd, args, { ...options });
+    let command = new Deno.Command(cmd, options);
+    let process = command.spawn();
 
-    let promise: Promise<Output> = tinyexec as unknown as Promise<Output>;
-
-    let output = call(() => promise);
-
-    let tinyproc: TinyProcess = {
-      *[Symbol.iterator]() {
-        return yield* output;
-      },
-      lines: stream(tinyexec),
-      *kill(signal) {
-        tinyexec.kill(signal);
-        return yield* output;
-      },
-    };
+    if (Deno.build.os === "windows") {
+      // Wrap the kill method to use ctrlc-windows on Windows
+      // See: https://github.com/denoland/deno/issues/29599
+      const originalKill = process.kill.bind(process);
+      process.kill = (signal) => {
+        if (signal === "SIGINT") {
+          ctrlc(process.pid);
+        } else {
+          originalKill(signal);
+        }
+      };
+    }
 
     try {
-      yield* provide(tinyproc);
+      yield* provide(process);
     } finally {
-      yield* tinyproc.kill();
+      try {
+        process.kill("SIGINT");
+        yield* until(process.status);
+      } catch (error) {
+        // if the process already quit, then this error is expected.
+        // unfortunately there is no way (I know of) to check this
+        // before calling process.kill()
+
+        if (
+          !!error &&
+          !(error as Error).message.includes(
+            "Child process has already terminated",
+          )
+        ) {
+          // deno-lint-ignore no-unsafe-finally
+          throw error;
+        }
+      }
     }
   });
+}
+
+interface Buffer {
+  content: string;
+}
+
+export function buffer(stream: ReadableStream<Uint8Array>): Operation<Buffer> {
+  return resource<{ content: string }>(function* (provide) {
+    let buff = { content: " " };
+    yield* spawn(function* () {
+      let decoder = new TextDecoder();
+      let reader = stream.getReader();
+
+      try {
+        let next = yield* until(reader.read());
+        while (!next.done) {
+          buff.content += decoder.decode(next.value);
+          next = yield* until(reader.read());
+        }
+      } finally {
+        yield* until(reader.cancel());
+      }
+    });
+
+    yield* provide(buff);
+  });
+}
+
+export function* detect(
+  buffer: Buffer,
+  text: string,
+  options: { timeout: number } = { timeout: 1000 },
+): Operation<void> {
+  let start = new Date().getTime();
+
+  while ((new Date().getTime() - start) < options.timeout) {
+    if (buffer.content.includes(text)) {
+      return;
+    }
+    yield* sleep(10);
+  }
+
+  expect(buffer.content).toMatch(new RegExp(text));
 }

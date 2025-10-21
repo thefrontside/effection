@@ -4,9 +4,16 @@ export { expectType } from "ts-expect";
 export { expect };
 
 import { ctrlc } from "ctrlc-windows";
+import { spawn as nodeSpawn } from "node:child_process";
+import type { ChildProcess as NodeChildProcess } from "node:child_process";
+import type { Readable as NodeReadable } from "node:stream";
 
 import type { Operation } from "../lib/types.ts";
-import { resource, sleep, spawn, until } from "../mod.ts";
+import { resource, sleep, spawn, until, withResolvers } from "../mod.ts";
+
+interface ChildProcess extends NodeChildProcess {
+  status: Operation<{ code: number | null; signal: NodeJS.Signals | null }>;
+}
 
 export function* createNumber(value: number): Operation<number> {
   yield* sleep(1);
@@ -59,31 +66,67 @@ export function* syncReject(value: string): Operation<string> {
 
 export function useCommand(
   cmd: string,
-  options?: Deno.CommandOptions,
-): Operation<Deno.ChildProcess> {
+  options?: {
+    args?: string[];
+    cwd?: string;
+    env?: Record<string, string>;
+    stdin?: "piped" | "inherit" | "null";
+    stdout?: "piped" | "inherit" | "null";
+    stderr?: "piped" | "inherit" | "null";
+  },
+): Operation<ChildProcess> {
   return resource(function* (provide) {
-    let command = new Deno.Command(cmd, options);
-    let process = command.spawn();
+    const nodeProcess = nodeSpawn(cmd, options?.args ?? [], {
+      cwd: options?.cwd,
+      env: options?.env,
+      stdio: [
+        options?.stdin === "piped"
+          ? "pipe"
+          : options?.stdin === "null"
+          ? "ignore"
+          : "inherit",
+        options?.stdout === "piped"
+          ? "pipe"
+          : options?.stdout === "null"
+          ? "ignore"
+          : "inherit",
+        options?.stderr === "piped"
+          ? "pipe"
+          : options?.stderr === "null"
+          ? "ignore"
+          : "inherit",
+      ],
+    });
 
-    if (Deno.build.os === "windows") {
+    const status = withResolvers();
+
+    nodeProcess.on("exit", (code, signal) => status.resolve({ code, signal }));
+    nodeProcess.on("error", status.reject);
+
+    const processWrapper = Object.assign(nodeProcess, {
+      status: status.operation,
+    }) as ChildProcess;
+
+    if (processWrapper.pid && Deno.build.os === "windows") {
       // Wrap the kill method to use ctrlc-windows on Windows
       // See: https://github.com/denoland/deno/issues/29599
-      const originalKill = process.kill.bind(process);
-      process.kill = (signal) => {
+      const originalKill = processWrapper.kill.bind(processWrapper);
+      processWrapper.kill = (signal?: NodeJS.Signals | number) => {
         if (signal === "SIGINT") {
-          ctrlc(process.pid);
+          ctrlc(processWrapper.pid!);
+          return true;
         } else {
-          originalKill(signal);
+          return originalKill(signal);
         }
       };
     }
 
     try {
-      yield* provide(process);
+      yield* provide(processWrapper);
     } finally {
       try {
-        process.kill("SIGINT");
-        yield* until(process.status);
+        processWrapper.kill("SIGINT");
+        yield* status.operation;
       } catch (error) {
         // if the process already quit, then this error is expected.
         // unfortunately there is no way (I know of) to check this
@@ -107,21 +150,69 @@ interface Buffer {
   content: string;
 }
 
-export function buffer(stream: ReadableStream<Uint8Array>): Operation<Buffer> {
+export function buffer(
+  stream: NodeReadable | ReadableStream<Uint8Array> | null,
+): Operation<Buffer> {
   return resource<{ content: string }>(function* (provide) {
     let buff = { content: " " };
     yield* spawn(function* () {
       let decoder = new TextDecoder();
-      let reader = stream.getReader();
 
-      try {
-        let next = yield* until(reader.read());
-        while (!next.done) {
-          buff.content += decoder.decode(next.value);
-          next = yield* until(reader.read());
+      if (!stream) {
+        return;
+      }
+
+      if ("getReader" in stream) {
+        // ReadableStream (Web API)
+        let reader = stream.getReader();
+        try {
+          let next = yield* until(reader.read());
+          while (!next.done) {
+            buff.content += decoder.decode(next.value);
+            next = yield* until(reader.read());
+          }
+        } finally {
+          yield* until(reader.cancel());
         }
-      } finally {
-        yield* until(reader.cancel());
+      } else {
+        // Node.js Readable stream
+        const nodeStream = stream as NodeReadable;
+
+        const readChunk = (): Promise<Uint8Array | null> => {
+          return new Promise((resolve, reject) => {
+            const onData = (chunk: Uint8Array) => {
+              cleanup();
+              resolve(chunk);
+            };
+            const onEnd = () => {
+              cleanup();
+              resolve(null);
+            };
+            const onError = (err: Error) => {
+              cleanup();
+              reject(err);
+            };
+            const cleanup = () => {
+              nodeStream.off("data", onData);
+              nodeStream.off("end", onEnd);
+              nodeStream.off("error", onError);
+            };
+
+            nodeStream.on("data", onData);
+            nodeStream.on("end", onEnd);
+            nodeStream.on("error", onError);
+          });
+        };
+
+        try {
+          let chunk = yield* until(readChunk());
+          while (chunk !== null) {
+            buff.content += decoder.decode(chunk);
+            chunk = yield* until(readChunk());
+          }
+        } catch (_error) {
+          // Stream ended or error occurred
+        }
       }
     });
 

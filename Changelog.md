@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.0.0-alpha.9
+
+- Do not bind SIGTERM in Windows for v4
+  https://github.com/thefrontside/effection/pull/1032
+
 ## 4.0.0-alpha.8
 
 - Add `until()` operation for turning promises into operations

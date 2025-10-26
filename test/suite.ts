@@ -1,18 +1,12 @@
 import { expect } from "@std/expect";
+import { ctrlc } from "ctrlc-windows";
 import { type KillSignal, type Options, type Output, x as $x } from "tinyexec";
 export { afterEach, beforeEach, describe, it } from "@std/testing/bdd";
-import { ctrlc } from "ctrlc-windows";
 export { expectType } from "ts-expect";
 export { expect };
 
-import type { ChildProcess as NodeChildProcess } from "node:child_process";
-
 import type { Operation, Stream } from "../lib/types.ts";
 import { resource, sleep, spawn, stream, until } from "../mod.ts";
-
-interface ChildProcess extends NodeChildProcess {
-  status: Operation<{ code: number | null; signal: NodeJS.Signals | null }>;
-}
 
 export function* createNumber(value: number): Operation<number> {
   yield* sleep(1);

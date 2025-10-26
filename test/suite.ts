@@ -1,15 +1,13 @@
 import { expect } from "@std/expect";
+import { type KillSignal, type Options, type Output, x as $x } from "tinyexec";
 export { afterEach, beforeEach, describe, it } from "@std/testing/bdd";
 export { expectType } from "ts-expect";
 export { expect };
 
-import { ctrlc } from "ctrlc-windows";
-import { spawn as nodeSpawn } from "node:child_process";
 import type { ChildProcess as NodeChildProcess } from "node:child_process";
-import type { Readable as NodeReadable } from "node:stream";
 
-import type { Operation } from "../lib/types.ts";
-import { resource, sleep, spawn, until, withResolvers } from "../mod.ts";
+import type { Operation, Stream } from "../lib/types.ts";
+import { resource, sleep, spawn, stream, until } from "../mod.ts";
 
 interface ChildProcess extends NodeChildProcess {
   status: Operation<{ code: number | null; signal: NodeJS.Signals | null }>;
@@ -63,160 +61,65 @@ export function* syncResolve(value: string): Operation<string> {
 export function* syncReject(value: string): Operation<string> {
   throw new Error(`boom: ${value}`);
 }
+export interface TinyProcess extends Operation<Output> {
+  /**
+   * A stream of lines coming from both stdin and stdout. The stream
+   * will terminate when stdout and stderr are closed which usually
+   * corresponds to the process ending.
+   */
+  lines: Stream<string, void>;
 
-export function useCommand(
+  /**
+   * Send `signal` to this process
+   * @param signal - the OS signal to send to the process
+   * @returns void
+   */
+  kill(signal?: KillSignal): Operation<Output>;
+}
+
+export interface TinyProcess extends Operation<Output> {
+  /**
+   * A stream of lines coming from both stdin and stdout. The stream
+   * will terminate when stdout and stderr are closed which usually
+   * corresponds to the process ending.
+   */
+  lines: Stream<string, void>;
+
+  /**
+   * Send `signal` to this process
+   * @param signal - the OS signal to send to the process
+   * @returns void
+   */
+  kill(signal?: KillSignal): Operation<Output>;
+}
+
+export function x(
   cmd: string,
-  options?: {
-    args?: string[];
-    cwd?: string;
-    env?: Record<string, string>;
-    stdin?: "piped" | "inherit" | "null";
-    stdout?: "piped" | "inherit" | "null";
-    stderr?: "piped" | "inherit" | "null";
-  },
-): Operation<ChildProcess> {
+  args: string[] = [],
+  options?: Partial<Options>,
+): Operation<TinyProcess> {
   return resource(function* (provide) {
-    const nodeProcess = nodeSpawn(cmd, options?.args ?? [], {
-      cwd: options?.cwd,
-      env: options?.env,
-      stdio: [
-        options?.stdin === "piped"
-          ? "pipe"
-          : options?.stdin === "null"
-          ? "ignore"
-          : "inherit",
-        options?.stdout === "piped"
-          ? "pipe"
-          : options?.stdout === "null"
-          ? "ignore"
-          : "inherit",
-        options?.stderr === "piped"
-          ? "pipe"
-          : options?.stderr === "null"
-          ? "ignore"
-          : "inherit",
-      ],
-    });
+    let tinyexec = $x(cmd, args, { ...options });
 
-    const status = withResolvers();
+    let promise: Promise<Output> = tinyexec as unknown as Promise<Output>;
 
-    nodeProcess.on("exit", (code, signal) => status.resolve({ code, signal }));
-    nodeProcess.on("error", status.reject);
+    let output = until(promise);
 
-    const processWrapper = Object.assign(nodeProcess, {
-      status: status.operation,
-    }) as ChildProcess;
-
-    if (processWrapper.pid && Deno.build.os === "windows") {
-      // Wrap the kill method to use ctrlc-windows on Windows
-      // See: https://github.com/denoland/deno/issues/29599
-      const originalKill = processWrapper.kill.bind(processWrapper);
-      processWrapper.kill = (signal?: NodeJS.Signals | number) => {
-        if (signal === "SIGINT") {
-          ctrlc(processWrapper.pid!);
-          return true;
-        } else {
-          return originalKill(signal);
-        }
-      };
-    }
+    let tinyproc: TinyProcess = {
+      *[Symbol.iterator]() {
+        return yield* output;
+      },
+      lines: stream(tinyexec),
+      *kill(signal) {
+        tinyexec.kill(signal);
+        return yield* output;
+      },
+    };
 
     try {
-      yield* provide(processWrapper);
+      yield* provide(tinyproc);
     } finally {
-      try {
-        processWrapper.kill("SIGINT");
-        yield* status.operation;
-      } catch (error) {
-        // if the process already quit, then this error is expected.
-        // unfortunately there is no way (I know of) to check this
-        // before calling process.kill()
-
-        if (
-          !!error &&
-          !(error as Error).message.includes(
-            "Child process has already terminated",
-          )
-        ) {
-          // deno-lint-ignore no-unsafe-finally
-          throw error;
-        }
-      }
+      yield* tinyproc.kill();
     }
   });
-}
-
-interface Buffer {
-  content: string;
-}
-
-export function buffer(stream: NodeReadable | null): Operation<Buffer> {
-  return resource<{ content: string }>(function* (provide) {
-    let buff = { content: " " };
-    yield* spawn(function* () {
-      let decoder = new TextDecoder();
-
-      if (!stream) {
-        return;
-      }
-
-      // Node.js Readable stream
-      const nodeStream = stream as NodeReadable;
-
-      const readChunk = (): Promise<Uint8Array | null> => {
-        return new Promise((resolve, reject) => {
-          const onData = (chunk: Uint8Array) => {
-            cleanup();
-            resolve(chunk);
-          };
-          const onEnd = () => {
-            cleanup();
-            resolve(null);
-          };
-          const onError = (err: Error) => {
-            cleanup();
-            reject(err);
-          };
-          const cleanup = () => {
-            nodeStream.off("data", onData);
-            nodeStream.off("end", onEnd);
-            nodeStream.off("error", onError);
-          };
-
-          nodeStream.on("data", onData);
-          nodeStream.on("end", onEnd);
-          nodeStream.on("error", onError);
-        });
-      };
-
-      try {
-        let chunk = yield* until(readChunk());
-        while (chunk !== null) {
-          buff.content += decoder.decode(chunk);
-          chunk = yield* until(readChunk());
-        }
-      } catch (_error) {
-        // Stream ended or error occurred
-      }
-    });
-
-    yield* provide(buff);
-  });
-}
-
-export function* detect(
-  buffer: Buffer,
-  text: string,
-  options: { timeout: number } = { timeout: 1000 },
-): Operation<void> {
-  let start = new Date().getTime();
-
-  while (new Date().getTime() - start < options.timeout) {
-    if (buffer.content.includes(text)) {
-      return;
-    }
-    yield* sleep(10);
-  }
-
-  expect(buffer.content).toMatch(new RegExp(text));
 }

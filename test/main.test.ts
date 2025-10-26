@@ -1,126 +1,101 @@
-import { buffer, describe, detect, expect, it, useCommand } from "./suite.ts";
-import { run } from "../mod.ts";
+import { describe, expect, it, x } from "./suite.ts";
+import { each, run, type Stream } from "../mod.ts";
+
+function* detect(stream: Stream<string, void>, text: string) {
+  for (const line of yield* each(stream)) {
+    if (line.includes(text)) {
+      return;
+    }
+    yield* each.next();
+  }
+}
 
 describe("main", () => {
   it("gracefully shuts down on SIGINT", async () => {
     await run(function* () {
-      let daemon = yield* useCommand("deno", {
-        stdout: "piped",
-        args: ["run", "--allow-env", "test/main/ok.daemon.ts"],
-      });
-      let stdout = yield* buffer(daemon.stdout);
-      yield* detect(stdout, "started");
+      let proc = yield* x("deno", ["run", "test/main/ok.daemon.ts"]);
 
-      daemon.kill("SIGINT");
+      yield* detect(proc.lines, "started");
 
-      let status = yield* daemon.status;
+      const { exitCode, stdout } = yield* proc.kill("SIGINT");
 
-      expect(status.code).toBe(130);
+      expect(stdout).toContain("gracefully stopped");
 
-      yield* detect(stdout, "gracefully stopped");
+      expect(exitCode).toBe(130);
     });
   });
 
   if (Deno.build.os !== "windows") {
     it("gracefully shuts down on SIGTERM", async () => {
       await run(function* () {
-        let daemon = yield* useCommand("deno", {
-          stdout: "piped",
-          args: ["run", "--allow-env", "test/main/ok.daemon.ts"],
-        });
-        let stdout = yield* buffer(daemon.stdout);
-        yield* detect(stdout, "started");
+        let proc = yield* x("deno", ["run", "test/main/ok.daemon.ts"]);
 
-        daemon.kill("SIGTERM");
+        yield* detect(proc.lines, "started");
 
-        let status = yield* daemon.status;
+        const { exitCode, stdout } = yield* proc.kill("SIGTERM");
 
-        expect(status.code).toBe(143);
+        expect(stdout).toContain("gracefully stopped");
 
-        yield* detect(stdout, "gracefully stopped");
+        expect(exitCode).toBe(143);
       });
     });
   }
 
   it("exits gracefully on explicit exit()", async () => {
     await run(function* () {
-      let cmd = yield* useCommand("deno", {
-        stdout: "piped",
-        args: ["run", "--allow-env", "test/main/ok.exit.ts"],
-      });
+      let proc = yield* x("deno", ["run", "test/main/ok.exit.ts"]);
 
-      let stdout = yield* buffer(cmd.stdout);
-
-      yield* detect(stdout, "goodbye.\nOk, computer.");
+      yield* detect(proc.lines, "goodbye.");
+      yield* detect(proc.lines, "Ok, computer.");
     });
   });
 
   it("exits gracefully with 0 on implicit exit", async () => {
     await run(function* () {
-      let cmd = yield* useCommand("deno", {
-        stdout: "piped",
-        args: ["run", "--allow-env", "test/main/ok.implicit.ts"],
-      });
+      let proc = yield* x("deno", ["run", "test/main/ok.implicit.ts"]);
 
-      let stdout = yield* buffer(cmd.stdout);
-      let status = yield* cmd.status;
+      yield* detect(proc.lines, "goodbye.");
 
-      yield* detect(stdout, "goodbye.");
-      expect(status.code).toEqual(0);
+      const { exitCode } = yield* proc;
+
+      expect(exitCode).toEqual(0);
     });
   });
 
   it("exits gracefully on explicit exit failure exit()", async () => {
     await run(function* () {
-      let cmd = yield* useCommand("deno", {
-        stdout: "piped",
-        stderr: "piped",
-        args: ["run", "--allow-env", "test/main/fail.exit.ts"],
-      });
-      let stdout = yield* buffer(cmd.stdout);
-      let stderr = yield* buffer(cmd.stderr);
-      let status = yield* cmd.status;
+      let proc = yield* x("deno", ["run", "test/main/fail.exit.ts"]);
 
-      yield* detect(stdout, "graceful goodbye");
-      yield* detect(stderr, "It all went horribly wrong");
-      expect(status.code).toEqual(23);
+      const { stderr, exitCode, stdout } = yield* proc;
+
+      expect(stdout).toContain("graceful goodbye");
+      expect(stderr).toContain("It all went horribly wrong");
+      expect(exitCode).toEqual(23);
     });
   });
 
   it("error exits gracefully on unexpected errors", async () => {
     await run(function* () {
-      let cmd = yield* useCommand("deno", {
-        stdout: "piped",
-        stderr: "piped",
-        args: ["run", "--allow-env", "test/main/fail.unexpected.ts"],
-      });
+      let proc = yield* x("deno", ["run", "test/main/fail.unexpected.ts"]);
 
-      let stdout = yield* buffer(cmd.stdout);
-      let stderr = yield* buffer(cmd.stderr);
-      let status = yield* cmd.status;
+      const { stderr, stdout, exitCode } = yield* proc;
 
-      yield* detect(stdout, "graceful goodbye");
-      yield* detect(stderr, "Error: moo");
-      expect(status.code).toEqual(1);
+      expect(stdout).toContain("graceful goodbye");
+      expect(stderr).toContain("Error: moo");
+      expect(exitCode).toEqual(1);
     });
   });
 
   it("works even if suspend is the only operation", async () => {
     await run(function* () {
-      let process = yield* useCommand("deno", {
-        stdout: "piped",
-        args: ["run", "--allow-env", "test/main/just.suspend.ts"],
-      });
-      let stdout = yield* buffer(process.stdout);
-      yield* detect(stdout, "started");
+      let proc = yield* x("deno", ["run", "test/main/just.suspend.ts"]);
 
-      process.kill("SIGINT");
+      yield* detect(proc.lines, "started");
 
-      let status = yield* process.status;
+      const { exitCode, stdout } = yield* proc.kill("SIGINT");
 
-      expect(status.code).toBe(130);
-
-      yield* detect(stdout, "gracefully stopped");
+      expect(exitCode).toBe(130);
+      expect(stdout).toContain("gracefully stopped");
     });
   });
 });

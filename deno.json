@@ -22,7 +22,8 @@
     "@std/testing": "jsr:@std/testing@1",
     "ts-expect": "npm:ts-expect@1.3.0",
     "@std/expect": "jsr:@std/expect@1",
-    "ctrlc-windows": "npm:ctrlc-windows@2.2.0"
+    "ctrlc-windows": "npm:ctrlc-windows@2.2.0",
+    "tinyexec": "npm:tinyexec@1.0.1"
   },
   "version": "4.0.0-alpha.8"
 }

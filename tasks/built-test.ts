@@ -1,5 +1,4 @@
 import { build, emptyDir } from "jsr:@deno/dnt@0.41.3";
-import { copy } from "jsr:@std/fs@^1";
 
 const outDir = "./build/test";
 
@@ -30,21 +29,5 @@ await build({
     name: "effection-tests",
     version: "0.0.0",
     sideEffects: false,
-  },
-  postBuild: async () => {
-    await Deno.mkdir("./build/test/esm/test/main", { recursive: true });
-    for await (const file of Deno.readDir("./test/main")) {
-      if (file.isFile) {
-        const content = await Deno.readTextFile(`./test/main/${file.name}`);
-        const newContent = content.replaceAll(
-          `from "../../mod.ts"`,
-          `from "../../mod.js"`,
-        );
-        await Deno.writeTextFile(
-          `./build/test/esm/test/main/${file.name}`,
-          newContent,
-        );
-      }
-    }
   },
 });

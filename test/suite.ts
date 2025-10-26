@@ -1,6 +1,7 @@
 import { expect } from "@std/expect";
 import { type KillSignal, type Options, type Output, x as $x } from "tinyexec";
 export { afterEach, beforeEach, describe, it } from "@std/testing/bdd";
+import { ctrlc } from "ctrlc-windows";
 export { expectType } from "ts-expect";
 export { expect };
 
@@ -112,6 +113,11 @@ export function x(
       lines: stream(tinyexec),
       *kill(signal) {
         tinyexec.kill(signal);
+        if (
+          Deno.build.os === "windows" && signal === "SIGINT" && tinyexec.pid
+        ) {
+          ctrlc(tinyexec.pid);
+        }
         return yield* output;
       },
     };

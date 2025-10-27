@@ -7,11 +7,6 @@ await emptyDir(outDir);
 const entryPoints = [
   "./lib/mod.ts",
 ];
-for await (const entry of Deno.readDir("test")) {
-  if (entry.isFile) {
-    entryPoints.push(`./test/${entry.name}`);
-  }
-}
 
 await build({
   entryPoints,
@@ -19,7 +14,10 @@ await build({
   shims: {
     deno: true,
   },
+  test: true,
   typeCheck: false,
+  scriptModule: false,
+  esModule: true,
   compilerOptions: {
     lib: ["ESNext", "DOM"],
     target: "ES2020",

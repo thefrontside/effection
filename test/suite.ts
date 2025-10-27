@@ -1,10 +1,12 @@
-export { expect } from "@std/expect";
+import { expect } from "@std/expect";
+import { ctrlc } from "ctrlc-windows";
+import { type KillSignal, type Options, type Output, x as $x } from "tinyexec";
 export { afterEach, beforeEach, describe, it } from "@std/testing/bdd";
 export { expectType } from "ts-expect";
-import { type KillSignal, type Options, type Output, x as $x } from "tinyexec";
+export { expect };
 
 import type { Operation, Stream } from "../lib/types.ts";
-import { call, resource, sleep, spawn, stream } from "../mod.ts";
+import { resource, sleep, spawn, stream, until } from "../mod.ts";
 
 export function* createNumber(value: number): Operation<number> {
   yield* sleep(1);
@@ -54,6 +56,21 @@ export function* syncResolve(value: string): Operation<string> {
 export function* syncReject(value: string): Operation<string> {
   throw new Error(`boom: ${value}`);
 }
+export interface TinyProcess extends Operation<Output> {
+  /**
+   * A stream of lines coming from both stdin and stdout. The stream
+   * will terminate when stdout and stderr are closed which usually
+   * corresponds to the process ending.
+   */
+  lines: Stream<string, void>;
+
+  /**
+   * Send `signal` to this process
+   * @param signal - the OS signal to send to the process
+   * @returns void
+   */
+  kill(signal?: KillSignal): Operation<Output>;
+}
 
 export interface TinyProcess extends Operation<Output> {
   /**
@@ -81,7 +98,7 @@ export function x(
 
     let promise: Promise<Output> = tinyexec as unknown as Promise<Output>;
 
-    let output = call(() => promise);
+    let output = until(promise);
 
     let tinyproc: TinyProcess = {
       *[Symbol.iterator]() {
@@ -90,6 +107,11 @@ export function x(
       lines: stream(tinyexec),
       *kill(signal) {
         tinyexec.kill(signal);
+        if (
+          Deno.build.os === "windows" && signal === "SIGINT" && tinyexec.pid
+        ) {
+          ctrlc(tinyexec.pid);
+        }
         return yield* output;
       },
     };

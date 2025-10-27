@@ -1,7 +1,7 @@
 import { describe, expect, it, x } from "./suite.ts";
 import { each, run, type Stream } from "../mod.ts";
 
-function* until(stream: Stream<string, void>, text: string) {
+function* detect(stream: Stream<string, void>, text: string) {
   for (const line of yield* each(stream)) {
     if (line.includes(text)) {
       return;
@@ -15,7 +15,7 @@ describe("main", () => {
     await run(function* () {
       let proc = yield* x("deno", ["run", "test/main/ok.daemon.ts"]);
 
-      yield* until(proc.lines, "started");
+      yield* detect(proc.lines, "started");
 
       const { exitCode, stdout } = yield* proc.kill("SIGINT");
 
@@ -25,26 +25,28 @@ describe("main", () => {
     });
   });
 
-  it("gracefully shuts down on SIGTERM", async () => {
-    await run(function* () {
-      let proc = yield* x("deno", ["run", "test/main/ok.daemon.ts"]);
+  if (Deno.build.os !== "windows") {
+    it("gracefully shuts down on SIGTERM", async () => {
+      await run(function* () {
+        let proc = yield* x("deno", ["run", "test/main/ok.daemon.ts"]);
 
-      yield* until(proc.lines, "started");
+        yield* detect(proc.lines, "started");
 
-      const { exitCode, stdout } = yield* proc.kill("SIGTERM");
+        const { exitCode, stdout } = yield* proc.kill("SIGTERM");
 
-      expect(stdout).toContain("gracefully stopped");
+        expect(stdout).toContain("gracefully stopped");
 
-      expect(exitCode).toBe(143);
+        expect(exitCode).toBe(143);
+      });
     });
-  });
+  }
 
   it("exits gracefully on explicit exit()", async () => {
     await run(function* () {
       let proc = yield* x("deno", ["run", "test/main/ok.exit.ts"]);
 
-      yield* until(proc.lines, "goodbye.");
-      yield* until(proc.lines, "Ok, computer.");
+      yield* detect(proc.lines, "goodbye.");
+      yield* detect(proc.lines, "Ok, computer.");
     });
   });
 
@@ -52,7 +54,7 @@ describe("main", () => {
     await run(function* () {
       let proc = yield* x("deno", ["run", "test/main/ok.implicit.ts"]);
 
-      yield* until(proc.lines, "goodbye.");
+      yield* detect(proc.lines, "goodbye.");
 
       const { exitCode } = yield* proc;
 
@@ -88,7 +90,7 @@ describe("main", () => {
     await run(function* () {
       let proc = yield* x("deno", ["run", "test/main/just.suspend.ts"]);
 
-      yield* until(proc.lines, "started");
+      yield* detect(proc.lines, "started");
 
       const { exitCode, stdout } = yield* proc.kill("SIGINT");
 

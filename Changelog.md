@@ -1,9 +1,21 @@
 # Changelog
 
-## 4.0.0-alpha.9
+## 4.0.0-beta.3
 
 - Do not bind SIGTERM in Windows for v4
   https://github.com/thefrontside/effection/pull/1032
+
+## 4.0.0-beta.2
+
+- run resources at the priority level of their caller
+  https://github.com/thefrontside/effection/pull/1017
+- add interval() helper to consume a stream of intervals, port from v3
+  https://github.com/thefrontside/effection/pull/1016
+
+## 4.0.0-beta.1
+
+- properly propagate errors from nested scopes
+  https://github.com/thefrontside/effection/pull/1014
 
 ## 4.0.0-alpha.8
 

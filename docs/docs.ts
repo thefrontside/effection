@@ -8,12 +8,12 @@ import {
 } from "effection";
 import structure from "./structure.json" with { type: "json" };
 
-import { basename } from "https://deno.land/std@0.205.0/path/posix/basename.ts";
+import { basename } from "@std/path/posix/basename";
 
-import remarkGfm from "npm:remark-gfm@3.0.1";
-import rehypePrismPlus from "npm:rehype-prism-plus@1.5.1";
+import remarkGfm from "remark-gfm";
+import rehypePrismPlus from "rehype-prism-plus";
 
-import { evaluate } from "npm:@mdx-js/mdx@2.3.0";
+import { evaluate } from "@mdx-js/mdx";
 
 import { Fragment, jsx, jsxs } from "revolution/jsx-runtime";
 

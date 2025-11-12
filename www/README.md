@@ -89,3 +89,18 @@ utility:
 
 This ensures the website stays current with repository changes while providing
 fast global delivery through static hosting.
+
+## Troubleshooting
+
+### "Bad credentials" Error from GitHub API
+
+If you encounter an `HttpError: Bad credentials` error when running the website:
+
+1. **Verify your GITHUB_TOKEN**: Ensure the `GITHUB_TOKEN` environment variable is set with a valid GitHub personal access token
+2. **Clear the cache**: Old cached data may contain requests made with an expired or invalid token. Run the clear-cache task:
+   ```bash
+   deno task clear-cache
+   ```
+3. **Restart the server**: After clearing the cache, restart the development server
+
+This error typically occurs when the cache contains authenticated requests from a previous token that is no longer valid.

@@ -365,6 +365,7 @@ export interface Frame<T = unknown> extends Computation<FrameResult<T>> {
   context: Record<string, unknown>;
   exited?: true;
   aborted?: boolean;
+  children: ReadonlySet<Frame>;
   getTask(): Task<T>;
   createChild<C>(operation: () => Operation<C>): Frame<C>;
   enter(): void;

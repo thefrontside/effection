@@ -35,6 +35,7 @@ export function createFrame<T>(options: FrameOptions<T>): Frame<T> {
 
     let frame = yield* shiftSync<Frame<T>>((k) => {
       let self: Frame<T> = create<Frame<T>>("Frame", { id: ids++, context }, {
+        children,
         createChild<X>(operation: () => Operation<X>) {
           let child = createFrame<X>({ operation, parent: self.context });
           children.add(child);

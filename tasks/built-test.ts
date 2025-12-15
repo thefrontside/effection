@@ -15,6 +15,7 @@ await build({
     deno: true,
   },
   test: true,
+  testPattern: "test/**/*.test.ts",
   typeCheck: false,
   scriptModule: false,
   esModule: true,

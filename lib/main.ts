@@ -180,6 +180,7 @@ function* withHost<T>(op: HostOperation<T>): Operation<T> {
     // @see https://github.com/iliakan/detect-node/blob/master/index.js
   } else if (
     Object.prototype.toString.call(
+      // @ts-expect-error we are just detecting the possibility, so type strictness not required
       typeof globalThis.process !== "undefined" ? globalThis.process : 0,
     ) === "[object process]"
   ) {

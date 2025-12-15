@@ -23,7 +23,12 @@
     "ts-expect": "npm:ts-expect@1.3.0",
     "@std/expect": "jsr:@std/expect@1",
     "ctrlc-windows": "npm:ctrlc-windows@2.2.0",
-    "tinyexec": "npm:tinyexec@1.0.1"
+    "tinyexec": "npm:tinyexec@1.0.1",
+    "https://deno.land/x/path_to_regexp@v6.2.1/index.ts": "npm:path-to-regexp@8.2.0"
   },
+  "nodeModulesDir": "auto",
+  "workspace": [
+    "./www"
+  ],
   "version": "4.0.0-alpha.9"
 }

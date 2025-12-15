@@ -1,0 +1,31 @@
+import { type JSXElement, useParams } from "revolution";
+
+import { SitemapRoute } from "../plugins/sitemap.ts";
+import { useGuides } from "../resources/guides.ts";
+import { createRootUrl } from "./links-resolvers.ts";
+import { softRedirect } from "./redirect.tsx";
+
+export function redirectDocsRoute(series: string): SitemapRoute<JSXElement> {
+  return {
+    *routemap(pathname) {
+      const pages = yield* useGuides(series);
+
+      const paths = [];
+      for (let page of yield* pages.all()) {
+        paths.push({
+          pathname: pathname({ id: page.id, series }),
+        });
+      }
+
+      return paths;
+    },
+    *handler(req) {
+      const { id } = yield* useParams<{ id: string }>();
+
+      return yield* softRedirect(
+        req,
+        yield* createRootUrl(`guides/${series}`)(id),
+      );
+    },
+  };
+}

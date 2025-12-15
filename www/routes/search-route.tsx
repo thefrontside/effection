@@ -1,0 +1,57 @@
+import type { JSXElement } from "revolution";
+
+import { useAppHtml } from "./app.html.tsx";
+import { SitemapRoute } from "../plugins/sitemap.ts";
+
+export function searchRoute(): SitemapRoute<JSXElement> {
+  return {
+    *routemap(generate) {
+      return [
+        {
+          pathname: generate(),
+        },
+      ];
+    },
+    handler: function* () {
+      let AppHtml = yield* useAppHtml({
+        title: `Search`,
+        description: "Search Effection resources and documentation",
+      });
+
+      return (
+        <AppHtml>
+          <>
+            <div class="prose dark:prose-invert m-auto max-w-full">
+              <h1>Search</h1>
+              <div id="search-page" />
+            </div>
+            <script src="/pagefind/pagefind-ui.js"></script>
+            {/* @ts-expect-error Custom element is-land from @11ty/is-land */}
+            <is-land on:idle on:visible on:save-data="false">
+              <script>
+                {`
+                const pagefindUI = new PagefindUI({ 
+                  element: "#search-page", 
+                  showSubResults: true, 
+                  autofocus: true,
+                  showImages: false,
+                  pageSize: 10,
+                  openFilters: ['Section','Version'],
+                  resetStyles: false
+                });
+
+                const urlParams = new URLSearchParams(window.location.search);
+                const query = urlParams.get('q');
+                if (query) {
+                  pagefindUI.triggerSearch(query);
+                }
+              `}
+              </script>
+              {/* @ts-expect-error Custom element is-land from @11ty/is-land */}
+            </is-land>
+          </>
+        </AppHtml>
+      );
+    },
+  };
+}

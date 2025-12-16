@@ -1,0 +1,23 @@
+import { type PluggableList, unified } from "unified";
+
+export interface RehypeOptions {
+  children: JSX.Element;
+  plugins: PluggableList;
+}
+
+export function Rehype(options: RehypeOptions): JSX.Element {
+  let { children, plugins } = options;
+  let pipeline = unified().use(plugins);
+
+  let result = pipeline.runSync(children);
+  if (
+    result.type === "text" || result.type === "element" ||
+    result.type === "root"
+  ) {
+    return result as JSX.Element;
+  } else {
+    throw new Error(
+      `rehype plugin stack: {options.plugins} did not return a HAST Element`,
+    );
+  }
+}

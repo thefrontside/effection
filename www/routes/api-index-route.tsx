@@ -41,7 +41,7 @@ export function apiIndexRoute(
           <article class="prose dark:prose-invert m-auto bg-white dark:bg-gray-900 dark:text-gray-200 prose-headings:text-gray-900 dark:prose-headings:text-gray-100 prose-p:text-gray-800 dark:prose-p:text-gray-200 prose-a:text-blue-700 dark:prose-a:text-blue-400 prose-strong:text-gray-900 dark:prose-strong:text-gray-100">
             <h1>API Reference</h1>
             <section>
-              <h3 id={v4.version} class="group">
+              <h3 id={v4.version} class="group scroll-mt-[200px]">
                 {v4.version}
                 <a
                   href={`#${v4.version}`}
@@ -59,10 +59,10 @@ export function apiIndexRoute(
             </section>
             <hr />
             <section>
-              <h3>
+              <h3 id={v3.version} class="group scroll-mt-[200px]">
                 {v3.version}
                 <a
-                  href={`#${v4.version}`}
+                  href={`#${v3.version}`}
                   class="opacity-0 group-hover:opacity-100 after:content-['#'] after:ml-1.5 no-underline"
                 >
                   <span class="icon icon-link" />

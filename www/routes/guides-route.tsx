@@ -9,7 +9,7 @@ import {
   createChildURL,
   createRootUrl,
   createSibling,
-} from "./links-resolvers.ts";
+} from "../lib/links-resolvers.ts";
 import { Navburger } from "../components/navburger.tsx";
 import { softRedirect } from "./redirect.tsx";
 import { createRepo } from "../lib/repo.ts";

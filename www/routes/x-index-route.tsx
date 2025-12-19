@@ -4,7 +4,7 @@ import { GithubPill } from "../components/package/source-link.tsx";
 import { useWorkspace } from "../lib/workspace.ts";
 import type { SitemapRoute } from "../plugins/sitemap.ts";
 import { useAppHtml } from "./app.html.tsx";
-import { createChildURL, createSibling } from "./links-resolvers.ts";
+import { createChildURL, createSibling } from "../lib/links-resolvers.ts";
 import { softRedirect } from "./redirect.tsx";
 
 export function xIndexRedirect(): SitemapRoute<JSXElement> {

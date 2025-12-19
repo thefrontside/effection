@@ -6,7 +6,7 @@ import { ResolveLinkFunction } from "../hooks/use-markdown.tsx";
 import { usePackage } from "../lib/package.ts";
 import { SitemapRoute } from "../plugins/sitemap.ts";
 import { useAppHtml } from "./app.html.tsx";
-import { createChildURL } from "./links-resolvers.ts";
+import { createChildURL } from "../lib/links-resolvers.ts";
 
 export function apiIndexRoute(
   { search }: { search: boolean },

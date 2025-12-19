@@ -5,7 +5,7 @@ import { DocPage } from "../../hooks/use-deno-doc.tsx";
 import { ResolveLinkFunction, useMarkdown } from "../../hooks/use-markdown.tsx";
 import { Package, usePackage } from "../../lib/package.ts";
 import { major } from "../../lib/semver.ts";
-import { createRootUrl, createSibling } from "../../routes/links-resolvers.ts";
+import { createRootUrl, createSibling } from "../../lib/links-resolvers.ts";
 import { SourceCodeIcon } from "../icons/source-code.tsx";
 import { GithubPill } from "../package/source-link.tsx";
 import { Icon } from "../type/icon.tsx";

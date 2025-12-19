@@ -2,7 +2,7 @@ import { type JSXElement, useParams } from "revolution";
 
 import { SitemapRoute } from "../plugins/sitemap.ts";
 import { useGuides } from "../resources/guides.ts";
-import { createRootUrl } from "./links-resolvers.ts";
+import { createRootUrl } from "../lib/links-resolvers.ts";
 import { softRedirect } from "./redirect.tsx";
 
 export function redirectDocsRoute(series: string): SitemapRoute<JSXElement> {

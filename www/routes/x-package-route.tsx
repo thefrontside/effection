@@ -19,7 +19,7 @@ import { createToc } from "../lib/toc.ts";
 import { useWorkspace } from "../lib/workspace.ts";
 import type { RoutePath, SitemapRoute } from "../plugins/sitemap.ts";
 import { useAppHtml } from "./app.html.tsx";
-import { createSibling } from "./links-resolvers.ts";
+import { createSibling } from "../lib/links-resolvers.ts";
 import { softRedirect } from "./redirect.tsx";
 
 interface XPackageRouteParams {

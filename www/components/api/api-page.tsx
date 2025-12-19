@@ -1,7 +1,7 @@
 import { all } from "effection";
 import type { JSXElement } from "revolution";
 import { useConfig } from "../../context/config.ts";
-import { DocPage } from "../../hooks/use-deno-doc.tsx";
+import { LocalDocPage } from "../../hooks/use-deno-doc.tsx";
 import { ResolveLinkFunction, useMarkdown } from "../../hooks/use-markdown.tsx";
 import { Package, usePackage } from "../../lib/package.ts";
 import { major } from "../../lib/semver.ts";
@@ -20,7 +20,7 @@ export function* ApiPage({
   banner,
 }: {
   current: string;
-  pages: DocPage[];
+  pages: LocalDocPage[];
   pkg: Package;
   banner?: JSXElement;
   externalLinkResolver: ResolveLinkFunction;
@@ -98,7 +98,7 @@ export function* ApiBody({
   page,
   linkResolver,
 }: {
-  page: DocPage;
+  page: LocalDocPage;
   linkResolver: ResolveLinkFunction;
 }) {
   const elements: JSXElement[] = [];
@@ -118,7 +118,7 @@ export function* ApiBody({
             </h2>
             <a
               class="opacity-40 before:content-['View_code'] group-hover:opacity-100 before:flex before:text-xs before:mr-1 p-2 flex-none flex rounded no-underline items-center h-8"
-              href={`${section.node.location.filename}#L${section.node.location.line}`}
+              href={`${section.node.location.url}`}
             >
               <SourceCodeIcon />
             </a>
@@ -148,7 +148,7 @@ export function* ApiReference({
   pkg: Package;
   content: JSXElement;
   current: string;
-  pages: DocPage[];
+  pages: LocalDocPage[];
   linkResolver: ResolveLinkFunction;
   versionToggle: JSXElement;
 }) {
@@ -174,7 +174,7 @@ export function* ApiReference({
   );
 }
 
-export function* SymbolHeader({ page, pkg }: { page: DocPage; pkg: Package }) {
+export function* SymbolHeader({ page, pkg }: { page: LocalDocPage; pkg: Package }) {
   return (
     <header class="flex flex-row items-center space-x-2">
       <h1 class="mb-0">
@@ -199,7 +199,7 @@ function* Menu({
   linkResolver,
 }: {
   current: string;
-  pages: DocPage[];
+  pages: LocalDocPage[];
   linkResolver: ResolveLinkFunction;
 }) {
   const elements = [];

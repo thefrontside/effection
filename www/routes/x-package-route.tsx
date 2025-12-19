@@ -153,7 +153,7 @@ export function xPackageRoute({
           customizeTOCItem(item, heading) {
             heading.properties.class = [
               heading.properties.class,
-              `group scroll-mt-[100px]`,
+              `group grow scroll-mt-[100px]`,
             ]
               .filter(Boolean)
               .join("");

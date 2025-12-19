@@ -1,5 +1,12 @@
 import { all, Operation, until } from "effection";
-import { DocsPages, useDocPages } from "../hooks/use-deno-doc.tsx";
+import { fileURLToPath } from "node:url";
+import { relative } from "node:path";
+
+import {
+  DocsPages,
+  LocalDocsPages,
+  useDocPages,
+} from "../hooks/use-deno-doc.tsx";
 import { createRepo, Ref } from "./repo.ts";
 import { extractVersion, findLatestSemverTag } from "./semver.ts";
 import { useWorktree } from "./worktrees.ts";
@@ -69,9 +76,7 @@ export function* usePackage(options: PackageOptions): Operation<Package> {
   if (options.type === "worktree") {
     let repo = createRepo({ name: "effection", owner: "thefrontside" });
 
-    let tags = yield* repo.tags(
-      new RegExp(`effection-${options.series}.*`),
-    );
+    let tags = yield* repo.tags(new RegExp(`effection-${options.series}.*`));
 
     let ref = findLatestSemverTag(tags);
 
@@ -137,12 +142,29 @@ function* initPackage(
       return entrypoints;
     },
     *docs() {
-      let docs: DocsPages = {};
+      let docs: LocalDocsPages = {};
 
       for (let [entrypoint, url] of Object.entries(pkg.entrypoints)) {
         const pages = yield* useDocPages(`${url}`);
 
-        docs[entrypoint] = pages[`${url}`];
+        docs[entrypoint] = pages[`${url}`].map((page) => {
+          return {
+            ...page,
+            sections: page.sections.map((section) => ({
+              ...section,
+              node: {
+                ...section.node,
+                location: {
+                  ...section.node.location,
+                  url: new URL(
+                    `${relative(path, fileURLToPath(section.node.location.filename))}#L${section.node.location.line}`,
+                    `${ref.url}/`,
+                  ),
+                },
+              },
+            })),
+          };
+        });
       }
 
       return docs;

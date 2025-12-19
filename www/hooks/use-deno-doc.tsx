@@ -4,6 +4,7 @@ import {
   type DocNode,
   type DocOptions,
   LoadResponse,
+  Location
 } from "@deno/doc";
 import { call, type Operation, until, useScope } from "effection";
 import { createGraph } from "@deno/graph";
@@ -280,4 +281,25 @@ function* extractImports(
   const { imports } = DenoJsonSchema.parse(content);
 
   return imports;
+}
+
+/**
+ * LocalDocsPages are DocNodes that are stored locally
+ * but they represent symbols hosted on GitHub. They
+ * have LocalDocNode locations that include URLs to GitHub.
+ */
+export type LocalDocsPages = Record<string, LocalDocPage[]>;
+
+export type LocalDocPage = DocPage & { sections: LocalDocPageSection[] }
+
+export type LocalDocPageSection = DocPageSection & {
+  node: LocalDocNode
+}
+
+export type LocalDocNode = DocNode & {
+  location: LocalLocation
+}
+
+export type LocalLocation = Location & {
+  url: URL
 }

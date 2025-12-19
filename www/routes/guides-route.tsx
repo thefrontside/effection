@@ -12,7 +12,6 @@ import {
 } from "../lib/links-resolvers.ts";
 import { Navburger } from "../components/navburger.tsx";
 import { softRedirect } from "./redirect.tsx";
-import { createRepo } from "../lib/repo.ts";
 import { useConfig } from "../context/config.ts";
 
 export function firstPage(series: string): () => Operation<string> {
@@ -23,8 +22,6 @@ export function firstPage(series: string): () => Operation<string> {
     return yield* createChildURL()(page.id);
   };
 }
-
-const repo = createRepo({ name: "effection", owner: "thefrontside" });
 
 export function guidesRoute({
   search,

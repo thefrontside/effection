@@ -1,4 +1,3 @@
-import { initDenoDeploy } from "@effectionx/deno-deploy";
 import { main, suspend } from "effection";
 import { createRevolution, ServerInfo } from "revolution";
 
@@ -16,7 +15,6 @@ import { xPackageRedirect, xPackageRoute } from "./routes/x-package-route.tsx";
 
 import { initFetch } from "./context/fetch.ts";
 import { initJSRClient } from "./context/jsr.ts";
-import { patchDenoPermissionsQuerySync } from "./deno-deploy-patch.ts";
 import { initWorktrees } from "./lib/worktrees.ts";
 import { initGuides } from "./resources/guides.ts";
 import { apiIndexRoute } from "./routes/api-index-route.tsx";
@@ -30,12 +28,6 @@ import { initOctokitContext } from "./lib/octokit.ts";
 // Learn more at https://docs.deno.com/runtime/manual/examples/module_metadata#concepts
 if (import.meta.main) {
   await main(function* () {
-    const denoDeploy = yield* initDenoDeploy();
-
-    // if (denoDeploy.isDenoDeploy) {
-    //   patchDenoPermissionsQuerySync();
-    // }
-
     yield* initClones("build/clones");
     yield* initWorktrees("build/worktrees");
     yield* initGuides({

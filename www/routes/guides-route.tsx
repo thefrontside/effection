@@ -12,8 +12,8 @@ import {
 } from "./links-resolvers.ts";
 import { Navburger } from "../components/navburger.tsx";
 import { softRedirect } from "./redirect.tsx";
-import { IconExternal } from "../components/icons/external.tsx";
 import { createRepo } from "../lib/repo.ts";
+import { useConfig } from "../context/config.ts";
 
 export function firstPage(series: string): () => Operation<string> {
   return function* () {
@@ -24,9 +24,6 @@ export function firstPage(series: string): () => Operation<string> {
   };
 }
 
-const SERIES = ["v3", "v4"];
-const STABLE_SERIES = "v4";
-
 const repo = createRepo({ name: "effection", owner: "thefrontside" });
 
 export function guidesRoute({
@@ -36,6 +33,7 @@ export function guidesRoute({
 }): SitemapRoute<JSXElement> {
   return {
     *routemap(pathname) {
+      const { series: SERIES } = yield* useConfig();
       const paths = SERIES.map(function* (series) {
         let paths: RoutePath[] = [];
 
@@ -51,7 +49,9 @@ export function guidesRoute({
       return (yield* all(paths)).flat();
     },
     *handler(req) {
-      let { id, series = STABLE_SERIES } = yield* useParams<{
+      const { series: SERIES, current } = yield* useConfig();
+
+      let { id, series = current } = yield* useParams<{
         id: string | undefined;
         series: string | undefined;
       }>();
@@ -119,9 +119,9 @@ export function guidesRoute({
           return (
             <a
               href={
-                yield* createRootUrl(
-                  STABLE_SERIES === s ? "docs" : `guides/${s}`,
-                )(page.id)
+                yield* createRootUrl(current === s ? "docs" : `guides/${s}`)(
+                  page.id,
+                )
               }
               class={`text-base ${s === series ? "font-bold text-sky-500" : "text-gray-600 dark:text-gray-400 hover:text-sky-500"}`}
             >
@@ -171,15 +171,15 @@ export function guidesRoute({
               data-series={series}
             >
               <h1>{page.title}</h1>
-              {series === "v3" ? (
+              {series !== current ? (
                 <div class="mb-4 px-4 py-3 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-800 dark:text-gray-200">
                   You're viewing documentation for an older version. Effection
-                  v4 is now available.{" "}
+                  {current} is now available.{" "}
                   <a
                     href={yield* createRootUrl("docs")(page.id)}
                     class="font-medium text-sky-500 hover:underline"
                   >
-                    View v4 docs →
+                    View ${current} docs →
                   </a>
                 </div>
               ) : (

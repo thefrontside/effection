@@ -12,10 +12,11 @@ import { useJSRClient } from "../context/jsr.ts";
 import z from "zod";
 import { useMDX } from "../hooks/use-mdx.tsx";
 import { useDescription, useTitle } from "../hooks/use-description-parse.tsx";
+import { SiteConfig } from "../context/config.ts";
 
 export type WorkTreePackageOptions = {
   type: "worktree";
-  series: "v3" | "v4";
+  series: SiteConfig["series"][number];
 };
 
 export type ClonePackageOptions = {

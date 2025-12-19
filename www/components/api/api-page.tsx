@@ -1,10 +1,11 @@
+import { all } from "effection";
 import type { JSXElement } from "revolution";
+import { useConfig } from "../../context/config.ts";
 import { DocPage } from "../../hooks/use-deno-doc.tsx";
 import { ResolveLinkFunction, useMarkdown } from "../../hooks/use-markdown.tsx";
-import { Package } from "../../lib/package.ts";
+import { Package, usePackage } from "../../lib/package.ts";
 import { major } from "../../lib/semver.ts";
-import { createSibling } from "../../routes/links-resolvers.ts";
-import { IconExternal } from "../icons/external.tsx";
+import { createRootUrl, createSibling } from "../../routes/links-resolvers.ts";
 import { SourceCodeIcon } from "../icons/source-code.tsx";
 import { GithubPill } from "../package/source-link.tsx";
 import { Icon } from "../type/icon.tsx";
@@ -61,6 +62,33 @@ export function* ApiPage({
           </>
         ),
         linkResolver: createSibling,
+        versionToggle: yield* (function* () {
+          const { series: SERIES } = yield* useConfig();
+          const currentSeries = `v${major(pkg.version)}`;
+
+          const links = yield* all(
+            SERIES.map(function* (s) {
+              const seriesPkg = yield* usePackage({
+                type: "worktree",
+                series: s,
+              });
+              const seriesDocs = yield* seriesPkg.docs();
+              const hasSymbol = seriesDocs["."].some((node) => node.name === current);
+
+              if (!hasSymbol) return null;
+
+              return (
+                <a
+                  href={yield* createRootUrl(`api/${s}`)(current)}
+                  class={`text-base ${s === currentSeries ? "font-bold text-sky-500" : "text-gray-600 dark:text-gray-400 hover:text-sky-500"}`}
+                >
+                  {seriesPkg.version}
+                </a>
+              );
+            }),
+          );
+          return <span class="flex flex-row space-x-2">{...links.filter((link): link is JSXElement => link !== null)}</span>;
+        })(),
       })}
     </>
   );
@@ -115,12 +143,14 @@ export function* ApiReference({
   current,
   pages,
   linkResolver,
+  versionToggle
 }: {
   pkg: Package;
   content: JSXElement;
   current: string;
   pages: DocPage[];
   linkResolver: ResolveLinkFunction;
+  versionToggle: JSXElement;
 }) {
   return (
     <section class="min-h-0 mx-auto w-full justify-items-normal md:grid md:grid-cols-[225px_auto] lg:grid-cols-[225px_auto_200px] md:gap-4">
@@ -128,16 +158,7 @@ export function* ApiReference({
         <nav class="pl-4">
           <h3 class="text-xl flex flex-col mb-3">
             <span class="font-bold">API Reference</span>
-            <span>
-              <a href={pkg.ref.url} class="font-semibold text-base">
-                {pkg.version}{" "}
-                <IconExternal
-                  class="inline-block align-baseline"
-                  height="15"
-                  width="15"
-                />
-              </a>
-            </span>
+            {versionToggle}
           </h3>
           {yield* Menu({ pages, current, linkResolver })}
         </nav>

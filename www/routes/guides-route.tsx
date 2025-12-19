@@ -5,7 +5,7 @@ import { useDescription } from "../hooks/use-description-parse.tsx";
 import { RoutePath, SitemapRoute } from "../plugins/sitemap.ts";
 import { type GuidesMeta, useGuides } from "../resources/guides.ts";
 import { useAppHtml } from "./app.html.tsx";
-import { createChildURL, createSibling } from "./links-resolvers.ts";
+import { createChildURL, createRootUrl, createSibling } from "./links-resolvers.ts";
 import { Navburger } from "../components/navburger.tsx";
 import { softRedirect } from "./redirect.tsx";
 import { IconExternal } from "../components/icons/external.tsx";
@@ -85,20 +85,18 @@ export function guidesRoute({
         for (const item of topic.items) {
           items.push(
             <li class="mt-1">
-              {page.id !== item.id
-                ? (
-                  <a
-                    class="rounded px-4 block w-full py-2 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    href={yield* createSibling(item.id)}
-                  >
-                    {item.title}
-                  </a>
-                )
-                : (
-                  <a class="rounded px-4 block w-full py-2 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 cursor-default">
-                    {item.title}
-                  </a>
-                )}
+              {page.id !== item.id ? (
+                <a
+                  class="rounded px-4 block w-full py-2 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  href={yield* createSibling(item.id)}
+                >
+                  {item.title}
+                </a>
+              ) : (
+                <a class="rounded px-4 block w-full py-2 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 cursor-default">
+                  {item.title}
+                </a>
+              )}
             </li>,
           );
         }
@@ -159,6 +157,20 @@ export function guidesRoute({
               data-series={series}
             >
               <h1>{page.title}</h1>
+              {series === "v3" ? (
+                <div class="mx-auto max-w-4xl mb-4 px-4 py-3 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg text-blue-800 dark:text-blue-200">
+                  You're viewing documentation for an older version. Effection
+                  v4 is now available.{" "}
+                  <a
+                    href={yield* createRootUrl('docs')(page.id)}
+                    class="font-medium underline hover:text-blue-600 dark:hover:text-blue-300"
+                  >
+                    <>View v4 docs →</>
+                  </a>
+                </div>
+              ) : (
+                <></>
+              )}
               <>{page.content}</>
               {yield* NextPrevLinks({ page })}
             </article>
@@ -179,32 +191,32 @@ function* NextPrevLinks({ page }: { page: GuidesMeta }): Operation<JSXElement> {
   let { next, prev } = page;
   return (
     <menu class="grid grid-cols-2 my-10 gap-x-2 xl:gap-x-20 2xl:gap-x-40 text-lg">
-      {prev
-        ? (
-          <li class="col-start-1 text-left font-light border-1 rounded-lg p-4">
-            Previous
-            <a
-              class="py-2 block text-xl font-bold text-blue-primary no-underline tracking-wide leading-5 before:content-['«&nbsp;'] before:font-normal"
-              href={yield* createSibling(prev.id)}
-            >
-              {prev.title}
-            </a>
-          </li>
-        )
-        : <li />}
-      {next
-        ? (
-          <li class="col-start-2 text-right font-light border-1 rounded-lg p-4">
-            Next
-            <a
-              class="py-2 block text-xl font-bold text-blue-primary no-underline tracking-wide leading-5 after:content-['&nbsp;»'] after:font-normal"
-              href={yield* createSibling(next.id)}
-            >
-              {next.title}
-            </a>
-          </li>
-        )
-        : <li />}
+      {prev ? (
+        <li class="col-start-1 text-left font-light border-1 rounded-lg p-4">
+          Previous
+          <a
+            class="py-2 block text-xl font-bold text-blue-primary no-underline tracking-wide leading-5 before:content-['«&nbsp;'] before:font-normal"
+            href={yield* createSibling(prev.id)}
+          >
+            {prev.title}
+          </a>
+        </li>
+      ) : (
+        <li />
+      )}
+      {next ? (
+        <li class="col-start-2 text-right font-light border-1 rounded-lg p-4">
+          Next
+          <a
+            class="py-2 block text-xl font-bold text-blue-primary no-underline tracking-wide leading-5 after:content-['&nbsp;»'] after:font-normal"
+            href={yield* createSibling(next.id)}
+          >
+            {next.title}
+          </a>
+        </li>
+      ) : (
+        <li />
+      )}
     </menu>
   );
 }

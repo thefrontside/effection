@@ -53,8 +53,8 @@ if (import.meta.main) {
       app: [
         route("/", indexRoute()),
         route("/search", searchRoute()),
-        route("/docs", redirectIndexRoute(firstPage("v3"))),
-        route("/docs/:id", redirectDocsRoute("v3")),
+        route("/docs", redirectIndexRoute(firstPage("v4"))),
+        route("/docs/:id", redirectDocsRoute("v4")),
         route("/guides/v3", redirectIndexRoute(firstPage("v3"))),
         route("/guides/v4", redirectIndexRoute(firstPage("v4"))),
         route("/guides/:series/:id", guidesRoute({ search: true })),

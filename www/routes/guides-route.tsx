@@ -5,7 +5,11 @@ import { useDescription } from "../hooks/use-description-parse.tsx";
 import { RoutePath, SitemapRoute } from "../plugins/sitemap.ts";
 import { type GuidesMeta, useGuides } from "../resources/guides.ts";
 import { useAppHtml } from "./app.html.tsx";
-import { createChildURL, createRootUrl, createSibling } from "./links-resolvers.ts";
+import {
+  createChildURL,
+  createRootUrl,
+  createSibling,
+} from "./links-resolvers.ts";
 import { Navburger } from "../components/navburger.tsx";
 import { softRedirect } from "./redirect.tsx";
 import { IconExternal } from "../components/icons/external.tsx";
@@ -21,7 +25,7 @@ export function firstPage(series: string): () => Operation<string> {
 }
 
 const SERIES = ["v3", "v4"];
-const STABLE_SERIES = "v3";
+const STABLE_SERIES = "v4";
 
 const repo = createRepo({ name: "effection", owner: "thefrontside" });
 
@@ -110,7 +114,22 @@ export function guidesRoute({
         );
       }
 
-      const latest = yield* repo.latest(new RegExp(`effection-${series}.*`));
+      const versionToggle = yield* all(
+        SERIES.map(function* (s) {
+          return (
+            <a
+              href={
+                yield* createRootUrl(
+                  STABLE_SERIES === s ? "docs" : `guides/${s}`,
+                )(page.id)
+              }
+              class={`text-base ${s === series ? "font-bold text-sky-500" : "text-gray-600 dark:text-gray-400 hover:text-sky-500"}`}
+            >
+              {s}
+            </a>
+          );
+        }),
+      );
 
       return (
         <AppHtml search={search}>
@@ -139,15 +158,10 @@ export function guidesRoute({
             </aside>
             <aside class="min-h-0 overflow-auto hidden md:block top-[120px] sticky h-fit bg-white dark:bg-gray-900 dark:text-gray-200">
               <div class="text-xl flex flex-row items-baseline space-x-2 mb-3">
-                <span class="font-bold">Guides</span>
-                <a href={latest.url} class="text-base">
-                  {series}{" "}
-                  <IconExternal
-                    class="inline-block align-baseline"
-                    height="15"
-                    width="15"
-                  />
-                </a>
+                <>
+                  <span class="font-bold">Guides</span>
+                  {...versionToggle}
+                </>
               </div>
               <nav>{topicsList}</nav>
             </aside>
@@ -158,14 +172,14 @@ export function guidesRoute({
             >
               <h1>{page.title}</h1>
               {series === "v3" ? (
-                <div class="mx-auto max-w-4xl mb-4 px-4 py-3 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg text-blue-800 dark:text-blue-200">
+                <div class="mb-4 px-4 py-3 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-800 dark:text-gray-200">
                   You're viewing documentation for an older version. Effection
                   v4 is now available.{" "}
                   <a
-                    href={yield* createRootUrl('docs')(page.id)}
-                    class="font-medium underline hover:text-blue-600 dark:hover:text-blue-300"
+                    href={yield* createRootUrl("docs")(page.id)}
+                    class="font-medium text-sky-500 hover:underline"
                   >
-                    <>View v4 docs →</>
+                    View v4 docs →
                   </a>
                 </div>
               ) : (

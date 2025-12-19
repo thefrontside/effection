@@ -117,7 +117,7 @@ export function* ApiBody({
               {yield* Type({ node: section.node })}
             </h2>
             <a
-              class="opacity-0 before:content-['View_code'] group-hover:opacity-100 before:flex before:text-xs before:mr-1 p-2 flex-none flex rounded no-underline items-center h-8"
+              class="opacity-40 before:content-['View_code'] group-hover:opacity-100 before:flex before:text-xs before:mr-1 p-2 flex-none flex rounded no-underline items-center h-8"
               href={`${section.node.location.filename}#L${section.node.location.line}`}
             >
               <SourceCodeIcon />

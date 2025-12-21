@@ -44,7 +44,7 @@ export interface Package {
   ref: Ref;
   exports: Record<string, string>;
   entrypoints: Record<string, URL>;
-  docs: () => Operation<DocsPages>;
+  docs: () => Operation<LocalDocsPages>;
   workspaces: string[];
   jsrPackageDetails: () => Operation<
     [

@@ -380,7 +380,6 @@ function Param(paramDef: ParamDef): string {
         paramDef.tsType ? TypeDef(paramDef.tsType) : ""
       }`;
     }
-    case "assign":
     case "array":
     case "object":
       console.log("Param: unimplemented", paramDef);

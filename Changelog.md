@@ -2,16 +2,11 @@
 
 ## 4.0.0
 
-- Do not bind SIGTERM in Windows for v4
-  https://github.com/thefrontside/effection/pull/1032
+- Announcing Effection 4.0 https://frontside.com/blog/2025-12-23-announcing-effection-v4/
 - run resources at the priority level of their caller
   https://github.com/thefrontside/effection/pull/1017
-- add interval() helper to consume a stream of intervals, port from v3
-  https://github.com/thefrontside/effection/pull/1016
 - properly propagate errors from nested scopes
   https://github.com/thefrontside/effection/pull/1014
-- Add `until()` operation for turning promises into operations
-  https://github.com/thefrontside/effection/pull/990
 - Add Effect.js benchmarks for performance comparison
   https://github.com/thefrontside/effection/pull/979
 - Fix type definition for call operation

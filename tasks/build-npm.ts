@@ -27,7 +27,7 @@ await build({
     name: "effection",
     version,
     description: "Structured concurrency and effects for JavaScript",
-    license: "ISC",
+    license: "MIT",
     author: "engineering@frontside.com",
     repository: {
       type: "git",

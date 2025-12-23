@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.6.1
+
+- Do not bind SIGTERM in Windows
+  https://github.com/thefrontside/effection/pull/1031
+
+## 3.6.0
+
+- ✨ add interval() helper to consume a stream of intervals
+  https://github.com/thefrontside/effection/pull/1005
+
 ## 3.5.1
 
 - 🐛 Fix Webpack compatibility through a specific comment to ignore the dynamic

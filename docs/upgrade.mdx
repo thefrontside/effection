@@ -1,0 +1,225 @@
+For the most part, the changes between Effection versions 3 and 4 are
+internal, and while the public API remains largely untouched , there
+were some places where it was appropriate to make breaking changes.
+However, in the cases where we did, it was guided by our simple
+principle: to _embrace_ JavaScript, not fight against it. We asked
+ourselvers: How can we make Effection APIs feel even _more_ natural
+and familiar to JavaScript developers while providing "just enough"
+functionality to bring all the wonderful benefits of structured
+concurrency and effects to your applications.
+
+Among other things, this included the refinement of several key
+functions that just did too much in v3. These changes make Effection
+harmonize even more with the greate JavaScript ecosystem, but they do
+require some attention during migration.
+
+## Simplifying `call()`
+
+In Effection, few APIs were as versatile as the [v3 `call()`
+function][v3-call]. It could invoke functions, evaluate promises,
+treat constants as operations, establish error boundaries, and even
+manage concurrency to boot. But one piece of feedback that we
+consistently got was "how does this relate to
+`Function.prototype.call()." Sadly, the answer was: only tangentially.
+
+So in order to make using `call()` require no learning beyond how its
+vanilla counterpart works, we've simplified it to what you would
+expect from something named "call". It invokes functions as
+operations, and that's it.
+
+When you're upgrading promise-based code, you'll now use the `until()` helper, which converts a promise into an operation:
+
+```js
+let response = yield* call(fetch("https://frontside.com/effection"));
+```
+
+To do this in v4, use the [`until()`][until] utility function
+
+```js
+let response = yield* until(fetch("https://frontside.com/effection"));
+```
+
+`v3` call also allowed for the rare cases where you need to evaluate a constant value as an operation.
+
+```js
+let five = yield* call(5);
+```
+
+Now however, there's now a dedicated `constant()` helper:
+
+```js
+let five = yield* constant(5);
+```
+
+`call()` could also be used in v3 to delimit a concurrency boundary which would terminate all children within its scope
+
+The most significant change involves how called operations are
+delimited. In v3, `call()` automatically established both error
+boundaries and concurrency boundaries around its body, meaning any
+tasks spawned within a `call()` would be automatically cleaned up when
+the call completed. In v4, `call()` no longer does this—it simply
+invokes the function and returns its result.
+
+```js
+// v4 - call() does NOT establish boundaries
+yield* call(function*() {
+  // spawned tasks here are NOT terminated before call returns its value
+  yield* spawn(someBackgroundTask);
+  return "done";
+});
+```
+
+If you need those boundaries—and you often will—use the new `scoped()` function:
+
+```js
+// v4 - scoped() establishes boundaries
+yield* scoped(function*() {
+  // spawned tasks here ARE terminated before the scoped body returns
+  yield* spawn(someBackgroundTask);
+  return "done";
+});
+```
+
+## Rethinking `action()`
+
+The `action()` function has undergone a similar simplification. In our documentation, we describe `action()` as Effection's equivalent to `new Promise()`, and v4 makes this analogy much stronger.
+
+In v3, an action is written using an operation. For example, consider this implementation of a `sleep()` operation:
+
+```js
+// v3 operation function
+function sleep(milliseconds) {
+  return action(function*(resolve) {
+    let timeout = setTimeout(resolve, milliseconds);
+    try {
+      yield* suspend();
+    } finally {
+      clearTimeout(timeout);
+    }
+  });
+}
+```
+
+The v4 equivalent looks much more like a Promise constructor:
+
+```js
+// v4 - action strongly resembles Promise
+function sleep(milliseconds) {
+  return action((resolve, reject) => {
+    let timeout = setTimeout(resolve, milliseconds);
+    return () => { clearTimeout(timeout); }
+  });
+}
+```
+
+Notice how the v4 version takes a synchronous function that receives
+both `resolve` and `reject` callbacks, just like `new Promise()`.
+Instead of using `try/finally` blocks for teardown, you just return a
+synchronous cleanup function.
+
+Like the simplified `call()`, actions in v4 no longer establish their
+own concurrency or error boundaries. If you need boundaries around
+action usage, wrap the call with `scoped()`.
+
+## Task Execution Priority
+
+The most subtle but important change in v4 involves how tasks are
+scheduled for execution. This change won't trigger any deprecation
+warnings, but it can affect the behavior of your applications in ways
+that might not be immediately obvious.
+
+In v3, tasks ran immediately whenever an event came in that caused it
+to resume. A child task spawned in the background would start
+executing immediately, even while its parent was still running
+synchronous code. v4 changes this: a parent task always has priority
+over its children.
+
+Consider this example:
+
+```js
+await run(function* example() {
+  console.log('parent: start');
+  yield* spawn(function*() {
+    console.log('child: start');
+    yield* sleep(10);
+    console.log('child: end');
+  });
+  console.log('parent: middle');
+  // Lots of synchronous work here
+  for (let i = 0; i < 1000; i++) { 
+    // The child won't run during this loop in v4
+  }
+  console.log('parent: before async');
+  yield* sleep(100); // This is when the child finally gets to run
+  console.log('parent: end');
+})
+```
+
+In v3, you would see output like this:
+
+```
+parent: start
+child: start
+parent: middle
+parent: before async
+parent: end
+child: end
+```
+
+But in v4, the output changes to:
+
+```
+parent: start
+parent: middle
+parent: before async
+child: start
+parent: end
+child: end
+```
+
+The key difference is that the child task doesn't get to run until the
+parent yields control to a truly asynchronous operation—in this case,
+`sleep(1)`. Purely synchronous operations, even when wrapped with
+`yield* call()`, won't give child tasks a chance to execute. Furthermore, in cases where a single event schedules multiple tasks to resume, the parent task will resume first.
+
+This change makes task execution more predictable and allows parents
+to always have the necessary priority required to supervise the
+execution of their children. However, it does mean that if your v3
+code relied on child tasks starting immediately, you might need to
+adjust your approach.
+
+## Migration Strategies
+
+Most of the changes from v3 to v4 will be caught by deprecation
+warnings, making the upgrade process straightforward. The `call()` and
+`action()` changes are mechanical—update the syntax, import the new
+helpers, and you're done.
+
+The task execution priority change requires more thought. If your
+application has timing-sensitive code where child tasks need to start
+immediately, you have several approaches:
+
+You can restructure your parent tasks to yield control explicitly by
+adding asynchronous operations where needed. Even `yield* sleep(0)`
+will give child tasks a chance to start:
+
+```js
+function* parent() {
+  yield* spawn(childTask);
+  yield* sleep(0); // Yields control to child immediately
+  // Continue with parent work
+}
+```
+
+You can also reconsider your task hierarchy. Sometimes what you
+thought needed to be a parent-child relationship might work better as
+sibling tasks within a shared scope.
+
+
+If you encounter issues during upgrade, please file an
+[issue](https://github.com/thefrontside/effection/issues/new). Not
+only will that allow us to lend a hand, but it will also give us an
+opportunity to improve this migration guide!
+
+[v3-call]: https://frontside.com/effection/api/v3/call/
+[until]: https://frontside.com/effection/api/v4/until/

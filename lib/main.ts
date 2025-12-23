@@ -175,7 +175,7 @@ function* withHost<T>(op: HostOperation<T>): Operation<T> {
     // @see https://github.com/iliakan/detect-node/blob/master/index.js
   } else if (
     Object.prototype.toString.call(
-      typeof globalThis.process !== "undefined" ? globalThis.process : 0,
+      typeof global.process !== "undefined" ? global.process : 0,
     ) === "[object process]"
   ) {
     return yield* op.node();

@@ -2,9 +2,11 @@ name: Verify
 
 on:
   push:
-    branches: v[3-9]
+    branches:
+      - v[3-9]
   pull_request:
-    branches: v[3-9]
+    branches:
+      - v[3-9]
 
 permissions:
   contents: read
@@ -40,7 +42,7 @@ jobs:
 
       - name: test (Windows)
         if: runner.os == 'Windows'
-        run: deno task test
+        run: deno test --allow-run --allow-write --allow-read --allow-env --allow-ffi --ignore=www
         shell: cmd
 
       - name: test (Unix)

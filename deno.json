@@ -7,7 +7,7 @@
   },
   "lock": false,
   "tasks": {
-    "test": "deno test --allow-run --allow-ffi",
+    "test": "deno test --allow-run --allow-write --allow-read --allow-env --allow-ffi",
     "test:node": "deno task build:npm 0.0.0 && node test/main/node.mjs hello world",
     "build:jsr": "deno run -A tasks/build-jsr.ts",
     "build:npm": "deno run -A tasks/build-npm.ts"
@@ -19,16 +19,15 @@
     "exclude": [
       "build",
       "website",
-      "www",
-      "packages",
-      "docs/*.ts"
+      "www/build",
+      "packages"
     ]
   },
   "fmt": {
     "exclude": [
       "build",
       "website",
-      "www",
+      "www/build",
       "packages",
       "CODE_OF_CONDUCT.md",
       "README.md"
@@ -48,11 +47,26 @@
       "dom.iterable"
     ]
   },
+  "deploy": {
+    "org": "Frontside",
+    "project": "effection-www",
+    "entrypoint": "https://jsr.io/@std/http/1.0.20/file_server.ts",
+    "root": "./www"
+  },
+  "nodeModulesDir": "auto",
+  "workspace": [
+    "./www"
+  ],
   "imports": {
-    "@deno/dnt": "jsr:@deno/dnt@0.41.3",
-    "ctrlc-windows": "npm:ctrlc-windows@2.2.0",
-    "@std/testing": "jsr:@std/testing@^1",
+    "https://deno.land/x/path_to_regexp@v6.2.1/index.ts": "npm:path-to-regexp@8.2.0",
+    "@std/path/posix/basename": "jsr:@std/path@1/posix/basename",
+    "remark-gfm": "npm:remark-gfm@3.0.1",
+    "rehype-prism-plus": "npm:rehype-prism-plus@1.5.1",
+    "@mdx-js/mdx": "npm:@mdx-js/mdx@2.3.0",
+    "@std/testing/bdd": "jsr:@std/testing@^1/bdd",
     "@std/expect": "jsr:@std/expect@^1",
-    "ts-expect": "npm:ts-expect@1.3.0"
+    "ts-expect": "npm:ts-expect@1.3.0",
+    "ctrlc-windows": "npm:ctrlc-windows@2.2.0",
+    "@deno/dnt": "jsr:@deno/dnt@0.41.3"
   }
 }

@@ -32,7 +32,7 @@ export function* Header(props?: HeaderProps) {
             <li>
               <a
                 class="hover:text-pink-secondary dark:hover:text-blue-secondary transition-colors duration-200"
-                href="/guides/v3"
+                href="/guides/v4"
               >
                 Guides
               </a>

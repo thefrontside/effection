@@ -1,6 +1,7 @@
 import { Operation } from "effection";
 import { useClone } from "./clones.ts";
 import { Package, usePackage } from "./package.ts";
+import { resolve } from "@std/path";
 
 export interface Workspace {
   url: string;
@@ -33,7 +34,7 @@ export function* useWorkspace(nameWithOwner: string): Operation<Workspace> {
     packages.push(
       yield* usePackage({
         type: "clone",
-        path: `${path}/${workspacePath}`,
+        path: resolve(path, workspacePath),
         workspacePath,
         ref: {
           name: "main",

@@ -168,6 +168,16 @@ function TSParam({ param }: { param: ParamDef }) {
         </>
       );
     }
+    case "assign": {
+      return (
+        <>
+          <TSParam param={param.left} />
+          <Operator>{" = "}</Operator>
+          {param.tsType ? <TypeDef typeDef={param.tsType} /> : <></>}
+          {param.right === "[UNSUPPORTED]" ? "{}" : <></> }
+        </>
+      )
+    }
     default:
       console.log("<TSParam> unimplemented:", param);
   }

@@ -1,4 +1,3 @@
-import { initDenoDeploy } from "@effectionx/deno-deploy";
 import { main, suspend } from "effection";
 import { createRevolution, ServerInfo } from "revolution";
 
@@ -14,9 +13,9 @@ import { indexRoute } from "./routes/index-route.tsx";
 import { xIndexRedirect, xIndexRoute } from "./routes/x-index-route.tsx";
 import { xPackageRedirect, xPackageRoute } from "./routes/x-package-route.tsx";
 
+import { initConfig, useConfig } from "./context/config.ts";
 import { initFetch } from "./context/fetch.ts";
 import { initJSRClient } from "./context/jsr.ts";
-import { patchDenoPermissionsQuerySync } from "./deno-deploy-patch.ts";
 import { initWorktrees } from "./lib/worktrees.ts";
 import { initGuides } from "./resources/guides.ts";
 import { apiIndexRoute } from "./routes/api-index-route.tsx";
@@ -30,17 +29,13 @@ import { initOctokitContext } from "./lib/octokit.ts";
 // Learn more at https://docs.deno.com/runtime/manual/examples/module_metadata#concepts
 if (import.meta.main) {
   await main(function* () {
-    const denoDeploy = yield* initDenoDeploy();
-
-    // if (denoDeploy.isDenoDeploy) {
-    //   patchDenoPermissionsQuerySync();
-    // }
+    const { current, series } = yield* useConfig();
 
     yield* initClones("build/clones");
     yield* initWorktrees("build/worktrees");
     yield* initGuides({
-      current: "v4",
-      worktrees: ["v3"],
+      current,
+      worktrees: series.filter((s) => s !== current),
     });
 
     yield* initJSRClient();
@@ -53,18 +48,20 @@ if (import.meta.main) {
       app: [
         route("/", indexRoute()),
         route("/search", searchRoute()),
-        route("/docs", redirectIndexRoute(firstPage("v3"))),
-        route("/docs/:id", redirectDocsRoute("v3")),
-        route("/guides/v3", redirectIndexRoute(firstPage("v3"))),
-        route("/guides/v4", redirectIndexRoute(firstPage("v4"))),
+        route("/docs", redirectIndexRoute(firstPage(current))),
+        route("/docs/:id", redirectDocsRoute(current)),
+        ...series.map((s) =>
+          route(`/guides/${s}`, redirectIndexRoute(firstPage(s))),
+        ),
         route("/guides/:series/:id", guidesRoute({ search: true })),
         route("/contrib", xIndexRedirect()),
         route("/contrib/:workspacePath", xPackageRedirect()),
         route("/x", xIndexRoute({ search: true })),
         route("/x/:workspacePath", xPackageRoute({ search: true })),
         route("/api", apiIndexRoute({ search: true })),
-        route("/api/v3/:symbol", apiReferenceRoute("v3", { search: true })),
-        route("/api/v4/:symbol", apiReferenceRoute("v4", { search: true })),
+        ...series.map((s) =>
+          route(`/api/${s}/:symbol`, apiReferenceRoute(s, { search: true })),
+        ),
         route(
           "/pagefind{/*path}",
           pagefindRoute({ pagefindDir: "pagefind", publicDir: "./built/" }),

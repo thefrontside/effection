@@ -4,14 +4,21 @@ import {
   type DocNode,
   type DocOptions,
   LoadResponse,
+  Location
 } from "@deno/doc";
 import { call, type Operation, until, useScope } from "effection";
 import { createGraph } from "@deno/graph";
+import { regex } from "arktype";
 
 import { exportHash, extract } from "../components/type/markdown.tsx";
 import { operations } from "../context/fetch.ts";
 import { DenoJsonSchema } from "../lib/deno-json.ts";
 import { useDescription } from "./use-description-parse.tsx";
+
+// Matches npm/jsr specifiers like @std/testing/bdd or lodash/fp
+export const npmSpecifierPattern = regex(
+  "^(?:(?<scope>@[^/]+)/)?(?<package>[^/]+)(?<subpath>/.*)?$"
+);
 
 export type { DocNode };
 
@@ -67,6 +74,16 @@ export function* useDocPages(specifier: string): Operation<DocsPages> {
         resolved = new URL(specifier, referrer).toString();
       } else if (specifier.startsWith("node:")) {
         resolved = `npm:@types/node@^22.13.5`;
+      } else {
+        const match = npmSpecifierPattern.exec(specifier);
+        if (match) {
+          const { scope, package: pkg, subpath } = match.groups;
+          const baseKey = scope ? `${scope}/${pkg}` : pkg;
+          if (baseKey in imports) {
+            const baseUrl = imports[baseKey];
+            resolved = subpath ? `${baseUrl}${subpath}` : baseUrl;
+          }
+        }
       }
       return resolved;
     }
@@ -169,7 +186,7 @@ function docLoader(
       };
     }
 
-    if (url?.host === "github.com") {
+    if (url?.host && ['github.com', 'jsr.io'].includes(url.host)) {
       const response = yield* operations.fetch(specifier);
       const content = yield* until(response.text());
       if (response.ok) {
@@ -183,9 +200,7 @@ function docLoader(
           cause: response,
         });
       }
-    }
-
-    if (url?.host === "jsr.io") {
+    } else {
       console.log(`Ignoring ${url} while reading docs`);
     }
   };
@@ -280,4 +295,25 @@ function* extractImports(
   const { imports } = DenoJsonSchema.parse(content);
 
   return imports;
+}
+
+/**
+ * LocalDocsPages are DocNodes that are stored locally
+ * but they represent symbols hosted on GitHub. They
+ * have LocalDocNode locations that include URLs to GitHub.
+ */
+export type LocalDocsPages = Record<string, LocalDocPage[]>;
+
+export type LocalDocPage = DocPage & { sections: LocalDocPageSection[] }
+
+export type LocalDocPageSection = DocPageSection & {
+  node: LocalDocNode
+}
+
+export type LocalDocNode = DocNode & {
+  location: LocalLocation
+}
+
+export type LocalLocation = Location & {
+  url: URL
 }

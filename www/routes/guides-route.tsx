@@ -5,11 +5,14 @@ import { useDescription } from "../hooks/use-description-parse.tsx";
 import { RoutePath, SitemapRoute } from "../plugins/sitemap.ts";
 import { type GuidesMeta, useGuides } from "../resources/guides.ts";
 import { useAppHtml } from "./app.html.tsx";
-import { createChildURL, createSibling } from "./links-resolvers.ts";
+import {
+  createChildURL,
+  createRootUrl,
+  createSibling,
+} from "../lib/links-resolvers.ts";
 import { Navburger } from "../components/navburger.tsx";
 import { softRedirect } from "./redirect.tsx";
-import { IconExternal } from "../components/icons/external.tsx";
-import { createRepo } from "../lib/repo.ts";
+import { useConfig } from "../context/config.ts";
 
 export function firstPage(series: string): () => Operation<string> {
   return function* () {
@@ -20,11 +23,6 @@ export function firstPage(series: string): () => Operation<string> {
   };
 }
 
-const SERIES = ["v3", "v4"];
-const STABLE_SERIES = "v3";
-
-const repo = createRepo({ name: "effection", owner: "thefrontside" });
-
 export function guidesRoute({
   search,
 }: {
@@ -32,6 +30,7 @@ export function guidesRoute({
 }): SitemapRoute<JSXElement> {
   return {
     *routemap(pathname) {
+      const { series: SERIES } = yield* useConfig();
       const paths = SERIES.map(function* (series) {
         let paths: RoutePath[] = [];
 
@@ -47,7 +46,9 @@ export function guidesRoute({
       return (yield* all(paths)).flat();
     },
     *handler(req) {
-      let { id, series = STABLE_SERIES } = yield* useParams<{
+      const { series: SERIES, current } = yield* useConfig();
+
+      let { id, series = current } = yield* useParams<{
         id: string | undefined;
         series: string | undefined;
       }>();
@@ -85,20 +86,18 @@ export function guidesRoute({
         for (const item of topic.items) {
           items.push(
             <li class="mt-1">
-              {page.id !== item.id
-                ? (
-                  <a
-                    class="rounded px-4 block w-full py-2 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    href={yield* createSibling(item.id)}
-                  >
-                    {item.title}
-                  </a>
-                )
-                : (
-                  <a class="rounded px-4 block w-full py-2 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 cursor-default">
-                    {item.title}
-                  </a>
-                )}
+              {page.id !== item.id ? (
+                <a
+                  class="rounded px-4 block w-full py-2 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  href={yield* createSibling(item.id)}
+                >
+                  {item.title}
+                </a>
+              ) : (
+                <a class="rounded px-4 block w-full py-2 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 cursor-default">
+                  {item.title}
+                </a>
+              )}
             </li>,
           );
         }
@@ -112,7 +111,22 @@ export function guidesRoute({
         );
       }
 
-      const latest = yield* repo.latest(new RegExp(`effection-${series}.*`));
+      const versionToggle = yield* all(
+        SERIES.map(function* (s) {
+          return (
+            <a
+              href={
+                yield* createRootUrl(current === s ? "docs" : `guides/${s}`)(
+                  page.id,
+                )
+              }
+              class={`text-base ${s === series ? "font-bold text-sky-500" : "text-gray-600 dark:text-gray-400 hover:text-sky-500"}`}
+            >
+              {s}
+            </a>
+          );
+        }),
+      );
 
       return (
         <AppHtml search={search}>
@@ -141,15 +155,10 @@ export function guidesRoute({
             </aside>
             <aside class="min-h-0 overflow-auto hidden md:block top-[120px] sticky h-fit bg-white dark:bg-gray-900 dark:text-gray-200">
               <div class="text-xl flex flex-row items-baseline space-x-2 mb-3">
-                <span class="font-bold">Guides</span>
-                <a href={latest.url} class="text-base">
-                  {series}{" "}
-                  <IconExternal
-                    class="inline-block align-baseline"
-                    height="15"
-                    width="15"
-                  />
-                </a>
+                <>
+                  <span class="font-bold">Guides</span>
+                  {...versionToggle}
+                </>
               </div>
               <nav>{topicsList}</nav>
             </aside>
@@ -159,6 +168,20 @@ export function guidesRoute({
               data-series={series}
             >
               <h1>{page.title}</h1>
+              {series !== current ? (
+                <div class="mb-4 px-4 py-3 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-800 dark:text-gray-200">
+                  You're viewing documentation for an older version. Effection
+                  {current} is now available.{" "}
+                  <a
+                    href={yield* createRootUrl("docs")(page.id)}
+                    class="font-medium text-sky-500 hover:underline"
+                  >
+                    View ${current} docs →
+                  </a>
+                </div>
+              ) : (
+                <></>
+              )}
               <>{page.content}</>
               {yield* NextPrevLinks({ page })}
             </article>
@@ -179,32 +202,32 @@ function* NextPrevLinks({ page }: { page: GuidesMeta }): Operation<JSXElement> {
   let { next, prev } = page;
   return (
     <menu class="grid grid-cols-2 my-10 gap-x-2 xl:gap-x-20 2xl:gap-x-40 text-lg">
-      {prev
-        ? (
-          <li class="col-start-1 text-left font-light border-1 rounded-lg p-4">
-            Previous
-            <a
-              class="py-2 block text-xl font-bold text-blue-primary no-underline tracking-wide leading-5 before:content-['«&nbsp;'] before:font-normal"
-              href={yield* createSibling(prev.id)}
-            >
-              {prev.title}
-            </a>
-          </li>
-        )
-        : <li />}
-      {next
-        ? (
-          <li class="col-start-2 text-right font-light border-1 rounded-lg p-4">
-            Next
-            <a
-              class="py-2 block text-xl font-bold text-blue-primary no-underline tracking-wide leading-5 after:content-['&nbsp;»'] after:font-normal"
-              href={yield* createSibling(next.id)}
-            >
-              {next.title}
-            </a>
-          </li>
-        )
-        : <li />}
+      {prev ? (
+        <li class="col-start-1 text-left font-light border-1 rounded-lg p-4">
+          Previous
+          <a
+            class="py-2 block text-xl font-bold text-blue-primary no-underline tracking-wide leading-5 before:content-['«&nbsp;'] before:font-normal"
+            href={yield* createSibling(prev.id)}
+          >
+            {prev.title}
+          </a>
+        </li>
+      ) : (
+        <li />
+      )}
+      {next ? (
+        <li class="col-start-2 text-right font-light border-1 rounded-lg p-4">
+          Next
+          <a
+            class="py-2 block text-xl font-bold text-blue-primary no-underline tracking-wide leading-5 after:content-['&nbsp;»'] after:font-normal"
+            href={yield* createSibling(next.id)}
+          >
+            {next.title}
+          </a>
+        </li>
+      ) : (
+        <li />
+      )}
     </menu>
   );
 }

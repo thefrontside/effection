@@ -91,6 +91,57 @@
 
 - Initial v4 release with delimited continuations
 
+## 3.6.1
+
+- Do not bind SIGTERM in Windows
+  https://github.com/thefrontside/effection/pull/1031
+
+## 3.6.0
+
+- ✨ add interval() helper to consume a stream of intervals
+  https://github.com/thefrontside/effection/pull/1005
+
+## 3.5.1
+
+- 🐛 Fix Webpack compatibility through a specific comment to ignore the dynamic
+  `node:process` import https://github.com/thefrontside/effection/pull/1007
+
+## 3.5.0
+
+- 🚛 Backport createScope(parent) to v3
+  https://github.com/thefrontside/effection/pull/996
+- 🚛 Backport Scope.spawn() to v3
+  https://github.com/thefrontside/effection/pull/995
+
+## 3.4.0
+
+- Introducing until helper to replace call(promise)
+  https://github.com/thefrontside/effection/pull/988
+
+## 3.3.0
+
+- 🎒Backport Context.with() https://github.com/thefrontside/effection/pull/982
+- 🎒backport `each()` 🐛 fixes to v3
+  https://github.com/thefrontside/effection/pull/980
+- 🎒backport advanced scope helpers from v4 -> v3
+  https://github.com/thefrontside/effection/pull/967
+
+## 3.2.0
+
+- ✨ Backfill the `scoped()` API
+  https://github.com/thefrontside/effection/pull/964
+- ✨ Backport `withResolvers()` from v4 to v3
+  https://github.com/thefrontside/effection/pull/963
+
+## 3.1.0
+
+- 🐛 dynamically import node process
+  https://github.com/thefrontside/effection/pull/935
+- Deprecate non-function invocations of call()
+  https://github.com/thefrontside/effection/pull/929
+- backport `Context#expect()` to v3
+  https://github.com/thefrontside/effection/commit/4d3be6c1be3f4c3c7dfbfd5435d07d754023800a
+
 ## 3.0.3
 
 - this is just a placeholder release in order to workaround an issue. It is 100%

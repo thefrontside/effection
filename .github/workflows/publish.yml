@@ -36,10 +36,8 @@ jobs:
         run: deno task build:npm ${{steps.vars.outputs.version}}
 
       - name: Publish NPM
-        run: npm publish --access=public
+        run: npm publish --access=public --tag=latest-v3
         working-directory: ./build/npm
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
 
   publish-jsr:
     runs-on: ubuntu-latest

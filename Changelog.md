@@ -1,45 +1,23 @@
 # Changelog
 
-## 4.0.0-beta.3
+## 4.0.0
 
-- Do not bind SIGTERM in Windows for v4
-  https://github.com/thefrontside/effection/pull/1032
-
-## 4.0.0-beta.2
-
+- Announcing Effection 4.0
+  https://frontside.com/blog/2025-12-23-announcing-effection-v4/
 - run resources at the priority level of their caller
   https://github.com/thefrontside/effection/pull/1017
-- add interval() helper to consume a stream of intervals, port from v3
-  https://github.com/thefrontside/effection/pull/1016
-
-## 4.0.0-beta.1
-
 - properly propagate errors from nested scopes
   https://github.com/thefrontside/effection/pull/1014
-
-## 4.0.0-alpha.8
-
-- Add `until()` operation for turning promises into operations
-  https://github.com/thefrontside/effection/pull/990
 - Add Effect.js benchmarks for performance comparison
   https://github.com/thefrontside/effection/pull/979
-
-## 4.0.0-alpha.7
-
 - Fix type definition for call operation
   https://github.com/thefrontside/effection/pull/973
 - Fix missing tag issue https://github.com/thefrontside/effection/pull/970
 - Minor documentation improvements
   https://github.com/thefrontside/effection/pull/971
-
-## 4.0.0-alpha.6
-
 - Remove unnecessary www from deploy preview URLs
   https://github.com/thefrontside/effection/pull/969
 - Add promise helpers https://github.com/thefrontside/effection/pull/968
-
-## 4.0.0-alpha.5
-
 - Test against Node 16, 18, 20 versions
   https://github.com/thefrontside/effection/pull/966
 - Add documentation for scope https://github.com/thefrontside/effection/pull/961
@@ -62,33 +40,18 @@
 - Add withResolvers documentation
   https://github.com/thefrontside/effection/pull/940
 - Remove v2 documentation https://github.com/thefrontside/effection/pull/938
-
-## 4.0.0-alpha.4
-
 - Add dynamic import for Node.js main
   https://github.com/thefrontside/effection/pull/936
 - Add scoped operation https://github.com/thefrontside/effection/pull/933
 - Export Result interface from API
   https://github.com/thefrontside/effection/pull/920
 - Add benchmark suite https://github.com/thefrontside/effection/pull/919
-
-## 4.0.0-alpha.3
-
 - Add do-effect helper https://github.com/thefrontside/effection/pull/918
 - Use Deno 2.0 https://github.com/thefrontside/effection/pull/917
-
-## 4.0.0-alpha.2
-
 - Make Task implement Operation
   https://github.com/thefrontside/effection/pull/915
-
-## 4.0.0-alpha.1
-
 - Export async helpers in main API
   https://github.com/thefrontside/effection/pull/913
-
-## 4.0.0-alpha.0
-
 - Initial v4 release with delimited continuations
 
 ## 3.6.1

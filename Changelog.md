@@ -2,7 +2,8 @@
 
 ## 4.0.0
 
-- Announcing Effection 4.0 https://frontside.com/blog/2025-12-23-announcing-effection-v4/
+- Announcing Effection 4.0
+  https://frontside.com/blog/2025-12-23-announcing-effection-v4/
 - run resources at the priority level of their caller
   https://github.com/thefrontside/effection/pull/1017
 - properly propagate errors from nested scopes

@@ -38,8 +38,6 @@ jobs:
       - name: Publish NPM
         run: npm publish --access=public --tag=latest
         working-directory: ./build/npm
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
 
   publish-jsr:
     runs-on: ubuntu-latest

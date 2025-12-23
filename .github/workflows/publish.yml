@@ -27,10 +27,9 @@ jobs:
         run: echo ::set-output name=version::$(echo ${{github.ref_name}} | sed 's/^effection-v//')
 
       - name: Setup Node
-        uses: actions/setup-node@v4.1.0
+        uses: actions/setup-node@v6
         with:
           node-version: 24
-          registry-url: https://registry.npmjs.com
 
       - name: Build NPM
         run: deno task build:npm ${{steps.vars.outputs.version}}

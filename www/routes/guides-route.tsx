@@ -176,7 +176,7 @@ export function guidesRoute({
                     href={yield* createRootUrl("docs")(page.id)}
                     class="font-medium text-sky-500 hover:underline"
                   >
-                    View ${current} docs →
+                    View {current} docs →
                   </a>
                 </div>
               ) : (

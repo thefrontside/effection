@@ -136,7 +136,7 @@ export function guidesRoute({
               id="docbar"
               class="fixed top-0 h-full w-full grid grid-cols-2 md:hidden bg-white dark:bg-gray-900 dark:text-gray-200"
             >
-              <nav class="bg-white p-2 border-r-2 h-full pt-24 min-h-0 h-full overflow-auto">
+              <nav class="bg-white dark:bg-gray-900 p-2 border-r-2 dark:border-gray-700 h-full pt-24 min-h-0 h-full overflow-auto">
                 {topicsList}
               </nav>
               <label

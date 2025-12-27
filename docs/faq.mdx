@@ -41,7 +41,7 @@ Object.defineProperty(Promise.prototype, Symbol.iterator, {
 
 ## Why can't I use `call(Promise.resolve(42))` anymore?
 
-`until` function offers a convenient alternative to passing a promise to `call`. In Effection v3, it was possible 
+[until()](/api/v4/until) function offers a convenient alternative to passing a promise to `call`. In Effection v3, it was possible 
 to `yield* call(Promise.resolve(42))` but we removed this in Effection v4 because we wanted to align call closer 
 to `Function.prototype.call`. You can still use `yield* call(() => Promise.resolve(42))` and 
 `yield* call(async function() {})`.

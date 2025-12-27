@@ -41,7 +41,104 @@ Object.defineProperty(Promise.prototype, Symbol.iterator, {
 
 ## Why can't I use `call(Promise.resolve(42))` anymore?
 
-[until()](/api/v4/until) function offers a convenient alternative to passing a promise to `call`. In Effection v3, it was possible 
-to `yield* call(Promise.resolve(42))` but we removed this in Effection v4 because we wanted to align call closer 
-to `Function.prototype.call`. You can still use `yield* call(() => Promise.resolve(42))` and 
-`yield* call(async function() {})`.
+In Effection v3, it was possible to `yield* call(Promise.resolve(42))` but we removed this in Effection v4
+because we wanted to align call closer to `Function.prototype.call`. You can still use 
+`yield* call(() => Promise.resolve(42))` and `yield* call(async function() {})`. In v4, we plan to ship 
+a new function called `when` which will take a promise and wrap it in a constructor for convenience. 
+
+## How can I chain operations together like I do with promises?
+
+In JS, it's common in a function that isn't async to chain promises together using `.then()` and `.catch()`
+
+The simplest way is to use the [Chain](https://frontside.com/effection/x/chain/) helper from [effectionx](https://frontside.com/effection/x)
+
+```typescript
+import { Chain } from "@effectionx/chain";
+
+Chain.from(operation)
+  .then(lift((val) => val * 2)),
+  .then(lift((val) => String(val)),
+  .then(lift((val) => val.toUpperCase())),
+```
+
+Note the usage of [`lift()`](../../api/v4/lift) to convert normal synchronous functions into operations.
+
+But composition is so simple, that rolling your own is almost trivial.
+For example, you can make make a "pipeable" `then()` operation like
+so:
+
+```typescript
+function then<A,B>(fn: (value: A) => Operation<B>): (operation: Operation<A>) => Operation<B> {
+  return function*(operation) {
+    return yield* fn(yield* operation);
+  }
+}
+```
+
+You can then take an off the shelf pipe function (they're a dime a
+dozen from places like lodash, fp-ts, or even the code you have up your
+own sleeve) and compose several `then()` statements together.
+
+```ts
+pipe(
+  operation,
+  then(lift((val) => val * 2)),
+  then(lift((val) => String(val)),
+  then(lift((val) => val.toUpperCase())),
+);
+```
+
+## How do I share the outcome of an operation in several places?
+
+A very common pattern is to share a promise in multiple places. For example:
+
+```ts
+class Foo {
+  data: Promise<number>;
+
+  constructor() {
+    this.data = (async () => 5)();
+  }
+
+  async getData() {
+    return await this.data;
+  }
+}
+
+const foo = new Foo();
+console.log(await foo.getData());
+```
+
+However, this can't be done directly with Operation as they can only be computed once:
+
+```ts
+const func = function* () {
+  console.log("compute");
+  return 5;
+}
+
+const started = func();
+```
+
+If this is something you need, you can use the [`Chain.from`]() method from the [@effectionx/chain]() package which only evaluate its operation once and share it between all chains that are derived from it:
+
+
+```ts
+class Foo {
+  data: Promise<number>;
+
+  constructor() {
+    let operation = (function* () {
+      return 5;
+    })();
+    this.data = Chain.from(operation);
+  }
+
+  *getData() {
+    return yield* this.data;
+  }
+}
+
+const foo = new Foo();
+console.log(yield * foo.getData());
+```

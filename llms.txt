@@ -2,56 +2,17 @@
 
 Structured concurrency and effects for JavaScript. Effection ensures you don't leak resources or effects by leveraging structured concurrency—guaranteeing that no operation runs longer than its parent, and every operation exits fully with proper cleanup. Uses generator functions (`function*`, `yield*`) instead of async/await to provide these guarantees.
 
-## Key Mental Models
+## Key Concepts
 
-**Operations are lazy, Promises are eager**
-```js
-// Promise: starts immediately
-const promise = fetch('/api');  // HTTP request fires NOW
+**Operations are lazy** - They're recipes, not promises. Only run when passed to `yield*`, `run()`, or `spawn()`.
 
-// Operation: just a description, runs when yielded
-const operation = fetch('/api');  // Nothing happens yet
-yield* operation;  // NOW the request fires
-```
+**`yield*` is Effection's `await`** - Both pause and resume when value available, but `yield*` guarantees cleanup via structured concurrency.
 
-Operations also execute synchronously (no tick delay like async/await), enabling immediate cleanup and preventing leaked effects.
+**Parent-child lifetime hierarchy** - No operation runs longer than its parent. When parent completes, all children are automatically halted and cleaned up.
 
-**`yield*` is Effection's `await`**
-- `await promise` → `yield* operation`
-- Both pause and resume when value available
-- But `yield*` guarantees cleanup via structured concurrency
+**Synchronous execution** - Operations execute synchronously (no tick delay like async/await), enabling immediate cleanup and preventing leaked effects.
 
-**Parent-child lifetime hierarchy**
-```js
-function* parent() {
-  yield* spawn(function* child() {
-    yield* sleep(10000);  // sleeps 10 seconds
-  });
-  yield* sleep(1000);  // parent finishes after 1 second
-  // child is automatically halted—no leaked timers
-}
-```
-
-**Guaranteed cleanup (unlike async/await)**
-```js
-// async/await: finally may never run (Await Event Horizon)
-async function risky() {
-  try {
-    await sleep(100000);
-  } finally {
-    cleanup(); // NOT guaranteed to execute
-  }
-}
-
-// Effection: finally ALWAYS runs
-function* safe() {
-  try {
-    yield* sleep(100000);
-  } finally {
-    cleanup(); // GUARANTEED to execute
-  }
-}
-```
+**Guaranteed cleanup** - Unlike async/await's "Await Event Horizon" problem, `try/finally` blocks always execute in Effection.
 
 ## Quick Reference
 
@@ -67,41 +28,37 @@ function* safe() {
 ## Documentation
 
 **Start here:**
-- `/docs/thinking-in-effection.mdx` - Core philosophy and mental models
-- `/docs/async-rosetta-stone.mdx` - Complete JavaScript ↔ Effection translation guide
-- `/docs/operations.mdx` - Understanding the Operation abstraction
+- [Core philosophy and mental models](/docs/thinking-in-effection.mdx)
+- [Complete JavaScript ↔ Effection translation guide](/docs/async-rosetta-stone.mdx)
+- [Understanding the Operation abstraction](/docs/operations.mdx)
 
 **Learn more:**
-- `/docs/spawn.mdx` - Concurrent operations and structured concurrency
-- `/docs/resources.mdx` - Long-running operations with setup/teardown
-- `/docs/collections.mdx` - Streams and subscriptions
-- `/docs/tutorial.mdx` - Hands-on examples
+- [Concurrent operations and structured concurrency](/docs/spawn.mdx)
+- [Scope lifecycle and integration patterns](/docs/scope.mdx)
+- [Dependency injection without argument drilling](/docs/context.mdx)
+- [Long-running operations with setup/teardown](/docs/resources.mdx)
+- [Streams and subscriptions](/docs/collections.mdx)
 
 **API Reference:**
-See `/lib/` for implementation and `/lib/types.ts` for core type definitions.
+- [Core type definitions](/lib/types.ts)
+- [Application entry point with lifecycle binding (SIGTERM, window unload)](/lib/main.ts)
+- [Entry point that returns a promise for async integration](/lib/run.ts)
+- [Run concurrent child operations](/lib/spawn.ts)
+- [First operation to complete wins](/lib/race.ts)
+- [Wait for all operations to complete](/lib/all.ts)
+- [Convert Promise to Operation](/lib/until.ts)
+- [Call async functions from Effection](/lib/call.ts)
+- [Create operation from callback](/lib/with-resolvers.ts)
+- [Like withResolvers but with required cleanup function](/lib/action.ts)
+- [Return a value with a lifecycle (setup via provide(), cleanup on scope exit)](/lib/resource.ts)
+- [Create streams for use in operations](/lib/channel.ts)
+- [Create streams from external events](/lib/signal.ts)
+- [Loop over stream values (requires each.next())](/lib/each.ts)
+- [Scope management and lifecycle](/lib/scope.ts)
+- [AbortSignal integration for automatic cancellation](/lib/abort-signal.ts)
+- [Cleanup helper (alternative to try/finally)](/lib/ensure.ts)
+- [Dependency injection without argument drilling](/lib/context.ts)
+- [Pause execution for specified duration](/lib/sleep.ts)
+- [Event helper utilities](/lib/events.ts)
 
-## Guidance for LLMs
-
-When helping users write Effection code:
-
-1. **Always use `yield*` with Operations, never `await`**
-   - Operations won't run correctly with `await`
-   - Use `function*` not `async function`
-
-2. **Remember Operations are lazy**
-   - They only execute when passed to `yield*`, `run()`, or `spawn()`
-   - Safe to create and pass around without side effects
-
-3. **Leverage structured concurrency for cleanup**
-   - Don't manually track child operations
-   - Parent completion automatically halts children
-   - Use `try/finally` knowing cleanup is guaranteed
-
-4. **Entry points**: `main()` or `run()` to start the operation tree
-   - `main()` for application entry
-   - `run()` for running operations in existing code
-
-5. **Scope and Context**
-   - Use `useScope()` to integrate with callback-based frameworks
-   - Use context for dependency injection (avoid argument drilling)
-   - All operations bound to scope - automatic cleanup guaranteed
+For detailed examples, common patterns, and gotchas, read [llms-full.txt](/llms-full.txt).

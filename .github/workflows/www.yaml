@@ -10,7 +10,7 @@ on:
 
 jobs:
   www:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     timeout-minutes: 15
 
     permissions:
@@ -43,14 +43,14 @@ jobs:
 
       - name: Download Staticalize
         run: |
-          wget https://github.com/thefrontside/staticalize/releases/download/v0.2.2/staticalize-macos.tar.gz \
-            -O /tmp/staticalize-macos.tar.gz
-          tar -xzf /tmp/staticalize-macos.tar.gz -C /usr/local/bin
-          chmod +x /usr/local/bin/staticalize-macos
+          wget https://github.com/thefrontside/staticalize/releases/download/v0.2.2/staticalize-linux.tar.gz \
+            -O /tmp/staticalize-linux.tar.gz
+          tar -xzf /tmp/staticalize-linux.tar.gz -C /usr/local/bin
+          chmod +x /usr/local/bin/staticalize-linux
 
       - name: Staticalize
         run: |
-          staticalize-macos \
+          staticalize-linux \
             --site=http://127.0.0.1:8000 \
             --output=www/built \
             --base=https://effection-www.deno.dev/

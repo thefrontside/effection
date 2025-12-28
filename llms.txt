@@ -14,6 +14,8 @@ const operation = fetch('/api');  // Nothing happens yet
 yield* operation;  // NOW the request fires
 ```
 
+Operations also execute synchronously (no tick delay like async/await), enabling immediate cleanup and preventing leaked effects.
+
 **`yield*` is Effection's `await`**
 - `await promise` → `yield* operation`
 - Both pause and resume when value available
@@ -98,3 +100,8 @@ When helping users write Effection code:
 4. **Entry points**: `main()` or `run()` to start the operation tree
    - `main()` for application entry
    - `run()` for running operations in existing code
+
+5. **Scope and Context**
+   - Use `useScope()` to integrate with callback-based frameworks
+   - Use context for dependency injection (avoid argument drilling)
+   - All operations bound to scope - automatic cleanup guaranteed

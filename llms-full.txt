@@ -161,6 +161,8 @@ sayHello();  // Prints NOTHING - just creates a recipe
 
 Operations only execute when passed to `yield*`, `run()`, or `spawn()`.
 
+**Synchronous execution:** Operations execute synchronously (no event loop tick delay), unlike async/await. This enables immediate cleanup when operations halt.
+
 ### Entry Points
 
 ```js
@@ -175,11 +177,12 @@ let promise = run(function*() {
 });
 ```
 
-### The Two Primitives
+### Callback Integration
 
-Every operation boils down to:
-- `action()` - callback-based operations with cleanup
-- `resource()` - long-running operations with setup/teardown
+For integrating callback-based APIs:
+- `withResolvers()` - create operations from callbacks (like `Promise.withResolvers()`)
+- `action()` - like `withResolvers()` but with required cleanup function for guaranteed teardown
+- `resource()` - long-running operations with setup/teardown via `provide()`
 
 ### Cleanup & Interruption
 
@@ -270,7 +273,135 @@ yield* race([sleep(10), sleep(1000)]);
 
 ---
 
-## 5. Long-Running Operations with resource()
+## 5. Scope & Lifecycle
+
+Every operation runs within a scope that enforces structured concurrency. **No operation may outlive its scope.**
+
+### Three Outcomes
+
+Every scope has one of three outcomes:
+1. **Return** - operation completes successfully with a value
+2. **Error** - operation fails and exits with an exception
+3. **Halt** - operation is canceled (parent returned, errored, or halted)
+
+```js
+import { main, sleep, spawn } from "effection";
+
+await main(function* () { // <- parent scope
+  yield* spawn(function* () { // <- child scope
+    for (let i = 1; i <= 10; i++) {
+      yield* sleep(1000);
+      console.log(i);
+    }
+  });
+
+  yield* sleep(5000);
+  // main completes after 5s, child scope halts
+  // Only 5 numbers print
+});
+```
+
+### Cleanup Always Runs
+
+Halting a task calls `return()` on the generator, ensuring `try/finally` blocks always execute (see Section 1 for details).
+
+### Integration with Callback-Based Frameworks
+
+Use `useScope()` to integrate with Express, callbacks, etc.:
+
+```js
+import { main, useScope } from "effection";
+import express from "express";
+
+await main(function*() {
+  let scope = yield* useScope();
+
+  express().get("/", async (req, res) => {
+    // Run operation within main scope for each request
+    return await scope.run(function*() {
+      let data = yield* fetchData();
+      res.json(data);
+    });
+  });
+});
+```
+
+### AbortSignal Integration
+
+Use `useAbortSignal()` for Promise integration with automatic cancellation:
+
+```js
+import { useAbortSignal, main } from "effection";
+
+await main(function*() {
+  let signal = yield* useAbortSignal();
+
+  // Signal automatically aborts when operation halts
+  let response = yield* until(fetch('/api', { signal }));
+});
+```
+
+**Cleanup helper:** `ensure()` provides cleaner syntax than try/finally for guaranteed cleanup.
+
+---
+
+## 6. Context & Dependency Injection
+
+Context provides ambient values throughout the operation tree without "argument drilling" (passing arguments through many intermediate operations).
+
+### Three Steps Pattern
+
+**1. Create** a context reference:
+```js
+import { createContext } from 'effection';
+const GithubTokenContext = createContext("token");
+```
+
+**2. Set** the context value:
+```js
+yield* GithubTokenContext.set("gha-1234567890");
+```
+
+**3. Get** the context value:
+```js
+// Non-optional - throws if not set
+const token = yield* GithubTokenContext.expect();
+
+// Optional - returns undefined if not set
+const token = yield* GithubTokenContext.get();
+```
+
+### Complete Example
+
+```js
+import { createContext, main } from 'effection';
+
+const GithubTokenContext = createContext("token");
+
+await main(function* () {
+  yield* GithubTokenContext.set("gha-1234567890");
+  yield* fetchGithubData();
+});
+
+function* fetchGithubData() {
+  yield* fetchRepositories(); // doesn't need token parameter
+}
+
+function* fetchRepositories() {
+  const token = yield* GithubTokenContext.expect(); // throws if not set
+  console.log(token); // gha-1234567890
+}
+```
+
+### Context Hierarchy
+
+- Bound to scope - all children see parent's value
+- Children can override without affecting ancestors
+- Common uses: config, API clients, services with guaranteed cleanup
+
+---
+
+## 7. Long-Running Operations with resource()
 
 ### Problem
 
@@ -333,7 +464,7 @@ function useHeartSocket(port, host) {
 
 ---
 
-## 6. Streams and Subscriptions
+## 8. Streams and Subscriptions
 
 ### Stream vs Subscription
 
@@ -412,7 +543,7 @@ await main(function*() {
 
 ---
 
-## 7. Critical Gotchas & Best Practices
+## 9. Critical Gotchas & Best Practices
 
 ### 1. Operations are lazy - MUST yield* or run()
 
@@ -428,23 +559,7 @@ function* main() {
 }
 ```
 
-### 2. action() REQUIRES cleanup function return
-
-```js
-// WRONG - leaks timeout
-yield* action((resolve) => {
-  setTimeout(resolve, 1000);
-  // Missing cleanup!
-});
-
-// CORRECT
-yield* action((resolve) => {
-  let id = setTimeout(resolve, 1000);
-  return () => clearTimeout(id);  // MUST return cleanup
-});
-```
-
-### 3. for yield* each REQUIRES each.next() at loop end
+### 2. for yield* each REQUIRES each.next() at loop end
 
 ```js
 // WRONG - loop never advances
@@ -459,7 +574,7 @@ for (let item of yield* each(stream)) {
 }
 ```
 
-### 4. Streams need subscribers for send() to work
+### 3. Streams need subscribers for send() to work
 
 ```js
 let channel = createChannel();
@@ -469,7 +584,7 @@ let subscription = yield* channel;  // Now has subscriber
 yield* channel.send('world');  // Works
 ```
 
-### 5. Converting between Promise and Operation
+### 4. Converting between Promise and Operation
 
 ```js
 // Inside operations - use until()
@@ -488,7 +603,7 @@ function* myOp() {
 }
 ```
 
-### 6. Don't use await with Operations
+### 5. Don't use await with Operations
 
 ```js
 // WRONG
@@ -510,10 +625,13 @@ await run(operation);
 - `run()` - Returns promise for async integration
 
 **Core operations:**
-- `action(fn)` - Callback-based operation (MUST return cleanup function)
-- `resource(fn)` - Long-running with setup/teardown via `provide()`
-- `spawn(fn)` - Concurrent child operation
 - `sleep(ms)` - Pause for duration
+- `spawn(fn)` - Concurrent child operation
+
+**Callback integration:**
+- `withResolvers()` - Create operation from callback (like `Promise.withResolvers()`)
+- `action(fn)` - Like `withResolvers()` but requires cleanup function
+- `resource(fn)` - Long-running with setup/teardown via `provide()`
 
 **Concurrency:**
 - `spawn()` - Run concurrent operation as child

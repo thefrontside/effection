@@ -1,0 +1,100 @@
+# Effection
+
+Structured concurrency and effects for JavaScript. Effection ensures you don't leak resources or effects by leveraging structured concurrency—guaranteeing that no operation runs longer than its parent, and every operation exits fully with proper cleanup. Uses generator functions (`function*`, `yield*`) instead of async/await to provide these guarantees.
+
+## Key Mental Models
+
+**Operations are lazy, Promises are eager**
+```js
+// Promise: starts immediately
+const promise = fetch('/api');  // HTTP request fires NOW
+
+// Operation: just a description, runs when yielded
+const operation = fetch('/api');  // Nothing happens yet
+yield* operation;  // NOW the request fires
+```
+
+**`yield*` is Effection's `await`**
+- `await promise` → `yield* operation`
+- Both pause and resume when value available
+- But `yield*` guarantees cleanup via structured concurrency
+
+**Parent-child lifetime hierarchy**
+```js
+function* parent() {
+  yield* spawn(function* child() {
+    yield* sleep(10000);  // sleeps 10 seconds
+  });
+  yield* sleep(1000);  // parent finishes after 1 second
+  // child is automatically halted—no leaked timers
+}
+```
+
+**Guaranteed cleanup (unlike async/await)**
+```js
+// async/await: finally may never run (Await Event Horizon)
+async function risky() {
+  try {
+    await sleep(100000);
+  } finally {
+    cleanup(); // NOT guaranteed to execute
+  }
+}
+
+// Effection: finally ALWAYS runs
+function* safe() {
+  try {
+    yield* sleep(100000);
+  } finally {
+    cleanup(); // GUARANTEED to execute
+  }
+}
+```
+
+## Quick Reference
+
+| async/await               | Effection         |
+|---------------------------|-------------------|
+| `await`                   | `yield*`          |
+| `async function`          | `function*`       |
+| `Promise`                 | `Operation`       |
+| `new Promise()`           | `action()`        |
+| `Promise.withResolvers()` | `withResolvers()` |
+| `for await...of`          | `for (yield* each(...))` |
+
+## Documentation
+
+**Start here:**
+- `/docs/thinking-in-effection.mdx` - Core philosophy and mental models
+- `/docs/async-rosetta-stone.mdx` - Complete JavaScript ↔ Effection translation guide
+- `/docs/operations.mdx` - Understanding the Operation abstraction
+
+**Learn more:**
+- `/docs/spawn.mdx` - Concurrent operations and structured concurrency
+- `/docs/resources.mdx` - Long-running operations with setup/teardown
+- `/docs/collections.mdx` - Streams and subscriptions
+- `/docs/tutorial.mdx` - Hands-on examples
+
+**API Reference:**
+See `/lib/` for implementation and `/lib/types.ts` for core type definitions.
+
+## Guidance for LLMs
+
+When helping users write Effection code:
+
+1. **Always use `yield*` with Operations, never `await`**
+   - Operations won't run correctly with `await`
+   - Use `function*` not `async function`
+
+2. **Remember Operations are lazy**
+   - They only execute when passed to `yield*`, `run()`, or `spawn()`
+   - Safe to create and pass around without side effects
+
+3. **Leverage structured concurrency for cleanup**
+   - Don't manually track child operations
+   - Parent completion automatically halts children
+   - Use `try/finally` knowing cleanup is guaranteed
+
+4. **Entry points**: `main()` or `run()` to start the operation tree
+   - `main()` for application entry
+   - `run()` for running operations in existing code

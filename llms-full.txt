@@ -1,0 +1,538 @@
+# Effection - Complete Reference for LLMs
+
+Structured concurrency and effects for JavaScript. This comprehensive guide provides all essential information for helping users write Effection code.
+
+---
+
+## 1. Core Guarantees
+
+When we say that Effection is "Structured Concurrency and Effects for JavaScript" we mean three things:
+
+1. **No operation runs longer than its parent**
+2. **Every operation exits fully**
+3. **It's just JavaScript** - except for the guarantees derived from (1) and (2), it should feel familiar
+
+### The Mental Shift
+
+**Before:** An asynchronous operation will run as long as it needs to
+**After:** An asynchronous operation runs only as long as it's needed
+
+Effection binds asynchrony to scope, just like JavaScript binds memory to scope. When an operation completes, none of its child operations are left around to pollute your runtime.
+
+### Guaranteed Cleanup (The Await Event Horizon Problem)
+
+**With async/await - NO GUARANTEE:**
+```js
+async function main() {
+  try {
+    await new Promise((resolve) => setTimeout(resolve, 100000));
+  } finally {
+    // code here is NOT GUARANTEED to run
+  }
+}
+```
+
+Once an async function begins execution, the code in its `finally{}` blocks may never run. This limitation is called the "Await Event Horizon" and causes common errors like EADDRINUSE.
+
+**With Effection - GUARANTEED:**
+```js
+import { main, action } from "effection";
+
+await main(function*() {
+  try {
+    yield* action(function*(resolve) { setTimeout(resolve, 100000) });
+  } finally {
+    // code here is GUARANTEED to run
+  }
+});
+```
+
+Effection uses generator functions (`function*`) instead of `async/await` because async/await cannot model structured concurrency.
+
+---
+
+## 2. Async Rosetta Stone
+
+Complete translation table:
+
+| Async/Await               | Effection                |
+|---------------------------|--------------------------|
+| `await`                   | `yield*`                 |
+| `async function`          | `function*`              |
+| `Promise`                 | `Operation`              |
+| `new Promise()`           | `action()`               |
+| `Promise.withResolvers()` | `withResolvers()`        |
+| `for await...of`          | `for (yield* each(...))` |
+| `AsyncIterable`           | `Stream`                 |
+| `AsyncIterator`           | `Subscription`           |
+
+### Key Examples
+
+**Countdown:**
+```js
+// async/await
+async function countdown() {
+  for (let i = 5; i > 1; i--) {
+    console.log(`${i}`);
+    await sleep(1000);
+  }
+  console.log('blastoff!');
+}
+
+// Effection
+function* countdown() {
+  for (let i = 5; i > 1; i--) {
+    console.log(`${i}`);
+    yield* sleep(1000);
+  }
+  console.log('blastoff!');
+}
+```
+
+**Integration between async/await and Effection:**
+```js
+// Call async function from Effection:
+yield* call(asyncFunction);
+
+// Run Effection operation from async context:
+await run(operation);
+```
+
+**Converting between Promise and Operation:**
+```js
+// Inside an operation, convert promise to operation:
+function* myOperation() {
+  let result = yield* until(promise);  // Use until()
+}
+
+// Outside operations (in async context), convert operation to promise:
+let promise = run(operation);  // Use run()
+```
+
+**Creating operations with cleanup:**
+```js
+// Promise - no cleanup
+async function sleep_10s() {
+  await new Promise((resolve) => setTimeout(resolve, 10000));
+}
+
+// Operation - MUST return cleanup function
+function* sleep_10s() {
+  yield* action((resolve) => {
+    let timeoutId = setTimeout(resolve, 10000);
+    return () => clearTimeout(timeoutId);  // REQUIRED
+  });
+}
+```
+
+**Looping over streams:**
+```js
+// for await
+for await (let item of iterable) {
+  // process item
+}
+
+// for yield* each
+for (let item of yield* each(stream)) {
+  // process item
+  yield* each.next();  // MUST call this
+}
+```
+
+---
+
+## 3. Operations: Stateless & Lazy
+
+### Operations Are Recipes, Not Promises
+
+```js
+// Promise starts immediately
+async function sayHello() {
+  console.log("Hello World!");
+}
+sayHello();  // Prints "Hello World!" immediately
+
+// Operation does nothing until run
+function* sayHello() {
+  console.log("Hello World!");
+}
+sayHello();  // Prints NOTHING - just creates a recipe
+```
+
+Operations only execute when passed to `yield*`, `run()`, or `spawn()`.
+
+### Entry Points
+
+```js
+// main() - for applications (handles errors, ensures shutdown cleanup)
+await main(function*() {
+  console.log("Hello World!");
+});
+
+// run() - for integration with async code (returns promise)
+let promise = run(function*() {
+  console.log("Hello World!");
+});
+```
+
+### The Two Primitives
+
+Every operation boils down to:
+- `action()` - callback-based operations with cleanup
+- `resource()` - long-running operations with setup/teardown
+
+### Cleanup & Interruption
+
+Promises cannot be cancelled. Operations can be interrupted, preventing "leaked effects."
+
+**Promise.race() takes 1000ms (leaked effect):**
+```js
+async function sleep(ms) {
+  await new Promise(resolve => setTimeout(resolve, ms));
+}
+await Promise.race([sleep(10), sleep(1000)]);
+// Takes 1000ms! The setTimeout callback outlives its purpose
+```
+
+**race() with Operations takes 10ms:**
+```js
+await main(function*() {
+  yield* race([sleep(10), sleep(1000)]);
+  // Takes 10ms - losing operation is cleaned up
+});
+```
+
+**Implementation showing cleanup pattern:**
+```js
+function sleep(duration) {
+  return action((resolve) => {
+    let timeoutId = setTimeout(resolve, duration);
+    return () => clearTimeout(timeoutId);  // Called on interruption
+  });
+}
+```
+
+---
+
+## 4. Concurrent Operations with spawn()
+
+### Problem: Dangling Promises
+
+With async/await, concurrent operations aren't connected. If one fails, the other continues unnecessarily.
+
+### Solution: spawn()
+
+`spawn()` creates a parent-child relationship:
+
+```js
+main(function*() {
+  let dayUS = yield* spawn(() => fetchWeekDay('est'));
+  let daySweden = yield* spawn(() => fetchWeekDay('cet'));
+  console.log(`It is ${yield* dayUS}, in the US and ${yield* daySweden} in Sweden!`);
+});
+```
+
+Hierarchy:
+```
++-- main
+  |
+  +-- fetchWeekDay('est')
+  |
+  +-- fetchWeekDay('cet')
+```
+
+If `fetchWeekDay('cet')` fails:
+```
++-- main [FAILED]
+  |
+  +-- fetchWeekDay('est') [HALTED]  ← Automatically stopped
+  |
+  +-- fetchWeekDay('cet') [FAILED]
+```
+
+**Key properties:**
+- Returns a `Task` (both operation and promise)
+- Impossible for child to outlive parent
+- Error in child causes parent to fail
+- Parent failure halts all children
+
+**Combinators:**
+```js
+// all() - wait for all (like Promise.all)
+let [dayUS, daySweden] = yield* all([
+  fetchWeekDay('est'),
+  fetchWeekDay('cet')
+]);
+
+// race() - first to complete wins
+yield* race([sleep(10), sleep(1000)]);
+```
+
+---
+
+## 5. Long-Running Operations with resource()
+
+### Problem
+
+Operations that are:
+1. Long running
+2. Need interaction while running
+
+Example: Socket that needs messages sent while open.
+
+### Solution: resource() with provide()
+
+```js
+export function useSocket(port, host) {
+  return resource(function* (provide) {
+    let socket = new Socket();
+    socket.connect(port, host);
+    yield* once(socket, 'connect');
+
+    try {
+      yield* provide(socket);  // Returns control to caller with socket
+    } finally {
+      socket.close();  // Guaranteed cleanup
+    }
+  });
+}
+
+await main(function*() {
+  let socket = yield* useSocket(1337, '127.0.0.1');
+  socket.write('hello');  // Works!
+  // socket.close() called automatically when main finishes
+});
+```
+
+**Mantra: Resources _provide_ values**
+
+**How it works:**
+1. Code before `provide()` = setup
+2. `provide(value)` = pass control back to caller with value
+3. `provide()` remains suspended until resource goes out of scope
+4. Code after `provide()` (or in finally) = guaranteed cleanup
+
+**Composing resources:**
+```js
+function useHeartSocket(port, host) {
+  return resource(function* (provide) {
+    let socket = yield* useSocket(port, host);  // Use another resource
+
+    yield* spawn(function*() {
+      while (true) {
+        yield* sleep(10_000);
+        socket.send(JSON.stringify({ type: "heartbeat" }));
+      }
+    });
+
+    yield* provide(socket);
+    // Cleanup automatic: heartbeat stopped, socket closed
+  });
+}
+```
+
+---
+
+## 6. Streams and Subscriptions
+
+### Stream vs Subscription
+
+- **`Subscription`** = Stateful, active queue of values (like `AsyncIterator`)
+- **`Stream`** = Stateless recipe for creating subscriptions (like `AsyncIterable`)
+
+A Stream can have **multiple subscriptions**, each receiving the same values.
+
+### Creating Streams with Channel
+
+```js
+await main(function*() {
+  let channel = createChannel();
+
+  yield* channel.send('too early');  // Does nothing - no subscribers!
+
+  let subscription1 = yield* channel;
+  let subscription2 = yield* channel;
+
+  yield* channel.send('hello');
+  yield* channel.send('world');
+
+  console.log(yield* subscription1.next());  //=> { done: false, value: "hello" }
+  console.log(yield* subscription2.next());  //=> { done: false, value: "hello" }
+});
+```
+
+**Important:** Sending to a channel with no subscribers does nothing.
+
+### for yield* each Loop
+
+```js
+await main(function*() {
+  let channel = createChannel();
+
+  yield* spawn(function*() {
+    yield* sleep(1000);
+    yield* channel.send('hello');
+    yield* sleep(1000);
+    yield* channel.send('world');
+  });
+
+  for (let value of yield* each(channel)) {
+    console.log('got value:', value);
+    yield* each.next();  // MUST call this at loop end
+  }
+});
+```
+
+**Why spawn()?** Need to send values concurrently with consuming them. Can't send before loop (no subscribers), can't send after (loop never completes).
+
+### Never Missing Messages
+
+Subscriptions guarantee no message loss:
+
+```js
+await main(function*() {
+  let channel = createChannel();
+  let subscription = yield* channel;
+
+  yield* spawn(function*() {
+    yield* sleep(1000);
+    yield* channel.send('hello');
+    yield* channel.send('world');  // Both sent while consumer busy
+  });
+
+  let { value: firstValue } = yield* subscription.next();
+  console.log(firstValue);  // 'hello'
+
+  yield* sleep(1000);  // Consumer busy here
+
+  let { value: secondValue } = yield* subscription.next();
+  console.log(secondValue);  // 'world' - not missed!
+});
+```
+
+---
+
+## 7. Critical Gotchas & Best Practices
+
+### 1. Operations are lazy - MUST yield* or run()
+
+```js
+// WRONG
+function* main() {
+  sleep(1000);  // Just creates recipe, doesn't run
+}
+
+// CORRECT
+function* main() {
+  yield* sleep(1000);  // Actually runs
+}
+```
+
+### 2. action() REQUIRES cleanup function return
+
+```js
+// WRONG - leaks timeout
+yield* action((resolve) => {
+  setTimeout(resolve, 1000);
+  // Missing cleanup!
+});
+
+// CORRECT
+yield* action((resolve) => {
+  let id = setTimeout(resolve, 1000);
+  return () => clearTimeout(id);  // MUST return cleanup
+});
+```
+
+### 3. for yield* each REQUIRES each.next() at loop end
+
+```js
+// WRONG - loop never advances
+for (let item of yield* each(stream)) {
+  console.log(item);
+}
+
+// CORRECT
+for (let item of yield* each(stream)) {
+  console.log(item);
+  yield* each.next();  // MUST call
+}
+```
+
+### 4. Streams need subscribers for send() to work
+
+```js
+let channel = createChannel();
+yield* channel.send('hello');  // Does NOTHING - no subscribers
+
+let subscription = yield* channel;  // Now has subscriber
+yield* channel.send('world');  // Works
+```
+
+### 5. Converting between Promise and Operation
+
+```js
+// Inside operations - use until()
+function* myOp() {
+  let result = yield* until(somePromise);
+}
+
+// Outside operations (async context) - use run()
+async function myFunc() {
+  let result = await run(someOperation);
+}
+
+// WRONG - don't use run() inside operations
+function* myOp() {
+  let result = yield* run(otherOp);  // Just use yield* directly!
+}
+```
+
+### 6. Don't use await with Operations
+
+```js
+// WRONG
+await operation;  // Operations aren't promises
+
+// CORRECT - inside operations
+yield* operation;
+
+// CORRECT - in async context
+await run(operation);
+```
+
+---
+
+## Quick Reference Summary
+
+**Entry points:**
+- `main()` - Application entry, handles errors and shutdown
+- `run()` - Returns promise for async integration
+
+**Core operations:**
+- `action(fn)` - Callback-based operation (MUST return cleanup function)
+- `resource(fn)` - Long-running with setup/teardown via `provide()`
+- `spawn(fn)` - Concurrent child operation
+- `sleep(ms)` - Pause for duration
+
+**Concurrency:**
+- `spawn()` - Run concurrent operation as child
+- `race()` - First to complete wins
+- `all()` - Wait for all to complete
+
+**Streams:**
+- `createChannel()` - Create stream with send() method
+- `each(stream)` - Loop over stream values (requires `yield* each.next()`)
+- `createSignal()` - Stream from external events
+
+**Conversion:**
+- `until(promise)` - Promise → Operation (use inside operations)
+- `run(operation)` - Operation → Promise (use in async context)
+- `call(asyncFn)` - Call async function from Effection
+
+**Remember:**
+- Use `yield*` not `await` (inside operations)
+- Use `function*` not `async function`
+- Operations are lazy - only run when yielded
+- Cleanup is automatic via structured concurrency
+- Parent completion halts all children

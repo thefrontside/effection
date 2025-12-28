@@ -113,13 +113,13 @@ export function guidesRoute({
 
       const versionToggle = yield* all(
         SERIES.map(function* (s) {
+          const target = yield* useGuides(s);
+          const targetPage = yield* target.get(page.id);
+          const base = current === s ? "docs" : `guides/${s}`;
+          const url = yield* createRootUrl(base)(targetPage ? page.id : '/') ;
           return (
             <a
-              href={
-                yield* createRootUrl(current === s ? "docs" : `guides/${s}`)(
-                  page.id,
-                )
-              }
+              href={url}
               class={`text-base ${s === series ? "font-bold text-sky-500" : "text-gray-600 dark:text-gray-400 hover:text-sky-500"}`}
             >
               {s}
@@ -136,7 +136,7 @@ export function guidesRoute({
               id="docbar"
               class="fixed top-0 h-full w-full grid grid-cols-2 md:hidden bg-white dark:bg-gray-900 dark:text-gray-200"
             >
-              <nav class="bg-white p-2 border-r-2 h-full pt-24 min-h-0 h-full overflow-auto">
+              <nav class="bg-white dark:bg-gray-900 p-2 border-r-2 dark:border-gray-700 pt-24 min-h-0 h-full overflow-auto">
                 {topicsList}
               </nav>
               <label
@@ -153,7 +153,7 @@ export function guidesRoute({
     `}
               </style>
             </aside>
-            <aside class="min-h-0 overflow-auto hidden md:block top-[120px] sticky h-fit bg-white dark:bg-gray-900 dark:text-gray-200">
+            <aside class="min-h-0 overflow-auto hidden md:block top-30 sticky h-fit bg-white dark:bg-gray-900 dark:text-gray-200">
               <div class="text-xl flex flex-row items-baseline space-x-2 mb-3">
                 <>
                   <span class="font-bold">Guides</span>

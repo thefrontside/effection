@@ -109,21 +109,7 @@ function* myOperation() {
 let promise = run(operation);  // Use run()
 ```
 
-**Creating operations with cleanup:**
-```js
-// Promise - no cleanup
-async function sleep_10s() {
-  await new Promise((resolve) => setTimeout(resolve, 10000));
-}
-
-// Operation - MUST return cleanup function
-function* sleep_10s() {
-  yield* action((resolve) => {
-    let timeoutId = setTimeout(resolve, 10000);
-    return () => clearTimeout(timeoutId);  // REQUIRED
-  });
-}
-```
+**Creating operations with cleanup:** Use `action()` with a cleanup function (see Section 3 for full example).
 
 **Looping over streams:**
 ```js
@@ -345,7 +331,102 @@ await main(function*() {
 
 ---
 
-## 6. Context & Dependency Injection
+## 6. Isolating Effects with scoped()
+
+### Problem
+
+Sometimes you need to run an operation that spawns tasks or creates resources, but you want all those effects cleaned up immediately when the operation completes - not when the parent scope ends.
+
+### Solution: scoped()
+
+`scoped()` encapsulates an operation so that **no effects persist outside of it**. When the scoped operation completes, all concurrent tasks and resources are shut down, and context values are restored.
+
+```js
+import { scoped, spawn, sleep } from "effection";
+
+function* myOperation() {
+  // This task will be cleaned up when scoped() completes
+  yield* scoped(function*() {
+    yield* spawn(function*() {
+      while (true) {
+        yield* sleep(1000);
+        console.log("heartbeat");
+      }
+    });
+
+    yield* sleep(3000);  // After 3s, scoped() completes
+    return "done";
+  });
+  // Heartbeat task is already stopped here
+  console.log("continuing without heartbeat");
+}
+```
+
+### Return Behavior
+
+`scoped()` returns whatever the inner operation returns:
+
+```js
+let result = yield* scoped(function*() {
+  return { value: 42 };
+});
+console.log(result);  // { value: 42 }
+```
+
+**When halted:** If the inner operation is halted (cancelled) before it can return a value, `scoped()` returns `{ exists: false }` - a Maybe type indicating no value was produced:
+
+```js
+import { race, scoped, suspend } from "effection";
+
+let result = yield* race([
+  scoped(function*() {
+    yield* suspend();  // Never completes
+    return "never reached";
+  }),
+  sleep(100),  // This wins the race
+]);
+// The scoped operation was halted, result from race is undefined
+```
+
+### Use Cases
+
+1. **Temporary resources** - Create resources that clean up immediately, not at end of parent scope
+2. **Isolated side effects** - Run operations without polluting the parent scope with spawned tasks
+3. **AbortSignal creation** - Get an AbortSignal that aborts when the scoped block exits:
+
+```js
+let signal = yield* scoped(function*() {
+  return yield* useAbortSignal();
+});
+console.log(signal.aborted);  // true - scope already exited
+```
+
+### Context Isolation
+
+Context values set inside `scoped()` are restored when the scope exits:
+
+```js
+const MyContext = createContext("my-value");
+
+yield* MyContext.set("outer");
+console.log(yield* MyContext.get());  // "outer"
+
+yield* scoped(function*() {
+  yield* MyContext.set("inner");
+  console.log(yield* MyContext.get());  // "inner"
+});
+
+console.log(yield* MyContext.get());  // "outer" - restored!
+```
+
+### Key Difference from spawn()
+
+- `spawn()` - child runs concurrently, parent continues, child cleaned up when parent scope ends
+- `scoped()` - child runs to completion (or halt), effects cleaned up immediately, then parent continues
+
+---
+
+## 7. Context & Dependency Injection
 
 Context provides ambient values throughout the operation tree without "argument drilling" (passing arguments through many intermediate operations).
 
@@ -401,7 +482,7 @@ function* fetchRepositories() {
 
 ---
 
-## 7. Long-Running Operations with resource()
+## 8. Long-Running Operations with resource()
 
 ### Problem
 
@@ -464,7 +545,7 @@ function useHeartSocket(port, host) {
 
 ---
 
-## 8. Streams and Subscriptions
+## 9. Streams and Subscriptions
 
 ### Stream vs Subscription
 
@@ -543,78 +624,13 @@ await main(function*() {
 
 ---
 
-## 9. Critical Gotchas & Best Practices
+## 10. Critical Gotchas (Quick Reference)
 
-### 1. Operations are lazy - MUST yield* or run()
-
-```js
-// WRONG
-function* main() {
-  sleep(1000);  // Just creates recipe, doesn't run
-}
-
-// CORRECT
-function* main() {
-  yield* sleep(1000);  // Actually runs
-}
-```
-
-### 2. for yield* each REQUIRES each.next() at loop end
-
-```js
-// WRONG - loop never advances
-for (let item of yield* each(stream)) {
-  console.log(item);
-}
-
-// CORRECT
-for (let item of yield* each(stream)) {
-  console.log(item);
-  yield* each.next();  // MUST call
-}
-```
-
-### 3. Streams need subscribers for send() to work
-
-```js
-let channel = createChannel();
-yield* channel.send('hello');  // Does NOTHING - no subscribers
-
-let subscription = yield* channel;  // Now has subscriber
-yield* channel.send('world');  // Works
-```
-
-### 4. Converting between Promise and Operation
-
-```js
-// Inside operations - use until()
-function* myOp() {
-  let result = yield* until(somePromise);
-}
-
-// Outside operations (async context) - use run()
-async function myFunc() {
-  let result = await run(someOperation);
-}
-
-// WRONG - don't use run() inside operations
-function* myOp() {
-  let result = yield* run(otherOp);  // Just use yield* directly!
-}
-```
-
-### 5. Don't use await with Operations
-
-```js
-// WRONG
-await operation;  // Operations aren't promises
-
-// CORRECT - inside operations
-yield* operation;
-
-// CORRECT - in async context
-await run(operation);
-```
+1. **Operations are lazy** - Must use `yield*`, `run()`, or `spawn()` to execute (see Section 3)
+2. **`each.next()` required** - Always call `yield* each.next()` at end of `for...of` loop (see Section 9)
+3. **Subscribers before send** - `channel.send()` does nothing without active subscribers (see Section 9)
+4. **Promise ↔ Operation conversion** - Use `until(promise)` inside operations, `run(operation)` outside (see Section 2)
+5. **No `await` with operations** - Use `yield*` inside operations, `await run()` in async context
 
 ---
 
@@ -637,6 +653,7 @@ await run(operation);
 - `spawn()` - Run concurrent operation as child
 - `race()` - First to complete wins
 - `all()` - Wait for all to complete
+- `scoped()` - Isolate effects, clean up immediately when block exits
 
 **Streams:**
 - `createChannel()` - Create stream with send() method

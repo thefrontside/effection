@@ -66,6 +66,7 @@ export function* useAppHtml({
         </noscript>
         <script type="module" src="https://esm.sh/@11ty/is-land@4.0.0" />
         <script type="module" src="/assets/search.js" />
+        <link rel="alternate" type="text/plain" href="/assets/llms.txt" title="LLM Documentation" />
         {head ?? <></>}
       </head>
       <body class="flex flex-col bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-200">

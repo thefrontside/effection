@@ -331,158 +331,7 @@ await main(function*() {
 
 ---
 
-## 6. Isolating Effects with scoped()
-
-### Problem
-
-Sometimes you need to run an operation that spawns tasks or creates resources, but you want all those effects cleaned up immediately when the operation completes - not when the parent scope ends.
-
-### Solution: scoped()
-
-`scoped()` encapsulates an operation so that **no effects persist outside of it**. When the scoped operation completes, all concurrent tasks and resources are shut down, and context values are restored.
-
-```js
-import { scoped, spawn, sleep } from "effection";
-
-function* myOperation() {
-  // This task will be cleaned up when scoped() completes
-  yield* scoped(function*() {
-    yield* spawn(function*() {
-      while (true) {
-        yield* sleep(1000);
-        console.log("heartbeat");
-      }
-    });
-
-    yield* sleep(3000);  // After 3s, scoped() completes
-    return "done";
-  });
-  // Heartbeat task is already stopped here
-  console.log("continuing without heartbeat");
-}
-```
-
-### Return Behavior
-
-`scoped()` returns whatever the inner operation returns:
-
-```js
-let result = yield* scoped(function*() {
-  return { value: 42 };
-});
-console.log(result);  // { value: 42 }
-```
-
-**When halted:** If the inner operation is halted (cancelled) before it can return a value, `scoped()` returns `{ exists: false }` - a Maybe type indicating no value was produced:
-
-```js
-import { race, scoped, suspend } from "effection";
-
-let result = yield* race([
-  scoped(function*() {
-    yield* suspend();  // Never completes
-    return "never reached";
-  }),
-  sleep(100),  // This wins the race
-]);
-// The scoped operation was halted, result from race is undefined
-```
-
-### Use Cases
-
-1. **Temporary resources** - Create resources that clean up immediately, not at end of parent scope
-2. **Isolated side effects** - Run operations without polluting the parent scope with spawned tasks
-3. **AbortSignal creation** - Get an AbortSignal that aborts when the scoped block exits:
-
-```js
-let signal = yield* scoped(function*() {
-  return yield* useAbortSignal();
-});
-console.log(signal.aborted);  // true - scope already exited
-```
-
-### Context Isolation
-
-Context values set inside `scoped()` are restored when the scope exits:
-
-```js
-const MyContext = createContext("my-value");
-
-yield* MyContext.set("outer");
-console.log(yield* MyContext.get());  // "outer"
-
-yield* scoped(function*() {
-  yield* MyContext.set("inner");
-  console.log(yield* MyContext.get());  // "inner"
-});
-
-console.log(yield* MyContext.get());  // "outer" - restored!
-```
-
-### Key Difference from spawn()
-
-- `spawn()` - child runs concurrently, parent continues, child cleaned up when parent scope ends
-- `scoped()` - child runs to completion (or halt), effects cleaned up immediately, then parent continues
-
----
-
-## 7. Context & Dependency Injection
-
-Context provides ambient values throughout the operation tree without "argument drilling" (passing arguments through many intermediate operations).
-
-### Three Steps Pattern
-
-**1. Create** a context reference:
-```js
-import { createContext } from 'effection';
-const GithubTokenContext = createContext("token");
-```
-
-**2. Set** the context value:
-```js
-yield* GithubTokenContext.set("gha-1234567890");
-```
-
-**3. Get** the context value:
-```js
-// Non-optional - throws if not set
-const token = yield* GithubTokenContext.expect();
-
-// Optional - returns undefined if not set
-const token = yield* GithubTokenContext.get();
-```
-
-### Complete Example
-
-```js
-import { createContext, main } from 'effection';
-
-const GithubTokenContext = createContext("token");
-
-await main(function* () {
-  yield* GithubTokenContext.set("gha-1234567890");
-  yield* fetchGithubData();
-});
-
-function* fetchGithubData() {
-  yield* fetchRepositories(); // doesn't need token parameter
-}
-
-function* fetchRepositories() {
-  const token = yield* GithubTokenContext.expect(); // throws if not set
-  console.log(token); // gha-1234567890
-}
-```
-
-### Context Hierarchy
-
-- Bound to scope - all children see parent's value
-- Children can override without affecting ancestors
-- Common uses: config, API clients, services with guaranteed cleanup
-
----
-
-## 8. Long-Running Operations with resource()
+## 6. Long-Running Operations with resource()
 
 ### Problem
 
@@ -545,7 +394,7 @@ function useHeartSocket(port, host) {
 
 ---
 
-## 9. Streams and Subscriptions
+## 7. Streams and Subscriptions
 
 ### Stream vs Subscription
 
@@ -624,7 +473,7 @@ await main(function*() {
 
 ---
 
-## 10. Events: on() and once()
+## 8. Events: on() and once()
 
 ### Single Events with once()
 
@@ -667,7 +516,7 @@ await main(function*() {
 
 ---
 
-## 11. Utility Operations
+## 9. Utility Operations
 
 ### suspend() - Pause Indefinitely
 
@@ -800,6 +649,157 @@ for (let item of yield* each(myStream)) {
 
 ---
 
+## 10. Isolating Effects with scoped()
+
+### Problem
+
+Sometimes you need to run an operation that spawns tasks or creates resources, but you want all those effects cleaned up immediately when the operation completes - not when the parent scope ends.
+
+### Solution: scoped()
+
+`scoped()` encapsulates an operation so that **no effects persist outside of it**. When the scoped operation completes, all concurrent tasks and resources are shut down, and context values are restored.
+
+```js
+import { scoped, spawn, sleep } from "effection";
+
+function* myOperation() {
+  // This task will be cleaned up when scoped() completes
+  yield* scoped(function*() {
+    yield* spawn(function*() {
+      while (true) {
+        yield* sleep(1000);
+        console.log("heartbeat");
+      }
+    });
+
+    yield* sleep(3000);  // After 3s, scoped() completes
+    return "done";
+  });
+  // Heartbeat task is already stopped here
+  console.log("continuing without heartbeat");
+}
+```
+
+### Return Behavior
+
+`scoped()` returns whatever the inner operation returns:
+
+```js
+let result = yield* scoped(function*() {
+  return { value: 42 };
+});
+console.log(result);  // { value: 42 }
+```
+
+**When halted:** If the inner operation is halted (cancelled) before it can return a value, `scoped()` returns `{ exists: false }` - a Maybe type indicating no value was produced:
+
+```js
+import { race, scoped, suspend } from "effection";
+
+let result = yield* race([
+  scoped(function*() {
+    yield* suspend();  // Never completes
+    return "never reached";
+  }),
+  sleep(100),  // This wins the race
+]);
+// The scoped operation was halted, result from race is undefined
+```
+
+### Use Cases
+
+1. **Temporary resources** - Create resources that clean up immediately, not at end of parent scope
+2. **Isolated side effects** - Run operations without polluting the parent scope with spawned tasks
+3. **AbortSignal creation** - Get an AbortSignal that aborts when the scoped block exits:
+
+```js
+let signal = yield* scoped(function*() {
+  return yield* useAbortSignal();
+});
+console.log(signal.aborted);  // true - scope already exited
+```
+
+### Context Isolation
+
+Context values set inside `scoped()` are restored when the scope exits:
+
+```js
+const MyContext = createContext("my-value");
+
+yield* MyContext.set("outer");
+console.log(yield* MyContext.get());  // "outer"
+
+yield* scoped(function*() {
+  yield* MyContext.set("inner");
+  console.log(yield* MyContext.get());  // "inner"
+});
+
+console.log(yield* MyContext.get());  // "outer" - restored!
+```
+
+### Key Difference from spawn()
+
+- `spawn()` - child runs concurrently, parent continues, child cleaned up when parent scope ends
+- `scoped()` - child runs to completion (or halt), effects cleaned up immediately, then parent continues
+
+---
+
+## 11. Context & Dependency Injection
+
+Context provides ambient values throughout the operation tree without "argument drilling" (passing arguments through many intermediate operations).
+
+### Three Steps Pattern
+
+**1. Create** a context reference:
+```js
+import { createContext } from 'effection';
+const GithubTokenContext = createContext("token");
+```
+
+**2. Set** the context value:
+```js
+yield* GithubTokenContext.set("gha-1234567890");
+```
+
+**3. Get** the context value:
+```js
+// Non-optional - throws if not set
+const token = yield* GithubTokenContext.expect();
+
+// Optional - returns undefined if not set
+const token = yield* GithubTokenContext.get();
+```
+
+### Complete Example
+
+```js
+import { createContext, main } from 'effection';
+
+const GithubTokenContext = createContext("token");
+
+await main(function* () {
+  yield* GithubTokenContext.set("gha-1234567890");
+  yield* fetchGithubData();
+});
+
+function* fetchGithubData() {
+  yield* fetchRepositories(); // doesn't need token parameter
+}
+
+function* fetchRepositories() {
+  const token = yield* GithubTokenContext.expect(); // throws if not set
+  console.log(token); // gha-1234567890
+}
+```
+
+### Context Hierarchy
+
+- Bound to scope - all children see parent's value
+- Children can override without affecting ancestors
+- Common uses: config, API clients, services with guaranteed cleanup
+
+---
+
 ## 12. Result and Maybe Types
 
 ### Result<T> - Success or Error
@@ -840,17 +840,112 @@ This explains the `{ exists: false }` you may see when a scoped operation is can
 
 ---
 
-## 13. Critical Gotchas (Quick Reference)
+## 13. Advanced APIs
+
+These APIs are primarily for framework authors and advanced integration scenarios.
+
+### createScope() - Manual Scope Management
+
+Create a standalone scope outside of `main()` or `run()`. Returns a tuple of `[scope, destroy]`:
+
+```js
+import { createScope, sleep, suspend } from "effection";
+
+let [scope, destroy] = createScope();
+
+// Run operations in the scope
+scope.run(function*() {
+  yield* sleep(1000);
+  console.log("done sleeping");
+});
+
+scope.run(function*() {
+  try {
+    yield* suspend();
+  } finally {
+    console.log("cleaned up!");
+  }
+});
+
+// Later: destroy the scope (halts all operations, runs cleanup)
+await destroy();  // prints "cleaned up!"
+```
+
+**Use cases:**
+- Framework integration (Express, Koa, etc.)
+- Manual lifecycle management
+- Testing utilities
+
+### global - Root Scope
+
+The root of all Effection scopes. All scopes created without a parent derive from `global`:
+
+```js
+import { global } from "effection";
+
+// global is a Scope - you can run operations on it
+global.run(function*() {
+  // This runs in the global scope
+});
+```
+
+**Warning:** Operations in `global` are never automatically cleaned up. Prefer `main()` or `createScope()` for proper lifecycle management.
+
+### lift() - Convert Function to Operation
+
+Convert a synchronous function into an operation. Useful for making plain functions composable with `yield*`:
+
+```js
+import { lift } from "effection";
+
+// Create an operation-returning version of console.log
+let log = lift((message: string) => console.log(message));
+
+function* myOperation() {
+  yield* log("hello world");  // Now works with yield*
+  yield* log("done");
+}
+```
+
+**When to use:**
+- Wrapping side-effectful functions for use in operations
+- Making synchronous code interruptible at yield points
+- Creating operation-based APIs from plain functions
+
+### useScope() - Get Current Scope
+
+Get the scope of the currently running operation. Useful for spawning operations from callback contexts:
+
+```js
+import { main, useScope } from "effection";
+import express from "express";
+
+await main(function*() {
+  let scope = yield* useScope();
+
+  express().get("/", async (req, res) => {
+    // Run operation within the main scope from callback
+    await scope.run(function*() {
+      let data = yield* fetchData();
+      res.json(data);
+    });
+  });
+});
+```
+
+---
+
+## 14. Critical Gotchas (Quick Reference)
 
 1. **Operations are lazy** - Must use `yield*`, `run()`, or `spawn()` to execute (see Section 3)
-2. **`each.next()` required** - Always call `yield* each.next()` at end of `for...of` loop (see Section 9)
-3. **Subscribers before send** - `channel.send()` does nothing without active subscribers (see Section 9)
+2. **`each.next()` required** - Always call `yield* each.next()` at end of `for...of` loop (see Section 7)
+3. **Subscribers before send** - `channel.send()` does nothing without active subscribers (see Section 7)
 4. **Promise ↔ Operation conversion** - Use `until(promise)` inside operations, `run(operation)` outside (see Section 2)
 5. **No `await` with operations** - Use `yield*` inside operations, `await run()` in async context
 
 ---
 
-## 14. Upgrading from v3 to v4
+## 15. Upgrading from v3 to v4
 
 ### `call()` Simplified
 
@@ -955,6 +1050,12 @@ This makes execution more predictable but may affect timing-sensitive code. Add 
 
 **Program control (main() only):**
 - `exit(code, msg?)` - Exit program with status code (use instead of process.exit)
+
+**Advanced (framework integration):**
+- `createScope()` - Create standalone scope with destroy function
+- `global` - Root scope (operations never auto-cleaned)
+- `lift(fn)` - Convert sync function to operation
+- `useScope()` - Get current scope for callback integration
 
 **Remember:**
 - Use `yield*` not `await` (inside operations)

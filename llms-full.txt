@@ -624,13 +624,201 @@ await main(function*() {
 
 ---
 
-## 10. Critical Gotchas (Quick Reference)
+## 10. Events: on() and once()
+
+### Single Events with once()
+
+Wait for a single event from any [EventTarget](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget) (DOM elements, WebSockets, etc.):
+
+```js
+import { main, once } from 'effection';
+
+await main(function*() {
+  let socket = new WebSocket('ws://localhost:1234');
+
+  yield* once(socket, 'open');
+  console.log('socket is open!');
+
+  let closeEvent = yield* once(socket, 'close');
+  console.log('closed with code', closeEvent.code);
+});
+```
+
+### Event Streams with on()
+
+For recurring events, use `on()` which returns a Stream (avoids missing events between `once()` calls):
+
+```js
+import { main, on, each } from 'effection';
+
+await main(function*() {
+  let socket = new WebSocket('ws://localhost:1234');
+
+  for (let message of yield* each(on(socket, 'message'))) {
+    console.log('message:', message.data);
+    yield* each.next();
+  }
+});
+```
+
+**Note:** `on()` and `once()` work with the DOM `EventTarget` API only. For Node.js EventEmitters, you'll need to wrap them or use a different approach.
+
+**Type inference:** Both functions infer the correct event type from the target (e.g., `CloseEvent` for `'close'` on WebSocket).
+
+---
+
+## 11. Utility Operations
+
+### suspend() - Pause Indefinitely
+
+Pause execution until the scope is destroyed. Useful for "wait forever" patterns:
+
+```js
+import { main, suspend } from "effection";
+
+await main(function*() {
+  try {
+    console.log('suspending');
+    yield* suspend();  // Waits here until scope ends
+  } finally {
+    console.log('done!');  // Runs when scope is destroyed
+  }
+});
+```
+
+Common use: Keep a resource alive until parent scope ends.
+
+### ensure() - Guaranteed Cleanup
+
+Cleaner alternative to `try/finally` for cleanup. Avoids rightward drift:
+
+```js
+import { main, ensure } from 'effection';
+import { createServer } from 'http';
+
+await main(function*() {
+  let server = createServer(...);
+  yield* ensure(() => { server.close() });  // Runs when scope ends
+
+  // ... rest of your code
+});
+```
+
+For async cleanup, return an operation:
+
+```js
+yield* ensure(function*() {
+  server.close();
+  yield* once(server, 'close');  // Wait for close to complete
+});
+```
+
+---
+
+## 12. Result and Maybe Types
+
+### Result<T> - Success or Error
+
+Used for operations that can succeed or fail:
+
+```js
+type Result<T> =
+  | { ok: true, value: T }   // Success
+  | { ok: false, error: Error }  // Failure
+
+// Create results:
+import { Ok, Err } from 'effection';
+
+Ok(42)           // { ok: true, value: 42 }
+Ok()             // { ok: true } (for void)
+Err(new Error()) // { ok: false, error: Error }
+```
+
+### Maybe<T> - Value or Nothing
+
+Used by `scoped()` when an operation is halted before returning:
+
+```js
+type Maybe<T> =
+  | { exists: true, value: T }  // Has value
+  | { exists: false }           // No value (operation was halted)
+
+// Example: scoped() returns Maybe when halted
+let result = yield* scoped(function*() {
+  yield* suspend();  // Never completes
+  return "value";
+});
+// result = { exists: false } because operation was halted
+```
+
+This explains the `{ exists: false }` you may see when a scoped operation is cancelled before it can return.
+
+---
+
+## 13. Critical Gotchas (Quick Reference)
 
 1. **Operations are lazy** - Must use `yield*`, `run()`, or `spawn()` to execute (see Section 3)
 2. **`each.next()` required** - Always call `yield* each.next()` at end of `for...of` loop (see Section 9)
 3. **Subscribers before send** - `channel.send()` does nothing without active subscribers (see Section 9)
 4. **Promise ↔ Operation conversion** - Use `until(promise)` inside operations, `run(operation)` outside (see Section 2)
 5. **No `await` with operations** - Use `yield*` inside operations, `await run()` in async context
+
+---
+
+## 14. Upgrading from v3 to v4
+
+### `call()` Simplified
+
+v4 `call()` only invokes functions—nothing else. Use new helpers for other cases:
+
+| v3 Usage | v4 Replacement |
+|----------|----------------|
+| `yield* call(promise)` | `yield* until(promise)` |
+| `yield* call(5)` | `yield* constant(5)` |
+| `yield* call(fn)` for boundaries | `yield* scoped(fn)` |
+
+**Important:** `call()` no longer establishes concurrency/error boundaries. Spawned tasks inside `call()` are NOT terminated when it returns. Use `scoped()` if you need boundary behavior.
+
+### `action()` Simplified
+
+v4 `action()` now mirrors `new Promise()` more closely:
+
+```js
+// v3 - generator function with try/finally
+function sleep(ms) {
+  return action(function*(resolve) {
+    let timeout = setTimeout(resolve, ms);
+    try {
+      yield* suspend();
+    } finally {
+      clearTimeout(timeout);
+    }
+  });
+}
+
+// v4 - synchronous function, return cleanup
+function sleep(ms) {
+  return action((resolve, reject) => {
+    let timeout = setTimeout(resolve, ms);
+    return () => clearTimeout(timeout);  // cleanup function
+  });
+}
+```
+
+Like `call()`, `action()` no longer establishes boundaries. Wrap with `scoped()` if needed.
+
+### Task Execution Priority Change
+
+**v3:** Child tasks started immediately when spawned
+**v4:** Parent tasks always have priority; children wait until parent yields to async operation
+
+```js
+yield* spawn(childTask);
+console.log("In v4, child hasn't started yet");
+yield* sleep(0);  // NOW child gets to run
+```
+
+This makes execution more predictable but may affect timing-sensitive code. Add `yield* sleep(0)` to explicitly yield control if children need to start immediately.
 
 ---
 
@@ -643,6 +831,8 @@ await main(function*() {
 **Core operations:**
 - `sleep(ms)` - Pause for duration
 - `spawn(fn)` - Concurrent child operation
+- `suspend()` - Pause indefinitely until scope ends
+- `ensure(fn)` - Guaranteed cleanup (cleaner than try/finally)
 
 **Callback integration:**
 - `withResolvers()` - Create operation from callback (like `Promise.withResolvers()`)
@@ -660,10 +850,19 @@ await main(function*() {
 - `each(stream)` - Loop over stream values (requires `yield* each.next()`)
 - `createSignal()` - Stream from external events
 
+**Events (EventTarget only):**
+- `once(target, name)` - Wait for single event
+- `on(target, name)` - Stream of events
+
+**Types:**
+- `Result<T>` - `{ ok: true, value }` or `{ ok: false, error }`
+- `Maybe<T>` - `{ exists: true, value }` or `{ exists: false }`
+
 **Conversion:**
 - `until(promise)` - Promise → Operation (use inside operations)
 - `run(operation)` - Operation → Promise (use in async context)
-- `call(asyncFn)` - Call async function from Effection
+- `call(fn)` - Invoke function as operation (v4: no longer establishes boundaries)
+- `constant(value)` - Wrap constant value as operation
 
 **Remember:**
 - Use `yield*` not `await` (inside operations)

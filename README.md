@@ -20,7 +20,8 @@ solid _at scale_, and it does all of this while feeling like normal JavaScript.
 ## Platforms
 
 Effection runs on all major JavaScript platforms including NodeJs, Browser, and
-Deno. It is published on both [npm][npm-effection] and [deno.land][deno-land-effection].
+Deno. It is published on both [npm][npm-effection] and
+[deno.land][deno-land-effection].
 
 ## Contributing to Website
 
@@ -28,7 +29,7 @@ Go to [website's readme](www) to learn how to contribute to the website.
 
 ## Development
 
-[Deno][] is the primary tool used for development, testing, and packaging.
+[Deno][Deno] is the primary tool used for development, testing, and packaging.
 
 ### Testing
 
@@ -44,7 +45,7 @@ If you want to build a development version of the NPM package so that you can
 link it locally, you can use the `build:npm` script and passing it a version
 number. for example:
 
-``` text
+```text
 $ deno task build:npm 3.0.0-mydev-snapshot.0
 Task build:npm deno run -A tasks/build-npm.ts "3.0.0-mydev-snapshot.0"
 [dnt] Transforming...

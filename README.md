@@ -62,6 +62,11 @@ found 0 vulnerabilities
 
 Now, the built npm package can be found in the `build/npm` directory.
 
+## For AI Assistants
+
+- [llms.txt](llms.txt) — High-level overview
+- [llms-full.txt](llms-full.txt) — Complete reference
+
 [structured concurrency]: https://vorpus.org/blog/notes-on-structured-concurrency-or-go-statement-considered-harmful/
 [discord]: https://discord.gg/Ug5nWH8
 [Deno]: https://deno.land

@@ -27,6 +27,33 @@ export function xIndexRoute({
     *routemap(gen) {
       return [{ pathname: gen() }];
     },
+    *llmstxt() {
+      let workspace = yield* useWorkspace("thefrontside/effectionx");
+
+      let packages = yield* all(
+        workspace.packages.map(function* (pkg) {
+          const [details] = yield* pkg.jsrPackageDetails();
+
+          let title;
+          let description;
+          if (details && details.success) {
+            title = `@${details.data.scope}/${details.data.name}`;
+            description = details.data.description;
+          } else {
+            title = pkg.workspacePath;
+            description = yield* pkg.description();
+          }
+
+          return `- ${title}: ${description}`;
+        }),
+      );
+
+      return `# Effection Extensions
+
+A collection of reusable, community-created extensions that show the best practices for handling common JavaScript tasks with Effection.
+
+${packages.join("\n")}`;
+    },
     *handler() {
       let workspace = yield* useWorkspace("thefrontside/effectionx");
 

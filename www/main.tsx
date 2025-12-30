@@ -2,6 +2,7 @@ import { main, suspend } from "effection";
 import { createRevolution, ServerInfo } from "revolution";
 
 import { etagPlugin } from "./plugins/etag.ts";
+import { llmsTxtPlugin } from "./plugins/llms-txt.ts";
 import { rebasePlugin } from "./plugins/rebase.ts";
 import { route, sitemapPlugin } from "./plugins/sitemap.ts";
 import { tailwindPlugin } from "./plugins/tailwind.ts";
@@ -73,6 +74,7 @@ if (import.meta.main) {
         etagPlugin(),
         rebasePlugin(),
         sitemapPlugin(),
+        llmsTxtPlugin(),
       ],
     });
 

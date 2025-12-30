@@ -88,3 +88,8 @@ See **`llms-full.txt`** for:
 - Patterns and idioms
 - async/await comparisons
 - v3 → v4 migration guidance
+
+## Extensions
+
+Community-created extensions for common JavaScript use cases with Effection:
+https://frontside.com/effection/x/llms.txt

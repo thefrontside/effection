@@ -5,6 +5,23 @@ import { stringify } from "@libs/xml";
 import { compile } from "path-to-regexp";
 import { useAbsoluteUrlFactory } from "./rebase.ts";
 
+/**
+ * Registry for llms.txt handlers, populated by route() when llmstxt is defined
+ */
+export interface LlmsTxtHandler {
+  pattern: string;
+  handler: (
+    params: Record<string, string>,
+    request: Request,
+  ) => Operation<string | null>;
+}
+
+const llmsTxtHandlers: LlmsTxtHandler[] = [];
+
+export function getLlmsTxtHandlers(): LlmsTxtHandler[] {
+  return llmsTxtHandlers;
+}
+
 export function sitemapPlugin(): RevolutionPlugin {
   return {
     *http(request, next) {
@@ -95,6 +112,19 @@ export interface SitemapRoute<T> {
     generate: (params?: Record<string, string>) => string,
     request: Request,
   ): Operation<RoutePath[]>;
+
+  /**
+   * Generate llms.txt content for this route.
+   * When defined, the route will serve llms.txt at {pattern}/llms.txt
+   *
+   * @param params - Route parameters extracted from the URL
+   * @param request - The original request
+   * @returns The llms.txt content as a string, or null
+   */
+  llmstxt?(
+    params: Record<string, string>,
+    request: Request,
+  ): Operation<string | null>;
 }
 
 export function route<T>(
@@ -110,6 +140,12 @@ export function route<T>(
           let generate = compile(pattern);
           return routemap(generate, request);
         },
+      });
+    }
+    if (middleware.llmstxt) {
+      llmsTxtHandlers.push({
+        pattern,
+        handler: middleware.llmstxt,
       });
     }
     return handler;

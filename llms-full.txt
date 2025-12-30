@@ -713,6 +713,91 @@ yield* ensure(function*() {
 });
 ```
 
+### interval() - Repeated Timed Stream
+
+Create an infinite stream that emits at regular intervals:
+
+```js
+import { main, each, interval } from 'effection';
+
+await main(function*() {
+  let startTime = Date.now();
+
+  for (let _ of yield* each(interval(1000))) {
+    let elapsed = Date.now() - startTime;
+    console.log(`elapsed: ${elapsed}ms`);
+    yield* each.next();
+  }
+});
+```
+
+### createQueue() - Buffered Queue
+
+Unlike channels (which drop messages with no subscribers), queues buffer items. Items added before a listener exists will still be received:
+
+```js
+import { main, createQueue } from 'effection';
+
+await main(function*() {
+  let queue = createQueue<string, void>();
+
+  // Add items BEFORE listening - they're queued
+  queue.add("first");
+  queue.add("second");
+
+  // Now consume - items are still there
+  let next = yield* queue.next();
+  console.log(next.value);  // "first"
+
+  next = yield* queue.next();
+  console.log(next.value);  // "second"
+
+  queue.close();  // Signal end of queue
+});
+```
+
+**Queue vs Channel:**
+- `createChannel()` - unbuffered, messages dropped if no subscriber
+- `createQueue()` - buffered, messages queued until consumed
+
+### exit() - Exit main() Program
+
+Immediately halt and exit the program with a status code. Only works inside `main()`:
+
+```js
+import { main, exit } from 'effection';
+
+await main(function*() {
+  if (invalidArgs()) {
+    yield* exit(1, "invalid arguments");  // Exits with code 1
+  }
+
+  // ... normal execution
+  yield* exit(0);  // Success
+});
+```
+
+**Warning:** Never use `process.exit()` or `Deno.exit()` directly—they skip cleanup. Always use `yield* exit()`.
+
+### subscribe() / stream() - Convert Async Iterables
+
+Convert JavaScript `AsyncIterator`/`AsyncIterable` to Effection types:
+
+```js
+import { subscribe, stream } from 'effection';
+
+// Convert AsyncIterator to Subscription
+let subscription = subscribe(asyncIterator);
+let { value } = yield* subscription.next();
+
+// Convert AsyncIterable to Stream
+let myStream = stream(asyncIterable);
+for (let item of yield* each(myStream)) {
+  console.log(item);
+  yield* each.next();
+}
+```
+
 ---
 
 ## 12. Result and Maybe Types
@@ -846,9 +931,11 @@ This makes execution more predictable but may affect timing-sensitive code. Add 
 - `scoped()` - Isolate effects, clean up immediately when block exits
 
 **Streams:**
-- `createChannel()` - Create stream with send() method
+- `createChannel()` - Create unbuffered stream with send() method
+- `createQueue()` - Create buffered queue (items persist without subscribers)
 - `each(stream)` - Loop over stream values (requires `yield* each.next()`)
 - `createSignal()` - Stream from external events
+- `interval(ms)` - Stream that emits at regular intervals
 
 **Events (EventTarget only):**
 - `once(target, name)` - Wait for single event
@@ -863,6 +950,11 @@ This makes execution more predictable but may affect timing-sensitive code. Add 
 - `run(operation)` - Operation → Promise (use in async context)
 - `call(fn)` - Invoke function as operation (v4: no longer establishes boundaries)
 - `constant(value)` - Wrap constant value as operation
+- `subscribe(asyncIterator)` - AsyncIterator → Subscription
+- `stream(asyncIterable)` - AsyncIterable → Stream
+
+**Program control (main() only):**
+- `exit(code, msg?)` - Exit program with status code (use instead of process.exit)
 
 **Remember:**
 - Use `yield*` not `await` (inside operations)

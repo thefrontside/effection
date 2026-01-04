@@ -1,1 +1,55 @@
-../../llms.txt
+# Effection — Structured Concurrency for JavaScript
+
+Effection is a JavaScript library for building reliable asynchronous and
+concurrent programs using **structured concurrency**.
+
+Effection models async work as **lazy operations** with explicit lifetimes,
+deterministic cancellation, and guaranteed cleanup. It uses **generator
+functions (`function*`)**, not `async` / `await`, to express long-lived,
+cancellable work.
+
+---
+
+## ⚠️ IMPORTANT FOR AI AGENTS
+
+If you will **write, modify, refactor, or debug Effection code**, you **must**
+read [AGENTS.md] first.
+
+**AGENTS.md is the normative behavioral contract.**
+- Do not invent APIs
+- Do not infer semantics from Promises or other ecosystems
+- Do not substitute primitives that “look equivalent”
+- If information is missing or uncertain, consult the API reference
+
+If any other document conflicts with AGENTS.md, **AGENTS.md takes precedence**.
+
+---
+
+## Where to look (routing)
+
+- **Behavioral rules & invariants (authoritative):** [AGENTS.md]
+- **Public API reference (authoritative):** [API]
+- **Conceptual guides & explanations (human-oriented):** [Guides]
+  - [Thinking in Effection]
+  - [Async Rosetta Stone]
+  - [Operations]
+  - [Scope]
+  - [Resources]
+  - [Spawn]
+  - [Collections]
+  - [Browse all guides][docs/]
+- **Extension packages (process, fetch, websockets, WebWorkers):** [EffectionX]
+
+---
+
+[AGENTS.md]: https://raw.githubusercontent.com/thefrontside/effection/v4/AGENTS.md
+[API]: https://frontside.com/effection/api/
+[Guides]: https://frontside.com/effection/guides/v4
+[Thinking in Effection]: https://raw.githubusercontent.com/thefrontside/effection/v4/docs/thinking-in-effection.mdx
+[Async Rosetta Stone]: https://raw.githubusercontent.com/thefrontside/effection/v4/docs/async-rosetta-stone.mdx
+[Operations]: https://raw.githubusercontent.com/thefrontside/effection/v4/docs/operations.mdx
+[Scope]: https://raw.githubusercontent.com/thefrontside/effection/v4/docs/scope.mdx
+[Resources]: https://raw.githubusercontent.com/thefrontside/effection/v4/docs/resources.mdx
+[Spawn]: https://raw.githubusercontent.com/thefrontside/effection/v4/docs/spawn.mdx
+[Collections]: https://raw.githubusercontent.com/thefrontside/effection/v4/docs/collections.mdx
+[EffectionX]: https://frontside.com/effection/x/

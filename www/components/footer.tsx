@@ -33,13 +33,13 @@ export function Footer(): JSX.Element {
       </section>
       <section class="flex flex-col gap-y-1">
         <h1 class="text-sm uppercase font-bold text-blue-primary dark:text-blue-secondary mb-4">
-          Resources
+          AI Agent Resources
         </h1>
         <a href="/assets/llms.txt" class="text-gray-800 dark:text-gray-200">
-          LLM Reference
+          llms.txt
         </a>
-        <a href="/assets/llms-full.txt" class="text-gray-800 dark:text-gray-200">
-          Full LLM Reference
+        <a href="https://raw.githubusercontent.com/thefrontside/effection/v4/AGENTS.md" class="text-gray-800 dark:text-gray-200">
+          AGENTS.md
         </a>
       </section>
       <section class="flex flex-col gap-y-1">

@@ -15,7 +15,7 @@
     "rules": { "exclude": ["prefer-const", "require-yield"] },
     "exclude": ["build", "www", "docs", "tasks"]
   },
-  "fmt": { "exclude": ["build", "www", "CODE_OF_CONDUCT.md", "README.md"] },
+  "fmt": { "exclude": ["build", "www"] },
   "test": { "exclude": ["build"] },
   "compilerOptions": { "lib": ["deno.ns", "esnext", "dom", "dom.iterable"] },
   "imports": {

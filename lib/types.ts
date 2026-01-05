@@ -145,6 +145,8 @@ export interface Task<T> extends Future<T> {
    * Task is complete.
    */
   halt(): Future<void>;
+
+  [Symbol.asyncDispose](): Promise<void>;
 }
 
 /**

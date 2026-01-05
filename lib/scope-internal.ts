@@ -96,7 +96,7 @@ export function createScopeInternal(
   return [scope, destroy];
 }
 
-export interface ScopeInternal extends Scope {
+export interface ScopeInternal extends Scope, AsyncDisposable {
   contexts: Record<string, unknown>;
   ensure(op: () => Operation<void>): () => void;
 }

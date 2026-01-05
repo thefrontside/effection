@@ -35,15 +35,55 @@ export const global = createScopeInternal()[0] as Scope;
  * await destroy(); // prints "done!";
  * ```
  *
+ * `createScope()` also supports explicit resource management
+ * @example
+ * ```js
+ * {
+ *  await using scope = createScope();
+ *
+ *  let delay = scope.run(function*() {
+ *    yield* sleep(1000);
+ *  });
+ *
+ *  scope.run(function*() {
+ *    try {
+ *      yield* suspend();
+ *    } finally {
+ *      console.log('done!');
+ *    }
+ *  });
+ *
+ *  await delay;
+ *  // prints "done!";
+ * }
+ * ```
+ *
  * @param parent scope. If no parent is specified it will derive directly from {@link global}
  * @returns a tuple containing the freshly created scope, along with a function to
  *          destroy it.
  */
 export function createScope(
   parent: Scope = global,
-): [Scope, () => Future<void>] {
+): Scope & AsyncDisposable & [Scope, () => Future<void>] {
   let [scope, destroy] = createScopeInternal(parent);
-  return [scope, () => parent.run(destroy)];
+  let dispose = () => parent.run(destroy);
+
+  let tuple = [scope, dispose];
+
+  Object.defineProperty(scope, Symbol.iterator, {
+    value: tuple[Symbol.iterator].bind(tuple),
+    enumerable: false,
+  });
+
+  Object.defineProperty(scope, Symbol.asyncDispose, {
+    enumerable: false,
+    value: dispose,
+  });
+
+  return scope as unknown as
+    & Scope
+    & AsyncDisposable
+    & [Scope, () => Future<void>];
 }
 
 /**

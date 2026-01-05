@@ -280,10 +280,18 @@ The nice thing about scope is that you don't need to worry about it. It's just
 there, ensuring that things get cleaned up as soon as they are no longer needed.
 Sometimes, however, it is necessary to interact with the scope of an operation
 from outside of Effection in normal JavaScript execution. To do this we use the
-[Scope][scope] API. Once we have a reference to a `Scope`, we can use it to run
+[Scope][scope] API.  Once we have a reference to a `Scope`, we can use it to run
 operations as though they were being spawned directly from an operation running
-in that scope. An example of this might be to spawn a new operation for each
-request to an express server.
+in that scope. The best way to use a scope is to capture it from an already running
+operation, but you can also create a new one from scratch.
+
+### Capturing a `Scope` from a running `Operation`
+
+If you are in an operation, the `useScope()` function allows you to
+capture a reference to the current `Scope`. You can then use that
+scope to create tasks that are descendants of that original scope. An
+example of this would be to spawn a new operation for each request to
+an express server.
 
 Express handles the http request, but it does not know anything about
 Effection, and so we have to explicitly connect each request to an
@@ -318,13 +326,37 @@ And, because every request runs inside of our main scope when that scope
 exits because someone hit `CTRL-C`, then any in-flight requests will be
 canceled.
 
+### Creating a brand new `Scope`
+
 The other way to get a reference to a [`Scope`][scope] is to create a completely
 new one from scratch. This can be done with the [`createScope()`][create-scope]
 function. This will create a fresh scope that is completely disconnected from
-any other scope.
+any other scope. Scope supports both explicit resource management as well as
+manual destruction. The following example uses explicit resource management to
+execute fetch that will timeout after one second.
 
-One common use of [`createScope()`][create-scope] is for running operations in
-test cases.
+
+```js
+async function main() {
+  await using scope = createScope();
+
+  scope.run(function*() {
+    let response = yield* until(fetch("http://example.com"));
+    return yield* response.text();
+  }).then(response => console.log(response));
+
+  await scope.run(sleep(1000));
+} //=> scope is destroyed!
+```
+
+Normally, this is the best way to create a new Scope. However, you can
+also create and then manually destroy a `Scope` by hand. Use this
+method in cases where the scope is destroyed in different lexical
+scope than the one in which it is created. To do this, destructure the
+return value of `createScope()` to capture both the new scope as well
+as a reference to a async function that will destroy it.
+
+One common use is for running operations within test cases.
 
 ```js
 let scope;
@@ -345,9 +377,9 @@ afterEach(async () => {
 });
 ```
 
-Whenever you use `createScope()`, it is important that you `await` the
-destruction operation when the scope is no longer needed since it will not
-be destroyed implicitly.
+Whenever you use `createScope()` in this way, it is important that you
+`await` the destruction operation when the scope is no longer needed
+since it will not be destroyed implicitly.
 
 [spawn]: /api/v4/spawn
 [use-abort-signal]: /api/v4/useAbortSignal

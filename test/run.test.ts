@@ -347,4 +347,43 @@ describe("run()", () => {
 
     expect(scope.expect(Children).size).toEqual(0);
   });
+
+  it("can be disposed with 'await using'", async () => {
+    let halted = false;
+
+    {
+      await using _ = run(function* () {
+        try {
+          yield* suspend();
+        } finally {
+          halted = true;
+        }
+      });
+    }
+
+    expect(halted).toEqual(true);
+  });
+
+  it("should throw when 'halt' is invoked after 'await using'", async () => {
+    let halted = false;
+    let error: Error | undefined;
+
+    let task = run(function* () {
+      try {
+        yield* suspend();
+      } finally {
+        halted = true;
+      }
+    });
+
+    {
+      await using _ = task;
+    }
+
+    await task.catch((e) => error = e);
+
+    expect(error).toBeDefined();
+    expect(error?.message).toEqual("halted");
+    expect(halted).toEqual(true);
+  });
 });

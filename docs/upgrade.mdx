@@ -188,6 +188,20 @@ execution of their children. However, it does mean that if your v3
 code relied on child tasks starting immediately, you might need to
 adjust your approach.
 
+## Async Disposable Support
+
+Both `Task` and `Scope` now implement `Symbol.asyncDispose`. This
+allows them to be used with the `await using` syntax for automatic
+resource management or any other tool that consumes the
+`AsyncDisposable` interface.
+
+```js
+await using task = run(function*() {
+  yield* suspend();
+});
+// task is halted automatically
+```
+
 ## Migration Strategies
 
 Most of the changes from v3 to v4 will be caught by deprecation

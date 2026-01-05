@@ -1,4 +1,3 @@
-import { describe, expect, it } from "./suite.ts";
 import {
   createContext,
   createScope,
@@ -8,6 +7,7 @@ import {
   suspend,
   useScope,
 } from "../mod.ts";
+import { describe, expect, it } from "./suite.ts";
 
 describe("Scope", () => {
   it("can be used to run operations", async () => {
@@ -163,6 +163,29 @@ describe("Scope", () => {
 
     await destroy();
     expect(halted).toEqual(true);
+  });
+
+  it("should close scope when using 'using'", async () => {
+    let halted = false;
+    let error: Error | undefined;
+
+    {
+      await using scope = createScope();
+
+      let task = scope.run(function* () {
+        try {
+          yield* suspend();
+        } finally {
+          halted = true;
+        }
+      });
+
+      task.catch((e) => (error = e));
+    }
+
+    expect(halted).toEqual(true);
+    expect(error).toBeDefined();
+    expect(error?.message).toEqual("halted");
   });
 });
 

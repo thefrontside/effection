@@ -1,6 +1,15 @@
 import type { Context, Effect, Operation, Scope } from "./types.ts";
 import { Ok } from "./result.ts";
 import { Do } from "./do.ts";
+import { createApi } from "./api.ts";
+import type { ScopeInternal } from "./scope-internal.ts";
+
+const api = createApi("Context", {
+  set<T>(scope: Scope, context: Context<T>, value: T): T {
+    let { contexts } = scope as ScopeInternal;
+    return contexts[context.name] = value;
+  },
+});
 
 /**
  * Create a new {@link Context}
@@ -39,7 +48,9 @@ const Get = <T>(context: Context<T>) =>
   UseScope((scope) => scope.get(context), `get(${context.name})`);
 const Set = <T>(context: Context<T>, value: T) =>
   UseScope(
-    (scope) => scope.set(context, value),
+    (scope) => {
+      return api.lookup(scope).set(scope, context, value);
+    },
     `set(${context.name}, ${value})`,
   );
 const Expect = <T>(context: Context<T>) =>

@@ -1,6 +1,6 @@
 import { expect } from "@std/expect";
 import { ctrlc } from "ctrlc-windows";
-import { type KillSignal, type Options, type Output, x as $x } from "tinyexec";
+import type { KillSignal, Options, Output } from "tinyexec";
 export { afterEach, beforeEach, describe, it } from "@std/testing/bdd";
 export { expectType } from "ts-expect";
 export { expect };
@@ -94,6 +94,7 @@ export function x(
   options?: Partial<Options>,
 ): Operation<TinyProcess> {
   return resource(function* (provide) {
+    let { x: $x } = yield* until(import("tinyexec"));
     let tinyexec = $x(cmd, args, { ...options });
 
     let promise: Promise<Output> = tinyexec as unknown as Promise<Output>;

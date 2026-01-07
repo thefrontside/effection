@@ -1,15 +1,7 @@
 import type { Context, Effect, Operation, Scope } from "./types.ts";
 import { Ok } from "./result.ts";
 import { Do } from "./do.ts";
-import { createApi } from "./api.ts";
-import type { ScopeInternal } from "./scope-internal.ts";
-
-const api = createApi("Context", {
-  set<T>(scope: Scope, context: Context<T>, value: T): T {
-    let { contexts } = scope as ScopeInternal;
-    return contexts[context.name] = value;
-  },
-});
+import api from "./api/context.ts";
 
 /**
  * Create a new {@link Context}

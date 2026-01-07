@@ -31,7 +31,7 @@
   },
   "exports": {
     ".": "./mod.ts",
-    "experimental": "./experimental.ts"
+    "./experimental": "./experimental.ts"
   },
   "nodeModulesDir": "auto",
   "workspace": [

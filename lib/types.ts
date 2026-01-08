@@ -237,6 +237,41 @@ export interface Context<T> {
   with<R>(value: T, operation: (value: T) => Operation<R>): Operation<R>;
 }
 
+export interface Middleware<TArgs extends unknown[], TReturn> {
+  (args: TArgs, next: (...args: TArgs) => TReturn): TReturn;
+}
+
+export interface Api<A> {
+  context: Context<{
+    min: Partial<Decorate<A>>[];
+    max: Partial<Decorate<A>>[];
+    handle: A;
+  }>;
+  core: A;
+  lookup: (scope?: Scope) => A;
+  operations: {
+    [K in keyof A]: A[K] extends Operation<unknown> ? A[K]
+      : A[K] extends (...args: infer TArgs) => infer TReturn
+        ? TReturn extends Operation<unknown> ? A[K]
+        : (...args: TArgs) => Operation<TReturn>
+      : Operation<A[K]>;
+  };
+  decorate: (
+    decorate: Partial<Decorate<A>>,
+    options?: DecorateOptions,
+  ) => Operation<void>;
+}
+
+export interface DecorateOptions {
+  at: "min" | "max";
+}
+
+export type Decorate<Api> = {
+  [K in keyof Api]: Api[K] extends (...args: infer TArgs) => infer TReturn
+    ? Middleware<TArgs, TReturn>
+    : Middleware<[], Api[K]>;
+};
+
 /**
  * A programatic API to interact with an Effection scope from outside of an
  * {@link Operation}.
@@ -327,6 +362,12 @@ export interface Scope {
    * @returns `true` if scope has its own context, `false` if context is not present, or inherited from its parent.
    */
   hasOwn<T>(context: Context<T>): boolean;
+
+  decorate<T>(
+    api: Api<T>,
+    decorate: Partial<Decorate<T>>,
+    opts: DecorateOptions,
+  ): void;
 }
 
 /**

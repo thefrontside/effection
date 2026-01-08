@@ -1,7 +1,6 @@
 import type { Context, Effect, Operation, Scope } from "./types.ts";
 import { Ok } from "./result.ts";
 import { Do } from "./do.ts";
-import api from "./api/context.ts";
 
 /**
  * Create a new {@link Context}
@@ -40,9 +39,7 @@ const Get = <T>(context: Context<T>) =>
   UseScope((scope) => scope.get(context), `get(${context.name})`);
 const Set = <T>(context: Context<T>, value: T) =>
   UseScope(
-    (scope) => {
-      return api.lookup(scope).set(scope, context, value);
-    },
+    (scope) => scope.set(context, value),
     `set(${context.name}, ${value})`,
   );
 const Expect = <T>(context: Context<T>) =>

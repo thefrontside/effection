@@ -1,3 +1,3 @@
-import Context from "./lib/api/context.ts";
+import Scope from "./lib/api/scope.ts";
 
-export const api = { Context };
+export const api = { Scope };

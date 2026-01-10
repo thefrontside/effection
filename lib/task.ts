@@ -8,6 +8,7 @@ import { createScopeInternal, type ScopeInternal } from "./scope-internal.ts";
 import type { Coroutine, Operation, Scope, Task } from "./types.ts";
 import { encapsulate, TaskGroupContext } from "./task-group.ts";
 import { useScope } from "./scope.ts";
+import api  from "./api/task.ts";
 
 export interface TaskOptions<T> {
   owner: ScopeInternal;
@@ -66,7 +67,7 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
     },
   }) as Task<T>;
 
-  let top = new Delimiter<T>(() => encapsulate(operation));
+  let top = new Delimiter<T>(() => api.lookup(scope).run(encapsulate(operation)));
   scope.set(DelimiterContext, top as Delimiter<unknown>);
 
   let group = scope.expect(TaskGroupContext);

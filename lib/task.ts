@@ -8,7 +8,7 @@ import { createScopeInternal, type ScopeInternal } from "./scope-internal.ts";
 import type { Coroutine, Operation, Scope, Task } from "./types.ts";
 import { encapsulate, TaskGroupContext } from "./task-group.ts";
 import { useScope } from "./scope.ts";
-import api  from "./api/task.ts";
+import api from "./api/task.ts";
 
 export interface TaskOptions<T> {
   owner: ScopeInternal;

@@ -324,6 +324,11 @@ export interface Scope {
   spawn<T>(operation: () => Operation<T>): Operation<Task<T>>;
 
   /**
+   * TODO
+   */
+  eval<T>(operation: () => Operation<T>): Operation<T>;
+
+  /**
    * Get a {@link Context} value from outside of an operation.
    *
    * @param context - the context to get

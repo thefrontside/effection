@@ -164,6 +164,22 @@ describe("Scope", () => {
     await destroy();
     expect(halted).toEqual(true);
   });
+
+  it("lets you evaluate operations from directly inside it", async () => {
+    let cxt = createContext<string>("aString");
+
+    await run(function* () {
+      let scope = yield* useScope();
+
+      let setCxt = yield* scope.spawn(function* () {
+        yield* scope.eval(() => cxt.set("hello world!"));
+      });
+
+      yield* setCxt;
+
+      expect(yield* cxt.get()).toEqual("hello world!");
+    });
+  });
 });
 
 interface Tester {

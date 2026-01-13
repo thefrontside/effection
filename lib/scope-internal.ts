@@ -15,6 +15,8 @@ import type {
 import { type WithResolvers, withResolvers } from "./with-resolvers.ts";
 
 import api from "./api/scope.ts";
+import { createCoroutine } from "./coroutine.ts";
+import { box } from "./box.ts";
 
 export function createScopeInternal(
   parent?: Scope,
@@ -60,6 +62,35 @@ export function createScopeInternal(
           let { task, start } = createTask({ operation, owner: scope });
           start();
           return task;
+        },
+      };
+    },
+
+    eval<T>(operation: () => Operation<T>): Operation<T> {
+      return {
+        *[Symbol.iterator]() {
+          let { resolve, reject, operation: result } = withResolvers<T>();
+          let routine = createCoroutine({
+            scope,
+            operation: function* evaluate() {
+              try {
+                let value = yield* operation();
+                resolve(value);
+              } catch (error) {
+                reject(error as Error);
+              }
+            },
+          });
+
+          routine.next(Ok());
+
+          try {
+            return yield* result;
+          } finally {
+            routine.return(Ok({ exists: false }));
+            // deno-lint-ignore no-unsafe-finally
+            return yield* result;
+          }
         },
       };
     },

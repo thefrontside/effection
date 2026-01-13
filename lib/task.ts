@@ -118,7 +118,7 @@ export function* trap<T>(operation: () => Operation<T>): Operation<T> {
 
   let original = {
     error: scope.expect(ErrorContext),
-    delimiter: scope.expect(DelimiterContext),
+    delimiter: scope.get(DelimiterContext),
   };
 
   let delimiter = new Delimiter(operation, original.delimiter);
@@ -137,7 +137,7 @@ export function* trap<T>(operation: () => Operation<T>): Operation<T> {
         if (outcome.exists) {
           resolve(outcome.value);
         } else {
-          original.delimiter.interrupt();
+          original.delimiter?.interrupt();
         }
         return (didExit) => didExit(Ok());
       },

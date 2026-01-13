@@ -16,7 +16,6 @@ import { type WithResolvers, withResolvers } from "./with-resolvers.ts";
 
 import api from "./api/scope.ts";
 import { createCoroutine } from "./coroutine.ts";
-import { box } from "./box.ts";
 
 export function createScopeInternal(
   parent?: Scope,

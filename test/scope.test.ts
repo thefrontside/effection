@@ -2,6 +2,7 @@ import { describe, expect, it } from "./suite.ts";
 import {
   createContext,
   createScope,
+  global,
   resource,
   run,
   sleep,
@@ -179,6 +180,10 @@ describe("Scope", () => {
 
       expect(yield* cxt.get()).toEqual("hello world!");
     });
+  });
+
+  it("can evaluate things in the global scope", async () => {
+    await global.run(() => global.eval(function* () {}));
   });
 });
 

@@ -31,11 +31,12 @@ export function createCoroutine<T>(
     next(result) {
       routine.data.exit((exitResult) => {
         routine.data.exit = (didExit) => didExit(Ok());
+        let validator = scope.get(DelimiterContext)?.validator ?? valid;
         reducer.reduce([
           scope.expect(Priority),
           routine,
           exitResult.ok ? result : exitResult,
-          scope.expect(DelimiterContext).validator,
+          validator,
           "next",
         ]);
       });
@@ -43,11 +44,12 @@ export function createCoroutine<T>(
     return(result) {
       routine.data.exit((exitResult) => {
         routine.data.exit = (didExit) => didExit(Ok());
+        let validator = scope.get(DelimiterContext)?.validator ?? valid;
         reducer.reduce([
           scope.expect(Priority),
           routine,
           exitResult.ok ? result : exitResult,
-          scope.expect(DelimiterContext).validator,
+          validator,
           "return",
         ]);
       });
@@ -66,3 +68,5 @@ export function* useCoroutine(): Operation<Coroutine> {
     },
   }) as Coroutine;
 }
+
+const valid = () => true;

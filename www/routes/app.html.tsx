@@ -36,7 +36,7 @@ export function* useAppHtml({
       <head>
         <meta charset="UTF-8" />
         <title>{title}</title>
-        <meta property="og:image" content="/assets/images/meta-effection.png" />
+        <meta property="og:image" content={twitterImageURL} />
         <meta property="og:title" content={title} data-rh="true" />
         <meta property="og:url" content={canonicalURL} />
         <meta property="og:description" content={description} />

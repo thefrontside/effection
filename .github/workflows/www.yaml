@@ -12,8 +12,6 @@ jobs:
   www:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    env:
-      DEPLOY_NAME: ${{ github.ref_name == 'v4' && '' || format('--{0}', github.ref_name) }}     
 
     permissions:
       id-token: write # Needed for auth with Deno Deploy
@@ -55,7 +53,7 @@ jobs:
           staticalize-linux \
             --site=http://127.0.0.1:8000 \
             --output=www/built \
-            --base=https://effection${{ env.DEPLOY_NAME }}.deno.dev
+            --base=https://effection.deno.dev
 
       - run: npx pagefind --site built
         working-directory: ./www

@@ -3,7 +3,7 @@ import type { JSXChild } from "revolution";
 
 import { Footer } from "../components/footer.tsx";
 import { Header, type HeaderProps } from "../components/header.tsx";
-import { useAbsoluteUrl, useCanonicalUrl } from "../plugins/rebase.ts";
+import { useAbsoluteUrl, useCanonicalUrl } from "../plugins/current-request.ts";
 import { JSXElement } from "revolution/jsx-runtime";
 
 export type Options = {

@@ -3,7 +3,7 @@ import type { JSXChild } from "revolution";
 
 import { Footer } from "../components/footer.tsx";
 import { Header, type HeaderProps } from "../components/header.tsx";
-import { useAbsoluteUrl } from "../plugins/rebase.ts";
+import { useAbsoluteUrl, useCanonicalUrl } from "../plugins/rebase.ts";
 import { JSXElement } from "revolution/jsx-runtime";
 
 export type Options = {
@@ -28,6 +28,8 @@ export function* useAppHtml({
   );
   let homeURL = yield* useAbsoluteUrl("/");
 
+  let canonicalURL = yield* useCanonicalUrl({ base: "https://frontside.com/effection" });
+
   const header = yield* Header({ hasLeftSidebar });
 
   return ({ children, search }) => (
@@ -43,7 +45,7 @@ export function* useAppHtml({
         <meta name="twitter:image" content={twitterImageURL} />
         <link rel="icon" href="/assets/images/favicon-effection.png" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link rel="canonical" href={homeURL} />
+        <link rel="canonical" href={canonicalURL} />
         <link rel="alternate" href={homeURL} hreflang="en" />
         <link rel="alternate" href={homeURL} hreflang="x-default" />
         <link

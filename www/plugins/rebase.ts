@@ -90,7 +90,5 @@ export function* useCanonicalUrl(options: { base: string; }): Operation<string> 
   let req = new URL(request.url);
   let url = new URL(options.base);
   url.pathname = `${url.pathname}${req.pathname}`;
-
   return String(url);
-
 }

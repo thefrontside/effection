@@ -26,7 +26,6 @@ export function* useAppHtml({
   let twitterImageURL = yield* useAbsoluteUrl(
     "/assets/images/meta-effection.png",
   );
-  let homeURL = yield* useAbsoluteUrl("/");
 
   let canonicalURL = yield* useCanonicalUrl({ base: "https://frontside.com/effection" });
 
@@ -39,15 +38,15 @@ export function* useAppHtml({
         <title>{title}</title>
         <meta property="og:image" content="/assets/images/meta-effection.png" />
         <meta property="og:title" content={title} data-rh="true" />
-        <meta property="og:url" content={homeURL} />
+        <meta property="og:url" content={canonicalURL} />
         <meta property="og:description" content={description} />
         <meta name="description" content={description} />
         <meta name="twitter:image" content={twitterImageURL} />
         <link rel="icon" href="/assets/images/favicon-effection.png" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="canonical" href={canonicalURL} />
-        <link rel="alternate" href={homeURL} hreflang="en" />
-        <link rel="alternate" href={homeURL} hreflang="x-default" />
+        <link rel="alternate" href={canonicalURL} hreflang="en" />
+        <link rel="alternate" href={canonicalURL} hreflang="x-default" />
         <link
           href="/assets/prism-atom-one-dark.css"
           rel="preload"

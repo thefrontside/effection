@@ -80,3 +80,17 @@ export function* useAbsoluteUrlFactory(): Operation<(path: string) => string> {
     }
   };
 }
+
+/**
+ * Get the canonical url for the current path.
+ */
+export function* useCanonicalUrl(options: { base: string; }): Operation<string> {
+  let request = yield* CurrentRequest.expect()
+
+  let req = new URL(request.url);
+  let url = new URL(options.base);
+  url.pathname = `${url.pathname}${req.pathname}`;
+
+  return String(url);
+
+}

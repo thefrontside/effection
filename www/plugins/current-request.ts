@@ -29,7 +29,8 @@ export function* useAbsoluteUrlFactory(): Operation<(path: string) => string> {
     let normalizedPath = posixNormalize(path);
     if (normalizedPath.startsWith("/")) {
       let url = new URL(request.url);
-      url.pathname = posixNormalize(`${url.pathname}${normalizedPath}`);
+      url.pathname = normalizedPath
+      url.search = '';
       return url.toString();
     } else {
       return new URL(path, request.url).toString();

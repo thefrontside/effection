@@ -3,7 +3,7 @@ import { route as revolutionRoute, useRevolutionOptions } from "revolution";
 import type { Operation } from "effection";
 import { stringify } from "@libs/xml";
 import { compile } from "path-to-regexp";
-import { useAbsoluteUrlFactory } from "./rebase.ts";
+import { useAbsoluteUrlFactory } from "./current-request.ts";
 
 export function sitemapPlugin(): RevolutionPlugin {
   return {

@@ -2,7 +2,6 @@ import { main, suspend } from "effection";
 import { createRevolution, ServerInfo } from "revolution";
 
 import { etagPlugin } from "./plugins/etag.ts";
-import { rebasePlugin } from "./plugins/rebase.ts";
 import { route, sitemapPlugin } from "./plugins/sitemap.ts";
 import { tailwindPlugin } from "./plugins/tailwind.ts";
 
@@ -13,7 +12,7 @@ import { indexRoute } from "./routes/index-route.tsx";
 import { xIndexRedirect, xIndexRoute } from "./routes/x-index-route.tsx";
 import { xPackageRedirect, xPackageRoute } from "./routes/x-package-route.tsx";
 
-import { initConfig, useConfig } from "./context/config.ts";
+import { useConfig } from "./context/config.ts";
 import { initFetch } from "./context/fetch.ts";
 import { initJSRClient } from "./context/jsr.ts";
 import { initWorktrees } from "./lib/worktrees.ts";
@@ -25,6 +24,7 @@ import { redirectIndexRoute } from "./routes/redirect-index-route.tsx";
 import { searchRoute } from "./routes/search-route.tsx";
 import { initClones } from "./lib/clones.ts";
 import { initOctokitContext } from "./lib/octokit.ts";
+import { currentRequestPlugin } from "./plugins/current-request.ts";
 
 // Learn more at https://docs.deno.com/runtime/manual/examples/module_metadata#concepts
 if (import.meta.main) {
@@ -70,8 +70,8 @@ if (import.meta.main) {
       ],
       plugins: [
         yield* tailwindPlugin({ input: "main.css", outdir: "tailwind" }),
+	currentRequestPlugin(),
         etagPlugin(),
-        rebasePlugin(),
         sitemapPlugin(),
       ],
     });

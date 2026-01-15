@@ -53,7 +53,7 @@ jobs:
           staticalize-linux \
             --site=http://127.0.0.1:8000 \
             --output=www/built \
-            --base=https://effection-www.deno.dev/
+            --base=https://effection.deno.dev
 
       - run: npx pagefind --site built
         working-directory: ./www

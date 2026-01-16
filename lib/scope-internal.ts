@@ -97,7 +97,7 @@ export function createScopeInternal(
     decorate<T extends {}>(
       api: Api<T>,
       decorator: Partial<Decorate<T>>,
-      options: DecorateOptions,
+      options?: DecorateOptions,
     ) {
       let cxt = scope.get(api.context);
       let min = cxt?.min.slice() ?? [];
@@ -107,7 +107,7 @@ export function createScopeInternal(
 
       let fields = Object.keys(api.core) as Array<keyof T>;
 
-      if (options.at === "min") {
+      if (options?.at === "min") {
         min.push(decorator);
       } else {
         max.push(decorator);

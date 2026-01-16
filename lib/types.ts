@@ -371,7 +371,7 @@ export interface Scope {
   decorate<T>(
     api: Api<T>,
     decorator: Partial<Decorate<T>>,
-    opts: DecorateOptions,
+    opts?: DecorateOptions,
   ): void;
 }
 

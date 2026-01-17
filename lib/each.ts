@@ -1,39 +1,50 @@
+import { spawn } from "./spawn.ts";
+import { constant } from "./constant.ts";
 import { createContext } from "./context.ts";
 import { useScope } from "./scope.ts";
-import { spawn } from "./spawn.ts";
 import type { Operation, Stream, Subscription } from "./types.ts";
 import { withResolvers } from "./with-resolvers.ts";
 
 /**
- * Consume an effection stream using a simple for-of loop.
+ * Consume an Effection stream or subscription using a `for...of` loop.
  *
- * Given any stream, you can access its values sequentially using the `each()`
- * operation just as you would use `for await of` loop with an async iterable:
+ * Given any stream or subscription, you can access its values sequentially
+ * using the `each()` operation, just as you would use a `for await...of` loop
+ * with an async iterable:
  *
  * @example
  * ```javascript
- * function* logvalues(stream) {
- *   for (let value of yield* each(stream)) {
+ * function* logValues(streamOrSubscription) {
+ *   for (let value of yield* each(streamOrSubscription)) {
  *     console.log(value);
- *     yield* each.next()
+ *     yield* each.next();
  *   }
  * }
  * ```
  *
- * You must always invoke `each.next` at the end of each iteration of the loop,
- * including if the interation ends with a `continue` statement.
+ * Pass an existing subscription when it must be active before iteration begins.
+ *
+ * You must always invoke `each.next()` at the end of each iteration of the loop,
+ * including if the iteration ends with a `continue` statement.
  *
  * Note that just as with async iterators, there is no way to consume the
- * `TClose` value of a stream using the `for-each` loop.
+ * `TClose` value of a stream or subscription using the `for...of` loop.
  *
- * @typeParam T - the type of each value in the stream.
- * @param stream - the stream to iterate
- * @returns an operation to iterate `stream`
+ * @typeParam T - the type of each value.
+ * @param source - the stream or subscription to iterate
+ * @returns an operation that iterates `source`
  * @since 3.0
  */
-export function each<T>(stream: Stream<T, unknown>): Operation<Iterable<T>> {
+export function each<T>(
+  source: Stream<T, unknown> | Subscription<T, unknown>,
+): Operation<Iterable<T>> {
   return {
     *[Symbol.iterator]() {
+      let stream = typeof (source as Subscription<T, unknown>).next ===
+          "function"
+        ? constant(source as Subscription<T, unknown>)
+        : source as Stream<T, unknown>;
+
       let scope = yield* useScope();
       if (!scope.hasOwn(EachStack)) {
         scope.set(EachStack, []);

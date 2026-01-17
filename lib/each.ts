@@ -1,6 +1,7 @@
+import { spawn } from "./spawn.ts";
+import { constant } from "./constant.ts";
 import { createContext } from "./context.ts";
 import { useScope } from "./scope.ts";
-import { spawn } from "./spawn.ts";
 import type { Operation, Stream, Subscription } from "./types.ts";
 import { withResolvers } from "./with-resolvers.ts";
 
@@ -28,9 +29,16 @@ import { withResolvers } from "./with-resolvers.ts";
  * @param stream - the stream to iterate
  * @returns an operation to iterate `stream`
  */
-export function each<T>(stream: Stream<T, unknown>): Operation<Iterable<T>> {
+export function each<T>(
+  enumerable: Stream<T, unknown> | Subscription<T, unknown>,
+): Operation<Iterable<T>> {
   return {
     *[Symbol.iterator]() {
+      let stream = typeof (enumerable as Subscription<T, unknown>).next ===
+          "function"
+        ? constant(enumerable as Subscription<T, unknown>)
+        : enumerable as Stream<T, unknown>;
+
       let scope = yield* useScope();
       if (!scope.hasOwn(EachStack)) {
         scope.set(EachStack, []);

@@ -12,13 +12,12 @@ import {
   NodeIcon,
   NPMIcon,
 } from "./package/icons.tsx";
-import { Package } from "../lib/package.ts";
+import type { Package } from "../lib/package/types.ts";
 
 export function* ScoreCard(pkg: Package) {
-  const [details, score] = yield* pkg.jsrPackageDetails();
+  const [details, score] = yield* pkg.getJSRDetails();
 
-  const jsrScore = (details?.success && details.data && details.data.score) ||
-    0;
+  const jsrScore = (details?.success && details.data?.score) || 0;
 
   return (
     <div class="flex flex-col w-full space-y-5 sm:items-end lg:space-y-5">

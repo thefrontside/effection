@@ -1,7 +1,7 @@
 import { all } from "effection";
 import type { JSXElement } from "revolution";
 import { GithubPill } from "../components/package/source-link.tsx";
-import { useWorkspace } from "../lib/workspace.ts";
+import { useWorkspaces } from "../lib/workspaces/mod.ts";
 import type { SitemapRoute } from "../plugins/sitemap.ts";
 import { useAppHtml } from "./app.html.tsx";
 import { createChildURL, createSibling } from "../lib/links-resolvers.ts";
@@ -28,7 +28,8 @@ export function xIndexRoute({
       return [{ pathname: gen() }];
     },
     *handler() {
-      let workspace = yield* useWorkspace("thefrontside/effectionx");
+      let workspaces = yield* useWorkspaces("thefrontside/effectionx");
+      let packages = yield* workspaces.getAllPackages();
 
       const AppHTML = yield* useAppHtml({
         title: "Extensions | Effection",
@@ -46,8 +47,8 @@ export function xIndexRoute({
                 Effection Extensions
               </h1>
               {yield* GithubPill({
-                url: workspace.url,
-                text: workspace.nameWithOwner,
+                url: workspaces.url,
+                text: workspaces.nameWithOwner,
                 class:
                   "flex flex-row w-fit h-10 items-center rounded-full bg-gray-200 dark:bg-gray-800 px-2 py-1 text-gray-900 dark:text-gray-100",
               })}
@@ -83,23 +84,23 @@ export function xIndexRoute({
               </h2>
               <ul class="list-none px-0 divide-y-1 divide-solid divide-slate-200 dark:divide-slate-700">
                 {yield* all(
-                  workspace.packages.map(function* (pkg) {
-                    const [details] = yield* pkg.jsrPackageDetails();
+                  packages.map(function* (pkg) {
+                    const [details] = yield* pkg.getJSRDetails();
 
-                    let title;
-                    let description;
+                    let title: string;
+                    let description: string;
                     if (details && details.success) {
                       title = `@${details.data.scope}/${details.data.name}`;
                       description = details.data.description;
                     } else {
-                      title = pkg.workspacePath;
-                      description = yield* pkg.description();
+                      title = pkg.workspaceName;
+                      description = yield* pkg.getDescription();
                     }
 
                     return (
                       <li>
                         <a
-                          href={yield* makeChildUrl(pkg.workspacePath)}
+                          href={yield* makeChildUrl(pkg.workspaceName)}
                           class="grid grid-flow-row no-underline pb-4 pt-4 px-4 text-cyan-700 dark:text-blue-400"
                         >
                           <span class="text-cyan-700 dark:text-blue-400 text-lg font-semibold">

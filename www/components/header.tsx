@@ -1,4 +1,4 @@
-import { useWorkspace } from "../lib/workspace.ts";
+import { useWorkspaces } from "../lib/workspaces/mod.ts";
 import { getStarCount } from "../lib/octokit.ts";
 import { IconDiscord } from "./icons/discord.tsx";
 import { IconGithub } from "./icons/github.tsx";
@@ -11,7 +11,8 @@ export interface HeaderProps {
 }
 
 export function* Header(props?: HeaderProps) {
-  let x = yield* useWorkspace("thefrontside/effectionx");
+  let workspaces = yield* useWorkspaces("thefrontside/effectionx");
+  let packages = yield* workspaces.getAllPackages();
 
   return (
     <header class="sticky top-0 w-full z-10 tracking-wide text-white [background-image:linear-gradient(45deg,#14315d_-5%,#44378a,#26abe8_105%)] dark:bg-gray-900 dark:text-gray-200">
@@ -51,7 +52,7 @@ export function* Header(props?: HeaderProps) {
                 href="/x"
               >
                 <span>Ext</span>
-                <span>({x.packages.length})</span>
+                <span>({packages.length})</span>
               </a>
             </li>
             <li class="hidden md:flex">

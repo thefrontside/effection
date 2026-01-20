@@ -4,8 +4,8 @@ import { describe, expectType, it } from "./suite.ts";
 
 describe("events", () => {
   describe("types", () => {
-    const domElement = {} as HTMLElement;
-    const socket = {} as WebSocket;
+    let domElement = {} as HTMLElement;
+    let socket = {} as WebSocket;
 
     it("should find event from eventTarget", () => {
       expectType<Operation<CloseEvent>>(once(socket, "close"));

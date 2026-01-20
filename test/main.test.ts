@@ -2,7 +2,7 @@ import { describe, expect, it, x } from "./suite.ts";
 import { each, run, type Stream } from "../mod.ts";
 
 function* detect(stream: Stream<string, void>, text: string) {
-  for (const line of yield* each(stream)) {
+  for (let line of yield* each(stream)) {
     if (line.includes(text)) {
       return;
     }
@@ -17,7 +17,7 @@ describe("main", () => {
 
       yield* detect(proc.lines, "started");
 
-      const { exitCode, stdout } = yield* proc.kill("SIGINT");
+      let { exitCode, stdout } = yield* proc.kill("SIGINT");
 
       expect(stdout).toContain("gracefully stopped");
 
@@ -32,7 +32,7 @@ describe("main", () => {
 
         yield* detect(proc.lines, "started");
 
-        const { exitCode, stdout } = yield* proc.kill("SIGTERM");
+        let { exitCode, stdout } = yield* proc.kill("SIGTERM");
 
         expect(stdout).toContain("gracefully stopped");
 
@@ -56,7 +56,7 @@ describe("main", () => {
 
       yield* detect(proc.lines, "goodbye.");
 
-      const { exitCode } = yield* proc;
+      let { exitCode } = yield* proc;
 
       expect(exitCode).toEqual(0);
     });
@@ -66,7 +66,7 @@ describe("main", () => {
     await run(function* () {
       let proc = yield* x("deno", ["run", "test/main/fail.exit.ts"]);
 
-      const { stderr, exitCode, stdout } = yield* proc;
+      let { stderr, exitCode, stdout } = yield* proc;
 
       expect(stdout).toContain("graceful goodbye");
       expect(stderr).toContain("It all went horribly wrong");
@@ -78,7 +78,7 @@ describe("main", () => {
     await run(function* () {
       let proc = yield* x("deno", ["run", "test/main/fail.unexpected.ts"]);
 
-      const { stderr, stdout, exitCode } = yield* proc;
+      let { stderr, stdout, exitCode } = yield* proc;
 
       expect(stdout).toContain("graceful goodbye");
       expect(stderr).toContain("Error: moo");
@@ -92,7 +92,7 @@ describe("main", () => {
 
       yield* detect(proc.lines, "started");
 
-      const { exitCode, stdout } = yield* proc.kill("SIGINT");
+      let { exitCode, stdout } = yield* proc.kill("SIGINT");
 
       expect(exitCode).toBe(130);
       expect(stdout).toContain("gracefully stopped");

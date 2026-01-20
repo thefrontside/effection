@@ -98,9 +98,24 @@ function normalizeExports(
 }
 
 /**
+ * Sanitize a semver version range for use in npm: specifiers.
+ * Handles cases like "^3 || ^4" by taking the first valid part.
+ */
+function sanitizeVersion(version: string): string {
+  // Handle OR ranges (e.g., "^3 || ^4") - take the first part
+  if (version.includes("||")) {
+    return version.split("||")[0].trim();
+  }
+  // Handle workspace protocol
+  if (version.startsWith("workspace:")) {
+    return "*";
+  }
+  return version;
+}
+
+/**
  * Build imports map from dependencies.
- * Converts npm package names to jsr: specifiers where possible,
- * or keeps npm: specifiers for npm-only packages.
+ * Converts npm package names to npm: specifiers.
  */
 function buildImports(packageJson: PackageJson): Record<string, string> {
   const imports: Record<string, string> = {};
@@ -111,9 +126,8 @@ function buildImports(packageJson: PackageJson): Record<string, string> {
   };
 
   for (const [name, version] of Object.entries(allDeps)) {
-    // For now, use npm: specifiers with the version
-    // In the future, we could map known packages to jsr:
-    imports[name] = `npm:${name}@${version}`;
+    const sanitizedVersion = sanitizeVersion(version);
+    imports[name] = `npm:${name}@${sanitizedVersion}`;
   }
 
   return imports;

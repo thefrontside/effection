@@ -11,12 +11,12 @@ import { select } from "hast-util-select";
 import { ApiBody } from "../components/api/api-page.tsx";
 import { PackageExports } from "../components/package/exports.tsx";
 import { PackageHeader } from "../components/package/header.tsx";
-import { ScoreCard } from "../components/score-card.tsx";
+
 import { Icon } from "../components/type/icon.tsx";
 import { DocPageContext } from "../context/doc-page.ts";
 import { useMarkdown } from "../hooks/use-markdown.tsx";
 import { createToc } from "../lib/toc.ts";
-import { useWorkspace } from "../lib/workspace.ts";
+import { useWorkspaces } from "../lib/workspaces/mod.ts";
 import type { RoutePath, SitemapRoute } from "../plugins/sitemap.ts";
 import { useAppHtml } from "./app.html.tsx";
 import { createSibling } from "../lib/links-resolvers.ts";
@@ -30,12 +30,13 @@ function routemap(): SitemapRoute<JSXElement>["routemap"] {
   return function* (pathname) {
     let paths: RoutePath[] = [];
 
-    let workspace = yield* useWorkspace("thefrontside/effectionx");
+    let workspaces = yield* useWorkspaces("thefrontside/effectionx");
+    let workspaceNames = yield* workspaces.listWorkspaces();
 
-    for (let workspacePath of workspace.root.workspaces) {
+    for (let workspaceName of workspaceNames) {
       paths.push({
         pathname: pathname({
-          workspacePath: workspacePath.replace(/^\.\//, ""),
+          workspacePath: workspaceName,
         }),
       });
     }
@@ -65,22 +66,22 @@ export function xPackageRoute({
     *handler() {
       let params = yield* useParams<{ workspacePath: string }>();
 
-      let workspace = yield* useWorkspace("thefrontside/effectionx");
+      let workspaces = yield* useWorkspaces("thefrontside/effectionx");
 
-      let pkg = workspace.packages.find((pkg) =>
-        pkg.workspacePath.replace("./", "") === params.workspacePath
-      );
+      let pkg = yield* workspaces.getWorkspace(params.workspacePath);
 
       if (!pkg) {
         return yield* respondNotFound();
       }
 
       try {
-        const docs = yield* pkg.docs();
+        const docs = yield* pkg.getDocs();
+        const pkgName = yield* pkg.getName();
+        const pkgDescription = yield* pkg.getDescription();
 
         const AppHTML = yield* useAppHtml({
-          title: `${pkg.name} | Extensions | Effection`,
-          description: yield* pkg.description(),
+          title: `${pkgName} | Extensions | Effection`,
+          description: pkgDescription,
         });
 
         const linkResolver = function* (
@@ -137,7 +138,7 @@ export function xPackageRoute({
 
         const content = (
           <>
-            {yield* useMarkdown(yield* pkg.readme(), { linkResolver })}
+            {yield* useMarkdown(yield* pkg.getReadme(), { linkResolver })}
             <h2 id="api-reference">API Reference</h2>
             <>{apiReference}</>
           </>
@@ -200,7 +201,7 @@ export function xPackageRoute({
                   <div class="prose dark:prose-invert max-w-full">
                     <div class="mb-5">
                       {yield* PackageExports({
-                        packageName: pkg.name,
+                        packageName: pkgName,
                         docs,
                         linkResolver,
                       })}
@@ -209,7 +210,6 @@ export function xPackageRoute({
                   </div>
                 </article>
                 <aside class="xl:w-[260px] lg:col-[span_3/_-1] top-[120px] lg:sticky lg:max-h-screen flex flex-col box-border gap-y-4">
-                  {yield* ScoreCard(pkg)}
                   <div>
                     <div
                       aria-hidden="true"

@@ -12,7 +12,7 @@ import { regex } from "arktype";
 
 import { exportHash, extract } from "../components/type/markdown.tsx";
 import { operations } from "../context/fetch.ts";
-import { DenoJsonSchema } from "../lib/deno-json.ts";
+import { DenoJsonSchema } from "../lib/package/deno.ts";
 import { useDescription } from "./use-description-parse.tsx";
 
 // Matches npm/jsr specifiers like @std/testing/bdd or lodash/fp
@@ -56,20 +56,25 @@ export interface DocPageSection {
 
 export type DocsPages = Record<string, DocPage[]>;
 
-export function* useDocPages(specifier: string): Operation<DocsPages> {
+export function* useDocPages(
+  specifier: string,
+  imports?: Record<string, string>,
+): Operation<DocsPages> {
   const scope = yield* useScope();
 
   const loader = (specifier: string) => scope.run(docLoader(specifier));
-  const imports = yield* extractImports(
+
+  // If imports not provided, try to extract from deno.json
+  const resolvedImports = imports ?? (yield* extractImports(
     new URL("./deno.json", specifier).toString(),
     loader,
-  );
+  ));
 
-  const resolve = imports
+  const resolve = resolvedImports
     ? (specifier: string, referrer: string) => {
       let resolved: string = specifier;
-      if (specifier in imports) {
-        resolved = imports[specifier];
+      if (specifier in resolvedImports) {
+        resolved = resolvedImports[specifier];
       } else if (specifier.startsWith(".")) {
         resolved = new URL(specifier, referrer).toString();
       } else if (specifier.startsWith("node:")) {
@@ -79,8 +84,8 @@ export function* useDocPages(specifier: string): Operation<DocsPages> {
         if (match) {
           const { scope, package: pkg, subpath } = match.groups;
           const baseKey = scope ? `${scope}/${pkg}` : pkg;
-          if (baseKey in imports) {
-            const baseUrl = imports[baseKey];
+          if (baseKey in resolvedImports) {
+            const baseUrl = resolvedImports[baseKey];
             resolved = subpath ? `${baseUrl}${subpath}` : baseUrl;
           }
         }

@@ -23,18 +23,19 @@ export interface NewTask<T> {
 
 export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
   let { owner, operation } = options;
-  let [scope] = createScopeInternal(owner);
+  let [scope, destroy] = createScopeInternal(owner);
   let future = createFuture<T>();
 
   let top = new Delimiter<T>(() => encapsulate(operation));
   scope.set(DelimiterContext, top as Delimiter<unknown>);
 
-  let halt = function* halt() {
-    yield* top.close();
-    future.reject(new Error("halted"));
-  };
-
-  scope.ensure(halt);
+  scope.ensure(function* () {
+    try {
+      yield* top.close();
+    } finally {
+      future.reject(new Error("halted"));
+    }
+  });
 
   let task = Object.defineProperties(future.future, {
     halt: {
@@ -43,24 +44,24 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
         return Object.defineProperties(Object.create(Promise.prototype), {
           [Symbol.iterator]: {
             enumerable: false,
-            value: halt,
+            value: destroy,
           },
           then: {
             enumerable: false,
             value(...args: Parameters<Promise<void>["then"]>) {
-              return owner.run(halt).then(...args);
+              return owner.run(destroy).then(...args);
             },
           },
           catch: {
             enumerable: false,
             value(...args: Parameters<Promise<void>["catch"]>) {
-              return owner.run(halt).catch(...args);
+              return owner.run(destroy).catch(...args);
             },
           },
           finally: {
             enumerable: false,
             value(...args: Parameters<Promise<void>["finally"]>) {
-              return owner.run(halt).finally(...args);
+              return owner.run(destroy).finally(...args);
             },
           },
         });

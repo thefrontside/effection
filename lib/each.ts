@@ -1,9 +1,8 @@
-import type { Operation, Stream, Subscription } from "./types.ts";
 import { createContext } from "./context.ts";
-import { race } from "./race.ts";
-import { resource } from "./resource.ts";
-import { withResolvers } from "./with-resolvers.ts";
 import { useScope } from "./scope.ts";
+import { spawn } from "./spawn.ts";
+import type { Operation, Stream, Subscription } from "./types.ts";
+import { withResolvers } from "./with-resolvers.ts";
 
 /**
  * Consume an effection stream using a simple for-of loop.
@@ -36,9 +35,11 @@ export function each<T>(stream: Stream<T, unknown>): Operation<Iterable<T>> {
       if (!scope.hasOwn(EachStack)) {
         scope.set(EachStack, []);
       }
-      return yield* resource(function* (provide) {
-        let done = withResolvers<void>();
 
+      let done = withResolvers<void>();
+      let cxt = withResolvers<EachLoop<T>>();
+
+      yield* spawn(function* () {
         let subscription = yield* stream;
         let current = yield* subscription.next();
 
@@ -56,7 +57,15 @@ export function each<T>(stream: Stream<T, unknown>): Operation<Iterable<T>> {
 
         stack.push(context);
 
-        let iterator: Iterator<T> = {
+        cxt.resolve(context);
+
+        yield* done.operation;
+      });
+
+      let context = yield* cxt.operation;
+
+      return {
+        [Symbol.iterator]: () => ({
           next() {
             if (context.stale) {
               let error = new Error(
@@ -73,15 +82,8 @@ export function each<T>(stream: Stream<T, unknown>): Operation<Iterable<T>> {
             context.finish();
             return { done: true, value: void 0 };
           },
-        };
-
-        yield* race([
-          done.operation,
-          provide({
-            [Symbol.iterator]: () => iterator,
-          }),
-        ]);
-      });
+        }),
+      };
     },
   };
 }

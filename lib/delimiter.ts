@@ -36,14 +36,21 @@ export class Delimiter<T>
   *close(): Operation<void> {
     let done = this.future.operation;
     let interrupted = !this.computed;
+
     this.close = function* close() {
       let outcome = yield* done;
       if (interrupted && outcome.exists && !outcome.value.ok) {
         throw outcome.value.error;
       }
     };
-    this.interrupt();
-    yield* this.close();
+    if (!this.outcome) {
+      this.interrupt();
+      yield* this.close();
+    } else {
+      if (interrupted && this.outcome.exists && !this.outcome.value.ok) {
+        throw this.outcome.value.error;
+      }
+    }
   }
 
   private exit(outcome: Maybe<Result<T>>): void {

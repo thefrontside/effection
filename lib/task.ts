@@ -26,17 +26,6 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
   let [scope, destroy] = createScopeInternal(owner);
   let future = createFuture<T>();
 
-  let top = new Delimiter<T>(() => encapsulate(operation));
-  scope.set(DelimiterContext, top as Delimiter<unknown>);
-
-  scope.ensure(function* () {
-    try {
-      yield* top.close();
-    } finally {
-      future.reject(new Error("halted"));
-    }
-  });
-
   let task = Object.defineProperties(future.future, {
     halt: {
       enumerable: false,
@@ -77,12 +66,35 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
     },
   }) as Task<T>;
 
-  let boundary = owner.expect(ErrorContext);
-
-  scope.set(ErrorContext, top);
+  let top = new Delimiter<T>(() => encapsulate(operation));
+  scope.set(DelimiterContext, top as Delimiter<unknown>);
 
   let group = scope.expect(TaskGroupContext);
   group.add(task);
+
+  let boundary = owner.expect(ErrorContext);
+  scope.set(ErrorContext, top);
+
+  scope.ensure(function* () {
+    try {
+      yield* top.close();
+    } finally {
+      group.delete(task);
+      let { outcome } = top;
+      if (outcome!.exists) {
+        let result = outcome!.value;
+        if (result.ok) {
+          future.resolve(result.value);
+        } else {
+          let { error } = result;
+          future.reject(error);
+          boundary.raise(error);
+        }
+      } else {
+        future.reject(new Error("halted"));
+      }
+    }
+  });
 
   let routine = createCoroutine({
     scope,
@@ -90,20 +102,7 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
       try {
         yield* top;
       } finally {
-        group.delete(task);
-        let { outcome } = top;
-        if (outcome!.exists) {
-          let result = outcome!.value;
-          if (result.ok) {
-            future.resolve(result.value);
-          } else {
-            let { error } = result;
-            future.reject(error);
-            boundary.raise(error);
-          }
-        } else {
-          future.reject(new Error("halted"));
-        }
+        yield* destroy();
       }
     },
   });

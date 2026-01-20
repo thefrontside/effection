@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-unsafe-finally
-
-import { blowUp, createNumber, describe, expect, it } from "./suite.ts";
+import assert from "node:assert";
+import { Children } from "../lib/contexts.ts";
 import {
   action,
   createScope,
@@ -13,8 +13,7 @@ import {
   until,
   useScope,
 } from "../mod.ts";
-import { Children } from "../lib/contexts.ts";
-import assert from "node:assert";
+import { blowUp, createNumber, describe, expect, it } from "./suite.ts";
 
 describe("run()", () => {
   it("can run an operation", async () => {
@@ -335,9 +334,20 @@ describe("run()", () => {
       createScope(scope);
       yield* suspend();
     });
+
     await task.halt();
 
     assert(scope !== undefined);
+    expect(scope.expect(Children).size).toEqual(0);
+  });
+
+  it("destroys its scope when completing successfully", async () => {
+    let scope = await run(function* () {
+      let parent = yield* useScope();
+      createScope(parent);
+      return parent;
+    });
+
     expect(scope.expect(Children).size).toEqual(0);
   });
 });

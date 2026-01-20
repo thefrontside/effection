@@ -1,12 +1,7 @@
 import type { Operation } from "effection";
-import type { z } from "zod";
-import type {
-  PackageDetailsResult,
-  PackageScoreResult,
-} from "../../resources/jsr-client.ts";
 
 /**
- * Package details from a registry API (simplified).
+ * Package details from a registry API.
  */
 export interface PackageDetails {
   name: string;
@@ -14,17 +9,11 @@ export interface PackageDetails {
 }
 
 /**
- * Package score/quality metrics from a registry (simplified).
+ * Package score/quality metrics from a registry.
  */
 export interface PackageScore {
   score?: number;
 }
-
-/**
- * JSR-specific result types that include Zod validation.
- */
-export type JSRDetailsResult = z.SafeParseReturnType<unknown, PackageDetailsResult>;
-export type JSRScoreResult = z.SafeParseReturnType<unknown, PackageScoreResult>;
 
 /**
  * Interface for a package registry (JSR, npm, etc.)

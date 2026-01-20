@@ -11,7 +11,7 @@ import { select } from "hast-util-select";
 import { ApiBody } from "../components/api/api-page.tsx";
 import { PackageExports } from "../components/package/exports.tsx";
 import { PackageHeader } from "../components/package/header.tsx";
-import { ScoreCard } from "../components/score-card.tsx";
+
 import { Icon } from "../components/type/icon.tsx";
 import { DocPageContext } from "../context/doc-page.ts";
 import { useMarkdown } from "../hooks/use-markdown.tsx";
@@ -210,7 +210,6 @@ export function xPackageRoute({
                   </div>
                 </article>
                 <aside class="xl:w-[260px] lg:col-[span_3/_-1] top-[120px] lg:sticky lg:max-h-screen flex flex-col box-border gap-y-4">
-                  {yield* ScoreCard(pkg)}
                   <div>
                     <div
                       aria-hidden="true"

@@ -1,6 +1,6 @@
 import z from "zod";
 import type { Operation } from "effection";
-import { all, until } from "effection";
+import { until } from "effection";
 import { relative } from "@std/path";
 import { fileURLToPath } from "node:url";
 import type { Package, PackageManifest, Ref } from "./types.ts";
@@ -12,7 +12,6 @@ import {
   useTitle,
   useDescription,
 } from "../../hooks/use-description-parse.tsx";
-import { useJSRClient } from "../../context/jsr.ts";
 
 /**
  * Zod schema for deno.json files.
@@ -82,15 +81,6 @@ export function createDenoPackage(
     registries,
 
     // Registry URLs - will use the cached name once loaded
-    get jsr() {
-      // Default to workspace name if package name not yet loaded
-      const name = cachedName ?? `@effectionx/${workspaceName}`;
-      return new URL(`./${name}/`, "https://jsr.io/");
-    },
-    get jsrBadge() {
-      const name = cachedName ?? `@effectionx/${workspaceName}`;
-      return new URL(`./${name}`, "https://jsr.io/badges/");
-    },
     get npm() {
       const name = cachedName ?? `@effectionx/${workspaceName}`;
       return new URL(`./${name}`, "https://www.npmjs.com/package/");
@@ -200,32 +190,6 @@ export function createDenoPackage(
     *getDescription(): Operation<string> {
       const readme = yield* this.getReadme();
       return yield* useDescription(readme);
-    },
-
-    *getJSRDetails(): Operation<
-      [import("../registries/types.ts").JSRDetailsResult | null, import("../registries/types.ts").JSRScoreResult | null]
-    > {
-      const name = yield* this.getName();
-      const scopeName = yield* this.getScopeName();
-
-      if (!scopeName) {
-        return [null, null];
-      }
-
-      const packageName = name.includes("/") ? name.split("/")[1] : name;
-
-      try {
-        const client = yield* useJSRClient();
-        const [details, score] = yield* all([
-          client.getPackageDetails({ scope: scopeName, package: packageName }),
-          client.getPackageScore({ scope: scopeName, package: packageName }),
-        ]);
-
-        return [details, score];
-      } catch (e) {
-        console.error(`Failed to get JSR details for ${name}:`, e);
-        return [null, null];
-      }
     },
   };
 

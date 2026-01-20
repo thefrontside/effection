@@ -85,17 +85,8 @@ export function xIndexRoute({
               <ul class="list-none px-0 divide-y-1 divide-solid divide-slate-200 dark:divide-slate-700">
                 {yield* all(
                   packages.map(function* (pkg) {
-                    const [details] = yield* pkg.getJSRDetails();
-
-                    let title: string;
-                    let description: string;
-                    if (details && details.success) {
-                      title = `@${details.data.scope}/${details.data.name}`;
-                      description = details.data.description;
-                    } else {
-                      title = pkg.workspaceName;
-                      description = yield* pkg.getDescription();
-                    }
+                    const title = yield* pkg.getName();
+                    const description = yield* pkg.getDescription();
 
                     return (
                       <li>

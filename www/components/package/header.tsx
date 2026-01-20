@@ -25,9 +25,6 @@ export function* PackageHeader(pkg: Package) {
         })}
       </div>
       <div class="space-x-1">
-        <a href={`${pkg.jsr}`} class="inline-block align-middle">
-          <img src={`${pkg.jsrBadge}`} alt="JSR Badge" />
-        </a>
         <a href={`${pkg.npm}`} class="inline-block align-middle">
           <img
             src={`${pkg.npmVersionBadge}`}

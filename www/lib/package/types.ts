@@ -1,5 +1,5 @@
 import type { Operation } from "effection";
-import type { Registries, JSRDetailsResult, JSRScoreResult } from "../registries/types.ts";
+import type { Registries } from "../registries/types.ts";
 import type { LocalDocsPages } from "../../hooks/use-deno-doc.tsx";
 
 /**
@@ -111,15 +111,6 @@ export interface Package {
 
   /** Available registries */
   registries: Registries;
-
-  /** Get JSR package details and score */
-  getJSRDetails(): Operation<[JSRDetailsResult | null, JSRScoreResult | null]>;
-
-  /** URL to JSR package page */
-  jsr: URL;
-
-  /** URL to JSR badge */
-  jsrBadge: URL;
 
   /** URL to npm package page */
   npm: URL;

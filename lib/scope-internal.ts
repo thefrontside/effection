@@ -7,7 +7,6 @@ import type {
   Context,
   Decorate,
   DecorateOptions,
-  Middleware,
   Operation,
   Scope,
   Task,
@@ -22,7 +21,9 @@ export function createScopeInternal(
 ): [ScopeInternal, () => Operation<void>] {
   let destructors = new Set<() => Operation<void>>();
 
-  let { init } = api.lookup(parent);
+  let init = parent
+    ? api.lookup(parent).init
+    : () => ({} as Record<string, unknown>);
 
   let contexts = init((parent as ScopeInternal)?.contexts);
 
@@ -31,6 +32,9 @@ export function createScopeInternal(
     contexts,
     get<T>(context: Context<T>): T | undefined {
       return (contexts[context.name] ?? context.defaultValue) as T | undefined;
+    },
+    super<T>(context: Context<T>): T | undefined {
+      return parent?.get(context);
     },
     set<T>(context: Context<T>, value: T): T {
       return api.lookup(scope).set(contexts, context, value);
@@ -99,48 +103,42 @@ export function createScopeInternal(
       decorator: Partial<Decorate<T>>,
       options?: DecorateOptions,
     ) {
-      let cxt = scope.get(api.context);
-      let min = cxt?.min.slice() ?? [];
-      let max = cxt?.max.slice() ?? [];
+      if (!scope.hasOwn(api.context)) {
+        scope.set(api.context, { min: [], max: [] });
+      }
 
-      let { core } = api;
-
-      let fields = Object.keys(api.core) as Array<keyof T>;
+      let { min, max } = scope.expect(api.context);
 
       if (options?.at === "min") {
         min.push(decorator);
       } else {
         max.push(decorator);
       }
-
-      let decorators = mergeDecorators(max, min);
-
-      let handle = fields.reduce((sum, field) => {
-        let decorator = decorators[field] as Function | undefined;
-        if (!decorator) {
-          return sum;
-        }
-        let target = sum === core ? { ...core } : sum;
-        if (typeof core[field] === "function") {
-          Object.assign(target, {
-            // deno-lint-ignore no-explicit-any
-            [field]: (...args: any[]) => decorator(args, core[field]),
-          });
-        } else {
-          Object.defineProperty(target, field, {
-            enumerable: true,
-            get: () => decorator([], () => core[field]),
-          });
-        }
-        return target;
-      }, core);
-
-      scope.set(api.context, { min, max, handle });
     },
 
     ensure(op: () => Operation<void>): () => void {
       destructors.add(op);
       return () => destructors.delete(op);
+    },
+
+    reduce<T, S>(
+      context: Context<T>,
+      fn: (sum: S, item: T) => S,
+      initial: S,
+    ): S {
+      let sum = initial;
+      let current = contexts;
+      while (current) {
+        if (Object.hasOwn(current, context.name)) {
+          let item = current[context.name] as T;
+          if (item) {
+            sum = fn(sum, item);
+          }
+        }
+
+        current = Object.getPrototypeOf(current);
+      }
+      return sum;
     },
   });
 
@@ -185,50 +183,6 @@ export function createScopeInternal(
 
 export interface ScopeInternal extends Scope {
   contexts: Record<string, unknown>;
+  reduce<T, S>(context: Context<T>, fn: (sum: S, item: T) => S, initial: S): S;
   ensure(op: () => Operation<void>): () => void;
-}
-
-function mergeDecorators<A>(
-  max: Partial<Decorate<A>>[],
-  min: Partial<Decorate<A>>[],
-): Partial<Decorate<A>> {
-  let stacks = {} as Partial<
-    {
-      [K in keyof A]: Decorate<A>[K][];
-    }
-  >;
-
-  for (let decorator of max.concat(min)) {
-    let fields = Object.keys(decorator) as Array<keyof A>;
-    for (let field of fields) {
-      let middleware = decorator[field]!;
-      let current = stacks[field];
-      if (!current) {
-        stacks[field] = [middleware];
-      } else {
-        current.push(middleware);
-      }
-    }
-  }
-
-  let fields = Object.keys(stacks) as Array<keyof A>;
-
-  return fields.reduce((merged, field) => {
-    let stack = stacks[field]!;
-    return Object.assign(merged, {
-      // deno-lint-ignore no-explicit-any
-      [field]: combineDecorators(stack as any[]),
-    });
-  }, {} as Partial<Decorate<A>>);
-}
-
-function combineDecorators<TArgs extends unknown[], TReturn>(
-  middlewares: Middleware<TArgs, TReturn>[],
-): Middleware<TArgs, TReturn> {
-  if (middlewares.length === 0) {
-    return (args, next) => next(...args);
-  }
-  return middlewares.reduceRight((sum, middleware) => (args, next) =>
-    middleware(args, (...args) => sum(args, next))
-  );
 }

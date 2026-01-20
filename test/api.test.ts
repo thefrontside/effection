@@ -98,6 +98,7 @@ describe("api", () => {
       let task = yield* spawn(function* () {
         return yield* api.operations.num(5);
       });
+
       expect(yield* task).toEqual(10);
     });
   });
@@ -152,7 +153,7 @@ describe("api", () => {
     });
   });
 
-  it.skip("applies outer scope maxima more maximally than inner scopes maxima", async () => {
+  it("applies outer scope maxima more maximally than inner scopes maxima", async () => {
     let api = createApi("test", {
       *test(order: string[]): Operation<string[]> {
         return order;
@@ -206,8 +207,4 @@ describe("api", () => {
       ]);
     });
   });
-
-  it.skip("applies inner scope minima more minimally than inner scopes", async () => {});
 });
-
-// [ |MAX| -> [m1, m2, 3], |MIN| -> [m1,m2,m3], CORE ]

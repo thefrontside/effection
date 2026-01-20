@@ -245,10 +245,9 @@ export interface Api<A> {
   context: Context<{
     min: Partial<Decorate<A>>[];
     max: Partial<Decorate<A>>[];
-    handle: A;
   }>;
   core: A;
-  lookup: (scope?: Scope) => A;
+  lookup: (scope: Scope) => A;
   operations: {
     [K in keyof A]: A[K] extends Operation<unknown> ? A[K]
       : A[K] extends (...args: infer TArgs) => infer TReturn
@@ -335,6 +334,8 @@ export interface Scope {
    * @returns the value of that context in this scope if it exists
    */
   get<T>(context: Context<T>): T | undefined;
+
+  super<T>(context: Context<T>): T | undefined;
 
   /**
    * Set the value of a {@link Context} from outside of an operation

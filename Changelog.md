@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.0.1
+
+- 🐛 fix: move all task finalization into the scope destructor (#1085)
+- 🐛 fix: destroy task scope when halting to prevent memory leak (#1081)
+
 ## 4.0.0
 
 - Announcing Effection 4.0

@@ -21,11 +21,9 @@ export function createScopeInternal(
 ): [ScopeInternal, () => Operation<void>] {
   let destructors = new Set<() => Operation<void>>();
 
-  let init = parent
-    ? api.lookup(parent).init
-    : () => ({} as Record<string, unknown>);
-
-  let contexts = init((parent as ScopeInternal)?.contexts);
+  let contexts = Object.create(
+    parent ? (parent as ScopeInternal).contexts : null,
+  );
 
   let scope: ScopeInternal = Object.create({
     [Symbol.toStringTag]: "Scope",
@@ -146,37 +144,41 @@ export function createScopeInternal(
   scope.set(Children, new Set());
   parent?.expect(Children).add(scope);
 
+  let destroy = () => api.lookup(scope).destroy(scope);
+
   let unbind = parent ? (parent as ScopeInternal).ensure(destroy) : () => {};
 
   let destruction: WithResolvers<void> | undefined = undefined;
 
-  function* destroy(): Operation<void> {
-    if (destruction) {
-      return yield* destruction.operation;
-    }
-    destruction = withResolvers<void>();
-    parent?.expect(Children).delete(scope);
-    unbind();
-    let outcome = Ok();
-    try {
-      for (let destructor of destructors) {
-        try {
-          destructors.delete(destructor);
-          yield* destructor();
-        } catch (error) {
-          outcome = Err(error as Error);
+  scope.decorate(api, {
+    *destroy() {
+      if (destruction) {
+        return yield* destruction.operation;
+      }
+      destruction = withResolvers<void>();
+      parent?.expect(Children).delete(scope);
+      unbind();
+      let outcome = Ok();
+      try {
+        for (let destructor of destructors) {
+          try {
+            destructors.delete(destructor);
+            yield* destructor();
+          } catch (error) {
+            outcome = Err(error as Error);
+          }
+        }
+      } finally {
+        if (outcome.ok) {
+          destruction.resolve();
+        } else {
+          destruction.reject(outcome.error);
         }
       }
-    } finally {
-      if (outcome.ok) {
-        destruction.resolve();
-      } else {
-        destruction.reject(outcome.error);
-      }
-    }
 
-    unbox(outcome);
-  }
+      unbox(outcome);
+    },
+  }, { at: "min" });
 
   return [scope, destroy];
 }

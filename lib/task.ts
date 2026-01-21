@@ -67,7 +67,7 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
     },
   }) as Task<T>;
 
-  let top = new Delimiter<T>(() => api.lookup(scope).run(encapsulate(operation)));
+  let top = new Delimiter<T>(() => api.lookup(scope).run(() => encapsulate(operation)));
   scope.set(DelimiterContext, top as Delimiter<unknown>);
 
   let group = scope.expect(TaskGroupContext);

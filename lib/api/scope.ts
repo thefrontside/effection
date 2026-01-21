@@ -1,8 +1,8 @@
 import { createApi } from "../api.ts";
-import type { Api, Context, Future, Operation, Scope } from "../types.ts";
+import type { Api, Context, Operation, Scope } from "../types.ts";
 
 export interface ScopeApi {
-  create(parent: Scope): [Scope, () => Future<void>];
+  create(parent: Scope): [Scope, () => Operation<void>];
   destroy(scope: Scope): Operation<void>;
   set<T>(contexts: Record<string, unknown>, context: Context<T>, value: T): T;
   delete<T>(contexts: Record<string, unknown>, context: Context<T>): boolean;

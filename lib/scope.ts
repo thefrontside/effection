@@ -1,6 +1,5 @@
 import type { Effect, Future, Operation, Scope } from "./types.ts";
 import { Ok } from "./result.ts";
-import api from "./api/scope.ts";
 import { createScopeInternal } from "./scope-internal.ts";
 
 /**
@@ -43,15 +42,9 @@ export const global = createScopeInternal()[0] as Scope;
 export function createScope(
   parent: Scope = global,
 ): [Scope, () => Future<void>] {
-  return api.lookup(parent).create(parent);
+  let [scope, destroy] = createScopeInternal(parent);
+  return [scope, () => parent.run(destroy)];
 }
-
-global.decorate(api, {
-  create([parent]) {
-    let [scope, destroy] = createScopeInternal(parent);
-    return [scope, () => parent.run(destroy)];
-  },
-}, { at: "min" });
 
 /**
  * Get the scope of the currently running {@link Operation}.

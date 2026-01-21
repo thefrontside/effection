@@ -16,7 +16,24 @@ import { type WithResolvers, withResolvers } from "./with-resolvers.ts";
 import api from "./api/scope.ts";
 import { createCoroutine } from "./coroutine.ts";
 
-export function createScopeInternal(
+export function createScopeInternal(parent?: Scope): [ScopeInternal, () => Operation<void>] {
+  if (!parent) {
+    let [global, destroy] = buildScopeInternal();
+    global.decorate(api, {
+      create([parent]) {
+        return buildScopeInternal(parent);
+      },
+    }, { at: "min" });
+    return [global, destroy] as const;
+  } else {
+    return api.lookup(parent).create(parent) as [
+      ScopeInternal,
+      () => Operation<void>,
+    ];
+  }
+}
+
+function buildScopeInternal(
   parent?: Scope,
 ): [ScopeInternal, () => Operation<void>] {
   let destructors = new Set<() => Operation<void>>();

@@ -34,7 +34,7 @@ export function* all<T extends readonly Operation<unknown>[] | []>(
   try {
     return yield* trap(function* (): Operation<All<T>> {
       for (let operation of ops) {
-        const member = () => operation;
+        let member = () => operation;
         tasks.push(yield* spawn(member));
       }
       let results: unknown[] = [];

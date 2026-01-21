@@ -23,7 +23,7 @@ export class Reducer {
       while (item) {
         let [, routine, result, _, method = "next" as const] = item;
         try {
-          const iterator = routine.data.iterator;
+          let iterator = routine.data.iterator;
           if (result.ok) {
             if (method === "next") {
               let next = iterator.next(result.value);

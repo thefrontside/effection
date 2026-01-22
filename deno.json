@@ -13,10 +13,10 @@
   },
   "lint": {
     "rules": { "exclude": ["prefer-const", "require-yield"] },
-    "exclude": ["build", "www", "docs", "tasks"],
+    "exclude": ["build", "docs", "tasks"],
     "plugins": ["lint/prefer-let.ts"]
   },
-  "fmt": { "exclude": ["build", "www"] },
+  "fmt": { "exclude": ["build"] },
   "test": { "exclude": ["build"] },
   "compilerOptions": {
     "lib": ["deno.ns", "esnext", "dom", "dom.iterable", "deno.unstable"]

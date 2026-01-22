@@ -31,7 +31,7 @@ export function apiIndexRoute(
         v4: yield* v4.docs(),
       };
 
-      const AppHtml = yield* useAppHtml({
+      let AppHtml = yield* useAppHtml({
         title: `API Reference | Effection`,
         description: `API Reference for Effection`,
       });
@@ -89,10 +89,10 @@ function* listPages({
   pages: DocPage[];
   linkResolver: ResolveLinkFunction;
 }) {
-  const elements = [];
+  let elements = [];
 
-  for (const page of pages.sort((a, b) => a.name.localeCompare(b.name))) {
-    const link = yield* linkResolver(page.name);
+  for (let page of pages.sort((a, b) => a.name.localeCompare(b.name))) {
+    let link = yield* linkResolver(page.name);
     elements.push(
       <li class="list-none pb-1">
         <a class="text-blue-700 dark:text-blue-400" href={link}>

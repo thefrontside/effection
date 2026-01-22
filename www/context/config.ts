@@ -10,7 +10,9 @@ const ConfigContext = createContext<SiteConfig>("site-config", {
   current: "v4",
 });
 
-export function* initConfig<T extends string>(config: SiteConfig<T>): Operation<void> {
+export function* initConfig<T extends string>(
+  config: SiteConfig<T>,
+): Operation<void> {
   yield* ConfigContext.set(config);
 }
 

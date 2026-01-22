@@ -6,7 +6,7 @@ const sanitizer = createJsDocSanitizer();
 
 function sanitizedEquals(a: string, b: string) {
   Deno.test(`${a} => ${b}`, async function () {
-    const result = await run(function* () {
+    let result = await run(function* () {
       return yield* sanitizer(a);
     });
     assertEquals(result, b);

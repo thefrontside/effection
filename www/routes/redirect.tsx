@@ -7,7 +7,7 @@ import { useAppHtml } from "./app.html.tsx";
  * @returns
  */
 export function* softRedirect(req: Request, to: string) {
-  const url = new URL(to, new URL(req.url).origin);
+  let url = new URL(to, new URL(req.url).origin);
 
   let AppHtml = yield* useAppHtml({
     title: `Redirect to ${to} | Effection`,

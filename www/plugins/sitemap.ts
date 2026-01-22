@@ -104,7 +104,7 @@ export function route<T>(
   if (isSitemapRoute<T>(middleware)) {
     let handler = revolutionRoute(pattern, middleware.handler);
     if (middleware.routemap) {
-      const { routemap } = middleware;
+      let { routemap } = middleware;
       Object.defineProperty(handler, "sitemapExtension", {
         value(request: Request) {
           let generate = compile(pattern);

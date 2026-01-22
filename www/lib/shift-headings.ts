@@ -6,7 +6,7 @@ export function shiftHeadings(amount: number) {
   return (tree: Root) => {
     visit(tree, (node: Nodes) => {
       if (node.type === "heading") {
-        const depth = node.depth + amount;
+        let depth = node.depth + amount;
         if (depth < 1) {
           node.depth = 1;
         } else if (depth > 6) {

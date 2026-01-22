@@ -6,7 +6,14 @@
     "test": "deno test --allow-run --allow-write --allow-read"
   },
   "lint": {
-    "exclude": ["docs/esm"],
+    "exclude": [
+      "docs/esm",
+      "build",
+      "built",
+      "pagefind",
+      "routes/guides-route.tsx",
+      "components/api/api-page.tsx"
+    ],
     "rules": {
       "exclude": [
         "prefer-const",
@@ -18,7 +25,14 @@
     }
   },
   "fmt": {
-    "exclude": ["docs/esm"]
+    "exclude": [
+      "assets/images",
+      "docs/esm",
+      "build",
+      "built",
+      "pagefind",
+      "tailwind"
+    ]
   },
   "compilerOptions": {
     "lib": ["deno.ns", "dom.iterable", "dom"],

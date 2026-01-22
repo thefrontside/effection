@@ -87,18 +87,18 @@ const anonymousNames: Iterator<string, never> = (function* () {
 export function createTestAdapter(
   options: TestAdapterOptions = {},
 ): TestAdapter {
-  const setups: TestOperation[] = [];
-  const { parent, name = anonymousNames.next().value } = options;
+  let setups: TestOperation[] = [];
+  let { parent, name = anonymousNames.next().value } = options;
 
-  const [scope, destroy] = createScope(parent?.scope);
+  let [scope, destroy] = createScope(parent?.scope);
 
-  const adapter: TestAdapter = {
+  let adapter: TestAdapter = {
     parent,
     name,
     scope,
     setups,
     get lineage() {
-      const lineage = [adapter];
+      let lineage = [adapter];
       for (let current = parent; current; current = current.parent) {
         lineage.unshift(current);
       }
@@ -112,12 +112,12 @@ export function createTestAdapter(
     },
     runTest(op) {
       return scope.run(function* () {
-        const allSetups = adapter.lineage.reduce(
+        let allSetups = adapter.lineage.reduce(
           (all, adapter) => all.concat(adapter.setups),
           [] as TestOperation[],
         );
         try {
-          for (const setup of allSetups) {
+          for (let setup of allSetups) {
             yield* setup();
           }
           yield* op();

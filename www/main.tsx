@@ -29,7 +29,7 @@ import { currentRequestPlugin } from "./plugins/current-request.ts";
 // Learn more at https://docs.deno.com/runtime/manual/examples/module_metadata#concepts
 if (import.meta.main) {
   await main(function* () {
-    const { current, series } = yield* useConfig();
+    let { current, series } = yield* useConfig();
 
     yield* initClones("build/clones");
     yield* initWorktrees("build/worktrees");
@@ -51,7 +51,7 @@ if (import.meta.main) {
         route("/docs", redirectIndexRoute(firstPage(current))),
         route("/docs/:id", redirectDocsRoute(current)),
         ...series.map((s) =>
-          route(`/guides/${s}`, redirectIndexRoute(firstPage(s))),
+          route(`/guides/${s}`, redirectIndexRoute(firstPage(s)))
         ),
         route("/guides/:series/:id", guidesRoute({ search: true })),
         route("/contrib", xIndexRedirect()),
@@ -60,7 +60,7 @@ if (import.meta.main) {
         route("/x/:workspacePath", xPackageRoute({ search: true })),
         route("/api", apiIndexRoute({ search: true })),
         ...series.map((s) =>
-          route(`/api/${s}/:symbol`, apiReferenceRoute(s, { search: true })),
+          route(`/api/${s}/:symbol`, apiReferenceRoute(s, { search: true }))
         ),
         route(
           "/pagefind{/*path}",
@@ -70,7 +70,7 @@ if (import.meta.main) {
       ],
       plugins: [
         yield* tailwindPlugin({ input: "main.css", outdir: "tailwind" }),
-	currentRequestPlugin(),
+        currentRequestPlugin(),
         etagPlugin(),
         sitemapPlugin(),
       ],

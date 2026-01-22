@@ -17,12 +17,12 @@ export function splitCommand(input: string): string[] {
     return input.trim().split(/\s+/);
   }
 
-  const wrongPieces = input.split(" ");
+  let wrongPieces = input.split(" ");
   let goodPieces = solveQuotes(wrongPieces, '"');
   goodPieces = solveQuotes(goodPieces, "'");
 
   // Remove outer quotes but preserve escaped quotes
-  const regexQuotes = /["']/g;
+  let regexQuotes = /["']/g;
   for (let i = 0; i < goodPieces.length; i++) {
     goodPieces[i] = goodPieces[i].replace(/(\\\')/g, "%%%SINGLEQUOTE%%%");
     goodPieces[i] = goodPieces[i].replace(/(\\\")/g, "%%%DOUBLEQUOTE%%%");
@@ -50,18 +50,18 @@ export function parseCommand(input: string): ParsedCommand {
 }
 
 function parseSimple(input: string): ParsedCommand {
-  const pieces = input.trim().split(/\s+/);
+  let pieces = input.trim().split(/\s+/);
   return parseTokens(pieces);
 }
 
 function parseWithQuotes(input: string): ParsedCommand {
-  const wrongPieces = input.split(" ");
+  let wrongPieces = input.split(" ");
 
   let goodPieces = solveQuotes(wrongPieces, '"');
   goodPieces = solveQuotes(goodPieces, "'");
 
   // Remove outer quotes but preserve escaped quotes
-  const regexQuotes = /["']/g;
+  let regexQuotes = /["']/g;
   for (let i = 0; i < goodPieces.length; i++) {
     goodPieces[i] = goodPieces[i].replace(/(\\\')/g, "%%%SINGLEQUOTE%%%");
     goodPieces[i] = goodPieces[i].replace(/(\\\")/g, "%%%DOUBLEQUOTE%%%");
@@ -74,8 +74,8 @@ function parseWithQuotes(input: string): ParsedCommand {
 }
 
 function countQuotes(piece: string, quoteChar: string): number {
-  const regex = new RegExp(`[^${quoteChar}\\\\]`, "g");
-  const replaced = piece.replace(regex, "");
+  let regex = new RegExp(`[^${quoteChar}\\\\]`, "g");
+  let replaced = piece.replace(regex, "");
   return replaced
     .replace(new RegExp(`(\\\\${quoteChar})`, "g"), "")
     .replace(/\\/g, "").length;
@@ -94,23 +94,23 @@ function getFirstQuote(piece: string, quoteChar: string, position = 0): number {
 }
 
 function splitPiece(piece: string, quoteChar: string): [string, string] {
-  const firstQIndex = getFirstQuote(piece, quoteChar);
-  const secondQIndex = getFirstQuote(piece, quoteChar, firstQIndex + 1);
+  let firstQIndex = getFirstQuote(piece, quoteChar);
+  let secondQIndex = getFirstQuote(piece, quoteChar, firstQIndex + 1);
 
-  const firstPart = piece.substring(0, secondQIndex + 1);
-  const secondPart = piece.substring(secondQIndex + 1);
+  let firstPart = piece.substring(0, secondQIndex + 1);
+  let secondPart = piece.substring(secondQIndex + 1);
 
   return [firstPart, secondPart];
 }
 
 function solveQuotes(pieces: string[], quoteChar: string): string[] {
   let unclosedQuote = false;
-  const result: string[] = [];
+  let result: string[] = [];
 
   for (let i = 0; i < pieces.length; i++) {
     if (unclosedQuote) {
       if (hasQuote(pieces[i], quoteChar)) {
-        const qIndex = getFirstQuote(pieces[i], quoteChar);
+        let qIndex = getFirstQuote(pieces[i], quoteChar);
         if (qIndex !== pieces[i].length - 1) {
           // Closing quote is not the last character
           pieces[i + 1] = pieces[i].substring(qIndex + 1) +
@@ -125,19 +125,19 @@ function solveQuotes(pieces: string[], quoteChar: string): string[] {
       }
     } else {
       if (hasQuote(pieces[i], quoteChar)) {
-        const quoteCount = countQuotes(pieces[i], quoteChar);
+        let quoteCount = countQuotes(pieces[i], quoteChar);
 
         if (quoteCount === 1) {
           result.push(pieces[i]);
           unclosedQuote = true;
         } else if (quoteCount === 2) {
-          const split = splitPiece(pieces[i], quoteChar);
+          let split = splitPiece(pieces[i], quoteChar);
           result.push(split[0]);
           if (split[1] !== "") result.push(split[1]);
         } else {
           let next = pieces[i];
           do {
-            const split = splitPiece(next, quoteChar);
+            let split = splitPiece(next, quoteChar);
             result.push(split[0]);
             next = split[1];
           } while (countQuotes(next, quoteChar) > 2);
@@ -162,20 +162,20 @@ function solveQuotes(pieces: string[], quoteChar: string): string[] {
 }
 
 function parseTokens(tokens: string[]): ParsedCommand {
-  const result: ParsedCommand = { _: [] };
+  let result: ParsedCommand = { _: [] };
 
   for (let i = 0; i < tokens.length; i++) {
-    const token = tokens[i];
+    let token = tokens[i];
 
     if (token.startsWith("--")) {
       // Long option
-      const equalIndex = token.indexOf("=");
+      let equalIndex = token.indexOf("=");
       if (equalIndex !== -1) {
-        const key = token.substring(2, equalIndex);
-        const value = token.substring(equalIndex + 1);
+        let key = token.substring(2, equalIndex);
+        let value = token.substring(equalIndex + 1);
         result[key] = value;
       } else {
-        const key = token.substring(2);
+        let key = token.substring(2);
         // Check if next token is a value
         if (i + 1 < tokens.length && !tokens[i + 1].startsWith("-")) {
           result[key] = tokens[++i];
@@ -185,10 +185,10 @@ function parseTokens(tokens: string[]): ParsedCommand {
       }
     } else if (token.startsWith("-") && token.length > 1) {
       // Short option(s)
-      const flags = token.substring(1);
+      let flags = token.substring(1);
 
       for (let j = 0; j < flags.length; j++) {
-        const flag = flags[j];
+        let flag = flags[j];
 
         if (j === flags.length - 1) {
           // Last flag - might have a value

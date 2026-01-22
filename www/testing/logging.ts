@@ -10,8 +10,8 @@ type LogEvent =
   | { type: "error"; args: unknown[] };
 
 export function* setupLogging(level: (typeof levels)[number] | false) {
-  const queue = yield* resource<Queue<LogEvent, void>>(function* (provide) {
-    const queue = createQueue<LogEvent, void>();
+  let queue = yield* resource<Queue<LogEvent, void>>(function* (provide) {
+    let queue = createQueue<LogEvent, void>();
     try {
       yield* provide(queue);
     } finally {

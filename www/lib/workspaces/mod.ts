@@ -40,7 +40,7 @@ function detectWorkspaceType(
  * Hidden packages start with "." (e.g., ".internal")
  */
 function isHiddenPackage(pathOrName: string): boolean {
-  const name = pathOrName.split("/").pop() ?? pathOrName;
+  let name = pathOrName.split("/").pop() ?? pathOrName;
   return name.startsWith(".");
 }
 
@@ -53,9 +53,9 @@ function* expandPatterns(
   rootPath: string,
   patterns: string[],
 ): Operation<string[]> {
-  const dirs: string[] = [];
+  let dirs: string[] = [];
 
-  for (const pattern of patterns) {
+  for (let pattern of patterns) {
     // Skip hidden/internal package patterns
     if (isHiddenPackage(pattern)) {
       continue;
@@ -63,11 +63,11 @@ function* expandPatterns(
 
     if (pattern.endsWith("/*")) {
       // Simple glob: packages/* -> list directories in packages/
-      const basePath = pattern.slice(0, -2);
-      const fullPath = resolve(rootPath, basePath);
+      let basePath = pattern.slice(0, -2);
+      let fullPath = resolve(rootPath, basePath);
 
       try {
-        for (const entry of Deno.readDirSync(fullPath)) {
+        for (let entry of Deno.readDirSync(fullPath)) {
           // Skip hidden directories (internal packages)
           if (entry.isDirectory && !entry.name.startsWith(".")) {
             dirs.push(`${basePath}/${entry.name}`);
@@ -92,8 +92,8 @@ function* expandPatterns(
  * Get workspace patterns from a Deno monorepo (from deno.json workspace field).
  */
 function* getDenoPatterns(rootPath: string): Operation<string[]> {
-  const content = yield* until(Deno.readTextFile(`${rootPath}/deno.json`));
-  const denoJson = DenoJsonSchema.parse(JSON.parse(content));
+  let content = yield* until(Deno.readTextFile(`${rootPath}/deno.json`));
+  let denoJson = DenoJsonSchema.parse(JSON.parse(content));
   return denoJson.workspace ?? [];
 }
 
@@ -101,11 +101,11 @@ function* getDenoPatterns(rootPath: string): Operation<string[]> {
  * Get workspace patterns from a Node/PNPM monorepo.
  */
 function* getNodePatterns(rootPath: string): Operation<string[]> {
-  const content = yield* until(
+  let content = yield* until(
     Deno.readTextFile(`${rootPath}/pnpm-workspace.yaml`),
   );
-  const parsed = parseYaml(content);
-  const workspace = PnpmWorkspaceSchema.parse(parsed);
+  let parsed = parseYaml(content);
+  let workspace = PnpmWorkspaceSchema.parse(parsed);
   return workspace.packages;
 }
 
@@ -115,8 +115,8 @@ function* getNodePatterns(rootPath: string): Operation<string[]> {
  * @param nameWithOwner - GitHub repo in "owner/repo" format
  */
 export function* useWorkspaces(nameWithOwner: string): Operation<Workspaces> {
-  const rootPath = yield* useClone(nameWithOwner);
-  const type = detectWorkspaceType(rootPath);
+  let rootPath = yield* useClone(nameWithOwner);
+  let type = detectWorkspaceType(rootPath);
 
   if (!type) {
     throw new Error(
@@ -125,32 +125,30 @@ export function* useWorkspaces(nameWithOwner: string): Operation<Workspaces> {
     );
   }
 
-  const url = `https://github.com/${nameWithOwner}`;
-  const refName = "main";
+  let url = `https://github.com/${nameWithOwner}`;
+  let refName = "main";
 
   // Get workspace patterns based on type
-  const patterns =
-    type === "deno"
-      ? yield* getDenoPatterns(rootPath)
-      : yield* getNodePatterns(rootPath);
+  let patterns = type === "deno"
+    ? yield* getDenoPatterns(rootPath)
+    : yield* getNodePatterns(rootPath);
 
   // Expand patterns to actual directories
-  const workspaceDirs = yield* expandPatterns(rootPath, patterns);
+  let workspaceDirs = yield* expandPatterns(rootPath, patterns);
 
   // Create ref builder
-  const createRef = (workspacePath: string): Ref => ({
+  let createRef = (workspacePath: string): Ref => ({
     name: refName,
     nameWithOwner,
     url: `${url}/tree/${refName}/${workspacePath}`,
   });
 
   // Create package factory based on type
-  const createPackage =
-    type === "deno"
-      ? (path: string, name: string, workspacePath: string, ref: Ref) =>
-          createDenoPackage(path, name, workspacePath, ref)
-      : (path: string, name: string, workspacePath: string, ref: Ref) =>
-          createNodePackage(path, name, workspacePath, ref);
+  let createPackage = type === "deno"
+    ? (path: string, name: string, workspacePath: string, ref: Ref) =>
+      createDenoPackage(path, name, workspacePath, ref)
+    : (path: string, name: string, workspacePath: string, ref: Ref) =>
+      createNodePackage(path, name, workspacePath, ref);
 
   // Build lookup caches lazily
   let packagesByWorkspace: Map<string, Package> | undefined;
@@ -162,17 +160,17 @@ export function* useWorkspaces(nameWithOwner: string): Operation<Workspaces> {
     packagesByWorkspace = new Map();
     packagesByName = new Map();
 
-    for (const workspacePath of workspaceDirs) {
-      const fullPath = resolve(rootPath, workspacePath);
-      const workspaceName = workspacePath.split("/").pop()!;
-      const ref = createRef(workspacePath);
+    for (let workspacePath of workspaceDirs) {
+      let fullPath = resolve(rootPath, workspacePath);
+      let workspaceName = workspacePath.split("/").pop()!;
+      let ref = createRef(workspacePath);
 
-      const pkg = createPackage(fullPath, workspaceName, workspacePath, ref);
+      let pkg = createPackage(fullPath, workspaceName, workspacePath, ref);
       packagesByWorkspace.set(workspaceName, pkg);
 
       // Get package name for the name lookup
       try {
-        const manifest = yield* pkg.getManifest();
+        let manifest = yield* pkg.getManifest();
         if (manifest.name) {
           packagesByName.set(manifest.name, pkg);
         }
@@ -182,7 +180,7 @@ export function* useWorkspaces(nameWithOwner: string): Operation<Workspaces> {
     }
   }
 
-  const workspaces: Workspaces = {
+  let workspaces: Workspaces = {
     url,
     nameWithOwner,
     workspacePatterns: patterns,

@@ -65,7 +65,7 @@ export type GuidesOptions = {
 };
 
 export function* initGuides(options: GuidesOptions): Operation<void> {
-  const guides = new Map<string, Guides>();
+  let guides = new Map<string, Guides>();
 
   let path = yield* useGitRoot();
   guides.set(options.current, yield* loadGuides(path));
@@ -134,7 +134,7 @@ export function loadGuides(dirpath: string): Operation<Guides> {
               Deno.readTextFile(`${dirpath}/${meta.filename}`),
             );
 
-            const content = yield* useMarkdown(source);
+            let content = yield* useMarkdown(source);
 
             return {
               ...meta,
@@ -149,7 +149,7 @@ export function loadGuides(dirpath: string): Operation<Guides> {
 
     yield* provide({
       *first() {
-        const [[_id, task]] = loaders.entries();
+        let [[_id, task]] = loaders.entries();
         return yield* task;
       },
       *all() {

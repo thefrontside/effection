@@ -8,8 +8,8 @@ export const createSibling: ResolveLinkFunction = function* (
   connector,
   method,
 ): Operation<string> {
-  const request = yield* CurrentRequest.expect();
-  const url = new URL(request.url);
+  let request = yield* CurrentRequest.expect();
+  let url = new URL(request.url);
   url.pathname = join(dirname(url.pathname), pathname);
   if (connector && method) {
     url.hash = `#${method}`;
@@ -19,8 +19,8 @@ export const createSibling: ResolveLinkFunction = function* (
 
 export function createChildURL(prefix?: string) {
   return function* (pathname: string): Operation<string> {
-    const request = yield* CurrentRequest.expect();
-    const url = new URL(request.url);
+    let request = yield* CurrentRequest.expect();
+    let url = new URL(request.url);
     url.pathname = join(
       "",
       ...[url.pathname, prefix, pathname].flatMap((s) => s ? [s] : []),
@@ -31,8 +31,8 @@ export function createChildURL(prefix?: string) {
 
 export function createRootUrl(prefix?: string) {
   return function* (pathname: string): Operation<string> {
-    const request = yield* CurrentRequest.expect();
-    const url = new URL(request.url);
+    let request = yield* CurrentRequest.expect();
+    let url = new URL(request.url);
     url.pathname = join("", ...[prefix, pathname].flatMap((s) => s ? [s] : []));
     return url.toString().replace(url.origin, "");
   };

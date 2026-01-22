@@ -18,7 +18,7 @@ export function* defaultLinkResolver(
   if (symbol && connector && method) {
     parts.push(connector, method);
   }
-  const name = parts.filter(Boolean).join("");
+  let name = parts.filter(Boolean).join("");
   if (name) {
     return `[${name}](${name})`;
   }
@@ -44,12 +44,12 @@ export function* useMarkdown(
    * I'm doing this pre-processing here because MDX throws a parse error when it encounteres `{@link }`.
    * I can't use a remark/rehype plugin to change this because they are applied after MDX parses is successful.
    */
-  const sanitize = createJsDocSanitizer(
+  let sanitize = createJsDocSanitizer(
     options?.linkResolver ?? defaultLinkResolver,
   );
-  const sanitized = yield* sanitize(markdown);
+  let sanitized = yield* sanitize(markdown);
 
-  const mod = yield* useMDX(sanitized, {
+  let mod = yield* useMDX(sanitized, {
     remarkPlugins: [remarkGfm, ...(options?.remarkPlugins ?? [])],
     rehypePlugins: [
       [removeDescriptionHR],
@@ -90,7 +90,7 @@ export function* useMarkdown(
 
   return yield* call(async () => {
     try {
-      const result = await mod.default();
+      let result = await mod.default();
       return result;
     } catch (e) {
       console.error(
@@ -110,7 +110,7 @@ export function createJsDocSanitizer(
       doc,
       /@?{@?link\s*(\w*)([^\w}])?(\w*)?([^}]*)?}/gm,
       function* (match) {
-        const [, symbol, connector, method] = match;
+        let [, symbol, connector, method] = match;
         return yield* resolver(symbol, connector, method);
       },
     );

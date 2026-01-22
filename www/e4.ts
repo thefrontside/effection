@@ -37,7 +37,7 @@ export function generate(
 ) {
   return async function () {
     return await run(function* () {
-      const built = new URL(publicDir, import.meta.url);
+      let built = new URL(publicDir, import.meta.url);
 
       if (yield* exists(built, { isDirectory: true })) {
         log(`Reusing existing staticalized ${built.pathname} directory`);
@@ -56,11 +56,11 @@ export function generate(
 
       log("Adding index");
 
-      const index = yield* createPagefindIndex(indexOptions);
+      let index = yield* createPagefindIndex(indexOptions);
 
       log(`Adding directory: ${built.pathname}`);
 
-      const added = yield* index.addDirectory({ path: built.pathname });
+      let added = yield* index.addDirectory({ path: built.pathname });
 
       log(`Addedd ${added} pages from ${built.pathname}`);
 
@@ -74,7 +74,7 @@ export class EPagefindIndex {
   constructor(private readonly index: PagefindIndex) {}
 
   *addDirectory(path: SiteDirectory): Operation<number> {
-    const response = yield* call(() => this.index.addDirectory(path));
+    let response = yield* call(() => this.index.addDirectory(path));
     if (response.errors.length > 0) {
       console.error(
         `Encountered errors while adding ${path.path}: ${response.errors.join()}`,
@@ -84,7 +84,7 @@ export class EPagefindIndex {
   }
 
   *writeFiles(options?: WriteOptions): Operation<string> {
-    const response = yield* call(() => this.index.writeFiles(options));
+    let response = yield* call(() => this.index.writeFiles(options));
     if (response.errors.length > 0) {
       console.error(
         `Encountered errors while writing to ${options?.outputPath}: ${response.errors.join()}`,
@@ -96,7 +96,7 @@ export class EPagefindIndex {
 
 export function createPagefindIndex(config?: PagefindServiceConfig) {
   return resource<EPagefindIndex>(function* (provide) {
-    const { errors, index } = yield* call(() => createIndex(config));
+    let { errors, index } = yield* call(() => createIndex(config));
 
     if (!index) {
       throw new Error(`Failed to create an index: ${errors.join()}`);

@@ -8,7 +8,7 @@ import type { Nodes } from "hast";
 import { JSXElement } from "revolution/jsx-runtime";
 
 export function createToc(root: Nodes, options?: Options): JSXElement {
-  const _options = new NormalizedOptions(
+  let _options = new NormalizedOptions(
     options ?? {
       cssClasses: {
         toc:

@@ -13,7 +13,7 @@ export const DenoJsonSchema = z.object({
 export type DenoJson = z.infer<typeof DenoJsonSchema>;
 
 export function* useDenoJson(path: string): Operation<DenoJson> {
-  const { default: json } = yield* until(
+  let { default: json } = yield* until(
     import(path, { with: { type: "json" } }),
   );
 

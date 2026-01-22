@@ -6,7 +6,7 @@ function* writeFiles(
   dir: string,
   files: Record<string, string>,
 ): Operation<void> {
-  for (const [path, content] of Object.entries(files)) {
+  for (let [path, content] of Object.entries(files)) {
     yield* until(ensureFile(join(dir, path)));
     yield* until(Deno.writeTextFile(join(dir, path), content));
   }
@@ -30,7 +30,7 @@ export function createTempDir(
   params?: CreateTempDirParams,
 ): Operation<TempDir> {
   return resource(function* (provide) {
-    const {
+    let {
       baseDir,
       autoClean,
     } = params || {};
@@ -39,9 +39,9 @@ export function createTempDir(
     if (baseDir) {
       // Create directory in specified base directory
       yield* until(ensureDir(baseDir));
-      const timestamp = Date.now().toString(36);
-      const randomSuffix = Math.random().toString(36).substring(2, 8);
-      const dirName = `${timestamp}-${randomSuffix}`;
+      let timestamp = Date.now().toString(36);
+      let randomSuffix = Math.random().toString(36).substring(2, 8);
+      let dirName = `${timestamp}-${randomSuffix}`;
       dir = join(baseDir, dirName);
       yield* until(ensureDir(dir));
     } else {

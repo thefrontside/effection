@@ -21,10 +21,10 @@ export function* cwd<T extends readonly Operation<unknown>[]>(
 ): Operation<{ [K in keyof T]: T[K] extends Operation<infer R> ? R : never }> {
   return yield* scoped(function* () {
     yield* log.debug(`cwd: ${directory}`);
-    const result = yield* CwdContext.with(directory, function* () {
+    let result = yield* CwdContext.with(directory, function* () {
       yield* indent();
-      const results = [];
-      for (const op of ops) {
+      let results = [];
+      for (let op of ops) {
         results.push(yield* op);
       }
       // deno-lint-ignore no-explicit-any
@@ -38,7 +38,7 @@ export function* $echo(
   data: string | ReadableStream<string>,
   filename: string | URL,
 ): Operation<void> {
-  const cwd = yield* CwdContext.expect();
+  let cwd = yield* CwdContext.expect();
   if (typeof filename === "string") {
     yield* until(Deno.writeTextFile(join(cwd, filename), data));
     return;

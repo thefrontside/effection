@@ -49,7 +49,7 @@ export function xPackageRedirect(): SitemapRoute<JSXElement> {
   return {
     routemap: routemap(),
     *handler(req) {
-      const params = yield* useParams<{ workspacePath: string }>();
+      let params = yield* useParams<{ workspacePath: string }>();
       return yield* softRedirect(
         req,
         yield* createSibling(params.workspacePath),
@@ -75,25 +75,25 @@ export function xPackageRoute({
       }
 
       try {
-        const docs = yield* pkg.getDocs();
-        const pkgName = yield* pkg.getName();
-        const pkgDescription = yield* pkg.getDescription();
+        let docs = yield* pkg.getDocs();
+        let pkgName = yield* pkg.getName();
+        let pkgDescription = yield* pkg.getDescription();
 
-        const AppHTML = yield* useAppHtml({
+        let AppHTML = yield* useAppHtml({
           title: `${pkgName} | Extensions | Effection`,
           description: pkgDescription,
         });
 
-        const linkResolver = function* (
+        let linkResolver = function* (
           symbol: string,
           connector?: string,
           method?: string,
         ) {
-          const internal = `#${symbol}_${method}`;
+          let internal = `#${symbol}_${method}`;
           if (connector === "_") {
             return internal;
           }
-          const page = docs["."].find(
+          let page = docs["."].find(
             (page) => page.name === symbol && page.kind !== "import",
           );
 
@@ -105,14 +105,14 @@ export function xPackageRoute({
           return symbol;
         };
 
-        const apiReference = [];
+        let apiReference = [];
 
-        const entrypoints = Object.entries(docs);
+        let entrypoints = Object.entries(docs);
 
-        for (const [entrypoint, pages] of entrypoints) {
-          const sections = [];
-          for (const page of pages) {
-            const content = yield* call(function* () {
+        for (let [entrypoint, pages] of entrypoints) {
+          let sections = [];
+          for (let page of pages) {
+            let content = yield* call(function* () {
               yield* DocPageContext.set(page);
               return yield* ApiBody({ page, linkResolver });
             });
@@ -136,7 +136,7 @@ export function xPackageRoute({
 
         apiReference.forEach((section) => shiftHeading(section, 1));
 
-        const content = (
+        let content = (
           <>
             {yield* useMarkdown(yield* pkg.getReadme(), { linkResolver })}
             <h2 id="api-reference">API Reference</h2>
@@ -144,7 +144,7 @@ export function xPackageRoute({
           </>
         );
 
-        const toc = createToc(content, {
+        let toc = createToc(content, {
           headings: ["h2", "h3"],
           cssClasses: {
             toc:
@@ -159,7 +159,7 @@ export function xPackageRoute({
               .filter(Boolean)
               .join("");
 
-            const ol = select("ol.toc-level-2, ol.toc-level-3", item as Nodes);
+            let ol = select("ol.toc-level-2, ol.toc-level-3", item as Nodes);
             if (ol) {
               ol.properties.className = `${ol.properties.className} ml-6`;
             }
@@ -168,7 +168,7 @@ export function xPackageRoute({
               heading.properties["data-name"]
             ) {
               item.properties.className += " mb-1";
-              const a = select("a", item as Nodes);
+              let a = select("a", item as Nodes);
               if (a) {
                 // deno-lint-ignore no-explicit-any
                 (a as any).children = [
@@ -179,7 +179,7 @@ export function xPackageRoute({
                 ];
               }
             } else {
-              const a = select("a", item as Nodes);
+              let a = select("a", item as Nodes);
               if (a) {
                 a.properties.className =
                   `hover:underline hover:underline-offset-2`;
@@ -226,7 +226,7 @@ export function xPackageRoute({
         );
       } catch (e) {
         console.error(e);
-        const AppHTML = yield* useAppHtml({
+        let AppHTML = yield* useAppHtml({
           title: `${params.workspacePath} not found`,
           description: `Failed to load ${params.workspacePath} due to error.`,
         });

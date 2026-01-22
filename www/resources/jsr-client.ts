@@ -58,7 +58,7 @@ export function createJSRClient(token: string): Operation<JSRClient> {
   return resource<JSRClient>(function* (provide) {
     yield* provide({
       *getPackageScore(params) {
-        const response = yield* call(() =>
+        let response = yield* call(() =>
           fetch(
             `https://api.jsr.io/scopes/${params.scope}/packages/${params.package}/score`,
             {
@@ -70,7 +70,7 @@ export function createJSRClient(token: string): Operation<JSRClient> {
         );
 
         if (response.ok) {
-          const json = yield* call(() => response.json());
+          let json = yield* call(() => response.json());
           return yield* call(() => PackageScore.safeParseAsync(json));
         }
 
@@ -82,7 +82,7 @@ export function createJSRClient(token: string): Operation<JSRClient> {
         );
       },
       *getPackageDetails(params) {
-        const response = yield* call(() =>
+        let response = yield* call(() =>
           fetch(
             `https://api.jsr.io/scopes/${params.scope}/packages/${params.package}`,
             {
@@ -94,7 +94,7 @@ export function createJSRClient(token: string): Operation<JSRClient> {
         );
 
         if (response.ok) {
-          const json = yield* call(() => response.json());
+          let json = yield* call(() => response.json());
           return yield* call(() => PackageDetails.safeParseAsync(json));
         }
 

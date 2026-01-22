@@ -17,9 +17,9 @@ export function* PackageExports({
   docs,
   linkResolver,
 }: PackageExportsParams) {
-  const elements: JSXElement[] = [];
+  let elements: JSXElement[] = [];
 
-  for (const [exportName, docPages] of Object.entries(docs)) {
+  for (let [exportName, docPages] of Object.entries(docs)) {
     if (docPages.filter((page) => page.kind !== "import").length > 0) {
       elements.push(
         yield* PackageExport({
@@ -48,10 +48,10 @@ function* PackageExport({
   docPages,
   linkResolver,
 }: PackageExportOptions): Operation<JSXElement> {
-  const exports: JSXChild[] = [];
+  let exports: JSXChild[] = [];
 
   for (
-    const page of docPages
+    let page of docPages
       .flatMap((page) => (page.kind === "import" ? [] : [page]))
       .sort((a, b) => a.name.localeCompare(b.name))
   ) {
@@ -94,9 +94,9 @@ function* PackageExport({
 }
 
 function chunk<T>(array: T[], chunkSize = 2): T[][] {
-  const chunks: T[][] = [];
+  let chunks: T[][] = [];
   for (let i = 0; i < array.length; i += chunkSize) {
-    const chunk = array.slice(i, i + chunkSize);
+    let chunk = array.slice(i, i + chunkSize);
     chunks.push(chunk);
   }
   return chunks;

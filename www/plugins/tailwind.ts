@@ -64,8 +64,8 @@ npm:@tailwindcss/cli@^4.0.0 \
 
   if (yield* until(exists(output))) {
     let content = yield* until(Deno.readFile(output));
-    const buffer = yield* until(crypto.subtle.digest("SHA-256", content));
-    const hash = encodeHex(buffer);
+    let buffer = yield* until(crypto.subtle.digest("SHA-256", content));
+    let hash = encodeHex(buffer);
     return {
       filepath: output,
       csspath: `/${output}`,

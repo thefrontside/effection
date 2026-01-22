@@ -26,22 +26,20 @@ export interface GitCommit {
  */
 export function* getGitHistory(): Operation<GitCommit[]> {
   // Get commit history with hash and message
-  const historyResult = yield* $(`git log --format="%H|%s" --reverse`);
+  let historyResult = yield* $(`git log --format="%H|%s" --reverse`);
 
-  const lines = historyResult.stdout.split("\n").filter((line) =>
+  let lines = historyResult.stdout.split("\n").filter((line) =>
     line.length > 0
   );
-  const commits: GitCommit[] = [];
+  let commits: GitCommit[] = [];
 
-  for (const line of lines) {
-    const [sha, message] = line.split("|");
+  for (let line of lines) {
+    let [sha, message] = line.split("|");
 
     // Get tags for this commit using $ shell utility
     try {
-      const tagsResult = yield* $(`git tag --points-at ${sha}`);
-      const tags = tagsResult.stdout.split("\n").filter((tag) =>
-        tag.length > 0
-      );
+      let tagsResult = yield* $(`git tag --points-at ${sha}`);
+      let tags = tagsResult.stdout.split("\n").filter((tag) => tag.length > 0);
       commits.push({ sha, message, tags });
     } catch {
       // No tags for this commit

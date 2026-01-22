@@ -1,8 +1,8 @@
 export type {
-  Registry,
-  Registries,
   PackageDetails,
   PackageScore,
+  Registries,
+  Registry,
 } from "./types.ts";
 export { jsr } from "./jsr.ts";
 export { npm } from "./npm.ts";

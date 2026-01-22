@@ -27,9 +27,11 @@ export function* useAppHtml({
     "/assets/images/meta-effection.png",
   );
 
-  let canonicalURL = yield* useCanonicalUrl({ base: "https://frontside.com/effection" });
+  let canonicalURL = yield* useCanonicalUrl({
+    base: "https://frontside.com/effection",
+  });
 
-  const header = yield* Header({ hasLeftSidebar });
+  let header = yield* Header({ hasLeftSidebar });
 
   return ({ children, search }) => (
     <html lang="en-US" dir="ltr">
@@ -67,7 +69,12 @@ export function* useAppHtml({
         </noscript>
         <script type="module" src="https://esm.sh/@11ty/is-land@4.0.0" />
         <script type="module" src="/assets/search.js" />
-        <link rel="alternate" type="text/plain" href="/assets/llms.txt" title="LLM Documentation" />
+        <link
+          rel="alternate"
+          type="text/plain"
+          href="/assets/llms.txt"
+          title="LLM Documentation"
+        />
         {head ?? <></>}
       </head>
       <body class="flex flex-col bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-200">

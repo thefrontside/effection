@@ -14,7 +14,7 @@ export interface ProcessApi {
 
 export const processApi = createApi<ProcessApi>("process", {
   *useProcess(command: string, options): Operation<ProcessResult> {
-    const cwd = yield* useCwd();
+    let cwd = yield* useCwd();
     return yield* exec(command, {
       cwd,
       ...options,
@@ -22,13 +22,13 @@ export const processApi = createApi<ProcessApi>("process", {
   },
 });
 
-export const { useProcess } = processApi.operations;
+export let { useProcess } = processApi.operations;
 
 export function* drain(source: Stream<string, void>): Operation<string> {
-  const complete = withResolvers<string>();
+  let complete = withResolvers<string>();
   yield* spawn(function* () {
     let chunks = "";
-    for (const chunk of yield* each(source)) {
+    for (let chunk of yield* each(source)) {
       chunks += chunk;
       yield* each.next();
     }
@@ -43,28 +43,28 @@ export function urlFromCommand(command: string): URL {
 }
 
 export function* ProcessOutputCache(patterns: RegExp[]): Operation<void> {
-  const cache = yield* until(caches.open("command-cache"));
+  let cache = yield* until(caches.open("command-cache"));
 
   yield* processApi.around({
     *useProcess([command], next) {
       // Check if command matches any of the patterns
-      const shouldCache = patterns.some((pattern) => pattern.test(command));
+      let shouldCache = patterns.some((pattern) => pattern.test(command));
 
       if (!shouldCache) {
         return yield* next(command);
       }
 
-      const url = urlFromCommand(command);
+      let url = urlFromCommand(command);
 
       // Check if we have cached result
-      const cachedResponse = yield* until(cache.match(url));
+      let cachedResponse = yield* until(cache.match(url));
       if (cachedResponse) {
         // Return cached process with cached output
         return yield* createCachedProcess(cachedResponse);
       }
 
       // Execute the process normally
-      const process = yield* next(command);
+      let process = yield* next(command);
 
       yield* until(cache.put(url, new Response(process.stdout)));
 
@@ -85,7 +85,7 @@ function* createCachedProcess(
 }
 
 // Pattern for git show commands with named capture groups
-export const gitShowPattern = regex(
+export let gitShowPattern = regex(
   "^git show (?<owner>[^/]+)/(?<repo>[^/]+)/(?<branch>[^:]+):(?<path>.+)$",
 );
 
@@ -94,7 +94,7 @@ export const gitShowPattern = regex(
  */
 function* isDescendantOf(ref: string): Operation<boolean> {
   try {
-    const result = yield* exec(
+    let result = yield* exec(
       `git merge-base --is-ancestor ${ref} HEAD`,
     ).expect();
     return result.code === 0;
@@ -112,19 +112,19 @@ export function* ProcessFileSystemRead(
 ): Operation<void> {
   yield* processApi.around({
     *useProcess([command], next) {
-      const match = pattern.exec(command);
+      let match = pattern.exec(command);
 
       if (!match) {
         return yield* next(command);
       }
 
-      const { owner, repo, branch, path: filePath } = match.groups;
-      const repoPath = `${owner}/${repo}`;
-      const remote = `${owner}/${repo}/${branch}`;
+      let { owner, repo, branch, path: filePath } = match.groups;
+      let repoPath = `${owner}/${repo}`;
+      let remote = `${owner}/${repo}/${branch}`;
 
       // Check if origin matches the repository
-      const originResult = yield* exec("git remote get-url origin").expect();
-      const originUrl = originResult.stdout.trim();
+      let originResult = yield* exec("git remote get-url origin").expect();
+      let originUrl = originResult.stdout.trim();
 
       if (!originUrl.includes(repoPath)) {
         yield* log.debug(
@@ -133,7 +133,7 @@ export function* ProcessFileSystemRead(
         return yield* next(command);
       }
 
-      const isDescendant = yield* isDescendantOf(remote);
+      let isDescendant = yield* isDescendantOf(remote);
 
       if (!isDescendant) {
         yield* log.debug(
@@ -146,8 +146,8 @@ export function* ProcessFileSystemRead(
         yield* log.debug(
           `Reading ${filePath} from filesystem instead of executing: ${command}`,
         );
-        const basePath = fileURLToPath(new URL("../../", import.meta.url));
-        const [process] = yield* cwd(basePath, [next(`cat ${filePath}`)]);
+        let basePath = fileURLToPath(new URL("../../", import.meta.url));
+        let [process] = yield* cwd(basePath, [next(`cat ${filePath}`)]);
         return process;
       } catch (error) {
         yield* log.debug(

@@ -31,13 +31,13 @@ export function xIndexRoute({
       let workspaces = yield* useWorkspaces("thefrontside/effectionx");
       let packages = yield* workspaces.getAllPackages();
 
-      const AppHTML = yield* useAppHtml({
+      let AppHTML = yield* useAppHtml({
         title: "Extensions | Effection",
         description:
           "List of community contributed modules that represent emerging consensus on how to do common JavaScript tasks with Effection.",
       });
 
-      const makeChildUrl = createChildURL();
+      let makeChildUrl = createChildURL();
 
       return (
         <AppHTML search={search}>
@@ -85,8 +85,8 @@ export function xIndexRoute({
               <ul class="list-none px-0 divide-y-1 divide-solid divide-slate-200 dark:divide-slate-700">
                 {yield* all(
                   packages.map(function* (pkg) {
-                    const title = yield* pkg.getName();
-                    const description = yield* pkg.getDescription();
+                    let title = yield* pkg.getName();
+                    let description = yield* pkg.getDescription();
 
                     return (
                       <li>

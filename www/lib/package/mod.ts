@@ -1,3 +1,7 @@
 export type { Package, PackageManifest, Ref } from "./types.ts";
-export { createDenoPackage, DenoJsonSchema, type DenoJson } from "./deno.ts";
-export { createNodePackage, PackageJsonSchema, type PackageJson } from "./node.ts";
+export { createDenoPackage, type DenoJson, DenoJsonSchema } from "./deno.ts";
+export {
+  createNodePackage,
+  type PackageJson,
+  PackageJsonSchema,
+} from "./node.ts";

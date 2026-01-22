@@ -22,7 +22,7 @@ interface TypeProps {
 }
 
 export function* Type(props: TypeProps): Operation<JSXElement> {
-  const { node } = props;
+  let { node } = props;
 
   switch (node.kind) {
     case "function":
@@ -174,9 +174,9 @@ function TSParam({ param }: { param: ParamDef }) {
           <TSParam param={param.left} />
           <Operator>{" = "}</Operator>
           {param.tsType ? <TypeDef typeDef={param.tsType} /> : <></>}
-          {param.right === "[UNSUPPORTED]" ? "{}" : <></> }
+          {param.right === "[UNSUPPORTED]" ? "{}" : <></>}
         </>
-      )
+      );
     }
     default:
       console.log("<TSParam> unimplemented:", param);

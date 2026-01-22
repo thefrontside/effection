@@ -9,8 +9,8 @@ import { registries } from "../registries/mod.ts";
 import { useDocPages } from "../../hooks/use-deno-doc.tsx";
 import { useMDX } from "../../hooks/use-mdx.tsx";
 import {
-  useTitle,
   useDescription,
+  useTitle,
 } from "../../hooks/use-description-parse.tsx";
 
 /**
@@ -79,16 +79,16 @@ function normalizeExports(
 
   // Check if it's a conditional export object (has development/default keys)
   if ("development" in exports || "default" in exports) {
-    const resolved = resolveExportValue(
+    let resolved = resolveExportValue(
       exports as z.infer<typeof ExportConditionsSchema>,
     );
     return resolved ? { ".": resolved } : { ".": "./src/index.ts" };
   }
 
   // It's a record of entrypoints
-  const result: Record<string, string> = {};
-  for (const [key, value] of Object.entries(exports)) {
-    const resolved = resolveExportValue(value);
+  let result: Record<string, string> = {};
+  for (let [key, value] of Object.entries(exports)) {
+    let resolved = resolveExportValue(value);
     if (resolved) {
       result[key] = resolved;
     }
@@ -118,15 +118,15 @@ function sanitizeVersion(version: string): string {
  * Converts npm package names to npm: specifiers.
  */
 function buildImports(packageJson: PackageJson): Record<string, string> {
-  const imports: Record<string, string> = {};
+  let imports: Record<string, string> = {};
 
-  const allDeps = {
+  let allDeps = {
     ...packageJson.dependencies,
     ...packageJson.peerDependencies,
   };
 
-  for (const [name, version] of Object.entries(allDeps)) {
-    const sanitizedVersion = sanitizeVersion(version);
+  for (let [name, version] of Object.entries(allDeps)) {
+    let sanitizedVersion = sanitizeVersion(version);
     imports[name] = `npm:${name}@${sanitizedVersion}`;
   }
 
@@ -138,7 +138,7 @@ function buildImports(packageJson: PackageJson): Record<string, string> {
  */
 function parseScope(name: string | undefined): string | undefined {
   if (!name) return undefined;
-  const match = name.match(/@([^/]+)\//);
+  let match = name.match(/@([^/]+)\//);
   return match ? match[1] : undefined;
 }
 
@@ -156,12 +156,12 @@ export function createNodePackage(
   workspacePath: string,
   ref: Ref,
 ): Package {
-  const manifestUrl = new URL(`${path}/package.json`, "file://");
+  let manifestUrl = new URL(`${path}/package.json`, "file://");
 
   // We'll compute these lazily from the manifest
   let cachedName: string | undefined;
 
-  const pkg: Package = {
+  let pkg: Package = {
     manifestUrl,
     path,
     workspaceName,
@@ -173,17 +173,17 @@ export function createNodePackage(
 
     // Registry URLs - will use the cached name once loaded
     get npm() {
-      const name = cachedName ?? `@effectionx/${workspaceName}`;
+      let name = cachedName ?? `@effectionx/${workspaceName}`;
       return new URL(`./${name}`, "https://www.npmjs.com/package/");
     },
     get npmVersionBadge() {
-      const name = cachedName ?? `@effectionx/${workspaceName}`;
+      let name = cachedName ?? `@effectionx/${workspaceName}`;
       return new URL(`./${name}`, "https://img.shields.io/npm/v/");
     },
 
     *getManifest(): Operation<PackageManifest> {
-      const content = yield* until(Deno.readTextFile(`${path}/package.json`));
-      const packageJson = PackageJsonSchema.parse(JSON.parse(content));
+      let content = yield* until(Deno.readTextFile(`${path}/package.json`));
+      let packageJson = PackageJsonSchema.parse(JSON.parse(content));
 
       // Cache the name for URL getters
       if (packageJson.name) {
@@ -200,47 +200,47 @@ export function createNodePackage(
     },
 
     *getName(): Operation<string> {
-      const manifest = yield* this.getManifest();
+      let manifest = yield* this.getManifest();
       return manifest.name ?? workspaceName;
     },
 
     *getVersion(): Operation<string> {
-      const manifest = yield* this.getManifest();
+      let manifest = yield* this.getManifest();
       return manifest.version ?? "0.0.0";
     },
 
     *getScopeName(): Operation<string | undefined> {
-      const manifest = yield* this.getManifest();
+      let manifest = yield* this.getManifest();
       return parseScope(manifest.name);
     },
 
     *getExports(): Operation<Record<string, string>> {
-      const manifest = yield* this.getManifest();
+      let manifest = yield* this.getManifest();
       return manifest.exports;
     },
 
     *getImports(): Operation<Record<string, string>> {
-      const manifest = yield* this.getManifest();
+      let manifest = yield* this.getManifest();
       return manifest.imports;
     },
 
     *getEntrypoints(): Operation<Record<string, URL>> {
-      const manifest = yield* this.getManifest();
-      const entrypoints: Record<string, URL> = {};
-      for (const [key, value] of Object.entries(manifest.exports)) {
+      let manifest = yield* this.getManifest();
+      let entrypoints: Record<string, URL> = {};
+      for (let [key, value] of Object.entries(manifest.exports)) {
         entrypoints[key] = new URL(value, `file://${path}/`);
       }
       return entrypoints;
     },
 
     *getDocs(): Operation<LocalDocsPages> {
-      const entrypoints = yield* this.getEntrypoints();
-      const imports = yield* this.getImports();
+      let entrypoints = yield* this.getEntrypoints();
+      let imports = yield* this.getImports();
 
-      const docs: LocalDocsPages = {};
+      let docs: LocalDocsPages = {};
 
-      for (const [entrypoint, url] of Object.entries(entrypoints)) {
-        const pages = yield* useDocPages(`${url}`, imports);
+      for (let [entrypoint, url] of Object.entries(entrypoints)) {
+        let pages = yield* useDocPages(`${url}`, imports);
 
         docs[entrypoint] = pages[`${url}`].map((page) => ({
           ...page,
@@ -251,7 +251,12 @@ export function createNodePackage(
               location: {
                 ...section.node.location,
                 url: new URL(
-                  `${relative(path, fileURLToPath(section.node.location.filename))}#L${section.node.location.line}`,
+                  `${
+                    relative(
+                      path,
+                      fileURLToPath(section.node.location.filename),
+                    )
+                  }#L${section.node.location.line}`,
                   `${ref.url}/`,
                 ),
               },
@@ -268,18 +273,18 @@ export function createNodePackage(
     },
 
     *getMDXContent(): Operation<JSX.Element> {
-      const readme = yield* this.getReadme();
-      const mod = yield* useMDX(readme);
+      let readme = yield* this.getReadme();
+      let mod = yield* useMDX(readme);
       return mod.default({});
     },
 
     *getTitle(): Operation<string> {
-      const readme = yield* this.getReadme();
+      let readme = yield* this.getReadme();
       return yield* useTitle(readme);
     },
 
     *getDescription(): Operation<string> {
-      const readme = yield* this.getReadme();
+      let readme = yield* this.getReadme();
       return yield* useDescription(readme);
     },
   };

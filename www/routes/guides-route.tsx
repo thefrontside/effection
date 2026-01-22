@@ -16,9 +16,9 @@ import { useConfig } from "../context/config.ts";
 
 export function firstPage(series: string): () => Operation<string> {
   return function* () {
-    const pages = yield* useGuides(series);
+    let pages = yield* useGuides(series);
 
-    const page = yield* pages.first();
+    let page = yield* pages.first();
     return yield* createChildURL()(page.id);
   };
 }
@@ -30,11 +30,11 @@ export function guidesRoute({
 }): SitemapRoute<JSXElement> {
   return {
     *routemap(pathname) {
-      const { series: SERIES } = yield* useConfig();
-      const paths = SERIES.map(function* (series) {
+      let { series: SERIES } = yield* useConfig();
+      let paths = SERIES.map(function* (series) {
         let paths: RoutePath[] = [];
 
-        const pages = yield* useGuides(series);
+        let pages = yield* useGuides(series);
 
         for (let page of yield* pages.all()) {
           paths.push({
@@ -46,7 +46,7 @@ export function guidesRoute({
       return (yield* all(paths)).flat();
     },
     *handler(req) {
-      const { series: SERIES, current } = yield* useConfig();
+      let { series: SERIES, current } = yield* useConfig();
 
       let { id, series = current } = yield* useParams<{
         id: string | undefined;
@@ -56,14 +56,14 @@ export function guidesRoute({
       let pages = yield* useGuides(series);
 
       if (!id) {
-        const page = yield* pages.first();
+        let page = yield* pages.first();
         return yield* softRedirect(
           req,
           yield* createChildURL()(`${series}/${page.id}`),
         );
       }
 
-      const page = yield* pages.get(id);
+      let page = yield* pages.get(id);
 
       if (!page) {
         return yield* respondNotFound();
@@ -71,7 +71,7 @@ export function guidesRoute({
 
       let { topics } = page;
 
-      const description = yield* useDescription(page.markdown);
+      let description = yield* useDescription(page.markdown);
 
       let AppHtml = yield* useAppHtml({
         title: `${page.title} | Docs | Effection`,
@@ -79,25 +79,27 @@ export function guidesRoute({
         hasLeftSidebar: true,
       });
 
-      const topicsList = [];
+      let topicsList = [];
 
-      for (const topic of topics) {
-        const items = [];
-        for (const item of topic.items) {
+      for (let topic of topics) {
+        let items = [];
+        for (let item of topic.items) {
           items.push(
             <li class="mt-1">
-              {page.id !== item.id ? (
-                <a
-                  class="rounded px-4 block w-full py-2 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  href={yield* createSibling(item.id)}
-                >
-                  {item.title}
-                </a>
-              ) : (
-                <a class="rounded px-4 block w-full py-2 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 cursor-default">
-                  {item.title}
-                </a>
-              )}
+              {page.id !== item.id
+                ? (
+                  <a
+                    class="rounded px-4 block w-full py-2 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    href={yield* createSibling(item.id)}
+                  >
+                    {item.title}
+                  </a>
+                )
+                : (
+                  <a class="rounded px-4 block w-full py-2 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 cursor-default">
+                    {item.title}
+                  </a>
+                )}
             </li>,
           );
         }
@@ -111,16 +113,20 @@ export function guidesRoute({
         );
       }
 
-      const versionToggle = yield* all(
+      let versionToggle = yield* all(
         SERIES.map(function* (s) {
-          const target = yield* useGuides(s);
-          const targetPage = yield* target.get(page.id);
-          const base = current === s ? "docs" : `guides/${s}`;
-          const url = yield* createRootUrl(base)(targetPage ? page.id : '/') ;
+          let target = yield* useGuides(s);
+          let targetPage = yield* target.get(page.id);
+          let base = current === s ? "docs" : `guides/${s}`;
+          let url = yield* createRootUrl(base)(targetPage ? page.id : "/");
           return (
             <a
               href={url}
-              class={`text-base ${s === series ? "font-bold text-sky-500" : "text-gray-600 dark:text-gray-400 hover:text-sky-500"}`}
+              class={`text-base ${
+                s === series
+                  ? "font-bold text-sky-500"
+                  : "text-gray-600 dark:text-gray-400 hover:text-sky-500"
+              }`}
             >
               {s}
             </a>
@@ -168,20 +174,20 @@ export function guidesRoute({
               data-series={series}
             >
               <h1>{page.title}</h1>
-              {series !== current ? (
-                <div class="mb-4 px-4 py-3 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-800 dark:text-gray-200">
-                  You're viewing documentation for an older version. Effection
-                  {current} is now available.{" "}
-                  <a
-                    href={yield* createRootUrl("docs")(page.id)}
-                    class="font-medium text-sky-500 hover:underline"
-                  >
-                    View {current} docs →
-                  </a>
-                </div>
-              ) : (
-                <></>
-              )}
+              {series !== current
+                ? (
+                  <div class="mb-4 px-4 py-3 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-800 dark:text-gray-200">
+                    You're viewing documentation for an older version. Effection
+                    {current} is now available.{" "}
+                    <a
+                      href={yield* createRootUrl("docs")(page.id)}
+                      class="font-medium text-sky-500 hover:underline"
+                    >
+                      View {current} docs →
+                    </a>
+                  </div>
+                )
+                : <></>}
               <>{page.content}</>
               {yield* NextPrevLinks({ page })}
             </article>
@@ -202,32 +208,32 @@ function* NextPrevLinks({ page }: { page: GuidesMeta }): Operation<JSXElement> {
   let { next, prev } = page;
   return (
     <menu class="grid grid-cols-2 my-10 gap-x-2 xl:gap-x-20 2xl:gap-x-40 text-lg">
-      {prev ? (
-        <li class="col-start-1 text-left font-light border-1 rounded-lg p-4">
-          Previous
-          <a
-            class="py-2 block text-xl font-bold text-blue-primary no-underline tracking-wide leading-5 before:content-['«&nbsp;'] before:font-normal"
-            href={yield* createSibling(prev.id)}
-          >
-            {prev.title}
-          </a>
-        </li>
-      ) : (
-        <li />
-      )}
-      {next ? (
-        <li class="col-start-2 text-right font-light border-1 rounded-lg p-4">
-          Next
-          <a
-            class="py-2 block text-xl font-bold text-blue-primary no-underline tracking-wide leading-5 after:content-['&nbsp;»'] after:font-normal"
-            href={yield* createSibling(next.id)}
-          >
-            {next.title}
-          </a>
-        </li>
-      ) : (
-        <li />
-      )}
+      {prev
+        ? (
+          <li class="col-start-1 text-left font-light border-1 rounded-lg p-4">
+            Previous
+            <a
+              class="py-2 block text-xl font-bold text-blue-primary no-underline tracking-wide leading-5 before:content-['«&nbsp;'] before:font-normal"
+              href={yield* createSibling(prev.id)}
+            >
+              {prev.title}
+            </a>
+          </li>
+        )
+        : <li />}
+      {next
+        ? (
+          <li class="col-start-2 text-right font-light border-1 rounded-lg p-4">
+            Next
+            <a
+              class="py-2 block text-xl font-bold text-blue-primary no-underline tracking-wide leading-5 after:content-['&nbsp;»'] after:font-normal"
+              href={yield* createSibling(next.id)}
+            >
+              {next.title}
+            </a>
+          </li>
+        )
+        : <li />}
     </menu>
   );
 }

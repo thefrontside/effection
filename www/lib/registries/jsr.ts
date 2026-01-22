@@ -1,5 +1,5 @@
 import type { Operation } from "effection";
-import type { Registry, PackageDetails, PackageScore } from "./types.ts";
+import type { PackageDetails, PackageScore, Registry } from "./types.ts";
 
 export const jsr: Registry = {
   name: "JSR",

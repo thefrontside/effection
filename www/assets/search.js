@@ -11,13 +11,13 @@ import {
 } from "https://esm.sh/effection@4.0.0-beta.3";
 
 await main(function* () {
-  const input = document.getElementById("search");
+  let input = document.getElementById("search");
   if (!input) {
     console.log(`Search could not be setup because input was not found.`);
     return;
   }
 
-  const label = input.closest("label");
+  let label = input.closest("label");
   if (!label) {
     console.log(
       `Search could not be setup because label element was not found.`,
@@ -25,7 +25,7 @@ await main(function* () {
     return;
   }
 
-  const button = input.nextElementSibling;
+  let button = input.nextElementSibling;
   if (!button) {
     console.log(
       `Search could not be setup because button element was not found.`,
@@ -33,7 +33,7 @@ await main(function* () {
     return;
   }
 
-  const events = yield* join([
+  let events = yield* join([
     on(input, "focus"),
     on(button, "focus"),
     on(input, "blur"),
@@ -43,7 +43,7 @@ await main(function* () {
   /** @type {Task<void>} */
   let lastBlur;
   yield* spawn(function* () {
-    for (const event of yield* each(events)) {
+    for (let event of yield* each(events)) {
       if (event.type === "blur") {
         lastBlur = yield* spawn(function* () {
           yield* sleep(15);
@@ -62,7 +62,7 @@ await main(function* () {
     }
   });
 
-  for (const event of yield* each(on(document, "keydown"))) {
+  for (let event of yield* each(on(document, "keydown"))) {
     if (event.metaKey && event.key === "k") {
       event.preventDefault();
       input.focus();
@@ -82,11 +82,11 @@ await main(function* () {
  */
 function join(streams) {
   return resource(function* (provide) {
-    const channel = createChannel();
+    let channel = createChannel();
 
     yield* spawn(function* () {
       yield* all(streams.map(function* (stream) {
-        for (const event of yield* each(stream)) {
+        for (let event of yield* each(stream)) {
           yield* channel.send(event);
           yield* each.next();
         }

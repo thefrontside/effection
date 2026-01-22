@@ -1,5 +1,5 @@
 export function ensureTrailingSlash(url: URL) {
-  const isFile = url.pathname.split("/").at(-1)?.includes(".");
+  let isFile = url.pathname.split("/").at(-1)?.includes(".");
   if (isFile || url.pathname.endsWith("/")) {
     return url;
   }

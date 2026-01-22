@@ -4,7 +4,7 @@ import {
   type DocNode,
   type DocOptions,
   LoadResponse,
-  Location
+  Location,
 } from "@deno/doc";
 import { call, type Operation, until, useScope } from "effection";
 import { createGraph } from "@deno/graph";
@@ -17,7 +17,7 @@ import { useDescription } from "./use-description-parse.tsx";
 
 // Matches npm/jsr specifiers like @std/testing/bdd or lodash/fp
 export const npmSpecifierPattern = regex(
-  "^(?:(?<scope>@[^/]+)/)?(?<package>[^/]+)(?<subpath>/.*)?$"
+  "^(?:(?<scope>@[^/]+)/)?(?<package>[^/]+)(?<subpath>/.*)?$",
 );
 
 export type { DocNode };
@@ -60,17 +60,17 @@ export function* useDocPages(
   specifier: string,
   imports?: Record<string, string>,
 ): Operation<DocsPages> {
-  const scope = yield* useScope();
+  let scope = yield* useScope();
 
-  const loader = (specifier: string) => scope.run(docLoader(specifier));
+  let loader = (specifier: string) => scope.run(docLoader(specifier));
 
   // If imports not provided, try to extract from deno.json
-  const resolvedImports = imports ?? (yield* extractImports(
+  let resolvedImports = imports ?? (yield* extractImports(
     new URL("./deno.json", specifier).toString(),
     loader,
   ));
 
-  const resolve = resolvedImports
+  let resolve = resolvedImports
     ? (specifier: string, referrer: string) => {
       let resolved: string = specifier;
       if (specifier in resolvedImports) {
@@ -80,12 +80,12 @@ export function* useDocPages(
       } else if (specifier.startsWith("node:")) {
         resolved = `npm:@types/node@^22.13.5`;
       } else {
-        const match = npmSpecifierPattern.exec(specifier);
+        let match = npmSpecifierPattern.exec(specifier);
         if (match) {
-          const { scope, package: pkg, subpath } = match.groups;
-          const baseKey = scope ? `${scope}/${pkg}` : pkg;
+          let { scope, package: pkg, subpath } = match.groups;
+          let baseKey = scope ? `${scope}/${pkg}` : pkg;
           if (baseKey in resolvedImports) {
-            const baseUrl = resolvedImports[baseKey];
+            let baseUrl = resolvedImports[baseKey];
             resolved = subpath ? `${baseUrl}${subpath}` : baseUrl;
           }
         }
@@ -94,18 +94,18 @@ export function* useDocPages(
     }
     : undefined;
 
-  const graph = yield* call(() =>
+  let graph = yield* call(() =>
     createGraph([specifier], {
       load: loader,
       resolve,
     })
   );
 
-  const externalDependencies: Dependency[] = graph.modules.flatMap((module) => {
+  let externalDependencies: Dependency[] = graph.modules.flatMap((module) => {
     if (module.kind === "external") {
-      const parts = module.specifier.match(/(.*):(.*)@(.*)/);
+      let parts = module.specifier.match(/(.*):(.*)@(.*)/);
       if (parts) {
-        const [, source, name, version] = parts;
+        let [, source, name, version] = parts;
         return [
           {
             source,
@@ -118,24 +118,24 @@ export function* useDocPages(
     return [];
   });
 
-  const docs = yield* useDenoDoc([specifier], {
+  let docs = yield* useDenoDoc([specifier], {
     load: loader,
     resolve,
   });
 
-  const entrypoints: Record<string, DocPage[]> = {};
+  let entrypoints: Record<string, DocPage[]> = {};
 
-  for (const [url, all] of Object.entries(docs)) {
-    const pages: DocPage[] = [];
+  for (let [url, all] of Object.entries(docs)) {
+    let pages: DocPage[] = [];
     for (
-      const [symbol, nodes] of Object.entries(
+      let [symbol, nodes] of Object.entries(
         Object.groupBy(all, (node) => node.name),
       )
     ) {
       if (nodes) {
-        const sections: DocPageSection[] = [];
-        for (const node of nodes) {
-          const { markdown, ignore, pages: _pages } = yield* extract(node);
+        let sections: DocPageSection[] = [];
+        for (let node of nodes) {
+          let { markdown, ignore, pages: _pages } = yield* extract(node);
           sections.push({
             id: exportHash(node, sections.length),
             node,
@@ -150,12 +150,12 @@ export function* useDocPages(
           );
         }
 
-        const markdown = sections
+        let markdown = sections
           .map((s) => s.markdown)
           .filter((m) => m)
           .join("");
 
-        const description = yield* useDescription(markdown);
+        let description = yield* useDescription(markdown);
 
         pages.push({
           name: symbol,
@@ -180,10 +180,10 @@ function docLoader(
   _checksum?: string,
 ): () => Operation<LoadResponse | undefined> {
   return function* downloadDocModules() {
-    const url = URL.parse(specifier);
+    let url = URL.parse(specifier);
 
     if (url?.protocol.startsWith("file")) {
-      const content = yield* until(Deno.readTextFile(url.pathname));
+      let content = yield* until(Deno.readTextFile(url.pathname));
       return {
         kind: "module",
         specifier,
@@ -191,9 +191,9 @@ function docLoader(
       };
     }
 
-    if (url?.host && ['github.com', 'jsr.io'].includes(url.host)) {
-      const response = yield* operations.fetch(specifier);
-      const content = yield* until(response.text());
+    if (url?.host && ["github.com", "jsr.io"].includes(url.host)) {
+      let response = yield* operations.fetch(specifier);
+      let content = yield* until(response.text());
       if (response.ok) {
         return {
           kind: "module",
@@ -217,19 +217,19 @@ export function isDocsPages(value: unknown): value is DocsPages {
   }
 
   // Check if each key is a string and value is an array of DocPage objects
-  for (const key in value) {
+  for (let key in value) {
     if (typeof key !== "string") {
       return false;
     }
 
-    const pages = (value as Record<string, unknown>)[key];
+    let pages = (value as Record<string, unknown>)[key];
 
     if (!Array.isArray(pages)) {
       return false;
     }
 
     // Check if each item in the array is a valid DocPage
-    for (const page of pages) {
+    for (let page of pages) {
       if (!isDocPage(page)) {
         return false;
       }
@@ -244,7 +244,7 @@ function isDocPage(value: unknown): value is DocPage {
     return false;
   }
 
-  const page = value as DocPage;
+  let page = value as DocPage;
 
   return (
     typeof page.name === "string" &&
@@ -262,7 +262,7 @@ function isDocPageSection(value: unknown): value is DocPageSection {
     return false;
   }
 
-  const section = value as DocPageSection;
+  let section = value as DocPageSection;
 
   return (
     typeof section.id === "string" &&
@@ -279,7 +279,7 @@ function isDependency(value: unknown): value is Dependency {
     return false;
   }
 
-  const dependency = value as Dependency;
+  let dependency = value as Dependency;
 
   return (
     typeof dependency.source === "string" &&
@@ -292,12 +292,12 @@ function* extractImports(
   url: string,
   loader: (specifier: string) => Operation<LoadResponse | undefined>,
 ) {
-  const module = yield* loader(url);
+  let module = yield* loader(url);
   if (!module) return;
-  const content = module.kind === "module"
+  let content = module.kind === "module"
     ? JSON.parse(`${module.content}`)
     : undefined;
-  const { imports } = DenoJsonSchema.parse(content);
+  let { imports } = DenoJsonSchema.parse(content);
 
   return imports;
 }
@@ -309,16 +309,16 @@ function* extractImports(
  */
 export type LocalDocsPages = Record<string, LocalDocPage[]>;
 
-export type LocalDocPage = DocPage & { sections: LocalDocPageSection[] }
+export type LocalDocPage = DocPage & { sections: LocalDocPageSection[] };
 
 export type LocalDocPageSection = DocPageSection & {
-  node: LocalDocNode
-}
+  node: LocalDocNode;
+};
 
 export type LocalDocNode = DocNode & {
-  location: LocalLocation
-}
+  location: LocalLocation;
+};
 
 export type LocalLocation = Location & {
-  url: URL
-}
+  url: URL;
+};

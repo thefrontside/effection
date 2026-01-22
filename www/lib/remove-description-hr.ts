@@ -11,7 +11,7 @@ export function removeDescriptionHR() {
         node.type === "element" && node.tagName === "hr" &&
         parent?.type === "root"
       ) {
-        const beforeHR = parent.children
+        let beforeHR = parent.children
           .slice(0, index)
           .filter((node: Nodes) =>
             !(node.type === "text" && node.value === "\n")

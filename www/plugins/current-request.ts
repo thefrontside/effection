@@ -8,8 +8,8 @@ export function currentRequestPlugin(): RevolutionPlugin {
     *http(request, next) {
       yield* CurrentRequest.set(request);
       return yield* next(request);
-    }
-  }
+    },
+  };
 }
 
 /**
@@ -23,14 +23,14 @@ export function* useAbsoluteUrl(path: string = "/"): Operation<string> {
 }
 
 export function* useAbsoluteUrlFactory(): Operation<(path: string) => string> {
-  let request = yield* CurrentRequest.expect()
+  let request = yield* CurrentRequest.expect();
 
   return (path) => {
     let normalizedPath = posixNormalize(path);
     if (normalizedPath.startsWith("/")) {
       let url = new URL(request.url);
-      url.pathname = normalizedPath
-      url.search = '';
+      url.pathname = normalizedPath;
+      url.search = "";
       return url.toString();
     } else {
       return new URL(path, request.url).toString();
@@ -41,8 +41,8 @@ export function* useAbsoluteUrlFactory(): Operation<(path: string) => string> {
 /**
  * Get the canonical url for the current path.
  */
-export function* useCanonicalUrl(options: { base: string; }): Operation<string> {
-  let request = yield* CurrentRequest.expect()
+export function* useCanonicalUrl(options: { base: string }): Operation<string> {
+  let request = yield* CurrentRequest.expect();
 
   let req = new URL(request.url);
   let url = new URL(options.base);

@@ -8,9 +8,9 @@ import { softRedirect } from "./redirect.tsx";
 export function redirectDocsRoute(series: string): SitemapRoute<JSXElement> {
   return {
     *routemap(pathname) {
-      const pages = yield* useGuides(series);
+      let pages = yield* useGuides(series);
 
-      const paths = [];
+      let paths = [];
       for (let page of yield* pages.all()) {
         paths.push({
           pathname: pathname({ id: page.id, series }),
@@ -20,7 +20,7 @@ export function redirectDocsRoute(series: string): SitemapRoute<JSXElement> {
       return paths;
     },
     *handler(req) {
-      const { id } = yield* useParams<{ id: string }>();
+      let { id } = yield* useParams<{ id: string }>();
 
       return yield* softRedirect(
         req,

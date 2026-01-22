@@ -3,7 +3,7 @@ export { compare, major, minor, rsort } from "semver";
 import { rsort } from "semver";
 
 export function extractVersion(input: string) {
-  const parts = input.match(
+  let parts = input.match(
     // @source: https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string
     /(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?/,
   );
@@ -22,6 +22,6 @@ export function extractVersion(input: string) {
 export function findLatestSemverTag<T extends { name: string }>(
   tags: T[],
 ): T | undefined {
-  const [latest] = rsort(tags.map((tag) => tag.name).map(extractVersion));
+  let [latest] = rsort(tags.map((tag) => tag.name).map(extractVersion));
   return tags.find((tag) => tag.name.endsWith(latest));
 }

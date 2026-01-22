@@ -73,21 +73,31 @@ export function* ApiPage({
                 series: s,
               });
               const seriesDocs = yield* seriesPkg.docs();
-              const hasSymbol = seriesDocs["."].some((node) => node.name === current);
+              const hasSymbol = seriesDocs["."].some((node) =>
+                node.name === current
+              );
 
               if (!hasSymbol) return null;
 
               return (
                 <a
                   href={yield* createRootUrl(`api/${s}`)(current)}
-                  class={`text-base ${s === currentSeries ? "font-bold text-sky-500" : "text-gray-600 dark:text-gray-400 hover:text-sky-500"}`}
+                  class={`text-base ${
+                    s === currentSeries
+                      ? "font-bold text-sky-500"
+                      : "text-gray-600 dark:text-gray-400 hover:text-sky-500"
+                  }`}
                 >
                   {seriesPkg.version}
                 </a>
               );
             }),
           );
-          return <span class="flex flex-row space-x-2">{...links.filter((link): link is JSXElement => link !== null)}</span>;
+          return (
+            <span class="flex flex-row space-x-2">
+              {...links.filter((link): link is JSXElement => link !== null)}
+            </span>
+          );
         })(),
       })}
     </>
@@ -143,7 +153,7 @@ export function* ApiReference({
   current,
   pages,
   linkResolver,
-  versionToggle
+  versionToggle,
 }: {
   pkg: Package;
   content: JSXElement;
@@ -174,7 +184,9 @@ export function* ApiReference({
   );
 }
 
-export function* SymbolHeader({ page, pkg }: { page: LocalDocPage; pkg: Package }) {
+export function* SymbolHeader(
+  { page, pkg }: { page: LocalDocPage; pkg: Package },
+) {
   return (
     <header class="flex flex-row items-center space-x-2">
       <h1 class="mb-0">

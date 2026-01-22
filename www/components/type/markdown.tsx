@@ -22,8 +22,8 @@ export const NO_DOCS_AVAILABLE = "*No documentation available.*";
 export function* extract(
   node: DocNode,
 ): Operation<{ markdown: string; ignore: boolean; pages: DocPage[] }> {
-  const lines = [];
-  const pages: DocPage[] = [];
+  let lines = [];
+  let pages: DocPage[] = [];
 
   let ignore = false;
 
@@ -31,11 +31,11 @@ export function* extract(
     lines.push(node.jsDoc.doc);
   }
 
-  const deprecated = node.jsDoc &&
+  let deprecated = node.jsDoc &&
     node.jsDoc.tags?.flatMap((tag) => (tag.kind === "deprecated" ? [tag] : []));
   if (deprecated && deprecated.length > 0) {
     lines.push(``);
-    for (const warning of deprecated) {
+    for (let warning of deprecated) {
       if (warning.doc) {
         lines.push(
           `<div class="border-l-4 border-red-500 mt-1 [&>*]:my-0 pl-3">
@@ -50,12 +50,12 @@ export function* extract(
     }
   }
 
-  const examples = node.jsDoc &&
+  let examples = node.jsDoc &&
     node.jsDoc.tags?.flatMap((tag) => (tag.kind === "example" ? [tag] : []));
   if (examples && examples?.length > 0) {
     lines.push("### Examples");
     let i = 1;
-    for (const example of examples) {
+    for (let example of examples) {
       lines.push(`#### Example ${i++}`, example.doc, "---");
     }
   }
@@ -63,7 +63,7 @@ export function* extract(
   if (node.kind === "class") {
     if (node.classDef.constructors.length > 0) {
       lines.push(`### Constructors`, "<dl>");
-      for (const constructor of node.classDef.constructors) {
+      for (let constructor of node.classDef.constructors) {
         lines.push(
           `<dt>${NEW} **${node.name}**(${
             constructor.params
@@ -78,14 +78,14 @@ export function* extract(
       lines.push("</dl>");
     }
 
-    const nonStatic = node.classDef.methods.filter(
+    let nonStatic = node.classDef.methods.filter(
       (method) => !method.isStatic,
     );
     if (nonStatic.length > 0) {
       lines.push("### Methods", `<dl>`, ...methodList(nonStatic), "</dl>");
     }
 
-    const staticMethods = node.classDef.methods.filter(
+    let staticMethods = node.classDef.methods.filter(
       (method) => method.isStatic,
     );
     if (staticMethods.length > 0) {
@@ -99,16 +99,16 @@ export function* extract(
   }
 
   if (node.kind === "namespace") {
-    const variables = node.namespaceDef.elements.flatMap((node) =>
+    let variables = node.namespaceDef.elements.flatMap((node) =>
       node.kind === "variable" ? [node] : []
     ) ?? [];
     if (variables.length > 0) {
       lines.push("### Variables");
       lines.push("<dl>");
-      for (const variable of variables) {
-        const name = `${node.name}.${variable.name}`;
-        const section = yield* extract(variable);
-        const description = variable.jsDoc?.doc || NO_DOCS_AVAILABLE;
+      for (let variable of variables) {
+        let name = `${node.name}.${variable.name}`;
+        let section = yield* extract(variable);
+        let description = variable.jsDoc?.doc || NO_DOCS_AVAILABLE;
         pages.push({
           name,
           kind: variable.kind,
@@ -142,9 +142,9 @@ export function* extract(
 
     if (node.interfaceDef.properties.length > 0) {
       lines.push("### Properties", "<dl>");
-      for (const property of node.interfaceDef.properties) {
-        const typeDef = property.tsType ? TypeDef(property.tsType) : "";
-        const description = property.jsDoc?.doc || NO_DOCS_AVAILABLE;
+      for (let property of node.interfaceDef.properties) {
+        let typeDef = property.tsType ? TypeDef(property.tsType) : "";
+        let description = property.jsDoc?.doc || NO_DOCS_AVAILABLE;
         lines.push(
           `<dt class="border-dotted dark:border-blue-900 [&:not(:first-child)]:border-t-1 [&:not(:first-child)]:pt-3 [&:not(:first-child)]:mt-2">**${property.name}**${
             property.readonly ? READONLY : ""
@@ -159,11 +159,11 @@ export function* extract(
 
     if (node.interfaceDef.methods.length > 0) {
       lines.push("### Methods", "<dl>");
-      for (const method of node.interfaceDef.methods) {
-        const typeParams = method.typeParams.map(TypeParam).join(", ");
-        const params = method.params.map(Param).join(", ");
-        const returnType = method.returnType ? TypeDef(method.returnType) : "";
-        const description = method.jsDoc?.doc || NO_DOCS_AVAILABLE;
+      for (let method of node.interfaceDef.methods) {
+        let typeParams = method.typeParams.map(TypeParam).join(", ");
+        let params = method.params.map(Param).join(", ");
+        let returnType = method.returnType ? TypeDef(method.returnType) : "";
+        let description = method.jsDoc?.doc || NO_DOCS_AVAILABLE;
         lines.push(
           `<dt class="border-dotted [&:not(:first-child)]:border-t-2 [&:not(:first-child)]:pt-3 [&:not(:first-child)]:mt-2"><h4 id="${method.name}" class="inline scroll-mt-[100px]">${method.name}</h4>${
             typeParams ? `&lt;${typeParams}&gt;` : ""
@@ -184,14 +184,14 @@ export function* extract(
   if (node.kind === "function") {
     lines.push(...TypeParams(node.functionDef.typeParams, node));
 
-    const { params } = node.functionDef;
+    let { params } = node.functionDef;
     if (params.length > 0) {
       lines.push("### Parameters");
-      const jsDocs = node.jsDoc?.tags?.flatMap((tag) =>
+      let jsDocs = node.jsDoc?.tags?.flatMap((tag) =>
         tag.kind === "param" ? [tag] : []
       ) ?? [];
       let i = 0;
-      for (const param of params) {
+      for (let param of params) {
         lines.push("\n", Param(param));
         if (jsDocs[i] && jsDocs[i].doc) {
           lines.push("\n", jsDocs[i].doc);
@@ -202,7 +202,7 @@ export function* extract(
 
     if (node.functionDef.returnType) {
       lines.push("### Return Type", "\n", TypeDef(node.functionDef.returnType));
-      const jsDocs = node.jsDoc?.tags?.find((tag) => tag.kind === "return");
+      let jsDocs = node.jsDoc?.tags?.find((tag) => tag.kind === "return");
       if (jsDocs && jsDocs.doc) {
         lines.push("\n", jsDocs.doc);
       }
@@ -213,9 +213,9 @@ export function* extract(
     lines.push("### Type", "\n", TypeDef(node.variableDef.tsType));
   }
 
-  const see: string[] = [];
+  let see: string[] = [];
   if (node.jsDoc && node.jsDoc.tags) {
-    for (const tag of node.jsDoc.tags) {
+    for (let tag of node.jsDoc.tags) {
       switch (tag.kind) {
         case "ignore": {
           ignore = true;
@@ -231,7 +231,7 @@ export function* extract(
     lines.push("\n", "### See", ...see.map((item) => `* ${item}`));
   }
 
-  const markdown = lines.join("\n");
+  let markdown = lines.join("\n");
 
   return {
     markdown,
@@ -248,11 +248,11 @@ export function TypeParams(typeParams: TsTypeParamDef[], node: DocNode) {
   let lines = [];
   if (typeParams.length > 0) {
     lines.push("### Type Parameters");
-    const jsDocs = node.jsDoc?.tags?.flatMap((tag) =>
+    let jsDocs = node.jsDoc?.tags?.flatMap((tag) =>
       tag.kind === "template" ? [tag] : []
     ) ?? [];
     let i = 0;
-    for (const typeParam of typeParams) {
+    for (let typeParam of typeParams) {
       lines.push(TypeParam(typeParam));
       if (jsDocs[i]) {
         lines.push(jsDocs[i].doc);
@@ -267,8 +267,8 @@ export function TypeParams(typeParams: TsTypeParamDef[], node: DocNode) {
 export function TypeDef(typeDef: TsTypeDef): string {
   switch (typeDef.kind) {
     case "fnOrConstructor": {
-      const params = typeDef.fnOrConstructor.params.map(Param).join(", ");
-      const tparams = typeDef.fnOrConstructor.typeParams
+      let params = typeDef.fnOrConstructor.params.map(Param).join(", ");
+      let tparams = typeDef.fnOrConstructor.typeParams
         .map(TypeParam)
         .join(", ");
       return `${tparams.length > 0 ? `&lt;${tparams}&gt;` : ""}(${params}) => ${
@@ -278,7 +278,7 @@ export function TypeDef(typeDef: TsTypeDef): string {
       }`;
     }
     case "typeRef": {
-      const tparams = typeDef.typeRef.typeParams?.map(TypeDef).join(", ");
+      let tparams = typeDef.typeRef.typeParams?.map(TypeDef).join(", ");
       return `{@link ${typeDef.typeRef.typeName}}${
         tparams && tparams?.length > 0 ? `&lt;${tparams}&gt;` : ""
       }`;
@@ -388,14 +388,14 @@ function Param(paramDef: ParamDef): string {
 }
 
 export function methodList(methods: ClassMethodDef[]) {
-  const lines = [];
-  for (const method of methods) {
-    const typeParams = method.functionDef.typeParams.map(TypeParam).join(", ");
-    const params = method.functionDef.params.map(Param).join(", ");
-    const returnType = method.functionDef.returnType
+  let lines = [];
+  for (let method of methods) {
+    let typeParams = method.functionDef.typeParams.map(TypeParam).join(", ");
+    let params = method.functionDef.params.map(Param).join(", ");
+    let returnType = method.functionDef.returnType
       ? TypeDef(method.functionDef.returnType)
       : "";
-    const description = method.jsDoc?.doc || NO_DOCS_AVAILABLE;
+    let description = method.jsDoc?.doc || NO_DOCS_AVAILABLE;
     lines.push(
       `<dt>**${method.name}**${
         typeParams ? `&lt;${typeParams}&gt;` : ""

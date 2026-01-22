@@ -1,25 +1,21 @@
 import { all, Operation, until } from "effection";
-import { fileURLToPath } from "node:url";
 import { relative } from "node:path";
+import { fileURLToPath } from "node:url";
 
-import {
-  DocsPages,
-  LocalDocsPages,
-  useDocPages,
-} from "../hooks/use-deno-doc.tsx";
-import { createRepo, Ref } from "./repo.ts";
-import { extractVersion, findLatestSemverTag } from "./semver.ts";
-import { useWorktree } from "./worktrees.ts";
-import { DenoJson, useDenoJson } from "./deno-json.ts";
+import z from "zod";
+import { SiteConfig } from "../context/config.ts";
+import { useJSRClient } from "../context/jsr.ts";
+import { LocalDocsPages, useDocPages } from "../hooks/use-deno-doc.tsx";
+import { useDescription, useTitle } from "../hooks/use-description-parse.tsx";
+import { useMDX } from "../hooks/use-mdx.tsx";
 import {
   PackageDetailsResult,
   PackageScoreResult,
 } from "../resources/jsr-client.ts";
-import { useJSRClient } from "../context/jsr.ts";
-import z from "zod";
-import { useMDX } from "../hooks/use-mdx.tsx";
-import { useDescription, useTitle } from "../hooks/use-description-parse.tsx";
-import { SiteConfig } from "../context/config.ts";
+import { DenoJson, useDenoJson } from "./deno-json.ts";
+import { createRepo, Ref } from "./repo.ts";
+import { extractVersion, findLatestSemverTag } from "./semver.ts";
+import { useWorktree } from "./worktrees.ts";
 
 export type WorkTreePackageOptions = {
   type: "worktree";
@@ -145,7 +141,7 @@ function* initPackage(
       let docs: LocalDocsPages = {};
 
       for (let [entrypoint, url] of Object.entries(pkg.entrypoints)) {
-        const pages = yield* useDocPages(`${url}`);
+        let pages = yield* useDocPages(`${url}`);
 
         docs[entrypoint] = pages[`${url}`].map((page) => {
           return {
@@ -157,7 +153,12 @@ function* initPackage(
                 location: {
                   ...section.node.location,
                   url: new URL(
-                    `${relative(path, fileURLToPath(section.node.location.filename))}#L${section.node.location.line}`,
+                    `${
+                      relative(
+                        path,
+                        fileURLToPath(section.node.location.filename),
+                      )
+                    }#L${section.node.location.line}`,
                     `${ref.url}/`,
                   ),
                 },
@@ -186,9 +187,9 @@ function* initPackage(
       ]
     > {
       let [, packageName] = name.split("/");
-      const client = yield* useJSRClient();
+      let client = yield* useJSRClient();
       try {
-        const [details, score] = yield* all([
+        let [details, score] = yield* all([
           client.getPackageDetails({ scope, package: packageName }),
           client.getPackageScore({ scope, package: packageName }),
         ]);

@@ -42,13 +42,13 @@ export function apiReferenceRoute(series: SiteConfig["series"][number], {
 
       let docs = yield* pkg.docs();
 
-      const pages = docs["."];
+      let pages = docs["."];
 
-      const page = pages.find((node) => node.name === symbol);
+      let page = pages.find((node) => node.name === symbol);
 
       if (!page) throw new Error(`Could not find a doc page for ${symbol}`);
 
-      const AppHtml = yield* useAppHtml({
+      let AppHtml = yield* useAppHtml({
         title: `${symbol} | API Reference | Effection`,
         description: page.description,
       });

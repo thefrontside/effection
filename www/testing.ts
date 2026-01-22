@@ -9,10 +9,10 @@ import { createTestAdapter, type TestAdapter } from "./testing/adapter.ts";
 let current: TestAdapter | undefined;
 
 export function describe(name: string, body: () => void) {
-  const isTop = !current;
-  const original = current;
+  let isTop = !current;
+  let original = current;
   try {
-    const child = current = createTestAdapter({ name, parent: original });
+    let child = current = createTestAdapter({ name, parent: original });
     if (isTop) {
       //
     }
@@ -34,12 +34,12 @@ export function beforeEach(body: () => Operation<void>) {
 }
 
 export function it(desc: string, body?: () => Operation<void>): void {
-  const adapter = current!;
+  let adapter = current!;
   if (!body) {
     return $it.skip(desc, () => {});
   }
   $it(desc, async () => {
-    const result = await adapter.runTest(body);
+    let result = await adapter.runTest(body);
     if (!result.ok) {
       throw result.error;
     }
@@ -47,14 +47,14 @@ export function it(desc: string, body?: () => Operation<void>): void {
 }
 
 it.skip = (...args: Parameters<typeof it>): ReturnType<typeof it> => {
-  const [desc] = args;
+  let [desc] = args;
   $it.skip(desc, () => {});
 };
 
 it.only = (desc: string, body: () => Operation<void>): void => {
-  const adapter = current!;
+  let adapter = current!;
   $it.only(desc, async () => {
-    const result = await adapter.runTest(body);
+    let result = await adapter.runTest(body);
     if (!result.ok) {
       throw result.error;
     }

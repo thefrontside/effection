@@ -2,10 +2,10 @@ import type { Package } from "../../lib/package/types.ts";
 import { GithubPill } from "./source-link.tsx";
 
 export function* PackageHeader(pkg: Package) {
-  const name = yield* pkg.getName();
-  const version = yield* pkg.getVersion();
-  const scopeName = yield* pkg.getScopeName();
-  const shortName = name.includes("/") ? name.split("/")[1] : name;
+  let name = yield* pkg.getName();
+  let version = yield* pkg.getVersion();
+  let scopeName = yield* pkg.getScopeName();
+  let shortName = name.includes("/") ? name.split("/")[1] : name;
 
   return (
     <header class="space-y-3 mb-5">

@@ -3,12 +3,16 @@
 
 # Explicitly set line endings for text files
 *.ts text eol=lf
+*.tsx text eol=lf
 *.mjs text eol=lf
 *.js text eol=lf
+*.jsx text eol=lf
 *.json text eol=lf
 *.md text eol=lf
 *.yml text eol=lf
 *.yaml text eol=lf
+*.svg text eol=lf
+*.css text eol=lf
 
 # Binary files
 *.png binary

@@ -84,35 +84,6 @@ function buildScopeInternal(
       };
     },
 
-    eval<T>(operation: () => Operation<T>): Operation<T> {
-      return {
-        *[Symbol.iterator]() {
-          let { resolve, reject, operation: result } = withResolvers<T>();
-          let routine = createCoroutine({
-            scope,
-            operation: function* evaluate() {
-              try {
-                let value = yield* operation();
-                resolve(value);
-              } catch (error) {
-                reject(error as Error);
-              }
-            },
-          });
-
-          routine.next(Ok());
-
-          try {
-            return yield* result;
-          } finally {
-            routine.return(Ok({ exists: false }));
-            // deno-lint-ignore no-unsafe-finally
-            return yield* result;
-          }
-        },
-      };
-    },
-
     decorate<T extends {}>(
       api: Api<T>,
       decorator: Partial<Decorate<T>>,

@@ -1,7 +1,5 @@
-import { Ok } from "./result.ts";
-import type { ScopeInternal } from "./scope-internal.ts";
-import { createTask, type NewTask } from "./task.ts";
-import type { Effect, Operation, Task } from "./types.ts";
+import { useScope } from "./scope.ts";
+import type { Operation, Task } from "./types.ts";
 
 /**
  * Run another operation concurrently as a child of the current one.
@@ -30,20 +28,11 @@ import type { Effect, Operation, Task } from "./types.ts";
  * @typeParam T the type that the spawned task evaluates to
  * @returns a {@link Task} representing a handle to the running operation
  */
-export function* spawn<T>(op: () => Operation<T>): Operation<Task<T>> {
-  let { task, start } = (yield Spawn(op)) as NewTask<T>;
-  start();
-  return task;
-}
-
-function Spawn<T>(operation: () => Operation<T>): Effect<NewTask<T>> {
+export function spawn<T>(op: () => Operation<T>): Operation<Task<T>> {
   return {
-    description: `spawn(${operation.name})`,
-    enter: (resolve, { scope }) => {
-      resolve(Ok(createTask({ owner: scope as ScopeInternal, operation })));
-      return (done) => {
-        done(Ok());
-      };
+    *[Symbol.iterator]() {
+      let scope = yield* useScope();
+      return scope.run(op);
     },
   };
 }

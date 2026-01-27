@@ -9,6 +9,7 @@ import { action } from "./action.ts";
  *
  * @typeParam T the type of the items in the queue
  * @typeParam TClose the type of the value that the queue is closed with
+ * @since 3.0
  */
 export interface Queue<T, TClose> extends Subscription<T, TClose> {
   /**
@@ -50,6 +51,7 @@ export interface Queue<T, TClose> extends Subscription<T, TClose> {
  *
  * @typeParam T the type of the items in the queue
  * @typeParam TClose the type of the value that the queue is closed with
+ * @since 3.0
  */
 export function createQueue<T, TClose>(): Queue<T, TClose> {
   type Item = IteratorResult<T, TClose>;

@@ -23,6 +23,7 @@ import type { Operation } from "./types.ts";
  * ```
  *
  * @returns an operation that suspends the current operation
+ * @since 3.0
  */
 export function suspend(): Operation<void> {
   return action(() => () => {}, "suspend");

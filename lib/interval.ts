@@ -15,6 +15,7 @@ import type { Stream } from "./types.ts";
  * }
  * ```
  * @param milliseconds - how long to delay between each item in the stream
+ * @since 3.6
  */
 export function interval(milliseconds: number): Stream<void, never> {
   return resource(function* (provide) {

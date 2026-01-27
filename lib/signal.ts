@@ -34,6 +34,7 @@ import type { Context } from "./types.ts";
  *
  * @typeParam T - type of each event sent by this signal
  * @typeParam TClose - type of the final event sent by this signal
+ * @since 3.0
  */
 export interface Signal<T, TClose> extends Stream<T, TClose> {
   /**
@@ -113,6 +114,7 @@ export const SignalQueueFactory: Context<typeof createQueue> = createContext(
  * Do not use a signal to send messages from within an operation as it could
  * result in out-of-scope code being executed. In those cases, you should use a
  * {@link Channel}.
+ * @since 3.0
  */
 export function createSignal<T, TClose = never>(): Signal<T, TClose> {
   let subscribers = new Set<Queue<T, TClose>>();

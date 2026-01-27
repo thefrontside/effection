@@ -43,6 +43,7 @@ interface Executor<T> {
  *
  * @param executor - a function called every time that an action is evaluated
  * @return an operation that will run according to `executor` every time it is evaluated
+ * @since 3.0
  */
 export function action<T>(executor: Executor<T>, desc?: string): Operation<T> {
   return {

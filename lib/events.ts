@@ -26,6 +26,7 @@ export type EventList<T> = T extends {
  * @param target - the event target to be watched
  * @param name - the name of the event to watch. E.g. "click"
  * @returns an Operation that yields the next emitted event
+ * @since 3.0
  */
 export function once<
   T extends EventTarget,
@@ -50,6 +51,7 @@ export function once<
  * @param target - the event target whose events will be streamed
  * @param name - the name of the event to stream. E.g. "click"
  * @returns a stream that will see one item for each event
+ * @since 3.0
  */
 export function on<
   T extends EventTarget,

@@ -23,6 +23,7 @@ import type { Operation } from "./types.ts";
  * await run(() => hello(async () => "world!")); // => "hello world!"
  * await run(() => hello(function*() { return "world!" })); "hello world!";
  * ```
+ * @since effection-v3.0.0
  */
 export interface Callable<
   T extends Operation<unknown> | Promise<unknown> | unknown,
@@ -64,6 +65,7 @@ export interface Callable<
  * or plain function to call as part of this operation
  *
  * @returns an {@link Operation} that evaluates to the result of executing the function to completion
+ * @since effection-v3.0.0
  */
 export function call<T, TArgs extends unknown[] = []>(
   fn: (...args: TArgs) => Promise<T>,

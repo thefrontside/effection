@@ -11,6 +11,7 @@ import type { Operation } from "./types.ts";
  * ```
  *
  * @returns the {@link Operation} that evaluates to `value`;
+ * @since effection-v4.0.0
  */
 export function constant<T>(value: T): Operation<T> {
   return {

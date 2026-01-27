@@ -5,6 +5,7 @@ import type { Operation } from "./types.ts";
 /**
  * The return type of {@link withResolvers}. It contains an operation bundled with
  * synchronous functions that determine its outcome.
+ * @since effection-v3.0.0
  */
 export interface WithResolvers<T> {
   /*
@@ -42,6 +43,7 @@ export interface WithResolvers<T> {
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/withResolvers}
  *
  * @returns an operation and its resolvers.
+ * @since effection-v3.0.0
  */
 
 export function withResolvers<T>(description?: string): WithResolvers<T> {

@@ -37,7 +37,7 @@ import type { Result } from "./result.ts";
  * ```
  *
  * See [Operations guide](https://frontside.com/effection/docs/operations) for more information.
- *
+ * @since effection-v3.0.0
  */
 export interface Operation<T> {
   [Symbol.iterator](): Iterator<Effect<unknown>, T, unknown>;
@@ -51,6 +51,7 @@ export interface Operation<T> {
  * can also be evaluated directly within another operation, so among other
  * things, if the operation resolves synchronously, it will continue within the
  * same tick of the run loop.
+ * @since effection-v3.0.0
  */
 export interface Future<T> extends Operation<T>, Promise<T> {}
 
@@ -131,6 +132,7 @@ export interface Future<T> extends Operation<T>, Promise<T> {}
  * @see {@link run}
  * @see {@link spawn}
  * @see {@link Scope.run}
+ * @since effection-v3.0.0
  */
 export interface Task<T> extends Future<T> {
   /**
@@ -155,6 +157,7 @@ export interface Task<T> extends Future<T> {
  * {@link Stream}.
  *
  * @see https://effection.deno.dev/docs/collections#subscription
+ * @since effection-v3.0.0
  */
 export interface Subscription<T, TDone> {
   next(): Operation<IteratorResult<T, TDone>>;
@@ -167,6 +170,7 @@ export interface Subscription<T, TDone> {
  * contain the recipe for how to create a {@link Subscription}
  *
  * @see https://frontside.com/effection/docs/collections#stream
+ * @since effection-v3.0.0
  */
 export type Stream<T, TReturn> = Operation<Subscription<T, TReturn>>;
 
@@ -176,6 +180,7 @@ export type Stream<T, TReturn> = Operation<Subscription<T, TReturn>>;
  *
  * Unless a context value is defined for a particular scope, it will inherit
  * its value from its parent scope.
+ * @since effection-v3.0.0
  */
 export interface Context<T> {
   /**
@@ -265,6 +270,7 @@ export interface Context<T> {
  *   yield* suspend();
  * });
  * ```
+ * @since effection-v3.0.0
  */
 export interface Scope {
   /**
@@ -333,6 +339,7 @@ export interface Scope {
  * Unwrap the type of an `Operation`.
  * Analogous to the built in [`Awaited`](https://www.typescriptlang.org/docs/handbook/utility-types.html#awaitedtype) type.
  * `Yielded<Operation<T>> === T`
+ * @since effection-v3.0.0
  */
 export type Yielded<T extends Operation<unknown>> = T extends
   Operation<infer TYield> ? TYield
@@ -342,6 +349,7 @@ export type Yielded<T extends Operation<unknown>> = T extends
 
 /**
  * @ignore
+ * @since effection-v3.0.0
  */
 export interface Effect<T> {
   description: string;
@@ -353,6 +361,7 @@ export interface Effect<T> {
 
 /**
  * @ignore
+ * @since effection-v3.0.0
  */
 export interface Coroutine<T = unknown> {
   scope: Scope;
@@ -366,6 +375,7 @@ export interface Coroutine<T = unknown> {
 
 /**
  * @ignore
+ * @since effection-v3.0.0
  */
 export interface Resolve<T> {
   (value: T): void;

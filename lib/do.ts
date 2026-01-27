@@ -6,6 +6,7 @@ import type { Effect, Operation } from "./types.ts";
  *
  * @param effect - the effect to perform
  * @returns an operation that performs `effect`
+ * @since effection-v4.0.0
  */
 export function Do<T>(effect: Effect<T>): Operation<T> {
   return {

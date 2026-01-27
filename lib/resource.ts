@@ -42,6 +42,7 @@ import { Priority } from "./contexts.ts";
  *
  * @param operation the operation defining the lifecycle of the resource
  * @returns an operation yielding the resource
+ * @since effection-v3.0.0
  */
 export function resource<T>(
   op: (provide: Provide<T>) => Operation<void>,

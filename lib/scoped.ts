@@ -24,6 +24,7 @@ import { createScopeInternal } from "./scope-internal.ts";
  * @param operation - the operation to be encapsulated
  *
  * @returns the scoped operation
+ * @since effection-v3.0.0
  */
 export function scoped<T>(operation: () => Operation<T>): Operation<T> {
   return {

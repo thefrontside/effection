@@ -17,6 +17,7 @@ import type { Operation } from "./types.ts";
  * @typeParam TArgs - the type of the arguments to `fn`
  * @typeParam TReturn - return type of `fn`
  * @returns a function returning an operation that invokes `fn` when evaluated
+ * @since effection-v3.0.0
  */
 export function lift<TArgs extends unknown[], TReturn>(
   fn: (...args: TArgs) => TReturn,

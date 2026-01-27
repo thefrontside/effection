@@ -1,5 +1,6 @@
 /**
  * @ignore
+ * @since effection-v3.0.0
  */
 export type Result<T> = {
   readonly ok: true;
@@ -11,6 +12,7 @@ export type Result<T> = {
 
 /**
  * @ignore
+ * @since effection-v3.0.0
  */
 export function Ok(): Result<void>;
 export function Ok<T>(value: T): Result<T>;
@@ -28,6 +30,7 @@ export const Err = <T>(error: Error): Result<T> => ({ ok: false, error });
 
 /**
  * @ignore
+ * @since effection-v3.0.0
  */
 export function unbox<T>(result: Result<T>): T {
   if (result.ok) {

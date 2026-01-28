@@ -8,6 +8,7 @@ export function createScopeInternal(
   parent?: Scope,
 ): [ScopeInternal, () => Operation<void>] {
   let destructors = new Set<() => Operation<void>>();
+  let finalizer: (() => Operation<void>) | undefined = undefined;
 
   let contexts: Record<string, unknown> = Object.create(
     parent ? (parent as ScopeInternal).contexts : null,
@@ -55,6 +56,12 @@ export function createScopeInternal(
       destructors.add(op);
       return () => destructors.delete(op);
     },
+
+    // Set a finalizer that runs BEFORE regular destructors.
+    // Used by tasks to close their delimiter before child tasks are destroyed.
+    setFinalizer(op: () => Operation<void>): void {
+      finalizer = op;
+    },
   });
 
   scope.set(Priority, scope.expect(Priority) + 1);
@@ -74,6 +81,17 @@ export function createScopeInternal(
     unbind();
     let outcome = Ok();
     try {
+      // Run the finalizer first (e.g., close the task's delimiter).
+      // This ensures the task's finally block runs while children are still alive.
+      if (finalizer) {
+        try {
+          yield* finalizer();
+        } catch (error) {
+          outcome = Err(error as Error);
+        }
+        finalizer = undefined;
+      }
+      // Then run regular destructors in reverse order (children first)
       for (let destructor of [...destructors].reverse()) {
         try {
           destructors.delete(destructor);
@@ -99,4 +117,5 @@ export function createScopeInternal(
 export interface ScopeInternal extends Scope {
   contexts: Record<string, unknown>;
   ensure(op: () => Operation<void>): () => void;
+  setFinalizer(op: () => Operation<void>): void;
 }

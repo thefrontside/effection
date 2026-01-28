@@ -75,7 +75,9 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
   let boundary = owner.expect(ErrorContext);
   scope.set(ErrorContext, top);
 
-  scope.ensure(function* () {
+  // Use setFinalizer to ensure the delimiter closes BEFORE child destructors run.
+  // This allows the task's finally block to communicate with spawned children.
+  scope.setFinalizer(function* () {
     try {
       yield* top.close();
     } finally {

@@ -74,7 +74,7 @@ export function createScopeInternal(
     unbind();
     let outcome = Ok();
     try {
-      for (let destructor of [...destructors].reverse()) {
+      for (let destructor of destructors) {
         try {
           destructors.delete(destructor);
           yield* destructor();

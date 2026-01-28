@@ -225,4 +225,34 @@ describe("spawn", () => {
 
     expect(order).toEqual(["zero", "one", "two"]);
   });
+
+  it("preserves all child tasks until after the parent operation passes out of scope", async () => {
+    let sequence: string[] = [];
+
+    let task = run(function* () {
+      yield* spawn(function* () {
+        try {
+          yield* suspend();
+        } finally {
+          sequence.push("first");
+        }
+      });
+      yield* spawn(function* () {
+        try {
+          yield* suspend();
+        } finally {
+          sequence.push("second");
+        }
+      });
+      try {
+        yield* suspend();
+      } finally {
+        sequence.push("parent");
+      }
+    });
+
+    await task.halt();
+
+    expect(sequence).toEqual(["parent", "second", "first"]);
+  });
 });

@@ -211,10 +211,7 @@ describe("run()", () => {
     await expect(task).rejects.toMatchObject({ message: "halted" });
   });
 
-  // TODO: this test is of dubious value. Deadlock might be the right thing here
-  // we can revisit and try to either detect this and deal with it, or maybe raise
-  // an error
-  it.skip("can halt itself between yield points", async () => {
+  it("can halt itself between yield points", async () => {
     let task: Task<void> = run(function* root() {
       yield* sleep(0);
 

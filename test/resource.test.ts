@@ -107,6 +107,37 @@ describe("resource", () => {
 
     expect(sequence).toEqual([1, 2, 3, 4]);
   });
+
+  it("is released in the reverse order from which it was acquired", async () => {
+    let sequence: string[] = [];
+
+    await run(function* () {
+      yield* resource<void>(function* (provide) {
+        try {
+          yield* provide();
+        } finally {
+          sequence.push("first start");
+          yield* sleep(5);
+          sequence.push("first done");
+        }
+      });
+      yield* resource<void>(function* (provide) {
+        try {
+          yield* provide();
+        } finally {
+          sequence.push("second start");
+          yield* sleep(10);
+          sequence.push("second done");
+        }
+      });
+    });
+    expect(sequence).toEqual([
+      "second start",
+      "second done",
+      "first start",
+      "first done",
+    ]);
+  });
 });
 
 function createResource(container: State): Operation<State> {

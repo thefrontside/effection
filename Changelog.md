@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.2
+
+- 🐛 fix regression in resource destruction order (#1091)
+
 ## 4.0.1
 
 - 🐛 fix: move all task finalization into the scope destructor (#1085)

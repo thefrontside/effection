@@ -1,11 +1,5 @@
 import { describe, expect, it } from "./suite.ts";
-import {
-  resource,
-  run,
-  spawn,
-  suspend,
-  withResolvers,
-} from "../mod.ts";
+import { resource, run, spawn, suspend, withResolvers } from "../mod.ts";
 
 // Helper to add timeout to async operations
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
@@ -15,7 +9,7 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
     new Promise<T>((_, reject) => {
       timeoutId = setTimeout(
         () => reject(new Error(`Timeout after ${ms}ms - cleanup deadlocked`)),
-        ms
+        ms,
       );
     }),
   ]);
@@ -36,10 +30,12 @@ describe("cleanup regression (4.0.1)", () => {
 
     let task = run(function* () {
       yield* resource(function* (provide) {
-        let { resolve: closeStream, operation: streamClosed } =
-          withResolvers<void>();
-        let { resolve: confirmClosed, operation: closed } =
-          withResolvers<void>();
+        let { resolve: closeStream, operation: streamClosed } = withResolvers<
+          void
+        >();
+        let { resolve: confirmClosed, operation: closed } = withResolvers<
+          void
+        >();
 
         // Spawned consumer task - like the message consumer in useWebSocket
         yield* spawn(function* () {
@@ -77,10 +73,12 @@ describe("cleanup regression (4.0.1)", () => {
 
     let task = run(function* () {
       yield* resource(function* (provide) {
-        let { resolve: closeStream, operation: streamClosed } =
-          withResolvers<void>();
-        let { resolve: confirmClosed, operation: closed } =
-          withResolvers<void>();
+        let { resolve: closeStream, operation: streamClosed } = withResolvers<
+          void
+        >();
+        let { resolve: confirmClosed, operation: closed } = withResolvers<
+          void
+        >();
 
         yield* spawn(function* () {
           yield* streamClosed;

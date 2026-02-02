@@ -4,5 +4,6 @@
  */
 export const authorsWithImage = [
   "charles",
+  "jacob",
   "taras",
 ];

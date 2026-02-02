@@ -5,7 +5,8 @@ author: "Taras Mankovski"
 tags: ["announcement", "effection"]
 ---
 
-Welcome to the official Effection blog! This is where we'll share tutorials, announcements, and deep dives into structured concurrency in JavaScript.
+Welcome to the official Effection blog! This is where we'll share tutorials,
+announcements, and deep dives into structured concurrency in JavaScript.
 
 ## What to Expect
 
@@ -18,10 +19,11 @@ We're planning to cover a variety of topics:
 
 ## Getting Started with Effection
 
-If you're new to Effection, here's a quick taste of what structured concurrency looks like:
+If you're new to Effection, here's a quick taste of what structured concurrency
+looks like:
 
 ```typescript
-import { main, spawn, sleep } from "effection";
+import { main, sleep, spawn } from "effection";
 
 await main(function* () {
   // Spawn concurrent tasks
@@ -41,13 +43,18 @@ await main(function* () {
 });
 ```
 
-The key insight is that **all spawned tasks are owned by their parent scope**. When the parent completes, all children are automatically cleaned up. No more forgotten timers, dangling promises, or resource leaks.
+The key insight is that **all spawned tasks are owned by their parent scope**.
+When the parent completes, all children are automatically cleaned up. No more
+forgotten timers, dangling promises, or resource leaks.
 
 ## Why Structured Concurrency?
 
-Traditional async/await in JavaScript has a fundamental problem: **promises are eager and unstructured**. When you create a promise, work starts immediately and continues even if nothing is listening for the result.
+Traditional async/await in JavaScript has a fundamental problem: **promises are
+eager and unstructured**. When you create a promise, work starts immediately and
+continues even if nothing is listening for the result.
 
-Effection's operations are **lazy** - they only execute when you `yield*` them. And they're **structured** - child operations cannot outlive their parent scope.
+Effection's operations are **lazy** - they only execute when you `yield*` them.
+And they're **structured** - child operations cannot outlive their parent scope.
 
 This makes reasoning about concurrent code much easier:
 
@@ -61,7 +68,9 @@ This makes reasoning about concurrent code much easier:
 We'd love to hear from you! Join us on:
 
 - [Discord](https://discord.gg/r6AvtnU) - Chat with the community
-- [GitHub](https://github.com/thefrontside/effection) - Report issues and contribute
+- [GitHub](https://github.com/thefrontside/effection) - Report issues and
+  contribute
 - [API Documentation](/api) - Explore the full API
 
-Stay tuned for more posts. We're excited to share what we've learned about building reliable concurrent applications in JavaScript!
+Stay tuned for more posts. We're excited to share what we've learned about
+building reliable concurrent applications in JavaScript!

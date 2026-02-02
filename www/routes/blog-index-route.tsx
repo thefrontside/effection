@@ -134,30 +134,30 @@ export function blogIndexRoute({
                               class="w-full h-48 object-cover"
                             />
                           )
-                        : (
-                          <div class="w-full h-48 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                            <img
-                              src="/assets/images/icon-effection.svg"
-                              alt="Effection"
-                              class="w-16 h-16 opacity-50"
-                            />
-                          </div>
-                        )}
-                      <div class="p-5 flex flex-col flex-grow">
-                        <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                          {post.title}
-                        </h3>
-                        <p class="text-gray-600 dark:text-gray-400 text-sm mb-4 flex-grow line-clamp-3">
-                          {post.description}
-                        </p>
-                        <AuthorSection
-                          author={post.author}
-                          date={post.date}
-                          authorImage={getAuthorImage(post.author)}
-                        />
-                      </div>
-                    </a>
-                  ))}
+                          : (
+                            <div class="w-full h-48 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                              <img
+                                src="/assets/images/icon-effection.svg"
+                                alt="Effection"
+                                class="w-16 h-16 opacity-50"
+                              />
+                            </div>
+                          )}
+                        <div class="p-5 flex flex-col flex-grow">
+                          <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                            {post.title}
+                          </h3>
+                          <p class="text-gray-600 dark:text-gray-400 text-sm mb-4 flex-grow line-clamp-3">
+                            {post.description}
+                          </p>
+                          <AuthorSection
+                            author={post.author}
+                            date={post.date}
+                            authorImage={getAuthorImage(post.author)}
+                          />
+                        </div>
+                      </a>
+                    ))}
                   </div>
                 </section>
               )

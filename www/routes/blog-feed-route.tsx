@@ -26,7 +26,10 @@ export function blogFeedRoute() {
       <description><![CDATA[${post.description}]]></description>
       <pubDate>${pubDate}</pubDate>
       <author>${post.author}</author>
-      ${post.tags.map((tag) => `<category>${escapeXml(tag)}</category>`).join("\n      ")}
+      ${
+            post.tags.map((tag) => `<category>${escapeXml(tag)}</category>`)
+              .join("\n      ")
+          }
     </item>`;
         })
         .join("\n");

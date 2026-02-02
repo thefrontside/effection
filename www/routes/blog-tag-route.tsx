@@ -28,7 +28,8 @@ export function blogTagRoute({
 
       let AppHtml = yield* useAppHtml({
         title: `Posts tagged "${tag}" | Blog | Effection`,
-        description: `Blog posts about ${tag} - tutorials, announcements, and insights about structured concurrency in JavaScript.`,
+        description:
+          `Blog posts about ${tag} - tutorials, announcements, and insights about structured concurrency in JavaScript.`,
       });
 
       return (

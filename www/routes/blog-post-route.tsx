@@ -3,7 +3,7 @@ import type { Operation } from "effection";
 import { respondNotFound, useParams } from "revolution";
 import type { JSXElement } from "revolution/jsx-runtime";
 
-import { useBlog, type BlogPost } from "../resources/blog.ts";
+import { type BlogPost, useBlog } from "../resources/blog.ts";
 import { useAppHtml } from "./app.html.tsx";
 import { AuthorSection } from "../components/blog/author-section.tsx";
 import { getAuthorImage } from "../lib/get-author-image.ts";

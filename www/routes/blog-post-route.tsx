@@ -1,9 +1,8 @@
 // @ts-nocheck - SVG elements not in JSX.IntrinsicElements
-import type { Operation } from "effection";
 import { respondNotFound, useParams } from "revolution";
 import type { JSXElement } from "revolution/jsx-runtime";
 
-import { type BlogPost, useBlog } from "../resources/blog.ts";
+import { useBlog } from "../resources/blog.ts";
 import { useAppHtml } from "./app.html.tsx";
 import { AuthorSection } from "../components/blog/author-section.tsx";
 import { getAuthorImage } from "../lib/get-author-image.ts";

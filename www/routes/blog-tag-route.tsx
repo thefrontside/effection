@@ -1,4 +1,3 @@
-import type { Operation } from "effection";
 import { useParams } from "revolution";
 import type { JSXElement } from "revolution/jsx-runtime";
 

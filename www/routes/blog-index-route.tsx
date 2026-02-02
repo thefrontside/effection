@@ -1,12 +1,11 @@
 // @ts-nocheck - SVG elements not in JSX.IntrinsicElements
-import type { Operation } from "effection";
 import type { JSXElement } from "revolution/jsx-runtime";
 
 import { useBlog } from "../resources/blog.ts";
 import { useAppHtml } from "./app.html.tsx";
 import { AuthorSection } from "../components/blog/author-section.tsx";
 import { getAuthorImage } from "../lib/get-author-image.ts";
-import { RoutePath, SitemapRoute } from "../plugins/sitemap.ts";
+import { SitemapRoute } from "../plugins/sitemap.ts";
 
 export function blogIndexRoute({
   search,

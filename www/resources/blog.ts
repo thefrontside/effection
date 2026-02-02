@@ -3,13 +3,12 @@ import {
   createContext,
   type Operation,
   resource,
-  useScope,
 } from "effection";
 import { existsSync } from "@std/fs";
 import { Fragment, jsx, jsxs } from "revolution/jsx-runtime";
 import { type JSXElement } from "revolution/jsx-runtime";
 
-// @deno-types="npm:@types/mdx@2.0.13"
+// deno-lint-ignore no-import-prefix
 import { evaluate } from "npm:@mdx-js/mdx@3.1.0";
 import remarkFrontmatter from "remark-frontmatter";
 import remarkMdxFrontmatter from "remark-mdx-frontmatter";

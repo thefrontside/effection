@@ -6,7 +6,7 @@ import { authorsWithImage } from "./author-config.ts";
  * Falls back to the Effection logo if no avatar is found.
  */
 export function getAuthorImage(author: string): string {
-  const firstName = author.split(" ")[0].toLowerCase();
+  let firstName = author.split(" ")[0].toLowerCase();
   return authorsWithImage.includes(firstName)
     ? `/assets/images/authors/${firstName}.webp`
     : "/assets/images/icon-effection.svg";

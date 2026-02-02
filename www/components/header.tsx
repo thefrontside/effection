@@ -41,6 +41,14 @@ export function* Header(props?: HeaderProps) {
             <li>
               <a
                 class="hover:text-pink-secondary dark:hover:text-blue-secondary transition-colors duration-200"
+                href="/blog"
+              >
+                Blog
+              </a>
+            </li>
+            <li>
+              <a
+                class="hover:text-pink-secondary dark:hover:text-blue-secondary transition-colors duration-200"
                 href="/api"
               >
                 API

@@ -17,7 +17,12 @@ import { initFetch } from "./context/fetch.ts";
 import { initJSRClient } from "./context/jsr.ts";
 import { initWorktrees } from "./lib/worktrees.ts";
 import { initGuides } from "./resources/guides.ts";
+import { initBlog } from "./resources/blog.ts";
 import { apiIndexRoute } from "./routes/api-index-route.tsx";
+import { blogIndexRoute } from "./routes/blog-index-route.tsx";
+import { blogPostRoute } from "./routes/blog-post-route.tsx";
+import { blogTagRoute } from "./routes/blog-tag-route.tsx";
+import { blogFeedRoute } from "./routes/blog-feed-route.tsx";
 import { pagefindRoute } from "./routes/pagefind-route.ts";
 import { redirectDocsRoute } from "./routes/redirect-docs-route.tsx";
 import { redirectIndexRoute } from "./routes/redirect-index-route.tsx";
@@ -37,6 +42,8 @@ if (import.meta.main) {
       current,
       worktrees: series.filter((s) => s !== current),
     });
+
+    yield* initBlog();
 
     yield* initJSRClient();
     yield* initFetch();
@@ -62,6 +69,11 @@ if (import.meta.main) {
         ...series.map((s) =>
           route(`/api/${s}/:symbol`, apiReferenceRoute(s, { search: true }))
         ),
+        route("/blog", blogIndexRoute({ search: true })),
+        route("/blog/feed.xml", blogFeedRoute()),
+        route("/blog/tags/:tag", blogTagRoute({ search: true })),
+        route("/blog/:id", blogPostRoute({ search: true })),
+        route("/blog{/*path}", assetsRoute("../blog")),
         route(
           "/pagefind{/*path}",
           pagefindRoute({ pagefindDir: "pagefind", publicDir: "./built/" }),

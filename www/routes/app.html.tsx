@@ -75,6 +75,12 @@ export function* useAppHtml({
           href="/assets/llms.txt"
           title="LLM Documentation"
         />
+        <link
+          rel="alternate"
+          type="application/rss+xml"
+          href="/blog/feed.xml"
+          title="Effection Blog RSS Feed"
+        />
         {head ?? <></>}
       </head>
       <body class="flex flex-col bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-200">

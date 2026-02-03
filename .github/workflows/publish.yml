@@ -35,7 +35,7 @@ jobs:
         run: deno task build:npm ${{steps.vars.outputs.version}}
 
       - name: Publish NPM
-        run: npm publish --access=public --tag=latest
+        run: npm publish --access=public --tag=next
         working-directory: ./build/npm
 
   publish-jsr:

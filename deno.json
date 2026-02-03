@@ -2,7 +2,7 @@
   "name": "@effection/effection",
   "exports": "./mod.ts",
   "license": "ISC",
-  "publish": { "include": ["lib", "mod.ts", "README.md"] },
+  "publish": { "include": ["lib", "mod.ts", "experimental.ts", "README.md"] },
   "lock": false,
   "tasks": {
     "test": "deno test --allow-run --allow-read --allow-env --allow-ffi",
@@ -28,6 +28,10 @@
     "ctrlc-windows": "npm:ctrlc-windows@2.2.0",
     "tinyexec": "npm:tinyexec@1.0.1",
     "https://deno.land/x/path_to_regexp@v6.2.1/index.ts": "npm:path-to-regexp@8.2.0"
+  },
+  "exports": {
+    ".": "./mod.ts",
+    "./experimental": "./experimental.ts"
   },
   "nodeModulesDir": "auto",
   "workspace": [

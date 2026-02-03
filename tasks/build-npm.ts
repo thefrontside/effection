@@ -1,4 +1,5 @@
-import { build, emptyDir } from "jsr:@deno/dnt@0.41.3";
+import { build, emptyDir } from "jsr:@deno/dnt@0.42.3";
+import denoJSON from "../deno.json" with { type: "json" };
 
 const outDir = "./build/npm";
 
@@ -10,7 +11,10 @@ if (!version) {
 }
 
 await build({
-  entryPoints: ["./mod.ts"],
+  entryPoints: Object.entries(denoJSON.exports).map(([key, value]) => ({
+    name: key,
+    path: value,
+  })),
   outDir,
   shims: {
     deno: false,

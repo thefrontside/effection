@@ -73,7 +73,7 @@ if (import.meta.main) {
         route("/blog/feed.xml", blogFeedRoute()),
         route("/blog/tags/:tag", blogTagRoute({ search: true })),
         route("/blog/:id", blogPostRoute({ search: true })),
-        route("/blog{/*path}", assetsRoute("../blog")),
+        route("/blog{/*path}", assetsRoute("blog")),
         route(
           "/pagefind{/*path}",
           pagefindRoute({ pagefindDir: "pagefind", publicDir: "./built/" }),

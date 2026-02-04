@@ -51,8 +51,8 @@ export function* initBlog(): Operation<void> {
 
 function* loadBlog(): Operation<Blog> {
   return yield* resource(function* (provide) {
-    // Blog posts are in the /blog directory at repository root
-    let directory = new URL(import.meta.resolve("../../blog/")).pathname;
+    // Blog posts are in the www/blog directory
+    let directory = new URL(import.meta.resolve("../blog/")).pathname;
 
     // Check if directory exists
     if (!existsSync(directory)) {

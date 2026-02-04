@@ -1,3 +1,4 @@
+// deno-lint-ignore-file no-explicit-any
 import type { Maybe } from "./maybe.ts";
 import type { Result } from "./result.ts";
 
@@ -336,7 +337,97 @@ export interface Scope {
    * @returns `true` if scope has its own context, `false` if context is not present, or inherited from its parent.
    */
   hasOwn<T>(context: Context<T>): boolean;
+
+  /**
+   * Enhance an {@link Api} within this scope by surrounding it with
+   * middleware.
+   *
+   * @param api - the api being enhanced
+   * @param middlewares - collection of {@link Middleware} to be added to this {@link Api}
+   * @param options - specifies which layer of dispatch `middlewares` will be applied
+   * @see {@link Api.around}
+   * @since 4.1
+   */
+  around<A>(api: Api<A>, ...options: Parameters<Api<A>["around"]>): void;
 }
+
+/**
+ * A set of methods and values that can be decorated on a per-scope
+ * basis. Apis are ideal for situations that require context
+ * sensitivity such as dependency injection, test mocking, and
+ * instrumentation.
+ *
+ * @template A - core shape of the Api
+ * @see {@link createApi}
+ * @since 4.1
+ */
+export interface Api<A> {
+  /**
+   * Every member of `A` "lifted" into an operation that invokes that
+   * member on the current {Scope}
+   */
+  operations: {
+    [K in keyof A]: A[K] extends Operation<unknown> ? A[K]
+      : A[K] extends (...args: infer TArgs) => infer TReturn
+        ? TReturn extends Operation<unknown> ? A[K]
+        : (...args: TArgs) => Operation<TReturn>
+      : Operation<A[K]>;
+  };
+  /**
+   * Enhance an {@link Api} within this scope by surrounding it with
+   * middleware.
+   *
+   * @param middlewares - a set of decorators that will surround the api core
+   * @param options - specify at which layer of dispatch, `middleware` will apply
+   * @returns an {Operation} that installs the middleware in the current {Scope}
+   */
+  around: (
+    middlewares: Partial<Around<A>>,
+    options?: {
+      at: "min" | "max";
+    },
+  ) => Operation<void>;
+
+  /**
+   * Call an API as it exists on `scope`.
+   */
+  invoke: <K extends keyof A>(
+    scope: Scope,
+    key: K,
+    args: A[K] extends (...args: any) => unknown ? Parameters<A[K]> : [],
+  ) => A[K] extends (...args: any) => unknown ? ReturnType<A[K]> : A[K];
+}
+
+/**
+ * An general function that can be used to surround any other function
+ * or value.
+ *
+ * @since 4.1
+ */
+export interface Middleware<TArgs extends unknown[], TReturn> {
+  /**
+   * Execute a single link in the middleware stack by doing whatever
+   * computation is necessary and then optionally delegating to the
+   * next link.
+   *
+   * @param args - the arguments to the value being surrounded.
+   * @param next - the next function in the change. It will accept the
+   * arguments contained in `args`
+   * @returns a value with the same shape as `next()`'s return value
+   */
+  (args: TArgs, next: (...args: TArgs) => TReturn): TReturn;
+}
+
+/**
+ * The shape of middlewares can surround a particular {Api}
+ *
+ * Members of an Api that are values are surrounded by no-arg functions.
+ */
+export type Around<Api> = {
+  [K in keyof Api]: Api[K] extends (...args: infer TArgs) => infer TReturn
+    ? Middleware<TArgs, TReturn>
+    : Middleware<[], Api[K]>;
+};
 
 /**
  * Unwrap the type of an `Operation`.

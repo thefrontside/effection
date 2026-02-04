@@ -10,7 +10,7 @@
     "build:jsr": "deno run -A tasks/build-jsr.ts"
   },
   "lint": {
-    "rules": { "exclude": ["prefer-const", "require-yield"] },
+    "rules": { "exclude": ["prefer-const", "require-yield", "ban-types"] },
     "exclude": ["build", "docs", "tasks", "bench"],
     "plugins": ["lint/prefer-let.ts"]
   },

@@ -20,11 +20,20 @@ export const api = {
       return delete (scope as ScopeInternal).contexts[context.name];
     },
   }),
+  Main: createApi("Main", {
+    main() {
+      throw new TypeError(`missing handler for "main()"`);
+    },
+  }),
 } as {
   Scope: Api<{
     create(parent: Scope): [Scope, () => Operation<void>];
     destroy(scope: Scope): Operation<void>;
     set<T>(scope: Scope, context: Context<T>, value: T): T;
     delete<T>(scope: Scope, context: Context<T>): boolean;
+  }>;
+
+  Main: Api<{
+    main: (body: (args: string[]) => Operation<void>) => Promise<void>;
   }>;
 };

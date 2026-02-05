@@ -2,8 +2,9 @@ import { createContext } from "./context.ts";
 import type { Operation } from "./types.ts";
 import { callcc } from "./callcc.ts";
 import { run } from "./run.ts";
-import { useScope } from "./scope.ts";
+import { global, useScope } from "./scope.ts";
 import { call } from "./call.ts";
+import { api } from "./api.ts";
 
 /**
  * Halt process execution immediately and initiate shutdown. If a message is
@@ -58,103 +59,109 @@ export function* exit(status: number, message?: string): Operation<void> {
  * @returns a promise that resolves right after the program exits
  */
 
-export async function main(
+export function main(
   body: (args: string[]) => Operation<void>,
 ): Promise<void> {
-  let hardexit = (_status: number) => {};
-
-  let result = await run(() =>
-    callcc<Exit>(function* (resolve) {
-      // action will return shutdown immediately upon resolve, so stash
-      // this function in the exit context so it can be called anywhere.
-      yield* ExitContext.set(resolve);
-
-      // this will hold the event loop and prevent runtimes such as
-      // Node and Deno from exiting prematurely.
-      let interval = setInterval(() => {}, Math.pow(2, 30));
-
-      let scope = yield* useScope();
-
-      try {
-        let interrupt = {
-          SIGINT: () =>
-            scope.run(() => resolve({ status: 130, signal: "SIGINT" })),
-          SIGTERM: () =>
-            scope.run(() => resolve({ status: 143, signal: "SIGTERM" })),
-        };
-
-        yield* withHost({
-          *deno() {
-            hardexit = (status) => Deno.exit(status);
-            try {
-              Deno.addSignalListener("SIGINT", interrupt.SIGINT);
-              /**
-               * Windows only supports ctrl-c (SIGINT), ctrl-break (SIGBREAK), and ctrl-close (SIGUP)
-               */
-              if (Deno.build.os !== "windows") {
-                Deno.addSignalListener("SIGTERM", interrupt.SIGTERM);
-              }
-              yield* body(Deno.args.slice());
-            } finally {
-              Deno.removeSignalListener("SIGINT", interrupt.SIGINT);
-              if (Deno.build.os !== "windows") {
-                Deno.removeSignalListener("SIGTERM", interrupt.SIGTERM);
-              }
-            }
-          },
-          *node() {
-            // Annotate dynamic import so that webpack ignores it.
-            // See https://webpack.js.org/api/module-methods/#webpackignore
-            let { default: process } = yield* call(() =>
-              import(/* webpackIgnore: true */ "node:process")
-            );
-            hardexit = (status) => process.exit(status);
-            try {
-              process.on("SIGINT", interrupt.SIGINT);
-              if (process.platform !== "win32") {
-                process.on("SIGTERM", interrupt.SIGTERM);
-              }
-              yield* body(process.argv.slice(2));
-            } finally {
-              process.off("SIGINT", interrupt.SIGINT);
-              if (process.platform !== "win32") {
-                process.off("SIGTERM", interrupt.SIGINT);
-              }
-            }
-          },
-          *browser() {
-            try {
-              self.addEventListener("unload", interrupt.SIGINT);
-              yield* body([]);
-            } finally {
-              self.removeEventListener("unload", interrupt.SIGINT);
-            }
-          },
-        });
-
-        yield* exit(0);
-      } catch (error) {
-        yield* resolve({ status: 1, error: error as Error });
-      } finally {
-        clearInterval(interval);
-      }
-    })
-  );
-
-  if (result.message) {
-    if (result.status === 0) {
-      console.log(result.message);
-    } else {
-      console.error(result.message);
-    }
-  }
-
-  if (result.error) {
-    console.error(result.error);
-  }
-
-  hardexit(result.status);
+  return api.Main.invoke(global, "main", [body]);
 }
+
+global.around(api.Main, {
+  async main([body]) {
+    let hardexit = (_status: number) => {};
+
+    let result = await run(() =>
+      callcc<Exit>(function* (resolve) {
+        // action will return shutdown immediately upon resolve, so stash
+        // this function in the exit context so it can be called anywhere.
+        yield* ExitContext.set(resolve);
+
+        // this will hold the event loop and prevent runtimes such as
+        // Node and Deno from exiting prematurely.
+        let interval = setInterval(() => {}, Math.pow(2, 30));
+
+        let scope = yield* useScope();
+
+        try {
+          let interrupt = {
+            SIGINT: () =>
+              scope.run(() => resolve({ status: 130, signal: "SIGINT" })),
+            SIGTERM: () =>
+              scope.run(() => resolve({ status: 143, signal: "SIGTERM" })),
+          };
+
+          yield* withHost({
+            *deno() {
+              hardexit = (status) => Deno.exit(status);
+              try {
+                Deno.addSignalListener("SIGINT", interrupt.SIGINT);
+                /**
+                 * Windows only supports ctrl-c (SIGINT), ctrl-break (SIGBREAK), and ctrl-close (SIGUP)
+                 */
+                if (Deno.build.os !== "windows") {
+                  Deno.addSignalListener("SIGTERM", interrupt.SIGTERM);
+                }
+                yield* body(Deno.args.slice());
+              } finally {
+                Deno.removeSignalListener("SIGINT", interrupt.SIGINT);
+                if (Deno.build.os !== "windows") {
+                  Deno.removeSignalListener("SIGTERM", interrupt.SIGTERM);
+                }
+              }
+            },
+            *node() {
+              // Annotate dynamic import so that webpack ignores it.
+              // See https://webpack.js.org/api/module-methods/#webpackignore
+              let { default: process } = yield* call(() =>
+                import(/* webpackIgnore: true */ "node:process")
+              );
+              hardexit = (status) => process.exit(status);
+              try {
+                process.on("SIGINT", interrupt.SIGINT);
+                if (process.platform !== "win32") {
+                  process.on("SIGTERM", interrupt.SIGTERM);
+                }
+                yield* body(process.argv.slice(2));
+              } finally {
+                process.off("SIGINT", interrupt.SIGINT);
+                if (process.platform !== "win32") {
+                  process.off("SIGTERM", interrupt.SIGINT);
+                }
+              }
+            },
+            *browser() {
+              try {
+                self.addEventListener("unload", interrupt.SIGINT);
+                yield* body([]);
+              } finally {
+                self.removeEventListener("unload", interrupt.SIGINT);
+              }
+            },
+          });
+
+          yield* exit(0);
+        } catch (error) {
+          yield* resolve({ status: 1, error: error as Error });
+        } finally {
+          clearInterval(interval);
+        }
+      })
+    );
+
+    if (result.message) {
+      if (result.status === 0) {
+        console.log(result.message);
+      } else {
+        console.error(result.message);
+      }
+    }
+
+    if (result.error) {
+      console.error(result.error);
+    }
+
+    hardexit(result.status);
+  },
+}, { at: "min" });
 
 const ExitContext = createContext<(exit: Exit) => Operation<void>>("exit");
 

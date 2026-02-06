@@ -3,7 +3,7 @@ title: "Structured Concurrency for JavaScript"
 description: "Why JavaScript async falls short of structured concurrency, and how Effection makes cleanup and cancellation scope-owned and composable."
 author: "Taras Mankovski"
 tags: ["structured concurrency", "javascript", "effection"]
-image: "/assets/images/blog/structured-concurrency-js.svg"
+image: "structured-concurrency-js.svg"
 ---
 
 Structured concurrency is like structured programming, but applied to

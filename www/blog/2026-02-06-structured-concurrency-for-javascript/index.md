@@ -47,7 +47,7 @@ In synchronous JavaScript, we have reliable expectations:
 - `finally {}` runs when control leaves a `try` block.
 - When a scope ends, the things owned by that scope are done.
 
-In JavaScript's mainstream async model, those expectations don't generalize. The
+In JavaScript's built-in async model, those expectations don't generalize. The
 core unit of async composition is the `Promise`, and promises are:
 
 - eager: creating a promise (or calling an `async` function) starts work

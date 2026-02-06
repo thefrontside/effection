@@ -13,7 +13,12 @@ lifetime, and it should reliably clean up when that scope is done.
 
 If you look around, you can see versions of this idea showing up in more places:
 Kotlin coroutines lean hard into it, Swift has task groups, Python added
-`TaskGroup` in 3.11, and Java has been exploring it via Project Loom.
+`TaskGroup` in 3.11, and Java has it in the JDK (Java 21 ships a structured
+concurrency API as a preview feature:
+https://docs.oracle.com/en/java/javase/21/core/structured-concurrency.html).
+
+Go doesn't have it built-in, but it has libraries that get you most of the way
+there (for example `errgroup`: https://pkg.go.dev/golang.org/x/sync/errgroup).
 
 ## Structured Programming vs Structured Concurrency
 

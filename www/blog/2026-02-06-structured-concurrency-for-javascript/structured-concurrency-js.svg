@@ -96,46 +96,46 @@
     height="44"
     opacity=".06"
     rx="14"
-    width="240"
-    x="770"
+    width="280"
+    x="760"
     y="338"
   /><rect
     fill="#fff"
     height="44"
     rx="14"
     stroke="#b8ccf5"
-    width="240"
-    x="770"
+    width="280"
+    x="760"
     y="336"
-  /><circle cx="792" cy="358" fill="#2b6ff7" r="6" /><text
+  /><circle cx="782" cy="358" fill="#2b6ff7" r="6" /><text
     fill="#1e3a8a"
     font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
         &quot;Liberation Mono&quot;, &quot;Courier New&quot;, monospace"
     font-size="14"
-    x="808"
+    x="798"
     y="363"
   >timer / socket / listener</text><rect
     fill="#0b2a5b"
     height="44"
     opacity=".06"
     rx="14"
-    width="240"
-    x="770"
+    width="280"
+    x="760"
     y="398"
   /><rect
     fill="#fff"
     height="44"
     rx="14"
     stroke="#b8ccf5"
-    width="240"
-    x="770"
+    width="280"
+    x="760"
     y="396"
-  /><circle cx="792" cy="418" fill="#0ea5e9" r="6" /><text
+  /><circle cx="782" cy="418" fill="#0ea5e9" r="6" /><text
     fill="#1e3a8a"
     font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
         &quot;Liberation Mono&quot;, &quot;Courier New&quot;, monospace"
     font-size="14"
-    x="808"
+    x="798"
     y="423"
   >in-flight request</text><path
     d="m1040 238c50 32 50 192 0 224"

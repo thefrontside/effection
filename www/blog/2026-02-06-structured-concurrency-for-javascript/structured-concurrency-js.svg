@@ -267,18 +267,18 @@
   <g opacity="0.92">
     <rect
       x="90"
-      y="515"
-      width="510"
-      height="72"
+      y="505"
+      width="640"
+      height="92"
       rx="18"
       fill="#FFFFFF"
       stroke="#D6E4FF"
     />
-    <circle cx="120" cy="551" r="8" fill="#2B6FF7" />
-    <text x="140" y="556" class="mono"
+    <circle cx="120" cy="540" r="8" fill="#2B6FF7" />
+    <text x="140" y="545" class="mono"
     >Operations are lazy and scope-owned</text>
-    <circle cx="420" cy="551" r="8" fill="#94A3B8" />
-    <text x="440" y="556" class="mono"
+    <circle cx="120" cy="572" r="8" fill="#94A3B8" />
+    <text x="140" y="577" class="mono"
     >Promises are eager and unstructured</text>
   </g>
 </svg>

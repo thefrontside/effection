@@ -1,284 +1,190 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <svg
-  width="1200"
+  fill="none"
   height="630"
   viewBox="0 0 1200 630"
-  fill="none"
+  width="1200"
   xmlns="http://www.w3.org/2000/svg"
-  role="img"
-  aria-label="Structured Concurrency for JavaScript - scope owns lifetime"
+  xmlns:xlink="http://www.w3.org/1999/xlink"
 >
-  <defs>
-    <linearGradient
-      id="bg"
-      x1="0"
-      y1="0"
-      x2="1200"
-      y2="630"
-      gradientUnits="userSpaceOnUse"
-    >
-      <stop offset="0" stop-color="#F8FAFF" />
-      <stop offset="0.55" stop-color="#F2F7FF" />
-      <stop offset="1" stop-color="#ECF3FF" />
-    </linearGradient>
-    <radialGradient
-      id="glow"
-      cx="0"
-      cy="0"
-      r="1"
-      gradientUnits="userSpaceOnUse"
-      gradientTransform="translate(900 120) rotate(120) scale(560 420)"
-    >
-      <stop offset="0" stop-color="#2B6FF7" stop-opacity="0.22" />
-      <stop offset="0.55" stop-color="#2B6FF7" stop-opacity="0.07" />
-      <stop offset="1" stop-color="#2B6FF7" stop-opacity="0" />
-    </radialGradient>
-    <filter
-      id="softShadow"
-      x="-40"
-      y="-40"
-      width="1280"
-      height="710"
-      filterUnits="userSpaceOnUse"
-      color-interpolation-filters="sRGB"
-    >
-      <feDropShadow
-        dx="0"
-        dy="10"
-        stdDeviation="18"
-        flood-color="#0B2A5B"
-        flood-opacity="0.12"
-      />
-    </filter>
-    <filter
-      id="tinyShadow"
-      x="-40"
-      y="-40"
-      width="1280"
-      height="710"
-      filterUnits="userSpaceOnUse"
-      color-interpolation-filters="sRGB"
-    >
-      <feDropShadow
-        dx="0"
-        dy="5"
-        stdDeviation="10"
-        flood-color="#0B2A5B"
-        flood-opacity="0.10"
-      />
-    </filter>
-    <linearGradient id="ink" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#0B2A5B" />
-      <stop offset="1" stop-color="#0C3A7A" />
-    </linearGradient>
-    <linearGradient
-      id="accent"
-      x1="340"
-      y1="190"
-      x2="930"
-      y2="520"
-      gradientUnits="userSpaceOnUse"
-    >
-      <stop offset="0" stop-color="#2B6FF7" />
-      <stop offset="1" stop-color="#0EA5E9" />
-    </linearGradient>
-    <style>
-    .title {
-      font-family:
-        ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
-        Arial, "Apple Color Emoji", "Segoe UI Emoji";
-      font-size: 48px;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      fill: url(#ink);
-    }
-    .subtitle {
-      font-family:
-        ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
-        Arial, "Apple Color Emoji", "Segoe UI Emoji";
-      font-size: 18px;
-      font-weight: 600;
-      letter-spacing: 0.02em;
-      text-transform: uppercase;
-      fill: #33547b;
-    }
-    .caption {
-      font-family:
-        ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
-        Arial, "Apple Color Emoji", "Segoe UI Emoji";
-      font-size: 18px;
-      font-weight: 600;
-      fill: #23435f;
-    }
-    .mono {
-      font-family:
-        ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-        "Liberation Mono", "Courier New", monospace;
-      font-size: 14px;
-      fill: #1e3a8a;
-    }
-    </style>
-  </defs>
-
-  <!-- Background -->
-  <rect x="0" y="0" width="1200" height="630" fill="url(#bg)" />
-  <rect x="0" y="0" width="1200" height="630" fill="url(#glow)" />
-
-  <!-- Subtle grid -->
-  <g opacity="0.25">
-    <path d="M90 90H1110" stroke="#C9D9F2" stroke-width="1" />
-    <path d="M90 150H1110" stroke="#C9D9F2" stroke-width="1" />
-    <path d="M90 210H1110" stroke="#C9D9F2" stroke-width="1" />
-    <path d="M90 270H1110" stroke="#C9D9F2" stroke-width="1" />
-    <path d="M90 330H1110" stroke="#C9D9F2" stroke-width="1" />
-    <path d="M90 390H1110" stroke="#C9D9F2" stroke-width="1" />
-    <path d="M90 450H1110" stroke="#C9D9F2" stroke-width="1" />
-    <path d="M90 510H1110" stroke="#C9D9F2" stroke-width="1" />
-    <path d="M90 570H1110" stroke="#C9D9F2" stroke-width="1" />
-
-    <path d="M120 80V580" stroke="#C9D9F2" stroke-width="1" />
-    <path d="M200 80V580" stroke="#C9D9F2" stroke-width="1" />
-    <path d="M280 80V580" stroke="#C9D9F2" stroke-width="1" />
-    <path d="M360 80V580" stroke="#C9D9F2" stroke-width="1" />
-    <path d="M440 80V580" stroke="#C9D9F2" stroke-width="1" />
-    <path d="M520 80V580" stroke="#C9D9F2" stroke-width="1" />
-    <path d="M600 80V580" stroke="#C9D9F2" stroke-width="1" />
-    <path d="M680 80V580" stroke="#C9D9F2" stroke-width="1" />
-    <path d="M760 80V580" stroke="#C9D9F2" stroke-width="1" />
-    <path d="M840 80V580" stroke="#C9D9F2" stroke-width="1" />
-    <path d="M920 80V580" stroke="#C9D9F2" stroke-width="1" />
-    <path d="M1000 80V580" stroke="#C9D9F2" stroke-width="1" />
-    <path d="M1080 80V580" stroke="#C9D9F2" stroke-width="1" />
-  </g>
-
-  <!-- Title -->
-  <text x="90" y="140" class="subtitle">Effection Blog</text>
-  <text x="90" y="205" class="title">Structured Concurrency</text>
-  <text x="90" y="255" class="title">for JavaScript</text>
-  <text x="90" y="305" class="caption"
-  >Scope owns lifetime. Cleanup is guaranteed.</text>
-
-  <!-- Diagram: nested scopes -->
-  <g filter="url(#softShadow)">
-    <rect x="650" y="150" width="460" height="390" rx="24" fill="#FFFFFF" />
-  </g>
-
-  <!-- Outer scope -->
-  <g filter="url(#tinyShadow)">
-    <rect
-      x="690"
-      y="200"
-      width="380"
-      height="300"
-      rx="18"
-      fill="#F7FBFF"
-      stroke="#97B7FF"
-      stroke-width="2"
-    />
-    <rect x="706" y="218" width="120" height="28" rx="10" fill="#E6F0FF" />
-    <text x="722" y="238" class="mono">parent scope</text>
-  </g>
-
-  <!-- Child scope -->
-  <g filter="url(#tinyShadow)">
-    <rect
-      x="735"
-      y="270"
-      width="310"
-      height="205"
-      rx="16"
-      fill="#FFFFFF"
-      stroke="#2B6FF7"
-      stroke-width="2"
-    />
-    <rect x="751" y="288" width="110" height="26" rx="10" fill="#E8F4FF" />
-    <text x="767" y="307" class="mono">child scope</text>
-  </g>
-
-  <!-- Effects (owned work) -->
-  <g>
-    <rect
-      x="770"
-      y="338"
-      width="240"
-      height="44"
-      rx="14"
-      fill="#0B2A5B"
-      opacity="0.06"
-    />
-    <rect
-      x="770"
-      y="336"
-      width="240"
-      height="44"
-      rx="14"
-      fill="#FFFFFF"
-      stroke="#B8CCF5"
-    />
-    <circle cx="792" cy="358" r="6" fill="#2B6FF7" />
-    <text x="808" y="363" class="mono">timer / socket / listener</text>
-
-    <rect
-      x="770"
-      y="398"
-      width="240"
-      height="44"
-      rx="14"
-      fill="#0B2A5B"
-      opacity="0.06"
-    />
-    <rect
-      x="770"
-      y="396"
-      width="240"
-      height="44"
-      rx="14"
-      fill="#FFFFFF"
-      stroke="#B8CCF5"
-    />
-    <circle cx="792" cy="418" r="6" fill="#0EA5E9" />
-    <text x="808" y="423" class="mono">in-flight request</text>
-  </g>
-
-  <!-- Lifetime arrow -->
-  <g>
-    <path
-      d="M1040 238C1090 270 1090 430 1040 462"
-      stroke="url(#accent)"
-      stroke-width="6"
-      stroke-linecap="round"
-    />
-    <path
-      d="M1040 462L1058 452"
-      stroke="url(#accent)"
-      stroke-width="6"
-      stroke-linecap="round"
-    />
-    <path
-      d="M1040 462L1058 472"
-      stroke="url(#accent)"
-      stroke-width="6"
-      stroke-linecap="round"
-    />
-    <text x="980" y="520" class="mono" fill="#0B2A5B">lifetime</text>
-  </g>
-
-  <!-- Small legend -->
-  <g opacity="0.92">
-    <rect
+  <linearGradient
+    id="a"
+    gradientUnits="userSpaceOnUse"
+    x1="0"
+    x2="1200"
+    y1="0"
+    y2="630"
+  ><stop offset="0" stop-color="#f8faff" /><stop
+      offset=".55"
+      stop-color="#f2f7ff"
+    /><stop offset="1" stop-color="#ecf3ff" /></linearGradient><radialGradient
+    id="b"
+    cx="0"
+    cy="0"
+    gradientTransform="matrix(-280 484.97422612 -363.73066959 -210 900 120)"
+    gradientUnits="userSpaceOnUse"
+    r="1"
+  ><stop offset="0" stop-color="#2b6ff7" stop-opacity=".22" /><stop
+      offset=".55"
+      stop-color="#2b6ff7"
+      stop-opacity=".07"
+    /><stop
+      offset="1"
+      stop-color="#2b6ff7"
+      stop-opacity="0"
+    /></radialGradient><linearGradient id="c" x1="0" x2="1" y1="0" y2="1"><stop
+      offset="0"
+      stop-color="#0b2a5b"
+    /><stop offset="1" stop-color="#0c3a7a" /></linearGradient><linearGradient
+    id="d"
+    gradientUnits="userSpaceOnUse"
+    x1="340"
+    x2="930"
+    y1="190"
+    y2="520"
+  ><stop offset="0" stop-color="#2b6ff7" /><stop
+      offset="1"
+      stop-color="#0ea5e9"
+    /></linearGradient><path d="m0 0h1200v630h-1200z" fill="url(#a)" /><path
+    d="m0 0h1200v630h-1200z"
+    fill="url(#b)"
+  /><g opacity=".25" stroke="#c9d9f2"><path d="m90 90h1020" /><path
+      d="m90 150h1020"
+    /><path d="m90 210h1020" /><path d="m90 270h1020" /><path
+      d="m90 330h1020"
+    /><path d="m90 390h1020" /><path d="m90 450h1020" /><path
+      d="m90 510h1020"
+    /><path d="m90 570h1020" /><path d="m120 80v500" /><path
+      d="m200 80v500"
+    /><path d="m280 80v500" /><path d="m360 80v500" /><path
+      d="m440 80v500"
+    /><path d="m520 80v500" /><path d="m600 80v500" /><path
+      d="m680 80v500"
+    /><path d="m760 80v500" /><path d="m840 80v500" /><path
+      d="m920 80v500"
+    /><path d="m1000 80v500" /><path d="m1080 80v500" /></g><g
+    font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
+        Arial, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;"
+  ><text
+      fill="#33547b"
+      font-size="18"
+      font-weight="600"
+      letter-spacing=".02em"
       x="90"
-      y="505"
-      width="640"
+      y="140"
+    >Effection Blog</text><text
+      fill="url(#c)"
+      font-size="48"
+      font-weight="800"
+      letter-spacing="-.02em"
+      x="90"
+      y="205"
+    >Structured Concurrency</text><text
+      fill="url(#c)"
+      font-size="48"
+      font-weight="800"
+      letter-spacing="-.02em"
+      x="90"
+      y="255"
+    >for JavaScript</text><text
+      fill="#23435f"
+      font-size="18"
+      font-weight="600"
+      x="90"
+      y="305"
+    >Scope owns lifetime. Cleanup is guaranteed.</text></g><rect
+    fill="#0b2a5b"
+    height="44"
+    opacity=".06"
+    rx="14"
+    width="240"
+    x="770"
+    y="338"
+  /><rect
+    fill="#fff"
+    height="44"
+    rx="14"
+    stroke="#b8ccf5"
+    width="240"
+    x="770"
+    y="336"
+  /><circle cx="792" cy="358" fill="#2b6ff7" r="6" /><text
+    fill="#1e3a8a"
+    font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        &quot;Liberation Mono&quot;, &quot;Courier New&quot;, monospace"
+    font-size="14"
+    x="808"
+    y="363"
+  >timer / socket / listener</text><rect
+    fill="#0b2a5b"
+    height="44"
+    opacity=".06"
+    rx="14"
+    width="240"
+    x="770"
+    y="398"
+  /><rect
+    fill="#fff"
+    height="44"
+    rx="14"
+    stroke="#b8ccf5"
+    width="240"
+    x="770"
+    y="396"
+  /><circle cx="792" cy="418" fill="#0ea5e9" r="6" /><text
+    fill="#1e3a8a"
+    font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        &quot;Liberation Mono&quot;, &quot;Courier New&quot;, monospace"
+    font-size="14"
+    x="808"
+    y="423"
+  >in-flight request</text><path
+    d="m1040 238c50 32 50 192 0 224"
+    stroke="url(#d)"
+    stroke-linecap="round"
+    stroke-width="6"
+  /><path
+    d="m1040 462 18-10"
+    stroke="url(#d)"
+    stroke-linecap="round"
+    stroke-width="6"
+  /><path
+    d="m1040 462 18 10"
+    stroke="url(#d)"
+    stroke-linecap="round"
+    stroke-width="6"
+  /><text
+    fill="#1e3a8a"
+    font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        &quot;Liberation Mono&quot;, &quot;Courier New&quot;, monospace"
+    font-size="14"
+    x="980"
+    y="520"
+  >lifetime</text><g opacity=".92"><rect
+      fill="#fff"
       height="92"
       rx="18"
-      fill="#FFFFFF"
-      stroke="#D6E4FF"
-    />
-    <circle cx="120" cy="540" r="8" fill="#2B6FF7" />
-    <text x="140" y="545" class="mono"
-    >Operations are lazy and scope-owned</text>
-    <circle cx="120" cy="572" r="8" fill="#94A3B8" />
-    <text x="140" y="577" class="mono"
-    >Promises are eager and unstructured</text>
-  </g>
+      stroke="#d6e4ff"
+      width="640"
+      x="90"
+      y="505"
+    /><circle cx="120" cy="540" fill="#2b6ff7" r="8" /><text
+      fill="#1e3a8a"
+      font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        &quot;Liberation Mono&quot;, &quot;Courier New&quot;, monospace"
+      font-size="14"
+      x="140"
+      y="545"
+    >Operations are lazy and scope-owned</text><circle
+      cx="120"
+      cy="572"
+      fill="#94a3b8"
+      r="8"
+    /><text
+      fill="#1e3a8a"
+      font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        &quot;Liberation Mono&quot;, &quot;Courier New&quot;, monospace"
+      font-size="14"
+      x="140"
+      y="577"
+    >Promises are eager and unstructured</text></g>
 </svg>

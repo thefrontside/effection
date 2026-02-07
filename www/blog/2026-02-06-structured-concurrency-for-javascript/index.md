@@ -20,6 +20,11 @@ like having a clean water supply to drink and pure air to breathe.
 Structured concurrency is the re-application of this very sound knowledge to
 concurrency.
 
+If you want the longer version of the argument (and a lot more historical and
+practical context), Nathaniel J. Smith's
+[Notes on structured concurrency (or: Go statement considered harmful)](https://vorpus.org/blog/notes-on-structured-concurrency-or-go-statement-considered-harmful/)
+is the classic.
+
 That's a fancy name for a pretty ordinary idea: if I start some concurrent work
 inside a function/scope, it should have a clear owner, a natural lifetime, and
 it should reliably clean up when that scope is done.

@@ -157,9 +157,16 @@
     font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
         &quot;Liberation Mono&quot;, &quot;Courier New&quot;, monospace"
     font-size="14"
-    x="980"
+    x="948"
+    y="492"
+  >scope ends</text><text
+    fill="#1e3a8a"
+    font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        &quot;Liberation Mono&quot;, &quot;Courier New&quot;, monospace"
+    font-size="14"
+    x="930"
     y="520"
-  >lifetime</text><g opacity=".92"><rect
+  >scope lifetime</text><g opacity=".92"><rect
       fill="#fff"
       height="92"
       rx="18"

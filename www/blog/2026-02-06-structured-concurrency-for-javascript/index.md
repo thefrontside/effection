@@ -25,9 +25,9 @@ practical context), Nathaniel J. Smith's
 [Notes on structured concurrency (or: Go statement considered harmful)](https://vorpus.org/blog/notes-on-structured-concurrency-or-go-statement-considered-harmful/)
 is the classic.
 
-That's a fancy name for a pretty ordinary idea: if I start some concurrent work
-inside a function/scope, it should have a clear owner, a natural lifetime, and
-it should reliably clean up when that scope is done.
+It's a fancy name for a big deal with a simple test: if I start some concurrent
+work inside a function/scope, it should have a clear owner, a natural lifetime,
+and it should reliably clean up when that scope is done.
 
 The picture at the top is trying to show exactly that: child work lives _inside_
 the scope that started it, and when the parent scope ends (that big arrow on the

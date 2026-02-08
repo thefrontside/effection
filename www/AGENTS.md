@@ -77,6 +77,16 @@ from credentials.
 **Goal:** Make the reader understand that Effection makes async feel normal.
 That's the core message. Everything else supports it.
 
+## Audience
+
+Primary audience for Effection blog posts is Hacker News and r/javascript:
+technically fluent, skeptical, and quick to nitpick imprecision.
+
+- Prefer concrete, falsifiable claims over attributed motives ("TC39 wanted…").
+- Define overloaded terms once (e.g. "scope" meaning lifetime/ownership).
+- Avoid bikeshed triggers when a tighter semantics framing will do.
+- Keep examples consistent with the hook and with real runtime behavior.
+
 **Point of view:**
 
 - First person singular ("I") for opinion and advocacy posts.

@@ -42,9 +42,15 @@ image: "featured-image.svg"
   `@media (prefers-color-scheme: dark)` inside the SVG `<style>` block.
 - **Usage:** Copy the template into your post directory, rename it, and
   customize the title, caption, diagram area, and legend items.
-- **Colors:** Use the CSS classes defined in the template (`card`,
-  `scope-parent`, `scope-child`, `pill`, `mono`, `dot-primary`, etc.) — do NOT
-  hardcode `fill`/`stroke` values that would break in one mode.
+- **Colors:** Use the CSS classes defined in the template (`svg-card`,
+  `svg-scope-parent`, `svg-scope-child`, `svg-pill`, `svg-mono`,
+  `svg-dot-primary`, etc.) — do NOT hardcode `fill`/`stroke` values that would
+  break in one mode.
+- **Class prefix:** All CSS classes in SVG images MUST use the `svg-` prefix
+  (e.g., `svg-grid`, `svg-title`, `svg-card`). This prevents namespace
+  collisions when the SVG is inlined into the page DOM by the `inline-svg`
+  plugin — without the prefix, generic class names like `.grid` or `.label` leak
+  into the page and break other elements.
 - **Diagram patterns:** The template includes three commented-out diagram
   examples: nested boxes (scope ownership), flow arrows (pipelines/sequences),
   and stacked items (feature lists). Uncomment the one closest to your needs and
@@ -52,9 +58,11 @@ image: "featured-image.svg"
 - **Shadows/filters:** Light and dark mode use separate shadow filters
   (`softShadow-light`/`softShadow-dark`, `tinyShadow-light`/`tinyShadow-dark`).
   Elements that need shadows must be duplicated in two `<g>` wrappers — one with
-  class `shadow-light` and one with `shadow-dark`. CSS toggles visibility.
-- **Background:** Uses show/hide pairs (`bg-light`/`bg-dark`,
-  `glow-light`/`glow-dark`) since CSS cannot change SVG gradient stop colors.
+  class `svg-shadow-light` and one with `svg-shadow-dark`. CSS toggles
+  visibility.
+- **Background:** Uses show/hide pairs (`svg-bg-light`/`svg-bg-dark`,
+  `svg-glow-light`/`svg-glow-dark`) since CSS cannot change SVG gradient stop
+  colors.
 
 ## Voice
 

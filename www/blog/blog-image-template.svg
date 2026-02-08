@@ -31,7 +31,10 @@
     <!-- Light-mode background gradient -->
     <linearGradient
       id="bg-light-grad"
-      x1="0" y1="0" x2="1200" y2="630"
+      x1="0"
+      y1="0"
+      x2="1200"
+      y2="630"
       gradientUnits="userSpaceOnUse"
     >
       <stop offset="0" stop-color="#F8FAFF" />
@@ -42,7 +45,9 @@
     <!-- Light-mode decorative glow -->
     <radialGradient
       id="glow-light-grad"
-      cx="0" cy="0" r="1"
+      cx="0"
+      cy="0"
+      r="1"
       gradientUnits="userSpaceOnUse"
       gradientTransform="translate(900 120) rotate(120) scale(560 420)"
     >
@@ -54,7 +59,9 @@
     <!-- Dark-mode decorative glow (subtler) -->
     <radialGradient
       id="glow-dark-grad"
-      cx="0" cy="0" r="1"
+      cx="0"
+      cy="0"
+      r="1"
       gradientUnits="userSpaceOnUse"
       gradientTransform="translate(900 120) rotate(120) scale(560 420)"
     >
@@ -72,7 +79,10 @@
     <!-- Accent gradient (works on both modes) -->
     <linearGradient
       id="accent"
-      x1="340" y1="190" x2="930" y2="520"
+      x1="340"
+      y1="190"
+      x2="930"
+      y2="520"
       gradientUnits="userSpaceOnUse"
     >
       <stop offset="0" stop-color="#2B6FF7" />
@@ -82,84 +92,122 @@
     <!-- Light-mode shadow (card) -->
     <filter
       id="softShadow-light"
-      x="-40" y="-40" width="1280" height="710"
+      x="-40"
+      y="-40"
+      width="1280"
+      height="710"
       filterUnits="userSpaceOnUse"
       color-interpolation-filters="sRGB"
     >
-      <feDropShadow dx="0" dy="10" stdDeviation="18"
-        flood-color="#0B2A5B" flood-opacity="0.12" />
+      <feDropShadow
+        dx="0"
+        dy="10"
+        stdDeviation="18"
+        flood-color="#0B2A5B"
+        flood-opacity="0.12"
+      />
     </filter>
 
     <!-- Dark-mode shadow (card) -->
     <filter
       id="softShadow-dark"
-      x="-40" y="-40" width="1280" height="710"
+      x="-40"
+      y="-40"
+      width="1280"
+      height="710"
       filterUnits="userSpaceOnUse"
       color-interpolation-filters="sRGB"
     >
-      <feDropShadow dx="0" dy="10" stdDeviation="18"
-        flood-color="#000000" flood-opacity="0.25" />
+      <feDropShadow
+        dx="0"
+        dy="10"
+        stdDeviation="18"
+        flood-color="#000000"
+        flood-opacity="0.25"
+      />
     </filter>
 
     <!-- Light-mode shadow (inner elements) -->
     <filter
       id="tinyShadow-light"
-      x="-40" y="-40" width="1280" height="710"
+      x="-40"
+      y="-40"
+      width="1280"
+      height="710"
       filterUnits="userSpaceOnUse"
       color-interpolation-filters="sRGB"
     >
-      <feDropShadow dx="0" dy="5" stdDeviation="10"
-        flood-color="#0B2A5B" flood-opacity="0.10" />
+      <feDropShadow
+        dx="0"
+        dy="5"
+        stdDeviation="10"
+        flood-color="#0B2A5B"
+        flood-opacity="0.10"
+      />
     </filter>
 
     <!-- Dark-mode shadow (inner elements) -->
     <filter
       id="tinyShadow-dark"
-      x="-40" y="-40" width="1280" height="710"
+      x="-40"
+      y="-40"
+      width="1280"
+      height="710"
       filterUnits="userSpaceOnUse"
       color-interpolation-filters="sRGB"
     >
-      <feDropShadow dx="0" dy="5" stdDeviation="10"
-        flood-color="#000000" flood-opacity="0.20" />
+      <feDropShadow
+        dx="0"
+        dy="5"
+        stdDeviation="10"
+        flood-color="#000000"
+        flood-opacity="0.20"
+      />
     </filter>
 
     <!-- ======== STYLES ======== -->
     <style>
     /* ---- Font stacks ---- */
-    .title {
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI,
-        Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    .svg-title {
+      font-family:
+        ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
+        Arial, "Apple Color Emoji", "Segoe UI Emoji";
       font-size: 48px;
       font-weight: 800;
       letter-spacing: -0.02em;
     }
-    .subtitle {
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI,
-        Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    .svg-subtitle {
+      font-family:
+        ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
+        Arial, "Apple Color Emoji", "Segoe UI Emoji";
       font-size: 18px;
       font-weight: 600;
       letter-spacing: 0.02em;
       text-transform: uppercase;
     }
-    .caption {
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI,
-        Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    .svg-caption {
+      font-family:
+        ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
+        Arial, "Apple Color Emoji", "Segoe UI Emoji";
       font-size: 18px;
       font-weight: 600;
     }
-    .mono {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    .svg-mono {
+      font-family:
+        ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
         "Liberation Mono", "Courier New", monospace;
       font-size: 14px;
     }
-    .mono-sm {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    .svg-mono-sm {
+      font-family:
+        ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
         "Liberation Mono", "Courier New", monospace;
       font-size: 12px;
     }
-    .label {
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI,
-        Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    .svg-label {
+      font-family:
+        ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
+        Arial, "Apple Color Emoji", "Segoe UI Emoji";
       font-size: 15px;
       font-weight: 700;
       letter-spacing: 0.03em;
@@ -167,159 +215,367 @@
     }
 
     /* ---- Light mode (default) ---- */
-    .bg-light       { display: block; }
-    .bg-dark        { display: none; }
-    .glow-light     { display: block; }
-    .glow-dark      { display: none; }
-    .shadow-light   { display: block; }
-    .shadow-dark    { display: none; }
+    .svg-bg-light {
+      display: block;
+    }
+    .svg-bg-dark {
+      display: none;
+    }
+    .svg-glow-light {
+      display: block;
+    }
+    .svg-glow-dark {
+      display: none;
+    }
+    .svg-shadow-light {
+      display: block;
+    }
+    .svg-shadow-dark {
+      display: none;
+    }
 
-    .grid           { opacity: 0.25; }
-    .grid-line      { stroke: #C9D9F2; stroke-width: 1; }
+    .svg-grid {
+      opacity: 0.25;
+    }
+    .svg-grid-line {
+      stroke: #c9d9f2;
+      stroke-width: 1;
+    }
 
-    .card           { fill: #FFFFFF; }
-    .divider        { stroke: #D6E4FF; stroke-dasharray: 4 4; stroke-width: 1; }
-    .scope-parent   { fill: #F7FBFF; stroke: #97B7FF; stroke-width: 2; }
-    .scope-label    { fill: #E6F0FF; }
-    .scope-child    { fill: #FFFFFF; stroke: #2B6FF7; stroke-width: 2; }
-    .scope-child-label { fill: #E8F4FF; }
-    .pill           { fill: #FFFFFF; stroke: #B8CCF5; stroke-width: 1; }
-    .pill-shadow    { fill: #0B2A5B; opacity: 0.06; }
-    .legend         { fill: #FFFFFF; stroke: #D6E4FF; stroke-width: 1; }
+    .svg-card {
+      fill: #ffffff;
+    }
+    .svg-divider {
+      stroke: #d6e4ff;
+      stroke-dasharray: 4 4;
+      stroke-width: 1;
+    }
+    .svg-scope-parent {
+      fill: #f7fbff;
+      stroke: #97b7ff;
+      stroke-width: 2;
+    }
+    .svg-scope-label {
+      fill: #e6f0ff;
+    }
+    .svg-scope-child {
+      fill: #ffffff;
+      stroke: #2b6ff7;
+      stroke-width: 2;
+    }
+    .svg-scope-child-label {
+      fill: #e8f4ff;
+    }
+    .svg-pill {
+      fill: #ffffff;
+      stroke: #b8ccf5;
+      stroke-width: 1;
+    }
+    .svg-pill-shadow {
+      fill: #0b2a5b;
+      opacity: 0.06;
+    }
+    .svg-legend {
+      fill: #ffffff;
+      stroke: #d6e4ff;
+      stroke-width: 1;
+    }
 
     /* Before/after pattern: broken boundary + leaks */
-    .dashed-boundary { stroke: #B8CCF5; stroke-width: 2; stroke-dasharray: 8 4;
-                       fill: none; }
-    .dashed-label   { fill: #E6F0FF; }
-    .leak-line      { stroke: #EA580C; stroke-width: 2; fill: none; }
-    .leak-dot       { fill: #EA580C; }
-    .leak-text      { fill: #EA580C; }
-    .uncertain-text { fill: #EA580C; }
-    .check-text     { fill: #16A34A; }
+    .svg-dashed-boundary {
+      stroke: #b8ccf5;
+      stroke-width: 2;
+      stroke-dasharray: 8 4;
+      fill: none;
+    }
+    .svg-dashed-label {
+      fill: #e6f0ff;
+    }
+    .svg-leak-line {
+      stroke: #ea580c;
+      stroke-width: 2;
+      fill: none;
+    }
+    .svg-leak-dot {
+      fill: #ea580c;
+    }
+    .svg-leak-text {
+      fill: #ea580c;
+    }
+    .svg-uncertain-text {
+      fill: #ea580c;
+    }
+    .svg-check-text {
+      fill: #16a34a;
+    }
 
-    .title          { fill: url(#ink); }
-    .subtitle       { fill: #33547B; }
-    .caption        { fill: #23435F; }
-    .mono           { fill: #1e3a8a; }
-    .mono-sm        { fill: #1e3a8a; }
-    .mono-label     { fill: #0B2A5B; }
-    .label          { fill: #33547B; }
-    .label-heading  { fill: #0B2A5B; }
+    .svg-title {
+      fill: url(#ink);
+    }
+    .svg-subtitle {
+      fill: #33547b;
+    }
+    .svg-caption {
+      fill: #23435f;
+    }
+    .svg-mono {
+      fill: #1e3a8a;
+    }
+    .svg-mono-sm {
+      fill: #1e3a8a;
+    }
+    .svg-mono-label {
+      fill: #0b2a5b;
+    }
+    .svg-label {
+      fill: #33547b;
+    }
+    .svg-label-heading {
+      fill: #0b2a5b;
+    }
 
-    .dot-primary    { fill: #2B6FF7; }
-    .dot-secondary  { fill: #0EA5E9; }
-    .dot-muted      { fill: #94A3B8; }
+    .svg-dot-primary {
+      fill: #2b6ff7;
+    }
+    .svg-dot-secondary {
+      fill: #0ea5e9;
+    }
+    .svg-dot-muted {
+      fill: #94a3b8;
+    }
 
     /* Flow arrow pattern */
-    .flow-box       { fill: #FFFFFF; stroke: #97B7FF; stroke-width: 2; }
-    .flow-arrow     { stroke: #2B6FF7; stroke-width: 2; }
+    .svg-flow-box {
+      fill: #ffffff;
+      stroke: #97b7ff;
+      stroke-width: 2;
+    }
+    .svg-flow-arrow {
+      stroke: #2b6ff7;
+      stroke-width: 2;
+    }
 
     /* Stacked items pattern */
-    .stack-item     { fill: #FFFFFF; stroke: #B8CCF5; stroke-width: 1; }
-    .stack-dot      { fill: #2B6FF7; }
+    .svg-stack-item {
+      fill: #ffffff;
+      stroke: #b8ccf5;
+      stroke-width: 1;
+    }
+    .svg-stack-dot {
+      fill: #2b6ff7;
+    }
 
     /* ---- Dark mode ---- */
     @media (prefers-color-scheme: dark) {
-      .bg-light       { display: none; }
-      .bg-dark        { display: block; }
-      .glow-light     { display: none; }
-      .glow-dark      { display: block; }
-      .shadow-light   { display: none; }
-      .shadow-dark    { display: block; }
+      .svg-bg-light {
+        display: none;
+      }
+      .svg-bg-dark {
+        display: block;
+      }
+      .svg-glow-light {
+        display: none;
+      }
+      .svg-glow-dark {
+        display: block;
+      }
+      .svg-shadow-light {
+        display: none;
+      }
+      .svg-shadow-dark {
+        display: block;
+      }
 
-      .grid           { opacity: 0.20; }
-      .grid-line      { stroke: #374151; }
+      .svg-grid {
+        opacity: 0.20;
+      }
+      .svg-grid-line {
+        stroke: #374151;
+      }
 
-      .card           { fill: #1F2937; }
-      .divider        { stroke: #374151; }
-      .scope-parent   { fill: #111827; stroke: #374151; }
-      .scope-label    { fill: #1E3A8A; }
-      .scope-child    { fill: #1F2937; stroke: #60A5FA; }
-      .scope-child-label { fill: #1E3A8A; }
-      .pill           { fill: #1F2937; stroke: #374151; }
-      .pill-shadow    { fill: #000000; opacity: 0.15; }
-      .legend         { fill: #1F2937; stroke: #374151; }
+      .svg-card {
+        fill: #1f2937;
+      }
+      .svg-divider {
+        stroke: #374151;
+      }
+      .svg-scope-parent {
+        fill: #111827;
+        stroke: #374151;
+      }
+      .svg-scope-label {
+        fill: #1e3a8a;
+      }
+      .svg-scope-child {
+        fill: #1f2937;
+        stroke: #60a5fa;
+      }
+      .svg-scope-child-label {
+        fill: #1e3a8a;
+      }
+      .svg-pill {
+        fill: #1f2937;
+        stroke: #374151;
+      }
+      .svg-pill-shadow {
+        fill: #000000;
+        opacity: 0.15;
+      }
+      .svg-legend {
+        fill: #1f2937;
+        stroke: #374151;
+      }
 
-      .dashed-boundary { stroke: #4B5563; }
-      .dashed-label   { fill: #1E3A8A; }
-      .leak-line      { stroke: #FB923C; }
-      .leak-dot       { fill: #FB923C; }
-      .leak-text      { fill: #FB923C; }
-      .uncertain-text { fill: #FB923C; }
-      .check-text     { fill: #4ADE80; }
+      .svg-dashed-boundary {
+        stroke: #4b5563;
+      }
+      .svg-dashed-label {
+        fill: #1e3a8a;
+      }
+      .svg-leak-line {
+        stroke: #fb923c;
+      }
+      .svg-leak-dot {
+        fill: #fb923c;
+      }
+      .svg-leak-text {
+        fill: #fb923c;
+      }
+      .svg-uncertain-text {
+        fill: #fb923c;
+      }
+      .svg-check-text {
+        fill: #4ade80;
+      }
 
-      .title          { fill: #F3F4F6; }
-      .subtitle       { fill: #9CA3AF; }
-      .caption        { fill: #D1D5DB; }
-      .mono           { fill: #E5E7EB; }
-      .mono-sm        { fill: #E5E7EB; }
-      .mono-label     { fill: #D1D5DB; }
-      .label          { fill: #9CA3AF; }
-      .label-heading  { fill: #F3F4F6; }
+      .svg-title {
+        fill: #f3f4f6;
+      }
+      .svg-subtitle {
+        fill: #9ca3af;
+      }
+      .svg-caption {
+        fill: #d1d5db;
+      }
+      .svg-mono {
+        fill: #e5e7eb;
+      }
+      .svg-mono-sm {
+        fill: #e5e7eb;
+      }
+      .svg-mono-label {
+        fill: #d1d5db;
+      }
+      .svg-label {
+        fill: #9ca3af;
+      }
+      .svg-label-heading {
+        fill: #f3f4f6;
+      }
 
-      .dot-primary    { fill: #60A5FA; }
-      .dot-secondary  { fill: #0EA5E9; }
-      .dot-muted      { fill: #94A3B8; }
+      .svg-dot-primary {
+        fill: #60a5fa;
+      }
+      .svg-dot-secondary {
+        fill: #0ea5e9;
+      }
+      .svg-dot-muted {
+        fill: #94a3b8;
+      }
 
-      .flow-box       { fill: #1F2937; stroke: #374151; }
-      .flow-arrow     { stroke: #60A5FA; }
+      .svg-flow-box {
+        fill: #1f2937;
+        stroke: #374151;
+      }
+      .svg-flow-arrow {
+        stroke: #60a5fa;
+      }
 
-      .stack-item     { fill: #1F2937; stroke: #374151; }
-      .stack-dot      { fill: #60A5FA; }
+      .svg-stack-item {
+        fill: #1f2937;
+        stroke: #374151;
+      }
+      .svg-stack-dot {
+        fill: #60a5fa;
+      }
     }
     </style>
   </defs>
 
   <!-- ======== BACKGROUND ======== -->
-  <rect class="bg-light" x="0" y="0" width="1200" height="630"
-    fill="url(#bg-light-grad)" />
-  <rect class="bg-dark" x="0" y="0" width="1200" height="630"
-    fill="#111827" />
-  <rect class="glow-light" x="0" y="0" width="1200" height="630"
-    fill="url(#glow-light-grad)" />
-  <rect class="glow-dark" x="0" y="0" width="1200" height="630"
-    fill="url(#glow-dark-grad)" />
+  <rect
+    class="svg-bg-light"
+    x="0"
+    y="0"
+    width="1200"
+    height="630"
+    fill="url(#bg-light-grad)"
+  />
+  <rect
+    class="svg-bg-dark"
+    x="0"
+    y="0"
+    width="1200"
+    height="630"
+    fill="#111827"
+  />
+  <rect
+    class="svg-glow-light"
+    x="0"
+    y="0"
+    width="1200"
+    height="630"
+    fill="url(#glow-light-grad)"
+  />
+  <rect
+    class="svg-glow-dark"
+    x="0"
+    y="0"
+    width="1200"
+    height="630"
+    fill="url(#glow-dark-grad)"
+  />
 
   <!-- ======== SUBTLE GRID ======== -->
-  <g class="grid">
-    <path class="grid-line" d="M90 90H1110" />
-    <path class="grid-line" d="M90 150H1110" />
-    <path class="grid-line" d="M90 210H1110" />
-    <path class="grid-line" d="M90 270H1110" />
-    <path class="grid-line" d="M90 330H1110" />
-    <path class="grid-line" d="M90 390H1110" />
-    <path class="grid-line" d="M90 450H1110" />
-    <path class="grid-line" d="M90 510H1110" />
-    <path class="grid-line" d="M90 570H1110" />
-    <path class="grid-line" d="M120 80V580" />
-    <path class="grid-line" d="M200 80V580" />
-    <path class="grid-line" d="M280 80V580" />
-    <path class="grid-line" d="M360 80V580" />
-    <path class="grid-line" d="M440 80V580" />
-    <path class="grid-line" d="M520 80V580" />
-    <path class="grid-line" d="M600 80V580" />
-    <path class="grid-line" d="M680 80V580" />
-    <path class="grid-line" d="M760 80V580" />
-    <path class="grid-line" d="M840 80V580" />
-    <path class="grid-line" d="M920 80V580" />
-    <path class="grid-line" d="M1000 80V580" />
-    <path class="grid-line" d="M1080 80V580" />
+  <g class="svg-grid">
+    <path class="svg-grid-line" d="M90 90H1110" />
+    <path class="svg-grid-line" d="M90 150H1110" />
+    <path class="svg-grid-line" d="M90 210H1110" />
+    <path class="svg-grid-line" d="M90 270H1110" />
+    <path class="svg-grid-line" d="M90 330H1110" />
+    <path class="svg-grid-line" d="M90 390H1110" />
+    <path class="svg-grid-line" d="M90 450H1110" />
+    <path class="svg-grid-line" d="M90 510H1110" />
+    <path class="svg-grid-line" d="M90 570H1110" />
+    <path class="svg-grid-line" d="M120 80V580" />
+    <path class="svg-grid-line" d="M200 80V580" />
+    <path class="svg-grid-line" d="M280 80V580" />
+    <path class="svg-grid-line" d="M360 80V580" />
+    <path class="svg-grid-line" d="M440 80V580" />
+    <path class="svg-grid-line" d="M520 80V580" />
+    <path class="svg-grid-line" d="M600 80V580" />
+    <path class="svg-grid-line" d="M680 80V580" />
+    <path class="svg-grid-line" d="M760 80V580" />
+    <path class="svg-grid-line" d="M840 80V580" />
+    <path class="svg-grid-line" d="M920 80V580" />
+    <path class="svg-grid-line" d="M1000 80V580" />
+    <path class="svg-grid-line" d="M1080 80V580" />
   </g>
 
   <!-- ======== TITLE AREA (left side) ======== -->
   <!-- CUSTOMIZE: Replace text content below -->
-  <text x="90" y="140" class="subtitle">Effection Blog</text>
-  <text x="90" y="205" class="title">TITLE LINE 1</text>
-  <text x="90" y="255" class="title">TITLE LINE 2</text>
-  <text x="90" y="305" class="caption">Subtitle caption goes here.</text>
+  <text x="90" y="140" class="svg-subtitle">Effection Blog</text>
+  <text x="90" y="205" class="svg-title">TITLE LINE 1</text>
+  <text x="90" y="255" class="svg-title">TITLE LINE 2</text>
+  <text x="90" y="305" class="svg-caption">Subtitle caption goes here.</text>
 
   <!-- ======== DIAGRAM AREA (right side) ======== -->
   <!-- The card container — always present -->
-  <g class="shadow-light" filter="url(#softShadow-light)">
-    <rect class="card" x="650" y="150" width="460" height="390" rx="24" />
+  <g class="svg-shadow-light" filter="url(#softShadow-light)">
+    <rect class="svg-card" x="650" y="150" width="460" height="390" rx="24" />
   </g>
-  <g class="shadow-dark" filter="url(#softShadow-dark)">
-    <rect class="card" x="650" y="150" width="460" height="390" rx="24" />
+  <g class="svg-shadow-dark" filter="url(#softShadow-dark)">
+    <rect class="svg-card" x="650" y="150" width="460" height="390" rx="24" />
   </g>
 
   <!-- ======================================================= -->
@@ -327,35 +583,35 @@
   <!-- Uncomment this block for parent/child scope diagrams    -->
   <!-- ======================================================= -->
   <!--
-  <g class="shadow-light" filter="url(#tinyShadow-light)">
-    <rect class="scope-parent" x="690" y="200" width="380" height="300" rx="18" />
-    <rect class="scope-label" x="706" y="218" width="120" height="28" rx="10" />
-    <text x="722" y="238" class="mono">parent scope</text>
+  <g class="svg-shadow-light" filter="url(#tinyShadow-light)">
+    <rect class="svg-scope-parent" x="690" y="200" width="380" height="300" rx="18" />
+    <rect class="svg-scope-label" x="706" y="218" width="120" height="28" rx="10" />
+    <text x="722" y="238" class="svg-mono">parent scope</text>
   </g>
-  <g class="shadow-dark" filter="url(#tinyShadow-dark)">
-    <rect class="scope-parent" x="690" y="200" width="380" height="300" rx="18" />
-    <rect class="scope-label" x="706" y="218" width="120" height="28" rx="10" />
-    <text x="722" y="238" class="mono">parent scope</text>
+  <g class="svg-shadow-dark" filter="url(#tinyShadow-dark)">
+    <rect class="svg-scope-parent" x="690" y="200" width="380" height="300" rx="18" />
+    <rect class="svg-scope-label" x="706" y="218" width="120" height="28" rx="10" />
+    <text x="722" y="238" class="svg-mono">parent scope</text>
   </g>
-  <g class="shadow-light" filter="url(#tinyShadow-light)">
-    <rect class="scope-child" x="735" y="270" width="310" height="205" rx="16" />
-    <rect class="scope-child-label" x="751" y="288" width="110" height="26" rx="10" />
-    <text x="767" y="307" class="mono">child scope</text>
+  <g class="svg-shadow-light" filter="url(#tinyShadow-light)">
+    <rect class="svg-scope-child" x="735" y="270" width="310" height="205" rx="16" />
+    <rect class="svg-scope-child-label" x="751" y="288" width="110" height="26" rx="10" />
+    <text x="767" y="307" class="svg-mono">child scope</text>
   </g>
-  <g class="shadow-dark" filter="url(#tinyShadow-dark)">
-    <rect class="scope-child" x="735" y="270" width="310" height="205" rx="16" />
-    <rect class="scope-child-label" x="751" y="288" width="110" height="26" rx="10" />
-    <text x="767" y="307" class="mono">child scope</text>
+  <g class="svg-shadow-dark" filter="url(#tinyShadow-dark)">
+    <rect class="svg-scope-child" x="735" y="270" width="310" height="205" rx="16" />
+    <rect class="svg-scope-child-label" x="751" y="288" width="110" height="26" rx="10" />
+    <text x="767" y="307" class="svg-mono">child scope</text>
   </g>
   <g>
-    <rect class="pill-shadow" x="760" y="338" width="280" height="44" rx="14" />
-    <rect class="pill" x="760" y="336" width="280" height="44" rx="14" />
-    <circle class="dot-primary" cx="782" cy="358" r="6" />
-    <text x="798" y="363" class="mono">item label 1</text>
-    <rect class="pill-shadow" x="760" y="398" width="280" height="44" rx="14" />
-    <rect class="pill" x="760" y="396" width="280" height="44" rx="14" />
-    <circle class="dot-secondary" cx="782" cy="418" r="6" />
-    <text x="798" y="423" class="mono">item label 2</text>
+    <rect class="svg-pill-shadow" x="760" y="338" width="280" height="44" rx="14" />
+    <rect class="svg-pill" x="760" y="336" width="280" height="44" rx="14" />
+    <circle class="svg-dot-primary" cx="782" cy="358" r="6" />
+    <text x="798" y="363" class="svg-mono">item label 1</text>
+    <rect class="svg-pill-shadow" x="760" y="398" width="280" height="44" rx="14" />
+    <rect class="svg-pill" x="760" y="396" width="280" height="44" rx="14" />
+    <circle class="svg-dot-secondary" cx="782" cy="418" r="6" />
+    <text x="798" y="423" class="svg-mono">item label 2</text>
   </g>
   -->
 
@@ -365,16 +621,16 @@
   <!-- ======================================================= -->
   <!--
   <g>
-    <rect class="flow-box" x="680" y="280" width="120" height="80" rx="12" />
-    <text x="710" y="326" class="mono">Step 1</text>
-    <line class="flow-arrow" x1="800" y1="320" x2="840" y2="320"
+    <rect class="svg-flow-box" x="680" y="280" width="120" height="80" rx="12" />
+    <text x="710" y="326" class="svg-mono">Step 1</text>
+    <line class="svg-flow-arrow" x1="800" y1="320" x2="840" y2="320"
       marker-end="url(#arrowhead)" />
-    <rect class="flow-box" x="840" y="280" width="120" height="80" rx="12" />
-    <text x="870" y="326" class="mono">Step 2</text>
-    <line class="flow-arrow" x1="960" y1="320" x2="1000" y2="320"
+    <rect class="svg-flow-box" x="840" y="280" width="120" height="80" rx="12" />
+    <text x="870" y="326" class="svg-mono">Step 2</text>
+    <line class="svg-flow-arrow" x1="960" y1="320" x2="1000" y2="320"
       marker-end="url(#arrowhead)" />
-    <rect class="flow-box" x="1000" y="280" width="120" height="80" rx="12" />
-    <text x="1030" y="326" class="mono">Step 3</text>
+    <rect class="svg-flow-box" x="1000" y="280" width="120" height="80" rx="12" />
+    <text x="1030" y="326" class="svg-mono">Step 3</text>
   </g>
   -->
 
@@ -384,21 +640,21 @@
   <!-- ======================================================= -->
   <!--
   <g>
-    <rect class="stack-item" x="690" y="200" width="380" height="50" rx="12" />
-    <circle class="stack-dot" cx="714" cy="225" r="6" />
-    <text x="730" y="230" class="mono">Feature or item 1</text>
+    <rect class="svg-stack-item" x="690" y="200" width="380" height="50" rx="12" />
+    <circle class="svg-stack-dot" cx="714" cy="225" r="6" />
+    <text x="730" y="230" class="svg-mono">Feature or item 1</text>
 
-    <rect class="stack-item" x="690" y="268" width="380" height="50" rx="12" />
-    <circle class="stack-dot" cx="714" cy="293" r="6" />
-    <text x="730" y="298" class="mono">Feature or item 2</text>
+    <rect class="svg-stack-item" x="690" y="268" width="380" height="50" rx="12" />
+    <circle class="svg-stack-dot" cx="714" cy="293" r="6" />
+    <text x="730" y="298" class="svg-mono">Feature or item 2</text>
 
-    <rect class="stack-item" x="690" y="336" width="380" height="50" rx="12" />
-    <circle class="stack-dot" cx="714" cy="361" r="6" />
-    <text x="730" y="366" class="mono">Feature or item 3</text>
+    <rect class="svg-stack-item" x="690" y="336" width="380" height="50" rx="12" />
+    <circle class="svg-stack-dot" cx="714" cy="361" r="6" />
+    <text x="730" y="366" class="svg-mono">Feature or item 3</text>
 
-    <rect class="stack-item" x="690" y="404" width="380" height="50" rx="12" />
-    <circle class="stack-dot" cx="714" cy="429" r="6" />
-    <text x="730" y="434" class="mono">Feature or item 4</text>
+    <rect class="svg-stack-item" x="690" y="404" width="380" height="50" rx="12" />
+    <circle class="svg-stack-dot" cx="714" cy="429" r="6" />
+    <text x="730" y="434" class="svg-mono">Feature or item 4</text>
   </g>
   -->
 
@@ -408,27 +664,27 @@
   <!-- Uncomment this block for comparison diagrams             -->
   <!-- ======================================================= -->
   <!--
-  <line class="divider" x1="800" y1="148" x2="800" y2="522" />
-  <text x="620" y="168" class="label label-heading" text-anchor="middle">Before</text>
-  <text x="980" y="168" class="label label-heading" text-anchor="middle">After</text>
-  <rect class="dashed-boundary" x="520" y="186" width="240" height="210" rx="14" />
-  <rect class="dashed-label" x="534" y="198" width="100" height="24" rx="8" />
-  <text x="546" y="215" class="mono-sm">label here</text>
-  <path class="leak-line" d="M620 260 C660 258 710 242 770 235" stroke-linecap="round" />
-  <circle class="leak-dot" cx="770" cy="235" r="5" />
-  <text x="534" y="432" class="mono-sm leak-text">leaked item</text>
-  <text x="534" y="510" class="mono-sm uncertain-text">finally {} ?</text>
-  <rect class="scope-parent" x="840" y="186" width="250" height="240" rx="14" />
-  <text x="870" y="500" class="mono-sm check-text">✓ cleaned up</text>
+  <line class="svg-divider" x1="800" y1="148" x2="800" y2="522" />
+  <text x="620" y="168" class="svg-label svg-label-heading" text-anchor="middle">Before</text>
+  <text x="980" y="168" class="svg-label svg-label-heading" text-anchor="middle">After</text>
+  <rect class="svg-dashed-boundary" x="520" y="186" width="240" height="210" rx="14" />
+  <rect class="svg-dashed-label" x="534" y="198" width="100" height="24" rx="8" />
+  <text x="546" y="215" class="svg-mono-sm">label here</text>
+  <path class="svg-leak-line" d="M620 260 C660 258 710 242 770 235" stroke-linecap="round" />
+  <circle class="svg-leak-dot" cx="770" cy="235" r="5" />
+  <text x="534" y="432" class="svg-mono-sm svg-leak-text">leaked item</text>
+  <text x="534" y="510" class="svg-mono-sm svg-uncertain-text">finally {} ?</text>
+  <rect class="svg-scope-parent" x="840" y="186" width="250" height="240" rx="14" />
+  <text x="870" y="500" class="svg-mono-sm svg-check-text">✓ cleaned up</text>
   -->
 
   <!-- ======== LEGEND (bottom) ======== -->
   <!-- CUSTOMIZE: Replace legend items -->
   <g opacity="0.92">
-    <rect class="legend" x="90" y="505" width="640" height="92" rx="18" />
-    <circle class="dot-primary" cx="120" cy="540" r="8" />
-    <text x="140" y="545" class="mono">Legend item 1 description</text>
-    <circle class="dot-muted" cx="120" cy="572" r="8" />
-    <text x="140" y="577" class="mono">Legend item 2 description</text>
+    <rect class="svg-legend" x="90" y="505" width="640" height="92" rx="18" />
+    <circle class="svg-dot-primary" cx="120" cy="540" r="8" />
+    <text x="140" y="545" class="svg-mono">Legend item 1 description</text>
+    <circle class="svg-dot-muted" cx="120" cy="572" r="8" />
+    <text x="140" y="577" class="svg-mono">Legend item 2 description</text>
   </g>
 </svg>

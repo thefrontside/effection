@@ -79,7 +79,7 @@ export function blogIndexRoute({
                         <img
                           src={`/blog/${latest.id}/${latest.image}`}
                           alt={latest.title}
-                          class="w-full h-64 md:h-full overflow-hidden"
+                          class="w-full h-64 md:h-full overflow-hidden dark:border dark:border-gray-700"
                           data-inline-svg
                         />
                       </div>
@@ -131,7 +131,7 @@ export function blogIndexRoute({
                             <img
                               src={`/blog/${post.id}/${post.image}`}
                               alt={post.title}
-                              class="w-full h-48 overflow-hidden"
+                              class="w-full h-48 overflow-hidden dark:border dark:border-gray-700"
                               data-inline-svg
                             />
                           )

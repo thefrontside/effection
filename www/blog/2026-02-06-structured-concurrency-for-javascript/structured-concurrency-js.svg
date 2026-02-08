@@ -273,6 +273,7 @@
     }
     .check-text {
       fill: #16a34a;
+      stroke: #16a34a;
     }
 
     /* Shared text */
@@ -379,6 +380,7 @@
       }
       .check-text {
         fill: #4ade80;
+        stroke: #4ade80;
       }
 
       .title {
@@ -632,7 +634,8 @@
   />
 
   <!-- Checkmark -->
-  <text x="880" y="498" class="mono-sm check-text">✓ halted + cleaned up</text>
+  <text x="880" y="498" class="mono-sm check-text" stroke="none"
+  >✓ halted + cleaned up</text>
 
   <!-- ======== BOTTOM TAGLINE ======== -->
   <text x="90" y="560" class="mono caption"

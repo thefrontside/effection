@@ -46,23 +46,23 @@ to completion unless it throws, and `finally {}` runs when control leaves the
 
 Async changes that. The moment you `await`, the work you started no longer has
 to finish inside the scope that started it — your caller can move on while your
-effects keep running. And there's no built-in parent-to-child control: you can't
-halt it and force cleanup to run.
+effects keep running. And there's nothing built in that makes that work stop and
+unwind just because the caller is done.
 
 Here's the shape of the problem in plain `async` code:
 
 ```js
 async function run() {
-  const server = startServer(); // binds a port
+  const server = startServer(); // spawns a child process that binds a port
 
   try {
     await fetch("https://example.com/slow");
   } finally {
-    server.close(); // only runs if run() unwinds
+    server.kill(); // only runs if run() unwinds
   }
 }
 
-// hard exit: no unwind, no cleanup
+// hard exit: parent dies, child keeps running
 process.on("SIGINT", () => process.exit(0));
 
 run();

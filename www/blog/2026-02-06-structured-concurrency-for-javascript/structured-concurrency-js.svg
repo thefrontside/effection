@@ -622,19 +622,19 @@
   <text x="916" y="361" class="mono-sm">server.listen()</text>
 
   <!-- Scope ends indicator -->
-  <text x="918" y="428" class="mono-sm label">scope ends</text>
+  <text x="918" y="440" class="mono-sm label">scope ends</text>
 
   <!-- Down arrow (solid, not dashed) -->
   <line
     x1="960"
-    y1="432"
+    y1="448"
     x2="960"
-    y2="468"
+    y2="480"
     stroke-width="2"
     class="arrow-line"
   />
   <path
-    d="M954 462 L960 472 L966 462"
+    d="M954 474 L960 484 L966 474"
     stroke-width="2"
     class="arrow-line"
   />

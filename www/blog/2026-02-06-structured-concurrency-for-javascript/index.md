@@ -38,10 +38,10 @@ JavaScript had generator functions (`function*`) before `async/await` — and
 generators are flexible enough to support structured concurrency because the
 caller controls when they resume and when they stop.
 
-But when `async/await` was standardized, the runtime gave the parent no way to
-control the child — no halt, no forced cleanup — without modifying every
-function signature in the chain. Effection builds on generators to fill what
-`async/await` left out.
+But when `async/await` was standardized, it didn't come with parent-to-child
+control — no built-in halt, no guaranteed cleanup — unless every function in the
+chain opts in (e.g. via `AbortSignal`). Effection builds on generators to
+provide what `async/await` left out.
 
 ## Where Async Breaks JavaScript
 

@@ -1,5 +1,5 @@
 ---
-title: "Why Structured Concurrency for JavaScript"
+title: "Why JavaScript Needs Structured Concurrency"
 description: "Structured programming tamed the chaos of early computing. Structured concurrency does the same for async — and Effection brings it to JavaScript."
 author: "Taras Mankovski"
 tags: ["structured concurrency", "javascript", "effection"]

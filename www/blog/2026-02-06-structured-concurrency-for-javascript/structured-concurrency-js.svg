@@ -6,7 +6,7 @@
   fill="none"
   xmlns="http://www.w3.org/2000/svg"
   role="img"
-  aria-label="Structured Concurrency for JavaScript — Promises leak work out of bounds, Effection keeps everything inside the scope"
+  aria-label="Why JavaScript Needs Structured Concurrency — Promises leak work out of bounds, Effection keeps everything inside the scope"
 >
   <defs>
     <!-- Light-mode background gradient -->
@@ -477,9 +477,9 @@
 
   <!-- ======== TITLE (left side) ======== -->
   <text x="90" y="140" class="svg-subtitle">Effection Blog</text>
-  <text x="90" y="205" class="svg-title">Structured</text>
-  <text x="90" y="255" class="svg-title">Concurrency</text>
-  <text x="90" y="305" class="svg-title">for JavaScript</text>
+  <text x="90" y="205" class="svg-title">Why JavaScript</text>
+  <text x="90" y="255" class="svg-title">Needs Structured</text>
+  <text x="90" y="305" class="svg-title">Concurrency</text>
   <text x="90" y="355" class="svg-caption">Scope owns lifetime.</text>
   <text x="90" y="378" class="svg-caption">Cleanup is guaranteed.</text>
 

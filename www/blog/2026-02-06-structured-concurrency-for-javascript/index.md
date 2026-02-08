@@ -165,12 +165,12 @@ specifically, see [spawn](/docs/spawn).
 
 ## Structured Concurrency for JavaScript
 
-Structured concurrency isn't new so much as overdue: it's the missing guarantee
-that makes async behave like you already expect. Effection stays small because
-it doesn't ask you to change how you write programs; it fills in what the
-runtime doesn't guarantee by default so shutdown becomes normal control flow
+Structured concurrency isn't so much new as it is overdue: it's the missing
+guarantee that makes async behave like you already expect. Effection stays small
+because it doesn't ask you to change how you write programs; it fills in what
+the runtime doesn't guarantee by default so shutdown becomes normal control flow
 instead of a special case. When the program ends—Ctrl-C, SIGTERM, navigation,
 cancellation—your concurrent work halts cleanly instead of leaking past the
 scope that started it.
 
-Effection is small on purpose. Async should just feel normal.
+Effection is small on purpose because Async should just feel normal.

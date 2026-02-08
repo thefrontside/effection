@@ -11,9 +11,8 @@ in the early 70s (before most of us programming today were even born). We take
 our structured constructs for granted, but before them it was the Wild West:
 crashes, leaks, infinite loops, and just difficulty reasoning about programs.
 Structured Programming was created to rein in the chaos, and we benefit from it
-every day of our lives even though most of us don't perceive it because it's the
-air we breathe and the water we drink... it's like having a clean water supply
-and pure air to breathe.
+every day of our lives even though most of us don't perceive it because it's
+like having a clean water supply and pure air to breathe.
 
 Structured concurrency is the re-application of this very sound knowledge to
 concurrency — binding the lifecycle of asynchronous operations to the structure

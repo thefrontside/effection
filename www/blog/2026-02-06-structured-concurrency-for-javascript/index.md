@@ -33,7 +33,9 @@ on the left, work escapes the function boundary and leaks. On the right,
 everything lives inside the scope that started it — and when that scope ends,
 everything stops.
 
-With Effection, that looks like this:
+Effection uses generator functions (`function*`) and `yield*`—features that
+predate `async/await`—so async work stays scoped to the code that started it. It
+looks like this:
 
 ```js
 import { main, sleep, spawn } from "effection";
@@ -160,5 +162,15 @@ inside a generator function. If you're coming from `async/await`, the mapping is
 in the [Async Rosetta Stone](/docs/async-rosetta-stone). For the mental model,
 see [Thinking in Effection](/docs/thinking-in-effection). For spawning
 specifically, see [spawn](/docs/spawn).
+
+## Structured Concurrency for JavaScript
+
+Structured concurrency isn't new so much as overdue: it's the missing guarantee
+that makes async behave like you already expect. Effection stays small because
+it doesn't ask you to change how you write programs; it fills in what the
+runtime doesn't guarantee by default so shutdown becomes normal control flow
+instead of a special case. When the program ends—Ctrl-C, SIGTERM, navigation,
+cancellation—your concurrent work halts cleanly instead of leaking past the
+scope that started it.
 
 Effection is small on purpose. Async should just feel normal.

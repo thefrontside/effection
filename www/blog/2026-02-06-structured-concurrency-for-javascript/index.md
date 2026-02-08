@@ -26,27 +26,43 @@ clean up when that block is done. The picture at the top shows exactly that:
 child work lives _inside_ the scope that started it, and when the parent scope
 ends, everything inside stops.
 
-This isn't a fringe idea. Kotlin coroutines lean hard into it. Swift has task
-groups. Python added `TaskGroup` in 3.11.
+```js
+function* myTask() {
+  yield* spawn(function* () {
+    try {
+      yield* suspend();
+    } finally {
+      console.log("cleaned up");
+    }
+  });
+  // when myTask ends, the spawned work is halted
+  // and its finally{} runs
+}
+```
+
+It's quickly becoming a standard for event-heavy programming languages. Kotlin
+coroutines lean hard into it. Swift has task groups. Python added `TaskGroup` in
+3.11.
 [Java 21](https://docs.oracle.com/en/java/javase/21/core/structured-concurrency.html)
 ships a structured concurrency API. Even Go, which doesn't have it built-in, has
-libraries like [`errgroup`](https://pkg.go.dev/golang.org/x/sync/errgroup) that
-get you most of the way there. Structured concurrency is where concurrency is
+libraries like [`conc`](https://github.com/sourcegraph/conc) that bring scoped
+concurrency to goroutines. Structured concurrency is where concurrency is
 headed.
 
 JavaScript doesn't give you this today.
 
 ## Where JavaScript Async Breaks
 
-In synchronous JavaScript, we have reliable expectations: a function runs to
-completion unless it throws, `finally {}` runs when control leaves a `try`
-block, and when a scope ends, the things owned by that scope are done.
+Without Promises in the picture, JavaScript gives you reliable expectations: a
+function runs to completion unless it throws, `finally {}` runs when control
+leaves a `try` block, and when a scope ends, the things owned by that scope are
+done.
 
-In JavaScript's built-in async model, those expectations are unreliable. You
-`await` something inside a function, but the work you kicked off keeps running
-even after the caller has moved on. Promises are eager, unstructured, and not
-cancellable. You can signal cancellation to some APIs with `AbortSignal`, but
-you can't force a promise to unwind and run cleanup.
+But as soon as you introduce a single Promise, it corrupts the entire
+programming model. You `await` something inside a function, but the work you
+kicked off keeps running even after the caller has moved on. Promises are eager,
+unstructured, and not cancellable. You can signal cancellation to some APIs with
+`AbortSignal`, but you can't force a promise to unwind and run cleanup.
 
 In practice this means: code in `finally {}` blocks does not necessarily run.
 Cancellation is a convention rather than a guarantee. You end up threading
@@ -54,7 +70,9 @@ Cancellation is a convention rather than a guarantee. You end up threading
 interruption. Leaked timers, ports, and listeners become common failure modes.
 
 For the deeper explanation, see
-[The Await Event Horizon](https://frontside.com/blog/2023-12-11-await-event-horizon).
+[The Await Event Horizon](https://frontside.com/blog/2023-12-11-await-event-horizon)
+and
+[The Heartbreaking Inadequacy of Abort Controller](https://frontside.com/blog/2025-08-04-the-heartbreaking-inadequacy-of-abort-controller/).
 
 ## What Effection Changes
 

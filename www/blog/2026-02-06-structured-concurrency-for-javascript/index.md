@@ -70,6 +70,13 @@ Cancellation is a convention rather than a guarantee. You end up threading
 interruption. Leaked timers, ports, and listeners become common failure modes.
 It's the Wild West of the 70s all over again — just async this time.
 
+This broken model has been with us for so long that most developers have learned
+to live with it — accepting that closing a CLI leaves orphaned processes, that
+async work keeps running in the browser long after it's needed, chipping away at
+performance. Deep down we know something isn't right, but fixing it feels like
+it requires a whole different paradigm — Observables, maybe — so we reach for
+workarounds and move on.
+
 For the deeper explanation, see
 [The Await Event Horizon](https://frontside.com/blog/2023-12-11-await-event-horizon)
 and

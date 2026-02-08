@@ -13,7 +13,7 @@ keeps running anyway — burning battery, holding sockets, and calling callbacks
 into code that has already moved on.
 
 This is the part of JavaScript async we all learn to tolerate: work that
-outlives the scope that started it.
+outlives the scope (the lifetime boundary) that started it.
 
 Structured programming was created to rein in a similar kind of chaos in the
 70s. We take our structured constructs for granted now, but before them it was
@@ -34,6 +34,10 @@ on the left, work escapes the function boundary and leaks. On the right,
 everything lives inside the scope that started it — and when that scope ends,
 everything stops.
 
+Now here's where the shape of the program stops matching how it runs. Effection
+is one way to bring that guarantee back to JavaScript — but first, it helps to
+name the failure mode clearly.
+
 ## Where Async Breaks JavaScript
 
 In synchronous JavaScript, lifetimes are boring in a good way: a function runs
@@ -42,8 +46,8 @@ to completion unless it throws, and `finally {}` runs when control leaves the
 
 Async changes that. The moment you `await`, the work you started no longer has
 to finish inside the scope that started it — your caller can move on while your
-effects keep running. Promises are eager, unstructured, and not cancellable, and
-you can't force a promise to unwind and run cleanup.
+effects keep running. And there's no built-in parent-to-child control: you can't
+halt it and force cleanup to run.
 
 Here's the shape of the problem in plain `async` code:
 
@@ -58,10 +62,10 @@ async function run() {
   }
 }
 
-run();
-
 // hard exit: no unwind, no cleanup
 process.on("SIGINT", () => process.exit(0));
+
+run();
 ```
 
 When `async/await` was standardized, it didn't come with parent-to-child control
@@ -99,14 +103,11 @@ to two guarantees:
 That's the difference between "the port is still bound" and "cleanup actually
 runs."
 
-It's quickly becoming a standard for event-heavy programming languages. Kotlin
-coroutines lean hard into it. Swift has task groups. Python added `TaskGroup` in
-3.11.
+It's quickly becoming the default shape of concurrency: Kotlin, Swift, Python
+3.11, and
 [Java 21](https://docs.oracle.com/en/java/javase/21/core/structured-concurrency.html)
-ships a structured concurrency API. Even Go, which doesn't have it built-in, has
-libraries like [`conc`](https://github.com/sourcegraph/conc) that bring scoped
-concurrency to goroutines. Structured concurrency is where concurrency is
-headed.
+all ship it, and Go has libraries like
+[`conc`](https://github.com/sourcegraph/conc) that approximate it.
 
 Here's what that looks like:
 

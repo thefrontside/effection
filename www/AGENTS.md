@@ -6,6 +6,13 @@ This file defines how to write blog posts for the Effection website
 The Effection blog is distinct from the Frontside company blog. Posts here are
 shorter, more focused, and always grounded in what Effection actually does.
 
+All Effection blog posts inherit the **shared Frontside voice** defined in
+[`frontside.com/AGENTS.md`](https://github.com/thefrontside/frontside.com/blob/main/AGENTS.md).
+That guide covers sentence rhythm, verbal tics, humor/metaphor patterns, and
+four voice profiles (Opinion, Tutorial, Consultative, Narrative). This file adds
+Effection-specific constraints: technical accuracy rules, shorter post length
+(500-800 words), and Taras as the default author voice.
+
 ## File Conventions
 
 - **Directory pattern:** `www/blog/YYYY-MM-DD-slug/index.md`

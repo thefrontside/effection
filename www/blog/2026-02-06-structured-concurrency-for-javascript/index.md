@@ -49,7 +49,9 @@ libraries like [`conc`](https://github.com/sourcegraph/conc) that bring scoped
 concurrency to goroutines. Structured concurrency is where concurrency is
 headed.
 
-JavaScript doesn't give you this today.
+JavaScript was an early adopter of the async/await pattern and missed the boat
+on bringing structured concurrency directly into the runtime. Effection fills
+the gap.
 
 ## Where JavaScript Async Breaks
 

@@ -34,44 +34,21 @@ on the left, work escapes the function boundary and leaks. On the right,
 everything lives inside the scope that started it — and when that scope ends,
 everything stops.
 
-Effection uses generator functions (`function*`) and `yield*`—features that
-predate `async/await`—so async work stays scoped to the code that started it. It
-looks like this:
+JavaScript had generator functions (`function*`) before `async/await` — and
+generators are flexible enough to support structured concurrency because the
+caller controls when they resume and when they stop. But when `async/await` was
+standardized, the runtime gave the parent no way to control the child — no halt,
+no forced cleanup — without modifying every function signature in the chain.
+Effection builds on generators to fill what `async/await` left out.
 
-```js
-import { main, sleep, spawn } from "effection";
-
-await main(function* () {
-  yield* spawn(function* () {
-    try {
-      yield* sleep(30_000);
-    } finally {
-      console.log("timer cleaned up");
-    }
-  });
-
-  // when this scope ends, the spawned task is halted
-  // and its finally{} runs
-});
-```
-
-JavaScript was an early adopter of the async/await pattern and missed the boat
-on bringing structured concurrency directly into the runtime. Effection fills
-that gap — and it shows up in the places you feel it most: when the program
-stops, your cleanup actually runs.
-
-## Where JavaScript Async Breaks
+## Where Async Breaks JavaScript
 
 In synchronous JavaScript, lifetimes are boring in a good way: a function runs
 to completion unless it throws, and `finally {}` runs when control leaves the
 `try` block. When the function returns, the work is over.
 
-Async changes that. An `async` function can return control to its caller while
-work it started keeps running somewhere else.
-
-But as soon as you introduce a single Promise, it corrupts the entire
-programming model. The moment you `await`, the work you started no longer has to
-finish inside the scope that started it—your caller can move on while your
+Async changes that. The moment you `await`, the work you started no longer has
+to finish inside the scope that started it—your caller can move on while your
 effects keep running. Promises are eager, unstructured, and not cancellable. You
 can signal cancellation to some APIs with `AbortSignal`, but you can't force a
 promise to unwind and run cleanup.
@@ -96,12 +73,12 @@ process.on("SIGINT", () => process.exit(0));
 ```
 
 In practice, `finally {}` stops being a reliable place to put cleanup for the
-async work you kicked off — because that work can outlive the scope that started
-it, and you can't force it to unwind. Cancellation becomes a convention rather
-than a guarantee. You end up threading `AbortSignal` through layers of code just
-to get something resembling interruption. Leaked timers, ports, and listeners
-become common failure modes. It's the Wild West of the 70s all over again — just
-async this time.
+async work you kicked off — because that work isn't bound to the scope that
+created it, and you can't force it to unwind. Cancellation becomes a convention
+rather than a guarantee. You end up threading `AbortSignal` through layers of
+code just to get something resembling interruption. Leaked timers, ports, and
+listeners become common failure modes. It's the Wild West of the 70s all over
+again — just async this time.
 
 This broken model has been with us for so long that most developers have learned
 to live with it — accepting that closing a CLI leaves orphaned processes, that

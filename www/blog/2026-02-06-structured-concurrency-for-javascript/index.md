@@ -68,6 +68,7 @@ In practice this means: code in `finally {}` blocks does not necessarily run.
 Cancellation is a convention rather than a guarantee. You end up threading
 `AbortSignal` through layers of code just to get something resembling
 interruption. Leaked timers, ports, and listeners become common failure modes.
+It's the Wild West of the 70s all over again — just async this time.
 
 For the deeper explanation, see
 [The Await Event Horizon](https://frontside.com/blog/2023-12-11-await-event-horizon)

@@ -31,12 +31,12 @@ everything stops.
 function* myTask() {
   yield* spawn(function* () {
     try {
-      yield* suspend();
+      yield* sleep(30_000);
     } finally {
-      console.log("cleaned up");
+      console.log("timer cleaned up");
     }
   });
-  // when myTask ends, the spawned work is halted
+  // when myTask ends, the spawned task is halted
   // and its finally{} runs
 }
 ```
@@ -97,14 +97,14 @@ to two guarantees:
 Here's what that looks like:
 
 ```js
-import { main, sleep, spawn, suspend } from "effection";
+import { main, sleep, spawn } from "effection";
 
 await main(function* () {
   yield* spawn(function* () {
     try {
-      yield* suspend(); // wait until told to stop
+      yield* sleep(30_000); // long-running timer
     } finally {
-      console.log("background task cleaned up");
+      console.log("timer cleaned up");
     }
   });
 

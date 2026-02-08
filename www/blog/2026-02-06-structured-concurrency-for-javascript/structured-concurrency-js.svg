@@ -12,7 +12,10 @@
     <!-- Light-mode background gradient -->
     <linearGradient
       id="bg-light-grad"
-      x1="0" y1="0" x2="1200" y2="630"
+      x1="0"
+      y1="0"
+      x2="1200"
+      y2="630"
       gradientUnits="userSpaceOnUse"
     >
       <stop offset="0" stop-color="#F8FAFF" />
@@ -23,7 +26,9 @@
     <!-- Light-mode decorative glow -->
     <radialGradient
       id="glow-light-grad"
-      cx="0" cy="0" r="1"
+      cx="0"
+      cy="0"
+      r="1"
       gradientUnits="userSpaceOnUse"
       gradientTransform="translate(900 120) rotate(120) scale(560 420)"
     >
@@ -35,7 +40,9 @@
     <!-- Dark-mode decorative glow -->
     <radialGradient
       id="glow-dark-grad"
-      cx="0" cy="0" r="1"
+      cx="0"
+      cy="0"
+      r="1"
       gradientUnits="userSpaceOnUse"
       gradientTransform="translate(900 120) rotate(120) scale(560 420)"
     >
@@ -53,83 +60,121 @@
     <!-- Light-mode shadow (card) -->
     <filter
       id="softShadow-light"
-      x="-40" y="-40" width="1280" height="710"
+      x="-40"
+      y="-40"
+      width="1280"
+      height="710"
       filterUnits="userSpaceOnUse"
       color-interpolation-filters="sRGB"
     >
-      <feDropShadow dx="0" dy="10" stdDeviation="18"
-        flood-color="#0B2A5B" flood-opacity="0.12" />
+      <feDropShadow
+        dx="0"
+        dy="10"
+        stdDeviation="18"
+        flood-color="#0B2A5B"
+        flood-opacity="0.12"
+      />
     </filter>
 
     <!-- Dark-mode shadow (card) -->
     <filter
       id="softShadow-dark"
-      x="-40" y="-40" width="1280" height="710"
+      x="-40"
+      y="-40"
+      width="1280"
+      height="710"
       filterUnits="userSpaceOnUse"
       color-interpolation-filters="sRGB"
     >
-      <feDropShadow dx="0" dy="10" stdDeviation="18"
-        flood-color="#000000" flood-opacity="0.25" />
+      <feDropShadow
+        dx="0"
+        dy="10"
+        stdDeviation="18"
+        flood-color="#000000"
+        flood-opacity="0.25"
+      />
     </filter>
 
     <!-- Light-mode shadow (inner) -->
     <filter
       id="tinyShadow-light"
-      x="-40" y="-40" width="1280" height="710"
+      x="-40"
+      y="-40"
+      width="1280"
+      height="710"
       filterUnits="userSpaceOnUse"
       color-interpolation-filters="sRGB"
     >
-      <feDropShadow dx="0" dy="5" stdDeviation="10"
-        flood-color="#0B2A5B" flood-opacity="0.10" />
+      <feDropShadow
+        dx="0"
+        dy="5"
+        stdDeviation="10"
+        flood-color="#0B2A5B"
+        flood-opacity="0.10"
+      />
     </filter>
 
     <!-- Dark-mode shadow (inner) -->
     <filter
       id="tinyShadow-dark"
-      x="-40" y="-40" width="1280" height="710"
+      x="-40"
+      y="-40"
+      width="1280"
+      height="710"
       filterUnits="userSpaceOnUse"
       color-interpolation-filters="sRGB"
     >
-      <feDropShadow dx="0" dy="5" stdDeviation="10"
-        flood-color="#000000" flood-opacity="0.20" />
+      <feDropShadow
+        dx="0"
+        dy="5"
+        stdDeviation="10"
+        flood-color="#000000"
+        flood-opacity="0.20"
+      />
     </filter>
 
     <style>
     /* ---- Font stacks ---- */
     .title {
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI,
-        Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      font-family:
+        ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
+        Arial, "Apple Color Emoji", "Segoe UI Emoji";
       font-size: 48px;
       font-weight: 800;
       letter-spacing: -0.02em;
     }
     .subtitle {
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI,
-        Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      font-family:
+        ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
+        Arial, "Apple Color Emoji", "Segoe UI Emoji";
       font-size: 18px;
       font-weight: 600;
       letter-spacing: 0.02em;
       text-transform: uppercase;
     }
     .caption {
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI,
-        Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      font-family:
+        ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
+        Arial, "Apple Color Emoji", "Segoe UI Emoji";
       font-size: 18px;
       font-weight: 600;
     }
     .mono {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+      font-family:
+        ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
         "Liberation Mono", "Courier New", monospace;
       font-size: 14px;
     }
     .mono-sm {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+      font-family:
+        ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
         "Liberation Mono", "Courier New", monospace;
       font-size: 12px;
     }
     .label {
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI,
-        Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      font-family:
+        ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
+        Arial, "Apple Color Emoji", "Segoe UI Emoji";
       font-size: 15px;
       font-weight: 700;
       letter-spacing: 0.03em;
@@ -137,98 +182,256 @@
     }
 
     /* ---- Light mode (default) ---- */
-    .bg-light       { display: block; }
-    .bg-dark        { display: none; }
-    .glow-light     { display: block; }
-    .glow-dark      { display: none; }
-    .shadow-light   { display: block; }
-    .shadow-dark    { display: none; }
+    .bg-light {
+      display: block;
+    }
+    .bg-dark {
+      display: none;
+    }
+    .glow-light {
+      display: block;
+    }
+    .glow-dark {
+      display: none;
+    }
+    .shadow-light {
+      display: block;
+    }
+    .shadow-dark {
+      display: none;
+    }
 
-    .grid           { opacity: 0.25; }
-    .grid-line      { stroke: #C9D9F2; stroke-width: 1; }
+    .grid {
+      opacity: 0.25;
+    }
+    .grid-line {
+      stroke: #c9d9f2;
+      stroke-width: 1;
+    }
 
-    .card           { fill: #FFFFFF; }
-    .divider        { stroke: #D6E4FF; stroke-dasharray: 4 4; stroke-width: 1; }
+    .card {
+      fill: #ffffff;
+    }
+    .divider {
+      stroke: #d6e4ff;
+      stroke-dasharray: 4 4;
+      stroke-width: 1;
+    }
 
     /* Left side: Promises (broken) */
-    .dashed-boundary { stroke: #B8CCF5; stroke-width: 2; stroke-dasharray: 8 4;
-                       fill: none; }
-    .dashed-label   { fill: #E6F0FF; }
-    .overflow-box   { fill: #FFFFFF; stroke: #EA580C; stroke-width: 1.5; }
-    .overflow-dot   { fill: #EA580C; }
-    .leak-text      { fill: #EA580C; }
-    .uncertain-text { fill: #EA580C; }
+    .dashed-boundary {
+      stroke: #b8ccf5;
+      stroke-width: 2;
+      stroke-dasharray: 8 4;
+      fill: none;
+    }
+    .dashed-label {
+      fill: #e6f0ff;
+    }
+    .overflow-box {
+      fill: #ffffff;
+      stroke: #ea580c;
+      stroke-width: 1.5;
+    }
+    .overflow-dot {
+      fill: #ea580c;
+    }
+    .leak-text {
+      fill: #ea580c;
+    }
+    .uncertain-text {
+      fill: #ea580c;
+    }
 
     /* Right side: Effection (structured) */
-    .scope-parent   { fill: #F7FBFF; stroke: #97B7FF; stroke-width: 2; }
-    .scope-label    { fill: #E6F0FF; }
-    .scope-child    { fill: #FFFFFF; stroke: #2B6FF7; stroke-width: 2; }
-    .scope-child-label { fill: #E8F4FF; }
-    .contained-box  { fill: #FFFFFF; stroke: #2B6FF7; stroke-width: 1.5; }
-    .dot-primary    { fill: #2B6FF7; }
-    .dot-secondary  { fill: #0EA5E9; }
-    .check-text     { fill: #16A34A; }
+    .scope-parent {
+      fill: #f7fbff;
+      stroke: #97b7ff;
+      stroke-width: 2;
+    }
+    .scope-label {
+      fill: #e6f0ff;
+    }
+    .scope-child {
+      fill: #ffffff;
+      stroke: #2b6ff7;
+      stroke-width: 2;
+    }
+    .scope-child-label {
+      fill: #e8f4ff;
+    }
+    .contained-box {
+      fill: #ffffff;
+      stroke: #2b6ff7;
+      stroke-width: 1.5;
+    }
+    .dot-primary {
+      fill: #2b6ff7;
+    }
+    .dot-secondary {
+      fill: #0ea5e9;
+    }
+    .check-text {
+      fill: #16a34a;
+    }
 
     /* Shared text */
-    .title          { fill: url(#ink); }
-    .subtitle       { fill: #33547B; }
-    .caption        { fill: #23435F; }
-    .mono           { fill: #1e3a8a; }
-    .mono-sm        { fill: #1e3a8a; }
-    .label          { fill: #33547B; }
-    .label-heading  { fill: #0B2A5B; }
+    .title {
+      fill: url(#ink);
+    }
+    .subtitle {
+      fill: #33547b;
+    }
+    .caption {
+      fill: #23435f;
+    }
+    .mono {
+      fill: #1e3a8a;
+    }
+    .mono-sm {
+      fill: #1e3a8a;
+    }
+    .label {
+      fill: #33547b;
+    }
+    .label-heading {
+      fill: #0b2a5b;
+    }
 
     /* ---- Dark mode ---- */
     @media (prefers-color-scheme: dark) {
-      .bg-light       { display: none; }
-      .bg-dark        { display: block; }
-      .glow-light     { display: none; }
-      .glow-dark      { display: block; }
-      .shadow-light   { display: none; }
-      .shadow-dark    { display: block; }
+      .bg-light {
+        display: none;
+      }
+      .bg-dark {
+        display: block;
+      }
+      .glow-light {
+        display: none;
+      }
+      .glow-dark {
+        display: block;
+      }
+      .shadow-light {
+        display: none;
+      }
+      .shadow-dark {
+        display: block;
+      }
 
-      .grid           { opacity: 0.20; }
-      .grid-line      { stroke: #374151; }
+      .grid {
+        opacity: 0.20;
+      }
+      .grid-line {
+        stroke: #374151;
+      }
 
-      .card           { fill: #1F2937; }
-      .divider        { stroke: #374151; }
+      .card {
+        fill: #1f2937;
+      }
+      .divider {
+        stroke: #374151;
+      }
 
-      .dashed-boundary { stroke: #4B5563; }
-      .dashed-label   { fill: #1E3A8A; }
-      .overflow-box   { fill: #1F2937; stroke: #FB923C; }
-      .overflow-dot   { fill: #FB923C; }
-      .leak-text      { fill: #FB923C; }
-      .uncertain-text { fill: #FB923C; }
+      .dashed-boundary {
+        stroke: #4b5563;
+      }
+      .dashed-label {
+        fill: #1e3a8a;
+      }
+      .overflow-box {
+        fill: #1f2937;
+        stroke: #fb923c;
+      }
+      .overflow-dot {
+        fill: #fb923c;
+      }
+      .leak-text {
+        fill: #fb923c;
+      }
+      .uncertain-text {
+        fill: #fb923c;
+      }
 
-      .scope-parent   { fill: #111827; stroke: #374151; }
-      .scope-label    { fill: #1E3A8A; }
-      .scope-child    { fill: #1F2937; stroke: #60A5FA; }
-      .scope-child-label { fill: #1E3A8A; }
-      .contained-box  { fill: #1F2937; stroke: #60A5FA; }
-      .dot-primary    { fill: #60A5FA; }
-      .dot-secondary  { fill: #0EA5E9; }
-      .check-text     { fill: #4ADE80; }
+      .scope-parent {
+        fill: #111827;
+        stroke: #374151;
+      }
+      .scope-label {
+        fill: #1e3a8a;
+      }
+      .scope-child {
+        fill: #1f2937;
+        stroke: #60a5fa;
+      }
+      .scope-child-label {
+        fill: #1e3a8a;
+      }
+      .contained-box {
+        fill: #1f2937;
+        stroke: #60a5fa;
+      }
+      .dot-primary {
+        fill: #60a5fa;
+      }
+      .dot-secondary {
+        fill: #0ea5e9;
+      }
+      .check-text {
+        fill: #4ade80;
+      }
 
-      .title          { fill: #F3F4F6; }
-      .subtitle       { fill: #9CA3AF; }
-      .caption        { fill: #D1D5DB; }
-      .mono           { fill: #E5E7EB; }
-      .mono-sm        { fill: #E5E7EB; }
-      .label          { fill: #9CA3AF; }
-      .label-heading  { fill: #F3F4F6; }
+      .title {
+        fill: #f3f4f6;
+      }
+      .subtitle {
+        fill: #9ca3af;
+      }
+      .caption {
+        fill: #d1d5db;
+      }
+      .mono {
+        fill: #e5e7eb;
+      }
+      .mono-sm {
+        fill: #e5e7eb;
+      }
+      .label {
+        fill: #9ca3af;
+      }
+      .label-heading {
+        fill: #f3f4f6;
+      }
     }
     </style>
   </defs>
 
   <!-- ======== BACKGROUND ======== -->
-  <rect class="bg-light" x="0" y="0" width="1200" height="630"
-    fill="url(#bg-light-grad)" />
-  <rect class="bg-dark" x="0" y="0" width="1200" height="630"
-    fill="#111827" />
-  <rect class="glow-light" x="0" y="0" width="1200" height="630"
-    fill="url(#glow-light-grad)" />
-  <rect class="glow-dark" x="0" y="0" width="1200" height="630"
-    fill="url(#glow-dark-grad)" />
+  <rect
+    class="bg-light"
+    x="0"
+    y="0"
+    width="1200"
+    height="630"
+    fill="url(#bg-light-grad)"
+  />
+  <rect class="bg-dark" x="0" y="0" width="1200" height="630" fill="#111827" />
+  <rect
+    class="glow-light"
+    x="0"
+    y="0"
+    width="1200"
+    height="630"
+    fill="url(#glow-light-grad)"
+  />
+  <rect
+    class="glow-dark"
+    x="0"
+    y="0"
+    width="1200"
+    height="630"
+    fill="url(#glow-dark-grad)"
+  />
 
   <!-- ======== SUBTLE GRID ======== -->
   <g class="grid">
@@ -261,10 +464,8 @@
   <text x="90" y="205" class="title">Structured</text>
   <text x="90" y="255" class="title">Concurrency</text>
   <text x="90" y="305" class="title">for JavaScript</text>
-  <text x="90" y="355" class="caption"
-  >Scope owns lifetime.</text>
-  <text x="90" y="378" class="caption"
-  >Cleanup is guaranteed.</text>
+  <text x="90" y="355" class="caption">Scope owns lifetime.</text>
+  <text x="90" y="378" class="caption">Cleanup is guaranteed.</text>
 
   <!-- ======== DIAGRAM CARD ======== -->
   <!-- Card starts at x=540 to avoid overlapping the title -->
@@ -287,7 +488,14 @@
   <!-- Dashed function boundary — intentionally small so boxes overflow -->
   <!-- The boundary is 200×220, but the boxes are 180 wide -->
   <!-- so they poke out ~40px on the right side -->
-  <rect class="dashed-boundary" x="580" y="148" width="200" height="244" rx="14" />
+  <rect
+    class="dashed-boundary"
+    x="580"
+    y="148"
+    width="200"
+    height="244"
+    rx="14"
+  />
 
   <!-- Function label -->
   <rect class="dashed-label" x="592" y="158" width="100" height="24" rx="8" />
@@ -299,21 +507,42 @@
 
   <!-- fetch() box — overflows right by ~30px, also tilted slightly via transform -->
   <g transform="translate(2, -3) rotate(1.5 680 216)">
-    <rect class="overflow-box" x="592" y="198" width="200" height="36" rx="10" />
+    <rect
+      class="overflow-box"
+      x="592"
+      y="198"
+      width="200"
+      height="36"
+      rx="10"
+    />
     <circle class="overflow-dot" cx="610" cy="216" r="5" />
     <text x="622" y="221" class="mono-sm">fetch()</text>
   </g>
 
   <!-- setTimeout() box — overflows right by ~40px, slight opposite tilt -->
   <g transform="translate(6, 2) rotate(-1 700 276)">
-    <rect class="overflow-box" x="592" y="258" width="210" height="36" rx="10" />
+    <rect
+      class="overflow-box"
+      x="592"
+      y="258"
+      width="210"
+      height="36"
+      rx="10"
+    />
     <circle class="overflow-dot" cx="610" cy="276" r="5" />
     <text x="622" y="281" class="mono-sm">setTimeout()</text>
   </g>
 
   <!-- listen() box — overflows right by ~50px, tilted more -->
   <g transform="translate(10, 4) rotate(2.5 700 336)">
-    <rect class="overflow-box" x="592" y="318" width="220" height="36" rx="10" />
+    <rect
+      class="overflow-box"
+      x="592"
+      y="318"
+      width="220"
+      height="36"
+      rx="10"
+    />
     <circle class="overflow-dot" cx="610" cy="336" r="5" />
     <text x="622" y="341" class="mono-sm">server.listen()</text>
   </g>
@@ -334,19 +563,40 @@
 
   <!-- Parent scope (solid boundary) — wide enough for the boxes -->
   <g class="shadow-light" filter="url(#tinyShadow-light)">
-    <rect class="scope-parent" x="858" y="148" width="240" height="270" rx="14" />
+    <rect
+      class="scope-parent"
+      x="858"
+      y="148"
+      width="240"
+      height="270"
+      rx="14"
+    />
     <rect class="scope-label" x="872" y="158" width="106" height="24" rx="8" />
     <text x="884" y="175" class="mono-sm">function*()</text>
   </g>
   <g class="shadow-dark" filter="url(#tinyShadow-dark)">
-    <rect class="scope-parent" x="858" y="148" width="240" height="270" rx="14" />
+    <rect
+      class="scope-parent"
+      x="858"
+      y="148"
+      width="240"
+      height="270"
+      rx="14"
+    />
     <rect class="scope-label" x="872" y="158" width="106" height="24" rx="8" />
     <text x="884" y="175" class="mono-sm">function*()</text>
   </g>
 
   <!-- Child scope (nested, solid) -->
   <rect class="scope-child" x="874" y="196" width="208" height="200" rx="12" />
-  <rect class="scope-child-label" x="886" y="206" width="110" height="22" rx="8" />
+  <rect
+    class="scope-child-label"
+    x="886"
+    y="206"
+    width="110"
+    height="22"
+    rx="8"
+  />
   <text x="898" y="222" class="mono-sm">spawned task</text>
 
   <!-- Contained effect boxes — same size as left side but they FIT -->
@@ -366,10 +616,20 @@
   <text x="918" y="455" class="mono-sm label">scope ends</text>
 
   <!-- Down arrow (solid, not dashed) -->
-  <line x1="960" y1="424" x2="960" y2="460"
-    stroke-width="2" class="check-text" />
-  <path d="M954 454 L960 464 L966 454"
-    stroke-width="2" fill="none" class="check-text" />
+  <line
+    x1="960"
+    y1="424"
+    x2="960"
+    y2="460"
+    stroke-width="2"
+    class="check-text"
+  />
+  <path
+    d="M954 454 L960 464 L966 454"
+    stroke-width="2"
+    fill="none"
+    class="check-text"
+  />
 
   <!-- Checkmark -->
   <text x="880" y="498" class="mono-sm check-text">✓ halted + cleaned up</text>

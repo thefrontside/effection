@@ -154,8 +154,8 @@
     .dashed-boundary { stroke: #B8CCF5; stroke-width: 2; stroke-dasharray: 8 4;
                        fill: none; }
     .dashed-label   { fill: #E6F0FF; }
-    .leak-line      { stroke: #EA580C; stroke-width: 2; fill: none; }
-    .leak-dot       { fill: #EA580C; }
+    .overflow-box   { fill: #FFFFFF; stroke: #EA580C; stroke-width: 1.5; }
+    .overflow-dot   { fill: #EA580C; }
     .leak-text      { fill: #EA580C; }
     .uncertain-text { fill: #EA580C; }
 
@@ -164,6 +164,7 @@
     .scope-label    { fill: #E6F0FF; }
     .scope-child    { fill: #FFFFFF; stroke: #2B6FF7; stroke-width: 2; }
     .scope-child-label { fill: #E8F4FF; }
+    .contained-box  { fill: #FFFFFF; stroke: #2B6FF7; stroke-width: 1.5; }
     .dot-primary    { fill: #2B6FF7; }
     .dot-secondary  { fill: #0EA5E9; }
     .check-text     { fill: #16A34A; }
@@ -194,8 +195,8 @@
 
       .dashed-boundary { stroke: #4B5563; }
       .dashed-label   { fill: #1E3A8A; }
-      .leak-line      { stroke: #FB923C; }
-      .leak-dot       { fill: #FB923C; }
+      .overflow-box   { fill: #1F2937; stroke: #FB923C; }
+      .overflow-dot   { fill: #FB923C; }
       .leak-text      { fill: #FB923C; }
       .uncertain-text { fill: #FB923C; }
 
@@ -203,6 +204,7 @@
       .scope-label    { fill: #1E3A8A; }
       .scope-child    { fill: #1F2937; stroke: #60A5FA; }
       .scope-child-label { fill: #1E3A8A; }
+      .contained-box  { fill: #1F2937; stroke: #60A5FA; }
       .dot-primary    { fill: #60A5FA; }
       .dot-secondary  { fill: #0EA5E9; }
       .check-text     { fill: #4ADE80; }
@@ -256,113 +258,123 @@
 
   <!-- ======== TITLE (left side) ======== -->
   <text x="90" y="140" class="subtitle">Effection Blog</text>
-  <text x="90" y="205" class="title">Structured Concurrency</text>
-  <text x="90" y="255" class="title">for JavaScript</text>
-  <text x="90" y="305" class="caption"
-  >Scope owns lifetime. Cleanup is guaranteed.</text>
+  <text x="90" y="205" class="title">Structured</text>
+  <text x="90" y="255" class="title">Concurrency</text>
+  <text x="90" y="305" class="title">for JavaScript</text>
+  <text x="90" y="355" class="caption"
+  >Scope owns lifetime.</text>
+  <text x="90" y="378" class="caption"
+  >Cleanup is guaranteed.</text>
 
   <!-- ======== DIAGRAM CARD ======== -->
+  <!-- Card starts at x=540 to avoid overlapping the title -->
   <g class="shadow-light" filter="url(#softShadow-light)">
-    <rect class="card" x="480" y="120" width="640" height="430" rx="24" />
+    <rect class="card" x="540" y="80" width="580" height="470" rx="24" />
   </g>
   <g class="shadow-dark" filter="url(#softShadow-dark)">
-    <rect class="card" x="480" y="120" width="640" height="430" rx="24" />
+    <rect class="card" x="540" y="80" width="580" height="470" rx="24" />
   </g>
 
   <!-- ======== DIVIDER ======== -->
-  <line class="divider" x1="800" y1="148" x2="800" y2="522" />
+  <line class="divider" x1="830" y1="108" x2="830" y2="522" />
 
   <!-- ======== LEFT SIDE: PROMISES ======== -->
 
   <!-- Section heading -->
-  <text x="620" y="168" class="label label-heading" text-anchor="middle"
+  <text x="680" y="128" class="label label-heading" text-anchor="middle"
   >Promises</text>
 
-  <!-- Dashed function boundary -->
-  <rect class="dashed-boundary" x="520" y="186" width="240" height="210" rx="14" />
+  <!-- Dashed function boundary — intentionally small so boxes overflow -->
+  <!-- The boundary is 200×220, but the boxes are 180 wide -->
+  <!-- so they poke out ~40px on the right side -->
+  <rect class="dashed-boundary" x="580" y="148" width="200" height="244" rx="14" />
 
   <!-- Function label -->
-  <rect class="dashed-label" x="534" y="198" width="100" height="24" rx="8" />
-  <text x="546" y="215" class="mono-sm">async fn()</text>
+  <rect class="dashed-label" x="592" y="158" width="100" height="24" rx="8" />
+  <text x="604" y="175" class="mono-sm">async fn()</text>
 
-  <!-- Items inside the function -->
-  <text x="544" y="256" class="mono-sm">fetch()</text>
-  <text x="544" y="296" class="mono-sm">setTimeout()</text>
-  <text x="544" y="336" class="mono-sm">listen()</text>
+  <!-- Promise boxes — each 180px wide, but the boundary is only 200px  -->
+  <!-- so the boxes extend 40px past the right edge (x=780 > boundary right=780) -->
+  <!-- We offset them slightly right so they clearly overflow -->
 
-  <!-- Leak lines: chaotic angles, escaping through the dashed boundary -->
-  <!-- fetch → escapes upward-right -->
-  <path class="leak-line" d="M620 250 C660 248 710 232 770 225"
-    stroke-linecap="round" />
-  <circle class="leak-dot" cx="770" cy="225" r="5" />
+  <!-- fetch() box — overflows right by ~30px, also tilted slightly via transform -->
+  <g transform="translate(2, -3) rotate(1.5 680 216)">
+    <rect class="overflow-box" x="592" y="198" width="200" height="36" rx="10" />
+    <circle class="overflow-dot" cx="610" cy="216" r="5" />
+    <text x="622" y="221" class="mono-sm">fetch()</text>
+  </g>
 
-  <!-- setTimeout → escapes roughly horizontal, slight wobble -->
-  <path class="leak-line" d="M650 290 C680 294 720 285 775 290"
-    stroke-linecap="round" />
-  <circle class="leak-dot" cx="775" cy="290" r="5" />
+  <!-- setTimeout() box — overflows right by ~40px, slight opposite tilt -->
+  <g transform="translate(6, 2) rotate(-1 700 276)">
+    <rect class="overflow-box" x="592" y="258" width="210" height="36" rx="10" />
+    <circle class="overflow-dot" cx="610" cy="276" r="5" />
+    <text x="622" y="281" class="mono-sm">setTimeout()</text>
+  </g>
 
-  <!-- listen → escapes downward-right -->
-  <path class="leak-line" d="M620 330 C660 335 700 350 770 362"
-    stroke-linecap="round" />
-  <circle class="leak-dot" cx="770" cy="362" r="5" />
+  <!-- listen() box — overflows right by ~50px, tilted more -->
+  <g transform="translate(10, 4) rotate(2.5 700 336)">
+    <rect class="overflow-box" x="592" y="318" width="220" height="36" rx="10" />
+    <circle class="overflow-dot" cx="610" cy="336" r="5" />
+    <text x="622" y="341" class="mono-sm">server.listen()</text>
+  </g>
 
-  <!-- Leaked effects text (below the box, warning color) -->
-  <circle class="leak-dot" cx="534" cy="428" r="4" />
-  <text x="546" y="432" class="mono-sm leak-text">still pending</text>
-  <circle class="leak-dot" cx="534" cy="450" r="4" />
-  <text x="546" y="454" class="mono-sm leak-text">still ticking</text>
-  <circle class="leak-dot" cx="534" cy="472" r="4" />
-  <text x="546" y="476" class="mono-sm leak-text">still bound</text>
+  <!-- Status text below (warning color) -->
+  <text x="592" y="430" class="mono-sm leak-text">● still pending</text>
+  <text x="592" y="450" class="mono-sm leak-text">● still ticking</text>
+  <text x="592" y="470" class="mono-sm leak-text">● port still bound</text>
 
   <!-- Punchline -->
-  <text x="534" y="510" class="mono-sm uncertain-text">finally {} ?</text>
+  <text x="592" y="508" class="mono-sm uncertain-text">finally {} ?</text>
 
   <!-- ======== RIGHT SIDE: EFFECTION ======== -->
 
   <!-- Section heading -->
-  <text x="980" y="168" class="label label-heading" text-anchor="middle"
+  <text x="975" y="128" class="label label-heading" text-anchor="middle"
   >Effection</text>
 
-  <!-- Parent scope (solid boundary) -->
+  <!-- Parent scope (solid boundary) — wide enough for the boxes -->
   <g class="shadow-light" filter="url(#tinyShadow-light)">
-    <rect class="scope-parent" x="840" y="186" width="250" height="240" rx="14" />
-    <rect class="scope-label" x="854" y="198" width="106" height="24" rx="8" />
-    <text x="866" y="215" class="mono-sm">function*()</text>
+    <rect class="scope-parent" x="858" y="148" width="240" height="270" rx="14" />
+    <rect class="scope-label" x="872" y="158" width="106" height="24" rx="8" />
+    <text x="884" y="175" class="mono-sm">function*()</text>
   </g>
   <g class="shadow-dark" filter="url(#tinyShadow-dark)">
-    <rect class="scope-parent" x="840" y="186" width="250" height="240" rx="14" />
-    <rect class="scope-label" x="854" y="198" width="106" height="24" rx="8" />
-    <text x="866" y="215" class="mono-sm">function*()</text>
+    <rect class="scope-parent" x="858" y="148" width="240" height="270" rx="14" />
+    <rect class="scope-label" x="872" y="158" width="106" height="24" rx="8" />
+    <text x="884" y="175" class="mono-sm">function*()</text>
   </g>
 
   <!-- Child scope (nested, solid) -->
-  <rect class="scope-child" x="860" y="238" width="210" height="164" rx="12" />
-  <rect class="scope-child-label" x="872" y="250" width="110" height="22" rx="8" />
-  <text x="884" y="266" class="mono-sm">spawned task</text>
+  <rect class="scope-child" x="874" y="196" width="208" height="200" rx="12" />
+  <rect class="scope-child-label" x="886" y="206" width="110" height="22" rx="8" />
+  <text x="898" y="222" class="mono-sm">spawned task</text>
 
-  <!-- Contained effects (inside child scope) -->
-  <circle class="dot-primary" cx="884" cy="298" r="5" />
-  <text x="898" y="302" class="mono-sm">fetch</text>
+  <!-- Contained effect boxes — same size as left side but they FIT -->
+  <rect class="contained-box" x="886" y="242" width="180" height="36" rx="10" />
+  <circle class="dot-primary" cx="904" cy="260" r="5" />
+  <text x="916" y="265" class="mono-sm">fetch()</text>
 
-  <circle class="dot-primary" cx="884" cy="324" r="5" />
-  <text x="898" y="328" class="mono-sm">timer</text>
+  <rect class="contained-box" x="886" y="290" width="180" height="36" rx="10" />
+  <circle class="dot-primary" cx="904" cy="308" r="5" />
+  <text x="916" y="313" class="mono-sm">setTimeout()</text>
 
-  <circle class="dot-secondary" cx="884" cy="350" r="5" />
-  <text x="898" y="354" class="mono-sm">listener</text>
+  <rect class="contained-box" x="886" y="338" width="180" height="36" rx="10" />
+  <circle class="dot-secondary" cx="904" cy="356" r="5" />
+  <text x="916" y="361" class="mono-sm">server.listen()</text>
 
   <!-- Scope ends indicator -->
-  <text x="893" y="460" class="mono-sm label">scope ends</text>
+  <text x="918" y="455" class="mono-sm label">scope ends</text>
 
-  <!-- Down arrow -->
-  <line x1="940" y1="430" x2="940" y2="468" class="divider"
-    stroke-dasharray="none" stroke-width="2" />
-  <path d="M934 462 L940 472 L946 462" class="divider"
-    stroke-dasharray="none" stroke-width="2" fill="none" />
+  <!-- Down arrow (solid, not dashed) -->
+  <line x1="960" y1="424" x2="960" y2="460"
+    stroke-width="2" class="check-text" />
+  <path d="M954 454 L960 464 L966 454"
+    stroke-width="2" fill="none" class="check-text" />
 
-  <!-- Checkmarks -->
-  <text x="870" y="500" class="mono-sm check-text">✓ halted + cleaned up</text>
+  <!-- Checkmark -->
+  <text x="880" y="498" class="mono-sm check-text">✓ halted + cleaned up</text>
 
-  <!-- ======== BOTTOM TAGLINE (replaces legend) ======== -->
+  <!-- ======== BOTTOM TAGLINE ======== -->
   <text x="90" y="560" class="mono caption"
   >Async should just feel normal.</text>
 </svg>

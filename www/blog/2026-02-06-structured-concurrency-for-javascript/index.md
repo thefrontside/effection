@@ -119,9 +119,4 @@ difference is that where you would normally write `await`, you use `yield*`
 inside a generator function. If you're coming from `async/await`, the mapping is
 in the [Async Rosetta Stone](/docs/async-rosetta-stone).
 
-On top of the structured-concurrency foundation, Effection gives you
-[context](/docs/context) (scoped values without parameter plumbing) and
-[streams](/docs/collections) (a minimal stream primitive that follows the same
-scope rules). Both are opt-in.
-
 Effection is small on purpose. Async should just feel normal.

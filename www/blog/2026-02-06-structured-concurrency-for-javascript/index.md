@@ -18,9 +18,10 @@ outlives the scope that started it.
 Structured Programming was created to rein in a similar kind of chaos in the
 70s. We take our structured constructs for granted now, but before them it was
 the Wild West: crashes, leaks, infinite loops, and programs that were hard to
-reason about. Structured concurrency is the re-application of that same
-knowledge to concurrency — binding the lifetime of concurrent work to the
-structure of the program.
+reason about. People reached for `goto`, control flow jumped across the page,
+and the shape of the program stopped matching how it ran. Structured concurrency
+is the re-application of that same knowledge to concurrency — binding the
+lifetime of concurrent work to the structure of the program.
 
 For the longer historical perspective, Nathaniel J. Smith's
 [Notes on structured concurrency (or: Go statement considered harmful)](https://vorpus.org/blog/notes-on-structured-concurrency-or-go-statement-considered-harmful/)
@@ -69,10 +70,11 @@ Async changes that. An `async` function can return control to its caller while
 work it started keeps running somewhere else.
 
 But as soon as you introduce a single Promise, it corrupts the entire
-programming model. You `await` something inside a function, but the work you
-kicked off keeps running even after the caller has moved on. Promises are eager,
-unstructured, and not cancellable. You can signal cancellation to some APIs with
-`AbortSignal`, but you can't force a promise to unwind and run cleanup.
+programming model. The moment you `await`, the work you started no longer has to
+finish inside the scope that started it—your caller can move on while your
+effects keep running. Promises are eager, unstructured, and not cancellable. You
+can signal cancellation to some APIs with `AbortSignal`, but you can't force a
+promise to unwind and run cleanup.
 
 Here's the shape of the problem in plain `async` code:
 
@@ -104,14 +106,15 @@ async this time.
 This broken model has been with us for so long that most developers have learned
 to live with it — accepting that closing a CLI leaves orphaned processes, that
 async work keeps running in the browser long after it's needed, chipping away at
-performance. Deep down we know something isn't right, but fixing it feels like
-it requires a whole different paradigm — Observables, maybe — so we reach for
-workarounds and move on.
+performance. Fixing it feels like it requires a whole different paradigm —
+Observables, maybe — so we reach for workarounds and move on.
 
 For the deeper explanation, see
 [The Await Event Horizon](https://frontside.com/blog/2023-12-11-await-event-horizon)
 and
 [The Heartbreaking Inadequacy of Abort Controller](https://frontside.com/blog/2025-08-04-the-heartbreaking-inadequacy-of-abort-controller/).
+
+The fix isn't more convention—it's the missing guarantee.
 
 ## What Effection Changes
 
@@ -121,6 +124,9 @@ to two guarantees:
 
 1. No operation runs longer than its parent.
 2. Every operation exits fully (cleanup runs).
+
+That's the difference between "the port is still bound" and "cleanup actually
+runs."
 
 It's quickly becoming a standard for event-heavy programming languages. Kotlin
 coroutines lean hard into it. Swift has task groups. Python added `TaskGroup` in
@@ -173,4 +179,4 @@ instead of a special case. When the program ends—Ctrl-C, SIGTERM, navigation,
 cancellation—your concurrent work halts cleanly instead of leaking past the
 scope that started it.
 
-Effection is small on purpose because Async should just feel normal.
+Effection is small on purpose, so async should just feel normal.

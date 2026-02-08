@@ -618,14 +618,14 @@
   <!-- Down arrow (solid, not dashed) -->
   <line
     x1="960"
-    y1="424"
+    y1="462"
     x2="960"
-    y2="460"
+    y2="488"
     stroke-width="2"
     class="check-text"
   />
   <path
-    d="M954 454 L960 464 L966 454"
+    d="M954 482 L960 492 L966 482"
     stroke-width="2"
     fill="none"
     class="check-text"

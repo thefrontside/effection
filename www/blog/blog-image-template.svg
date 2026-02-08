@@ -9,11 +9,9 @@
 <!-- HOW TO USE:                                  -->
 <!-- 1. Copy this file into your post directory   -->
 <!-- 2. Rename to match your post slug            -->
-<!-- 3. Update title, caption text below          -->
-<!-- 4. Uncomment ONE diagram pattern or create   -->
-<!--    your own in the diagram card area         -->
-<!-- 5. Update legend items to match your diagram -->
-<!-- 6. Do NOT hardcode fill/stroke colors —      -->
+<!-- 3. Update the title + captions below         -->
+<!-- 4. Insert your diagram markup in the card    -->
+<!-- 5. Do NOT hardcode fill/stroke colors —      -->
 <!--    use the CSS classes defined in <style>    -->
 <!-- ============================================ -->
 <svg
@@ -26,8 +24,6 @@
   aria-label="REPLACE: image alt text"
 >
   <defs>
-    <!-- ======== GRADIENTS & FILTERS ======== -->
-
     <!-- Light-mode background gradient -->
     <linearGradient
       id="bg-light-grad"
@@ -56,7 +52,7 @@
       <stop offset="1" stop-color="#2B6FF7" stop-opacity="0" />
     </radialGradient>
 
-    <!-- Dark-mode decorative glow (subtler) -->
+    <!-- Dark-mode decorative glow -->
     <radialGradient
       id="glow-dark-grad"
       cx="0"
@@ -74,19 +70,6 @@
     <linearGradient id="ink" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#0B2A5B" />
       <stop offset="1" stop-color="#0C3A7A" />
-    </linearGradient>
-
-    <!-- Accent gradient (works on both modes) -->
-    <linearGradient
-      id="accent"
-      x1="340"
-      y1="190"
-      x2="930"
-      y2="520"
-      gradientUnits="userSpaceOnUse"
-    >
-      <stop offset="0" stop-color="#2B6FF7" />
-      <stop offset="1" stop-color="#0EA5E9" />
     </linearGradient>
 
     <!-- Light-mode shadow (card) -->
@@ -127,7 +110,7 @@
       />
     </filter>
 
-    <!-- Light-mode shadow (inner elements) -->
+    <!-- Light-mode shadow (inner) -->
     <filter
       id="tinyShadow-light"
       x="-40"
@@ -146,7 +129,7 @@
       />
     </filter>
 
-    <!-- Dark-mode shadow (inner elements) -->
+    <!-- Dark-mode shadow (inner) -->
     <filter
       id="tinyShadow-dark"
       x="-40"
@@ -165,7 +148,6 @@
       />
     </filter>
 
-    <!-- ======== STYLES ======== -->
     <style>
     /* ---- Font stacks ---- */
     .svg-title {
@@ -250,6 +232,33 @@
       stroke-dasharray: 4 4;
       stroke-width: 1;
     }
+
+    /* Left side: Promises (broken) */
+    .svg-dashed-boundary {
+      stroke: #b8ccf5;
+      stroke-width: 2;
+      stroke-dasharray: 8 4;
+      fill: none;
+    }
+    .svg-dashed-label {
+      fill: #e6f0ff;
+    }
+    .svg-overflow-box {
+      fill: #ffffff;
+      stroke: #ea580c;
+      stroke-width: 1.5;
+    }
+    .svg-overflow-dot {
+      fill: #ea580c;
+    }
+    .svg-leak-text {
+      fill: #ea580c;
+    }
+    .svg-uncertain-text {
+      fill: #ea580c;
+    }
+
+    /* Right side: Effection (structured) */
     .svg-scope-parent {
       fill: #f7fbff;
       stroke: #97b7ff;
@@ -266,49 +275,27 @@
     .svg-scope-child-label {
       fill: #e8f4ff;
     }
-    .svg-pill {
+    .svg-contained-box {
       fill: #ffffff;
-      stroke: #b8ccf5;
-      stroke-width: 1;
+      stroke: #2b6ff7;
+      stroke-width: 1.5;
     }
-    .svg-pill-shadow {
-      fill: #0b2a5b;
-      opacity: 0.06;
+    .svg-dot-primary {
+      fill: #2b6ff7;
     }
-    .svg-legend {
-      fill: #ffffff;
-      stroke: #d6e4ff;
-      stroke-width: 1;
-    }
-
-    /* Before/after pattern: broken boundary + leaks */
-    .svg-dashed-boundary {
-      stroke: #b8ccf5;
-      stroke-width: 2;
-      stroke-dasharray: 8 4;
-      fill: none;
-    }
-    .svg-dashed-label {
-      fill: #e6f0ff;
-    }
-    .svg-leak-line {
-      stroke: #ea580c;
-      stroke-width: 2;
-      fill: none;
-    }
-    .svg-leak-dot {
-      fill: #ea580c;
-    }
-    .svg-leak-text {
-      fill: #ea580c;
-    }
-    .svg-uncertain-text {
-      fill: #ea580c;
+    .svg-dot-secondary {
+      fill: #0ea5e9;
     }
     .svg-check-text {
       fill: #16a34a;
+      stroke: #16a34a;
+    }
+    .svg-arrow-line {
+      stroke: #97b7ff;
+      fill: none;
     }
 
+    /* Shared text */
     .svg-title {
       fill: url(#ink);
     }
@@ -324,45 +311,11 @@
     .svg-mono-sm {
       fill: #1e3a8a;
     }
-    .svg-mono-label {
-      fill: #0b2a5b;
-    }
     .svg-label {
       fill: #33547b;
     }
     .svg-label-heading {
       fill: #0b2a5b;
-    }
-
-    .svg-dot-primary {
-      fill: #2b6ff7;
-    }
-    .svg-dot-secondary {
-      fill: #0ea5e9;
-    }
-    .svg-dot-muted {
-      fill: #94a3b8;
-    }
-
-    /* Flow arrow pattern */
-    .svg-flow-box {
-      fill: #ffffff;
-      stroke: #97b7ff;
-      stroke-width: 2;
-    }
-    .svg-flow-arrow {
-      stroke: #2b6ff7;
-      stroke-width: 2;
-    }
-
-    /* Stacked items pattern */
-    .svg-stack-item {
-      fill: #ffffff;
-      stroke: #b8ccf5;
-      stroke-width: 1;
-    }
-    .svg-stack-dot {
-      fill: #2b6ff7;
     }
 
     /* ---- Dark mode ---- */
@@ -399,6 +352,27 @@
       .svg-divider {
         stroke: #374151;
       }
+
+      .svg-dashed-boundary {
+        stroke: #4b5563;
+      }
+      .svg-dashed-label {
+        fill: #1e3a8a;
+      }
+      .svg-overflow-box {
+        fill: #1f2937;
+        stroke: #fb923c;
+      }
+      .svg-overflow-dot {
+        fill: #fb923c;
+      }
+      .svg-leak-text {
+        fill: #fb923c;
+      }
+      .svg-uncertain-text {
+        fill: #fb923c;
+      }
+
       .svg-scope-parent {
         fill: #111827;
         stroke: #374151;
@@ -413,39 +387,22 @@
       .svg-scope-child-label {
         fill: #1e3a8a;
       }
-      .svg-pill {
+      .svg-contained-box {
         fill: #1f2937;
-        stroke: #374151;
+        stroke: #60a5fa;
       }
-      .svg-pill-shadow {
-        fill: #000000;
-        opacity: 0.15;
+      .svg-dot-primary {
+        fill: #60a5fa;
       }
-      .svg-legend {
-        fill: #1f2937;
-        stroke: #374151;
-      }
-
-      .svg-dashed-boundary {
-        stroke: #4b5563;
-      }
-      .svg-dashed-label {
-        fill: #1e3a8a;
-      }
-      .svg-leak-line {
-        stroke: #fb923c;
-      }
-      .svg-leak-dot {
-        fill: #fb923c;
-      }
-      .svg-leak-text {
-        fill: #fb923c;
-      }
-      .svg-uncertain-text {
-        fill: #fb923c;
+      .svg-dot-secondary {
+        fill: #0ea5e9;
       }
       .svg-check-text {
         fill: #4ade80;
+        stroke: #4ade80;
+      }
+      .svg-arrow-line {
+        stroke: #60a5fa;
       }
 
       .svg-title {
@@ -463,40 +420,11 @@
       .svg-mono-sm {
         fill: #e5e7eb;
       }
-      .svg-mono-label {
-        fill: #d1d5db;
-      }
       .svg-label {
         fill: #9ca3af;
       }
       .svg-label-heading {
         fill: #f3f4f6;
-      }
-
-      .svg-dot-primary {
-        fill: #60a5fa;
-      }
-      .svg-dot-secondary {
-        fill: #0ea5e9;
-      }
-      .svg-dot-muted {
-        fill: #94a3b8;
-      }
-
-      .svg-flow-box {
-        fill: #1f2937;
-        stroke: #374151;
-      }
-      .svg-flow-arrow {
-        stroke: #60a5fa;
-      }
-
-      .svg-stack-item {
-        fill: #1f2937;
-        stroke: #374151;
-      }
-      .svg-stack-dot {
-        fill: #60a5fa;
       }
     }
     </style>
@@ -562,129 +490,23 @@
     <path class="svg-grid-line" d="M1080 80V580" />
   </g>
 
-  <!-- ======== TITLE AREA (left side) ======== -->
-  <!-- CUSTOMIZE: Replace text content below -->
+  <!-- ======== TITLE (left side) ======== -->
   <text x="90" y="140" class="svg-subtitle">Effection Blog</text>
   <text x="90" y="205" class="svg-title">TITLE LINE 1</text>
   <text x="90" y="255" class="svg-title">TITLE LINE 2</text>
-  <text x="90" y="305" class="svg-caption">Subtitle caption goes here.</text>
+  <text x="90" y="305" class="svg-title">TITLE LINE 3</text>
+  <text x="90" y="355" class="svg-caption">Subtitle caption line 1.</text>
+  <text x="90" y="378" class="svg-caption">Subtitle caption line 2.</text>
 
-  <!-- ======== DIAGRAM AREA (right side) ======== -->
-  <!-- The card container — always present -->
+  <!-- ======== DIAGRAM CARD ======== -->
+  <!-- Card starts at x=540 to avoid overlapping the title -->
   <g class="svg-shadow-light" filter="url(#softShadow-light)">
-    <rect class="svg-card" x="650" y="150" width="460" height="390" rx="24" />
+    <rect class="svg-card" x="540" y="80" width="580" height="470" rx="24" />
   </g>
   <g class="svg-shadow-dark" filter="url(#softShadow-dark)">
-    <rect class="svg-card" x="650" y="150" width="460" height="390" rx="24" />
+    <rect class="svg-card" x="540" y="80" width="580" height="470" rx="24" />
   </g>
 
-  <!-- ======================================================= -->
-  <!-- DIAGRAM PATTERN A: Nested boxes (scope ownership)       -->
-  <!-- Uncomment this block for parent/child scope diagrams    -->
-  <!-- ======================================================= -->
-  <!--
-  <g class="svg-shadow-light" filter="url(#tinyShadow-light)">
-    <rect class="svg-scope-parent" x="690" y="200" width="380" height="300" rx="18" />
-    <rect class="svg-scope-label" x="706" y="218" width="120" height="28" rx="10" />
-    <text x="722" y="238" class="svg-mono">parent scope</text>
-  </g>
-  <g class="svg-shadow-dark" filter="url(#tinyShadow-dark)">
-    <rect class="svg-scope-parent" x="690" y="200" width="380" height="300" rx="18" />
-    <rect class="svg-scope-label" x="706" y="218" width="120" height="28" rx="10" />
-    <text x="722" y="238" class="svg-mono">parent scope</text>
-  </g>
-  <g class="svg-shadow-light" filter="url(#tinyShadow-light)">
-    <rect class="svg-scope-child" x="735" y="270" width="310" height="205" rx="16" />
-    <rect class="svg-scope-child-label" x="751" y="288" width="110" height="26" rx="10" />
-    <text x="767" y="307" class="svg-mono">child scope</text>
-  </g>
-  <g class="svg-shadow-dark" filter="url(#tinyShadow-dark)">
-    <rect class="svg-scope-child" x="735" y="270" width="310" height="205" rx="16" />
-    <rect class="svg-scope-child-label" x="751" y="288" width="110" height="26" rx="10" />
-    <text x="767" y="307" class="svg-mono">child scope</text>
-  </g>
-  <g>
-    <rect class="svg-pill-shadow" x="760" y="338" width="280" height="44" rx="14" />
-    <rect class="svg-pill" x="760" y="336" width="280" height="44" rx="14" />
-    <circle class="svg-dot-primary" cx="782" cy="358" r="6" />
-    <text x="798" y="363" class="svg-mono">item label 1</text>
-    <rect class="svg-pill-shadow" x="760" y="398" width="280" height="44" rx="14" />
-    <rect class="svg-pill" x="760" y="396" width="280" height="44" rx="14" />
-    <circle class="svg-dot-secondary" cx="782" cy="418" r="6" />
-    <text x="798" y="423" class="svg-mono">item label 2</text>
-  </g>
-  -->
-
-  <!-- ======================================================= -->
-  <!-- DIAGRAM PATTERN B: Flow arrows (pipeline / sequence)    -->
-  <!-- Uncomment this block for before→after or step diagrams  -->
-  <!-- ======================================================= -->
-  <!--
-  <g>
-    <rect class="svg-flow-box" x="680" y="280" width="120" height="80" rx="12" />
-    <text x="710" y="326" class="svg-mono">Step 1</text>
-    <line class="svg-flow-arrow" x1="800" y1="320" x2="840" y2="320"
-      marker-end="url(#arrowhead)" />
-    <rect class="svg-flow-box" x="840" y="280" width="120" height="80" rx="12" />
-    <text x="870" y="326" class="svg-mono">Step 2</text>
-    <line class="svg-flow-arrow" x1="960" y1="320" x2="1000" y2="320"
-      marker-end="url(#arrowhead)" />
-    <rect class="svg-flow-box" x="1000" y="280" width="120" height="80" rx="12" />
-    <text x="1030" y="326" class="svg-mono">Step 3</text>
-  </g>
-  -->
-
-  <!-- ======================================================= -->
-  <!-- DIAGRAM PATTERN C: Stacked items (feature list)         -->
-  <!-- Uncomment this block for vertical lists                 -->
-  <!-- ======================================================= -->
-  <!--
-  <g>
-    <rect class="svg-stack-item" x="690" y="200" width="380" height="50" rx="12" />
-    <circle class="svg-stack-dot" cx="714" cy="225" r="6" />
-    <text x="730" y="230" class="svg-mono">Feature or item 1</text>
-
-    <rect class="svg-stack-item" x="690" y="268" width="380" height="50" rx="12" />
-    <circle class="svg-stack-dot" cx="714" cy="293" r="6" />
-    <text x="730" y="298" class="svg-mono">Feature or item 2</text>
-
-    <rect class="svg-stack-item" x="690" y="336" width="380" height="50" rx="12" />
-    <circle class="svg-stack-dot" cx="714" cy="361" r="6" />
-    <text x="730" y="366" class="svg-mono">Feature or item 3</text>
-
-    <rect class="svg-stack-item" x="690" y="404" width="380" height="50" rx="12" />
-    <circle class="svg-stack-dot" cx="714" cy="429" r="6" />
-    <text x="730" y="434" class="svg-mono">Feature or item 4</text>
-  </g>
-  -->
-
-  <!-- ======================================================= -->
-  <!-- DIAGRAM PATTERN D: Before/after (broken vs structured)  -->
-  <!-- Use a wider card (x=480, w=640) and add a divider       -->
-  <!-- Uncomment this block for comparison diagrams             -->
-  <!-- ======================================================= -->
-  <!--
-  <line class="svg-divider" x1="800" y1="148" x2="800" y2="522" />
-  <text x="620" y="168" class="svg-label svg-label-heading" text-anchor="middle">Before</text>
-  <text x="980" y="168" class="svg-label svg-label-heading" text-anchor="middle">After</text>
-  <rect class="svg-dashed-boundary" x="520" y="186" width="240" height="210" rx="14" />
-  <rect class="svg-dashed-label" x="534" y="198" width="100" height="24" rx="8" />
-  <text x="546" y="215" class="svg-mono-sm">label here</text>
-  <path class="svg-leak-line" d="M620 260 C660 258 710 242 770 235" stroke-linecap="round" />
-  <circle class="svg-leak-dot" cx="770" cy="235" r="5" />
-  <text x="534" y="432" class="svg-mono-sm svg-leak-text">leaked item</text>
-  <text x="534" y="510" class="svg-mono-sm svg-uncertain-text">finally {} ?</text>
-  <rect class="svg-scope-parent" x="840" y="186" width="250" height="240" rx="14" />
-  <text x="870" y="500" class="svg-mono-sm svg-check-text">✓ cleaned up</text>
-  -->
-
-  <!-- ======== LEGEND (bottom) ======== -->
-  <!-- CUSTOMIZE: Replace legend items -->
-  <g opacity="0.92">
-    <rect class="svg-legend" x="90" y="505" width="640" height="92" rx="18" />
-    <circle class="svg-dot-primary" cx="120" cy="540" r="8" />
-    <text x="140" y="545" class="svg-mono">Legend item 1 description</text>
-    <circle class="svg-dot-muted" cx="120" cy="572" r="8" />
-    <text x="140" y="577" class="svg-mono">Legend item 2 description</text>
-  </g>
+  <!-- ======== DIAGRAM CONTENT ======== -->
+  <!-- Insert your diagram markup here. Keep it within the card bounds. -->
 </svg>

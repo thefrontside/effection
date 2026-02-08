@@ -69,7 +69,8 @@ export function blogTagRoute({
                             <img
                               src={`/blog/${post.id}/${post.image}`}
                               alt={post.title}
-                              class="w-full h-48 object-cover"
+                              class="w-full h-48 overflow-hidden"
+                              data-inline-svg
                             />
                           )
                           : (

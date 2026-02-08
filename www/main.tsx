@@ -3,6 +3,7 @@ import { createRevolution, ServerInfo } from "revolution";
 
 import { etagPlugin } from "./plugins/etag.ts";
 import { route, sitemapPlugin } from "./plugins/sitemap.ts";
+import { inlineSvgPlugin } from "./plugins/inline-svg.ts";
 import { tailwindPlugin } from "./plugins/tailwind.ts";
 
 import { apiReferenceRoute } from "./routes/api-reference-route.tsx";
@@ -82,6 +83,9 @@ if (import.meta.main) {
       ],
       plugins: [
         yield* tailwindPlugin({ input: "main.css", outdir: "tailwind" }),
+        inlineSvgPlugin({
+          basedir: new URL(".", import.meta.url).pathname,
+        }),
         currentRequestPlugin(),
         etagPlugin(),
         sitemapPlugin(),

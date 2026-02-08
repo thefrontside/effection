@@ -6,7 +6,7 @@
   fill="none"
   xmlns="http://www.w3.org/2000/svg"
   role="img"
-  aria-label="Structured Concurrency for JavaScript - scope owns lifetime"
+  aria-label="Structured Concurrency for JavaScript — Promises leak work out of bounds, Effection keeps everything inside the scope"
 >
   <defs>
     <!-- Light-mode background gradient -->
@@ -32,7 +32,7 @@
       <stop offset="1" stop-color="#2B6FF7" stop-opacity="0" />
     </radialGradient>
 
-    <!-- Dark-mode decorative glow (subtler) -->
+    <!-- Dark-mode decorative glow -->
     <radialGradient
       id="glow-dark-grad"
       cx="0" cy="0" r="1"
@@ -48,26 +48,6 @@
     <linearGradient id="ink" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#0B2A5B" />
       <stop offset="1" stop-color="#0C3A7A" />
-    </linearGradient>
-
-    <!-- Accent gradient (works on both modes) -->
-    <linearGradient
-      id="accent"
-      x1="340" y1="190" x2="930" y2="520"
-      gradientUnits="userSpaceOnUse"
-    >
-      <stop offset="0" stop-color="#2B6FF7" />
-      <stop offset="1" stop-color="#0EA5E9" />
-    </linearGradient>
-
-    <!-- Dark-mode accent gradient (brighter) -->
-    <linearGradient
-      id="accent-dark"
-      x1="340" y1="190" x2="930" y2="520"
-      gradientUnits="userSpaceOnUse"
-    >
-      <stop offset="0" stop-color="#60A5FA" />
-      <stop offset="1" stop-color="#0EA5E9" />
     </linearGradient>
 
     <!-- Light-mode shadow (card) -->
@@ -92,7 +72,7 @@
         flood-color="#000000" flood-opacity="0.25" />
     </filter>
 
-    <!-- Light-mode shadow (inner elements) -->
+    <!-- Light-mode shadow (inner) -->
     <filter
       id="tinyShadow-light"
       x="-40" y="-40" width="1280" height="710"
@@ -103,7 +83,7 @@
         flood-color="#0B2A5B" flood-opacity="0.10" />
     </filter>
 
-    <!-- Dark-mode shadow (inner elements) -->
+    <!-- Dark-mode shadow (inner) -->
     <filter
       id="tinyShadow-dark"
       x="-40" y="-40" width="1280" height="710"
@@ -142,6 +122,19 @@
         "Liberation Mono", "Courier New", monospace;
       font-size: 14px;
     }
+    .mono-sm {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+    }
+    .label {
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI,
+        Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
 
     /* ---- Light mode (default) ---- */
     .bg-light       { display: block; }
@@ -150,30 +143,39 @@
     .glow-dark      { display: none; }
     .shadow-light   { display: block; }
     .shadow-dark    { display: none; }
-    .arrow-light    { display: block; }
-    .arrow-dark     { display: none; }
 
     .grid           { opacity: 0.25; }
     .grid-line      { stroke: #C9D9F2; stroke-width: 1; }
 
     .card           { fill: #FFFFFF; }
+    .divider        { stroke: #D6E4FF; stroke-dasharray: 4 4; stroke-width: 1; }
+
+    /* Left side: Promises (broken) */
+    .dashed-boundary { stroke: #B8CCF5; stroke-width: 2; stroke-dasharray: 8 4;
+                       fill: none; }
+    .dashed-label   { fill: #E6F0FF; }
+    .leak-line      { stroke: #EA580C; stroke-width: 2; fill: none; }
+    .leak-dot       { fill: #EA580C; }
+    .leak-text      { fill: #EA580C; }
+    .uncertain-text { fill: #EA580C; }
+
+    /* Right side: Effection (structured) */
     .scope-parent   { fill: #F7FBFF; stroke: #97B7FF; stroke-width: 2; }
     .scope-label    { fill: #E6F0FF; }
     .scope-child    { fill: #FFFFFF; stroke: #2B6FF7; stroke-width: 2; }
     .scope-child-label { fill: #E8F4FF; }
-    .pill           { fill: #FFFFFF; stroke: #B8CCF5; stroke-width: 1; }
-    .pill-shadow    { fill: #0B2A5B; opacity: 0.06; }
-    .legend         { fill: #FFFFFF; stroke: #D6E4FF; stroke-width: 1; }
+    .dot-primary    { fill: #2B6FF7; }
+    .dot-secondary  { fill: #0EA5E9; }
+    .check-text     { fill: #16A34A; }
 
+    /* Shared text */
     .title          { fill: url(#ink); }
     .subtitle       { fill: #33547B; }
     .caption        { fill: #23435F; }
     .mono           { fill: #1e3a8a; }
-    .mono-label     { fill: #0B2A5B; }
-
-    .dot-primary    { fill: #2B6FF7; }
-    .dot-secondary  { fill: #0EA5E9; }
-    .dot-muted      { fill: #94A3B8; }
+    .mono-sm        { fill: #1e3a8a; }
+    .label          { fill: #33547B; }
+    .label-heading  { fill: #0B2A5B; }
 
     /* ---- Dark mode ---- */
     @media (prefers-color-scheme: dark) {
@@ -183,30 +185,35 @@
       .glow-dark      { display: block; }
       .shadow-light   { display: none; }
       .shadow-dark    { display: block; }
-      .arrow-light    { display: none; }
-      .arrow-dark     { display: block; }
 
       .grid           { opacity: 0.20; }
       .grid-line      { stroke: #374151; }
 
       .card           { fill: #1F2937; }
+      .divider        { stroke: #374151; }
+
+      .dashed-boundary { stroke: #4B5563; }
+      .dashed-label   { fill: #1E3A8A; }
+      .leak-line      { stroke: #FB923C; }
+      .leak-dot       { fill: #FB923C; }
+      .leak-text      { fill: #FB923C; }
+      .uncertain-text { fill: #FB923C; }
+
       .scope-parent   { fill: #111827; stroke: #374151; }
       .scope-label    { fill: #1E3A8A; }
       .scope-child    { fill: #1F2937; stroke: #60A5FA; }
       .scope-child-label { fill: #1E3A8A; }
-      .pill           { fill: #1F2937; stroke: #374151; }
-      .pill-shadow    { fill: #000000; opacity: 0.15; }
-      .legend         { fill: #1F2937; stroke: #374151; }
+      .dot-primary    { fill: #60A5FA; }
+      .dot-secondary  { fill: #0EA5E9; }
+      .check-text     { fill: #4ADE80; }
 
       .title          { fill: #F3F4F6; }
       .subtitle       { fill: #9CA3AF; }
       .caption        { fill: #D1D5DB; }
       .mono           { fill: #E5E7EB; }
-      .mono-label     { fill: #D1D5DB; }
-
-      .dot-primary    { fill: #60A5FA; }
-      .dot-secondary  { fill: #0EA5E9; }
-      .dot-muted      { fill: #94A3B8; }
+      .mono-sm        { fill: #E5E7EB; }
+      .label          { fill: #9CA3AF; }
+      .label-heading  { fill: #F3F4F6; }
     }
     </style>
   </defs>
@@ -247,96 +254,115 @@
     <path class="grid-line" d="M1080 80V580" />
   </g>
 
-  <!-- ======== TITLE ======== -->
+  <!-- ======== TITLE (left side) ======== -->
   <text x="90" y="140" class="subtitle">Effection Blog</text>
   <text x="90" y="205" class="title">Structured Concurrency</text>
   <text x="90" y="255" class="title">for JavaScript</text>
   <text x="90" y="305" class="caption"
   >Scope owns lifetime. Cleanup is guaranteed.</text>
 
-  <!-- ======== DIAGRAM: white card container ======== -->
+  <!-- ======== DIAGRAM CARD ======== -->
   <g class="shadow-light" filter="url(#softShadow-light)">
-    <rect class="card" x="650" y="150" width="460" height="390" rx="24" />
+    <rect class="card" x="480" y="120" width="640" height="430" rx="24" />
   </g>
   <g class="shadow-dark" filter="url(#softShadow-dark)">
-    <rect class="card" x="650" y="150" width="460" height="390" rx="24" />
+    <rect class="card" x="480" y="120" width="640" height="430" rx="24" />
   </g>
 
-  <!-- ======== OUTER SCOPE ======== -->
+  <!-- ======== DIVIDER ======== -->
+  <line class="divider" x1="800" y1="148" x2="800" y2="522" />
+
+  <!-- ======== LEFT SIDE: PROMISES ======== -->
+
+  <!-- Section heading -->
+  <text x="620" y="168" class="label label-heading" text-anchor="middle"
+  >Promises</text>
+
+  <!-- Dashed function boundary -->
+  <rect class="dashed-boundary" x="520" y="186" width="240" height="210" rx="14" />
+
+  <!-- Function label -->
+  <rect class="dashed-label" x="534" y="198" width="100" height="24" rx="8" />
+  <text x="546" y="215" class="mono-sm">async fn()</text>
+
+  <!-- Items inside the function -->
+  <text x="544" y="256" class="mono-sm">fetch()</text>
+  <text x="544" y="296" class="mono-sm">setTimeout()</text>
+  <text x="544" y="336" class="mono-sm">listen()</text>
+
+  <!-- Leak lines: chaotic angles, escaping through the dashed boundary -->
+  <!-- fetch → escapes upward-right -->
+  <path class="leak-line" d="M620 250 C660 248 710 232 770 225"
+    stroke-linecap="round" />
+  <circle class="leak-dot" cx="770" cy="225" r="5" />
+
+  <!-- setTimeout → escapes roughly horizontal, slight wobble -->
+  <path class="leak-line" d="M650 290 C680 294 720 285 775 290"
+    stroke-linecap="round" />
+  <circle class="leak-dot" cx="775" cy="290" r="5" />
+
+  <!-- listen → escapes downward-right -->
+  <path class="leak-line" d="M620 330 C660 335 700 350 770 362"
+    stroke-linecap="round" />
+  <circle class="leak-dot" cx="770" cy="362" r="5" />
+
+  <!-- Leaked effects text (below the box, warning color) -->
+  <circle class="leak-dot" cx="534" cy="428" r="4" />
+  <text x="546" y="432" class="mono-sm leak-text">still pending</text>
+  <circle class="leak-dot" cx="534" cy="450" r="4" />
+  <text x="546" y="454" class="mono-sm leak-text">still ticking</text>
+  <circle class="leak-dot" cx="534" cy="472" r="4" />
+  <text x="546" y="476" class="mono-sm leak-text">still bound</text>
+
+  <!-- Punchline -->
+  <text x="534" y="510" class="mono-sm uncertain-text">finally {} ?</text>
+
+  <!-- ======== RIGHT SIDE: EFFECTION ======== -->
+
+  <!-- Section heading -->
+  <text x="980" y="168" class="label label-heading" text-anchor="middle"
+  >Effection</text>
+
+  <!-- Parent scope (solid boundary) -->
   <g class="shadow-light" filter="url(#tinyShadow-light)">
-    <rect class="scope-parent" x="690" y="200" width="380" height="300" rx="18" />
-    <rect class="scope-label" x="706" y="218" width="120" height="28" rx="10" />
-    <text x="722" y="238" class="mono">parent scope</text>
+    <rect class="scope-parent" x="840" y="186" width="250" height="240" rx="14" />
+    <rect class="scope-label" x="854" y="198" width="106" height="24" rx="8" />
+    <text x="866" y="215" class="mono-sm">function*()</text>
   </g>
   <g class="shadow-dark" filter="url(#tinyShadow-dark)">
-    <rect class="scope-parent" x="690" y="200" width="380" height="300" rx="18" />
-    <rect class="scope-label" x="706" y="218" width="120" height="28" rx="10" />
-    <text x="722" y="238" class="mono">parent scope</text>
+    <rect class="scope-parent" x="840" y="186" width="250" height="240" rx="14" />
+    <rect class="scope-label" x="854" y="198" width="106" height="24" rx="8" />
+    <text x="866" y="215" class="mono-sm">function*()</text>
   </g>
 
-  <!-- ======== CHILD SCOPE ======== -->
-  <g class="shadow-light" filter="url(#tinyShadow-light)">
-    <rect class="scope-child" x="735" y="270" width="310" height="205" rx="16" />
-    <rect class="scope-child-label" x="751" y="288" width="110" height="26" rx="10" />
-    <text x="767" y="307" class="mono">child scope</text>
-  </g>
-  <g class="shadow-dark" filter="url(#tinyShadow-dark)">
-    <rect class="scope-child" x="735" y="270" width="310" height="205" rx="16" />
-    <rect class="scope-child-label" x="751" y="288" width="110" height="26" rx="10" />
-    <text x="767" y="307" class="mono">child scope</text>
-  </g>
+  <!-- Child scope (nested, solid) -->
+  <rect class="scope-child" x="860" y="238" width="210" height="164" rx="12" />
+  <rect class="scope-child-label" x="872" y="250" width="110" height="22" rx="8" />
+  <text x="884" y="266" class="mono-sm">spawned task</text>
 
-  <!-- ======== EFFECTS (owned work) ======== -->
-  <g>
-    <rect class="pill-shadow" x="760" y="338" width="280" height="44" rx="14" />
-    <rect class="pill" x="760" y="336" width="280" height="44" rx="14" />
-    <circle class="dot-primary" cx="782" cy="358" r="6" />
-    <text x="798" y="363" class="mono">timer / socket / listener</text>
+  <!-- Contained effects (inside child scope) -->
+  <circle class="dot-primary" cx="884" cy="298" r="5" />
+  <text x="898" y="302" class="mono-sm">fetch</text>
 
-    <rect class="pill-shadow" x="760" y="398" width="280" height="44" rx="14" />
-    <rect class="pill" x="760" y="396" width="280" height="44" rx="14" />
-    <circle class="dot-secondary" cx="782" cy="418" r="6" />
-    <text x="798" y="423" class="mono">in-flight request</text>
-  </g>
+  <circle class="dot-primary" cx="884" cy="324" r="5" />
+  <text x="898" y="328" class="mono-sm">timer</text>
 
-  <!-- ======== LIFETIME ARROW ======== -->
-  <g class="arrow-light">
-    <path
-      d="M1040 238C1090 270 1090 430 1040 462"
-      stroke="url(#accent)"
-      stroke-width="6"
-      stroke-linecap="round"
-      fill="none"
-    />
-    <path d="M1040 462L1058 452" stroke="url(#accent)"
-      stroke-width="6" stroke-linecap="round" fill="none" />
-    <path d="M1040 462L1058 472" stroke="url(#accent)"
-      stroke-width="6" stroke-linecap="round" fill="none" />
-  </g>
-  <g class="arrow-dark">
-    <path
-      d="M1040 238C1090 270 1090 430 1040 462"
-      stroke="url(#accent-dark)"
-      stroke-width="6"
-      stroke-linecap="round"
-      fill="none"
-    />
-    <path d="M1040 462L1058 452" stroke="url(#accent-dark)"
-      stroke-width="6" stroke-linecap="round" fill="none" />
-    <path d="M1040 462L1058 472" stroke="url(#accent-dark)"
-      stroke-width="6" stroke-linecap="round" fill="none" />
-  </g>
-  <text x="948" y="492" class="mono mono-label">scope ends</text>
-  <text x="930" y="520" class="mono mono-label">scope lifetime</text>
+  <circle class="dot-secondary" cx="884" cy="350" r="5" />
+  <text x="898" y="354" class="mono-sm">listener</text>
 
-  <!-- ======== LEGEND ======== -->
-  <g opacity="0.92">
-    <rect class="legend" x="90" y="505" width="640" height="92" rx="18" />
-    <circle class="dot-primary" cx="120" cy="540" r="8" />
-    <text x="140" y="545" class="mono"
-    >Operations are lazy and scope-owned</text>
-    <circle class="dot-muted" cx="120" cy="572" r="8" />
-    <text x="140" y="577" class="mono"
-    >Promises are eager and unstructured</text>
-  </g>
+  <!-- Scope ends indicator -->
+  <text x="893" y="460" class="mono-sm label">scope ends</text>
+
+  <!-- Down arrow -->
+  <line x1="940" y1="430" x2="940" y2="468" class="divider"
+    stroke-dasharray="none" stroke-width="2" />
+  <path d="M934 462 L940 472 L946 462" class="divider"
+    stroke-dasharray="none" stroke-width="2" fill="none" />
+
+  <!-- Checkmarks -->
+  <text x="870" y="500" class="mono-sm check-text">✓ halted + cleaned up</text>
+
+  <!-- ======== BOTTOM TAGLINE (replaces legend) ======== -->
+  <text x="90" y="560" class="mono caption"
+  >Async should just feel normal.</text>
 </svg>

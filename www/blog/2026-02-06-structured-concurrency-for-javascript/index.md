@@ -22,9 +22,10 @@ is the classic.
 
 Here's what I mean: if I start some concurrent work inside a block of code, that
 work should have a clear owner and a natural lifetime, and it should reliably
-clean up when that block is done. The picture at the top shows exactly that:
-child work lives _inside_ the scope that started it, and when the parent scope
-ends, everything inside stops.
+clean up when that block is done. The picture at the top shows the difference:
+on the left, work escapes the function boundary and leaks. On the right,
+everything lives inside the scope that started it — and when that scope ends,
+everything stops.
 
 ```js
 function* myTask() {

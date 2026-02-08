@@ -152,6 +152,19 @@
         "Liberation Mono", "Courier New", monospace;
       font-size: 14px;
     }
+    .mono-sm {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+    }
+    .label {
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI,
+        Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
 
     /* ---- Light mode (default) ---- */
     .bg-light       { display: block; }
@@ -165,6 +178,7 @@
     .grid-line      { stroke: #C9D9F2; stroke-width: 1; }
 
     .card           { fill: #FFFFFF; }
+    .divider        { stroke: #D6E4FF; stroke-dasharray: 4 4; stroke-width: 1; }
     .scope-parent   { fill: #F7FBFF; stroke: #97B7FF; stroke-width: 2; }
     .scope-label    { fill: #E6F0FF; }
     .scope-child    { fill: #FFFFFF; stroke: #2B6FF7; stroke-width: 2; }
@@ -173,11 +187,24 @@
     .pill-shadow    { fill: #0B2A5B; opacity: 0.06; }
     .legend         { fill: #FFFFFF; stroke: #D6E4FF; stroke-width: 1; }
 
+    /* Before/after pattern: broken boundary + leaks */
+    .dashed-boundary { stroke: #B8CCF5; stroke-width: 2; stroke-dasharray: 8 4;
+                       fill: none; }
+    .dashed-label   { fill: #E6F0FF; }
+    .leak-line      { stroke: #EA580C; stroke-width: 2; fill: none; }
+    .leak-dot       { fill: #EA580C; }
+    .leak-text      { fill: #EA580C; }
+    .uncertain-text { fill: #EA580C; }
+    .check-text     { fill: #16A34A; }
+
     .title          { fill: url(#ink); }
     .subtitle       { fill: #33547B; }
     .caption        { fill: #23435F; }
     .mono           { fill: #1e3a8a; }
+    .mono-sm        { fill: #1e3a8a; }
     .mono-label     { fill: #0B2A5B; }
+    .label          { fill: #33547B; }
+    .label-heading  { fill: #0B2A5B; }
 
     .dot-primary    { fill: #2B6FF7; }
     .dot-secondary  { fill: #0EA5E9; }
@@ -204,6 +231,7 @@
       .grid-line      { stroke: #374151; }
 
       .card           { fill: #1F2937; }
+      .divider        { stroke: #374151; }
       .scope-parent   { fill: #111827; stroke: #374151; }
       .scope-label    { fill: #1E3A8A; }
       .scope-child    { fill: #1F2937; stroke: #60A5FA; }
@@ -212,11 +240,22 @@
       .pill-shadow    { fill: #000000; opacity: 0.15; }
       .legend         { fill: #1F2937; stroke: #374151; }
 
+      .dashed-boundary { stroke: #4B5563; }
+      .dashed-label   { fill: #1E3A8A; }
+      .leak-line      { stroke: #FB923C; }
+      .leak-dot       { fill: #FB923C; }
+      .leak-text      { fill: #FB923C; }
+      .uncertain-text { fill: #FB923C; }
+      .check-text     { fill: #4ADE80; }
+
       .title          { fill: #F3F4F6; }
       .subtitle       { fill: #9CA3AF; }
       .caption        { fill: #D1D5DB; }
       .mono           { fill: #E5E7EB; }
+      .mono-sm        { fill: #E5E7EB; }
       .mono-label     { fill: #D1D5DB; }
+      .label          { fill: #9CA3AF; }
+      .label-heading  { fill: #F3F4F6; }
 
       .dot-primary    { fill: #60A5FA; }
       .dot-secondary  { fill: #0EA5E9; }
@@ -361,6 +400,26 @@
     <circle class="stack-dot" cx="714" cy="429" r="6" />
     <text x="730" y="434" class="mono">Feature or item 4</text>
   </g>
+  -->
+
+  <!-- ======================================================= -->
+  <!-- DIAGRAM PATTERN D: Before/after (broken vs structured)  -->
+  <!-- Use a wider card (x=480, w=640) and add a divider       -->
+  <!-- Uncomment this block for comparison diagrams             -->
+  <!-- ======================================================= -->
+  <!--
+  <line class="divider" x1="800" y1="148" x2="800" y2="522" />
+  <text x="620" y="168" class="label label-heading" text-anchor="middle">Before</text>
+  <text x="980" y="168" class="label label-heading" text-anchor="middle">After</text>
+  <rect class="dashed-boundary" x="520" y="186" width="240" height="210" rx="14" />
+  <rect class="dashed-label" x="534" y="198" width="100" height="24" rx="8" />
+  <text x="546" y="215" class="mono-sm">label here</text>
+  <path class="leak-line" d="M620 260 C660 258 710 242 770 235" stroke-linecap="round" />
+  <circle class="leak-dot" cx="770" cy="235" r="5" />
+  <text x="534" y="432" class="mono-sm leak-text">leaked item</text>
+  <text x="534" y="510" class="mono-sm uncertain-text">finally {} ?</text>
+  <rect class="scope-parent" x="840" y="186" width="250" height="240" rx="14" />
+  <text x="870" y="500" class="mono-sm check-text">✓ cleaned up</text>
   -->
 
   <!-- ======== LEGEND (bottom) ======== -->

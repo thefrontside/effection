@@ -15,7 +15,7 @@ into code that has already moved on.
 This is the part of JavaScript async we all learn to tolerate: work that
 outlives the scope that started it.
 
-Structured Programming was created to rein in a similar kind of chaos in the
+Structured programming was created to rein in a similar kind of chaos in the
 70s. We take our structured constructs for granted now, but before them it was
 the Wild West: crashes, leaks, infinite loops, and programs that were hard to
 reason about. People reached for `goto`, control flow jumped across the page,
@@ -36,10 +36,12 @@ everything stops.
 
 JavaScript had generator functions (`function*`) before `async/await` — and
 generators are flexible enough to support structured concurrency because the
-caller controls when they resume and when they stop. But when `async/await` was
-standardized, the runtime gave the parent no way to control the child — no halt,
-no forced cleanup — without modifying every function signature in the chain.
-Effection builds on generators to fill what `async/await` left out.
+caller controls when they resume and when they stop.
+
+But when `async/await` was standardized, the runtime gave the parent no way to
+control the child — no halt, no forced cleanup — without modifying every
+function signature in the chain. Effection builds on generators to fill what
+`async/await` left out.
 
 ## Where Async Breaks JavaScript
 
@@ -48,7 +50,7 @@ to completion unless it throws, and `finally {}` runs when control leaves the
 `try` block. When the function returns, the work is over.
 
 Async changes that. The moment you `await`, the work you started no longer has
-to finish inside the scope that started it—your caller can move on while your
+to finish inside the scope that started it — your caller can move on while your
 effects keep running. Promises are eager, unstructured, and not cancellable. You
 can signal cancellation to some APIs with `AbortSignal`, but you can't force a
 promise to unwind and run cleanup.
@@ -91,12 +93,12 @@ For the deeper explanation, see
 and
 [The Heartbreaking Inadequacy of Abort Controller](https://frontside.com/blog/2025-08-04-the-heartbreaking-inadequacy-of-abort-controller/).
 
-The fix isn't more convention—it's the missing guarantee.
+The fix isn't more convention — it's the missing guarantee.
 
 ## What Effection Changes
 
 Effection makes async code feel like it has the same structure that our
-synchronous code has had for decades. The structured-concurrency part comes down
+synchronous code has had for decades. The structured concurrency part comes down
 to two guarantees:
 
 1. No operation runs longer than its parent.
@@ -131,7 +133,7 @@ await main(function* () {
   yield* sleep(1000);
   console.log("main done");
   // when main exits, the spawned task is halted
-  // and its finally{} block runs — guaranteed.
+  // and its finally {} block runs — guaranteed.
 });
 ```
 
@@ -152,8 +154,8 @@ Structured concurrency isn't so much new as it is overdue: it's the missing
 guarantee that makes async behave like you already expect. Effection stays small
 because it doesn't ask you to change how you write programs; it fills in what
 the runtime doesn't guarantee by default so shutdown becomes normal control flow
-instead of a special case. When the program ends—Ctrl-C, SIGTERM, navigation,
-cancellation—your concurrent work halts cleanly instead of leaking past the
+instead of a special case. When the program ends — Ctrl-C, SIGTERM, navigation,
+cancellation — your concurrent work halts cleanly instead of leaking past the
 scope that started it.
 
 Effection is small on purpose, so async should just feel normal.

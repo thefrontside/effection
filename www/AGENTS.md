@@ -27,6 +27,28 @@ image: "featured-image.svg"
 - Tags are lowercase strings, typically 1-3.
 - Image paths are relative to the post directory.
 
+## Featured Images
+
+- **Template:** `www/blog/blog-image-template.svg`
+- **Dimensions:** 1200×630 (standard OG image size)
+- **Color scheme:** Automatically adapts to system light/dark mode via
+  `@media (prefers-color-scheme: dark)` inside the SVG `<style>` block.
+- **Usage:** Copy the template into your post directory, rename it, and
+  customize the title, caption, diagram area, and legend items.
+- **Colors:** Use the CSS classes defined in the template (`card`,
+  `scope-parent`, `scope-child`, `pill`, `mono`, `dot-primary`, etc.) — do NOT
+  hardcode `fill`/`stroke` values that would break in one mode.
+- **Diagram patterns:** The template includes three commented-out diagram
+  examples: nested boxes (scope ownership), flow arrows (pipelines/sequences),
+  and stacked items (feature lists). Uncomment the one closest to your needs and
+  customize.
+- **Shadows/filters:** Light and dark mode use separate shadow filters
+  (`softShadow-light`/`softShadow-dark`, `tinyShadow-light`/`tinyShadow-dark`).
+  Elements that need shadows must be duplicated in two `<g>` wrappers — one with
+  class `shadow-light` and one with `shadow-dark`. CSS toggles visibility.
+- **Background:** Uses show/hide pairs (`bg-light`/`bg-dark`,
+  `glow-light`/`glow-dark`) since CSS cannot change SVG gradient stop colors.
+
 ## Voice
 
 ### Primary author: Taras Mankovski

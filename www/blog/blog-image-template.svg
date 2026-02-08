@@ -1,4 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- ============================================ -->
+<!-- BLOG IMAGE TEMPLATE — Effection Blog         -->
+<!-- ============================================ -->
+<!-- Dimensions: 1200×630 (standard OG image)     -->
+<!-- Color scheme: adapts to system light/dark     -->
+<!--   via @media (prefers-color-scheme: dark)     -->
+<!--                                              -->
+<!-- HOW TO USE:                                  -->
+<!-- 1. Copy this file into your post directory   -->
+<!-- 2. Rename to match your post slug            -->
+<!-- 3. Update title, caption text below          -->
+<!-- 4. Uncomment ONE diagram pattern or create   -->
+<!--    your own in the diagram card area         -->
+<!-- 5. Update legend items to match your diagram -->
+<!-- 6. Do NOT hardcode fill/stroke colors —      -->
+<!--    use the CSS classes defined in <style>    -->
+<!-- ============================================ -->
 <svg
   width="1200"
   height="630"
@@ -6,9 +23,11 @@
   fill="none"
   xmlns="http://www.w3.org/2000/svg"
   role="img"
-  aria-label="Structured Concurrency for JavaScript - scope owns lifetime"
+  aria-label="REPLACE: image alt text"
 >
   <defs>
+    <!-- ======== GRADIENTS & FILTERS ======== -->
+
     <!-- Light-mode background gradient -->
     <linearGradient
       id="bg-light-grad"
@@ -60,16 +79,6 @@
       <stop offset="1" stop-color="#0EA5E9" />
     </linearGradient>
 
-    <!-- Dark-mode accent gradient (brighter) -->
-    <linearGradient
-      id="accent-dark"
-      x1="340" y1="190" x2="930" y2="520"
-      gradientUnits="userSpaceOnUse"
-    >
-      <stop offset="0" stop-color="#60A5FA" />
-      <stop offset="1" stop-color="#0EA5E9" />
-    </linearGradient>
-
     <!-- Light-mode shadow (card) -->
     <filter
       id="softShadow-light"
@@ -114,6 +123,7 @@
         flood-color="#000000" flood-opacity="0.20" />
     </filter>
 
+    <!-- ======== STYLES ======== -->
     <style>
     /* ---- Font stacks ---- */
     .title {
@@ -150,8 +160,6 @@
     .glow-dark      { display: none; }
     .shadow-light   { display: block; }
     .shadow-dark    { display: none; }
-    .arrow-light    { display: block; }
-    .arrow-dark     { display: none; }
 
     .grid           { opacity: 0.25; }
     .grid-line      { stroke: #C9D9F2; stroke-width: 1; }
@@ -175,6 +183,14 @@
     .dot-secondary  { fill: #0EA5E9; }
     .dot-muted      { fill: #94A3B8; }
 
+    /* Flow arrow pattern */
+    .flow-box       { fill: #FFFFFF; stroke: #97B7FF; stroke-width: 2; }
+    .flow-arrow     { stroke: #2B6FF7; stroke-width: 2; }
+
+    /* Stacked items pattern */
+    .stack-item     { fill: #FFFFFF; stroke: #B8CCF5; stroke-width: 1; }
+    .stack-dot      { fill: #2B6FF7; }
+
     /* ---- Dark mode ---- */
     @media (prefers-color-scheme: dark) {
       .bg-light       { display: none; }
@@ -183,8 +199,6 @@
       .glow-dark      { display: block; }
       .shadow-light   { display: none; }
       .shadow-dark    { display: block; }
-      .arrow-light    { display: none; }
-      .arrow-dark     { display: block; }
 
       .grid           { opacity: 0.20; }
       .grid-line      { stroke: #374151; }
@@ -207,6 +221,12 @@
       .dot-primary    { fill: #60A5FA; }
       .dot-secondary  { fill: #0EA5E9; }
       .dot-muted      { fill: #94A3B8; }
+
+      .flow-box       { fill: #1F2937; stroke: #374151; }
+      .flow-arrow     { stroke: #60A5FA; }
+
+      .stack-item     { fill: #1F2937; stroke: #374151; }
+      .stack-dot      { fill: #60A5FA; }
     }
     </style>
   </defs>
@@ -247,14 +267,15 @@
     <path class="grid-line" d="M1080 80V580" />
   </g>
 
-  <!-- ======== TITLE ======== -->
+  <!-- ======== TITLE AREA (left side) ======== -->
+  <!-- CUSTOMIZE: Replace text content below -->
   <text x="90" y="140" class="subtitle">Effection Blog</text>
-  <text x="90" y="205" class="title">Structured Concurrency</text>
-  <text x="90" y="255" class="title">for JavaScript</text>
-  <text x="90" y="305" class="caption"
-  >Scope owns lifetime. Cleanup is guaranteed.</text>
+  <text x="90" y="205" class="title">TITLE LINE 1</text>
+  <text x="90" y="255" class="title">TITLE LINE 2</text>
+  <text x="90" y="305" class="caption">Subtitle caption goes here.</text>
 
-  <!-- ======== DIAGRAM: white card container ======== -->
+  <!-- ======== DIAGRAM AREA (right side) ======== -->
+  <!-- The card container — always present -->
   <g class="shadow-light" filter="url(#softShadow-light)">
     <rect class="card" x="650" y="150" width="460" height="390" rx="24" />
   </g>
@@ -262,7 +283,11 @@
     <rect class="card" x="650" y="150" width="460" height="390" rx="24" />
   </g>
 
-  <!-- ======== OUTER SCOPE ======== -->
+  <!-- ======================================================= -->
+  <!-- DIAGRAM PATTERN A: Nested boxes (scope ownership)       -->
+  <!-- Uncomment this block for parent/child scope diagrams    -->
+  <!-- ======================================================= -->
+  <!--
   <g class="shadow-light" filter="url(#tinyShadow-light)">
     <rect class="scope-parent" x="690" y="200" width="380" height="300" rx="18" />
     <rect class="scope-label" x="706" y="218" width="120" height="28" rx="10" />
@@ -273,8 +298,6 @@
     <rect class="scope-label" x="706" y="218" width="120" height="28" rx="10" />
     <text x="722" y="238" class="mono">parent scope</text>
   </g>
-
-  <!-- ======== CHILD SCOPE ======== -->
   <g class="shadow-light" filter="url(#tinyShadow-light)">
     <rect class="scope-child" x="735" y="270" width="310" height="205" rx="16" />
     <rect class="scope-child-label" x="751" y="288" width="110" height="26" rx="10" />
@@ -285,58 +308,68 @@
     <rect class="scope-child-label" x="751" y="288" width="110" height="26" rx="10" />
     <text x="767" y="307" class="mono">child scope</text>
   </g>
-
-  <!-- ======== EFFECTS (owned work) ======== -->
   <g>
     <rect class="pill-shadow" x="760" y="338" width="280" height="44" rx="14" />
     <rect class="pill" x="760" y="336" width="280" height="44" rx="14" />
     <circle class="dot-primary" cx="782" cy="358" r="6" />
-    <text x="798" y="363" class="mono">timer / socket / listener</text>
-
+    <text x="798" y="363" class="mono">item label 1</text>
     <rect class="pill-shadow" x="760" y="398" width="280" height="44" rx="14" />
     <rect class="pill" x="760" y="396" width="280" height="44" rx="14" />
     <circle class="dot-secondary" cx="782" cy="418" r="6" />
-    <text x="798" y="423" class="mono">in-flight request</text>
+    <text x="798" y="423" class="mono">item label 2</text>
   </g>
+  -->
 
-  <!-- ======== LIFETIME ARROW ======== -->
-  <g class="arrow-light">
-    <path
-      d="M1040 238C1090 270 1090 430 1040 462"
-      stroke="url(#accent)"
-      stroke-width="6"
-      stroke-linecap="round"
-      fill="none"
-    />
-    <path d="M1040 462L1058 452" stroke="url(#accent)"
-      stroke-width="6" stroke-linecap="round" fill="none" />
-    <path d="M1040 462L1058 472" stroke="url(#accent)"
-      stroke-width="6" stroke-linecap="round" fill="none" />
+  <!-- ======================================================= -->
+  <!-- DIAGRAM PATTERN B: Flow arrows (pipeline / sequence)    -->
+  <!-- Uncomment this block for before→after or step diagrams  -->
+  <!-- ======================================================= -->
+  <!--
+  <g>
+    <rect class="flow-box" x="680" y="280" width="120" height="80" rx="12" />
+    <text x="710" y="326" class="mono">Step 1</text>
+    <line class="flow-arrow" x1="800" y1="320" x2="840" y2="320"
+      marker-end="url(#arrowhead)" />
+    <rect class="flow-box" x="840" y="280" width="120" height="80" rx="12" />
+    <text x="870" y="326" class="mono">Step 2</text>
+    <line class="flow-arrow" x1="960" y1="320" x2="1000" y2="320"
+      marker-end="url(#arrowhead)" />
+    <rect class="flow-box" x="1000" y="280" width="120" height="80" rx="12" />
+    <text x="1030" y="326" class="mono">Step 3</text>
   </g>
-  <g class="arrow-dark">
-    <path
-      d="M1040 238C1090 270 1090 430 1040 462"
-      stroke="url(#accent-dark)"
-      stroke-width="6"
-      stroke-linecap="round"
-      fill="none"
-    />
-    <path d="M1040 462L1058 452" stroke="url(#accent-dark)"
-      stroke-width="6" stroke-linecap="round" fill="none" />
-    <path d="M1040 462L1058 472" stroke="url(#accent-dark)"
-      stroke-width="6" stroke-linecap="round" fill="none" />
-  </g>
-  <text x="948" y="492" class="mono mono-label">scope ends</text>
-  <text x="930" y="520" class="mono mono-label">scope lifetime</text>
+  -->
 
-  <!-- ======== LEGEND ======== -->
+  <!-- ======================================================= -->
+  <!-- DIAGRAM PATTERN C: Stacked items (feature list)         -->
+  <!-- Uncomment this block for vertical lists                 -->
+  <!-- ======================================================= -->
+  <!--
+  <g>
+    <rect class="stack-item" x="690" y="200" width="380" height="50" rx="12" />
+    <circle class="stack-dot" cx="714" cy="225" r="6" />
+    <text x="730" y="230" class="mono">Feature or item 1</text>
+
+    <rect class="stack-item" x="690" y="268" width="380" height="50" rx="12" />
+    <circle class="stack-dot" cx="714" cy="293" r="6" />
+    <text x="730" y="298" class="mono">Feature or item 2</text>
+
+    <rect class="stack-item" x="690" y="336" width="380" height="50" rx="12" />
+    <circle class="stack-dot" cx="714" cy="361" r="6" />
+    <text x="730" y="366" class="mono">Feature or item 3</text>
+
+    <rect class="stack-item" x="690" y="404" width="380" height="50" rx="12" />
+    <circle class="stack-dot" cx="714" cy="429" r="6" />
+    <text x="730" y="434" class="mono">Feature or item 4</text>
+  </g>
+  -->
+
+  <!-- ======== LEGEND (bottom) ======== -->
+  <!-- CUSTOMIZE: Replace legend items -->
   <g opacity="0.92">
     <rect class="legend" x="90" y="505" width="640" height="92" rx="18" />
     <circle class="dot-primary" cx="120" cy="540" r="8" />
-    <text x="140" y="545" class="mono"
-    >Operations are lazy and scope-owned</text>
+    <text x="140" y="545" class="mono">Legend item 1 description</text>
     <circle class="dot-muted" cx="120" cy="572" r="8" />
-    <text x="140" y="577" class="mono"
-    >Promises are eager and unstructured</text>
+    <text x="140" y="577" class="mono">Legend item 2 description</text>
   </g>
 </svg>

@@ -34,15 +34,6 @@ on the left, work escapes the function boundary and leaks. On the right,
 everything lives inside the scope that started it — and when that scope ends,
 everything stops.
 
-JavaScript had generator functions (`function*`) before `async/await` — and
-generators are flexible enough to support structured concurrency because the
-caller controls when they resume and when they stop.
-
-But when `async/await` was standardized, it didn't come with parent-to-child
-control — no built-in halt, no guaranteed cleanup — unless every function in the
-chain opts in (e.g. via `AbortSignal`). Effection builds on generators to
-provide what `async/await` left out.
-
 ## Where Async Breaks JavaScript
 
 In synchronous JavaScript, lifetimes are boring in a good way: a function runs
@@ -51,9 +42,8 @@ to completion unless it throws, and `finally {}` runs when control leaves the
 
 Async changes that. The moment you `await`, the work you started no longer has
 to finish inside the scope that started it — your caller can move on while your
-effects keep running. Promises are eager, unstructured, and not cancellable. You
-can signal cancellation to some APIs with `AbortSignal`, but you can't force a
-promise to unwind and run cleanup.
+effects keep running. Promises are eager, unstructured, and not cancellable, and
+you can't force a promise to unwind and run cleanup.
 
 Here's the shape of the problem in plain `async` code:
 
@@ -74,13 +64,15 @@ run();
 process.on("SIGINT", () => process.exit(0));
 ```
 
-In practice, `finally {}` stops being a reliable place to put cleanup for the
-async work you kicked off — because that work isn't bound to the scope that
-created it, and you can't force it to unwind. Cancellation becomes a convention
-rather than a guarantee. You end up threading `AbortSignal` through layers of
-code just to get something resembling interruption. Leaked timers, ports, and
-listeners become common failure modes. It's the Wild West of the 70s all over
-again — just async this time.
+When `async/await` was standardized, it didn't come with parent-to-child control
+— no built-in halt, no guaranteed cleanup — unless every function in the chain
+opts in (e.g. via `AbortSignal`). In practice, `finally {}` stops being a
+reliable place to put cleanup for the async work you kicked off — because that
+work isn't bound to the scope that created it, and you can't force it to unwind.
+Cancellation becomes a convention rather than a guarantee. You end up threading
+cancellation signals through layers of code just to get something resembling
+interruption. Leaked timers, ports, and listeners become common failure modes.
+It's the Wild West of the 70s all over again — just async this time.
 
 This broken model has been with us for so long that most developers have learned
 to live with it — accepting that closing a CLI leaves orphaned processes, that

@@ -44,10 +44,11 @@ In synchronous JavaScript, lifetimes are boring in a good way: a function runs
 to completion unless it throws, and `finally {}` runs when control leaves the
 `try` block. When the function returns, the work is over.
 
-Async changes that. Once you cross an `await` boundary, the caller has two bad
-options: await (and block) or move on while the work keeps running past its
-lifetime boundary. Either way, there's nothing built in that can halt it and
-force cleanup to run.
+Async changes that. Once you start async work by creating a Promise, the caller
+has two bad options: await it (possibly forever), or move on while the work
+keeps running past the caller's lifetime boundary. Either way, there's nothing
+built in that can halt it and force cleanup to run — unless you explicitly
+thread cancellation through the call chain.
 
 Here's the shape of the problem in plain `async` code:
 

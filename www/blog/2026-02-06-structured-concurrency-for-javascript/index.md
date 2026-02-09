@@ -44,10 +44,10 @@ In synchronous JavaScript, lifetimes are boring in a good way: a function runs
 to completion unless it throws, and `finally {}` runs when control leaves the
 `try` block. When the function returns, the work is over.
 
-Async changes that. The moment you `await`, the work you started no longer has
-to finish inside the scope that started it — your caller can move on while your
-effects keep running. And there's nothing built in that makes that work stop and
-unwind just because the caller is done.
+Async changes that. Once you cross an `await` boundary, the caller has two bad
+options: await (and block) or move on while the work keeps running past its
+lifetime boundary. Either way, there's nothing built in that can halt it and
+force cleanup to run.
 
 Here's the shape of the problem in plain `async` code:
 

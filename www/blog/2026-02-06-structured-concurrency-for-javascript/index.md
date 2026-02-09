@@ -151,4 +151,5 @@ instead of a special case. When the program ends — Ctrl-C, SIGTERM, navigation
 cancellation — your concurrent work halts cleanly instead of leaking past the
 scope that started it.
 
-Effection is small on purpose, so async should just feel normal.
+Effection is not a large library. It is small and simple by design, so that
+async can be bulletproof and still feel normal.

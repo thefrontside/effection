@@ -145,7 +145,8 @@ behaviour of errors is very clearly defined. An error in a child will also
 cause the parent to error, which in turn halts any siblings.
 
 This idea is called [structured concurrency], and it has profound effects on
-the composability of concurrent code.
+the composability of concurrent code. For more on why this matters specifically
+for JavaScript, see [Why Structured Concurrency for JavaScript][sc-for-js].
 
 ## Using combinators
 
@@ -203,6 +204,7 @@ line **(8)**.
 You can learn more about this in the [scope guide](./scope).
 
 [structured concurrency]: https://vorpus.org/blog/notes-on-structured-concurrency-or-go-statement-considered-harmful/
+[sc-for-js]: /blog/2026-02-06-structured-concurrency-for-javascript
 [express]: https://expressjs.org
 [scope.run]: /api/v4/Scope
 [Operation]: /api/v4/Operation

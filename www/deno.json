@@ -53,6 +53,7 @@
     "@effectionx/deno-deploy": "jsr:@effectionx/deno-deploy@^0.3.1",
     "@effectionx/process": "jsr:@effectionx/process@^0.6.2",
     "hast": "npm:hast@^1.0.0",
+    "hast-util-from-html": "npm:hast-util-from-html@2.0.3",
     "hast-util-shift-heading": "npm:hast-util-shift-heading@4.0.0",
     "hast-util-to-html": "npm:hast-util-to-html@9.0.0",
     "mdast": "npm:mdast@^3.0.0",

@@ -101,7 +101,7 @@ leverage what they already know while gaining the guarantees of Structured Concu
 constructs in an Effection function and they'll behave as you'd expect.
 
 However, one of the constructs we avoid in Effection is the syntax and semantics of `async/await`.
-This is because `async/await` is [not capable of modeling structured concurrency][await-event-horizon]. Instead, we make
+This is because `async/await` is [not capable of modeling structured concurrency][await-event-horizon]. For the full picture of why JavaScript needs structured concurrency, see [Why Structured Concurrency for JavaScript][sc-for-js]. Instead, we make
 extensive use of [generator functions][generator-functions] which are a core feature of JavaScript and are supported by all browsers
 and JavaScript runtimes.
 
@@ -109,5 +109,6 @@ Finally, we provide a handy Effection Rosetta Stone to show how _Async/Await_ co
 
 [generator-functions]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function*
 [await-event-horizon]: https://frontside.com/blog/2023-12-11-await-event-horizon/
+[sc-for-js]: /blog/2026-02-06-structured-concurrency-for-javascript
 [delimited-continuation-repo]: https://github.com/thefrontside/continuation
 [eaddrinuse-error]: https://stackoverflow.com/questions/14790910/stop-all-instances-of-node-js-server

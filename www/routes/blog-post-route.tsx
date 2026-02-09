@@ -89,7 +89,8 @@ export function blogPostRoute({
                   <img
                     src={post.image}
                     alt={post.title}
-                    class="w-full rounded-xl shadow-lg mb-8"
+                    class="w-full rounded-xl shadow-lg mb-8 overflow-hidden dark:border dark:border-gray-700"
+                    data-inline-svg
                   />
                 )
                 : <></>}

@@ -371,3 +371,11 @@ for (const item of yield * each(stream(asyncIterable))) {
   `reject(error)` functions.
 - After resolve/reject, yielding the `operation` always produces the same
   outcome; calling resolve/reject again has no effect.
+
+## Pull requests
+
+When creating a pull request, use the template at
+`.github/pull_request_template.md`. The PR description must include:
+
+- **Motivation** — describe the problem or feature request the PR addresses.
+- **Approach** — provide a brief summary of the changes made.

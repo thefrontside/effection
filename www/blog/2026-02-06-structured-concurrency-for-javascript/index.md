@@ -8,9 +8,9 @@ image: "structured-concurrency-js.svg"
 
 You hit Ctrl-C. The CLI exits. And yet the port is still bound.
 
-Or you navigate away in the browser, and a request you no longer care about
-keeps running anyway — burning battery, holding sockets, and calling callbacks
-into code that has already moved on.
+Or a component unmounts in your SPA, and the requests it started keep running
+anyway — burning battery, holding sockets, and calling callbacks into code that
+has already moved on.
 
 This is the part of JavaScript async we all learn to tolerate: work that
 outlives the scope (the lifetime boundary) that started it.

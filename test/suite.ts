@@ -88,6 +88,17 @@ export interface TinyProcess extends Operation<Output> {
   kill(signal?: KillSignal): Operation<Output>;
 }
 
+// POSIX conventional exit codes for signals (128 + signal number).
+// Deno 2.6.9+ (denoland/deno#32081) sets ChildProcess.exitCode to null
+// for signal-killed processes (matching Node.js semantics), so tinyexec
+// returns exitCode: undefined. We derive the conventional code ourselves.
+const SIGNAL_EXIT_CODES: Record<string, number> = {
+  SIGHUP: 129,
+  SIGINT: 130,
+  SIGQUIT: 131,
+  SIGTERM: 143,
+};
+
 export function x(
   cmd: string,
   args: string[] = [],
@@ -112,7 +123,16 @@ export function x(
         ) {
           ctrlc(tinyexec.pid);
         }
-        return yield* output;
+        let result = yield* output;
+
+        if (result.exitCode === undefined && signal) {
+          let code = SIGNAL_EXIT_CODES[signal];
+          if (code !== undefined) {
+            return { ...result, exitCode: code };
+          }
+        }
+
+        return result;
       },
     };
 

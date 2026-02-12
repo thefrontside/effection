@@ -35,7 +35,7 @@ export function Footer(): JSX.Element {
         <h4 class="text-sm uppercase font-bold text-blue-primary dark:text-blue-secondary mb-4">
           AI Agent Resources
         </h4>
-        <a href="/assets/llms.txt" class="text-gray-800 dark:text-gray-200">
+        <a href="/llms.txt" class="text-gray-800 dark:text-gray-200">
           llms.txt
         </a>
         <a

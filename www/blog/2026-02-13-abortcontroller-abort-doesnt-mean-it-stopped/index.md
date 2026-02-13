@@ -19,6 +19,10 @@ guarantee, and that gap is where orphaned work comes from.
 
 ## The leak
 
+Here's what a hidden leak looks like: you call `abort()`, it returns, the
+promise rejects, the caller awaits completion — but the interval keeps ticking
+forever.
+
 ```js
 (async () => {
   const controller = new AbortController();
@@ -35,10 +39,11 @@ guarantee, and that gap is where orphaned work comes from.
 
   await done;
   console.log(">>> caller thinks everything is done");
+  // But "tick: STILL RUNNING" continues forever
 })();
 
 async function task(signal) {
-  // This never gets cleaned up
+  // Orphaned: no cancellation boundary
   setInterval(() => console.log("tick: STILL RUNNING"), 200);
 
   await new Promise((_, reject) => {
@@ -49,46 +54,34 @@ async function task(signal) {
 }
 ```
 
-Run this and follow the sequence.
-
-At ~700ms, `abort()` is called. It returns immediately. The promise waiting on
-the signal rejects, so `task()` appears to end with `"aborted"`. The caller
-awaits `done`, then prints `">>> caller thinks everything is done"`.
-
-But `tick: STILL RUNNING` continues forever.
-
-That interval is not tied to any cancellation boundary. It is just process state
-now. The abort signal rejected one promise, but it did not unwind every side
-effect created by the task. From the call site, lifecycle looks complete. From
-the runtime, it is not. This is how leaks hide in plain sight: the code that
-initiated cancellation has no direct way to confirm shutdown actually finished.
+The interval is never tied to the signal. When `abort()` fires, the promise
+rejects, the task appears to end, but the timer survives. From the call site,
+lifecycle looks complete. From the runtime, it's not. This is how leaks hide in
+plain sight: the code that initiated cancellation has no direct way to confirm
+shutdown actually finished.
 
 ## Why this happens
 
-`abort()` is synchronous in a narrow sense: it dispatches an event and returns.
-Everything that matters happens later, in listener code spread across your
-stack. Cleanup depends on each function honoring the signal and forwarding it to
-whatever it calls. Miss it once and the chain breaks. The platform also gives
-you no completion primitive for cancellation itself. You can signal intent, but
-you cannot await the end of cleanup as a first-class outcome.
+`abort()` dispatches an event and returns. The signal is synchronous; the
+consequences are not — and the platform provides no primitive to wait for those
+consequences to finish. Teardown happens in listener code spread across your
+stack, depending on each function honoring the signal and forwarding it to
+whatever it calls. Miss it once and the chain breaks.
 
-## The deeper problem: opt-in cleanup
+This is not a flaw in AbortController's design so much as a limit of what
+cancellation can express without structured lifetimes. **AbortController
+propagates intent; structured concurrency propagates ownership.** Intent is
+advisory: every layer must cooperate. Ownership is structural: the parent scope
+ensures children cannot outlive it. Correctness should not depend on discipline
+across an unbounded stack.
 
-AbortController makes cleanup opt-in at every layer. Every function has to
-participate. Every integration has to agree on behavior. Every `try/catch` path
-has to preserve cancellation semantics. Most resource leaks happen because
-someone forgot to add cleanup, not because they intentionally skipped it.
-
-That is the real issue with the default. The system is only as safe as the least
-careful frame in the call tree. Correctness should not depend on perfect
-discipline across an unbounded stack. We need a model that inverts the default
-so lifetime safety is automatic, not manually propagated.
-
-## Scope owns lifetime
+## Structured lifetimes in practice
 
 In structured concurrency, a child cannot outlive its parent. When scope exits,
 child work is canceled and awaited before control continues. Cleanup is
 guaranteed unless you opt out.
+
+Here's the same work shape, but with structural ownership:
 
 ```js
 import { main, scoped, sleep, spawn } from "effection";
@@ -110,14 +103,20 @@ await main(function* () {
 });
 ```
 
-This is the same shape of work, but now lifetime is structural instead of
-advisory. When the scoped block exits, the ticker is halted and fully cleaned up
-before the next line runs. No manual signal forwarding. No hidden background
-survivors. Cleanup happens automatically. You don't have to remember it.
+When the scoped block exits, the ticker is halted and fully unwound before the
+next line runs. No manual signal forwarding. No hidden background survivors.
+
+The same applies to real resources: fetch requests, WebSockets, child processes.
+In Effection, resource operations are written as generators that tie cleanup to
+scope exit — so a fetch that never completes gets aborted when the parent scope
+closes, a WebSocket closes its connection, a process is killed. The pattern is
+the same: scope exit = guaranteed shutdown.
 
 ## Close
 
-For the full technical critique, read
+Structured lifetimes change the default: cleanup becomes automatic, and leaking
+becomes the thing you have to go out of your way to do.
+[Effection](https://frontside.com/effection) delivers this for JavaScript —
+seven years in production, from trading platforms to CLI tools. For the full
+technical critique of AbortController, see
 [The Heartbreaking Inadequacy of AbortController](https://frontside.com/blog/2025-08-04-the-heartbreaking-inadequacy-of-abort-controller/).
-Effection has run trading platforms in production for 7 years. Docs:
-[frontside.com/effection](https://frontside.com/effection).

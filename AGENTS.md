@@ -372,6 +372,17 @@ for (const item of yield * each(stream(asyncIterable))) {
 - After resolve/reject, yielding the `operation` always produces the same
   outcome; calling resolve/reject again has no effect.
 
+## Pre-commit workflow
+
+Before committing any changes to this repository:
+
+1. Run `deno fmt` to format all changed files
+2. Run `deno lint` to check for lint errors (TypeScript files only)
+3. Fix any issues before committing
+
+This applies to all file types that Deno formats (TypeScript, JavaScript,
+Markdown, JSON, etc.). The `www/` subdirectory follows the same rules.
+
 ## Pull requests
 
 When creating a pull request, use the template at

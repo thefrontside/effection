@@ -335,16 +335,11 @@
         height="430"
         rx="12"
       />
-      <!-- Header bar with red tint -->
-      <rect
+      <!-- Header bar with red tint (top corners rounded, bottom square) -->
+      <path
         class="svg-terminal-header-left"
-        x="60"
-        y="140"
-        width="520"
-        height="40"
-        rx="12"
+        d="M72 140 H568 A12 12 0 0 1 580 152 V180 H60 V152 A12 12 0 0 1 72 140 Z"
       />
-      <rect class="svg-terminal-body" x="60" y="168" width="520" height="12" />
       <!-- Window dots -->
       <circle class="svg-terminal-dot-red" cx="84" cy="160" r="6" />
       <circle class="svg-terminal-dot-yellow" cx="104" cy="160" r="6" />
@@ -371,15 +366,10 @@
         height="430"
         rx="12"
       />
-      <rect
+      <path
         class="svg-terminal-header-left"
-        x="60"
-        y="140"
-        width="520"
-        height="40"
-        rx="12"
+        d="M72 140 H568 A12 12 0 0 1 580 152 V180 H60 V152 A12 12 0 0 1 72 140 Z"
       />
-      <rect class="svg-terminal-body" x="60" y="168" width="520" height="12" />
       <circle class="svg-terminal-dot-red" cx="84" cy="160" r="6" />
       <circle class="svg-terminal-dot-yellow" cx="104" cy="160" r="6" />
       <circle class="svg-terminal-dot-green" cx="124" cy="160" r="6" />
@@ -433,16 +423,11 @@
         height="430"
         rx="12"
       />
-      <!-- Header bar with green tint -->
-      <rect
+      <!-- Header bar with green tint (top corners rounded, bottom square) -->
+      <path
         class="svg-terminal-header-right"
-        x="620"
-        y="140"
-        width="520"
-        height="40"
-        rx="12"
+        d="M632 140 H1128 A12 12 0 0 1 1140 152 V180 H620 V152 A12 12 0 0 1 632 140 Z"
       />
-      <rect class="svg-terminal-body" x="620" y="168" width="520" height="12" />
       <!-- Window dots -->
       <circle class="svg-terminal-dot-red" cx="644" cy="160" r="6" />
       <circle class="svg-terminal-dot-yellow" cx="664" cy="160" r="6" />
@@ -475,13 +460,27 @@
         height="430"
         rx="12"
       />
-      <rect
+      <path
         class="svg-terminal-header-right"
+        d="M632 140 H1128 A12 12 0 0 1 1140 152 V180 H620 V152 A12 12 0 0 1 632 140 Z"
+      />
+      <circle class="svg-terminal-dot-red" cx="644" cy="160" r="6" />
+      <circle class="svg-terminal-dot-yellow" cx="664" cy="160" r="6" />
+      <circle class="svg-terminal-dot-green" cx="684" cy="160" r="6" />
+      <text
+        x="915"
+        y="160"
+        dy="0.35em"
+        class="svg-terminal-title"
+        text-anchor="middle"
+      >Structured Concurrency</text>
+      <!-- Body -->
+      <rect
+        class="svg-terminal-body"
         x="620"
-        y="140"
+        y="180"
         width="520"
-        height="40"
-        rx="12"
+        height="390"
       />
       <rect class="svg-terminal-body" x="620" y="168" width="520" height="12" />
       <circle class="svg-terminal-dot-red" cx="644" cy="160" r="6" />

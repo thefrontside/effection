@@ -353,9 +353,9 @@
       <text
         x="355"
         y="158"
+        dy="0.35em"
         class="svg-terminal-title"
         text-anchor="middle"
-        dominant-baseline="middle"
       >AbortController</text>
       <!-- Body -->
       <rect class="svg-terminal-body" x="60" y="176" width="520" height="394" />
@@ -383,7 +383,12 @@
       <circle class="svg-terminal-dot-red" cx="84" cy="158" r="6" />
       <circle class="svg-terminal-dot-yellow" cx="104" cy="158" r="6" />
       <circle class="svg-terminal-dot-green" cx="124" cy="158" r="6" />
-      <text x="320" y="163" class="svg-terminal-title" text-anchor="middle"
+      <text
+        x="355"
+        y="158"
+        dy="0.35em"
+        class="svg-terminal-title"
+        text-anchor="middle"
       >AbortController</text>
       <rect class="svg-terminal-body" x="60" y="176" width="520" height="394" />
     </g>
@@ -446,9 +451,9 @@
       <text
         x="915"
         y="158"
+        dy="0.35em"
         class="svg-terminal-title"
         text-anchor="middle"
-        dominant-baseline="middle"
       >Structured Concurrency</text>
       <!-- Body -->
       <rect
@@ -485,9 +490,9 @@
       <text
         x="915"
         y="158"
+        dy="0.35em"
         class="svg-terminal-title"
         text-anchor="middle"
-        dominant-baseline="middle"
       >Structured Concurrency</text>
       <rect
         class="svg-terminal-body"

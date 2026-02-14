@@ -1,10 +1,12 @@
 ---
 title: "AbortController.abort() Doesn't Mean It Stopped"
+description: "abort() fires an event and returns immediately, but cleanup depends on every function honoring the signal. Structured concurrency inverts the default: scope owns lifetime, cleanup is automatic."
 author: Taras Mankovski
 tags:
   - JavaScript
   - Structured Concurrency
   - AbortController
+image: abortcontroller-abort.svg
 ---
 
 ## The false promise

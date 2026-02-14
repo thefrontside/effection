@@ -341,24 +341,24 @@
         x="60"
         y="140"
         width="520"
-        height="36"
+        height="40"
         rx="12"
       />
-      <rect class="svg-terminal-body" x="60" y="164" width="520" height="12" />
+      <rect class="svg-terminal-body" x="60" y="168" width="520" height="12" />
       <!-- Window dots -->
-      <circle class="svg-terminal-dot-red" cx="84" cy="158" r="6" />
-      <circle class="svg-terminal-dot-yellow" cx="104" cy="158" r="6" />
-      <circle class="svg-terminal-dot-green" cx="124" cy="158" r="6" />
+      <circle class="svg-terminal-dot-red" cx="84" cy="160" r="6" />
+      <circle class="svg-terminal-dot-yellow" cx="104" cy="160" r="6" />
+      <circle class="svg-terminal-dot-green" cx="124" cy="160" r="6" />
       <!-- Title -->
       <text
         x="355"
-        y="158"
+        y="160"
         dy="0.35em"
         class="svg-terminal-title"
         text-anchor="middle"
       >AbortController</text>
       <!-- Body -->
-      <rect class="svg-terminal-body" x="60" y="176" width="520" height="394" />
+      <rect class="svg-terminal-body" x="60" y="180" width="520" height="390" />
     </g>
   </g>
   <g class="svg-shadow-dark" filter="url(#terminalShadow-dark)">
@@ -376,41 +376,41 @@
         x="60"
         y="140"
         width="520"
-        height="36"
+        height="40"
         rx="12"
       />
-      <rect class="svg-terminal-body" x="60" y="164" width="520" height="12" />
-      <circle class="svg-terminal-dot-red" cx="84" cy="158" r="6" />
-      <circle class="svg-terminal-dot-yellow" cx="104" cy="158" r="6" />
-      <circle class="svg-terminal-dot-green" cx="124" cy="158" r="6" />
+      <rect class="svg-terminal-body" x="60" y="168" width="520" height="12" />
+      <circle class="svg-terminal-dot-red" cx="84" cy="160" r="6" />
+      <circle class="svg-terminal-dot-yellow" cx="104" cy="160" r="6" />
+      <circle class="svg-terminal-dot-green" cx="124" cy="160" r="6" />
       <text
         x="355"
-        y="158"
+        y="160"
         dy="0.35em"
         class="svg-terminal-title"
         text-anchor="middle"
       >AbortController</text>
-      <rect class="svg-terminal-body" x="60" y="176" width="520" height="394" />
+      <rect class="svg-terminal-body" x="60" y="180" width="520" height="390" />
     </g>
   </g>
 
   <!-- Left terminal content -->
   <g class="svg-mono">
-    <text x="80" y="206" class="svg-terminal-text">tick: STILL RUNNING</text>
-    <text x="80" y="226" class="svg-terminal-text">tick: STILL RUNNING</text>
-    <text x="80" y="246" class="svg-terminal-text">tick: STILL RUNNING</text>
-    <text x="80" y="276" class="svg-terminal-dim">>>> calling abort()</text>
-    <text x="80" y="296" class="svg-terminal-dim">>>> abort() returned</text>
-    <text x="80" y="326" class="svg-terminal-info"
+    <text x="80" y="210" class="svg-terminal-text">tick: STILL RUNNING</text>
+    <text x="80" y="230" class="svg-terminal-text">tick: STILL RUNNING</text>
+    <text x="80" y="250" class="svg-terminal-text">tick: STILL RUNNING</text>
+    <text x="80" y="280" class="svg-terminal-dim">>>> calling abort()</text>
+    <text x="80" y="300" class="svg-terminal-dim">>>> abort() returned</text>
+    <text x="80" y="330" class="svg-terminal-info"
     >task ended with: aborted</text>
-    <text x="80" y="356" class="svg-terminal-dim"
-    >>> caller thinks it's done</text>
-    <text x="80" y="396" class="svg-terminal-warn">tick: STILL RUNNING</text>
-    <text x="80" y="416" class="svg-terminal-warn">tick: STILL RUNNING</text>
-    <text x="80" y="436" class="svg-terminal-warn">tick: STILL RUNNING</text>
-    <text x="80" y="456" class="svg-terminal-warn">tick: STILL RUNNING</text>
-    <text x="80" y="476" class="svg-terminal-warn">tick: STILL RUNNING</text>
-    <text x="80" y="496" class="svg-terminal-dim">...</text>
+    <text x="80" y="360" class="svg-terminal-dim"
+    >>>> caller thinks it's done</text>
+    <text x="80" y="400" class="svg-terminal-warn">tick: STILL RUNNING</text>
+    <text x="80" y="420" class="svg-terminal-warn">tick: STILL RUNNING</text>
+    <text x="80" y="440" class="svg-terminal-warn">tick: STILL RUNNING</text>
+    <text x="80" y="460" class="svg-terminal-warn">tick: STILL RUNNING</text>
+    <text x="80" y="480" class="svg-terminal-warn">tick: STILL RUNNING</text>
+    <text x="80" y="500" class="svg-terminal-dim">...</text>
   </g>
 
   <!-- Left caption -->
@@ -439,18 +439,18 @@
         x="620"
         y="140"
         width="520"
-        height="36"
+        height="40"
         rx="12"
       />
-      <rect class="svg-terminal-body" x="620" y="164" width="520" height="12" />
+      <rect class="svg-terminal-body" x="620" y="168" width="520" height="12" />
       <!-- Window dots -->
-      <circle class="svg-terminal-dot-red" cx="644" cy="158" r="6" />
-      <circle class="svg-terminal-dot-yellow" cx="664" cy="158" r="6" />
-      <circle class="svg-terminal-dot-green" cx="684" cy="158" r="6" />
+      <circle class="svg-terminal-dot-red" cx="644" cy="160" r="6" />
+      <circle class="svg-terminal-dot-yellow" cx="664" cy="160" r="6" />
+      <circle class="svg-terminal-dot-green" cx="684" cy="160" r="6" />
       <!-- Title -->
       <text
         x="915"
-        y="158"
+        y="160"
         dy="0.35em"
         class="svg-terminal-title"
         text-anchor="middle"
@@ -459,9 +459,9 @@
       <rect
         class="svg-terminal-body"
         x="620"
-        y="176"
+        y="180"
         width="520"
-        height="394"
+        height="390"
       />
     </g>
   </g>
@@ -480,16 +480,16 @@
         x="620"
         y="140"
         width="520"
-        height="36"
+        height="40"
         rx="12"
       />
-      <rect class="svg-terminal-body" x="620" y="164" width="520" height="12" />
-      <circle class="svg-terminal-dot-red" cx="644" cy="158" r="6" />
-      <circle class="svg-terminal-dot-yellow" cx="664" cy="158" r="6" />
-      <circle class="svg-terminal-dot-green" cx="684" cy="158" r="6" />
+      <rect class="svg-terminal-body" x="620" y="168" width="520" height="12" />
+      <circle class="svg-terminal-dot-red" cx="644" cy="160" r="6" />
+      <circle class="svg-terminal-dot-yellow" cx="664" cy="160" r="6" />
+      <circle class="svg-terminal-dot-green" cx="684" cy="160" r="6" />
       <text
         x="915"
-        y="158"
+        y="160"
         dy="0.35em"
         class="svg-terminal-title"
         text-anchor="middle"
@@ -497,21 +497,21 @@
       <rect
         class="svg-terminal-body"
         x="620"
-        y="176"
+        y="180"
         width="520"
-        height="394"
+        height="390"
       />
     </g>
   </g>
 
   <!-- Right terminal content -->
   <g class="svg-mono">
-    <text x="640" y="206" class="svg-terminal-text">tick: RUNNING</text>
-    <text x="640" y="226" class="svg-terminal-text">tick: RUNNING</text>
-    <text x="640" y="246" class="svg-terminal-text">tick: RUNNING</text>
-    <text x="640" y="276" class="svg-terminal-dim">>>> leaving scope</text>
-    <text x="640" y="296" class="svg-terminal-dim">>>> scope exited</text>
-    <text x="640" y="346" class="svg-terminal-success"
+    <text x="640" y="210" class="svg-terminal-text">tick: RUNNING</text>
+    <text x="640" y="230" class="svg-terminal-text">tick: RUNNING</text>
+    <text x="640" y="250" class="svg-terminal-text">tick: RUNNING</text>
+    <text x="640" y="280" class="svg-terminal-dim">>>> leaving scope</text>
+    <text x="640" y="300" class="svg-terminal-dim">>>> scope exited</text>
+    <text x="640" y="350" class="svg-terminal-success"
     >all children stopped</text>
   </g>
 

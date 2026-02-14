@@ -121,18 +121,29 @@ function renderTable(
   events: BenchmarkDoneEvent[],
   options: { repeat?: number; warmup?: number; depth?: number },
 ) {
-  const headers = ["Library", "Avg", "Min", "Max", "StdDev", "p50", "p95", "p99"];
+  const headers = [
+    "Library",
+    "Avg",
+    "Min",
+    "Max",
+    "StdDev",
+    "p50",
+    "p95",
+    "p99",
+  ];
   let rows = [];
 
   if (recursion.length > 0) {
-    const title = `Basic Recursion (${options.repeat} reps, ${options.warmup} warmup, depth ${options.depth})`;
+    const title =
+      `Basic Recursion (${options.repeat} reps, ${options.warmup} warmup, depth ${options.depth})`;
     rows.push(Row.from([new Cell(title).colSpan(headers.length).border()]));
     rows.push(Row.from<Cell | string>(headers).border());
     rows.push(...recursion.map((event) => Row.from(toTableRow(event))));
   }
 
   if (events.length > 0) {
-    const title = `Recursive Events (${options.repeat} reps, ${options.warmup} warmup, depth ${options.depth})`;
+    const title =
+      `Recursive Events (${options.repeat} reps, ${options.warmup} warmup, depth ${options.depth})`;
     rows.push(Row.from([new Cell(title).colSpan(headers.length).border()]));
     rows.push(Row.from<Cell | string>(headers).border());
     rows.push(...events.map((event) => Row.from(toTableRow(event))));

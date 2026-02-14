@@ -29,8 +29,8 @@ function calculateStats(
   const sorted = [...times].sort((a, b) => a - b);
   const sum = times.reduce((a, b) => a + b, 0);
   const avg = sum / times.length;
-  const variance =
-    times.reduce((acc, t) => acc + (t - avg) ** 2, 0) / times.length;
+  const variance = times.reduce((acc, t) => acc + (t - avg) ** 2, 0) /
+    times.length;
 
   return {
     avgTime: avg,

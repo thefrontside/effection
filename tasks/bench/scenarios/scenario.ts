@@ -80,8 +80,9 @@ export function scenario(
 
             let startupTime = entryTimes.reduce((sum, time) => sum + time, 0);
 
-            let avgStartupTime =
-              entryTimes.length > 0 ? startupTime / entryTimes.length : 0;
+            let avgStartupTime = entryTimes.length > 0
+              ? startupTime / entryTimes.length
+              : 0;
 
             let result = Ok({ avgTime, avgStartupTime, reps: options.repeat });
 
@@ -89,7 +90,7 @@ export function scenario(
 
             yield* each.next();
           }
-        }),
+        })
       );
     } catch (error) {
       send({ type: "done", name, result: Err(error as Error) });

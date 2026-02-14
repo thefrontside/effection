@@ -56,7 +56,7 @@ await main(function* (args) {
   for (let scenario of filter(scenarios, { include, exclude })) {
     tasks.push(
       yield* spawn(() =>
-        runBenchmark(scenario, { ...options, type: "benchmark" }),
+        runBenchmark(scenario, { ...options, type: "benchmark" })
       ),
     );
   }

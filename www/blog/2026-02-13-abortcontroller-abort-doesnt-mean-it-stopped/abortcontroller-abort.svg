@@ -282,159 +282,156 @@
 
     /* ---- Terminal animation ---- */
     /*
-     * 10s total cycle: 3s animation + 7s hold
-     * Each line has a unique keyframe that:
-     * - Starts hidden (0%)
-     * - Appears at its specific time
-     * - Stays visible until 3s (30%)
-     * - All disappear together at 3s
-     * - Stay hidden during 7s pause
-     *
-     * This ensures all lines vanish simultaneously (clear effect)
-     * rather than staggered (scroll effect).
+     * 10s total cycle: 3s animation + 5s hold + 2s pause
+     * 
+     * Timeline:
+     * 0-0.2s (0-2%): Cursor blinks
+     * 0.2-3s (2-30%): Lines appear sequentially  
+     * 3-8s (30-80%): Hold final state (5s reading time)
+     * 8-10s (80-100%): Blank pause before restart
      */
 
     /* Left terminal line keyframes */
     @keyframes line-L1 {
       0%, 1.9% {
         opacity: 0;
-      } /* hidden until 0.2s */
-      2%, 30% {
+      }
+      2%, 80% {
         opacity: 1;
-      } /* visible 0.2s to 3s */
-      30.1%, 100% {
+      }
+      80.1%, 100% {
         opacity: 0;
-      } /* hidden during pause */
+      }
     }
     @keyframes line-L2 {
       0%, 3.9% {
         opacity: 0;
-      } /* hidden until 0.4s */
-      4%, 30% {
+      }
+      4%, 80% {
         opacity: 1;
       }
-      30.1%, 100% {
+      80.1%, 100% {
         opacity: 0;
       }
     }
     @keyframes line-L3 {
       0%, 5.9% {
         opacity: 0;
-      } /* hidden until 0.6s */
-      6%, 30% {
+      }
+      6%, 80% {
         opacity: 1;
       }
-      30.1%, 100% {
+      80.1%, 100% {
         opacity: 0;
       }
     }
     @keyframes line-L4 {
       0%, 6.9% {
         opacity: 0;
-      } /* hidden until 0.7s */
-      7%, 30% {
+      }
+      7%, 80% {
         opacity: 1;
       }
-      30.1%, 100% {
+      80.1%, 100% {
         opacity: 0;
       }
     }
     @keyframes line-L5 {
       0%, 8.4% {
         opacity: 0;
-      } /* hidden until 0.85s */
-      8.5%, 30% {
+      }
+      8.5%, 80% {
         opacity: 1;
       }
-      30.1%, 100% {
+      80.1%, 100% {
         opacity: 0;
       }
     }
     @keyframes line-L6 {
       0%, 9.9% {
         opacity: 0;
-      } /* hidden until 1.0s */
-      10%, 30% {
+      }
+      10%, 80% {
         opacity: 1;
       }
-      30.1%, 100% {
+      80.1%, 100% {
         opacity: 0;
       }
     }
     @keyframes line-L7 {
       0%, 11.4% {
         opacity: 0;
-      } /* hidden until 1.15s */
-      11.5%, 30% {
+      }
+      11.5%, 80% {
         opacity: 1;
       }
-      30.1%, 100% {
+      80.1%, 100% {
         opacity: 0;
       }
     }
     @keyframes line-L8 {
       0%, 13.9% {
         opacity: 0;
-      } /* hidden until 1.4s */
-      14%, 30% {
+      }
+      14%, 80% {
         opacity: 1;
       }
-      30.1%, 100% {
+      80.1%, 100% {
         opacity: 0;
       }
     }
     @keyframes line-L9 {
       0%, 15.9% {
         opacity: 0;
-      } /* hidden until 1.6s */
-      16%, 30% {
+      }
+      16%, 80% {
         opacity: 1;
       }
-      30.1%, 100% {
+      80.1%, 100% {
         opacity: 0;
       }
     }
     @keyframes line-L10 {
       0%, 17.9% {
         opacity: 0;
-      } /* hidden until 1.8s */
-      18%, 30% {
+      }
+      18%, 80% {
         opacity: 1;
       }
-      30.1%, 100% {
+      80.1%, 100% {
         opacity: 0;
       }
     }
     @keyframes line-L11 {
       0%, 19.9% {
         opacity: 0;
-      } /* hidden until 2.0s */
-      20%, 30% {
+      }
+      20%, 80% {
         opacity: 1;
       }
-      30.1%, 100% {
+      80.1%, 100% {
         opacity: 0;
       }
     }
     @keyframes line-L12 {
       0%, 21.9% {
         opacity: 0;
-      } /* hidden until 2.2s */
-      22%, 30% {
+      }
+      22%, 80% {
         opacity: 1;
       }
-      30.1%, 100% {
+      80.1%, 100% {
         opacity: 0;
       }
     }
     @keyframes line-L13 {
       0%, 23.9% {
         opacity: 0;
-      } /* hidden until 2.4s */
-      24%, 30% {
+      }
+      24%, 80% {
         opacity: 1;
       }
-      30.1%, 100% {
+      80.1%, 100% {
         opacity: 0;
       }
     }
@@ -444,10 +441,10 @@
       0%, 1.9% {
         opacity: 0;
       }
-      2%, 30% {
+      2%, 80% {
         opacity: 1;
       }
-      30.1%, 100% {
+      80.1%, 100% {
         opacity: 0;
       }
     }
@@ -455,10 +452,10 @@
       0%, 3.9% {
         opacity: 0;
       }
-      4%, 30% {
+      4%, 80% {
         opacity: 1;
       }
-      30.1%, 100% {
+      80.1%, 100% {
         opacity: 0;
       }
     }
@@ -466,10 +463,10 @@
       0%, 5.9% {
         opacity: 0;
       }
-      6%, 30% {
+      6%, 80% {
         opacity: 1;
       }
-      30.1%, 100% {
+      80.1%, 100% {
         opacity: 0;
       }
     }
@@ -477,10 +474,10 @@
       0%, 6.9% {
         opacity: 0;
       }
-      7%, 30% {
+      7%, 80% {
         opacity: 1;
       }
-      30.1%, 100% {
+      80.1%, 100% {
         opacity: 0;
       }
     }
@@ -488,10 +485,10 @@
       0%, 8.4% {
         opacity: 0;
       }
-      8.5%, 30% {
+      8.5%, 80% {
         opacity: 1;
       }
-      30.1%, 100% {
+      80.1%, 100% {
         opacity: 0;
       }
     }
@@ -499,10 +496,10 @@
       0%, 11.4% {
         opacity: 0;
       }
-      11.5%, 30% {
+      11.5%, 80% {
         opacity: 1;
       }
-      30.1%, 100% {
+      80.1%, 100% {
         opacity: 0;
       }
     }
@@ -572,7 +569,7 @@
       animation: line-R6 10s steps(1) infinite;
     }
 
-    /* Cursor blink animation - appears at start of each cycle (10s) */
+    /* Cursor blink - blinks at start (0-0.2s) and during pause (8-10s) */
     @keyframes cursor-blink {
       0% {
         opacity: 1;
@@ -586,9 +583,42 @@
       2% {
         opacity: 0;
       } /* off at 0.2s - first line appears */
-      100% {
+      80% {
         opacity: 0;
-      } /* stay hidden */
+      } /* hidden during content display */
+      80.5% {
+        opacity: 1;
+      } /* on at 8.05s - pause starts */
+      82% {
+        opacity: 0;
+      } /* off at 8.2s */
+      84% {
+        opacity: 1;
+      } /* on at 8.4s */
+      86% {
+        opacity: 0;
+      } /* off at 8.6s */
+      88% {
+        opacity: 1;
+      } /* on at 8.8s */
+      90% {
+        opacity: 0;
+      } /* off at 9.0s */
+      92% {
+        opacity: 1;
+      } /* on at 9.2s */
+      94% {
+        opacity: 0;
+      } /* off at 9.4s */
+      96% {
+        opacity: 1;
+      } /* on at 9.6s */
+      98% {
+        opacity: 0;
+      } /* off at 9.8s */
+      100% {
+        opacity: 1;
+      } /* on at 10s - loops to start */
     }
 
     .svg-cursor {

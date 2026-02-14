@@ -2,8 +2,9 @@ import { Effect, Fiber, Stream } from "npm:effect";
 import { call } from "../../../mod.ts";
 import { scenario } from "./scenario.ts";
 
-await scenario("effect.events", (depth, _exit) =>
-  call(() => Effect.runPromise(start(depth))),
+await scenario(
+  "effect.events",
+  (depth, _exit) => call(() => Effect.runPromise(start(depth))),
 );
 
 export function start(depth: number) {

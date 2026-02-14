@@ -1,4 +1,4 @@
-import { type Operation, call } from "../../../mod.ts";
+import { call, type Operation } from "../../../mod.ts";
 import { scenario } from "./scenario.ts";
 
 await scenario("effection.recursion", recurse);

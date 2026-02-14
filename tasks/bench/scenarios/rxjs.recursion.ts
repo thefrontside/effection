@@ -1,5 +1,5 @@
-import { Observable, defer, from, repeat } from "npm:rxjs";
-import { type Operation, action } from "../../../mod.ts";
+import { defer, from, Observable, repeat } from "npm:rxjs";
+import { action, type Operation } from "../../../mod.ts";
 import { scenario } from "./scenario.ts";
 
 await scenario("rxjs.recursion", run);

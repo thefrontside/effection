@@ -1,5 +1,5 @@
-import { Observable, Subject, fromEvent, takeUntil } from "npm:rxjs";
-import { type Operation, action, sleep, spawn } from "../../../mod.ts";
+import { fromEvent, Observable, Subject, takeUntil } from "npm:rxjs";
+import { action, type Operation, sleep, spawn } from "../../../mod.ts";
 import { scenario } from "./scenario.ts";
 
 await scenario("rxjs.events", run);
@@ -17,7 +17,7 @@ function* run(depth: number, _exit: (time: number) => void): Operation<void> {
           },
         });
       return () => observable.unsubscribe();
-    }),
+    })
   );
   for (let i = 0; i < 100; i++) {
     yield* sleep(0);

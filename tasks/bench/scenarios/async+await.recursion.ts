@@ -1,8 +1,9 @@
 import { call } from "../../../mod.ts";
 import { scenario } from "./scenario.ts";
 
-await scenario("async+await.recursion", (depth, _exit) =>
-  call(() => recurse(depth)),
+await scenario(
+  "async+await.recursion",
+  (depth, _exit) => call(() => recurse(depth)),
 );
 
 async function recurse(depth: number): Promise<void> {

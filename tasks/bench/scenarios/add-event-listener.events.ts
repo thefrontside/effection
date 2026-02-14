@@ -1,8 +1,9 @@
 import { call } from "../../../mod.ts";
 import { scenario } from "./scenario.ts";
 
-await scenario("add-event-listener.events", (depth, _exit) =>
-  call(() => run(depth)),
+await scenario(
+  "add-event-listener.events",
+  (depth, _exit) => call(() => run(depth)),
 );
 
 export async function run(depth: number): Promise<void> {

@@ -2,11 +2,11 @@ import { callcc } from "../../../lib/callcc.ts";
 import { Err, Ok } from "../../../lib/result.ts";
 import { encapsulate } from "../../../lib/task-group.ts";
 import {
-  type Operation,
   call,
   createChannel,
   each,
   main,
+  type Operation,
   race,
   spawn,
   withResolvers,
@@ -52,7 +52,7 @@ export function scenario(
 
             const task = yield* spawn(function* () {
               yield* encapsulate(() =>
-                perform(options.depth, exitResolver.resolve),
+                perform(options.depth, exitResolver.resolve)
               );
             });
 
@@ -81,8 +81,9 @@ export function scenario(
 
           let startupTime = entryTimes.reduce((sum, time) => sum + time, 0);
 
-          let avgStartupTime =
-            entryTimes.length > 0 ? startupTime / entryTimes.length : 0;
+          let avgStartupTime = entryTimes.length > 0
+            ? startupTime / entryTimes.length
+            : 0;
 
           let result = Ok({ avgTime, avgStartupTime, reps: options.repeat });
 

@@ -2,8 +2,9 @@ import co from "npm:co";
 import { call } from "../../../mod.ts";
 import { scenario } from "./scenario.ts";
 
-await scenario("co.recursion", (depth, _exit) =>
-  call(() => co(recurse, depth)),
+await scenario(
+  "co.recursion",
+  (depth, _exit) => call(() => co(recurse, depth)),
 );
 
 function* recurse(depth: number): Generator<unknown, void> {

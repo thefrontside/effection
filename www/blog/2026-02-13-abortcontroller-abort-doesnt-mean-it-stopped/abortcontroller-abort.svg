@@ -279,6 +279,109 @@
         fill: #4ade80;
       }
     }
+
+    /* ---- Terminal animation ---- */
+    @keyframes appear {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes blink-reset {
+      0% {
+        opacity: 0;
+      }
+      0.7% {
+        opacity: 1;
+      } /* appear at delay */
+      42.8% {
+        opacity: 1;
+      } /* hold until 3s (3/7 = 42.8%) */
+      42.9% {
+        opacity: 0;
+      } /* hide for pause */
+      100% {
+        opacity: 0;
+      } /* stay hidden until loop */
+    }
+
+    /* Base state: all animated text participates in 7s loop */
+    .svg-anim-line {
+      opacity: 0;
+      animation: blink-reset 7s steps(1) infinite;
+    }
+
+    /* Left terminal lines - staggered delays */
+    .svg-anim-L1 {
+      animation-delay: 0.2s;
+    }
+    .svg-anim-L2 {
+      animation-delay: 0.4s;
+    }
+    .svg-anim-L3 {
+      animation-delay: 0.6s;
+    }
+    .svg-anim-L4 {
+      animation-delay: 0.7s;
+    }
+    .svg-anim-L5 {
+      animation-delay: 0.85s;
+    }
+    .svg-anim-L6 {
+      animation-delay: 1.0s;
+    }
+    .svg-anim-L7 {
+      animation-delay: 1.15s;
+    }
+    .svg-anim-L8 {
+      animation-delay: 1.4s;
+    }
+    .svg-anim-L9 {
+      animation-delay: 1.6s;
+    }
+    .svg-anim-L10 {
+      animation-delay: 1.8s;
+    }
+    .svg-anim-L11 {
+      animation-delay: 2.0s;
+    }
+    .svg-anim-L12 {
+      animation-delay: 2.2s;
+    }
+    .svg-anim-L13 {
+      animation-delay: 2.4s;
+    }
+
+    /* Right terminal lines */
+    .svg-anim-R1 {
+      animation-delay: 0.2s;
+    }
+    .svg-anim-R2 {
+      animation-delay: 0.4s;
+    }
+    .svg-anim-R3 {
+      animation-delay: 0.6s;
+    }
+    .svg-anim-R4 {
+      animation-delay: 0.7s;
+    }
+    .svg-anim-R5 {
+      animation-delay: 0.85s;
+    }
+    .svg-anim-R6 {
+      animation-delay: 1.15s;
+    }
+
+    /* Accessibility: respect reduced motion preference */
+    @media (prefers-reduced-motion: reduce) {
+      .svg-anim-line {
+        opacity: 1;
+        animation: none;
+      }
+    }
     </style>
   </defs>
 
@@ -386,21 +489,32 @@
 
   <!-- Left terminal content -->
   <g class="svg-mono">
-    <text x="80" y="210" class="svg-terminal-text">tick: STILL RUNNING</text>
-    <text x="80" y="230" class="svg-terminal-text">tick: STILL RUNNING</text>
-    <text x="80" y="250" class="svg-terminal-text">tick: STILL RUNNING</text>
-    <text x="80" y="280" class="svg-terminal-dim">>>> calling abort()</text>
-    <text x="80" y="300" class="svg-terminal-dim">>>> abort() returned</text>
-    <text x="80" y="330" class="svg-terminal-info"
+    <text x="80" y="210" class="svg-terminal-text svg-anim-line svg-anim-L1"
+    >tick: STILL RUNNING</text>
+    <text x="80" y="230" class="svg-terminal-text svg-anim-line svg-anim-L2"
+    >tick: STILL RUNNING</text>
+    <text x="80" y="250" class="svg-terminal-text svg-anim-line svg-anim-L3"
+    >tick: STILL RUNNING</text>
+    <text x="80" y="280" class="svg-terminal-dim svg-anim-line svg-anim-L4"
+    >>>> calling abort()</text>
+    <text x="80" y="300" class="svg-terminal-dim svg-anim-line svg-anim-L5"
+    >>>> abort() returned</text>
+    <text x="80" y="330" class="svg-terminal-info svg-anim-line svg-anim-L6"
     >task ended with: aborted</text>
-    <text x="80" y="360" class="svg-terminal-dim"
+    <text x="80" y="360" class="svg-terminal-dim svg-anim-line svg-anim-L7"
     >>>> caller thinks it's done</text>
-    <text x="80" y="400" class="svg-terminal-warn">tick: STILL RUNNING</text>
-    <text x="80" y="420" class="svg-terminal-warn">tick: STILL RUNNING</text>
-    <text x="80" y="440" class="svg-terminal-warn">tick: STILL RUNNING</text>
-    <text x="80" y="460" class="svg-terminal-warn">tick: STILL RUNNING</text>
-    <text x="80" y="480" class="svg-terminal-warn">tick: STILL RUNNING</text>
-    <text x="80" y="500" class="svg-terminal-dim">...</text>
+    <text x="80" y="400" class="svg-terminal-warn svg-anim-line svg-anim-L8"
+    >tick: STILL RUNNING</text>
+    <text x="80" y="420" class="svg-terminal-warn svg-anim-line svg-anim-L9"
+    >tick: STILL RUNNING</text>
+    <text x="80" y="440" class="svg-terminal-warn svg-anim-line svg-anim-L10"
+    >tick: STILL RUNNING</text>
+    <text x="80" y="460" class="svg-terminal-warn svg-anim-line svg-anim-L11"
+    >tick: STILL RUNNING</text>
+    <text x="80" y="480" class="svg-terminal-warn svg-anim-line svg-anim-L12"
+    >tick: STILL RUNNING</text>
+    <text x="80" y="500" class="svg-terminal-dim svg-anim-line svg-anim-L13"
+    >...</text>
   </g>
 
   <!-- Left caption -->
@@ -487,12 +601,17 @@
 
   <!-- Right terminal content -->
   <g class="svg-mono">
-    <text x="640" y="210" class="svg-terminal-text">tick: RUNNING</text>
-    <text x="640" y="230" class="svg-terminal-text">tick: RUNNING</text>
-    <text x="640" y="250" class="svg-terminal-text">tick: RUNNING</text>
-    <text x="640" y="280" class="svg-terminal-dim">>>> leaving scope</text>
-    <text x="640" y="300" class="svg-terminal-dim">>>> scope exited</text>
-    <text x="640" y="350" class="svg-terminal-success"
+    <text x="640" y="210" class="svg-terminal-text svg-anim-line svg-anim-R1"
+    >tick: RUNNING</text>
+    <text x="640" y="230" class="svg-terminal-text svg-anim-line svg-anim-R2"
+    >tick: RUNNING</text>
+    <text x="640" y="250" class="svg-terminal-text svg-anim-line svg-anim-R3"
+    >tick: RUNNING</text>
+    <text x="640" y="280" class="svg-terminal-dim svg-anim-line svg-anim-R4"
+    >>>> leaving scope</text>
+    <text x="640" y="300" class="svg-terminal-dim svg-anim-line svg-anim-R5"
+    >>>> scope exited</text>
+    <text x="640" y="350" class="svg-terminal-success svg-anim-line svg-anim-R6"
     >all children stopped</text>
   </g>
 

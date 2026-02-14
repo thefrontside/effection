@@ -11,13 +11,14 @@ image: abortcontroller-abort.svg
 
 ## The false promise
 
-You called `abort()`, it returned, and then the logs kept coming, the socket
-stayed open, or the process still owned the port after Ctrl-C. This is the trap:
-`AbortController.abort()` looks like shutdown, but it is only a signal. It tells
-listeners to begin cancellation work; it does not tell you that work finished.
-If one layer ignores the signal, or handles it partially, work keeps running
-after the caller believes the task is over. `abort()` is a request, not a
-guarantee, and that gap is where orphaned work comes from.
+You called `controller.abort()`, it returned, and then the logs kept coming, the
+socket stayed open, or the process still owned the port after Ctrl-C. This is
+the trap: calling `abort()` on an `AbortController` looks like shutdown, but it
+is only a signal. It tells listeners to begin cancellation work; it does not
+tell you that work finished. If one layer ignores the signal, or handles it
+partially, work keeps running after the caller believes the task is over.
+`abort()` is a request, not a guarantee, and that gap is where orphaned work
+comes from.
 
 ## The leak
 

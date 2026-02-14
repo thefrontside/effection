@@ -281,98 +281,294 @@
     }
 
     /* ---- Terminal animation ---- */
-    @keyframes appear {
-      from {
+    /*
+     * Each line has a unique keyframe that:
+     * - Starts hidden (0%)
+     * - Appears at its specific time
+     * - Stays visible until 3s (42.8%)
+     * - All disappear together at 3s
+     * - Stay hidden during 4s pause
+     *
+     * This ensures all lines vanish simultaneously (clear effect)
+     * rather than staggered (scroll effect).
+     */
+
+    /* Left terminal line keyframes */
+    @keyframes line-L1 {
+      0%, 2.8% {
+        opacity: 0;
+      } /* hidden until 0.2s */
+      2.9%, 42.8% {
+        opacity: 1;
+      } /* visible 0.2s to 3s */
+      42.9%, 100% {
+        opacity: 0;
+      } /* hidden during pause */
+    }
+    @keyframes line-L2 {
+      0%, 5.7% {
+        opacity: 0;
+      } /* hidden until 0.4s */
+      5.8%, 42.8% {
+        opacity: 1;
+      }
+      42.9%, 100% {
         opacity: 0;
       }
-      to {
+    }
+    @keyframes line-L3 {
+      0%, 8.5% {
+        opacity: 0;
+      } /* hidden until 0.6s */
+      8.6%, 42.8% {
         opacity: 1;
+      }
+      42.9%, 100% {
+        opacity: 0;
+      }
+    }
+    @keyframes line-L4 {
+      0%, 10% {
+        opacity: 0;
+      } /* hidden until 0.7s */
+      10.1%, 42.8% {
+        opacity: 1;
+      }
+      42.9%, 100% {
+        opacity: 0;
+      }
+    }
+    @keyframes line-L5 {
+      0%, 12.1% {
+        opacity: 0;
+      } /* hidden until 0.85s */
+      12.2%, 42.8% {
+        opacity: 1;
+      }
+      42.9%, 100% {
+        opacity: 0;
+      }
+    }
+    @keyframes line-L6 {
+      0%, 14.2% {
+        opacity: 0;
+      } /* hidden until 1.0s */
+      14.3%, 42.8% {
+        opacity: 1;
+      }
+      42.9%, 100% {
+        opacity: 0;
+      }
+    }
+    @keyframes line-L7 {
+      0%, 16.4% {
+        opacity: 0;
+      } /* hidden until 1.15s */
+      16.5%, 42.8% {
+        opacity: 1;
+      }
+      42.9%, 100% {
+        opacity: 0;
+      }
+    }
+    @keyframes line-L8 {
+      0%, 20% {
+        opacity: 0;
+      } /* hidden until 1.4s */
+      20.1%, 42.8% {
+        opacity: 1;
+      }
+      42.9%, 100% {
+        opacity: 0;
+      }
+    }
+    @keyframes line-L9 {
+      0%, 22.8% {
+        opacity: 0;
+      } /* hidden until 1.6s */
+      22.9%, 42.8% {
+        opacity: 1;
+      }
+      42.9%, 100% {
+        opacity: 0;
+      }
+    }
+    @keyframes line-L10 {
+      0%, 25.7% {
+        opacity: 0;
+      } /* hidden until 1.8s */
+      25.8%, 42.8% {
+        opacity: 1;
+      }
+      42.9%, 100% {
+        opacity: 0;
+      }
+    }
+    @keyframes line-L11 {
+      0%, 28.5% {
+        opacity: 0;
+      } /* hidden until 2.0s */
+      28.6%, 42.8% {
+        opacity: 1;
+      }
+      42.9%, 100% {
+        opacity: 0;
+      }
+    }
+    @keyframes line-L12 {
+      0%, 31.4% {
+        opacity: 0;
+      } /* hidden until 2.2s */
+      31.5%, 42.8% {
+        opacity: 1;
+      }
+      42.9%, 100% {
+        opacity: 0;
+      }
+    }
+    @keyframes line-L13 {
+      0%, 34.2% {
+        opacity: 0;
+      } /* hidden until 2.4s */
+      34.3%, 42.8% {
+        opacity: 1;
+      }
+      42.9%, 100% {
+        opacity: 0;
       }
     }
 
-    @keyframes blink-reset {
-      0% {
+    /* Right terminal line keyframes */
+    @keyframes line-R1 {
+      0%, 2.8% {
         opacity: 0;
       }
-      0.7% {
+      2.9%, 42.8% {
         opacity: 1;
-      } /* appear at delay */
-      42.8% {
+      }
+      42.9%, 100% {
+        opacity: 0;
+      }
+    }
+    @keyframes line-R2 {
+      0%, 5.7% {
+        opacity: 0;
+      }
+      5.8%, 42.8% {
         opacity: 1;
-      } /* hold until 3s (3/7 = 42.8%) */
-      42.9% {
+      }
+      42.9%, 100% {
         opacity: 0;
-      } /* hide for pause */
-      100% {
+      }
+    }
+    @keyframes line-R3 {
+      0%, 8.5% {
         opacity: 0;
-      } /* stay hidden until loop */
+      }
+      8.6%, 42.8% {
+        opacity: 1;
+      }
+      42.9%, 100% {
+        opacity: 0;
+      }
+    }
+    @keyframes line-R4 {
+      0%, 10% {
+        opacity: 0;
+      }
+      10.1%, 42.8% {
+        opacity: 1;
+      }
+      42.9%, 100% {
+        opacity: 0;
+      }
+    }
+    @keyframes line-R5 {
+      0%, 12.1% {
+        opacity: 0;
+      }
+      12.2%, 42.8% {
+        opacity: 1;
+      }
+      42.9%, 100% {
+        opacity: 0;
+      }
+    }
+    @keyframes line-R6 {
+      0%, 16.4% {
+        opacity: 0;
+      }
+      16.5%, 42.8% {
+        opacity: 1;
+      }
+      42.9%, 100% {
+        opacity: 0;
+      }
     }
 
-    /* Base state: all animated text participates in 7s loop */
+    /* Base state */
     .svg-anim-line {
       opacity: 0;
-      animation: blink-reset 7s steps(1) infinite;
     }
 
-    /* Left terminal lines - staggered delays */
+    /* Apply unique animations to each line */
     .svg-anim-L1 {
-      animation-delay: 0.2s;
+      animation: line-L1 7s steps(1) infinite;
     }
     .svg-anim-L2 {
-      animation-delay: 0.4s;
+      animation: line-L2 7s steps(1) infinite;
     }
     .svg-anim-L3 {
-      animation-delay: 0.6s;
+      animation: line-L3 7s steps(1) infinite;
     }
     .svg-anim-L4 {
-      animation-delay: 0.7s;
+      animation: line-L4 7s steps(1) infinite;
     }
     .svg-anim-L5 {
-      animation-delay: 0.85s;
+      animation: line-L5 7s steps(1) infinite;
     }
     .svg-anim-L6 {
-      animation-delay: 1.0s;
+      animation: line-L6 7s steps(1) infinite;
     }
     .svg-anim-L7 {
-      animation-delay: 1.15s;
+      animation: line-L7 7s steps(1) infinite;
     }
     .svg-anim-L8 {
-      animation-delay: 1.4s;
+      animation: line-L8 7s steps(1) infinite;
     }
     .svg-anim-L9 {
-      animation-delay: 1.6s;
+      animation: line-L9 7s steps(1) infinite;
     }
     .svg-anim-L10 {
-      animation-delay: 1.8s;
+      animation: line-L10 7s steps(1) infinite;
     }
     .svg-anim-L11 {
-      animation-delay: 2.0s;
+      animation: line-L11 7s steps(1) infinite;
     }
     .svg-anim-L12 {
-      animation-delay: 2.2s;
+      animation: line-L12 7s steps(1) infinite;
     }
     .svg-anim-L13 {
-      animation-delay: 2.4s;
+      animation: line-L13 7s steps(1) infinite;
     }
 
-    /* Right terminal lines */
     .svg-anim-R1 {
-      animation-delay: 0.2s;
+      animation: line-R1 7s steps(1) infinite;
     }
     .svg-anim-R2 {
-      animation-delay: 0.4s;
+      animation: line-R2 7s steps(1) infinite;
     }
     .svg-anim-R3 {
-      animation-delay: 0.6s;
+      animation: line-R3 7s steps(1) infinite;
     }
     .svg-anim-R4 {
-      animation-delay: 0.7s;
+      animation: line-R4 7s steps(1) infinite;
     }
     .svg-anim-R5 {
-      animation-delay: 0.85s;
+      animation: line-R5 7s steps(1) infinite;
     }
     .svg-anim-R6 {
-      animation-delay: 1.15s;
+      animation: line-R6 7s steps(1) infinite;
     }
 
     /* Cursor blink animation - appears at start of each cycle */

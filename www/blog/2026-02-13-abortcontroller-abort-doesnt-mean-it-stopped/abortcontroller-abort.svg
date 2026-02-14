@@ -60,10 +60,10 @@
     <!-- Terminal shadows -->
     <filter
       id="terminalShadow-light"
-      x="-20"
-      y="-20"
-      width="640"
-      height="520"
+      x="-40"
+      y="-40"
+      width="1280"
+      height="710"
       filterUnits="userSpaceOnUse"
       color-interpolation-filters="sRGB"
     >
@@ -78,10 +78,10 @@
 
     <filter
       id="terminalShadow-dark"
-      x="-20"
-      y="-20"
-      width="640"
-      height="520"
+      x="-40"
+      y="-40"
+      width="1280"
+      height="710"
       filterUnits="userSpaceOnUse"
       color-interpolation-filters="sRGB"
     >
@@ -394,7 +394,7 @@
     <text x="80" y="326" class="svg-terminal-info"
     >task ended with: aborted</text>
     <text x="80" y="356" class="svg-terminal-dim"
-    >>>> caller thinks it's done</text>
+    >>> caller thinks it's done</text>
     <text x="80" y="396" class="svg-terminal-warn">tick: STILL RUNNING</text>
     <text x="80" y="416" class="svg-terminal-warn">tick: STILL RUNNING</text>
     <text x="80" y="436" class="svg-terminal-warn">tick: STILL RUNNING</text>
@@ -406,7 +406,7 @@
   <!-- Left caption -->
   <text
     x="320"
-    y="548"
+    y="602"
     class="svg-caption svg-caption-fail"
     text-anchor="middle"
   >keeps running</text>
@@ -498,7 +498,7 @@
   <!-- Right caption -->
   <text
     x="880"
-    y="548"
+    y="602"
     class="svg-caption svg-caption-success"
     text-anchor="middle"
   >cleanup is automatic</text>

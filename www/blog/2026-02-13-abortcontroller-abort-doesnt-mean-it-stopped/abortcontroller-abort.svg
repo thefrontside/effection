@@ -375,10 +375,38 @@
       animation-delay: 1.15s;
     }
 
+    /* Cursor blink animation - appears at start of each cycle */
+    @keyframes cursor-blink {
+      0% {
+        opacity: 1;
+      }
+      1.4% {
+        opacity: 0;
+      } /* off at 0.1s */
+      2.1% {
+        opacity: 1;
+      } /* on at 0.15s */
+      2.8% {
+        opacity: 0;
+      } /* off at 0.2s - first line appears */
+      100% {
+        opacity: 0;
+      } /* stay hidden */
+    }
+
+    .svg-cursor {
+      opacity: 0;
+      animation: cursor-blink 7s steps(1) infinite;
+    }
+
     /* Accessibility: respect reduced motion preference */
     @media (prefers-reduced-motion: reduce) {
       .svg-anim-line {
         opacity: 1;
+        animation: none;
+      }
+      .svg-cursor {
+        opacity: 0;
         animation: none;
       }
     }
@@ -489,6 +517,7 @@
 
   <!-- Left terminal content -->
   <g class="svg-mono">
+    <text x="80" y="210" class="svg-terminal-text svg-cursor">█</text>
     <text x="80" y="210" class="svg-terminal-text svg-anim-line svg-anim-L1"
     >tick: STILL RUNNING</text>
     <text x="80" y="230" class="svg-terminal-text svg-anim-line svg-anim-L2"
@@ -601,6 +630,7 @@
 
   <!-- Right terminal content -->
   <g class="svg-mono">
+    <text x="640" y="210" class="svg-terminal-text svg-cursor">█</text>
     <text x="640" y="210" class="svg-terminal-text svg-anim-line svg-anim-R1"
     >tick: RUNNING</text>
     <text x="640" y="230" class="svg-terminal-text svg-anim-line svg-anim-R2"

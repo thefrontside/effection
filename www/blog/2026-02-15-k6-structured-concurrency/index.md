@@ -23,20 +23,28 @@ it's too late: `group()` has already unwound and restored them.
 
 ## Why `group()` can't fix this on its own
 
-k6's `group()` behaves like a `try/finally`-scoped tag mutation: set a tag,
-execute a callback, restore the old tag. In
-[#2728](https://github.com/grafana/k6/issues/2728), @mstoykov describes why
-`.then()` breaks that model:
+`group()` sets a tag, runs your code, then removes the tag. It finishes
+immediately - it doesn't wait for async work.
+
+When your `.then()` callback runs later, `group()` is already gone. The tag it
+set? Already removed. Your metrics go to the wrong bucket.
+
+In [#2728](https://github.com/grafana/k6/issues/2728), @mstoykov describes the
+same issue:
 
 > "As the `then` callbacks get called only after the stack is empty the whole
 > `group` code would have been executed, resetting the group back to the root
 > name (which is empty)."
 
-The callback is scheduled after the current stack unwinds, so the `finally` has
-already restored the old group. That same thread captures why an
-`async/await`-only fix isn't enough: `.then()` chains and callback-based APIs
-(like the experimental websocket) still leave you with inconsistent tagging and
-unclear definitions of what a "group" should wait for.
+The k6 maintainers explored making `group()` wait for async work, but decided
+against it because `.then()` chains, callback-based APIs like WebSockets, and
+unclear semantics about what a "group" should wait for created too many corner
+cases.
+
+That decision makes sense. The problem isn't `group()` - it's the model.
+Synchronizing async and sync stacks one API at a time is whack-a-mole. You fix
+`group()`, but the next async API (browser module, gRPC, new timers) has the
+same drift.
 
 ## What structured concurrency guarantees
 

@@ -148,6 +148,11 @@ includes a conformance suite that locks these semantics as integration evolves.
 
 ## Why Effection for k6?
 
+Every framework that handles concurrent work eventually faces this choice:
+keep patching async edge cases one by one, or adopt a model that eliminates the
+category of problems. Kotlin, Swift, Python, and Java all chose structured
+concurrency. JavaScript doesn't have it built in yet, and TC39 isn't close.
+
 Effection is a structured concurrency library for JavaScript, designed as a
 polyfill until the language adopts these semantics natively. It's tiny (<5k
 gzipped), mature (used in production since 2019), and easy to drop in and
@@ -156,10 +161,6 @@ experiment with. If you know `async/await`, the translation is mostly mechanical
 docs include a [Rosetta Stone](https://frontside.com/effection/docs/rosetta-stone)
 that maps common async patterns to their structured equivalents.
 
-Every framework that handles concurrent work eventually faces this choice:
-keep patching async edge cases one by one, or adopt a model that eliminates the
-category of problems. Kotlin, Swift, Python, and Java all chose structured
-concurrency. JavaScript doesn't have it built in yet, and TC39 isn't close.
 Effection's goal is to make this choice easy and safe until these guarantees are
 added to the JavaScript runtime. Its low learning curve and small footprint make
 it a good candidate for k6 scripts. It can be adopted incrementally — one script

@@ -17,7 +17,7 @@ with your expectations.
 
 The diagram at the top shows what goes wrong. Async doesn't just add time, it
 deforms your call stack. Some code runs on the stack you are in now, and some
-code runs on a new stack on the next tick. When that happens, the "current" tags
+code runs on a new stack on a future tick. When that happens, the "current" tags
 are different, because `group()` has already unwound and restored them.
 
 ## Why `group()` can't fix this on its own

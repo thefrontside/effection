@@ -8,7 +8,7 @@
   fill="none"
   xmlns="http://www.w3.org/2000/svg"
   role="img"
-  aria-label="Diagram showing async shifting work to the next tick where tags differ, and how structured scopes keep tags consistent"
+  aria-label="Diagram showing async shifting work to a future tick where tags differ, and how structured scopes keep tags consistent"
 >
   <defs>
     <!-- Light-mode background gradient -->
@@ -449,12 +449,12 @@
     rx="8"
     style="stroke: #ea580c; stroke-width: 2"
   />
-  <text x="420" y="423" class="svg-mono-sm svg-warn-text">next tick</text>
+  <text x="420" y="423" class="svg-mono-sm svg-warn-text">future tick</text>
   <text x="420" y="448" class="svg-mono-sm svg-warn-text">tags.group=</text>
   <circle class="svg-leak-dot" cx="430" cy="468" r="5" />
   <text x="442" y="473" class="svg-mono-sm">then: c.add(1)</text>
 
-  <!-- Scheduling wire into next tick -->
+  <!-- Scheduling wire into future tick -->
   <path class="svg-leak-wire" d="M365 401 Q 420 410 420 430" />
 
   <!-- Left caption -->
@@ -511,7 +511,7 @@
     height="50"
     rx="8"
   />
-  <text x="680" y="423" class="svg-mono-sm">next tick</text>
+  <text x="680" y="423" class="svg-mono-sm">future tick</text>
   <circle class="svg-dot-primary" cx="690" cy="468" r="5" />
   <text x="702" y="473" class="svg-mono-sm">then: c.add(1)</text>
 

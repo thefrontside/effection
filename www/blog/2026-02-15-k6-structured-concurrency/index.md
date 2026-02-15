@@ -60,11 +60,9 @@ provides two guarantees that eliminate large categories of async problems:
 These are the same constraints we expect from sync code, applied consistently to
 both sync and async.
 
-k6 scripts run in Sobek, an embedded JavaScript runtime. If Sobek enforces
-structured lifetime semantics, k6 gets the same guarantees at script level: work
-cannot outlive scope, and scope exit means real exit, including cleanup. The
-long tail of async drift problems (tags, teardown, propagated failures,
-cancellation behavior) collapses into one model instead of many local fixes.
+The rest of this post shows what it looks like when these problems are fixed
+with structured concurrency using Effection, and what's missing from Sobek to
+make it work in k6.
 
 ## What it looks like
 
@@ -113,13 +111,32 @@ structural, not incidental. Work started in scope stays in scope.
 
 Async should just feel normal.
 
+## Why Effection for k6?
+
+Effection is a structured concurrency library for JavaScript, designed as a
+polyfill until the language adopts these semantics natively. It's tiny (<5k
+gzipped), mature (used in production since 2019), and easy to drop in and
+experiment with. If you know `async/await`, the translation is mostly mechanical:
+`async function` becomes `function*`, `await` becomes `yield*`. The Effection
+docs include a [Rosetta Stone](https://frontside.com/effection/docs/rosetta-stone)
+that maps common async patterns to their structured equivalents.
+
+Every framework that handles concurrent work eventually faces this choice:
+keep patching async edge cases one by one, or adopt a model that eliminates the
+category of problems. Kotlin, Swift, Python, and Java all chose structured
+concurrency. JavaScript doesn't have it built in yet, and TC39 isn't close.
+Effection's goal is to make this choice easy and safe until these guarantees are
+added to the JavaScript runtime. Its low learning curve and small footprint make
+it a good candidate for k6 scripts. It can be adopted incrementally — one script
+at a time — without requiring any changes to Sobek beyond ECMAScript compliance.
+
 ## What k6 needs: Sobek PR #115
 
-To make this correct, cleanup must run during structured cancellation and
-unwind. In JavaScript terms, `generator.return()` must execute `finally` blocks
-correctly.
+To make structured cleanup work, `generator.return()` must execute `finally`
+blocks correctly. This is specified in ECMAScript — when `return()` is called on
+a generator suspended in a `try` block with a `finally`, the `finally` must run.
 
-Sobek had a gap here: during `return`, yields inside `finally` were skipped.
+Sobek had a gap here: during `return()`, yields inside `finally` were skipped.
 That breaks structured cleanup because "exit fully" stops being true at exactly
 the point where cleanup needs to happen.
 
@@ -127,21 +144,18 @@ the point where cleanup needs to happen.
 This is ECMAScript conformance work, not a feature request. The runtime is
 aligning with the language contract.
 
-There is also [effectionx PR #156](https://github.com/thefrontside/effectionx/pull/156),
-which includes a conformance suite around these semantics so behavior stays
-locked as integration evolves.
+[effectionx PR #156](https://github.com/thefrontside/effectionx/pull/156)
+includes a conformance suite that locks these semantics as integration evolves.
 
 ## Try it
-
-Install the package:
 
 ```bash
 npm install @effectionx/k6 effection
 ```
 
-Take one existing script that uses `group()` with any promise boundary, convert
-`export default function () {}` to `export default main(function* () {})`, then
-move that path under `yield* group(...)` and replace promise bridging with
+Take one existing script that uses `group()` with any promise boundary. Replace
+`export default function () {}` with `export default main(function* () {})`,
+wrap the async path in `yield* group(...)`, and replace `.then()` chains with
 `yield* until(...)`.
 
 If you maintain k6 or Sobek, please review the PRs and the conformance cases.

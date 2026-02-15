@@ -17,8 +17,9 @@ with your expectations.
 
 The diagram at the top shows what goes wrong. Async deforms your call stack.
 Some code runs on the stack you are in now, and some code runs on a new stack on
-a future tick. When that happens, the "current" tags are different, because
-`group()` has already unwound and restored them.
+a future tick. k6 reads the current tags from the sync stack. You expect the tag
+values in the async callback to be the same, but by the time that callback runs
+it's too late: `group()` has already unwound and restored them.
 
 ## Why `group()` can't fix this on its own
 

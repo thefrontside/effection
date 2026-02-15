@@ -45,12 +45,11 @@
     <!-- Card shadows -->
     <filter
       id="cardShadow-light"
-      x="-20"
-      y="-20"
-      width="640"
-      height="520"
-      filterUnits="userSpaceOnUse"
-      color-interpolation-filters="sRGB"
+      x="-50%"
+      y="-50%"
+      width="200%"
+      height="200%"
+      filterUnits="objectBoundingBox"
     >
       <feDropShadow
         dx="0"
@@ -63,12 +62,11 @@
 
     <filter
       id="cardShadow-dark"
-      x="-20"
-      y="-20"
-      width="640"
-      height="520"
-      filterUnits="userSpaceOnUse"
-      color-interpolation-filters="sRGB"
+      x="-50%"
+      y="-50%"
+      width="200%"
+      height="200%"
+      filterUnits="objectBoundingBox"
     >
       <feDropShadow
         dx="0"
@@ -120,6 +118,11 @@
       font-size: 11px;
       font-weight: 600;
     }
+    .svg-result {
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+    }
 
     /* ---- Light mode (default) ---- */
     .svg-bg-light { display: block; }
@@ -139,17 +142,19 @@
     .svg-step-box { fill: #f8fafc; stroke: #cbd5e1; stroke-width: 1; }
     .svg-step-box-active { fill: #eff6ff; stroke: #3b82f6; stroke-width: 2; }
     .svg-step-box-bad { fill: #fef2f2; stroke: #fca5a5; stroke-width: 2; }
-    .svg-step-box-comment { fill: #fafafa; stroke: #e5e5e5; stroke-width: 1; stroke-dasharray: 4 2; }
 
     .svg-mono { fill: #334155; }
+    .svg-mono-dim { fill: #94a3b8; }
+    .svg-mono-bad { fill: #dc2626; }
     .svg-status-good { fill: #16a34a; }
     .svg-status-bad { fill: #dc2626; }
+    .svg-result-bad { fill: #dc2626; }
+    .svg-result-good { fill: #16a34a; }
 
     .svg-tag-good { fill: #16a34a; }
     .svg-tag-bad { fill: #dc2626; }
-    .svg-tag-muted { fill: #64748b; }
     .svg-tag-bg-good { fill: #dcfce7; stroke: #86efac; stroke-width: 1; }
-    .svg-tag-bg-empty { fill: #f1f5f9; stroke: #cbd5e1; stroke-width: 1; stroke-dasharray: 4 2; }
+    .svg-tag-bg-bad { fill: #fee2e2; stroke: #fca5a5; stroke-width: 1; }
 
     .svg-divider { stroke: #e2e8f0; stroke-width: 2; stroke-dasharray: 8 4; }
 
@@ -172,120 +177,21 @@
       .svg-step-box { fill: #0f172a; stroke: #334155; }
       .svg-step-box-active { fill: #1e3a5f; stroke: #3b82f6; }
       .svg-step-box-bad { fill: #3f1d1d; stroke: #f87171; }
-      .svg-step-box-comment { fill: #1e293b; stroke: #475569; }
 
       .svg-mono { fill: #e2e8f0; }
+      .svg-mono-dim { fill: #64748b; }
+      .svg-mono-bad { fill: #f87171; }
       .svg-status-good { fill: #4ade80; }
       .svg-status-bad { fill: #f87171; }
+      .svg-result-bad { fill: #f87171; }
+      .svg-result-good { fill: #4ade80; }
 
       .svg-tag-good { fill: #4ade80; }
       .svg-tag-bad { fill: #f87171; }
-      .svg-tag-muted { fill: #94a3b8; }
       .svg-tag-bg-good { fill: #14532d; stroke: #22c55e; }
-      .svg-tag-bg-empty { fill: #1e293b; stroke: #475569; }
+      .svg-tag-bg-bad { fill: #450a0a; stroke: #f87171; }
 
       .svg-divider { stroke: #334155; }
-    }
-
-    /* ---- Animation keyframes (10s cycle) ---- */
-    @keyframes step-L1 {
-      0%, 4% { opacity: 0; }
-      5%, 80% { opacity: 1; }
-      85%, 100% { opacity: 0; }
-    }
-    @keyframes step-L2 {
-      0%, 14% { opacity: 0; }
-      15%, 80% { opacity: 1; }
-      85%, 100% { opacity: 0; }
-    }
-    @keyframes step-L3 {
-      0%, 24% { opacity: 0; }
-      25%, 80% { opacity: 1; }
-      85%, 100% { opacity: 0; }
-    }
-    @keyframes step-L4 {
-      0%, 34% { opacity: 0; }
-      35%, 80% { opacity: 1; }
-      85%, 100% { opacity: 0; }
-    }
-    @keyframes step-L5 {
-      0%, 44% { opacity: 0; }
-      45%, 80% { opacity: 1; }
-      85%, 100% { opacity: 0; }
-    }
-
-    @keyframes tag-L-good {
-      0%, 4% { opacity: 0; }
-      5%, 34% { opacity: 1; }
-      35%, 100% { opacity: 0; }
-    }
-    @keyframes tag-L-bad {
-      0%, 34% { opacity: 0; }
-      35%, 80% { opacity: 1; }
-      85%, 100% { opacity: 0; }
-    }
-
-    @keyframes step-R1 {
-      0%, 4% { opacity: 0; }
-      5%, 80% { opacity: 1; }
-      85%, 100% { opacity: 0; }
-    }
-    @keyframes step-R2 {
-      0%, 14% { opacity: 0; }
-      15%, 80% { opacity: 1; }
-      85%, 100% { opacity: 0; }
-    }
-    @keyframes step-R3 {
-      0%, 24% { opacity: 0; }
-      25%, 80% { opacity: 1; }
-      85%, 100% { opacity: 0; }
-    }
-    @keyframes step-R4 {
-      0%, 44% { opacity: 0; }
-      45%, 80% { opacity: 1; }
-      85%, 100% { opacity: 0; }
-    }
-    @keyframes step-R5 {
-      0%, 54% { opacity: 0; }
-      55%, 80% { opacity: 1; }
-      85%, 100% { opacity: 0; }
-    }
-
-    @keyframes tag-R-good {
-      0%, 4% { opacity: 0; }
-      5%, 54% { opacity: 1; }
-      55%, 100% { opacity: 0; }
-    }
-    @keyframes tag-R-cleared {
-      0%, 54% { opacity: 0; }
-      55%, 80% { opacity: 1; }
-      85%, 100% { opacity: 0; }
-    }
-
-    .anim-L1 { opacity: 0; animation: step-L1 10s ease infinite; }
-    .anim-L2 { opacity: 0; animation: step-L2 10s ease infinite; }
-    .anim-L3 { opacity: 0; animation: step-L3 10s ease infinite; }
-    .anim-L4 { opacity: 0; animation: step-L4 10s ease infinite; }
-    .anim-L5 { opacity: 0; animation: step-L5 10s ease infinite; }
-    .anim-tag-L-good { opacity: 0; animation: tag-L-good 10s ease infinite; }
-    .anim-tag-L-bad { opacity: 0; animation: tag-L-bad 10s ease infinite; }
-
-    .anim-R1 { opacity: 0; animation: step-R1 10s ease infinite; }
-    .anim-R2 { opacity: 0; animation: step-R2 10s ease infinite; }
-    .anim-R3 { opacity: 0; animation: step-R3 10s ease infinite; }
-    .anim-R4 { opacity: 0; animation: step-R4 10s ease infinite; }
-    .anim-R5 { opacity: 0; animation: step-R5 10s ease infinite; }
-    .anim-tag-R-good { opacity: 0; animation: tag-R-good 10s ease infinite; }
-    .anim-tag-R-cleared { opacity: 0; animation: tag-R-cleared 10s ease infinite; }
-
-    @media (prefers-reduced-motion: reduce) {
-      .anim-L1, .anim-L2, .anim-L3, .anim-L4, .anim-L5,
-      .anim-R1, .anim-R2, .anim-R3, .anim-R4, .anim-R5,
-      .anim-tag-L-good, .anim-tag-L-bad,
-      .anim-tag-R-good, .anim-tag-R-cleared {
-        opacity: 1;
-        animation: none;
-      }
     }
     </style>
   </defs>
@@ -304,118 +210,86 @@
 
   <!-- ======== LEFT CARD: Async/Await (broken) ======== -->
   <g class="svg-shadow-light" filter="url(#cardShadow-light)">
-    <rect class="svg-card svg-card-stroke" x="40" y="130" width="520" height="480" rx="12" />
+    <rect class="svg-card svg-card-stroke" x="40" y="130" width="520" height="470" rx="12" />
   </g>
   <g class="svg-shadow-dark" filter="url(#cardShadow-dark)">
-    <rect class="svg-card svg-card-stroke" x="40" y="130" width="520" height="480" rx="12" />
+    <rect class="svg-card svg-card-stroke" x="40" y="130" width="520" height="470" rx="12" />
   </g>
 
   <!-- Left header row: title + tag pill -->
   <text x="60" y="162" class="svg-section-title svg-section-title-bad">Async/Await</text>
   
-  <!-- Tag state pill (right side of header) -->
-  <g class="anim-tag-L-good">
-    <rect class="svg-tag-bg-good" x="400" y="145" width="140" height="24" rx="12" />
-    <text x="470" y="162" class="svg-tag svg-tag-good" text-anchor="middle">group: coolgroup</text>
-  </g>
-  <g class="anim-tag-L-bad">
-    <rect class="svg-tag-bg-empty" x="400" y="145" width="140" height="24" rx="12" />
-    <text x="470" y="162" class="svg-tag svg-tag-bad" text-anchor="middle">group: (empty)</text>
-  </g>
+  <!-- Tag state pill showing LOST state -->
+  <rect class="svg-tag-bg-bad" x="420" y="145" width="120" height="24" rx="12" />
+  <text x="480" y="162" class="svg-tag svg-tag-bad" text-anchor="middle">group: (lost)</text>
 
   <!-- Left steps -->
-  <!-- Step 1: c.add(1) -->
-  <g class="anim-L1">
-    <rect class="svg-step-box-active" x="60" y="185" width="480" height="50" rx="8" />
-    <text x="80" y="216" class="svg-mono">c.add(1)</text>
-    <text x="520" y="216" class="svg-status svg-status-good" text-anchor="end">tagged ✓</text>
-  </g>
+  <!-- Step 1: c.add(1) - tagged -->
+  <rect class="svg-step-box-active" x="60" y="185" width="480" height="44" rx="8" />
+  <text x="80" y="213" class="svg-mono">c.add(1)</text>
+  <text x="520" y="213" class="svg-status svg-status-good" text-anchor="end">tagged ✓</text>
 
   <!-- Step 2: async call -->
-  <g class="anim-L2">
-    <rect class="svg-step-box-active" x="60" y="245" width="480" height="50" rx="8" />
-    <text x="80" y="276" class="svg-mono">http.asyncRequest("GET", url)</text>
-  </g>
+  <rect class="svg-step-box-active" x="60" y="239" width="480" height="44" rx="8" />
+  <text x="80" y="267" class="svg-mono">http.asyncRequest("GET", url)</text>
 
   <!-- Step 3: group saves tags -->
-  <g class="anim-L3">
-    <rect class="svg-step-box-comment" x="60" y="305" width="480" height="50" rx="8" />
-    <text x="80" y="336" class="svg-mono" style="fill: #94a3b8;">group() saves current tags</text>
-  </g>
+  <rect class="svg-step-box" x="60" y="293" width="480" height="44" rx="8" />
+  <text x="80" y="321" class="svg-mono svg-mono-dim">group() saves current tags</text>
 
   <!-- Step 4: group exits - THE KEY MOMENT -->
-  <g class="anim-L4">
-    <rect class="svg-step-box-bad" x="60" y="365" width="480" height="50" rx="8" />
-    <text x="80" y="396" class="svg-mono" style="fill: #dc2626;">group() exits → tags cleared!</text>
-  </g>
+  <rect class="svg-step-box-bad" x="60" y="347" width="480" height="44" rx="8" />
+  <text x="80" y="375" class="svg-mono svg-mono-bad">group() exits → tags cleared!</text>
 
   <!-- Step 5: .then() runs but tag is gone -->
-  <g class="anim-L5">
-    <rect class="svg-step-box-bad" x="60" y="425" width="480" height="50" rx="8" />
-    <text x="80" y="456" class="svg-mono">.then(() =&gt; c.add(1))</text>
-    <text x="520" y="456" class="svg-status svg-status-bad" text-anchor="end">not tagged ✗</text>
-  </g>
+  <rect class="svg-step-box-bad" x="60" y="401" width="480" height="44" rx="8" />
+  <text x="80" y="429" class="svg-mono">.then(() =&gt; c.add(1))</text>
+  <text x="520" y="429" class="svg-status svg-status-bad" text-anchor="end">not tagged ✗</text>
 
-  <!-- Left result label -->
-  <text x="60" y="510" class="svg-section-title svg-section-title-bad">Callback runs after group exited</text>
-  <text x="60" y="530" class="svg-mono" style="fill: #94a3b8;">Tag was already cleared</text>
+  <!-- Left result -->
+  <text x="60" y="475" class="svg-result svg-result-bad">Callback runs after group exited</text>
+  <text x="60" y="495" class="svg-mono svg-mono-dim">Metric missing the group tag</text>
 
   <!-- ======== RIGHT CARD: Structured Concurrency (works) ======== -->
   <g class="svg-shadow-light" filter="url(#cardShadow-light)">
-    <rect class="svg-card svg-card-stroke" x="640" y="130" width="520" height="480" rx="12" />
+    <rect class="svg-card svg-card-stroke" x="640" y="130" width="520" height="470" rx="12" />
   </g>
   <g class="svg-shadow-dark" filter="url(#cardShadow-dark)">
-    <rect class="svg-card svg-card-stroke" x="640" y="130" width="520" height="480" rx="12" />
+    <rect class="svg-card svg-card-stroke" x="640" y="130" width="520" height="470" rx="12" />
   </g>
 
   <!-- Right header row: title + tag pill -->
   <text x="660" y="162" class="svg-section-title svg-section-title-good">Structured Concurrency</text>
 
-  <!-- Tag state pill (right side of header) -->
-  <g class="anim-tag-R-good">
-    <rect class="svg-tag-bg-good" x="1000" y="145" width="140" height="24" rx="12" />
-    <text x="1070" y="162" class="svg-tag svg-tag-good" text-anchor="middle">group: coolgroup</text>
-  </g>
-  <g class="anim-tag-R-cleared">
-    <rect class="svg-tag-bg-empty" x="1000" y="145" width="140" height="24" rx="12" />
-    <text x="1070" y="162" class="svg-tag svg-tag-muted" text-anchor="middle">group: (cleared)</text>
-  </g>
+  <!-- Tag state pill showing PRESERVED state -->
+  <rect class="svg-tag-bg-good" x="1000" y="145" width="140" height="24" rx="12" />
+  <text x="1070" y="162" class="svg-tag svg-tag-good" text-anchor="middle">group: coolgroup</text>
 
   <!-- Right steps -->
-  <!-- Step 1: c.add(1) -->
-  <g class="anim-R1">
-    <rect class="svg-step-box-active" x="660" y="185" width="480" height="50" rx="8" />
-    <text x="680" y="216" class="svg-mono">c.add(1)</text>
-    <text x="1120" y="216" class="svg-status svg-status-good" text-anchor="end">tagged ✓</text>
-  </g>
+  <!-- Step 1: c.add(1) - tagged -->
+  <rect class="svg-step-box-active" x="660" y="185" width="480" height="44" rx="8" />
+  <text x="680" y="213" class="svg-mono">c.add(1)</text>
+  <text x="1120" y="213" class="svg-status svg-status-good" text-anchor="end">tagged ✓</text>
 
   <!-- Step 2: async call with yield* -->
-  <g class="anim-R2">
-    <rect class="svg-step-box-active" x="660" y="245" width="480" height="50" rx="8" />
-    <text x="680" y="276" class="svg-mono">yield* until(http.asyncRequest(...))</text>
-  </g>
+  <rect class="svg-step-box-active" x="660" y="239" width="480" height="44" rx="8" />
+  <text x="680" y="267" class="svg-mono">yield* until(http.asyncRequest(...))</text>
 
   <!-- Step 3: async completes, still in scope -->
-  <g class="anim-R3">
-    <rect class="svg-step-box-active" x="660" y="305" width="480" height="50" rx="8" />
-    <text x="680" y="336" class="svg-mono">c.add(1)</text>
-    <text x="1120" y="336" class="svg-status svg-status-good" text-anchor="end">still tagged ✓</text>
-  </g>
+  <rect class="svg-step-box-active" x="660" y="293" width="480" height="44" rx="8" />
+  <text x="680" y="321" class="svg-mono">c.add(1)</text>
+  <text x="1120" y="321" class="svg-status svg-status-good" text-anchor="end">still tagged ✓</text>
 
   <!-- Step 4: scope waits for async -->
-  <g class="anim-R4">
-    <rect class="svg-step-box-comment" x="660" y="365" width="480" height="50" rx="8" />
-    <text x="680" y="396" class="svg-mono" style="fill: #94a3b8;">scope waits for async to complete</text>
-  </g>
+  <rect class="svg-step-box" x="660" y="347" width="480" height="44" rx="8" />
+  <text x="680" y="375" class="svg-mono svg-mono-dim">scope waits for async to complete</text>
 
   <!-- Step 5: scope cleared AFTER async done -->
-  <g class="anim-R5">
-    <rect class="svg-step-box" x="660" y="425" width="480" height="50" rx="8" />
-    <text x="680" y="456" class="svg-mono" style="fill: #64748b;">scope exits → tags cleared</text>
-  </g>
+  <rect class="svg-step-box" x="660" y="401" width="480" height="44" rx="8" />
+  <text x="680" y="429" class="svg-mono svg-mono-dim">scope exits → tags cleared</text>
 
-  <!-- Right result label -->
-  <text x="660" y="510" class="svg-section-title svg-section-title-good">Async completes before scope exits</text>
-  <text x="660" y="530" class="svg-mono" style="fill: #94a3b8;">Tags preserved through entire operation</text>
+  <!-- Right result -->
+  <text x="660" y="475" class="svg-result svg-result-good">Async completes before scope exits</text>
+  <text x="660" y="495" class="svg-mono svg-mono-dim">All metrics properly tagged</text>
 
 </svg>

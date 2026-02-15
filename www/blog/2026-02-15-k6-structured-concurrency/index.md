@@ -190,5 +190,3 @@ To adapt your own scripts: replace `export default function () {}` with
 If you maintain k6 or Sobek, please review the PRs and the conformance cases.
 The runtime boundary is where this guarantee has to hold, or it will leak
 everywhere above it.
-
-When the invariant holds, async stops lying.

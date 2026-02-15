@@ -113,10 +113,10 @@ export default main(function* () {
 });
 ```
 
-The group scope owns the async work the same way it owns sync work. Lifetime is
-structural, not incidental. Work started in scope stays in scope.
-
-Async should just feel normal.
+The code looks almost identical — `function*` instead of `function`, `yield*`
+instead of `.then()`. But now it works the way you'd expect: both counter
+increments are tagged, because the group scope owns the async work the same way
+it owns sync work.
 
 ## Why Effection for k6?
 
@@ -137,19 +137,30 @@ added to the JavaScript runtime. Its low learning curve and small footprint make
 it a good candidate for k6 scripts. It can be adopted incrementally — one script
 at a time — without requiring any changes to Sobek beyond ECMAScript compliance.
 
-## What k6 needs: Sobek PR #115
+## Missing ECMAScript compliance to support structured concurrency
 
-To make structured cleanup work, `generator.return()` must execute `finally`
-blocks correctly. This is specified in ECMAScript — when `return()` is called on
-a generator suspended in a `try` block with a `finally`, the `finally` must run.
+Before building `@effectionx/k6`, we ran a
+[conformance suite](https://gist.github.com/taras/ba692690e1695c44dedcc71a6624880b)
+to verify which JavaScript primitives Sobek supports. The results: Sobek already
+handles most of what Effection needs — symbols, generators, `yield*` delegation,
+error forwarding, promises, timers, and `AbortController`.
 
-Sobek had a gap here: during `return()`, yields inside `finally` were skipped.
-That breaks structured cleanup because "exit fully" stops being true at exactly
-the point where cleanup needs to happen.
+One piece was missing: async cleanup.
 
-[Sobek PR #115](https://github.com/grafana/sobek/pull/115) fixes that behavior.
-This is ECMAScript conformance work, not a feature request. The runtime is
-aligning with the language contract.
+When `return()` is called on a generator suspended in a `try` block with a
+`finally`, ECMAScript requires the `finally` to execute. If that `finally`
+contains a `yield`, the generator should suspend there and resume on the next
+`next()` call. Sobek was skipping those yields, immediately marking the
+generator as done.
+
+This breaks structured cleanup — "exit fully" stops being true at exactly the
+point where cleanup needs to happen.
+
+[Sobek PR #115](https://github.com/grafana/sobek/pull/115) fixes
+`generator.return()` to honor
+[ECMAScript's Generator.prototype.return](https://tc39.es/ecma262/#sec-generator.prototype.return):
+`finally` blocks must execute even when they contain `yield`. Without that fix,
+Effection's cleanup guarantees fail on cancellation paths.
 
 [effectionx PR #156](https://github.com/thefrontside/effectionx/pull/156)
 includes a conformance suite that locks these semantics as integration evolves.

@@ -66,7 +66,14 @@ make it work in k6.
 
 ## What it looks like
 
-Here is the drift in plain code:
+There are many ways async can drift outside its scope — `.then()` callbacks,
+`setTimeout`, WebSocket handlers, and more. The
+[`@effectionx/k6` test suite](https://github.com/thefrontside/effectionx/tree/feat/effectionx-k6-preview/k6/tests)
+covers these cases. Here's one common example.
+
+Both `c.add(1)` calls are inside `group("coolgroup", ...)`, so you'd expect both
+to be tagged. But the second one runs in a `.then()` callback — by then,
+`group()` has already finished and removed the tag:
 
 ```js
 import { group } from "k6";

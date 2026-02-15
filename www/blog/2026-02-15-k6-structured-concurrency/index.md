@@ -21,7 +21,7 @@ a future tick. k6 reads the current tags from the sync stack. You expect the tag
 values in the async callback to be the same, but by the time that callback runs
 it's too late: `group()` has already unwound and restored them.
 
-## Why `group()` can't fix this on its own
+## `group()` is just the tip of the iceberg
 
 `group()` sets a tag, runs your code, then removes the tag. It finishes
 immediately - it doesn't wait for async work.
@@ -41,10 +41,10 @@ against it because `.then()` chains, callback-based APIs like WebSockets, and
 unclear semantics about what a "group" should wait for created too many corner
 cases.
 
-That decision makes sense. The problem isn't `group()` - it's the model.
-Synchronizing async and sync stacks one API at a time is whack-a-mole. You fix
-`group()`, but the next async API (browser module, gRPC, new timers) has the
-same drift.
+That decision makes sense. `group()` is just the tip of the iceberg: any API
+that schedules work to run later can lose tags the same way. Fixing them one at
+a time is whack-a-mole. You fix `group()`, but the next async API (browser
+module, gRPC, new timers) has the same drift.
 
 ## What structured concurrency guarantees
 
@@ -56,8 +56,8 @@ provides two guarantees:
 
 k6's CLI is written in Go, but k6 scripts run inside an embedded JavaScript
 runtime (Sobek). When you cross async boundaries, k6 has to decide what context
-applies, how errors surface, and what gets cleaned up on shutdown. Today, that
-model is mostly "whatever happens to be on the call stack"—which is why your
+applies, how errors surface, and what gets cleaned up on shutdown. Today, k6
+mostly uses "whatever happens to be on the call stack"—which is why your
 expectations don't hold once async gets involved.
 
 The absence of these guarantees explains a category of problems that have

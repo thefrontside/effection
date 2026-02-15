@@ -38,19 +38,20 @@ leaks.
 
 This is not a k6-specific bug; it is what unstructured async does. Once work can
 be scheduled to run later—callbacks, promises, futures—it can outlive the task
-that started it, and context like tags drifts. Other ecosystems hit the same
+that started it, and state like tags can drift. Other ecosystems hit the same
 wall: Python added `TaskGroup` in 3.11, and Kotlin, Swift, and Java now ship
 structured concurrency with parent-child lifetime guarantees.
 
-## The common solution: structured concurrency
+## Universal solution: structured concurrency
 
-Structured concurrency gives two guarantees:
+Structured concurrency binds all sync and async operations to the same stack and
+provides two guarantees that eliminate large categories of async problems:
 
 1. No operation runs longer than its parent.
-2. Every operation exits fully.
+2. Every operation runs its cleanup.
 
-Those two constraints sound strict because they are strict. They are also
-exactly what keeps context, errors, and cleanup coherent.
+These are the same constraints we expect from sync code, applied consistently to
+both sync and async.
 
 k6 scripts run in Sobek, an embedded JavaScript runtime. If Sobek enforces
 structured lifetime semantics, k6 gets the same guarantees at script level: work
@@ -63,17 +64,17 @@ cancellation behavior) collapses into one model instead of many local fixes.
 Here is the drift in plain code:
 
 ```js
-import { Counter } from "k6/metrics";
 import { group } from "k6";
+import http from "k6/http";
+import { Counter } from "k6/metrics";
 
-const delay = () => Promise.resolve();
 const c = new Counter("my_counter");
 
 export default function () {
   group("coolgroup", () => {
     c.add(1); // tagged with group=coolgroup
 
-    delay().then(() => {
+    http.asyncRequest("GET", "https://test.k6.io").then(() => {
       c.add(1); // NOT tagged (runs after group() restored tags)
     });
   });
@@ -84,17 +85,17 @@ And here is the same scenario with `@effectionx/k6`:
 
 ```js
 import { group, main } from "@effectionx/k6";
-import { call } from "effection";
+import { until } from "effection";
+import http from "k6/http";
 import { Counter } from "k6/metrics";
 
-const delay = () => Promise.resolve();
 const c = new Counter("my_counter");
 
 export default main(function* () {
   yield* group("coolgroup", function* () {
     c.add(1); // tagged with group=coolgroup
 
-    yield* call(delay);
+    yield* until(http.asyncRequest("GET", "https://test.k6.io"));
     c.add(1); // still tagged
   });
 });
@@ -134,7 +135,7 @@ npm install @effectionx/k6 effection
 Take one existing script that uses `group()` with any promise boundary, convert
 `export default function () {}` to `export default main(function* () {})`, then
 move that path under `yield* group(...)` and replace promise bridging with
-`yield* call(...)`.
+`yield* until(...)`.
 
 If you maintain k6 or Sobek, please review the PRs and the conformance cases.
 The runtime boundary is where this guarantee has to hold, or it will leak

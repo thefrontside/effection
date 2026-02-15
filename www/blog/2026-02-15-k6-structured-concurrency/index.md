@@ -154,8 +154,8 @@ category of problems. Kotlin, Swift, Python, and Java all chose structured
 concurrency. JavaScript doesn't have it built in yet, and TC39 isn't close.
 
 Effection is a structured concurrency library for JavaScript, designed as a
-polyfill until the language adopts these semantics natively. It's tiny (<5k
-gzipped), mature (used in production since 2019), and easy to drop in and
+polyfill until the language adopts these semantics natively. It's tiny (under
+5kb gzipped), mature (used in production since 2019), and easy to drop in and
 experiment with. If you know `async/await`, the translation is mostly
 mechanical: `async function` becomes `function*`, `await` becomes `yield*`. The
 Effection docs include a

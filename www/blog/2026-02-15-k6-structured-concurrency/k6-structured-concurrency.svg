@@ -8,7 +8,7 @@
   fill="none"
   xmlns="http://www.w3.org/2000/svg"
   role="img"
-  aria-label="Split view showing tangled async wires escaping scope on left, clean nested scopes on right"
+  aria-label="Diagram showing async shifting work to the next tick where tags differ, and how structured scopes keep tags consistent"
 >
   <defs>
     <!-- Light-mode background gradient -->
@@ -138,6 +138,12 @@
         "Liberation Mono", "Courier New", monospace;
       font-size: 13px;
     }
+    .svg-mono-sm {
+      font-family:
+        ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+    }
 
     /* ---- Light mode (default) ---- */
     .svg-bg-light {
@@ -234,6 +240,12 @@
     .svg-mono {
       fill: #1e3a8a;
     }
+    .svg-mono-sm {
+      fill: #1e3a8a;
+    }
+    .svg-warn-text {
+      fill: #ea580c;
+    }
 
     /* ---- Dark mode ---- */
     @media (prefers-color-scheme: dark) {
@@ -316,6 +328,12 @@
       .svg-mono {
         fill: #e5e7eb;
       }
+      .svg-mono-sm {
+        fill: #e5e7eb;
+      }
+      .svg-warn-text {
+        fill: #fb923c;
+      }
     }
     </style>
   </defs>
@@ -383,134 +401,124 @@
   <!-- Divider -->
   <line class="svg-divider" x1="600" y1="240" x2="600" y2="560" />
 
-  <!-- ======== LEFT SIDE: BROKEN ASYNC ======== -->
+  <!-- ======== LEFT SIDE: k6 Today ======== -->
   <text x="345" y="265" class="svg-label" text-anchor="middle">k6 Today</text>
 
-  <!-- VU iteration boundary (dashed) -->
+  <!-- group() boundary (dashed) -->
   <rect
     class="svg-dashed-boundary"
-    x="140"
-    y="290"
-    width="380"
-    height="180"
-    rx="8"
+    x="150"
+    y="295"
+    width="300"
+    height="200"
+    rx="10"
   />
-  <text x="150" y="310" class="svg-mono">VU iteration</text>
+  <text x="165" y="318" class="svg-mono-sm">group("coolgroup")</text>
+  <text x="165" y="340" class="svg-mono-sm">tags.group=coolgroup</text>
 
-  <!-- Work boxes inside -->
+  <!-- Work boxes inside (sync stack) -->
   <rect
     class="svg-scope-child"
-    x="160"
-    y="330"
-    width="100"
-    height="40"
-    rx="4"
-  />
-  <text x="210" y="355" class="svg-mono" text-anchor="middle">group()</text>
-
-  <rect
-    class="svg-scope-child"
-    x="280"
-    y="330"
-    width="100"
-    height="40"
-    rx="4"
-  />
-  <text x="330" y="355" class="svg-mono" text-anchor="middle">http()</text>
-
-  <!-- Leaked work OUTSIDE boundary -->
-  <rect
-    class="svg-scope-child"
-    x="160"
-    y="500"
+    x="170"
+    y="365"
     width="120"
-    height="40"
-    rx="4"
-    style="stroke: #ea580c"
+    height="36"
+    rx="6"
   />
-  <text x="220" y="525" class="svg-mono" text-anchor="middle">promise</text>
-  <circle class="svg-leak-dot" cx="280" cy="520" r="5" />
+  <circle class="svg-dot-primary" cx="188" cy="383" r="5" />
+  <text x="200" y="388" class="svg-mono-sm">c.add(1)</text>
 
   <rect
     class="svg-scope-child"
-    x="320"
-    y="520"
-    width="140"
-    height="40"
-    rx="4"
-    style="stroke: #ea580c"
+    x="305"
+    y="365"
+    width="120"
+    height="36"
+    rx="6"
   />
-  <text x="390" y="545" class="svg-mono" text-anchor="middle">websocket</text>
-  <circle class="svg-leak-dot" cx="460" cy="540" r="5" />
+  <circle class="svg-dot-primary" cx="323" cy="383" r="5" />
+  <text x="335" y="388" class="svg-mono-sm">delay()</text>
 
-  <!-- Leak wires -->
-  <path class="svg-leak-wire" d="M230 370 Q 200 430 200 500" />
-  <path class="svg-leak-wire" d="M350 370 Q 380 450 380 520" />
+  <!-- Next tick: callback runs on a fresh stack -->
+  <rect
+    class="svg-scope-child"
+    x="410"
+    y="430"
+    width="170"
+    height="50"
+    rx="8"
+    style="stroke: #ea580c; stroke-width: 2"
+  />
+  <text x="420" y="423" class="svg-mono-sm svg-warn-text">next tick</text>
+  <text x="420" y="448" class="svg-mono-sm svg-warn-text">tags.group=</text>
+  <circle class="svg-leak-dot" cx="430" cy="468" r="5" />
+  <text x="442" y="473" class="svg-mono-sm">then: c.add(1)</text>
 
-  <!-- Leak label -->
-  <text x="345" y="580" class="svg-leak-text svg-caption" text-anchor="middle"
-  >Context lost. Resources leak.</text>
+  <!-- Scheduling wire into next tick -->
+  <path class="svg-leak-wire" d="M365 401 Q 420 410 420 430" />
 
-  <!-- ======== RIGHT SIDE: STRUCTURED ======== -->
+  <!-- Left caption -->
+  <text x="345" y="560" class="svg-caption svg-warn-text" text-anchor="middle"
+  >Async deforms the call stack.</text>
+  <text x="345" y="582" class="svg-caption svg-warn-text" text-anchor="middle"
+  >Next tick runs with different tags.</text>
+
+  <!-- ======== RIGHT SIDE: @effectionx/k6 ======== -->
   <text x="855" y="265" class="svg-label" text-anchor="middle"
   >@effectionx/k6</text>
 
-  <!-- Parent scope -->
+  <!-- Group scope (solid) -->
   <rect
     class="svg-scope-parent"
     x="650"
-    y="290"
-    width="410"
-    height="240"
+    y="295"
+    width="430"
+    height="220"
+    rx="10"
+  />
+  <text x="665" y="318" class="svg-mono-sm">group("coolgroup")</text>
+  <text x="665" y="340" class="svg-mono-sm">tags.group=coolgroup</text>
+
+  <!-- Work boxes (scope-owned, even across ticks) -->
+  <rect
+    class="svg-scope-child"
+    x="670"
+    y="365"
+    width="135"
+    height="36"
+    rx="6"
+  />
+  <circle class="svg-dot-primary" cx="688" cy="383" r="5" />
+  <text x="700" y="388" class="svg-mono-sm">c.add(1)</text>
+
+  <rect
+    class="svg-scope-child"
+    x="815"
+    y="365"
+    width="135"
+    height="36"
+    rx="6"
+  />
+  <circle class="svg-dot-primary" cx="833" cy="383" r="5" />
+  <text x="845" y="388" class="svg-mono-sm">delay()</text>
+
+  <!-- Next tick callback (still inside scope) -->
+  <rect
+    class="svg-scope-child"
+    x="670"
+    y="430"
+    width="280"
+    height="50"
     rx="8"
   />
-  <text x="660" y="310" class="svg-mono">main()</text>
+  <text x="680" y="423" class="svg-mono-sm">next tick</text>
+  <circle class="svg-dot-primary" cx="690" cy="468" r="5" />
+  <text x="702" y="473" class="svg-mono-sm">then: c.add(1)</text>
 
-  <!-- Child scope: group -->
-  <rect
-    class="svg-scope-child"
-    x="680"
-    y="330"
-    width="180"
-    height="80"
-    rx="6"
-  />
-  <text x="690" y="350" class="svg-mono">group("checkout")</text>
-  <circle class="svg-dot-primary" cx="720" cy="380" r="5" />
-  <text x="735" y="385" class="svg-mono">http()</text>
-
-  <!-- Child scope: websocket -->
-  <rect
-    class="svg-scope-child"
-    x="880"
-    y="330"
-    width="160"
-    height="80"
-    rx="6"
-  />
-  <text x="890" y="350" class="svg-mono">useWebSocket()</text>
-  <circle class="svg-dot-primary" cx="920" cy="380" r="5" />
-  <text x="935" y="385" class="svg-mono">messages</text>
-
-  <!-- Spawned task inside parent -->
-  <rect
-    class="svg-scope-child"
-    x="680"
-    y="440"
-    width="360"
-    height="60"
-    rx="6"
-  />
-  <text x="690" y="460" class="svg-mono">spawn()</text>
-  <circle class="svg-dot-primary" cx="720" cy="480" r="5" />
-  <text x="735" y="485" class="svg-mono"
-  >background work — owned by parent</text>
-
-  <!-- Contained wires (all inside parent) -->
-  <path class="svg-contained-wire" d="M770 410 L 770 440" />
-  <path class="svg-contained-wire" d="M960 410 L 960 440" />
+  <!-- Scheduling wire (contained) -->
+  <path class="svg-contained-wire" d="M875 401 Q 820 410 820 430" />
 
   <!-- Check label -->
-  <text x="855" y="560" class="svg-check-text svg-caption" text-anchor="middle"
-  >Context preserved. Cleanup guaranteed.</text>
+  <text x="865" y="560" class="svg-check-text svg-caption" text-anchor="middle"
+  >Next tick keeps the same tags.</text>
 </svg>

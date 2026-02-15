@@ -168,14 +168,24 @@ at a time — without requiring any changes to Sobek beyond ECMAScript complianc
 
 ## Try it
 
+`@effectionx/k6` requires a custom k6 binary built with Sobek PR #115. The
+easiest way to try it is with Docker:
+
 ```bash
-npm install @effectionx/k6 effection
+git clone https://github.com/thefrontside/effectionx.git
+cd effectionx/k6
+docker compose run --rm k6-test
 ```
 
-Take one existing script that uses `group()` with any promise boundary. Replace
-`export default function () {}` with `export default main(function* () {})`,
-wrap the async path in `yield* group(...)`, and replace `.then()` chains with
-`yield* until(...)`.
+This builds k6 with the Sobek fix and runs the test suite. To run the demos:
+
+```bash
+docker compose run --rm k6-demo 01-group-context.js
+```
+
+To adapt your own scripts: replace `export default function () {}` with
+`export default main(function* () {})`, wrap async paths in
+`yield* group(...)`, and replace `.then()` chains with `yield* until(...)`.
 
 If you maintain k6 or Sobek, please review the PRs and the conformance cases.
 The runtime boundary is where this guarantee has to hold, or it will leak

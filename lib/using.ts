@@ -1,6 +1,5 @@
 import { call } from "./call.ts";
 import { resource } from "./resource.ts";
-import type { Operation } from "./types.ts";
 
 type DisposableLike = {
   [Symbol.dispose]?(): void;
@@ -48,9 +47,7 @@ function getDisposer(value: DisposableLike): () => PromiseLike<void> | void {
  * });
  * ```
  */
-export function* using<T extends Disposable | AsyncDisposable>(
-  value: T,
-): Operation<T> {
+export function* using<T extends Disposable | AsyncDisposable>(value: T) {
   let disposer = getDisposer(value);
 
   return yield* resource<T>(function* (provide) {

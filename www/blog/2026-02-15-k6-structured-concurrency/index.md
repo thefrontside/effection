@@ -6,116 +6,63 @@ tags: ["structured concurrency", "k6", "load testing"]
 image: "k6-structured-concurrency.svg"
 ---
 
-If you've written k6 scripts with async calls, you've probably experienced
-metrics not getting tagged inside of `group()` because of async or `.then()`.
+You have probably seen this one already: a metric increment that should be under
+`group()` shows up untagged. The script looks correct. The output does not.
+Nothing is obviously broken, but your context drifted across an async boundary
+and your data is now lying to you.
 
-This happens because JavaScript treats sync and async differently. What you
-expect to work with sync `group()` doesn't work once async gets introduced.
-
-This post is about using structured concurrency to align k6's JavaScript runtime
-with your expectations.
-
-The diagram at the top shows what goes wrong. Async deforms your call stack.
-Some code runs on the stack you are in now, and some code runs on a new stack on
-a future tick. k6 reads the current tags from the sync stack. You expect the tag
-values in the async callback to be the same, but by the time that callback runs
-it's too late: `group()` has already unwound and restored them.
+This post explains why that happens, why it is bigger than `group()`, and what
+it looks like when the runtime gives you the missing lifetime guarantees.
 
 ## `group()` is just the tip of the iceberg
 
-`group()` sets a tag, runs your code, then removes the tag. It finishes
-immediately - it doesn't wait for async work.
+At a high level, `group()` does three synchronous things: set the current group
+tag, run your callback, restore the previous tag. That works for synchronous
+code because the callback finishes before control returns.
 
-When your `.then()` callback runs later, `group()` is already gone. The tag it
-set? Already removed. Your metrics go to the wrong bucket.
+Promises do not work that way. If you schedule `.then()`, that callback runs
+later, after the current stack is empty. By then, `group()` has already restored
+tags.
 
-In [#2728](https://github.com/grafana/k6/issues/2728), @mstoykov describes the
-same issue:
+As @mstoykov put it in [#2728](https://github.com/grafana/k6/issues/2728):
 
 > "As the `then` callbacks get called only after the stack is empty the whole
 > `group` code would have been executed, resetting the group back to the root
 > name (which is empty)."
 
-The k6 maintainers explored making `group()` wait for async work, but decided
-against it because `.then()` chains, callback-based APIs like WebSockets, and
-unclear semantics about what a "group" should wait for created too many corner
-cases.
+Maintainers explored making `group()` "wait" for async work. It sounds simple
+until you hit the corner cases: which promises count, how far transitive waiting
+goes, what to do with detached callbacks, what to do with timers, what to do
+with user abstractions built on top of all of that. You patch one path, another
+leaks.
 
-That decision makes sense. `group()` is just the tip of the iceberg: any API
-that schedules work to run later can lose tags the same way. Fixing them one at
-a time is whack-a-mole. You fix `group()`, but the next async API (browser
-module, gRPC, new timers) has the same drift.
+This is not a k6-specific bug; it is what unstructured async does. Once work can
+be scheduled to run later—callbacks, promises, futures—it can outlive the task
+that started it, and context like tags drifts. Other ecosystems hit the same
+wall: Python added `TaskGroup` in 3.11, and Kotlin, Swift, and Java now ship
+structured concurrency with parent-child lifetime guarantees.
 
-## What structured concurrency guarantees
+## The common solution: structured concurrency
 
-Structured concurrency makes async behave the way you expect sync to behave. It
-provides two guarantees:
+Structured concurrency gives two guarantees:
 
 1. No operation runs longer than its parent.
-2. Every operation exits fully (cleanup runs).
+2. Every operation exits fully.
 
-k6's CLI is written in Go, but k6 scripts run inside an embedded JavaScript
-runtime (Sobek). When you cross async boundaries, k6 has to decide what context
-applies, how errors surface, and what gets cleaned up on shutdown. Today, k6
-mostly uses "whatever happens to be on the call stack"—which is why your
-expectations don't hold once async gets involved.
+Those two constraints sound strict because they are strict. They are also
+exactly what keeps context, errors, and cleanup coherent.
 
-The absence of these guarantees explains a category of problems that have
-accumulated in k6 over years:
+k6 scripts run in Sobek, an embedded JavaScript runtime. If Sobek enforces
+structured lifetime semantics, k6 gets the same guarantees at script level: work
+cannot outlive scope, and scope exit means real exit, including cleanup. The
+long tail of async drift problems (tags, teardown, propagated failures,
+cancellation behavior) collapses into one model instead of many local fixes.
 
-### Context loss
+## What it looks like
 
-Grouped metrics drift out of the group that logically owns them.
-
-- [#2728](https://github.com/grafana/k6/issues/2728) — `group` doesn't work with
-  async calls well
-- [#2848](https://github.com/grafana/k6/issues/2848) — Change how `group()`
-  calls async functions
-
-### Resource leaks
-
-Open sockets, timers, and background work survive longer than the scenario that
-created them.
-
-- [#4241](https://github.com/grafana/k6/issues/4241) — Goroutine leaks in
-  browser module
-- [#785](https://github.com/grafana/k6/issues/785) — Per-VU init lifecycle
-  function (open since 2018)
-- [#5382](https://github.com/grafana/k6/issues/5382) — VU-level lifecycle hooks
-
-### Silent failures
-
-Failures in background async paths get lost or surface too late.
-
-- [#5249](https://github.com/grafana/k6/issues/5249) — Unhandled promise
-  rejections don't fail tests
-- [#5524](https://github.com/grafana/k6/issues/5524) — WebSocket handlers lose
-  async results
-
-### Unpredictable shutdown
-
-- [#2804](https://github.com/grafana/k6/issues/2804) — Unified shutdown behavior
-  (lists 8 different ways to stop k6, none consistent)
-- [#3718](https://github.com/grafana/k6/issues/3718) — Graceful interruptions
-
-### Race conditions
-
-- [#4203](https://github.com/grafana/k6/issues/4203) — Race condition on
-  emitting metrics
-- [#5534](https://github.com/grafana/k6/issues/5534) — Data race during panic
-  and event loop
-- [#3747](https://github.com/grafana/k6/issues/3747) — panic: send on closed
-  channel
-
-## What it looks like when async matches your expectations
-
-`@effectionx/k6` demonstrates what changes when scope owns async work the same
-way it owns sync work.
-
-Here's the `group()` problem from #2728:
+Here is the drift in plain code:
 
 ```js
-// BEFORE: group context lost across async
 import { Counter } from "k6/metrics";
 import { group } from "k6";
 
@@ -133,8 +80,9 @@ export default function () {
 }
 ```
 
+And here is the same scenario with `@effectionx/k6`:
+
 ```js
-// AFTER: @effectionx/k6 preserves context
 import { group, main } from "@effectionx/k6";
 import { call } from "effection";
 import { Counter } from "k6/metrics";
@@ -146,86 +94,50 @@ export default main(function* () {
   yield* group("coolgroup", function* () {
     c.add(1); // tagged with group=coolgroup
 
-    // The group scope owns this async work.
-    // When the scope exits, child work is canceled.
     yield* call(delay);
     c.add(1); // still tagged
   });
 });
 ```
 
-The group scope owns the async work the same way it owns sync work. The parent
-doesn't decide when the child is done, but it does decide when the child is no
-longer relevant. When the scope exits, cleanup runs.
+The group scope owns the async work the same way it owns sync work. Lifetime is
+structural, not incidental. Work started in scope stays in scope.
 
-Effection's design goal: async should just feel normal.
+Async should just feel normal.
 
-## The runtime dependency: ECMAScript conformance and Sobek PR #115
+## What k6 needs: Sobek PR #115
 
-Structured cleanup requires `generator.return()` to unwind through `finally`
-blocks reliably. This behavior is specified in ECMAScript
-([§27.5.3.4 GeneratorResumeAbrupt](https://tc39.es/ecma262/#sec-generatorresumeabrupt)):
-when `return()` is called on a generator suspended in a `try` block with a
-`finally`, the `finally` must execute. If the `finally` contains a `yield`, the
-generator suspends there. Subsequent `next()` calls resume the `finally` until
-it completes.
+To make this correct, cleanup must run during structured cancellation and
+unwind. In JavaScript terms, `generator.return()` must execute `finally` blocks
+correctly.
 
-Sobek had a gap here: it was skipping yields in `finally` blocks during
-`return()`, immediately marking the generator as done. This breaks structured
-cleanup, because cleanup often needs to perform async work (which requires
-yielding).
+Sobek had a gap here: during `return`, yields inside `finally` were skipped.
+That breaks structured cleanup because "exit fully" stops being true at exactly
+the point where cleanup needs to happen.
 
-[Sobek PR #115](https://github.com/grafana/sobek/pull/115) fixes this specific
-behavior. The k6/Sobek project prioritizes ECMAScript conformance, so this isn't
-a feature request—it's a spec compliance fix that aligns Sobek with V8,
-SpiderMonkey, and JavaScriptCore.
+[Sobek PR #115](https://github.com/grafana/sobek/pull/115) fixes that behavior.
+This is ECMAScript conformance work, not a feature request. The runtime is
+aligning with the language contract.
 
-## What the conformance suite tests
-
-The adapter work in
-[effectionx PR #156](https://github.com/thefrontside/effectionx/pull/156)
-includes a conformance suite designed to determine what primitives Sobek already
-supports and where the gaps are.
-
-**What Sobek already supports:**
-
-- Symbols
-- Generators (creation, iteration, `yield`)
-- Yield delegation (`yield*`)
-- `throw()` into generators
-- Promises and microtask scheduling
-- Timers (`setTimeout`, etc.)
-- `AbortController` / `AbortSignal`
-
-**What was missing:**
-
-- Async cleanup via `generator.return()` + `finally` blocks (fixed by PR #115)
-
-The `05-yield-return.ts` tests specifically verify the `finally` + `yield`
-behavior. The k6 adapter tests then build on these primitives to verify:
-
-- Child work is canceled when parent scope exits
-- Cleanup runs on cancellation paths
-- Errors propagate through owned task trees
-- Shutdown ordering is deterministic under interruption
-
-Most of what Effection needs was already in Sobek. The one missing piece—async
-cleanup during generator return—is what PR #115 addresses.
+There is also [effectionx PR #156](https://github.com/thefrontside/effectionx/pull/156),
+which includes a conformance suite around these semantics so behavior stays
+locked as integration evolves.
 
 ## Try it
+
+Install the package:
 
 ```bash
 npm install @effectionx/k6 effection
 ```
 
-Replace one scenario entrypoint with `main(function* () { ... })`, wrap one
-problematic flow in a scoped operation, and run your normal `k6 run` command.
+Take one existing script that uses `group()` with any promise boundary, convert
+`export default function () {}` to `export default main(function* () {})`, then
+move that path under `yield* group(...)` and replace promise bridging with
+`yield* call(...)`.
 
-If child lifetime escapes parent lifetime, file it with a minimal repro. That's
-the invariant that matters.
+If you maintain k6 or Sobek, please review the PRs and the conformance cases.
+The runtime boundary is where this guarantee has to hold, or it will leak
+everywhere above it.
 
-If you maintain k6 or Sobek, please review
-[Sobek PR #115](https://github.com/grafana/sobek/pull/115) and
-[effectionx PR #156](https://github.com/thefrontside/effectionx/pull/156).
-
-When the invariant holds, async behaves the way you expect.
+When the invariant holds, async stops lying.

@@ -6,11 +6,14 @@ tags: ["structured concurrency", "k6", "load testing"]
 image: "k6-structured-concurrency.svg"
 ---
 
-If you've written k6 scripts with async calls, you've probably seen this: a
-metric is "inside" a `group()`, but it doesn't get tagged with that group once a
-`.then()` or promise callback gets involved.
+If you've written k6 scripts with async calls, you've probably experienced
+metrics not getting tagged inside of `group()` because of async or `.then()`.
 
-That's a missing guarantee in the JavaScript runtime.
+This happens because JavaScript treats sync and async differently. What you
+expect to work with sync `group()` doesn't work once async gets introduced.
+
+This post is about using structured concurrency to align k6's JavaScript runtime
+with your expectations.
 
 ## Why `group()` can't fix this on its own
 
@@ -29,9 +32,10 @@ already restored the old group. That same thread captures why an
 (like the experimental websocket) still leave you with inconsistent tagging and
 unclear definitions of what a "group" should wait for.
 
-## The missing guarantees
+## What structured concurrency guarantees
 
-Structured concurrency provides two guarantees:
+Structured concurrency makes async behave the way you expect sync to behave. It
+provides two guarantees:
 
 1. No operation runs longer than its parent.
 2. Every operation exits fully (cleanup runs).
@@ -39,7 +43,8 @@ Structured concurrency provides two guarantees:
 k6's CLI is written in Go, but k6 scripts run inside an embedded JavaScript
 runtime (Sobek). When you cross async boundaries, k6 has to decide what context
 applies, how errors surface, and what gets cleaned up on shutdown. Today, that
-model is mostly "whatever happens to be on the call stack."
+model is mostly "whatever happens to be on the call stack"—which is why your
+expectations don't hold once async gets involved.
 
 The absence of these guarantees explains a category of problems that have
 accumulated in k6 over years:
@@ -88,9 +93,10 @@ Failures in background async paths get lost or surface too late.
 - [#3747](https://github.com/grafana/k6/issues/3747) — panic: send on closed
   channel
 
-## What structured ownership looks like
+## What it looks like when async matches your expectations
 
-`@effectionx/k6` demonstrates what changes when scope owns async work.
+`@effectionx/k6` demonstrates what changes when scope owns async work the same
+way it owns sync work.
 
 Here's the `group()` problem from #2728:
 
@@ -134,11 +140,11 @@ export default main(function* () {
 });
 ```
 
-The group scope owns the async work. The parent doesn't decide when the child is
-done, but it does decide when the child is no longer relevant. When the scope
-exits, cleanup runs.
+The group scope owns the async work the same way it owns sync work. The parent
+doesn't decide when the child is done, but it does decide when the child is no
+longer relevant. When the scope exits, cleanup runs.
 
-Effection's design goal is simple: async should just feel normal.
+Effection's design goal: async should just feel normal.
 
 ## The runtime dependency: ECMAScript conformance and Sobek PR #115
 
@@ -208,4 +214,4 @@ If you maintain k6 or Sobek, please review
 [Sobek PR #115](https://github.com/grafana/sobek/pull/115) and
 [effectionx PR #156](https://github.com/thefrontside/effectionx/pull/156).
 
-When the invariant holds, async starts to feel like normal control flow again.
+When the invariant holds, async behaves the way you expect.

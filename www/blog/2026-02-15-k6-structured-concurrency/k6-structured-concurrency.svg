@@ -387,22 +387,59 @@
   <text x="345" y="265" class="svg-label" text-anchor="middle">k6 Today</text>
 
   <!-- VU iteration boundary (dashed) -->
-  <rect class="svg-dashed-boundary" x="140" y="290" width="380" height="180" rx="8" />
+  <rect
+    class="svg-dashed-boundary"
+    x="140"
+    y="290"
+    width="380"
+    height="180"
+    rx="8"
+  />
   <text x="150" y="310" class="svg-mono">VU iteration</text>
 
   <!-- Work boxes inside -->
-  <rect class="svg-scope-child" x="160" y="330" width="100" height="40" rx="4" />
+  <rect
+    class="svg-scope-child"
+    x="160"
+    y="330"
+    width="100"
+    height="40"
+    rx="4"
+  />
   <text x="210" y="355" class="svg-mono" text-anchor="middle">group()</text>
 
-  <rect class="svg-scope-child" x="280" y="330" width="100" height="40" rx="4" />
+  <rect
+    class="svg-scope-child"
+    x="280"
+    y="330"
+    width="100"
+    height="40"
+    rx="4"
+  />
   <text x="330" y="355" class="svg-mono" text-anchor="middle">http()</text>
 
   <!-- Leaked work OUTSIDE boundary -->
-  <rect class="svg-scope-child" x="160" y="500" width="120" height="40" rx="4" style="stroke: #ea580c;" />
+  <rect
+    class="svg-scope-child"
+    x="160"
+    y="500"
+    width="120"
+    height="40"
+    rx="4"
+    style="stroke: #ea580c"
+  />
   <text x="220" y="525" class="svg-mono" text-anchor="middle">promise</text>
   <circle class="svg-leak-dot" cx="280" cy="520" r="5" />
 
-  <rect class="svg-scope-child" x="320" y="520" width="140" height="40" rx="4" style="stroke: #ea580c;" />
+  <rect
+    class="svg-scope-child"
+    x="320"
+    y="520"
+    width="140"
+    height="40"
+    rx="4"
+    style="stroke: #ea580c"
+  />
   <text x="390" y="545" class="svg-mono" text-anchor="middle">websocket</text>
   <circle class="svg-leak-dot" cx="460" cy="540" r="5" />
 
@@ -411,38 +448,69 @@
   <path class="svg-leak-wire" d="M350 370 Q 380 450 380 520" />
 
   <!-- Leak label -->
-  <text x="345" y="580" class="svg-leak-text svg-caption" text-anchor="middle">Context lost. Resources leak.</text>
+  <text x="345" y="580" class="svg-leak-text svg-caption" text-anchor="middle"
+  >Context lost. Resources leak.</text>
 
   <!-- ======== RIGHT SIDE: STRUCTURED ======== -->
-  <text x="855" y="265" class="svg-label" text-anchor="middle">@effectionx/k6</text>
+  <text x="855" y="265" class="svg-label" text-anchor="middle"
+  >@effectionx/k6</text>
 
   <!-- Parent scope -->
-  <rect class="svg-scope-parent" x="650" y="290" width="410" height="240" rx="8" />
+  <rect
+    class="svg-scope-parent"
+    x="650"
+    y="290"
+    width="410"
+    height="240"
+    rx="8"
+  />
   <text x="660" y="310" class="svg-mono">main()</text>
 
   <!-- Child scope: group -->
-  <rect class="svg-scope-child" x="680" y="330" width="180" height="80" rx="6" />
+  <rect
+    class="svg-scope-child"
+    x="680"
+    y="330"
+    width="180"
+    height="80"
+    rx="6"
+  />
   <text x="690" y="350" class="svg-mono">group("checkout")</text>
   <circle class="svg-dot-primary" cx="720" cy="380" r="5" />
   <text x="735" y="385" class="svg-mono">http()</text>
 
   <!-- Child scope: websocket -->
-  <rect class="svg-scope-child" x="880" y="330" width="160" height="80" rx="6" />
+  <rect
+    class="svg-scope-child"
+    x="880"
+    y="330"
+    width="160"
+    height="80"
+    rx="6"
+  />
   <text x="890" y="350" class="svg-mono">useWebSocket()</text>
   <circle class="svg-dot-primary" cx="920" cy="380" r="5" />
   <text x="935" y="385" class="svg-mono">messages</text>
 
   <!-- Spawned task inside parent -->
-  <rect class="svg-scope-child" x="680" y="440" width="360" height="60" rx="6" />
+  <rect
+    class="svg-scope-child"
+    x="680"
+    y="440"
+    width="360"
+    height="60"
+    rx="6"
+  />
   <text x="690" y="460" class="svg-mono">spawn()</text>
   <circle class="svg-dot-primary" cx="720" cy="480" r="5" />
-  <text x="735" y="485" class="svg-mono">background work — owned by parent</text>
+  <text x="735" y="485" class="svg-mono"
+  >background work — owned by parent</text>
 
   <!-- Contained wires (all inside parent) -->
   <path class="svg-contained-wire" d="M770 410 L 770 440" />
   <path class="svg-contained-wire" d="M960 410 L 960 440" />
 
   <!-- Check label -->
-  <text x="855" y="560" class="svg-check-text svg-caption" text-anchor="middle">Context preserved. Cleanup guaranteed.</text>
-
+  <text x="855" y="560" class="svg-check-text svg-caption" text-anchor="middle"
+  >Context preserved. Cleanup guaranteed.</text>
 </svg>

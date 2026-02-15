@@ -10,11 +10,16 @@ If you've written non-trivial k6 scripts, you've probably seen some version of
 this: the code is "inside" a `group()`, but the metric/check isn't tagged with
 that group once an async boundary gets involved.
 
-That's not user error. It's a missing guarantee in the JavaScript runtime.
+That's a missing guarantee in the JavaScript runtime.
 
 Structured concurrency gives us the missing rule: a child cannot outlive its
-parent. The parent does not decide when the child is done, but it does decide
-when the child is no longer relevant. That distinction is the whole game.
+parent.
+
+Effection's design goal is simple: async should just feel normal. The structured
+concurrency part comes down to two guarantees:
+
+1. No operation runs longer than its parent.
+2. Every operation exits fully (cleanup runs).
 
 k6's CLI is written in Go, but k6 scripts run inside an embedded JavaScript
 runtime (Sobek). When you cross async boundaries there, k6 has to decide what
@@ -22,17 +27,16 @@ context (groups/tags) applies, how errors surface, and what gets cleaned up on
 shutdown. Today, that model is mostly "whatever happens to be on the call
 stack".
 
-The maintainers have explained this in detail in
-[#2728](https://github.com/grafana/k6/issues/2728) and why trying to "just make
-`group()` async" quickly becomes inconsistent and surprising
-([oleiade's take](https://github.com/grafana/k6/issues/2728#issuecomment-1286933495),
-[mstoykov's conclusion](https://github.com/grafana/k6/issues/2728#issuecomment-1404747660)).
+This is discussed in [#2728](https://github.com/grafana/k6/issues/2728),
+including why trying to "just make `group()` async" leads to tricky,
+inconsistent semantics
+([oleiade](https://github.com/grafana/k6/issues/2728#issuecomment-1286933495),
+[mstoykov](https://github.com/grafana/k6/issues/2728#issuecomment-1404747660)).
 
-This post is a case study: the category of problems k6 has been running into for
-years, and a small package (`@effectionx/k6`) that demonstrates a structured fix
-today.
+This post outlines the category of problems k6 has been running into for years,
+and a small package (`@effectionx/k6`) that demonstrates a structured fix.
 
-## The pain in five categories
+## Five categories of missing guarantees
 
 ### 1) Context loss
 
@@ -45,10 +49,22 @@ owns them.
   calls async functions
 
 The important part isn't whether `group()` accepts an `async function`. It's
-that `group()` is implemented like a `try/finally`-scoped tag mutation, so the
-tag only applies to the current synchronous call stack. Promise jobs and
-callback-based APIs run later, after the `finally` has already restored the old
-tags.
+that `group()` behaves like a `try/finally`-scoped tag mutation: set a tag,
+execute a callback, restore the old tag.
+
+In #2728, @mstoykov describes why `.then()` breaks that illusion: the callback
+is scheduled after the current stack unwinds, so the `finally` has already
+restored the old group.
+
+> "As the `then` callbacks get called only after the stack is empty the whole
+> `group` code would have been executed, resetting the group back to the root
+> name (which is empty)." —
+> [grafana/k6#2728](https://github.com/grafana/k6/issues/2728#issue-1407984526)
+
+That same thread also captures why an `async/await`-only approach isn't enough
+in practice: `.then()` chains and non-promise callback APIs (like the
+experimental websocket) still leave you with inconsistent tagging and unclear
+definitions of what a "group" should wait for.
 
 ### 2) Resource leaks
 
@@ -153,7 +169,7 @@ reliably so `finally` blocks run when scopes are canceled.
 correctness gap. Without it, guarantees become "usually." With it, cleanup and
 unwind semantics are dependable enough to build on.
 
-## Conformance suite: evidence, not vibes
+## Conformance suite
 
 The adapter work in
 [effectionx PR #156](https://github.com/thefrontside/effectionx/pull/156)
@@ -164,8 +180,7 @@ includes a conformance suite that asserts the guarantees directly:
 - errors propagate through owned task trees
 - shutdown ordering is deterministic under interruption
 
-This is the difference between a library API that looks structured and one that
-is actually structured.
+Those are the guarantees the adapter is trying to make testable.
 
 ## Try it
 

@@ -1,0 +1,448 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- k6 Structured Concurrency Blog Post Image -->
+<!-- Split-screen: tangled async (left) vs clean scopes (right) -->
+<svg
+  width="1200"
+  height="630"
+  viewBox="0 0 1200 630"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+  role="img"
+  aria-label="Split view showing tangled async wires escaping scope on left, clean nested scopes on right"
+>
+  <defs>
+    <!-- Light-mode background gradient -->
+    <linearGradient
+      id="bg-light-grad"
+      x1="0"
+      y1="0"
+      x2="1200"
+      y2="630"
+      gradientUnits="userSpaceOnUse"
+    >
+      <stop offset="0" stop-color="#F8FAFF" />
+      <stop offset="0.55" stop-color="#F2F7FF" />
+      <stop offset="1" stop-color="#ECF3FF" />
+    </linearGradient>
+
+    <!-- Light-mode decorative glow -->
+    <radialGradient
+      id="glow-light-grad"
+      cx="0"
+      cy="0"
+      r="1"
+      gradientUnits="userSpaceOnUse"
+      gradientTransform="translate(900 120) rotate(120) scale(560 420)"
+    >
+      <stop offset="0" stop-color="#2B6FF7" stop-opacity="0.22" />
+      <stop offset="0.55" stop-color="#2B6FF7" stop-opacity="0.07" />
+      <stop offset="1" stop-color="#2B6FF7" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Dark-mode decorative glow -->
+    <radialGradient
+      id="glow-dark-grad"
+      cx="0"
+      cy="0"
+      r="1"
+      gradientUnits="userSpaceOnUse"
+      gradientTransform="translate(900 120) rotate(120) scale(560 420)"
+    >
+      <stop offset="0" stop-color="#60A5FA" stop-opacity="0.10" />
+      <stop offset="0.55" stop-color="#60A5FA" stop-opacity="0.03" />
+      <stop offset="1" stop-color="#60A5FA" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Light-mode title gradient -->
+    <linearGradient id="ink" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0B2A5B" />
+      <stop offset="1" stop-color="#0C3A7A" />
+    </linearGradient>
+
+    <!-- Light-mode shadow (card) -->
+    <filter
+      id="softShadow-light"
+      x="-40"
+      y="-40"
+      width="1280"
+      height="710"
+      filterUnits="userSpaceOnUse"
+      color-interpolation-filters="sRGB"
+    >
+      <feDropShadow
+        dx="0"
+        dy="10"
+        stdDeviation="18"
+        flood-color="#0B2A5B"
+        flood-opacity="0.12"
+      />
+    </filter>
+
+    <!-- Dark-mode shadow (card) -->
+    <filter
+      id="softShadow-dark"
+      x="-40"
+      y="-40"
+      width="1280"
+      height="710"
+      filterUnits="userSpaceOnUse"
+      color-interpolation-filters="sRGB"
+    >
+      <feDropShadow
+        dx="0"
+        dy="10"
+        stdDeviation="18"
+        flood-color="#000000"
+        flood-opacity="0.25"
+      />
+    </filter>
+
+    <style>
+    /* ---- Font stacks ---- */
+    .svg-title {
+      font-family:
+        ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
+        Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      font-size: 44px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .svg-subtitle {
+      font-family:
+        ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
+        Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+    .svg-caption {
+      font-family:
+        ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
+        Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .svg-label {
+      font-family:
+        ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
+        Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+    .svg-mono {
+      font-family:
+        ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+      font-size: 13px;
+    }
+
+    /* ---- Light mode (default) ---- */
+    .svg-bg-light {
+      display: block;
+    }
+    .svg-bg-dark {
+      display: none;
+    }
+    .svg-glow-light {
+      display: block;
+    }
+    .svg-glow-dark {
+      display: none;
+    }
+    .svg-shadow-light {
+      display: block;
+    }
+    .svg-shadow-dark {
+      display: none;
+    }
+
+    .svg-grid {
+      opacity: 0.25;
+    }
+    .svg-grid-line {
+      stroke: #c9d9f2;
+      stroke-width: 1;
+    }
+
+    .svg-card {
+      fill: #ffffff;
+    }
+    .svg-divider {
+      stroke: #d6e4ff;
+      stroke-dasharray: 4 4;
+      stroke-width: 2;
+    }
+
+    /* Left side: Broken async */
+    .svg-dashed-boundary {
+      stroke: #b8ccf5;
+      stroke-width: 2;
+      stroke-dasharray: 8 4;
+      fill: none;
+    }
+    .svg-leak-wire {
+      stroke: #ea580c;
+      stroke-width: 2;
+      fill: none;
+    }
+    .svg-leak-dot {
+      fill: #ea580c;
+    }
+    .svg-leak-text {
+      fill: #ea580c;
+    }
+
+    /* Right side: Structured */
+    .svg-scope-parent {
+      fill: #f0f7ff;
+      stroke: #97b7ff;
+      stroke-width: 2;
+    }
+    .svg-scope-child {
+      fill: #ffffff;
+      stroke: #2b6ff7;
+      stroke-width: 2;
+    }
+    .svg-dot-primary {
+      fill: #2b6ff7;
+    }
+    .svg-check-text {
+      fill: #16a34a;
+    }
+    .svg-contained-wire {
+      stroke: #2b6ff7;
+      stroke-width: 2;
+      fill: none;
+    }
+
+    /* Shared text */
+    .svg-title {
+      fill: url(#ink);
+    }
+    .svg-subtitle {
+      fill: #33547b;
+    }
+    .svg-caption {
+      fill: #23435f;
+    }
+    .svg-label {
+      fill: #33547b;
+    }
+    .svg-mono {
+      fill: #1e3a8a;
+    }
+
+    /* ---- Dark mode ---- */
+    @media (prefers-color-scheme: dark) {
+      .svg-bg-light {
+        display: none;
+      }
+      .svg-bg-dark {
+        display: block;
+      }
+      .svg-glow-light {
+        display: none;
+      }
+      .svg-glow-dark {
+        display: block;
+      }
+      .svg-shadow-light {
+        display: none;
+      }
+      .svg-shadow-dark {
+        display: block;
+      }
+
+      .svg-grid {
+        opacity: 0.20;
+      }
+      .svg-grid-line {
+        stroke: #374151;
+      }
+
+      .svg-card {
+        fill: #1f2937;
+      }
+      .svg-divider {
+        stroke: #374151;
+      }
+
+      .svg-dashed-boundary {
+        stroke: #4b5563;
+      }
+      .svg-leak-wire {
+        stroke: #fb923c;
+      }
+      .svg-leak-dot {
+        fill: #fb923c;
+      }
+      .svg-leak-text {
+        fill: #fb923c;
+      }
+
+      .svg-scope-parent {
+        fill: #111827;
+        stroke: #374151;
+      }
+      .svg-scope-child {
+        fill: #1f2937;
+        stroke: #60a5fa;
+      }
+      .svg-dot-primary {
+        fill: #60a5fa;
+      }
+      .svg-check-text {
+        fill: #4ade80;
+      }
+      .svg-contained-wire {
+        stroke: #60a5fa;
+      }
+
+      .svg-title {
+        fill: #f3f4f6;
+      }
+      .svg-subtitle {
+        fill: #9ca3af;
+      }
+      .svg-caption {
+        fill: #d1d5db;
+      }
+      .svg-label {
+        fill: #9ca3af;
+      }
+      .svg-mono {
+        fill: #e5e7eb;
+      }
+    }
+    </style>
+  </defs>
+
+  <!-- ======== BACKGROUND ======== -->
+  <rect
+    class="svg-bg-light"
+    x="0"
+    y="0"
+    width="1200"
+    height="630"
+    fill="url(#bg-light-grad)"
+  />
+  <rect
+    class="svg-bg-dark"
+    x="0"
+    y="0"
+    width="1200"
+    height="630"
+    fill="#111827"
+  />
+  <rect
+    class="svg-glow-light"
+    x="0"
+    y="0"
+    width="1200"
+    height="630"
+    fill="url(#glow-light-grad)"
+  />
+  <rect
+    class="svg-glow-dark"
+    x="0"
+    y="0"
+    width="1200"
+    height="630"
+    fill="url(#glow-dark-grad)"
+  />
+
+  <!-- ======== SUBTLE GRID ======== -->
+  <g class="svg-grid">
+    <path class="svg-grid-line" d="M90 90H1110" />
+    <path class="svg-grid-line" d="M90 150H1110" />
+    <path class="svg-grid-line" d="M90 210H1110" />
+    <path class="svg-grid-line" d="M90 270H1110" />
+    <path class="svg-grid-line" d="M90 330H1110" />
+    <path class="svg-grid-line" d="M90 390H1110" />
+    <path class="svg-grid-line" d="M90 450H1110" />
+    <path class="svg-grid-line" d="M90 510H1110" />
+    <path class="svg-grid-line" d="M90 570H1110" />
+  </g>
+
+  <!-- ======== HEADER ======== -->
+  <text x="90" y="70" class="svg-subtitle">Effection Blog</text>
+  <text x="90" y="125" class="svg-title">Structured Concurrency</text>
+  <text x="90" y="175" class="svg-title">for k6, With Receipts</text>
+
+  <!-- ======== DIAGRAM CARD ======== -->
+  <g class="svg-shadow-light" filter="url(#softShadow-light)">
+    <rect class="svg-card" x="90" y="210" width="1020" height="380" rx="20" />
+  </g>
+  <g class="svg-shadow-dark" filter="url(#softShadow-dark)">
+    <rect class="svg-card" x="90" y="210" width="1020" height="380" rx="20" />
+  </g>
+
+  <!-- Divider -->
+  <line class="svg-divider" x1="600" y1="240" x2="600" y2="560" />
+
+  <!-- ======== LEFT SIDE: BROKEN ASYNC ======== -->
+  <text x="345" y="265" class="svg-label" text-anchor="middle">k6 Today</text>
+
+  <!-- VU iteration boundary (dashed) -->
+  <rect class="svg-dashed-boundary" x="140" y="290" width="380" height="180" rx="8" />
+  <text x="150" y="310" class="svg-mono">VU iteration</text>
+
+  <!-- Work boxes inside -->
+  <rect class="svg-scope-child" x="160" y="330" width="100" height="40" rx="4" />
+  <text x="210" y="355" class="svg-mono" text-anchor="middle">group()</text>
+
+  <rect class="svg-scope-child" x="280" y="330" width="100" height="40" rx="4" />
+  <text x="330" y="355" class="svg-mono" text-anchor="middle">http()</text>
+
+  <!-- Leaked work OUTSIDE boundary -->
+  <rect class="svg-scope-child" x="160" y="500" width="120" height="40" rx="4" style="stroke: #ea580c;" />
+  <text x="220" y="525" class="svg-mono" text-anchor="middle">promise</text>
+  <circle class="svg-leak-dot" cx="280" cy="520" r="5" />
+
+  <rect class="svg-scope-child" x="320" y="520" width="140" height="40" rx="4" style="stroke: #ea580c;" />
+  <text x="390" y="545" class="svg-mono" text-anchor="middle">websocket</text>
+  <circle class="svg-leak-dot" cx="460" cy="540" r="5" />
+
+  <!-- Leak wires -->
+  <path class="svg-leak-wire" d="M230 370 Q 200 430 200 500" />
+  <path class="svg-leak-wire" d="M350 370 Q 380 450 380 520" />
+
+  <!-- Leak label -->
+  <text x="345" y="580" class="svg-leak-text svg-caption" text-anchor="middle">Context lost. Resources leak.</text>
+
+  <!-- ======== RIGHT SIDE: STRUCTURED ======== -->
+  <text x="855" y="265" class="svg-label" text-anchor="middle">@effectionx/k6</text>
+
+  <!-- Parent scope -->
+  <rect class="svg-scope-parent" x="650" y="290" width="410" height="240" rx="8" />
+  <text x="660" y="310" class="svg-mono">main()</text>
+
+  <!-- Child scope: group -->
+  <rect class="svg-scope-child" x="680" y="330" width="180" height="80" rx="6" />
+  <text x="690" y="350" class="svg-mono">group("checkout")</text>
+  <circle class="svg-dot-primary" cx="720" cy="380" r="5" />
+  <text x="735" y="385" class="svg-mono">http()</text>
+
+  <!-- Child scope: websocket -->
+  <rect class="svg-scope-child" x="880" y="330" width="160" height="80" rx="6" />
+  <text x="890" y="350" class="svg-mono">useWebSocket()</text>
+  <circle class="svg-dot-primary" cx="920" cy="380" r="5" />
+  <text x="935" y="385" class="svg-mono">messages</text>
+
+  <!-- Spawned task inside parent -->
+  <rect class="svg-scope-child" x="680" y="440" width="360" height="60" rx="6" />
+  <text x="690" y="460" class="svg-mono">spawn()</text>
+  <circle class="svg-dot-primary" cx="720" cy="480" r="5" />
+  <text x="735" y="485" class="svg-mono">background work — owned by parent</text>
+
+  <!-- Contained wires (all inside parent) -->
+  <path class="svg-contained-wire" d="M770 410 L 770 440" />
+  <path class="svg-contained-wire" d="M960 410 L 960 440" />
+
+  <!-- Check label -->
+  <text x="855" y="560" class="svg-check-text svg-caption" text-anchor="middle">Context preserved. Cleanup guaranteed.</text>
+
+</svg>

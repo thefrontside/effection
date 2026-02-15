@@ -369,8 +369,8 @@
 
   <!-- ======== HEADER ======== -->
   <text x="90" y="70" class="svg-subtitle">Effection Blog</text>
-  <text x="90" y="125" class="svg-title">Structured Concurrency</text>
-  <text x="90" y="175" class="svg-title">for k6, With Receipts</text>
+  <text x="90" y="125" class="svg-title">Missing Guarantees</text>
+  <text x="90" y="175" class="svg-title">in k6's JS Runtime</text>
 
   <!-- ======== DIAGRAM CARD ======== -->
   <g class="svg-shadow-light" filter="url(#softShadow-light)">

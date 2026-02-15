@@ -1,26 +1,36 @@
 ---
-title: "Structured Concurrency for k6, With Receipts"
-description: "k6 has 20+ open issues caused by one missing model. We built @effectionx/k6 to prove structured concurrency solves them."
+title: "The missing structured concurrency guarantees in k6's JavaScript runtime"
+description: "Why groups/tags, errors, and cleanup drift across async boundaries in k6 scripts, and how @effectionx/k6 proves a structured fix."
 author: "Taras Mankovski"
 tags: ["structured concurrency", "k6", "load testing"]
 image: "k6-structured-concurrency.svg"
 ---
 
-The bug report starts the same way. You hit Ctrl-C, and the process still has
-work running. Or a request executes after the code that created its context is
-already gone. Or the run exits "cleanly" while a failure was swallowed in
-background work.
+If you've written non-trivial k6 scripts, you've probably seen some version of
+this: the code is "inside" a `group()`, but the metric/check isn't tagged with
+that group once an async boundary gets involved.
 
-That is not one bug. That is one missing model.
+That's not user error. It's a missing guarantee in the JavaScript runtime.
 
 Structured concurrency gives us the missing rule: a child cannot outlive its
 parent. The parent does not decide when the child is done, but it does decide
 when the child is no longer relevant. That distinction is the whole game.
 
-k6 sits right in the pain because it orchestrates real async work inside a
-runtime that historically exposed promises and callbacks without lifetime
-ownership. I went looking for the receipts — the actual issue reports — and
-found over twenty open issues that trace back to this gap.
+k6's CLI is written in Go, but k6 scripts run inside an embedded JavaScript
+runtime (Sobek). When you cross async boundaries there, k6 has to decide what
+context (groups/tags) applies, how errors surface, and what gets cleaned up on
+shutdown. Today, that model is mostly "whatever happens to be on the call
+stack".
+
+The maintainers have explained this in detail in
+[#2728](https://github.com/grafana/k6/issues/2728) and why trying to "just make
+`group()` async" quickly becomes inconsistent and surprising
+([oleiade's take](https://github.com/grafana/k6/issues/2728#issuecomment-1286933495),
+[mstoykov's conclusion](https://github.com/grafana/k6/issues/2728#issuecomment-1404747660)).
+
+This post is a case study: the category of problems k6 has been running into for
+years, and a small package (`@effectionx/k6`) that demonstrates a structured fix
+today.
 
 ## The pain in five categories
 
@@ -34,9 +44,11 @@ owns them.
 - [#2848](https://github.com/grafana/k6/issues/2848) — Change how `group()`
   calls async functions
 
-The k6 team decided NOT to support async functions in `group()` because of
-corner cases. From #2728: "After even more discussion it was decided to _not_
-support async functions in `group` and `check` at this time."
+The important part isn't whether `group()` accepts an `async function`. It's
+that `group()` is implemented like a `try/finally`-scoped tag mutation, so the
+tag only applies to the current synchronous call stack. Promise jobs and
+callback-based APIs run later, after the `finally` has already restored the old
+tags.
 
 ### 2) Resource leaks
 
@@ -90,23 +102,40 @@ Here's group context drift — the most common complaint:
 
 ```js
 // BEFORE: group context lost across async
-group("checkout", async () => {
-  let res = await http.asyncRequest("GET", url);
-  check(res, { "status 200": (r) => r.status === 200 });
-  // check is NOT tagged with "checkout" — context escaped
-});
+import { Counter } from "k6/metrics";
+import { group } from "k6";
+
+const delay = () => Promise.resolve();
+const c = new Counter("my_counter");
+
+export default function () {
+  group("coolgroup", () => {
+    c.add(1); // tagged with group=coolgroup
+
+    delay().then(() => {
+      c.add(1); // NOT tagged (runs after group() restored tags)
+    });
+  });
+}
 ```
 
 ```js
 // AFTER: @effectionx/k6 preserves context
 import { group, main } from "@effectionx/k6";
 import { call } from "effection";
+import { Counter } from "k6/metrics";
+
+const delay = () => Promise.resolve();
+const c = new Counter("my_counter");
 
 export default main(function* () {
-  yield* group("checkout", function* () {
-    let res = yield* call(() => http.asyncRequest("GET", url));
-    check(res, { "status 200": (r) => r.status === 200 });
-    // check IS tagged — context is scope-owned
+  yield* group("coolgroup", function* () {
+    c.add(1); // tagged with group=coolgroup
+
+    // Express the async boundary as part of the structured flow.
+    // The group owns the lifetime of the work, so context is preserved.
+    yield* call(delay);
+    c.add(1); // still tagged
   });
 });
 ```

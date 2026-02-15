@@ -6,13 +6,20 @@ tags: ["structured concurrency", "k6", "load testing"]
 image: "k6-structured-concurrency.svg"
 ---
 
-You have probably seen this one already: a metric increment that should be under
-`group()` shows up untagged. The script looks correct. The output does not.
-Nothing is obviously broken, but your context drifted across an async boundary
-and your data is now lying to you.
+If you've written k6 scripts with async calls, you've probably experienced
+metrics not getting tagged inside of `group()` because of async or `.then()`.
 
-This post explains why that happens, why it is bigger than `group()`, and what
-it looks like when the runtime gives you the missing lifetime guarantees.
+This happens because JavaScript treats sync and async differently. What you
+expect to work with sync `group()` doesn't work once async gets introduced.
+
+This post is about using structured concurrency to align k6's JavaScript runtime
+with your expectations.
+
+The diagram at the top shows what goes wrong. Async deforms your call stack.
+Some code runs on the stack you are in now, and some code runs on a new stack on
+a future tick. k6 reads the current tags from the sync stack. You expect the tag
+values in the async callback to be the same, but by the time that callback runs
+it's too late: `group()` has already unwound and restored them.
 
 ## `group()` is just the tip of the iceberg
 

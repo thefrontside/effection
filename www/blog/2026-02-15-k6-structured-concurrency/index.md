@@ -7,7 +7,9 @@ image: "k6-structured-concurrency.svg"
 ---
 
 If you've written k6 scripts with async calls, you've probably experienced
-metrics not getting tagged inside of `group()` because of async or `.then()`.
+metrics not getting tagged inside of `group()` because of async or `.then()`. If
+you've debugged flaky load tests or wondered why your dashboards show metrics
+outside the groups you put them in, this post explains why — and shows a fix.
 
 This happens because JavaScript treats sync and async differently. What you
 expect to work with sync `group()` doesn't work once async gets introduced.
@@ -41,7 +43,12 @@ Maintainers explored making `group()` "wait" for async work. It sounds simple
 until you hit the corner cases: which promises count, how far transitive waiting
 goes, what to do with detached callbacks, what to do with timers, what to do
 with user abstractions built on top of all of that. You patch one path, another
-leaks.
+leaks. This pattern shows up repeatedly in k6's issue tracker:
+[#2848](https://github.com/grafana/k6/issues/2848),
+[#5435](https://github.com/grafana/k6/issues/5435),
+[#5249](https://github.com/grafana/k6/issues/5249),
+[#5524](https://github.com/grafana/k6/issues/5524) — all variations of async
+work escaping its logical scope.
 
 This is not a k6-specific bug; it is what unstructured async does. Once work can
 be scheduled to run later—callbacks, promises, futures—it can outlive the task

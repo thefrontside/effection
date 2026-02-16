@@ -1,7 +1,5 @@
-import { run } from "../mod.ts";
-import { createApi } from "../experimental.ts";
 import { constant } from "../lib/constant.ts";
-import { type Operation, spawn } from "../lib/mod.ts";
+import { type Operation, createApi, run, spawn } from "../mod.ts";
 import { describe, expect, it } from "./suite.ts";
 
 describe("api", () => {
@@ -168,13 +166,16 @@ describe("api", () => {
           return output.concat("/outermax");
         },
       });
-      yield* api.around({
-        *test(args, next) {
-          let [input] = args;
-          let output = yield* next(input.concat("outermin"));
-          return output.concat("/outermin");
+      yield* api.around(
+        {
+          *test(args, next) {
+            let [input] = args;
+            let output = yield* next(input.concat("outermin"));
+            return output.concat("/outermin");
+          },
         },
-      }, { at: "min" });
+        { at: "min" },
+      );
 
       let task = yield* spawn(function* inner() {
         yield* api.around({
@@ -184,13 +185,16 @@ describe("api", () => {
             return output.concat("/innermax");
           },
         });
-        yield* api.around({
-          *test(args, next) {
-            let [input] = args;
-            let output = yield* next(input.concat("innermin"));
-            return output.concat("/innermin");
+        yield* api.around(
+          {
+            *test(args, next) {
+              let [input] = args;
+              let output = yield* next(input.concat("innermin"));
+              return output.concat("/innermin");
+            },
           },
-        }, { at: "min" });
+          { at: "min" },
+        );
 
         return yield* api.operations.test([]);
       });

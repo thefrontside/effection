@@ -16,8 +16,11 @@ import type {
   BenchmarkJsonOutput,
   BenchmarkOptions,
   BenchmarkResultEntry,
-  BenchmarkStats,
+  BenchmarkStatsByKind,
   BenchmarkWorkerEvent,
+  CancellationBenchmarkOptions,
+  CancellationResultEntry,
+  LegacyBenchmarkOptions,
   WorkerCommand,
 } from "./bench/types.ts";
 
@@ -30,6 +33,7 @@ interface BenchmarkCliOptions {
   repeat: number;
   depth: number;
   warmup: number;
+  tasks: number;
   json: boolean;
 }
 
@@ -62,6 +66,11 @@ await main(function* (args) {
         description: "number of warmup runs to discard",
         alias: "w",
       },
+      tasks: {
+        type: z.number().positive().default(10),
+        description: "number of concurrent tasks for cancellation benchmarks",
+        alias: "t",
+      },
       json: {
         type: z.boolean().default(false),
         description: "output results as JSON",
@@ -69,29 +78,50 @@ await main(function* (args) {
     })
     .parse(args) as BenchmarkCliOptions;
 
-  let { include, exclude, repeat, depth, warmup, json } = options;
+  let { include, exclude, repeat, depth, warmup, tasks: taskCount, json } = options;
 
-  let tasks: Task<BenchmarkDoneEvent>[] = [];
+  let benchTasks: Task<BenchmarkDoneEvent>[] = [];
 
   for (let scenario of filter(scenarios, { include, exclude })) {
-    tasks.push(
-      yield* spawn(() =>
-        runBenchmark(scenario, {
-          type: "benchmark",
-          repeat,
-          depth,
-          warmup,
-        })
-      ),
-    );
+    // Determine if this is a cancellation benchmark
+    const isCancellation = scenario.includes(".cancellation.");
+
+    if (isCancellation) {
+      // Cancellation benchmarks need the full CancellationBenchmarkOptions
+      benchTasks.push(
+        yield* spawn(() =>
+          runBenchmark(scenario, {
+            type: "benchmark",
+            kind: "cancellation",
+            repeat,
+            depth,
+            warmup,
+            tasks: taskCount,
+          })
+        ),
+      );
+    } else {
+      // Legacy benchmarks (recursion/events) use LegacyBenchmarkOptions
+      benchTasks.push(
+        yield* spawn(() =>
+          runBenchmark(scenario, {
+            type: "benchmark",
+            repeat,
+            depth,
+            warmup,
+          } as LegacyBenchmarkOptions)
+        ),
+      );
+    }
   }
 
-  let results = yield* all(tasks);
+  let results = yield* all(benchTasks);
 
-  let events = results.filter((result) => result.name.match("events"));
-  let recursion = results.filter((result) => result.name.match("recursion"));
+  let events = results.filter((result: BenchmarkDoneEvent) => result.name.match("events"));
+  let recursion = results.filter((result: BenchmarkDoneEvent) => result.name.match("recursion"));
+  let cancellation = results.filter((result: BenchmarkDoneEvent) => result.name.match("cancellation"));
 
-  if (events.length == 0 && recursion.length === 0) {
+  if (events.length === 0 && recursion.length === 0 && cancellation.length === 0) {
     console.log("no benchmarks run");
     return;
   }
@@ -104,24 +134,29 @@ await main(function* (args) {
         repeat,
         warmup,
         depth,
+        ...(cancellation.length > 0 ? { tasks: taskCount } : {}),
       },
       results: {
         recursion: recursion.map(toJsonEntry).filter(notNull),
         events: events.map(toJsonEntry).filter(notNull),
+        ...(cancellation.length > 0 ? {
+          cancellation: cancellation.map(toCancellationJsonEntry).filter(notNull),
+        } : {}),
       },
     };
     console.log(JSON.stringify(output, null, 2));
   } else {
-    renderTable(recursion, events, { repeat, warmup, depth });
+    renderTable(recursion, events, cancellation, { repeat, warmup, depth, tasks: taskCount });
   }
 });
 
 function renderTable(
   recursion: BenchmarkDoneEvent[],
   events: BenchmarkDoneEvent[],
-  options: { repeat?: number; warmup?: number; depth?: number },
+  cancellation: BenchmarkDoneEvent[],
+  options: { repeat?: number; warmup?: number; depth?: number; tasks?: number },
 ) {
-  const headers = [
+  const timingHeaders = [
     "Library",
     "Avg",
     "Min",
@@ -131,22 +166,42 @@ function renderTable(
     "p95",
     "p99",
   ];
+
+  const cancellationHeaders = [
+    "Library",
+    "Avg",
+    "Min",
+    "Max",
+    "StdDev",
+    "Alloc",
+    "Released",
+    "Leaked",
+  ];
+
   let rows = [];
 
   if (recursion.length > 0) {
     const title =
       `Basic Recursion (${options.repeat} reps, ${options.warmup} warmup, depth ${options.depth})`;
-    rows.push(Row.from([new Cell(title).colSpan(headers.length).border()]));
-    rows.push(Row.from<Cell | string>(headers).border());
+    rows.push(Row.from([new Cell(title).colSpan(timingHeaders.length).border()]));
+    rows.push(Row.from<Cell | string>(timingHeaders).border());
     rows.push(...recursion.map((event) => Row.from(toTableRow(event))));
   }
 
   if (events.length > 0) {
     const title =
       `Recursive Events (${options.repeat} reps, ${options.warmup} warmup, depth ${options.depth})`;
-    rows.push(Row.from([new Cell(title).colSpan(headers.length).border()]));
-    rows.push(Row.from<Cell | string>(headers).border());
+    rows.push(Row.from([new Cell(title).colSpan(timingHeaders.length).border()]));
+    rows.push(Row.from<Cell | string>(timingHeaders).border());
     rows.push(...events.map((event) => Row.from(toTableRow(event))));
+  }
+
+  if (cancellation.length > 0) {
+    const title =
+      `Cancellation Cascade (${options.repeat} reps, ${options.warmup} warmup, ${options.tasks} tasks, depth ${options.depth})`;
+    rows.push(Row.from([new Cell(title).colSpan(cancellationHeaders.length).border()]));
+    rows.push(Row.from<Cell | string>(cancellationHeaders).border());
+    rows.push(...cancellation.map((event) => Row.from(toCancellationTableRow(event))));
   }
 
   Table.from(rows).render();
@@ -154,7 +209,7 @@ function renderTable(
 
 function* runBenchmark(
   scenario: string,
-  options: BenchmarkOptions,
+  options: BenchmarkOptions | LegacyBenchmarkOptions,
 ): Operation<BenchmarkDoneEvent> {
   let results = createQueue<BenchmarkDoneEvent, never>();
   let worker = yield* useWorker<WorkerCommand, BenchmarkWorkerEvent>(scenario);
@@ -233,6 +288,36 @@ function toJsonEntry(event: BenchmarkDoneEvent): BenchmarkResultEntry | null {
     };
   }
   return null;
+}
+
+function toCancellationJsonEntry(event: BenchmarkDoneEvent): CancellationResultEntry | null {
+  let [name = event.name] = event.name.split(".");
+  if (event.result.ok && "correctness" in event.result.value) {
+    return {
+      name,
+      stats: event.result.value as BenchmarkStatsByKind["cancellation"],
+    };
+  }
+  return null;
+}
+
+function toCancellationTableRow(event: BenchmarkDoneEvent): string[] {
+  let [name = event.name] = event.name.split(".");
+  if (event.result.ok) {
+    const stats = event.result.value as BenchmarkStatsByKind["cancellation"];
+    return [
+      name,
+      formatMs(stats.avgTime),
+      formatMs(stats.minTime),
+      formatMs(stats.maxTime),
+      formatMs(stats.stdDev),
+      String(stats.correctness.allocated),
+      String(stats.correctness.released),
+      stats.correctness.leaked === 0 ? "0" : `${stats.correctness.leaked}`,
+    ];
+  } else {
+    return [name, "", "", "", "", "", "", ""];
+  }
 }
 
 function notNull<T>(value: T | null): value is T {

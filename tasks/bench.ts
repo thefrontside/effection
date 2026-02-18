@@ -14,13 +14,13 @@ import scenarios from "./bench/scenarios.ts";
 import type {
   BenchmarkDoneEvent,
   BenchmarkJsonOutput,
+  BenchmarkKind,
   BenchmarkOptions,
   BenchmarkResultEntry,
   BenchmarkStatsByKind,
   BenchmarkWorkerEvent,
-  CancellationBenchmarkOptions,
   CancellationResultEntry,
-  LegacyBenchmarkOptions,
+  ScenarioEntry,
   WorkerCommand,
 } from "./bench/types.ts";
 
@@ -81,52 +81,43 @@ await main(function* (args) {
   let { include, exclude, repeat, depth, warmup, tasks: taskCount, json } =
     options;
 
-  let benchTasks: Task<BenchmarkDoneEvent>[] = [];
+  // Filter scenarios and build typed benchmark options
+  const filteredScenarios = filterScenarios(scenarios, { include, exclude });
 
-  for (let scenario of filter(scenarios, { include, exclude })) {
-    // Determine if this is a cancellation benchmark
-    const isCancellation = scenario.includes(".cancellation.");
+  // Track results by kind for proper grouping
+  const resultsByKind: Record<BenchmarkKind, BenchmarkDoneEvent[]> = {
+    recursion: [],
+    events: [],
+    cancellation: [],
+  };
 
-    if (isCancellation) {
-      // Cancellation benchmarks need the full CancellationBenchmarkOptions
-      benchTasks.push(
-        yield* spawn(() =>
-          runBenchmark(scenario, {
-            type: "benchmark",
-            kind: "cancellation",
-            repeat,
-            depth,
-            warmup,
-            tasks: taskCount,
-          })
-        ),
-      );
-    } else {
-      // Legacy benchmarks (recursion/events) use LegacyBenchmarkOptions
-      benchTasks.push(
-        yield* spawn(() =>
-          runBenchmark(scenario, {
-            type: "benchmark",
-            repeat,
-            depth,
-            warmup,
-          } as LegacyBenchmarkOptions)
-        ),
-      );
-    }
+  let benchTasks: Task<{ kind: BenchmarkKind; event: BenchmarkDoneEvent }>[] =
+    [];
+
+  for (const entry of filteredScenarios) {
+    const benchOptions = buildOptions(entry.kind, {
+      repeat,
+      depth,
+      warmup,
+      tasks: taskCount,
+    });
+
+    benchTasks.push(
+      yield* spawn(function* () {
+        const event = yield* runBenchmark(entry.path, entry.kind, benchOptions);
+        return { kind: entry.kind, event };
+      }),
+    );
   }
 
-  let results = yield* all(benchTasks);
+  const results = yield* all(benchTasks);
 
-  let events = results.filter((result: BenchmarkDoneEvent) =>
-    result.name.match("events")
-  );
-  let recursion = results.filter((result: BenchmarkDoneEvent) =>
-    result.name.match("recursion")
-  );
-  let cancellation = results.filter((result: BenchmarkDoneEvent) =>
-    result.name.match("cancellation")
-  );
+  // Group results by kind (using the typed entry, not filename regex)
+  for (const { kind, event } of results) {
+    resultsByKind[kind].push(event);
+  }
+
+  const { recursion, events, cancellation } = resultsByKind;
 
   if (
     events.length === 0 && recursion.length === 0 && cancellation.length === 0
@@ -234,11 +225,14 @@ function renderTable(
 }
 
 function* runBenchmark(
-  scenario: string,
-  options: BenchmarkOptions | LegacyBenchmarkOptions,
+  scenarioPath: string,
+  expectedKind: BenchmarkKind,
+  options: BenchmarkOptions,
 ): Operation<BenchmarkDoneEvent> {
   let results = createQueue<BenchmarkDoneEvent, never>();
-  let worker = yield* useWorker<WorkerCommand, BenchmarkWorkerEvent>(scenario);
+  let worker = yield* useWorker<WorkerCommand, BenchmarkWorkerEvent>(
+    scenarioPath,
+  );
 
   yield* spawn(function* () {
     for (let event of yield* each(worker.errors)) {
@@ -252,6 +246,13 @@ function* runBenchmark(
   yield* spawn(function* () {
     for (let event of yield* each(worker.messages)) {
       if (event.data.type === "done") {
+        // Validate that worker returned expected kind (prevents silent deadlock)
+        const actualKind = event.data.kind;
+        if (actualKind && actualKind !== expectedKind) {
+          throw new Error(
+            `Benchmark kind mismatch: expected "${expectedKind}", got "${actualKind}" from ${event.data.name}`,
+          );
+        }
         results.add(event.data);
       } else if (event.data.type === "closed") {
         if (!event.data.result.ok) {
@@ -271,19 +272,50 @@ function* runBenchmark(
   }
 }
 
-function filter(
-  strings: string[],
+/**
+ * Filter scenarios by include/exclude regex patterns.
+ */
+function filterScenarios(
+  entries: ScenarioEntry[],
   options: { include?: string; exclude?: string },
-): string[] {
+): ScenarioEntry[] {
   let { include, exclude } = options;
-  let result = strings;
+  let result = entries;
   if (include) {
-    result = result.filter((s) => basename(s).match(new RegExp(include)));
+    const regex = new RegExp(include);
+    result = result.filter((e) => basename(e.path).match(regex));
   }
   if (exclude) {
-    result = result.filter((s) => !basename(s).match(new RegExp(exclude)));
+    const regex = new RegExp(exclude);
+    result = result.filter((e) => !basename(e.path).match(regex));
   }
   return result;
+}
+
+/**
+ * Build typed benchmark options based on kind.
+ */
+function buildOptions(
+  kind: BenchmarkKind,
+  params: { repeat: number; depth: number; warmup: number; tasks: number },
+): BenchmarkOptions {
+  const { repeat, depth, warmup, tasks } = params;
+
+  switch (kind) {
+    case "recursion":
+      return { type: "benchmark", kind: "recursion", repeat, depth, warmup };
+    case "events":
+      return { type: "benchmark", kind: "events", repeat, depth, warmup };
+    case "cancellation":
+      return {
+        type: "benchmark",
+        kind: "cancellation",
+        repeat,
+        depth,
+        warmup,
+        tasks,
+      };
+  }
 }
 
 function toTableRow(event: BenchmarkDoneEvent): string[] {

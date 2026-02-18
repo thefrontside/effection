@@ -139,10 +139,9 @@ export function cancellationScenario(
             send({ type: "repeat", name, time, rep: i + 1 });
             times.push(time);
 
-            // Accumulate correctness stats across runs
+            // Accumulate correctness stats across runs (O(1) instead of O(n))
             const runStats = runTracker.stats();
-            for (let j = 0; j < runStats.allocated; j++) tracker.allocate();
-            for (let j = 0; j < runStats.released; j++) tracker.release();
+            tracker.addCounts(runStats.allocated, runStats.released);
           }
 
           const timingStats = calculateStats(times);

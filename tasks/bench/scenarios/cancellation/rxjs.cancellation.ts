@@ -1,22 +1,28 @@
 /**
  * RxJS TakeUntil Cancellation Benchmark
  *
- * Demonstrates RxJS's approach to cancellation using the takeUntil pattern.
+ * Demonstrates RxJS's idiomatic approach to cancellation using takeUntil + finalize.
  * RxJS doesn't have built-in structured concurrency, but provides:
  *
- * 1. Subscription management with subscriber.add() for child cleanup
- * 2. takeUntil() operator for signal-based completion
- * 3. finalize() operator for cleanup side effects
- * 4. Subject as a cancellation signal source
+ * 1. takeUntil() operator for signal-based completion
+ * 2. finalize() operator for cleanup side effects (runs on complete/error/unsubscribe)
+ * 3. Subject as a cancellation signal source
+ * 4. merge() for concurrent subscription management
  *
  * Key differences from Effection:
- * - Manual subscription management (subscriber.add)
  * - Explicit cancellation signal (Subject + takeUntil)
- * - No automatic scope hierarchy - must wire everything manually
- * - Cleanup via finalize() or subscription teardown
+ * - No automatic scope hierarchy - must wire takeUntil to each observable
+ * - Cleanup via finalize() operator
  */
 
-import { Observable, Subject, type Subscriber } from "npm:rxjs";
+import {
+  finalize,
+  merge,
+  NEVER,
+  Observable,
+  Subject,
+  takeUntil,
+} from "npm:rxjs";
 import { call } from "../../../../mod.ts";
 import { type CancellationParams, cancellationScenario } from "./scenario.ts";
 import {
@@ -37,70 +43,75 @@ async function runBenchmark(params: CancellationParams): Promise<void> {
   const totalAllocations = tasks * depth;
   const barrier = createBarrier(totalAllocations);
 
-  // Manual: Create a subject to act as the cancellation signal
+  // Cancellation signal - when this emits, all workers complete via takeUntil
   const cancel$ = new Subject<void>();
 
-  // Create worker observables
+  // Create worker observables - each pipes through takeUntil(cancel$)
   const workers: Observable<void>[] = [];
   for (let i = 0; i < tasks; i++) {
-    workers.push(worker(depth, tracker, barrier, cancel$));
+    workers.push(createWorkerTree(depth, tracker, barrier, cancel$));
   }
 
-  // Subscribe to all workers
-  const subscriptions = workers.map((w) => w.subscribe());
+  // Merge all workers into a single subscription
+  // This is idiomatic RxJS for concurrent execution
+  await new Promise<void>((resolve) => {
+    const subscription = merge(...workers).subscribe({
+      complete: () => resolve(),
+    });
 
-  // Wait for all workers to allocate
-  await barrier.wait();
+    // Wait for all workers to allocate, then trigger cancellation
+    barrier.wait().then(() => {
+      cancel$.next();
+      cancel$.complete();
+    });
 
-  // Trigger cancellation - this completes all observables using takeUntil
-  cancel$.next();
-  cancel$.complete();
-
-  // Unsubscribe all (this triggers finalize callbacks)
-  subscriptions.forEach((s) => s.unsubscribe());
+    // Cleanup subscription after cancellation completes
+    cancel$.subscribe({
+      complete: () => subscription.unsubscribe(),
+    });
+  });
 }
 
 /**
- * Worker observable that allocates a resource and spawns nested children.
- * Uses finalize() for cleanup and subscriber.add() for child management.
+ * Creates a worker observable tree with nested children.
+ *
+ * Uses idiomatic RxJS pattern:
+ * - NEVER as the base (suspends indefinitely)
+ * - takeUntil(cancel$) to respond to cancellation
+ * - finalize() for cleanup (runs on complete/error/unsubscribe)
+ * - merge() for concurrent child workers
  */
-function worker(
+function createWorkerTree(
   depth: number,
   tracker: ResourceTracker,
   barrier: Barrier,
   cancel$: Subject<void>,
 ): Observable<void> {
-  return new Observable<void>((subscriber: Subscriber<void>) => {
-    // Allocate resource
+  return new Observable<void>((subscriber) => {
+    // Allocate resource on subscription
     tracker.allocate();
-
-    // Track if we've cleaned up to avoid double-release
-    let cleanedUp = false;
-    const cleanup = () => {
-      if (!cleanedUp) {
-        cleanedUp = true;
-        tracker.release();
-      }
-    };
-
-    // Manual: Set up cleanup via finalize or teardown
-    subscriber.add(() => cleanup());
-
-    if (depth > 1) {
-      // Manual: Create and manage child subscription
-      const child = worker(depth - 1, tracker, barrier, cancel$);
-      subscriber.add(child.subscribe());
-    }
 
     // Signal that this worker has allocated
     barrier.arrive();
 
-    // Add takeUntil to respond to cancellation
-    // But since we're inside Observable constructor, we need to handle this differently
-    const cancellation = cancel$.subscribe(() => {
-      cleanup();
-      subscriber.complete();
-    });
-    subscriber.add(cancellation);
+    // Create child worker if depth > 1
+    if (depth > 1) {
+      const child$ = createWorkerTree(depth - 1, tracker, barrier, cancel$);
+      // Subscribe to child and add to teardown
+      subscriber.add(child$.subscribe());
+    }
+
+    // Never emit, just suspend - takeUntil will complete us
+    subscriber.add(
+      NEVER.pipe(
+        takeUntil(cancel$),
+        finalize(() => {
+          // Release resource on any termination (complete/error/unsubscribe)
+          tracker.release();
+        }),
+      ).subscribe({
+        complete: () => subscriber.complete(),
+      }),
+    );
   });
 }

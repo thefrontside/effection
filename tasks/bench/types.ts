@@ -170,3 +170,16 @@ export interface CancellationResultEntry {
   readonly name: string;
   readonly stats: TimingStats & { readonly correctness: CorrectnessStats };
 }
+
+// =============================================================================
+// Scenario Registry Types
+// =============================================================================
+
+/**
+ * A typed scenario entry in the registry.
+ * Using explicit kind avoids fragile filename-based classification.
+ */
+export interface ScenarioEntry {
+  readonly path: string;
+  readonly kind: BenchmarkKind;
+}

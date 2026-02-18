@@ -20,6 +20,8 @@ export interface ResourceTracker {
   allocate(): void;
   /** Record a resource release */
   release(): void;
+  /** Add counts in bulk (O(1) instead of O(n) loop) */
+  addCounts(allocated: number, released: number): void;
   /** Get current correctness statistics */
   stats(): CorrectnessStats;
   /** Reset all counters to zero */
@@ -40,6 +42,10 @@ export function createTracker(): ResourceTracker {
     },
     release() {
       released++;
+    },
+    addCounts(allocCount: number, releaseCount: number) {
+      allocated += allocCount;
+      released += releaseCount;
     },
     stats(): CorrectnessStats {
       return {

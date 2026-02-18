@@ -8,80 +8,131 @@
 >
   <defs>
     <style>
-    .svg-mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
-    .svg-mono-sm { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; }
+    .svg-mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
+    }
+    .svg-mono-sm {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 11px;
+    }
 
     /* Light mode */
-    .svg-line { stroke: #94a3b8; stroke-width: 1.5; fill: none; }
-    
-    .svg-text { fill: #1e293b; }
-    .svg-text-muted { fill: #64748b; }
-    .svg-text-blue { fill: #1d4ed8; }
-    .svg-text-green { fill: #15803d; }
-    .svg-text-cyan { fill: #0891b2; }
-    .svg-text-purple { fill: #7c3aed; }
+    .svg-line {
+      stroke: #94a3b8;
+      stroke-width: 1.5;
+      fill: none;
+    }
+
+    .svg-text {
+      fill: #1e293b;
+    }
+    .svg-text-muted {
+      fill: #64748b;
+    }
+    .svg-text-blue {
+      fill: #1d4ed8;
+    }
+    .svg-text-green {
+      fill: #15803d;
+    }
+    .svg-text-cyan {
+      fill: #0891b2;
+    }
+    .svg-text-purple {
+      fill: #7c3aed;
+    }
 
     @media (prefers-color-scheme: dark) {
-      .svg-line { stroke: #64748b; }
-      
-      .svg-text { fill: #f1f5f9; }
-      .svg-text-muted { fill: #94a3b8; }
-      .svg-text-blue { fill: #60a5fa; }
-      .svg-text-green { fill: #4ade80; }
-      .svg-text-cyan { fill: #22d3ee; }
-      .svg-text-purple { fill: #a78bfa; }
+      .svg-line {
+        stroke: #64748b;
+      }
+
+      .svg-text {
+        fill: #f1f5f9;
+      }
+      .svg-text-muted {
+        fill: #94a3b8;
+      }
+      .svg-text-blue {
+        fill: #60a5fa;
+      }
+      .svg-text-green {
+        fill: #4ade80;
+      }
+      .svg-text-cyan {
+        fill: #22d3ee;
+      }
+      .svg-text-purple {
+        fill: #a78bfa;
+      }
     }
     </style>
   </defs>
 
   <!-- main() -->
   <text class="svg-mono svg-text" x="20" y="25">main()</text>
-  
+
   <!-- Tree lines from main -->
   <line class="svg-line" x1="30" y1="35" x2="30" y2="170" />
-  
+
   <!-- useServerPool branch -->
   <line class="svg-line" x1="30" y1="50" x2="50" y2="50" />
-  <text class="svg-mono-sm svg-text-blue" x="55" y="54">useServerPool (resource)</text>
+  <text class="svg-mono-sm svg-text-blue" x="55" y="54"
+  >useServerPool (resource)</text>
   <line class="svg-line" x1="70" y1="60" x2="70" y2="75" />
   <line class="svg-line" x1="70" y1="75" x2="90" y2="75" />
   <text class="svg-mono-sm svg-text-muted" x="95" y="79">event signal</text>
 
   <!-- event subscriber branch -->
   <line class="svg-line" x1="30" y1="100" x2="50" y2="100" />
-  <text class="svg-mono-sm svg-text-purple" x="55" y="104">event subscriber (spawned task)</text>
+  <text class="svg-mono-sm svg-text-purple" x="55" y="104"
+  >event subscriber (spawned task)</text>
   <line class="svg-line" x1="70" y1="110" x2="70" y2="125" />
   <line class="svg-line" x1="70" y1="125" x2="90" y2="125" />
-  <text class="svg-mono-sm svg-text-muted" x="95" y="129">iterates pool.events</text>
+  <text class="svg-mono-sm svg-text-muted" x="95" y="129"
+  >iterates pool.events</text>
 
   <!-- useSwitchboard branch -->
   <line class="svg-line" x1="30" y1="150" x2="50" y2="150" />
-  <text class="svg-mono-sm svg-text-green" x="55" y="154">useSwitchboard (resource)</text>
+  <text class="svg-mono-sm svg-text-green" x="55" y="154"
+  >useSwitchboard (resource)</text>
   <line class="svg-line" x1="70" y1="160" x2="70" y2="175" />
   <line class="svg-line" x1="70" y1="175" x2="90" y2="175" />
-  <text class="svg-mono-sm svg-text-muted" x="95" y="179">Express proxy server</text>
+  <text class="svg-mono-sm svg-text-muted" x="95" y="179"
+  >Express proxy server</text>
 
   <!-- suspend branch -->
   <line class="svg-line" x1="30" y1="200" x2="50" y2="200" />
   <text class="svg-mono-sm svg-text-cyan" x="55" y="204">suspend()</text>
 
   <!-- Separator line -->
-  <line class="svg-line" x1="20" y1="225" x2="430" y2="225" stroke-dasharray="4 3" />
-  
+  <line
+    class="svg-line"
+    x1="20"
+    y1="225"
+    x2="430"
+    y2="225"
+    stroke-dasharray="4 3"
+  />
+
   <!-- When pool.getOrCreate() is called label -->
-  <text class="svg-mono-sm svg-text-muted" x="20" y="245">When pool.getOrCreate() is called:</text>
+  <text class="svg-mono-sm svg-text-muted" x="20" y="245"
+  >When pool.getOrCreate() is called:</text>
 
   <!-- doSpawnServer subtree -->
   <line class="svg-line" x1="30" y1="255" x2="30" y2="310" />
-  
+
   <line class="svg-line" x1="30" y1="265" x2="50" y2="265" />
   <text class="svg-mono-sm svg-text-blue" x="55" y="269">useServerPool</text>
-  
+
   <line class="svg-line" x1="70" y1="275" x2="70" y2="310" />
   <line class="svg-line" x1="70" y1="285" x2="90" y2="285" />
-  <text class="svg-mono-sm svg-text-muted" x="95" y="289">doSpawnServer (via scope.run)</text>
-  
+  <text class="svg-mono-sm svg-text-muted" x="95" y="289"
+  >doSpawnServer (via scope.run)</text>
+
   <line class="svg-line" x1="110" y1="295" x2="110" y2="310" />
   <line class="svg-line" x1="110" y1="305" x2="130" y2="305" />
-  <text class="svg-mono-sm svg-text-green" x="135" y="309">useExpressServerDaemon (resource)</text>
+  <text class="svg-mono-sm svg-text-green" x="135" y="309"
+  >useExpressServerDaemon (resource)</text>
 </svg>

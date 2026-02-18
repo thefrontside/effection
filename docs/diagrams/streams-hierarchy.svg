@@ -8,44 +8,109 @@
 >
   <defs>
     <style>
-    .svg-title { font-family: ui-sans-serif, system-ui, sans-serif; font-size: 13px; font-weight: 700; }
-    .svg-mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
-    .svg-mono-sm { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 10px; }
+    .svg-title {
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .svg-mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
+    }
+    .svg-mono-sm {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 10px;
+    }
 
     /* Light mode */
-    .svg-box-root { fill: #dbeafe; stroke: #2563eb; stroke-width: 2; }
-    .svg-box-channel { fill: #dcfce7; stroke: #16a34a; stroke-width: 2; }
-    .svg-box-signal { fill: #fef3c7; stroke: #d97706; stroke-width: 2; }
-    .svg-box-other { fill: #f1f5f9; stroke: #64748b; stroke-width: 1.5; }
-    
-    .svg-line { stroke: #94a3b8; stroke-width: 2; fill: none; }
-    
-    .svg-text { fill: #1e293b; }
-    .svg-text-muted { fill: #64748b; }
-    .svg-text-blue { fill: #1d4ed8; }
-    .svg-text-green { fill: #15803d; }
-    .svg-text-amber { fill: #b45309; }
+    .svg-box-root {
+      fill: #dbeafe;
+      stroke: #2563eb;
+      stroke-width: 2;
+    }
+    .svg-box-channel {
+      fill: #dcfce7;
+      stroke: #16a34a;
+      stroke-width: 2;
+    }
+    .svg-box-signal {
+      fill: #fef3c7;
+      stroke: #d97706;
+      stroke-width: 2;
+    }
+    .svg-box-other {
+      fill: #f1f5f9;
+      stroke: #64748b;
+      stroke-width: 1.5;
+    }
+
+    .svg-line {
+      stroke: #94a3b8;
+      stroke-width: 2;
+      fill: none;
+    }
+
+    .svg-text {
+      fill: #1e293b;
+    }
+    .svg-text-muted {
+      fill: #64748b;
+    }
+    .svg-text-blue {
+      fill: #1d4ed8;
+    }
+    .svg-text-green {
+      fill: #15803d;
+    }
+    .svg-text-amber {
+      fill: #b45309;
+    }
 
     @media (prefers-color-scheme: dark) {
-      .svg-box-root { fill: #1e3a5f; stroke: #3b82f6; }
-      .svg-box-channel { fill: #14532d; stroke: #22c55e; }
-      .svg-box-signal { fill: #451a03; stroke: #f59e0b; }
-      .svg-box-other { fill: #1e293b; stroke: #475569; }
-      
-      .svg-line { stroke: #64748b; }
-      
-      .svg-text { fill: #f1f5f9; }
-      .svg-text-muted { fill: #94a3b8; }
-      .svg-text-blue { fill: #60a5fa; }
-      .svg-text-green { fill: #4ade80; }
-      .svg-text-amber { fill: #fbbf24; }
+      .svg-box-root {
+        fill: #1e3a5f;
+        stroke: #3b82f6;
+      }
+      .svg-box-channel {
+        fill: #14532d;
+        stroke: #22c55e;
+      }
+      .svg-box-signal {
+        fill: #451a03;
+        stroke: #f59e0b;
+      }
+      .svg-box-other {
+        fill: #1e293b;
+        stroke: #475569;
+      }
+
+      .svg-line {
+        stroke: #64748b;
+      }
+
+      .svg-text {
+        fill: #f1f5f9;
+      }
+      .svg-text-muted {
+        fill: #94a3b8;
+      }
+      .svg-text-blue {
+        fill: #60a5fa;
+      }
+      .svg-text-green {
+        fill: #4ade80;
+      }
+      .svg-text-amber {
+        fill: #fbbf24;
+      }
     }
     </style>
   </defs>
 
   <!-- Root: Stream<T, TClose> -->
   <rect class="svg-box-root" x="150" y="15" width="200" height="40" rx="8" />
-  <text class="svg-mono svg-text-blue" x="175" y="42">Stream&lt;T, TClose&gt;</text>
+  <text class="svg-mono svg-text-blue" x="175" y="42"
+  >Stream&lt;T, TClose&gt;</text>
 
   <!-- Connector lines from root -->
   <line class="svg-line" x1="250" y1="55" x2="250" y2="75" />
@@ -56,16 +121,18 @@
 
   <!-- Channel branch -->
   <rect class="svg-box-channel" x="20" y="95" width="160" height="40" rx="6" />
-  <text class="svg-mono svg-text-green" x="40" y="120">Channel&lt;T, TC&gt;</text>
-  
+  <text class="svg-mono svg-text-green" x="40" y="120"
+  >Channel&lt;T, TC&gt;</text>
+
   <line class="svg-line" x1="100" y1="135" x2="100" y2="155" />
   <rect class="svg-box-other" x="20" y="155" width="160" height="30" rx="4" />
   <text class="svg-mono-sm svg-text-muted" x="35" y="175">createChannel()</text>
 
   <!-- Signal branch -->
   <rect class="svg-box-signal" x="170" y="95" width="160" height="40" rx="6" />
-  <text class="svg-mono svg-text-amber" x="197" y="120">Signal&lt;T, TC&gt;</text>
-  
+  <text class="svg-mono svg-text-amber" x="197" y="120"
+  >Signal&lt;T, TC&gt;</text>
+
   <line class="svg-line" x1="250" y1="135" x2="250" y2="155" />
   <rect class="svg-box-other" x="170" y="155" width="160" height="30" rx="4" />
   <text class="svg-mono-sm svg-text-muted" x="190" y="175">createSignal()</text>
@@ -73,12 +140,14 @@
   <!-- Other producers branch -->
   <rect class="svg-box-other" x="320" y="95" width="160" height="40" rx="6" />
   <text class="svg-mono svg-text-muted" x="335" y="120">Other producers</text>
-  
+
   <line class="svg-line" x1="400" y1="135" x2="400" y2="155" />
-  
+
   <!-- Sub-items for other producers -->
   <rect class="svg-box-other" x="320" y="155" width="160" height="100" rx="4" />
   <text class="svg-mono-sm svg-text-muted" x="335" y="175">interval(ms)</text>
-  <text class="svg-mono-sm svg-text-muted" x="335" y="195">on(target, event)</text>
-  <text class="svg-mono-sm svg-text-muted" x="335" y="215">Your custom streams!</text>
+  <text class="svg-mono-sm svg-text-muted" x="335" y="195"
+  >on(target, event)</text>
+  <text class="svg-mono-sm svg-text-muted" x="335" y="215"
+  >Your custom streams!</text>
 </svg>

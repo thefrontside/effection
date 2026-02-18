@@ -263,7 +263,7 @@ yield * ServerPoolContext.set(pool);
 // Later, anywhere in the tree:
 function* someOperation(): Operation<void> {
   const pool = yield* ServerPoolContext.expect();
-  const server = await pool.getOrCreate("my-app");
+  const server = yield* call(() => pool.getOrCreate("my-app"));
 }
 ```
 

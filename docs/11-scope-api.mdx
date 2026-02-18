@@ -275,14 +275,14 @@ Many APIs accept an `AbortSignal` for cancellation:
 
 ```typescript
 import type { Operation } from "effection";
-import { main, useAbortSignal, race, sleep } from "effection";
+import { main, useAbortSignal, race, sleep, call } from "effection";
 
 function* fetchWithEffection(url: string): Operation<Response> {
   // Get an AbortSignal tied to this operation's lifetime
   const signal: AbortSignal = yield* useAbortSignal();
 
   // Pass it to fetch - request will be cancelled if operation halts!
-  const response = yield* Promise.resolve(fetch(url, { signal }));
+  const response = yield* call(() => fetch(url, { signal }));
 
   return response;
 }

@@ -90,26 +90,24 @@ ownership instead of signaled intent. If you want this model in JavaScript,
 years in production, from trading platforms to CLI tools:
 
 ```js
-import { main, scoped, sleep, spawn } from "effection";
+import { main, sleep, spawn } from "effection";
 
 await main(function* () {
-  yield* scoped(function* () {
-    yield* spawn(function* ticker() {
-      while (true) {
-        console.log("tick: RUNNING");
-        yield* sleep(200);
-      }
-    });
-
-    yield* sleep(700);
-    console.log(">>> leaving scope");
+  yield* spawn(function* ticker() {
+    while (true) {
+      console.log("tick: RUNNING");
+      yield* sleep(200);
+    }
   });
 
-  console.log(">>> scope exited; all children are stopped");
+  yield* sleep(700);
+  console.log(">>> exiting main");
 });
+
+console.log(">>> main exited; all children are stopped");
 ```
 
-When the scoped block exits, the ticker is halted and fully unwound before the
+When the main operation exits, the ticker is halted and fully unwound before the
 next line runs. No manual signal forwarding and no hidden background survivors.
 
 The same applies to real resources, as long as they're owned by the scope. If a

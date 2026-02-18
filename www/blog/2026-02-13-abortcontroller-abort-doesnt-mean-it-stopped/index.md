@@ -23,8 +23,8 @@ down.
 
 ## The leak
 
-Here’s what a hidden leak looks like: you call abort(), the promise rejects, and
-the caller awaits completion. The interval keeps ticking.
+Here's what a hidden leak looks like: you call `abort()`, the promise rejects,
+and the caller awaits completion. The interval keeps ticking.
 
 ```js
 (async () => {
@@ -58,8 +58,8 @@ async function task(signal) {
 ```
 
 When `abort()` fires, the promise rejects, and the task appears to end, but the
-timer survives. From the call site, the lifecycle looks complete, but from the
-runtime, it's not.
+interval survives. From the call site, the lifecycle looks complete, but from
+the runtime, it's not.
 
 Leaks hide in plain sight when `abort()` gives you no confirmation that
 cancellation actually finished.
@@ -82,10 +82,12 @@ call chain**, it is just the default behavior.
 
 In Structured Concurrency, we say that a child cannot outlive its parent. What
 this means is that when a scope exits, any child work is canceled and its
-teardown fully awaited before control can continue... guaranteed.
+teardown fully awaited before control can continue. Guaranteed.
 
 To demonstrate this, here is the same work as above, but with structural
-ownership instead of signaled intent:
+ownership instead of signaled intent. If you want this model in JavaScript,
+[Effection](https://frontside.com/effection) has been delivering it for seven
+years in production, from trading platforms to CLI tools:
 
 ```js
 import { main, scoped, sleep, spawn } from "effection";
@@ -110,17 +112,14 @@ await main(function* () {
 When the scoped block exits, the ticker is halted and fully unwound before the
 next line runs. No manual signal forwarding and no hidden background survivors.
 
-The same applies to real resources. When its parent scope is destroyed, the
-fetch still in flight is aborted, the WebSocket still open is closed, and the
-process still running is killed. In all cases, the pattern is the same: scope
-exit = guaranteed shutdown.
+The same applies to real resources, as long as they're owned by the scope. If a
+fetch is started with a scope-bound `AbortSignal` (via `useAbortSignal()`), or a
+WebSocket/process is wrapped in a `resource()` with teardown in `finally`, then
+leaving the scope halts it and waits for cleanup to finish.
 
-## The Takeaway
+## Takeaway
 
-`AbortController#abort()` is a wish. Structured lifetimes are a guarantee. When
-the scope owns the lifetime, correct cleanup is the default and leaking becomes
-the thing you have to go out of your way to do.
-[Effection](https://frontside.com/effection) delivers this for JavaScript —
-seven years in production, from trading platforms to CLI tools. For the full
-technical critique of AbortController, see
+`AbortController#abort()` is a wish. Structured lifetimes are a guarantee.
+
+For the full technical critique of AbortController, see
 [The Heartbreaking Inadequacy of AbortController](https://frontside.com/blog/2025-08-04-the-heartbreaking-inadequacy-of-abort-controller/).

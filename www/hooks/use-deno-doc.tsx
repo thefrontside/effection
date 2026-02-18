@@ -12,7 +12,7 @@ import { regex } from "arktype";
 
 import { exportHash, extract } from "../components/type/markdown.tsx";
 import { operations } from "../context/fetch.ts";
-import { DenoJsonSchema } from "../lib/package/deno.ts";
+import { DenoJsonSchema } from "../lib/deno-json.ts";
 import { useDescription } from "./use-description-parse.tsx";
 
 // Matches npm/jsr specifiers like @std/testing/bdd or lodash/fp

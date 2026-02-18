@@ -1,15 +1,14 @@
-import type { Operation } from "effection";
-import { until } from "effection";
+import { existsSync } from "node:fs";
 import { resolve } from "@std/path";
 import { parse as parseYaml } from "@std/yaml";
+import type { Operation } from "effection";
+import { until } from "effection";
 import z from "zod";
-import { existsSync } from "node:fs";
 
-import type { Workspaces } from "./types.ts";
-import type { Package, Ref } from "../package/types.ts";
-import { createDenoPackage, DenoJsonSchema } from "../package/deno.ts";
-import { createNodePackage } from "../package/node.ts";
 import { useClone } from "../clones.ts";
+import { createNodePackage } from "../package/node.ts";
+import type { Package, Ref } from "../package/types.ts";
+import type { Workspaces } from "./types.ts";
 
 export type { Workspaces } from "./types.ts";
 
@@ -19,21 +18,6 @@ export type { Workspaces } from "./types.ts";
 const PnpmWorkspaceSchema = z.object({
   packages: z.array(z.string()),
 });
-
-/**
- * Detect workspace type by checking for deno.json or pnpm-workspace.yaml.
- */
-function detectWorkspaceType(
-  rootPath: string,
-): "deno" | "node" | null {
-  if (existsSync(`${rootPath}/deno.json`)) {
-    return "deno";
-  }
-  if (existsSync(`${rootPath}/pnpm-workspace.yaml`)) {
-    return "node";
-  }
-  return null;
-}
 
 /**
  * Check if a path represents a hidden/internal package that should be excluded.
@@ -89,18 +73,9 @@ function* expandPatterns(
 }
 
 /**
- * Get workspace patterns from a Deno monorepo (from deno.json workspace field).
- */
-function* getDenoPatterns(rootPath: string): Operation<string[]> {
-  let content = yield* until(Deno.readTextFile(`${rootPath}/deno.json`));
-  let denoJson = DenoJsonSchema.parse(JSON.parse(content));
-  return denoJson.workspace ?? [];
-}
-
-/**
  * Get workspace patterns from a Node/PNPM monorepo.
  */
-function* getNodePatterns(rootPath: string): Operation<string[]> {
+function* getWorkspacePatterns(rootPath: string): Operation<string[]> {
   let content = yield* until(
     Deno.readTextFile(`${rootPath}/pnpm-workspace.yaml`),
   );
@@ -111,27 +86,25 @@ function* getNodePatterns(rootPath: string): Operation<string[]> {
 
 /**
  * Create a Workspaces instance for a given repository.
+ * Currently only supports PNPM monorepos.
  *
  * @param nameWithOwner - GitHub repo in "owner/repo" format
  */
 export function* useWorkspaces(nameWithOwner: string): Operation<Workspaces> {
   let rootPath = yield* useClone(nameWithOwner);
-  let type = detectWorkspaceType(rootPath);
 
-  if (!type) {
+  if (!existsSync(`${rootPath}/pnpm-workspace.yaml`)) {
     throw new Error(
-      `Could not detect workspace type for ${nameWithOwner}. ` +
-        `Expected deno.json or pnpm-workspace.yaml at root.`,
+      `Could not find pnpm-workspace.yaml for ${nameWithOwner}. ` +
+        `Only PNPM monorepos are currently supported.`,
     );
   }
 
   let url = `https://github.com/${nameWithOwner}`;
   let refName = "main";
 
-  // Get workspace patterns based on type
-  let patterns = type === "deno"
-    ? yield* getDenoPatterns(rootPath)
-    : yield* getNodePatterns(rootPath);
+  // Get workspace patterns from pnpm-workspace.yaml
+  let patterns = yield* getWorkspacePatterns(rootPath);
 
   // Expand patterns to actual directories
   let workspaceDirs = yield* expandPatterns(rootPath, patterns);
@@ -142,13 +115,6 @@ export function* useWorkspaces(nameWithOwner: string): Operation<Workspaces> {
     nameWithOwner,
     url: `${url}/tree/${refName}/${workspacePath}`,
   });
-
-  // Create package factory based on type
-  let createPackage = type === "deno"
-    ? (path: string, name: string, workspacePath: string, ref: Ref) =>
-      createDenoPackage(path, name, workspacePath, ref)
-    : (path: string, name: string, workspacePath: string, ref: Ref) =>
-      createNodePackage(path, name, workspacePath, ref);
 
   // Build lookup caches lazily
   let packagesByWorkspace: Map<string, Package> | undefined;
@@ -165,7 +131,7 @@ export function* useWorkspaces(nameWithOwner: string): Operation<Workspaces> {
       let workspaceName = workspacePath.split("/").pop()!;
       let ref = createRef(workspacePath);
 
-      let pkg = createPackage(fullPath, workspaceName, workspacePath, ref);
+      let pkg = createNodePackage(fullPath, workspaceName, workspacePath, ref);
       packagesByWorkspace.set(workspaceName, pkg);
 
       // Get package name for the name lookup

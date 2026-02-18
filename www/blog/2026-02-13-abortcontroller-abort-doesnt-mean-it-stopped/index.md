@@ -17,14 +17,14 @@ the trap: calling `abort()` on an `AbortController` looks like shutdown, but it
 is only a signal. It tells listeners to begin cancellation work, but it does not
 tell you that the work finished. If one layer ignores the signal, or handles it
 partially, work keeps running after the caller believes the task is over. In
-other words, `abort()` is a request, not a guarantee, and that gap is where
-orphaned work comes from.
+other words, `abort()` is a request, not a guarantee, and that gap is how you
+end up with code still running in the background after you thought you shut it
+down.
 
 ## The leak
 
-Here's what a hidden leak looks like: you call `abort()`, it returns, the
-promise rejects, the caller awaits completion, but the interval keeps ticking
-forever.
+Here’s what a hidden leak looks like: you call abort(), the promise rejects, and
+the caller awaits completion. The interval keeps ticking.
 
 ```js
 (async () => {
@@ -46,7 +46,7 @@ forever.
 })();
 
 async function task(signal) {
-  // Orphaned: no cancellation boundary
+  // Leaks: no cancellation boundary
   setInterval(() => console.log("tick: STILL RUNNING"), 200);
 
   await new Promise((_, reject) => {
@@ -61,8 +61,8 @@ When `abort()` fires, the promise rejects, and the task appears to end, but the
 timer survives. From the call site, the lifecycle looks complete, but from the
 runtime, it's not.
 
-This is how leaks hide in plain sight: the code that initiated cancellation has
-no way to confirm that shutdown actually finished.
+Leaks hide in plain sight when `abort()` gives you no confirmation that
+cancellation actually finished.
 
 This is because `abort()` dispatches an event to a set of listeners and returns
 immediately. But while the signal is synchronous, the consequences don't have to
@@ -75,16 +75,16 @@ lifetimes. AbortController propagates an _intent_ to cancel only, but
 cooperation with that intent is voluntary at every level. By contrast,
 Structured Concurrency propagates _ownership_ which a parent scope can use to
 ensure that its children do not outlive it. This is a superior model because
-__Correctness in does not depend on discipline maintained across every layer of
-the call chain_, it is just the default behavior.
+**Correctness does not depend on discipline maintained across every layer of the
+call chain**, it is just the default behavior.
 
 ## Structured lifetimes in practice
 
 In Structured Concurrency, we say that a child cannot outlive its parent. What
-this means is that when a scope exits, any chaild work is canceled and its
+this means is that when a scope exits, any child work is canceled and its
 teardown fully awaited before control can continue... guaranteed.
 
-To demonsrate this, here is the same work as above, but with structural
+To demonstrate this, here is the same work as above, but with structural
 ownership instead of signaled intent:
 
 ```js

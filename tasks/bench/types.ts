@@ -109,7 +109,10 @@ export interface ClosedEvent {
   readonly result: Result<void>;
 }
 
-export type WorkerCommand = BenchmarkOptions | LegacyBenchmarkOptions | CloseCommand;
+export type WorkerCommand =
+  | BenchmarkOptions
+  | LegacyBenchmarkOptions
+  | CloseCommand;
 
 // =============================================================================
 // Worker Events

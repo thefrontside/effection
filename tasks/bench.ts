@@ -78,7 +78,8 @@ await main(function* (args) {
     })
     .parse(args) as BenchmarkCliOptions;
 
-  let { include, exclude, repeat, depth, warmup, tasks: taskCount, json } = options;
+  let { include, exclude, repeat, depth, warmup, tasks: taskCount, json } =
+    options;
 
   let benchTasks: Task<BenchmarkDoneEvent>[] = [];
 
@@ -117,11 +118,19 @@ await main(function* (args) {
 
   let results = yield* all(benchTasks);
 
-  let events = results.filter((result: BenchmarkDoneEvent) => result.name.match("events"));
-  let recursion = results.filter((result: BenchmarkDoneEvent) => result.name.match("recursion"));
-  let cancellation = results.filter((result: BenchmarkDoneEvent) => result.name.match("cancellation"));
+  let events = results.filter((result: BenchmarkDoneEvent) =>
+    result.name.match("events")
+  );
+  let recursion = results.filter((result: BenchmarkDoneEvent) =>
+    result.name.match("recursion")
+  );
+  let cancellation = results.filter((result: BenchmarkDoneEvent) =>
+    result.name.match("cancellation")
+  );
 
-  if (events.length === 0 && recursion.length === 0 && cancellation.length === 0) {
+  if (
+    events.length === 0 && recursion.length === 0 && cancellation.length === 0
+  ) {
     console.log("no benchmarks run");
     return;
   }
@@ -139,14 +148,23 @@ await main(function* (args) {
       results: {
         recursion: recursion.map(toJsonEntry).filter(notNull),
         events: events.map(toJsonEntry).filter(notNull),
-        ...(cancellation.length > 0 ? {
-          cancellation: cancellation.map(toCancellationJsonEntry).filter(notNull),
-        } : {}),
+        ...(cancellation.length > 0
+          ? {
+            cancellation: cancellation.map(toCancellationJsonEntry).filter(
+              notNull,
+            ),
+          }
+          : {}),
       },
     };
     console.log(JSON.stringify(output, null, 2));
   } else {
-    renderTable(recursion, events, cancellation, { repeat, warmup, depth, tasks: taskCount });
+    renderTable(recursion, events, cancellation, {
+      repeat,
+      warmup,
+      depth,
+      tasks: taskCount,
+    });
   }
 });
 
@@ -183,7 +201,9 @@ function renderTable(
   if (recursion.length > 0) {
     const title =
       `Basic Recursion (${options.repeat} reps, ${options.warmup} warmup, depth ${options.depth})`;
-    rows.push(Row.from([new Cell(title).colSpan(timingHeaders.length).border()]));
+    rows.push(
+      Row.from([new Cell(title).colSpan(timingHeaders.length).border()]),
+    );
     rows.push(Row.from<Cell | string>(timingHeaders).border());
     rows.push(...recursion.map((event) => Row.from(toTableRow(event))));
   }
@@ -191,7 +211,9 @@ function renderTable(
   if (events.length > 0) {
     const title =
       `Recursive Events (${options.repeat} reps, ${options.warmup} warmup, depth ${options.depth})`;
-    rows.push(Row.from([new Cell(title).colSpan(timingHeaders.length).border()]));
+    rows.push(
+      Row.from([new Cell(title).colSpan(timingHeaders.length).border()]),
+    );
     rows.push(Row.from<Cell | string>(timingHeaders).border());
     rows.push(...events.map((event) => Row.from(toTableRow(event))));
   }
@@ -199,9 +221,13 @@ function renderTable(
   if (cancellation.length > 0) {
     const title =
       `Cancellation Cascade (${options.repeat} reps, ${options.warmup} warmup, ${options.tasks} tasks, depth ${options.depth})`;
-    rows.push(Row.from([new Cell(title).colSpan(cancellationHeaders.length).border()]));
+    rows.push(
+      Row.from([new Cell(title).colSpan(cancellationHeaders.length).border()]),
+    );
     rows.push(Row.from<Cell | string>(cancellationHeaders).border());
-    rows.push(...cancellation.map((event) => Row.from(toCancellationTableRow(event))));
+    rows.push(
+      ...cancellation.map((event) => Row.from(toCancellationTableRow(event))),
+    );
   }
 
   Table.from(rows).render();
@@ -290,7 +316,9 @@ function toJsonEntry(event: BenchmarkDoneEvent): BenchmarkResultEntry | null {
   return null;
 }
 
-function toCancellationJsonEntry(event: BenchmarkDoneEvent): CancellationResultEntry | null {
+function toCancellationJsonEntry(
+  event: BenchmarkDoneEvent,
+): CancellationResultEntry | null {
   let [name = event.name] = event.name.split(".");
   if (event.result.ok && "correctness" in event.result.value) {
     return {

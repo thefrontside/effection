@@ -59,7 +59,10 @@ export function scenario(
   return main(function* () {
     try {
       yield* callcc<void>(function* (exit) {
-        let work = createChannel<BenchmarkOptions | LegacyBenchmarkOptions, never>();
+        let work = createChannel<
+          BenchmarkOptions | LegacyBenchmarkOptions,
+          never
+        >();
         yield* spawn(function* () {
           for (let command of yield* each(commands)) {
             if (command.type === "close") {

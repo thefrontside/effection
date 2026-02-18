@@ -23,14 +23,18 @@ import {
   spawn,
   suspend,
 } from "../../../../mod.ts";
-import { cancellationScenario, type CancellationParams } from "./scenario.ts";
-import { createBarrier, type Barrier, type ResourceTracker } from "./tracker.ts";
+import { type CancellationParams, cancellationScenario } from "./scenario.ts";
+import {
+  type Barrier,
+  createBarrier,
+  type ResourceTracker,
+} from "./tracker.ts";
 
 await cancellationScenario("effection-structured.cancellation", runBenchmark);
 
 function* runBenchmark(params: CancellationParams): Operation<void> {
   const { tasks, depth, tracker } = params;
-  
+
   // Calculate total expected allocations: each task allocates 1 resource per depth level
   // tasks * depth = total resources
   const totalAllocations = tasks * depth;

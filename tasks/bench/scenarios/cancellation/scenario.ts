@@ -70,7 +70,9 @@ export interface CancellationParams {
  * Must spawn `tasks` concurrent workers, each with nested sub-tasks up to `depth`,
  * then cancel them all. Uses `tracker` to record resource allocations and releases.
  */
-export type CancellationBenchmark = (params: CancellationParams) => Operation<void>;
+export type CancellationBenchmark = (
+  params: CancellationParams,
+) => Operation<void>;
 
 /**
  * Entry point for cancellation benchmark scenarios.
@@ -87,7 +89,7 @@ export function cancellationScenario(
     try {
       yield* callcc<void>(function* (exit) {
         const work = createChannel<CancellationBenchmarkOptions, never>();
-        
+
         yield* spawn(function* () {
           for (const command of yield* each(commands)) {
             if (command.type === "close") {
@@ -122,7 +124,7 @@ export function cancellationScenario(
             // Reset tracker per-run to accumulate across all runs
             // (We'll aggregate stats at the end)
             const runTracker = createTracker();
-            
+
             const start = performance.now();
 
             yield* encapsulate(() =>

@@ -16,14 +16,14 @@
  * - Cleanup via finalize() or subscription teardown
  */
 
-import {
-  Observable,
-  Subject,
-  type Subscriber,
-} from "npm:rxjs";
+import { Observable, Subject, type Subscriber } from "npm:rxjs";
 import { call } from "../../../../mod.ts";
-import { cancellationScenario, type CancellationParams } from "./scenario.ts";
-import { createBarrier, type Barrier, type ResourceTracker } from "./tracker.ts";
+import { type CancellationParams, cancellationScenario } from "./scenario.ts";
+import {
+  type Barrier,
+  createBarrier,
+  type ResourceTracker,
+} from "./tracker.ts";
 
 await cancellationScenario(
   "rxjs.cancellation",

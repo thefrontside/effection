@@ -18,8 +18,12 @@
 
 import { Effect, Fiber, type Scope } from "npm:effect";
 import { call } from "../../../../mod.ts";
-import { cancellationScenario, type CancellationParams } from "./scenario.ts";
-import { createBarrier, type Barrier, type ResourceTracker } from "./tracker.ts";
+import { type CancellationParams, cancellationScenario } from "./scenario.ts";
+import {
+  type Barrier,
+  createBarrier,
+  type ResourceTracker,
+} from "./tracker.ts";
 
 await cancellationScenario(
   "effect.cancellation",

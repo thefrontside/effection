@@ -1,0 +1,882 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg
+  width="1200"
+  height="630"
+  viewBox="0 0 1200 630"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+  role="img"
+  aria-label="AbortController.abort() Doesn't Mean It Stopped — Two terminal windows comparing AbortController (continues running after abort) vs Effection (cleanup is automatic when scope exits)."
+>
+  <defs>
+    <!-- Light-mode background gradient -->
+    <linearGradient
+      id="bg-light-grad"
+      x1="0"
+      y1="0"
+      x2="1200"
+      y2="630"
+      gradientUnits="userSpaceOnUse"
+    >
+      <stop offset="0" stop-color="#F8FAFF" />
+      <stop offset="0.55" stop-color="#F2F7FF" />
+      <stop offset="1" stop-color="#ECF3FF" />
+    </linearGradient>
+
+    <!-- Light-mode decorative glow -->
+    <radialGradient
+      id="glow-light-grad"
+      cx="0"
+      cy="0"
+      r="1"
+      gradientUnits="userSpaceOnUse"
+      gradientTransform="translate(600 315) rotate(90) scale(400 600)"
+    >
+      <stop offset="0" stop-color="#2B6FF7" stop-opacity="0.12" />
+      <stop offset="0.55" stop-color="#2B6FF7" stop-opacity="0.04" />
+      <stop offset="1" stop-color="#2B6FF7" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Dark-mode decorative glow -->
+    <radialGradient
+      id="glow-dark-grad"
+      cx="0"
+      cy="0"
+      r="1"
+      gradientUnits="userSpaceOnUse"
+      gradientTransform="translate(600 315) rotate(90) scale(400 600)"
+    >
+      <stop offset="0" stop-color="#60A5FA" stop-opacity="0.08" />
+      <stop offset="0.55" stop-color="#60A5FA" stop-opacity="0.02" />
+      <stop offset="1" stop-color="#60A5FA" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Light-mode title gradient -->
+    <linearGradient id="ink" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0B2A5B" />
+      <stop offset="1" stop-color="#0C3A7A" />
+    </linearGradient>
+
+    <!-- Terminal shadows -->
+    <filter
+      id="terminalShadow-light"
+      x="-40"
+      y="-40"
+      width="1280"
+      height="710"
+      filterUnits="userSpaceOnUse"
+      color-interpolation-filters="sRGB"
+    >
+      <feDropShadow
+        dx="0"
+        dy="8"
+        stdDeviation="16"
+        flood-color="#0B2A5B"
+        flood-opacity="0.15"
+      />
+    </filter>
+
+    <filter
+      id="terminalShadow-dark"
+      x="-40"
+      y="-40"
+      width="1280"
+      height="710"
+      filterUnits="userSpaceOnUse"
+      color-interpolation-filters="sRGB"
+    >
+      <feDropShadow
+        dx="0"
+        dy="8"
+        stdDeviation="16"
+        flood-color="#000000"
+        flood-opacity="0.4"
+      />
+    </filter>
+
+    <style>
+    /* ---- Font stacks ---- */
+    .svg-title {
+      font-family:
+        ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
+        Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      font-size: 42px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .svg-title-mono {
+      font-family:
+        ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+      font-size: 42px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+    .svg-subtitle {
+      font-family:
+        ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
+        Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+    .svg-caption {
+      font-family:
+        ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
+        Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      font-size: 16px;
+      font-weight: 700;
+    }
+    .svg-terminal-title {
+      font-family:
+        ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
+        Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .svg-mono {
+      font-family:
+        ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+    .svg-mono-sm {
+      font-family:
+        ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+      font-size: 11px;
+    }
+
+    /* ---- Light mode (default) ---- */
+    .svg-bg-light {
+      display: block;
+    }
+    .svg-bg-dark {
+      display: none;
+    }
+    .svg-glow-light {
+      display: block;
+    }
+    .svg-glow-dark {
+      display: none;
+    }
+    .svg-shadow-light {
+      display: block;
+    }
+    .svg-shadow-dark {
+      display: none;
+    }
+
+    /* Terminal chrome */
+    .svg-terminal-frame {
+      fill: #1e1e1e;
+    }
+    .svg-terminal-header-left {
+      fill: #3c2a2a;
+    }
+    .svg-terminal-header-right {
+      fill: #2a3c2e;
+    }
+    .svg-terminal-body {
+      fill: #0d1117;
+    }
+    .svg-terminal-title {
+      fill: #9ca3af;
+    }
+    .svg-terminal-dot-red {
+      fill: #ff5f56;
+    }
+    .svg-terminal-dot-yellow {
+      fill: #ffbd2e;
+    }
+    .svg-terminal-dot-green {
+      fill: #27c93f;
+    }
+
+    /* Terminal text */
+    .svg-terminal-text {
+      fill: #e6edf3;
+    }
+    .svg-terminal-dim {
+      fill: #7d8590;
+    }
+    .svg-terminal-warn {
+      fill: #f97316;
+    }
+    .svg-terminal-success {
+      fill: #22c55e;
+    }
+    .svg-terminal-info {
+      fill: #60a5fa;
+    }
+
+    /* Title and captions */
+    .svg-title {
+      fill: url(#ink);
+    }
+    .svg-title-mono {
+      fill: url(#ink);
+    }
+    .svg-subtitle {
+      fill: #33547b;
+    }
+    .svg-caption-fail {
+      fill: #dc2626;
+    }
+    .svg-caption-success {
+      fill: #16a34a;
+    }
+
+    /* ---- Dark mode ---- */
+    @media (prefers-color-scheme: dark) {
+      .svg-bg-light {
+        display: none;
+      }
+      .svg-bg-dark {
+        display: block;
+      }
+      .svg-glow-light {
+        display: none;
+      }
+      .svg-glow-dark {
+        display: block;
+      }
+      .svg-shadow-light {
+        display: none;
+      }
+      .svg-shadow-dark {
+        display: block;
+      }
+
+      .svg-terminal-frame {
+        fill: #161b22;
+      }
+      .svg-terminal-header-left {
+        fill: #2d2226;
+      }
+      .svg-terminal-header-right {
+        fill: #1e2d24;
+      }
+      .svg-terminal-body {
+        fill: #0d1117;
+      }
+
+      .svg-title {
+        fill: #f3f4f6;
+      }
+      .svg-title-mono {
+        fill: #f3f4f6;
+      }
+      .svg-subtitle {
+        fill: #9ca3af;
+      }
+      .svg-caption-fail {
+        fill: #f87171;
+      }
+      .svg-caption-success {
+        fill: #4ade80;
+      }
+    }
+
+    /* ---- Terminal animation ---- */
+    /*
+     * 10s total cycle: 3s animation + 5s hold + 2s pause
+     * 
+     * Timeline:
+     * 0-0.2s (0-2%): Cursor blinks
+     * 0.2-3s (2-30%): Lines appear sequentially  
+     * 3-8s (30-80%): Hold final state (5s reading time)
+     * 8-10s (80-100%): Blank pause before restart
+     */
+
+    /* Left terminal line keyframes */
+    @keyframes line-L1 {
+      0%, 1.9% {
+        opacity: 0;
+      }
+      2%, 80% {
+        opacity: 1;
+      }
+      80.1%, 100% {
+        opacity: 0;
+      }
+    }
+    @keyframes line-L2 {
+      0%, 3.9% {
+        opacity: 0;
+      }
+      4%, 80% {
+        opacity: 1;
+      }
+      80.1%, 100% {
+        opacity: 0;
+      }
+    }
+    @keyframes line-L3 {
+      0%, 5.9% {
+        opacity: 0;
+      }
+      6%, 80% {
+        opacity: 1;
+      }
+      80.1%, 100% {
+        opacity: 0;
+      }
+    }
+    @keyframes line-L4 {
+      0%, 6.9% {
+        opacity: 0;
+      }
+      7%, 80% {
+        opacity: 1;
+      }
+      80.1%, 100% {
+        opacity: 0;
+      }
+    }
+    @keyframes line-L5 {
+      0%, 8.4% {
+        opacity: 0;
+      }
+      8.5%, 80% {
+        opacity: 1;
+      }
+      80.1%, 100% {
+        opacity: 0;
+      }
+    }
+    @keyframes line-L6 {
+      0%, 9.9% {
+        opacity: 0;
+      }
+      10%, 80% {
+        opacity: 1;
+      }
+      80.1%, 100% {
+        opacity: 0;
+      }
+    }
+    @keyframes line-L7 {
+      0%, 11.4% {
+        opacity: 0;
+      }
+      11.5%, 80% {
+        opacity: 1;
+      }
+      80.1%, 100% {
+        opacity: 0;
+      }
+    }
+    @keyframes line-L8 {
+      0%, 13.9% {
+        opacity: 0;
+      }
+      14%, 80% {
+        opacity: 1;
+      }
+      80.1%, 100% {
+        opacity: 0;
+      }
+    }
+    @keyframes line-L9 {
+      0%, 15.9% {
+        opacity: 0;
+      }
+      16%, 80% {
+        opacity: 1;
+      }
+      80.1%, 100% {
+        opacity: 0;
+      }
+    }
+    @keyframes line-L10 {
+      0%, 17.9% {
+        opacity: 0;
+      }
+      18%, 80% {
+        opacity: 1;
+      }
+      80.1%, 100% {
+        opacity: 0;
+      }
+    }
+    @keyframes line-L11 {
+      0%, 19.9% {
+        opacity: 0;
+      }
+      20%, 80% {
+        opacity: 1;
+      }
+      80.1%, 100% {
+        opacity: 0;
+      }
+    }
+    @keyframes line-L12 {
+      0%, 21.9% {
+        opacity: 0;
+      }
+      22%, 80% {
+        opacity: 1;
+      }
+      80.1%, 100% {
+        opacity: 0;
+      }
+    }
+    @keyframes line-L13 {
+      0%, 23.9% {
+        opacity: 0;
+      }
+      24%, 80% {
+        opacity: 1;
+      }
+      80.1%, 100% {
+        opacity: 0;
+      }
+    }
+
+    /* Right terminal line keyframes */
+    @keyframes line-R1 {
+      0%, 1.9% {
+        opacity: 0;
+      }
+      2%, 80% {
+        opacity: 1;
+      }
+      80.1%, 100% {
+        opacity: 0;
+      }
+    }
+    @keyframes line-R2 {
+      0%, 3.9% {
+        opacity: 0;
+      }
+      4%, 80% {
+        opacity: 1;
+      }
+      80.1%, 100% {
+        opacity: 0;
+      }
+    }
+    @keyframes line-R3 {
+      0%, 5.9% {
+        opacity: 0;
+      }
+      6%, 80% {
+        opacity: 1;
+      }
+      80.1%, 100% {
+        opacity: 0;
+      }
+    }
+    @keyframes line-R4 {
+      0%, 6.9% {
+        opacity: 0;
+      }
+      7%, 80% {
+        opacity: 1;
+      }
+      80.1%, 100% {
+        opacity: 0;
+      }
+    }
+    @keyframes line-R5 {
+      0%, 8.4% {
+        opacity: 0;
+      }
+      8.5%, 80% {
+        opacity: 1;
+      }
+      80.1%, 100% {
+        opacity: 0;
+      }
+    }
+    @keyframes line-R6 {
+      0%, 11.4% {
+        opacity: 0;
+      }
+      11.5%, 80% {
+        opacity: 1;
+      }
+      80.1%, 100% {
+        opacity: 0;
+      }
+    }
+
+    /* Base state */
+    .svg-anim-line {
+      opacity: 0;
+    }
+
+    /* Apply unique animations to each line (10s cycle) */
+    .svg-anim-L1 {
+      animation: line-L1 10s steps(1) infinite;
+    }
+    .svg-anim-L2 {
+      animation: line-L2 10s steps(1) infinite;
+    }
+    .svg-anim-L3 {
+      animation: line-L3 10s steps(1) infinite;
+    }
+    .svg-anim-L4 {
+      animation: line-L4 10s steps(1) infinite;
+    }
+    .svg-anim-L5 {
+      animation: line-L5 10s steps(1) infinite;
+    }
+    .svg-anim-L6 {
+      animation: line-L6 10s steps(1) infinite;
+    }
+    .svg-anim-L7 {
+      animation: line-L7 10s steps(1) infinite;
+    }
+    .svg-anim-L8 {
+      animation: line-L8 10s steps(1) infinite;
+    }
+    .svg-anim-L9 {
+      animation: line-L9 10s steps(1) infinite;
+    }
+    .svg-anim-L10 {
+      animation: line-L10 10s steps(1) infinite;
+    }
+    .svg-anim-L11 {
+      animation: line-L11 10s steps(1) infinite;
+    }
+    .svg-anim-L12 {
+      animation: line-L12 10s steps(1) infinite;
+    }
+    .svg-anim-L13 {
+      animation: line-L13 10s steps(1) infinite;
+    }
+
+    .svg-anim-R1 {
+      animation: line-R1 10s steps(1) infinite;
+    }
+    .svg-anim-R2 {
+      animation: line-R2 10s steps(1) infinite;
+    }
+    .svg-anim-R3 {
+      animation: line-R3 10s steps(1) infinite;
+    }
+    .svg-anim-R4 {
+      animation: line-R4 10s steps(1) infinite;
+    }
+    .svg-anim-R5 {
+      animation: line-R5 10s steps(1) infinite;
+    }
+    .svg-anim-R6 {
+      animation: line-R6 10s steps(1) infinite;
+    }
+
+    /* Cursor blink - blinks at start (0-0.2s) and during pause (8-10s) */
+    @keyframes cursor-blink {
+      0% {
+        opacity: 1;
+      }
+      1% {
+        opacity: 0;
+      } /* off at 0.1s */
+      1.5% {
+        opacity: 1;
+      } /* on at 0.15s */
+      2% {
+        opacity: 0;
+      } /* off at 0.2s - first line appears */
+      80% {
+        opacity: 0;
+      } /* hidden during content display */
+      80.5% {
+        opacity: 1;
+      } /* on at 8.05s - pause starts */
+      82% {
+        opacity: 0;
+      } /* off at 8.2s */
+      84% {
+        opacity: 1;
+      } /* on at 8.4s */
+      86% {
+        opacity: 0;
+      } /* off at 8.6s */
+      88% {
+        opacity: 1;
+      } /* on at 8.8s */
+      90% {
+        opacity: 0;
+      } /* off at 9.0s */
+      92% {
+        opacity: 1;
+      } /* on at 9.2s */
+      94% {
+        opacity: 0;
+      } /* off at 9.4s */
+      96% {
+        opacity: 1;
+      } /* on at 9.6s */
+      98% {
+        opacity: 0;
+      } /* off at 9.8s */
+      100% {
+        opacity: 1;
+      } /* on at 10s - loops to start */
+    }
+
+    .svg-cursor {
+      opacity: 0;
+      animation: cursor-blink 10s steps(1) infinite;
+    }
+
+    /* Accessibility: respect reduced motion preference */
+    @media (prefers-reduced-motion: reduce) {
+      .svg-anim-line {
+        opacity: 1;
+        animation: none;
+      }
+      .svg-cursor {
+        opacity: 0;
+        animation: none;
+      }
+    }
+    </style>
+  </defs>
+
+  <!-- ======== BACKGROUND ======== -->
+  <rect
+    class="svg-bg-light"
+    x="0"
+    y="0"
+    width="1200"
+    height="630"
+    fill="url(#bg-light-grad)"
+  />
+  <rect
+    class="svg-bg-dark"
+    x="0"
+    y="0"
+    width="1200"
+    height="630"
+    fill="#111827"
+  />
+  <rect
+    class="svg-glow-light"
+    x="0"
+    y="0"
+    width="1200"
+    height="630"
+    fill="url(#glow-light-grad)"
+  />
+  <rect
+    class="svg-glow-dark"
+    x="0"
+    y="0"
+    width="1200"
+    height="630"
+    fill="url(#glow-dark-grad)"
+  />
+
+  <!-- ======== TITLE (full width, top) ======== -->
+  <text x="60" y="52" class="svg-subtitle">Effection Blog</text>
+  <text y="100" class="svg-title">
+    <tspan x="60" class="svg-title-mono">AbortController.abort()</tspan>
+    <tspan class="svg-title"> Doesn't Mean It Stopped</tspan>
+  </text>
+
+  <!-- ======== LEFT TERMINAL: AbortController ======== -->
+  <g class="svg-shadow-light" filter="url(#terminalShadow-light)">
+    <g>
+      <!-- Terminal frame -->
+      <rect
+        class="svg-terminal-frame"
+        x="60"
+        y="140"
+        width="520"
+        height="430"
+        rx="12"
+      />
+      <!-- Header bar with red tint (top corners rounded, bottom square) -->
+      <path
+        class="svg-terminal-header-left"
+        d="M72 140 H568 A12 12 0 0 1 580 152 V180 H60 V152 A12 12 0 0 1 72 140 Z"
+      />
+      <!-- Window dots -->
+      <circle class="svg-terminal-dot-red" cx="84" cy="160" r="6" />
+      <circle class="svg-terminal-dot-yellow" cx="104" cy="160" r="6" />
+      <circle class="svg-terminal-dot-green" cx="124" cy="160" r="6" />
+      <!-- Title -->
+      <text
+        x="355"
+        y="160"
+        dy="0.35em"
+        class="svg-terminal-title"
+        text-anchor="middle"
+      >AbortController</text>
+      <!-- Body -->
+      <rect class="svg-terminal-body" x="60" y="180" width="520" height="390" />
+    </g>
+  </g>
+  <g class="svg-shadow-dark" filter="url(#terminalShadow-dark)">
+    <g>
+      <rect
+        class="svg-terminal-frame"
+        x="60"
+        y="140"
+        width="520"
+        height="430"
+        rx="12"
+      />
+      <path
+        class="svg-terminal-header-left"
+        d="M72 140 H568 A12 12 0 0 1 580 152 V180 H60 V152 A12 12 0 0 1 72 140 Z"
+      />
+      <circle class="svg-terminal-dot-red" cx="84" cy="160" r="6" />
+      <circle class="svg-terminal-dot-yellow" cx="104" cy="160" r="6" />
+      <circle class="svg-terminal-dot-green" cx="124" cy="160" r="6" />
+      <text
+        x="355"
+        y="160"
+        dy="0.35em"
+        class="svg-terminal-title"
+        text-anchor="middle"
+      >AbortController</text>
+      <rect class="svg-terminal-body" x="60" y="180" width="520" height="390" />
+    </g>
+  </g>
+
+  <!-- Left terminal content -->
+  <g class="svg-mono">
+    <text x="80" y="210" class="svg-terminal-text svg-cursor">█</text>
+    <text x="80" y="210" class="svg-terminal-text svg-anim-line svg-anim-L1"
+    >tick: STILL RUNNING</text>
+    <text x="80" y="230" class="svg-terminal-text svg-anim-line svg-anim-L2"
+    >tick: STILL RUNNING</text>
+    <text x="80" y="250" class="svg-terminal-text svg-anim-line svg-anim-L3"
+    >tick: STILL RUNNING</text>
+    <text x="80" y="280" class="svg-terminal-dim svg-anim-line svg-anim-L4"
+    >>>> calling abort()</text>
+    <text x="80" y="300" class="svg-terminal-dim svg-anim-line svg-anim-L5"
+    >>>> abort() returned</text>
+    <text x="80" y="330" class="svg-terminal-info svg-anim-line svg-anim-L6"
+    >task ended with: aborted</text>
+    <text x="80" y="360" class="svg-terminal-dim svg-anim-line svg-anim-L7"
+    >>>> caller thinks it's done</text>
+    <text x="80" y="400" class="svg-terminal-warn svg-anim-line svg-anim-L8"
+    >tick: STILL RUNNING</text>
+    <text x="80" y="420" class="svg-terminal-warn svg-anim-line svg-anim-L9"
+    >tick: STILL RUNNING</text>
+    <text x="80" y="440" class="svg-terminal-warn svg-anim-line svg-anim-L10"
+    >tick: STILL RUNNING</text>
+    <text x="80" y="460" class="svg-terminal-warn svg-anim-line svg-anim-L11"
+    >tick: STILL RUNNING</text>
+    <text x="80" y="480" class="svg-terminal-warn svg-anim-line svg-anim-L12"
+    >tick: STILL RUNNING</text>
+    <text x="80" y="500" class="svg-terminal-dim svg-anim-line svg-anim-L13"
+    >...</text>
+  </g>
+
+  <!-- Left caption -->
+  <text
+    x="320"
+    y="602"
+    class="svg-caption svg-caption-fail"
+    text-anchor="middle"
+  >keeps running</text>
+
+  <!-- ======== RIGHT TERMINAL: Effection ======== -->
+  <g class="svg-shadow-light" filter="url(#terminalShadow-light)">
+    <g>
+      <!-- Terminal frame -->
+      <rect
+        class="svg-terminal-frame"
+        x="620"
+        y="140"
+        width="520"
+        height="430"
+        rx="12"
+      />
+      <!-- Header bar with green tint (top corners rounded, bottom square) -->
+      <path
+        class="svg-terminal-header-right"
+        d="M632 140 H1128 A12 12 0 0 1 1140 152 V180 H620 V152 A12 12 0 0 1 632 140 Z"
+      />
+      <!-- Window dots -->
+      <circle class="svg-terminal-dot-red" cx="644" cy="160" r="6" />
+      <circle class="svg-terminal-dot-yellow" cx="664" cy="160" r="6" />
+      <circle class="svg-terminal-dot-green" cx="684" cy="160" r="6" />
+      <!-- Title -->
+      <text
+        x="915"
+        y="160"
+        dy="0.35em"
+        class="svg-terminal-title"
+        text-anchor="middle"
+      >Structured Concurrency</text>
+      <!-- Body -->
+      <rect
+        class="svg-terminal-body"
+        x="620"
+        y="180"
+        width="520"
+        height="390"
+      />
+    </g>
+  </g>
+  <g class="svg-shadow-dark" filter="url(#terminalShadow-dark)">
+    <g>
+      <rect
+        class="svg-terminal-frame"
+        x="620"
+        y="140"
+        width="520"
+        height="430"
+        rx="12"
+      />
+      <path
+        class="svg-terminal-header-right"
+        d="M632 140 H1128 A12 12 0 0 1 1140 152 V180 H620 V152 A12 12 0 0 1 632 140 Z"
+      />
+      <circle class="svg-terminal-dot-red" cx="644" cy="160" r="6" />
+      <circle class="svg-terminal-dot-yellow" cx="664" cy="160" r="6" />
+      <circle class="svg-terminal-dot-green" cx="684" cy="160" r="6" />
+      <text
+        x="915"
+        y="160"
+        dy="0.35em"
+        class="svg-terminal-title"
+        text-anchor="middle"
+      >Structured Concurrency</text>
+      <!-- Body -->
+      <rect
+        class="svg-terminal-body"
+        x="620"
+        y="180"
+        width="520"
+        height="390"
+      />
+    </g>
+  </g>
+
+  <!-- Right terminal content -->
+  <g class="svg-mono">
+    <text x="640" y="210" class="svg-terminal-text svg-cursor">█</text>
+    <text x="640" y="210" class="svg-terminal-text svg-anim-line svg-anim-R1"
+    >tick: RUNNING</text>
+    <text x="640" y="230" class="svg-terminal-text svg-anim-line svg-anim-R2"
+    >tick: RUNNING</text>
+    <text x="640" y="250" class="svg-terminal-text svg-anim-line svg-anim-R3"
+    >tick: RUNNING</text>
+    <text x="640" y="280" class="svg-terminal-dim svg-anim-line svg-anim-R4"
+    >>>> leaving scope</text>
+    <text x="640" y="300" class="svg-terminal-dim svg-anim-line svg-anim-R5"
+    >>>> scope exited</text>
+    <text x="640" y="350" class="svg-terminal-success svg-anim-line svg-anim-R6"
+    >all children stopped</text>
+  </g>
+
+  <!-- Right caption -->
+  <text
+    x="880"
+    y="602"
+    class="svg-caption svg-caption-success"
+    text-anchor="middle"
+  >cleanup is automatic</text>
+</svg>

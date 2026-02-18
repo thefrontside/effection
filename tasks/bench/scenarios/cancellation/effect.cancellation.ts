@@ -16,7 +16,7 @@
  * - Effect.acquireRelease for resource cleanup
  */
 
-import { Effect, Fiber, Deferred, type Scope } from "npm:effect";
+import { Effect, Fiber, type Scope } from "npm:effect";
 import { call } from "../../../../mod.ts";
 import { cancellationScenario, type CancellationParams } from "./scenario.ts";
 import { createBarrier, type Barrier, type ResourceTracker } from "./tracker.ts";
@@ -34,9 +34,6 @@ async function runBenchmark(params: CancellationParams): Promise<void> {
   const barrier = createBarrier(totalAllocations);
 
   const program = Effect.gen(function* () {
-    // Create a deferred to signal when all workers have started
-    const allStarted = yield* Deferred.make<void>();
-
     // Track fibers for the final wait
     const fibers: Fiber.RuntimeFiber<void, never>[] = [];
 

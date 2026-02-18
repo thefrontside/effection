@@ -27,6 +27,7 @@ import { global } from "./scope.ts";
  *
  * @param operation the operation to run
  * @returns a task representing the running operation.
+ * @since 3.0
  */
 export function run<T>(operation: () => Operation<T>): Task<T> {
   return global.run(operation);

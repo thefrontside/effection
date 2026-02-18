@@ -26,6 +26,7 @@ import { Err, Ok, type Result } from "./result.ts";
  *
  * @param operations a list of operations to race against each other
  * @returns the value of the fastest operation
+ * @since 3.0
  */
 
 export function* race<T extends Operation<unknown>>(

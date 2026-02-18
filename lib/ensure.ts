@@ -40,6 +40,7 @@ import { resource } from "./resource.ts";
  * asynchronous cleanup. Otherwise, you can return `void`
  *
  * @param fn - a function which returns an {@link Operation} or void
+ * @since 3.0
  */
 export function ensure(fn: () => Operation<unknown> | void): Operation<void> {
   return resource(function* (provide) {

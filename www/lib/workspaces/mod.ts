@@ -76,7 +76,7 @@ function* expandPatterns(
  * Get workspace patterns from a Node/PNPM monorepo.
  */
 function* getWorkspacePatterns(rootPath: string): Operation<string[]> {
-  const content = yield* until(
+  let content = yield* until(
     Deno.readTextFile(`${rootPath}/pnpm-workspace.yaml`),
   );
   let parsed = parseYaml(content);
@@ -91,7 +91,7 @@ function* getWorkspacePatterns(rootPath: string): Operation<string[]> {
  * @param nameWithOwner - GitHub repo in "owner/repo" format
  */
 export function* useWorkspaces(nameWithOwner: string): Operation<Workspaces> {
-  const rootPath = yield* useClone(nameWithOwner);
+  let rootPath = yield* useClone(nameWithOwner);
 
   if (!existsSync(`${rootPath}/pnpm-workspace.yaml`)) {
     throw new Error(
@@ -104,7 +104,7 @@ export function* useWorkspaces(nameWithOwner: string): Operation<Workspaces> {
   let refName = "main";
 
   // Get workspace patterns from pnpm-workspace.yaml
-  const patterns = yield* getWorkspacePatterns(rootPath);
+  let patterns = yield* getWorkspacePatterns(rootPath);
 
   // Expand patterns to actual directories
   let workspaceDirs = yield* expandPatterns(rootPath, patterns);
@@ -131,12 +131,7 @@ export function* useWorkspaces(nameWithOwner: string): Operation<Workspaces> {
       let workspaceName = workspacePath.split("/").pop()!;
       let ref = createRef(workspacePath);
 
-      const pkg = createNodePackage(
-        fullPath,
-        workspaceName,
-        workspacePath,
-        ref,
-      );
+      let pkg = createNodePackage(fullPath, workspaceName, workspacePath, ref);
       packagesByWorkspace.set(workspaceName, pkg);
 
       // Get package name for the name lookup

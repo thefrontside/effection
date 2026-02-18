@@ -1,0 +1,529 @@
+So far, our operations have been sequential - each step waits for the previous one. But real applications need to do multiple things at once: handle requests while listening for new connections, animate UI while fetching data, monitor health while serving traffic.
+
+Enter `spawn()`.
+
+## The Concurrency Problem
+
+Let's say we want to fetch data from two different sources:
+
+```typescript
+import type { Operation } from "effection";
+import { main, sleep } from "effection";
+
+function* fetchFromAPI(source: string): Operation<string> {
+  console.log(`Fetching from ${source}...`);
+  yield* sleep(500); // Simulate network delay
+  return `Data from ${source}`;
+}
+
+await main(function* () {
+  console.time("total");
+
+  const dataA: string = yield* fetchFromAPI("api-a");
+  const dataB: string = yield* fetchFromAPI("api-b");
+
+  console.log(dataA, dataB);
+  console.timeEnd("total"); // ~1000ms - sequential!
+});
+```
+
+This works, but it's slow - we fetch one, wait, then fetch the other. What if each fetch takes 500ms? We'd wait 1000ms total instead of 500ms.
+
+## The Wrong Way: Using `run()`
+
+You might try using `run()` to start concurrent tasks, but this breaks structured concurrency:
+
+```typescript
+import type { Operation } from "effection";
+import { main, run, spawn, sleep, ensure, scoped } from "effection";
+
+function* task(name: string): Operation<string> {
+  console.log(`[${name}] Started`);
+  yield* ensure(() => console.log(`[${name}] Cleanup`));
+  yield* sleep(500);
+  console.log(`[${name}] Done`);
+  return name;
+}
+
+await main(function* () {
+  // === CORRECT: spawn() creates children that get cleaned up ===
+  console.log("=== spawn(): Structured Concurrency ===\n");
+
+  yield* scoped(function* () {
+    yield* spawn(() => task("child-a"));
+    yield* spawn(() => task("child-b"));
+
+    yield* sleep(100);
+    console.log("Scope exiting early...\n");
+    // When this scope exits, spawned children are halted immediately
+  });
+
+  console.log(
+    'Result: Children were halted and cleaned up (no "Done" logged)!\n',
+  );
+  console.log("=".repeat(50) + "\n");
+
+  // === WRONG: run() creates independent tasks that escape the scope ===
+  console.log("=== run(): Breaking Structured Concurrency ===\n");
+
+  yield* scoped(function* () {
+    // DON'T DO THIS - these tasks escape to the global scope!
+    run(() => task("orphan-a"));
+    run(() => task("orphan-b"));
+
+    yield* sleep(100);
+    console.log("Scope exiting early...\n");
+    // Orphaned tasks keep running - they are NOT children of this scope
+  });
+
+  console.log("Result: Orphans were NOT halted - still running!\n");
+
+  // Wait to show orphaned tasks complete on their own
+  yield* sleep(600);
+  console.log("\n--- Orphans finished on their own (not structured) ---");
+});
+```
+
+Output:
+
+```
+=== spawn(): Structured Concurrency ===
+
+[child-a] Started
+[child-b] Started
+Scope exiting early...
+
+[child-b] Cleanup
+[child-a] Cleanup
+Result: Children were halted and cleaned up (no "Done" logged)!
+
+==================================================
+
+=== run(): Breaking Structured Concurrency ===
+
+[orphan-a] Started
+[orphan-b] Started
+Scope exiting early...
+
+Result: Orphans were NOT halted - still running!
+
+[orphan-a] Done
+[orphan-a] Cleanup
+[orphan-b] Done
+[orphan-b] Cleanup
+
+--- Orphans finished on their own (not structured) ---
+```
+
+Notice the difference:
+
+- **spawn()**: When the scope exits, children are **halted immediately** - "Cleanup" runs but "Done" never logs
+- **run()**: Tasks **escape** the scope and keep running - both "Done" and "Cleanup" log later
+
+This is the core problem: `run()` creates tasks in the global scope, not as children of the current operation.
+
+## The Right Way: `spawn()`
+
+```typescript
+import type { Operation, Task } from "effection";
+import { main, spawn, sleep } from "effection";
+
+function* fetchFromAPI(source: string): Operation<string> {
+  console.log(`Fetching from ${source}...`);
+  yield* sleep(500);
+  return `Data from ${source}`;
+}
+
+await main(function* () {
+  console.time("total");
+
+  const taskA: Task<string> = yield* spawn(() => fetchFromAPI("api-a"));
+  const taskB: Task<string> = yield* spawn(() => fetchFromAPI("api-b"));
+
+  const dataA: string = yield* taskA;
+  const dataB: string = yield* taskB;
+
+  console.log(dataA, dataB);
+  console.timeEnd("total"); // ~500ms - parallel!
+});
+```
+
+Now both operations are **children of main**. The task hierarchy looks like:
+
+```
++-- main
+    |
+    +-- fetchFromAPI('api-a')
+    |
+    +-- fetchFromAPI('api-b')
+```
+
+## The Structured Concurrency Guarantee
+
+When you use `spawn()`, you get two guarantees:
+
+### 1. Children can't outlive their parent
+
+When the parent operation ends (for any reason), all children are halted:
+
+```typescript
+import type { Operation } from "effection";
+import { main, spawn, sleep } from "effection";
+
+await main(function* () {
+  yield* spawn(function* (): Operation<void> {
+    let count = 0;
+    while (true) {
+      console.log(`tick ${++count}`);
+      yield* sleep(100);
+    }
+  });
+
+  yield* sleep(550);
+  console.log("main ending...");
+  // main ends, the infinite loop is halted!
+});
+```
+
+Output:
+
+```
+tick 1
+tick 2
+tick 3
+tick 4
+tick 5
+main ending...
+```
+
+After ~550ms, main ends and the spawned task is automatically stopped.
+
+### 2. Child errors propagate to the parent
+
+When a spawned child fails, it crashes the parent scope. But here's the key: **all sibling tasks are halted and cleaned up BEFORE the error propagates**. This is structured concurrency in action.
+
+```typescript
+import type { Operation } from "effection";
+import { main, spawn, sleep, ensure } from "effection";
+
+function* worker(id: number, shouldFail: boolean): Operation<void> {
+  console.log(`[worker-${id}] Starting`);
+  yield* ensure(() => console.log(`[worker-${id}] Cleanup`));
+
+  yield* sleep(shouldFail ? 100 : 500);
+
+  if (shouldFail) {
+    throw new Error(`Worker ${id} failed!`);
+  }
+
+  console.log(`[worker-${id}] Completed`);
+}
+
+await main(function* () {
+  yield* spawn(() => worker(1, true)); // Will fail after 100ms
+  yield* spawn(() => worker(2, false)); // Will be halted before completing
+  yield* spawn(() => worker(3, false)); // Will be halted before completing
+
+  yield* sleep(1000);
+  console.log("Never reached");
+}).catch((error) => {
+  console.log(`\nCaught error: ${(error as Error).message}`);
+  console.log("All workers were cleaned up before we got here!");
+});
+```
+
+Output:
+
+```
+[worker-1] Starting
+[worker-2] Starting
+[worker-3] Starting
+[worker-1] Cleanup
+[worker-3] Cleanup
+[worker-2] Cleanup
+
+Caught error: Worker 1 failed!
+All workers were cleaned up before we got here!
+```
+
+Notice:
+
+- All three workers start
+- When worker-1 fails, **all workers get cleaned up** (including the failing one)
+- No "Completed" logs - workers 2 and 3 were halted before they could finish
+- The error is caught via `.catch()` on the `main()` Promise
+- Cleanup happens **before** the error handler runs
+
+## Error Boundaries with `scoped()`
+
+Sometimes you want errors to stay contained rather than crashing the entire parent scope. Think of `scoped()` like **fire doors** in a building—when a fire breaks out in one room, the fire doors slam shut to prevent flames from spreading to the rest of the building. The affected room is sealed off, but the building keeps operating.
+
+```typescript
+import type { Operation } from "effection";
+import { main, spawn, scoped, sleep, ensure } from "effection";
+
+function* riskyWorker(id: number, shouldFail: boolean): Operation<void> {
+  console.log(`[worker-${id}] Starting`);
+  yield* ensure(() => console.log(`[worker-${id}] Cleanup`));
+
+  yield* sleep(100);
+
+  if (shouldFail) {
+    throw new Error(`Worker ${id} caught fire!`);
+  }
+
+  console.log(`[worker-${id}] Completed safely`);
+}
+
+await main(function* () {
+  console.log("=== Without fire doors: fire spreads ===\n");
+
+  try {
+    yield* scoped(function* () {
+      // All workers in same room - one fire takes them all down
+      yield* spawn(() => riskyWorker(1, true)); // Will fail
+      yield* spawn(() => riskyWorker(2, false)); // Collateral damage
+      yield* spawn(() => riskyWorker(3, false)); // Collateral damage
+
+      yield* sleep(500);
+    });
+  } catch (e) {
+    console.log(`Fire spread! ${(e as Error).message}\n`);
+  }
+
+  console.log("=== With fire doors: fire contained ===\n");
+
+  // Each worker gets its own fire door (scoped boundary)
+  const results = yield* scoped(function* () {
+    const outcomes: string[] = [];
+
+    // Worker 1 in its own room
+    yield* spawn(function* () {
+      try {
+        yield* scoped(function* () {
+          yield* riskyWorker(1, true); // Will fail
+        });
+        outcomes.push("worker-1: ok");
+      } catch (e) {
+        outcomes.push(`worker-1: contained - ${(e as Error).message}`);
+      }
+    });
+
+    // Worker 2 in its own room
+    yield* spawn(function* () {
+      try {
+        yield* scoped(function* () {
+          yield* riskyWorker(2, false); // Will succeed
+        });
+        outcomes.push("worker-2: ok");
+      } catch {
+        outcomes.push("worker-2: contained");
+      }
+    });
+
+    // Worker 3 in its own room
+    yield* spawn(function* () {
+      try {
+        yield* scoped(function* () {
+          yield* riskyWorker(3, false); // Will succeed
+        });
+        outcomes.push("worker-3: ok");
+      } catch {
+        outcomes.push("worker-3: contained");
+      }
+    });
+
+    yield* sleep(500);
+    return outcomes;
+  });
+
+  console.log("\nFinal outcomes:", results);
+  console.log("Building still standing!");
+});
+```
+
+The key insight: **`scoped()` creates an error boundary**. Errors thrown inside a `scoped()` block don't automatically propagate to the parent—you can catch them with try/catch and decide how to handle them. Without `scoped()`, a child error crashes the parent and halts all siblings.
+
+Use `scoped()` when:
+
+- You want to isolate risky operations that might fail
+- You need to handle errors gracefully and continue
+- You're building resilient systems where one failure shouldn't take down everything
+
+## Spawn Returns a Task
+
+The `spawn()` operation returns a `Task<T>` that you can:
+
+1. **Yield to get the result**: `const result = yield* task`
+2. **Halt explicitly**: `yield* task.halt()`
+
+```typescript
+import type { Operation, Task } from "effection";
+import { main, spawn, sleep } from "effection";
+
+await main(function* () {
+  const task: Task<string> = yield* spawn(function* (): Operation<string> {
+    yield* sleep(1000);
+    return "completed!";
+  });
+
+  // Wait for it to finish
+  const result: string = yield* task;
+  console.log(result); // 'completed!'
+});
+```
+
+## Fire and Forget
+
+Sometimes you don't care about the result:
+
+```typescript
+import type { Operation } from "effection";
+import { main, spawn, sleep } from "effection";
+
+function* doMainWork(): Operation<void> {
+  console.log("Doing main work...");
+  yield* sleep(3000);
+  console.log("Main work done!");
+}
+
+await main(function* () {
+  // Start a background heartbeat - we don't need its result
+  yield* spawn(function* (): Operation<void> {
+    while (true) {
+      console.log("heartbeat");
+      yield* sleep(1000);
+    }
+  });
+
+  // Do other work...
+  yield* doMainWork();
+
+  // When main ends, heartbeat is automatically stopped
+});
+```
+
+Output:
+
+```
+heartbeat
+Doing main work...
+heartbeat
+heartbeat
+heartbeat
+Main work done!
+```
+
+## Practical Example: Parallel Data Fetching
+
+```typescript
+import type { Operation, Task } from "effection";
+import { main, spawn, sleep } from "effection";
+
+interface User {
+  id: number;
+  name: string;
+}
+
+interface Post {
+  id: number;
+  title: string;
+}
+
+interface Comment {
+  id: number;
+  text: string;
+}
+
+// Simulated API calls
+function* fetchUser(id: number): Operation<User> {
+  yield* sleep(300);
+  return { id, name: `User ${id}` };
+}
+
+function* fetchPosts(userId: number): Operation<Post[]> {
+  yield* sleep(500);
+  return [
+    { id: 1, title: "First Post" },
+    { id: 2, title: "Second Post" },
+  ];
+}
+
+function* fetchComments(postId: number): Operation<Comment[]> {
+  yield* sleep(200);
+  return [{ id: 1, text: "Great post!" }];
+}
+
+await main(function* () {
+  console.time("total");
+
+  // Fetch user first
+  const user: User = yield* fetchUser(1);
+
+  // Then fetch posts and comments in parallel
+  const postsTask: Task<Post[]> = yield* spawn(() => fetchPosts(user.id));
+  const commentsTask: Task<Comment[]> = yield* spawn(() => fetchComments(1));
+
+  const posts: Post[] = yield* postsTask;
+  const comments: Comment[] = yield* commentsTask;
+
+  console.log({ user, posts, comments });
+  console.timeEnd("total"); // ~800ms, not 1000ms!
+});
+```
+
+## Understanding Scope Lifetime
+
+The relationship between parent and child scopes has subtle behaviors:
+
+### 1. Parent must yield for children to run
+
+If a parent returns immediately after spawning, the child never runs:
+
+```typescript
+yield *
+  spawn(function* () {
+    console.log("[parent] Starting");
+
+    yield* spawn(function* () {
+      console.log("[grandchild] Running!"); // Will this print?
+    });
+
+    console.log("[parent] Returning immediately");
+    return;
+    // Parent scope ends, grandchild never gets a chance to run!
+  });
+```
+
+### 2. Spawn is lazy
+
+The child doesn't start until the parent yields control:
+
+```typescript
+console.log("[1] Before spawn");
+
+yield *
+  spawn(function* () {
+    console.log("[3] Child started"); // Runs after parent yields
+  });
+
+console.log("[2] After spawn, before yield");
+yield * sleep(0); // Yield control - NOW child runs
+console.log("[4] After yield");
+```
+
+### 3. Cleanup is deepest-first
+
+Grandchildren clean up before children, children before parents.
+
+### 4. Scope = lifetime
+
+When a scope ends, all its children are halted immediately.
+
+## Key Takeaways
+
+1. **`spawn()` creates child operations** - bound to the parent's lifetime
+2. **Children can't outlive their parent** - automatic cleanup when parent ends
+3. **Child errors crash the parent** - which then halts all other children
+4. **`spawn()` returns a Task** - yield to it to get the result
+5. **This is structured concurrency** - the hierarchy is always well-defined

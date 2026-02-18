@@ -1,0 +1,293 @@
+Most JavaScript APIs speak callback. `setTimeout`, event listeners, XHR, WebSockets—they all want you to pass a function that they'll call "later."
+
+But Effection speaks generator. How do we translate between these two languages?
+
+The answer is **actions**—the interpreters that let callbacks talk to operations.
+
+## The Promise Constructor Pattern
+
+You've probably written this pattern before:
+
+```typescript
+function sleep(ms: number): Promise<void> {
+  return new Promise<void>((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+```
+
+The Promise constructor takes an "executor" function that receives `resolve` and `reject`. When your callback fires, you call `resolve()` to complete the promise.
+
+## The Action Constructor
+
+Effection's `action()` works similarly, but with one critical difference:
+
+```typescript
+import type { Operation } from "effection";
+import { action } from "effection";
+
+function sleep(ms: number): Operation<void> {
+  return action((resolve) => {
+    const timeoutId = setTimeout(resolve, ms);
+    return () => clearTimeout(timeoutId); // Cleanup function - required!
+  });
+}
+```
+
+Actions **must** return a cleanup function. This is the magic that prevents leaked effects!
+
+## The Cleanup Function
+
+The cleanup function is called when:
+
+1. The action resolves (via `resolve()`)
+2. The action rejects (via `reject()`)
+3. The action is halted (parent scope ends)
+
+```typescript
+import type { Operation } from "effection";
+import { main, action, race } from "effection";
+
+function sleep(ms: number): Operation<void> {
+  return action((resolve) => {
+    console.log(`Starting ${ms}ms timer`);
+    const timeoutId = setTimeout(() => {
+      console.log(`${ms}ms timer completed`);
+      resolve();
+    }, ms);
+
+    return () => {
+      console.log(`Cleaning up ${ms}ms timer`);
+      clearTimeout(timeoutId);
+    };
+  });
+}
+
+await main(function* () {
+  yield* race([sleep(10), sleep(1000)]);
+  console.log("Race done!");
+});
+```
+
+Output:
+
+```
+Starting 10ms timer
+Starting 1000ms timer
+10ms timer completed
+Cleaning up 10ms timer
+Cleaning up 1000ms timer
+Race done!
+```
+
+Both timers are cleaned up! The 1000ms timer is halted when the 10ms timer wins.
+
+## A More Complex Example: Fetch with AbortController
+
+Here's how to wrap the native `fetch` API with proper cancellation:
+
+```typescript
+import type { Operation } from "effection";
+import { main, action, race } from "effection";
+
+function* fetchUrl(url: string): Operation<string> {
+  return yield* action<string>((resolve, reject) => {
+    const controller = new AbortController();
+
+    console.log(`Starting request to ${url}`);
+
+    fetch(url, { signal: controller.signal })
+      .then((response) => response.text())
+      .then((text) => {
+        console.log(`Completed request to ${url}`);
+        resolve(text);
+      })
+      .catch((err) => {
+        if (err.name !== "AbortError") {
+          reject(err);
+        }
+      });
+
+    return () => {
+      console.log(`Aborting request to ${url}`);
+      controller.abort();
+    };
+  });
+}
+
+// If you race two fetch operations, the loser's HTTP request is actually cancelled!
+await main(function* () {
+  const result: string = yield* race([
+    fetchUrl("https://httpbin.org/delay/1"),
+    fetchUrl("https://httpbin.org/delay/2"),
+  ]);
+  console.log("Winner:", result.slice(0, 100) + "...");
+});
+```
+
+## The Action API
+
+The `action()` function signature:
+
+```typescript
+function action<T>(
+  executor: (
+    resolve: (value: T) => void,
+    reject: (error: Error) => void,
+  ) => () => void,
+): Operation<T>;
+```
+
+- `resolve(value)` - Complete the action successfully with a value
+- `reject(error)` - Complete the action with an error
+- Return value - A cleanup function (required!)
+
+**Important**: The executor is a **regular function**, not a generator function!
+
+## Using `action()` with Event Listeners
+
+Here's how to wait for a single event:
+
+```typescript
+import type { Operation } from "effection";
+import { action } from "effection";
+
+function once<K extends keyof HTMLElementEventMap>(
+  target: HTMLElement,
+  eventName: K,
+): Operation<HTMLElementEventMap[K]> {
+  return action((resolve) => {
+    const handler = (event: HTMLElementEventMap[K]) => resolve(event);
+
+    target.addEventListener(eventName, handler);
+
+    return () => target.removeEventListener(eventName, handler);
+  });
+}
+
+// Usage (in a browser context):
+// await main(function*() {
+//   console.log('Click the button...');
+//   const event = yield* once(button, 'click');
+//   console.log('Button clicked!', event);
+// });
+```
+
+If the operation is halted before the click, the event listener is removed.
+
+## Node.js Event Example
+
+Here's a more practical Node.js example:
+
+```typescript
+import type { Operation } from "effection";
+import { main, action, sleep } from "effection";
+import { EventEmitter } from "events";
+
+function once<T>(emitter: EventEmitter, eventName: string): Operation<T> {
+  return action<T>((resolve, reject) => {
+    const handler = (value: T) => resolve(value);
+    const errorHandler = (error: Error) => reject(error);
+
+    emitter.on(eventName, handler);
+    emitter.on("error", errorHandler);
+
+    return () => {
+      emitter.off(eventName, handler);
+      emitter.off("error", errorHandler);
+    };
+  });
+}
+
+// Demo showing "once" only captures first event
+await main(function* () {
+  const emitter = new EventEmitter();
+
+  // Schedule multiple events
+  setTimeout(() => {
+    console.log("Emitting: first");
+    emitter.emit("data", { message: "first" });
+  }, 100);
+
+  setTimeout(() => {
+    console.log("Emitting: second");
+    emitter.emit("data", { message: "second" });
+  }, 200);
+
+  setTimeout(() => {
+    console.log("Emitting: third");
+    emitter.emit("data", { message: "third" });
+  }, 300);
+
+  // once() only captures the first event, then cleans up the listener
+  const data: { message: string } = yield* once(emitter, "data");
+  console.log("Received:", data.message);
+
+  // Wait to show other events are emitted but ignored
+  yield* sleep(400);
+  console.log("Done - only captured first event");
+});
+```
+
+Output:
+
+```
+Emitting: first
+Received: first
+Emitting: second
+Emitting: third
+Done - only captured first event
+```
+
+## Error Handling in Actions
+
+Use `reject()` to signal errors:
+
+```typescript
+import type { Operation } from "effection";
+import { action } from "effection";
+
+function loadImage(url: string): Operation<HTMLImageElement> {
+  return action<HTMLImageElement>((resolve, reject) => {
+    const img = new Image();
+
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error(`Failed to load: ${url}`));
+
+    img.src = url;
+
+    return () => {
+      img.src = ""; // Cancel loading
+    };
+  });
+}
+
+// The error propagates like any other error in Effection:
+// await main(function*() {
+//   try {
+//     const img = yield* loadImage('https://example.com/missing.png');
+//   } catch (error) {
+//     console.log('Image failed to load:', error.message);
+//   }
+// });
+```
+
+## When to Use Actions
+
+Use `action()` when you need to:
+
+1. **Wrap callback-based APIs** (setTimeout, events, XHR)
+2. **Ensure cleanup always happens** (remove listeners, abort requests)
+3. **Bridge external callbacks into Effection** (one-time events)
+
+For ongoing streams of events (multiple clicks, WebSocket messages), you'll want Channels and Signals - covered later in this tutorial.
+
+## Key Takeaways
+
+Actions are interpreters between callback-land and generator-land:
+
+1. **`action()` is like the Promise constructor** - but with mandatory cleanup (the interpreter always cleans up after itself)
+2. **Always return a cleanup function** - this is what prevents leaked effects
+3. **Cleanup runs in all cases** - resolve, reject, or halt
+4. **The executor is a regular function** - not a generator (it speaks callback)
+5. **Actions are for one-time events** - use Signals for ongoing streams

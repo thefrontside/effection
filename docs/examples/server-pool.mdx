@@ -1,0 +1,280 @@
+Now we need a way to manage multiple Express servers dynamically. The Server Pool:
+
+- Tracks servers by hostname
+- Creates new servers on demand
+- Assigns ports automatically
+- Cleans up all servers when shut down
+- Emits events for observability
+
+## The Challenge
+
+We need to create servers from inside Express route handlers (regular async functions), but our servers need to be Effection operations (for lifecycle management).
+
+The solution: capture a `Scope` and use `scope.run()` to bridge the gap.
+
+## Types First
+
+```typescript
+import type { Server } from "http";
+import type { Express } from "express";
+import type { Task, Stream } from "effection";
+
+export interface ServerInfo {
+  hostname: string;
+  port: number;
+  app: Express;
+  server: Server;
+  task: Task<void>;
+  startedAt: Date;
+}
+
+export type ServerEvent =
+  | { type: "started"; hostname: string; port: number }
+  | { type: "stopped"; hostname: string }
+  | { type: "error"; hostname: string; error: Error; message: string };
+
+export interface ServerPool {
+  getOrCreate(hostname: string): Promise<ServerInfo>;
+  get(hostname: string): ServerInfo | undefined;
+  list(): ServerInfo[];
+  shutdown(hostname: string): Promise<void>;
+  events: Stream<ServerEvent, void>;
+}
+```
+
+Note that `getOrCreate` returns a `Promise`, not an `Operation`. This makes it easy to use from Express handlers.
+
+## The Pool Resource
+
+```typescript
+import type { Operation, Task, Context, Scope } from "effection";
+import {
+  resource,
+  createContext,
+  useScope,
+  suspend,
+  createSignal,
+  call,
+} from "effection";
+import type { ServerInfo, ServerPool, ServerEvent } from "./types";
+import { useExpressServerDaemon } from "./server-resource";
+
+export const ServerPoolContext: Context<ServerPool> =
+  createContext<ServerPool>("server-pool");
+
+export interface ServerPoolConfig {
+  basePort: number;
+  maxServers?: number;
+}
+
+export function useServerPool(config: ServerPoolConfig): Operation<ServerPool> {
+  return resource<ServerPool>(function* (provide) {
+    const { basePort, maxServers = 100 } = config;
+
+    // State
+    const servers = new Map<string, ServerInfo>();
+    const serverTasks = new Map<string, Task<void>>();
+    const pendingCreations = new Map<string, Promise<ServerInfo>>();
+    let nextPort = basePort;
+
+    // Capture scope for spawning from callbacks
+    const scope: Scope = yield* useScope();
+
+    // Signal for server events
+    const events = createSignal<ServerEvent, void>();
+
+    // ... pool methods ...
+
+    const pool: ServerPool = { getOrCreate, get, list, shutdown, events };
+
+    yield* ServerPoolContext.set(pool);
+
+    try {
+      yield* provide(pool);
+    } finally {
+      console.log(`[Pool] Shutting down all servers...`);
+      events.close(undefined as void);
+    }
+  });
+}
+```
+
+## Key Pattern: Capturing Scope
+
+The magic is in `useScope()`:
+
+```typescript
+const scope: Scope = yield * useScope();
+```
+
+This captures a reference to the current Effection scope. Later, from any callback or async function, we can use `scope.run()` to run operations as children of this scope:
+
+```typescript
+// Inside an async function (like Express handler)
+async function getOrCreate(hostname: string): Promise<ServerInfo> {
+  const spawnPromise = scope.run(function* (): Operation<ServerInfo> {
+    return yield* doSpawnServer(hostname, port);
+  });
+
+  return await spawnPromise;
+}
+```
+
+## Spawning Servers
+
+The core spawning logic:
+
+```typescript
+function* doSpawnServer(hostname: string, port: number): Operation<ServerInfo> {
+  // Create placeholder info
+  const info: ServerInfo = {
+    hostname,
+    port,
+    app: null as any,
+    server: null as any,
+    task: null as any,
+    startedAt: new Date(),
+  };
+
+  servers.set(hostname, info);
+
+  // Promise that resolves when server is ready
+  let resolveReady: (info: ServerInfo) => void;
+  let rejectReady: (err: Error) => void;
+  const readyPromise = new Promise<ServerInfo>((resolve, reject) => {
+    resolveReady = resolve;
+    rejectReady = reject;
+  });
+
+  // Start the server as a long-lived task
+  const task = scope.run(function* (): Operation<void> {
+    try {
+      const handle = yield* useExpressServerDaemon(port, hostname);
+
+      info.app = handle.app;
+      info.server = handle.server;
+
+      events.send({ type: "started", hostname, port });
+      resolveReady!(info);
+
+      // Keep running until halted
+      yield* suspend();
+    } catch (error) {
+      events.send({
+        type: "error",
+        hostname,
+        error: error as Error,
+        message: (error as Error).message,
+      });
+      rejectReady!(error as Error);
+      throw error;
+    } finally {
+      events.send({ type: "stopped", hostname });
+      servers.delete(hostname);
+      serverTasks.delete(hostname);
+    }
+  });
+
+  info.task = task;
+  serverTasks.set(hostname, task);
+
+  return yield* call(() => readyPromise);
+}
+```
+
+Key points:
+
+1. We use `scope.run()` to start a long-lived task
+2. The task uses `suspend()` to stay alive indefinitely
+3. Cleanup happens in `finally` when the task is halted
+4. We bridge back to caller via a Promise
+
+## Deduplication
+
+If two requests come in for the same hostname simultaneously, we don't want to create two servers:
+
+```typescript
+async function getOrCreate(hostname: string): Promise<ServerInfo> {
+  // Fast path: server already exists
+  const existing = servers.get(hostname);
+  if (existing && existing.server) {
+    return existing;
+  }
+
+  // Check if already creating (deduplication)
+  const pending = pendingCreations.get(hostname);
+  if (pending) {
+    return pending;
+  }
+
+  // Check limit
+  if (servers.size >= maxServers) {
+    throw new Error(`Maximum servers (${maxServers}) reached`);
+  }
+
+  // Create the spawn promise
+  const port = nextPort++;
+  const spawnPromise = scope.run(function* () {
+    return yield* doSpawnServer(hostname, port);
+  });
+
+  // Store to deduplicate
+  pendingCreations.set(hostname, spawnPromise);
+
+  try {
+    return await spawnPromise;
+  } finally {
+    pendingCreations.delete(hostname);
+  }
+}
+```
+
+## Signal-Based Events
+
+We use a Signal for events because:
+
+1. Signals can be sent from anywhere (generators, callbacks, async)
+2. Multiple subscribers can listen independently
+3. It's a Stream, so consumers use the familiar `each()` pattern
+
+```typescript
+const events = createSignal<ServerEvent, void>();
+
+// Sending (from anywhere)
+events.send({ type: "started", hostname, port });
+
+// Receiving (in an operation)
+yield *
+  spawn(function* () {
+    for (const event of yield* each(pool.events)) {
+      console.log(`[Event] ${event.type}:`, event);
+      yield* each.next();
+    }
+  });
+```
+
+## Context for Sharing
+
+We set the pool as Context so any operation in the tree can access it:
+
+```typescript
+yield * ServerPoolContext.set(pool);
+
+// Later, anywhere in the tree:
+function* someOperation(): Operation<void> {
+  const pool = yield* ServerPoolContext.expect();
+  const server = await pool.getOrCreate("my-app");
+}
+```
+
+## Key Takeaways
+
+1. **`useScope()` captures the current scope** — for spawning from callbacks
+2. **`scope.run()` bridges async → Effection** — operations become children of the scope
+3. **`suspend()` keeps tasks alive** — until explicitly halted
+4. **Signals for cross-boundary events** — send from anywhere, receive in operations
+5. **Deduplication prevents races** — track pending creations
+
+## Next Up
+
+Now let's build the [Switchboard](./switchboard.mdx) that routes incoming requests to our pooled servers.

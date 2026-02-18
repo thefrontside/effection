@@ -1,0 +1,288 @@
+The fundamental unit of async work in `async/await` is the **Promise**. In Effection, it's the **Operation**.
+
+The critical difference? **Operations are lazy.**
+
+## Promises Are Eager
+
+When you call an async function, it starts executing immediately:
+
+```typescript
+async function sayHello(): Promise<void> {
+  console.log("Hello World!");
+}
+
+sayHello(); // Logs immediately, even without await!
+```
+
+The function runs whether you `await` it or not. The promise is already in-flight.
+
+## Operations Are Recipes
+
+In contrast, calling a generator function does... nothing:
+
+```typescript
+function* sayHello(): Generator<void, void, void> {
+  console.log("Hello World!");
+}
+
+sayHello(); // Nothing happens!
+```
+
+A generator function returns an **iterator object** - essentially a recipe for work. No code runs until something explicitly iterates through it.
+
+This laziness is a feature, not a bug! It means operations describe **what should happen**, not **what is happening**.
+
+## Running Operations with `run()`
+
+To actually execute an operation, use the `run()` function:
+
+```typescript
+import { run } from "effection";
+
+run(function* () {
+  console.log("Hello World!");
+});
+// Output: Hello World!
+```
+
+The `run()` function:
+
+1. Takes an operation (a generator function)
+2. Starts executing it
+3. Returns a **Task** (which is both an Operation and a Promise)
+
+Because the task is also a Promise, you can `await` it:
+
+```typescript
+import { run } from "effection";
+
+try {
+  await run(function* () {
+    throw new Error("oh no!");
+  });
+} catch (error) {
+  console.error(error); // Error: oh no!
+}
+```
+
+## The `main()` Entry Point
+
+For most programs, use `main()` instead of `run()`:
+
+```typescript
+import { main } from "effection";
+
+await main(function* () {
+  console.log("Starting...");
+  // your program here
+});
+```
+
+`main()` provides several benefits over `run()`:
+
+1. **Catches and prints errors** - no need for try/catch at the top level
+2. **Handles process signals** - Ctrl+C triggers graceful shutdown
+3. **Ensures cleanup** - guarantees all finally blocks run
+
+Use `run()` when Effection is **not** the root of your program—for example, when embedding Effection into an existing Express server, test framework, or other async application that manages its own lifecycle. See [Scope API](./11-scope-api.mdx) for patterns on bridging callback-based frameworks with Effection.
+
+## Composing with `yield*`
+
+The `yield*` keyword is Effection's equivalent of `await`. Use it to run one operation from within another:
+
+```typescript
+import { main, sleep } from "effection";
+
+await main(function* () {
+  console.log("Starting...");
+  yield* sleep(1000);
+  console.log("One second later!");
+});
+```
+
+The `sleep()` operation pauses execution for the specified duration, then resumes.
+
+## Nesting Operations
+
+Operations compose beautifully. You can call operations from operations:
+
+```typescript
+import type { Operation } from "effection";
+import { main, sleep } from "effection";
+
+function* countdown(n: number): Operation<void> {
+  for (let i = n; i > 0; i--) {
+    console.log(i);
+    yield* sleep(1000);
+  }
+  console.log("Liftoff!");
+}
+
+await main(function* () {
+  yield* countdown(3);
+});
+```
+
+Output:
+
+```
+3
+2
+1
+Liftoff!
+```
+
+There's no limit to nesting depth. Complex programs are built by composing simple operations.
+
+## The Return Type: `Operation<T>`
+
+Operations can return values, just like async functions:
+
+```typescript
+import type { Operation } from "effection";
+import { main, sleep } from "effection";
+
+function* slowAdd(a: number, b: number): Operation<number> {
+  yield* sleep(1000);
+  return a + b;
+}
+
+await main(function* () {
+  const result: number = yield* slowAdd(2, 3);
+  console.log(`Result: ${result}`); // Result: 5
+});
+```
+
+The `Operation<T>` type indicates what value the operation will produce when it completes.
+
+## Regular JavaScript Works
+
+Inside operations, you can use all normal JavaScript constructs:
+
+```typescript
+import type { Operation } from "effection";
+import { main, sleep } from "effection";
+
+function* somethingDangerous(): Operation<void> {
+  throw new Error("Danger!");
+}
+
+await main(function* () {
+  // Variables
+  let count = 0;
+
+  // Conditionals
+  if (Math.random() > 0.5) {
+    count = 10;
+  }
+
+  // Loops
+  while (count > 0) {
+    console.log(count);
+    count--;
+    yield* sleep(100);
+  }
+
+  // Try/catch
+  try {
+    yield* somethingDangerous();
+  } catch (error) {
+    console.log("Caught:", error);
+  }
+});
+```
+
+The only rule: use `yield*` instead of `await` for async operations.
+
+## Bridging Promises: `call()` vs `until()`
+
+When you need to work with existing Promise-based code, Effection provides two helpers. The distinction matters:
+
+### The Restaurant Ticket Metaphor
+
+Think of it like ordering food:
+
+- **`call()`** = **Placing a new order** - You hand over a function that creates a promise, and Effection runs it fresh
+- **`until()`** = **Waiting at the pickup counter** - The order is already cooking; you're just waiting for it to be ready
+
+### `call()` - For Invoking Async Functions
+
+Use `call()` when you want to _invoke_ an async function or create a fresh promise:
+
+```typescript
+import { main, call } from "effection";
+
+// Invoking an async function
+await main(function* () {
+  const response = yield* call(async () => {
+    return await fetch("https://api.example.com/data");
+  });
+  console.log(response.status);
+});
+
+// Creating a fresh promise each time
+function* waitForLoad(): Operation<void> {
+  yield* call(
+    () =>
+      new Promise((resolve) => {
+        window.addEventListener("load", resolve, { once: true });
+      }),
+  );
+}
+```
+
+### `until()` - For Awaiting Existing Promises
+
+Use `until()` when you already have a promise and want to wait for it:
+
+```typescript
+import { main, until } from "effection";
+
+await main(function* () {
+  // Promise already exists (was created elsewhere)
+  const existingPromise = someLibrary.fetchData();
+
+  // Wait for it with until()
+  const data = yield* until(existingPromise);
+  console.log(data);
+});
+```
+
+### Why Does This Matter?
+
+The distinction becomes critical when you're bridging callbacks or handling coordination between operations:
+
+```typescript
+// WRONG: call() re-invokes the function
+const promise = fetch("/api/data");
+yield * call(() => promise); // Works, but confusing - the fetch already started!
+
+// RIGHT: until() makes the intent clear
+const promise = fetch("/api/data");
+yield * until(promise); // Clear: we're waiting for an existing promise
+```
+
+When in doubt:
+
+- **Promise exists** → `until()`
+- **Need to run a function** → `call()`
+
+## Quick Reference
+
+| Async/Await             | Effection                       |
+| ----------------------- | ------------------------------- |
+| `Promise<T>`            | `Operation<T>`                  |
+| `await`                 | `yield*`                        |
+| `async function`        | `function*`                     |
+| `new Promise(...)`      | `action(...)`                   |
+| `await existingPromise` | `yield* until(existingPromise)` |
+| `await asyncFn()`       | `yield* call(asyncFn)`          |
+| Start implicitly        | Must call `run()` or `main()`   |
+
+## Key Takeaways
+
+1. **Operations are lazy** - they don't do anything until executed
+2. **`run()` executes operations** - returns a Task you can await
+3. **`main()` is the preferred entry point** - handles errors and signals
+4. **`yield*` composes operations** - the async equivalent of await
+5. **Regular JS works** - loops, conditionals, try/catch all work normally

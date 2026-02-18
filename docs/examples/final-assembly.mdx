@@ -76,24 +76,12 @@ await main(function* () {
 
 ## The Operation Tree
 
-```
-main()
-├── useServerPool (resource)
-│   └── event signal
-├── event subscriber (spawned task)
-│   └── iterates pool.events
-├── useSwitchboard (resource)
-│   └── Express proxy server
-└── suspend()
-
-When pool.getOrCreate() is called:
-├── useServerPool
-│   └── doSpawnServer (via scope.run)
-│       └── useExpressServerDaemon (resource)
-│           ├── useExpressServer (resource)
-│           │   └── Express backend server
-│           └── daemon watcher (spawned task)
-```
+<img
+  data-inline-svg
+  src="../diagrams/final-assembly-tree.svg"
+  alt="Operation tree showing main() with child resources and spawned tasks"
+  class="my-6"
+/>
 
 ## Running It
 
@@ -233,25 +221,12 @@ With this pattern:
 
 Think of `scoped()` as fire doors in our apartment building:
 
-```
-┌────────────────────────────────────────────────────────────┐
-│                        ServerPool                          │
-│                                                            │
-│  ┌──────────┐    ┌──────────┐    ┌──────────┐              │
-│  │ scoped() │    │ scoped() │    │ scoped() │  ← Fire      │
-│  │  ┌────┐  │    │  ┌────┐  │    │  ┌────┐  │    doors     │
-│  │  │app-a│  │    │  │app-b│  │    │  │app-c│  │              │
-│  │  │ 🔥 │  │    │  │ ✓  │  │    │  │ ✓  │  │              │
-│  │  └────┘  │    │  └────┘  │    │  └────┘  │              │
-│  └──────────┘    └──────────┘    └──────────┘              │
-│       │                │                │                  │
-│       ▼                │                │                  │
-│   Contained!           │                │                  │
-│   (emits error)        │                │                  │
-│                        ▼                ▼                  │
-│                    Still serving requests!                 │
-└────────────────────────────────────────────────────────────┘
-```
+<img
+  data-inline-svg
+  src="../diagrams/final-assembly-fire-doors.svg"
+  alt="Fire doors pattern showing scoped() isolating server failures from the pool"
+  class="my-6"
+/>
 
 When `app-a` catches fire:
 

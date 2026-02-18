@@ -2,18 +2,12 @@ The Switchboard is the front door—it receives all incoming HTTP requests and p
 
 ## What It Does
 
-```
-Client Request                     Switchboard                    Backend
-     │                                 │                            │
-     │  GET / Host: app-a.localhost    │                            │
-     │ ──────────────────────────────> │                            │
-     │                                 │  1. Extract hostname       │
-     │                                 │  2. pool.getOrCreate()     │
-     │                                 │                            │
-     │                                 │  GET / ─────────────────>  │ (port 3001)
-     │                                 │ <───────────────── 200 OK  │
-     │ <────────────────── 200 OK      │                            │
-```
+<img
+  data-inline-svg
+  src="../diagrams/switchboard-request-flow.svg"
+  alt="Request flow from Client through Switchboard to Backend server"
+  class="my-6"
+/>
 
 ## The Resource
 

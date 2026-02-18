@@ -4,35 +4,12 @@ The twist: every connection, every server, every background task will be properl
 
 ## What We're Building
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                          main()                                  │
-│                                                                  │
-│  ┌────────────────────────────────────────────────────────────┐ │
-│  │                  Switchboard (Port 8000)                    │ │
-│  │  - Receives all incoming HTTP requests                     │ │
-│  │  - Parses Host header to determine target                  │ │
-│  │  - Proxies request to appropriate backend server           │ │
-│  └──────────────────────────┬─────────────────────────────────┘ │
-│                             │                                    │
-│  ┌──────────────────────────▼─────────────────────────────────┐ │
-│  │                    ServerPool Resource                      │ │
-│  │  - Manages Map<hostname, ServerInfo>                       │ │
-│  │  - Spawns new Express servers on demand                    │ │
-│  │  - Assigns dynamic ports (3001, 3002, ...)                 │ │
-│  │  - Cleans up servers when pool shuts down                  │ │
-│  └──────────────────────────┬─────────────────────────────────┘ │
-│                             │                                    │
-│     ┌───────────────────────┼───────────────────────┐           │
-│     │                       │                       │           │
-│     ▼                       ▼                       ▼           │
-│  ┌──────┐               ┌──────┐               ┌──────┐         │
-│  │app-a │               │app-b │               │app-c │         │
-│  │:3001 │               │:3002 │               │:3003 │         │
-│  └──────┘               └──────┘               └──────┘         │
-│                                                                  │
-└─────────────────────────────────────────────────────────────────┘
-```
+<img
+  data-inline-svg
+  src="../diagrams/multiplex-proxy-architecture.svg"
+  alt="Multiplex proxy architecture showing main() containing Switchboard, ServerPool, and dynamically spawned app servers"
+  class="my-6"
+/>
 
 ## User Flow
 

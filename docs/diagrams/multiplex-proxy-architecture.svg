@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg
+  viewBox="0 0 600 420"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+  role="img"
+  aria-label="Multiplex proxy architecture showing main() containing Switchboard, ServerPool, and dynamically spawned app servers"
+>
+  <defs>
+    <style>
+    .svg-title { font-family: ui-sans-serif, system-ui, sans-serif; font-size: 14px; font-weight: 700; }
+    .svg-label { font-family: ui-sans-serif, system-ui, sans-serif; font-size: 12px; font-weight: 600; }
+    .svg-mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+    .svg-mono-sm { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 10px; }
+    .svg-desc { font-family: ui-sans-serif, system-ui, sans-serif; font-size: 10px; }
+
+    /* Light mode */
+    .svg-box-main { fill: #f8fafc; stroke: #64748b; stroke-width: 2; }
+    .svg-box-switchboard { fill: #dbeafe; stroke: #2563eb; stroke-width: 2; }
+    .svg-box-pool { fill: #dcfce7; stroke: #16a34a; stroke-width: 2; }
+    .svg-box-server { fill: #ffffff; stroke: #0ea5e9; stroke-width: 1.5; }
+    
+    .svg-line { stroke: #64748b; stroke-width: 2; fill: none; }
+    .svg-line-arrow { stroke: #64748b; stroke-width: 2; fill: none; }
+    .svg-arrow { fill: #64748b; }
+    
+    .svg-text { fill: #1e293b; }
+    .svg-text-muted { fill: #64748b; }
+    .svg-text-blue { fill: #1d4ed8; }
+    .svg-text-green { fill: #15803d; }
+    .svg-text-cyan { fill: #0891b2; }
+
+    @media (prefers-color-scheme: dark) {
+      .svg-box-main { fill: #1e293b; stroke: #475569; }
+      .svg-box-switchboard { fill: #1e3a5f; stroke: #3b82f6; }
+      .svg-box-pool { fill: #14532d; stroke: #22c55e; }
+      .svg-box-server { fill: #0f172a; stroke: #22d3ee; }
+      
+      .svg-line { stroke: #64748b; }
+      .svg-line-arrow { stroke: #64748b; }
+      .svg-arrow { fill: #64748b; }
+      
+      .svg-text { fill: #f1f5f9; }
+      .svg-text-muted { fill: #94a3b8; }
+      .svg-text-blue { fill: #60a5fa; }
+      .svg-text-green { fill: #4ade80; }
+      .svg-text-cyan { fill: #22d3ee; }
+    }
+    </style>
+  </defs>
+
+  <!-- main() outer container -->
+  <rect class="svg-box-main" x="20" y="20" width="560" height="380" rx="12" />
+  <text class="svg-mono svg-text" x="40" y="45">main()</text>
+
+  <!-- Switchboard -->
+  <rect class="svg-box-switchboard" x="40" y="60" width="520" height="80" rx="8" />
+  <text class="svg-title svg-text-blue" x="60" y="85">Switchboard</text>
+  <text class="svg-mono-sm svg-text-muted" x="170" y="85">Port 8000</text>
+  <text class="svg-desc svg-text-muted" x="60" y="102">Receives HTTP requests</text>
+  <text class="svg-desc svg-text-muted" x="60" y="115">Parses Host header to determine target</text>
+  <text class="svg-desc svg-text-muted" x="60" y="128">Proxies request to backend server</text>
+
+  <!-- Arrow from Switchboard to ServerPool -->
+  <line class="svg-line-arrow" x1="300" y1="140" x2="300" y2="160" />
+  <polygon class="svg-arrow" points="295,155 300,165 305,155" />
+
+  <!-- ServerPool -->
+  <rect class="svg-box-pool" x="40" y="170" width="520" height="100" rx="8" />
+  <text class="svg-title svg-text-green" x="60" y="195">ServerPool Resource</text>
+  <text class="svg-desc svg-text-muted" x="60" y="212">Manages Map&lt;hostname, ServerInfo&gt;</text>
+  <text class="svg-desc svg-text-muted" x="60" y="225">Spawns new Express servers on demand</text>
+  <text class="svg-desc svg-text-muted" x="60" y="238">Assigns dynamic ports (3001, 3002, ...)</text>
+  <text class="svg-desc svg-text-muted" x="60" y="251">Cleans up servers when pool shuts down</text>
+
+  <!-- Arrows from ServerPool to servers -->
+  <line class="svg-line-arrow" x1="140" y1="270" x2="140" y2="300" />
+  <polygon class="svg-arrow" points="135,295 140,305 145,295" />
+  
+  <line class="svg-line-arrow" x1="300" y1="270" x2="300" y2="300" />
+  <polygon class="svg-arrow" points="295,295 300,305 305,295" />
+  
+  <line class="svg-line-arrow" x1="460" y1="270" x2="460" y2="300" />
+  <polygon class="svg-arrow" points="455,295 460,305 465,295" />
+
+  <!-- App servers -->
+  <rect class="svg-box-server" x="80" y="310" width="120" height="70" rx="6" />
+  <text class="svg-title svg-text-cyan" x="105" y="335">app-a</text>
+  <text class="svg-mono-sm svg-text-muted" x="108" y="355">:3001</text>
+
+  <rect class="svg-box-server" x="240" y="310" width="120" height="70" rx="6" />
+  <text class="svg-title svg-text-cyan" x="265" y="335">app-b</text>
+  <text class="svg-mono-sm svg-text-muted" x="268" y="355">:3002</text>
+
+  <rect class="svg-box-server" x="400" y="310" width="120" height="70" rx="6" />
+  <text class="svg-title svg-text-cyan" x="425" y="335">app-c</text>
+  <text class="svg-mono-sm svg-text-muted" x="428" y="355">:3003</text>
+</svg>

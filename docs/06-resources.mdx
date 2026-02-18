@@ -139,21 +139,12 @@ Socket closed
 
 `yield* provide(socket)` breaks the normal pattern. The `yield*` sends the socket back to the caller, but the resource keeps running:
 
-```
-main()                            useSocket()
-  │                                  │
-  │  yield* useSocket() ──────────────────> connect...
-  │                                  │     wait...
-  │                                  │
-  │  <───────── socket ───────────────────── yield* provide(socket)
-  │                                  │
-  │  socket.send('hello')            │     ⏸ (suspended, still alive)
-  │  socket.send('world')            │
-  │                                  │
-  │  scope ends ───────────────────────────>  finally { cleanup }
-  │                                  │
-  v                                  v
-```
+<img
+  data-inline-svg
+  src="./diagrams/resources-lifecycle.svg"
+  alt="Resource lifecycle showing setup, provide, use, and cleanup phases"
+  class="my-6"
+/>
 
 This is the key insight: **`yield* provide(value)` uses the yield to send a value back to the caller, while the resource keeps running in the background.** When the parent scope ends, the resource resumes from `provide()` and hits the `finally` block for cleanup.
 

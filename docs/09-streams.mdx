@@ -185,20 +185,12 @@ function eventsFrom<T>(
 
 Here's how it all fits together:
 
-```
-Stream<T, TClose> = Operation<Subscription<T, TClose>>
-       │
-       ├── Channel<T, TClose> extends Stream<T, TClose>
-       │     └── createChannel() → Channel
-       │
-       ├── Signal<T, TClose> extends Stream<T, TClose>
-       │     └── createSignal() → Signal
-       │
-       └── Other Stream producers:
-             ├── interval(ms) → Stream<void, never>
-             ├── on(target, event) → Stream<Event, never>
-             └── Your custom streams!
-```
+<img
+  data-inline-svg
+  src="./diagrams/streams-hierarchy.svg"
+  alt="Stream type hierarchy showing Channel, Signal, and other stream producers"
+  class="my-6"
+/>
 
 ## Key Takeaways
 

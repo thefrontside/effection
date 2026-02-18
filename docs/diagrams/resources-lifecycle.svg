@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg
+  viewBox="0 0 600 280"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+  role="img"
+  aria-label="Resource lifecycle showing setup, provide, use, and cleanup phases"
+>
+  <defs>
+    <style>
+    .svg-title { font-family: ui-sans-serif, system-ui, sans-serif; font-size: 13px; font-weight: 700; }
+    .svg-label { font-family: ui-sans-serif, system-ui, sans-serif; font-size: 11px; font-weight: 600; }
+    .svg-mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; }
+    .svg-mono-sm { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 10px; }
+
+    /* Light mode */
+    .svg-box-caller { fill: #f0fdf4; stroke: #16a34a; stroke-width: 2; }
+    .svg-box-resource { fill: #dbeafe; stroke: #2563eb; stroke-width: 2; }
+    
+    .svg-line { stroke: #64748b; stroke-width: 1.5; fill: none; }
+    .svg-line-dashed { stroke: #64748b; stroke-width: 1.5; fill: none; stroke-dasharray: 4 3; }
+    .svg-line-call { stroke: #2563eb; stroke-width: 2; fill: none; }
+    .svg-line-return { stroke: #16a34a; stroke-width: 2; fill: none; }
+    .svg-line-cleanup { stroke: #dc2626; stroke-width: 2; fill: none; }
+    .svg-arrow { fill: #64748b; }
+    .svg-arrow-call { fill: #2563eb; }
+    .svg-arrow-return { fill: #16a34a; }
+    .svg-arrow-cleanup { fill: #dc2626; }
+    
+    .svg-text { fill: #1e293b; }
+    .svg-text-muted { fill: #64748b; }
+    .svg-text-blue { fill: #1d4ed8; }
+    .svg-text-green { fill: #15803d; }
+    .svg-text-red { fill: #dc2626; }
+
+    @media (prefers-color-scheme: dark) {
+      .svg-box-caller { fill: #14532d; stroke: #22c55e; }
+      .svg-box-resource { fill: #1e3a5f; stroke: #3b82f6; }
+      
+      .svg-line { stroke: #64748b; }
+      .svg-line-dashed { stroke: #64748b; }
+      .svg-line-call { stroke: #60a5fa; }
+      .svg-line-return { stroke: #4ade80; }
+      .svg-line-cleanup { stroke: #f87171; }
+      .svg-arrow { fill: #64748b; }
+      .svg-arrow-call { fill: #60a5fa; }
+      .svg-arrow-return { fill: #4ade80; }
+      .svg-arrow-cleanup { fill: #f87171; }
+      
+      .svg-text { fill: #f1f5f9; }
+      .svg-text-muted { fill: #94a3b8; }
+      .svg-text-blue { fill: #60a5fa; }
+      .svg-text-green { fill: #4ade80; }
+      .svg-text-red { fill: #f87171; }
+    }
+    </style>
+  </defs>
+
+  <!-- Column labels -->
+  <text class="svg-title svg-text" x="80" y="25">Caller</text>
+  <text class="svg-title svg-text" x="420" y="25">Resource</text>
+
+  <!-- Vertical timeline lines -->
+  <line class="svg-line-dashed" x1="100" y1="35" x2="100" y2="260" />
+  <line class="svg-line-dashed" x1="450" y1="35" x2="450" y2="260" />
+
+  <!-- Step 1: yield* useSocket() -->
+  <line class="svg-line-call" x1="100" y1="60" x2="440" y2="60" />
+  <polygon class="svg-arrow-call" points="435,55 445,60 435,65" />
+  <text class="svg-mono svg-text-blue" x="180" y="52">yield* useSocket()</text>
+  
+  <!-- Resource side: connect... wait... -->
+  <text class="svg-mono-sm svg-text-muted" x="460" y="75">connect...</text>
+  <text class="svg-mono-sm svg-text-muted" x="460" y="92">wait...</text>
+
+  <!-- Step 2: provide(socket) returns -->
+  <line class="svg-line-return" x1="440" y1="115" x2="100" y2="115" />
+  <polygon class="svg-arrow-return" points="105,110 95,115 105,120" />
+  <text class="svg-mono svg-text-green" x="200" y="107">socket</text>
+  <text class="svg-mono-sm svg-text-muted" x="460" y="115">yield* provide(socket)</text>
+
+  <!-- Step 3: Using the socket -->
+  <rect class="svg-box-caller" x="30" y="130" width="140" height="60" rx="6" />
+  <text class="svg-mono-sm svg-text" x="45" y="150">socket.send('hello')</text>
+  <text class="svg-mono-sm svg-text" x="45" y="168">socket.send('world')</text>
+
+  <!-- Resource suspended -->
+  <text class="svg-mono-sm svg-text-muted" x="460" y="160">suspended</text>
+  <text class="svg-mono-sm svg-text-muted" x="460" y="175">(still alive)</text>
+
+  <!-- Step 4: Scope ends -> cleanup -->
+  <line class="svg-line-cleanup" x1="100" y1="210" x2="440" y2="210" />
+  <polygon class="svg-arrow-cleanup" points="435,205 445,210 435,215" />
+  <text class="svg-mono svg-text-red" x="200" y="202">scope ends</text>
+
+  <!-- Cleanup runs -->
+  <rect class="svg-box-resource" x="380" y="225" width="140" height="35" rx="6" />
+  <text class="svg-mono-sm svg-text" x="395" y="248">finally { cleanup }</text>
+</svg>

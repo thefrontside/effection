@@ -15,7 +15,7 @@ import { action } from "./action.ts";
  * ```
  *
  * @param duration - the number of milliseconds to sleep
- * @since effection-v3.0.0
+ * @since 3.0
  */
 export function sleep(duration: number): Operation<void> {
   return action((resolve) => {

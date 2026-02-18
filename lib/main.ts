@@ -17,7 +17,7 @@ import { call } from "./call.ts";
  * @param status - the exit code to use for the process exit
  * @param message - message to print to the console before exiting.
  * @param returns an operation that exits the program
- * @since effection-v3.0.0
+ * @since 3.0
  */
 export function* exit(status: number, message?: string): Operation<void> {
   let escape = yield* ExitContext.expect();
@@ -57,7 +57,7 @@ export function* exit(status: number, message?: string): Operation<void> {
  *
  * @param body - an operation to run as the body of the program
  * @returns a promise that resolves right after the program exits
- * @since effection-v3.0.0
+ * @since 3.0
  */
 
 export async function main(

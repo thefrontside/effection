@@ -4,6 +4,7 @@ import { createScopeInternal } from "./scope-internal.ts";
 
 /**
  * The root of all Effection Scopes.
+ * @since 4.0
  */
 export const global = createScopeInternal()[0] as Scope;
 
@@ -38,7 +39,7 @@ export const global = createScopeInternal()[0] as Scope;
  * @param parent scope. If no parent is specified it will derive directly from {@link global}
  * @returns a tuple containing the freshly created scope, along with a function to
  *          destroy it.
- * @since effection-v3.0.0
+ * @since 3.0
  */
 export function createScope(
   parent: Scope = global,
@@ -51,7 +52,7 @@ export function createScope(
  * Get the scope of the currently running {@link Operation}.
  *
  * @returns an operation yielding the current scope
- * @since effection-v3.0.0
+ * @since 3.0
  */
 export function* useScope(): Operation<Scope> {
   return (yield {

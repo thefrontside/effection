@@ -9,7 +9,7 @@ import { call } from "./call.ts";
  *
  * @param iter - the iterator to convert
  * @returns a subscription that will produce each item of `iter`
- * @since effection-v3.0.0
+ * @since 3.0
  */
 export function subscribe<T, R>(iter: AsyncIterator<T, R>): Subscription<T, R> {
   return {
@@ -24,7 +24,7 @@ export function subscribe<T, R>(iter: AsyncIterator<T, R>): Subscription<T, R> {
  *
  * @param iterable - the async iterable to convert
  * @returns a stream that will produce each item of `iterable`
- * @since effection-v3.0.0
+ * @since 3.0
  */
 export function stream<T, R>(iterable: AsyncIterable<T, R>): Stream<T, R> {
   return {

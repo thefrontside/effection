@@ -27,7 +27,7 @@ import type { Operation, Task } from "./types.ts";
  * @param operation - the operation to run as a child of the current task
  * @typeParam T the type that the spawned task evaluates to
  * @returns a {@link Task} representing a handle to the running operation
- * @since effection-v3.0.0
+ * @since 3.0
  */
 export function spawn<T>(op: () => Operation<T>): Operation<Task<T>> {
   return {

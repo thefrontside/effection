@@ -27,7 +27,7 @@ import { resource } from "./resource.ts";
  *   return yield* fetch('/some/url', { signal });
  * }
  * ```
- * @since effection-v3.0.0
+ * @since 3.0
  */
 export function useAbortSignal(): Operation<AbortSignal> {
   return resource(function* (provide) {

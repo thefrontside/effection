@@ -27,7 +27,7 @@ import { withResolvers } from "./with-resolvers.ts";
  * @typeParam T - the type of each value in the stream.
  * @param stream - the stream to iterate
  * @returns an operation to iterate `stream`
- * @since effection-v3.0.0
+ * @since 3.0
  */
 export function each<T>(stream: Stream<T, unknown>): Operation<Iterable<T>> {
   return {

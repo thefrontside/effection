@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ============================================ -->
+<!-- DOCS DIAGRAM TEMPLATE — Effection Docs       -->
+<!-- ============================================ -->
+<!-- Simplified template for inline documentation -->
+<!-- diagrams. Adapts to light/dark mode.         -->
+<!--                                              -->
+<!-- HOW TO USE:                                  -->
+<!-- 1. Copy this file and rename                 -->
+<!-- 2. Adjust viewBox for your diagram size      -->
+<!-- 3. Add your diagram elements                 -->
+<!-- 4. Use the svg-* CSS classes for colors      -->
+<!-- ============================================ -->
+<svg
+  viewBox="0 0 800 400"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+  role="img"
+  aria-label="REPLACE: diagram description"
+>
+  <defs>
+    <style>
+    /* ---- Font stacks ---- */
+    .svg-title {
+      font-family:
+        ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
+        Arial, sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+    }
+    .svg-label {
+      font-family:
+        ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
+        Arial, sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .svg-mono {
+      font-family:
+        ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+    }
+    .svg-mono-sm {
+      font-family:
+        ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 11px;
+    }
+
+    /* ---- Light mode (default) ---- */
+    .svg-bg {
+      fill: transparent;
+    }
+
+    /* Boxes and containers */
+    .svg-box-outer {
+      fill: #f8fafc;
+      stroke: #94a3b8;
+      stroke-width: 2;
+    }
+    .svg-box-inner {
+      fill: #ffffff;
+      stroke: #2b6ff7;
+      stroke-width: 2;
+    }
+    .svg-box-highlight {
+      fill: #ffffff;
+      stroke: #16a34a;
+      stroke-width: 2;
+    }
+    .svg-box-warning {
+      fill: #ffffff;
+      stroke: #ea580c;
+      stroke-width: 2;
+    }
+    .svg-box-muted {
+      fill: #f1f5f9;
+      stroke: #cbd5e1;
+      stroke-width: 1.5;
+    }
+
+    /* Dots and indicators */
+    .svg-dot-primary {
+      fill: #2b6ff7;
+    }
+    .svg-dot-secondary {
+      fill: #0ea5e9;
+    }
+    .svg-dot-success {
+      fill: #16a34a;
+    }
+    .svg-dot-warning {
+      fill: #ea580c;
+    }
+    .svg-dot-muted {
+      fill: #94a3b8;
+    }
+
+    /* Lines and arrows */
+    .svg-line {
+      stroke: #94a3b8;
+      stroke-width: 2;
+      fill: none;
+    }
+    .svg-line-primary {
+      stroke: #2b6ff7;
+      stroke-width: 2;
+      fill: none;
+    }
+    .svg-line-dashed {
+      stroke: #94a3b8;
+      stroke-width: 2;
+      stroke-dasharray: 6 4;
+      fill: none;
+    }
+    .svg-arrow {
+      fill: #94a3b8;
+    }
+    .svg-arrow-primary {
+      fill: #2b6ff7;
+    }
+
+    /* Text colors */
+    .svg-text {
+      fill: #1e293b;
+    }
+    .svg-text-muted {
+      fill: #64748b;
+    }
+    .svg-text-primary {
+      fill: #2b6ff7;
+    }
+    .svg-text-success {
+      fill: #16a34a;
+    }
+    .svg-text-warning {
+      fill: #ea580c;
+    }
+
+    /* Labels/badges */
+    .svg-badge {
+      fill: #e0f2fe;
+    }
+    .svg-badge-text {
+      fill: #0369a1;
+    }
+
+    /* ---- Dark mode ---- */
+    @media (prefers-color-scheme: dark) {
+      .svg-bg {
+        fill: transparent;
+      }
+
+      .svg-box-outer {
+        fill: #1e293b;
+        stroke: #475569;
+      }
+      .svg-box-inner {
+        fill: #0f172a;
+        stroke: #60a5fa;
+      }
+      .svg-box-highlight {
+        fill: #0f172a;
+        stroke: #4ade80;
+      }
+      .svg-box-warning {
+        fill: #0f172a;
+        stroke: #fb923c;
+      }
+      .svg-box-muted {
+        fill: #1e293b;
+        stroke: #334155;
+      }
+
+      .svg-dot-primary {
+        fill: #60a5fa;
+      }
+      .svg-dot-secondary {
+        fill: #38bdf8;
+      }
+      .svg-dot-success {
+        fill: #4ade80;
+      }
+      .svg-dot-warning {
+        fill: #fb923c;
+      }
+      .svg-dot-muted {
+        fill: #64748b;
+      }
+
+      .svg-line {
+        stroke: #475569;
+      }
+      .svg-line-primary {
+        stroke: #60a5fa;
+      }
+      .svg-line-dashed {
+        stroke: #475569;
+      }
+      .svg-arrow {
+        fill: #475569;
+      }
+      .svg-arrow-primary {
+        fill: #60a5fa;
+      }
+
+      .svg-text {
+        fill: #f1f5f9;
+      }
+      .svg-text-muted {
+        fill: #94a3b8;
+      }
+      .svg-text-primary {
+        fill: #60a5fa;
+      }
+      .svg-text-success {
+        fill: #4ade80;
+      }
+      .svg-text-warning {
+        fill: #fb923c;
+      }
+
+      .svg-badge {
+        fill: #1e3a5f;
+      }
+      .svg-badge-text {
+        fill: #7dd3fc;
+      }
+    }
+    </style>
+  </defs>
+
+  <!-- Background (transparent by default) -->
+  <rect class="svg-bg" x="0" y="0" width="800" height="400" />
+
+  <!-- DIAGRAM CONTENT GOES HERE -->
+</svg>

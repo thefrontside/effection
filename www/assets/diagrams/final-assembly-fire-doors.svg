@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg
+  viewBox="0 0 550 320"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+  role="img"
+  aria-label="Fire doors pattern showing scoped() isolating server failures from the pool"
+>
+  <defs>
+    <style>
+    .svg-title {
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .svg-label {
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .svg-mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 11px;
+    }
+    .svg-mono-sm {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 10px;
+    }
+
+    /* Light mode */
+    .svg-box-pool {
+      fill: #f8fafc;
+      stroke: #64748b;
+      stroke-width: 2;
+    }
+    .svg-box-scoped {
+      fill: #ffffff;
+      stroke: #94a3b8;
+      stroke-width: 2;
+      stroke-dasharray: 6 3;
+    }
+    .svg-box-server {
+      fill: #ffffff;
+      stroke: #2563eb;
+      stroke-width: 2;
+    }
+    .svg-box-server-error {
+      fill: #fef2f2;
+      stroke: #dc2626;
+      stroke-width: 2;
+    }
+    .svg-box-server-ok {
+      fill: #f0fdf4;
+      stroke: #16a34a;
+      stroke-width: 2;
+    }
+
+    .svg-line {
+      stroke: #94a3b8;
+      stroke-width: 1.5;
+      fill: none;
+    }
+    .svg-arrow {
+      fill: #64748b;
+    }
+
+    .svg-text {
+      fill: #1e293b;
+    }
+    .svg-text-muted {
+      fill: #64748b;
+    }
+    .svg-text-blue {
+      fill: #1d4ed8;
+    }
+    .svg-text-green {
+      fill: #15803d;
+    }
+    .svg-text-red {
+      fill: #dc2626;
+    }
+
+    .svg-fire {
+      fill: #f97316;
+    }
+    .svg-check {
+      fill: #16a34a;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .svg-box-pool {
+        fill: #1e293b;
+        stroke: #475569;
+      }
+      .svg-box-scoped {
+        fill: #0f172a;
+        stroke: #64748b;
+      }
+      .svg-box-server {
+        fill: #0f172a;
+        stroke: #3b82f6;
+      }
+      .svg-box-server-error {
+        fill: #450a0a;
+        stroke: #f87171;
+      }
+      .svg-box-server-ok {
+        fill: #14532d;
+        stroke: #4ade80;
+      }
+
+      .svg-line {
+        stroke: #64748b;
+      }
+      .svg-arrow {
+        fill: #64748b;
+      }
+
+      .svg-text {
+        fill: #f1f5f9;
+      }
+      .svg-text-muted {
+        fill: #94a3b8;
+      }
+      .svg-text-blue {
+        fill: #60a5fa;
+      }
+      .svg-text-green {
+        fill: #4ade80;
+      }
+      .svg-text-red {
+        fill: #f87171;
+      }
+
+      .svg-fire {
+        fill: #fb923c;
+      }
+      .svg-check {
+        fill: #4ade80;
+      }
+    }
+    </style>
+  </defs>
+
+  <!-- ServerPool container -->
+  <rect class="svg-box-pool" x="20" y="20" width="510" height="280" rx="12" />
+  <text class="svg-title svg-text" x="200" y="50">ServerPool</text>
+
+  <!-- Fire doors label -->
+  <text class="svg-label svg-text-muted" x="420" y="80">Fire doors</text>
+  <line class="svg-line" x1="420" y1="85" x2="420" y2="130" />
+  <polygon class="svg-arrow" points="415,125 420,135 425,125" />
+
+  <!-- scoped() box 1 - Error -->
+  <rect class="svg-box-scoped" x="40" y="70" width="140" height="150" rx="8" />
+  <text class="svg-mono svg-text-muted" x="75" y="92">scoped()</text>
+
+  <rect
+    class="svg-box-server-error"
+    x="55"
+    y="105"
+    width="110"
+    height="70"
+    rx="6"
+  />
+  <text class="svg-title svg-text-red" x="80" y="130">app-a</text>
+  <text class="svg-mono-sm svg-fire" x="95" y="160">error</text>
+
+  <!-- scoped() box 2 - OK -->
+  <rect class="svg-box-scoped" x="200" y="70" width="140" height="150" rx="8" />
+  <text class="svg-mono svg-text-muted" x="235" y="92">scoped()</text>
+
+  <rect
+    class="svg-box-server-ok"
+    x="215"
+    y="105"
+    width="110"
+    height="70"
+    rx="6"
+  />
+  <text class="svg-title svg-text-green" x="240" y="130">app-b</text>
+  <text class="svg-mono-sm svg-check" x="263" y="160">ok</text>
+
+  <!-- scoped() box 3 - OK -->
+  <rect class="svg-box-scoped" x="360" y="70" width="140" height="150" rx="8" />
+  <text class="svg-mono svg-text-muted" x="395" y="92">scoped()</text>
+
+  <rect
+    class="svg-box-server-ok"
+    x="375"
+    y="105"
+    width="110"
+    height="70"
+    rx="6"
+  />
+  <text class="svg-title svg-text-green" x="400" y="130">app-c</text>
+  <text class="svg-mono-sm svg-check" x="423" y="160">ok</text>
+
+  <!-- Contained label under error box -->
+  <line class="svg-line" x1="110" y1="220" x2="110" y2="240" />
+  <polygon class="svg-arrow" points="105,235 110,245 115,235" />
+  <text class="svg-label svg-text-red" x="70" y="265">Contained!</text>
+  <text class="svg-mono-sm svg-text-muted" x="60" y="282">(emits error)</text>
+
+  <!-- Still serving label under OK boxes -->
+  <line class="svg-line" x1="270" y1="220" x2="270" y2="250" />
+  <line class="svg-line" x1="270" y1="250" x2="430" y2="250" />
+  <line class="svg-line" x1="430" y1="220" x2="430" y2="250" />
+  <polygon class="svg-arrow" points="265,245 270,255 275,245" />
+  <polygon class="svg-arrow" points="425,245 430,255 435,245" />
+  <text class="svg-label svg-text-green" x="280" y="280"
+  >Still serving requests!</text>
+</svg>

@@ -1,0 +1,185 @@
+Before we dive into Effection, we need to understand **why it exists**.
+
+JavaScript's `async/await` is like a house with no fire exits—everything looks fine until there's an emergency. The problems aren't obvious at first, but they become painful at scale.
+
+## The Leaky Timer
+
+Consider this simple race between two timers:
+
+```typescript
+async function sleep(ms: number): Promise<void> {
+  await new Promise<void>((resolve) => setTimeout(resolve, ms));
+}
+
+async function main(): Promise<void> {
+  console.time("race");
+  await Promise.race([sleep(10), sleep(1000)]);
+  console.timeEnd("race");
+}
+
+main();
+```
+
+**Quiz**: How long does this program take to exit in Node.js?
+
+**Answer**: About 1000ms, not 10ms!
+
+Even though `Promise.race()` resolves after 10ms, the second `setTimeout` callback is still registered on the event loop. Node.js won't exit until all callbacks fire.
+
+This is a **leaked effect** - a piece of asynchronous work that outlives its usefulness.
+
+## The Await Event Horizon
+
+Here's an even scarier problem:
+
+```typescript
+async function doWork(): Promise<void> {
+  try {
+    await new Promise<void>((resolve) => setTimeout(resolve, 100000));
+  } finally {
+    console.log("Cleaning up..."); // Will this run?
+  }
+}
+
+const promise = doWork();
+
+// Simulate user pressing Ctrl+C after 1 second
+setTimeout(() => {
+  console.log("Exiting...");
+  process.exit(0);
+}, 1000);
+```
+
+**Output**:
+
+```
+Exiting...
+```
+
+The cleanup code **never runs**! When the process exits, all pending promises are simply abandoned. This is called the **Await Event Horizon** - once you enter an `await`, there's no guarantee your `finally` block will execute.
+
+## Real-World Consequences: EADDRINUSE
+
+You've probably seen this error:
+
+```
+Error: listen EADDRINUSE: address already in use :::3000
+```
+
+This happens because:
+
+1. Your server starts listening on port 3000
+2. Something crashes or you hit Ctrl+C
+3. The cleanup code that calls `server.close()` never runs
+4. You restart your app and the port is still bound
+
+The "solution" developers use? Kill processes manually, wait, or pick a different port. This is madness!
+
+## The Mental Shift
+
+With traditional async programming, we think:
+
+> "An asynchronous operation will run **as long as it needs to**"
+
+Effection flips this:
+
+> "An asynchronous operation runs **only as long as it's needed**"
+
+When an operation's parent completes, all children are automatically halted. When you press Ctrl+C, cleanup code is **guaranteed** to run.
+
+## A Taste of the Solution
+
+Here's the same timer race in Effection:
+
+```typescript
+import { main, sleep, race } from "effection";
+
+await main(function* () {
+  console.time("race");
+  yield* race([sleep(10), sleep(1000)]);
+  console.timeEnd("race");
+});
+```
+
+**Output**:
+
+```
+race: 10ms
+```
+
+The program exits after 10ms! When `race()` completes, it automatically cancels the losing sleep operation, including cleaning up its `setTimeout`.
+
+## Guaranteed Cleanup
+
+And here's the cleanup example:
+
+```typescript
+import { main, sleep } from "effection";
+
+await main(function* () {
+  try {
+    yield* sleep(100000);
+  } finally {
+    console.log("Cleaning up..."); // ALWAYS runs!
+  }
+});
+
+// Ctrl+C triggers graceful shutdown
+```
+
+Press Ctrl+C and you'll see:
+
+```
+Cleaning up...
+```
+
+Effection guarantees that `finally` blocks run, even during shutdown.
+
+## Exercise: Experience the Pain
+
+Create a file and run it to see leaked timers in action:
+
+```typescript
+const timers: ReturnType<typeof setTimeout>[] = [];
+
+async function createLeakyTimer(id: number, ms: number): Promise<void> {
+  await new Promise<void>((resolve) => {
+    const timerId = setTimeout(() => {
+      console.log(`Timer ${id} fired after ${ms}ms`);
+      resolve();
+    }, ms);
+    timers.push(timerId);
+  });
+}
+
+async function main(): Promise<void> {
+  console.log("Starting race...");
+  console.time("total");
+
+  await Promise.race([
+    createLeakyTimer(1, 100),
+    createLeakyTimer(2, 200),
+    createLeakyTimer(3, 500),
+    createLeakyTimer(4, 1000),
+  ]);
+
+  console.log("Race finished! But watch what happens...");
+  console.timeEnd("total");
+
+  // We'd need to manually clean up:
+  // timers.forEach(id => clearTimeout(id));
+}
+
+main();
+```
+
+Notice how all 4 timers fire even though only timer 1 "won" the race. Comment in the cleanup line at the end to see the "fix" - but imagine having to do this everywhere in a large codebase!
+
+## Key Takeaways
+
+The house with no fire exits:
+
+1. **Promises leak** - `Promise.race()` and `Promise.all()` don't cancel losers
+2. **Finally blocks aren't guaranteed** - process exit abandons pending work (the fire exit is locked)
+3. **Manual cleanup is error-prone** - you'll forget, and you'll get bitten
+4. **Structured concurrency solves this** - operations are bound to their parent's lifetime (proper fire exits everywhere)

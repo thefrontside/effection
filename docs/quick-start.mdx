@@ -1,0 +1,77 @@
+Get up and running with Effection in under 5 minutes.
+
+## Your First Operation
+
+Create a simple operation that fetches data with automatic cancellation:
+
+```typescript
+import { main, useAbortSignal, call } from "effection";
+
+function* fetchData(url: string) {
+  const signal = yield* useAbortSignal();
+  const response = yield* call(() => fetch(url, { signal }));
+  return yield* call(() => response.json());
+}
+
+await main(function* () {
+  const data = yield* fetchData("https://api.example.com/users");
+  console.log("Got data:", data);
+});
+```
+
+Press `Ctrl+C` while running—the HTTP request cancels automatically.
+
+## Add a Timeout
+
+Wrap any operation with a timeout using `race`:
+
+```typescript
+import { main, race, sleep } from "effection";
+
+function* timeout<T>(operation: Operation<T>, ms: number): Operation<T> {
+  return yield* race([
+    operation,
+    function* () {
+      yield* sleep(ms);
+      throw new Error(`Timeout after ${ms}ms`);
+    },
+  ]);
+}
+
+await main(function* () {
+  const data = yield* timeout(fetchData("https://api.example.com/users"), 5000);
+  console.log("Got data:", data);
+});
+```
+
+## Run Tasks Concurrently
+
+Use `spawn` for background tasks, `all` for parallel work:
+
+```typescript
+import { main, spawn, all, sleep } from "effection";
+
+await main(function* () {
+  // Background task
+  yield* spawn(function* () {
+    while (true) {
+      console.log("heartbeat");
+      yield* sleep(1000);
+    }
+  });
+
+  // Parallel fetches
+  const [users, posts] = yield* all([
+    fetchData("/api/users"),
+    fetchData("/api/posts"),
+  ]);
+
+  console.log("Done!", { users, posts });
+});
+```
+
+## Next Steps
+
+- [The Problem with Promises](./01-problem-with-promises.mdx) — understand why Effection exists
+- [Operations](./02-operations.mdx) — learn the fundamentals
+- [API Reference](/api) — explore all available functions

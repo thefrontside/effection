@@ -2,24 +2,33 @@
   "Getting Started": [
     ["installation.mdx", "Installation"],
     ["typescript.mdx", "TypeScript"],
-    ["thinking-in-effection.mdx", "Thinking in Effection"],
+    ["quick-start.mdx", "Quick Start"],
     ["async-rosetta-stone.mdx", "Async Rosetta Stone"],
-    ["tutorial.mdx", "Tutorial"],
     ["upgrade.mdx", "Upgrading from V3"]
   ],
-  "Learn Effection": [
-    ["operations.mdx", "Operations"],
-    ["spawn.mdx", "Spawn"],
-    ["resources.mdx", "Resources"],
-    ["collections.mdx", "Streams and Subscriptions"],
-    ["events.mdx", "Events"],
-    ["errors.mdx", "Error Handling"],
-    ["context.mdx", "Context"],
-    ["actions.mdx", "Actions"]
+  "Tutorial": [
+    ["01-problem-with-promises.mdx", "The Problem with Promises"],
+    ["02-operations.mdx", "Operations"],
+    ["03-actions.mdx", "Actions"],
+    ["04-spawn.mdx", "Spawn"],
+    ["05-combinators.mdx", "Combinators"],
+    ["06-resources.mdx", "Resources"],
+    ["07-channels.mdx", "Channels"],
+    ["08-signals.mdx", "Signals"],
+    ["09-streams.mdx", "Streams"],
+    ["10-context.mdx", "Context"],
+    ["11-scope-api.mdx", "Scope API"]
   ],
-  "Advanced": [
+  "Examples": [
+    ["examples/multiplex-proxy.mdx", "Multiplex Proxy"],
+    ["examples/server-resource.mdx", "Server Resource"],
+    ["examples/server-pool.mdx", "Server Pool"],
+    ["examples/switchboard.mdx", "Switchboard"],
+    ["examples/final-assembly.mdx", "Final Assembly"]
+  ],
+  "Reference": [
+    ["errors.mdx", "Error Handling"],
     ["faq.mdx", "FAQ"],
-    ["scope.mdx", "Scope"],
     ["processes.mdx", "Processes"]
   ]
 }

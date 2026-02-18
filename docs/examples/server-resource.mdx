@@ -1,0 +1,249 @@
+Let's build our first component—an Express server wrapped as an Effection resource.
+
+## What We Need
+
+A resource that:
+
+1. Creates an Express app
+2. Starts listening on a port
+3. Provides the app and server to the caller
+4. Gracefully closes the server when the resource ends
+
+## The Basic Pattern
+
+Here's the core structure:
+
+```typescript
+import type { Operation } from "effection";
+import { resource, call } from "effection";
+import express, { type Express, type Request, type Response } from "express";
+import type { Server } from "http";
+
+export interface ExpressServerHandle {
+  app: Express;
+  server: Server;
+  port: number;
+  hostname: string;
+}
+
+export function useExpressServer(
+  port: number,
+  hostname: string,
+): Operation<ExpressServerHandle> {
+  return resource<ExpressServerHandle>(function* (provide) {
+    const app: Express = express();
+
+    // ... configure routes ...
+
+    // Create server and wait for it to be listening
+    const server: Server = yield* call(
+      () =>
+        new Promise<Server>((resolve, reject) => {
+          const srv = app.listen(port, () => {
+            console.log(`[${hostname}] Server started on port ${port}`);
+            resolve(srv);
+          });
+          srv.on("error", reject);
+        }),
+    );
+
+    try {
+      // Provide the server handle to the caller
+      yield* provide({ app, server, port, hostname });
+    } finally {
+      // Graceful shutdown
+      console.log(`[${hostname}] Closing server on port ${port}...`);
+      server.close();
+      yield* call(
+        () =>
+          new Promise<void>((resolve) => {
+            server.on("close", resolve);
+          }),
+      );
+      console.log(`[${hostname}] Server closed`);
+    }
+  });
+}
+```
+
+## Key Pattern: `call()` for Promises
+
+Notice how we use `call()` to convert Promises to Operations:
+
+```typescript
+const server: Server =
+  yield *
+  call(
+    () =>
+      new Promise<Server>((resolve, reject) => {
+        const srv = app.listen(port, () => resolve(srv));
+        srv.on("error", reject);
+      }),
+  );
+```
+
+`call()` is the simplest way to bridge a Promise into Effection. It:
+
+- Runs the function that returns a Promise
+- Waits for the Promise to resolve
+- Returns the resolved value
+
+Unlike `action()`, it doesn't provide a cleanup mechanism—but that's fine here because we handle cleanup in the `finally` block.
+
+## Graceful Shutdown
+
+The `finally` block ensures the server is properly closed:
+
+```typescript
+try {
+  yield * provide({ app, server, port, hostname });
+} finally {
+  // This runs when the resource is shutting down
+  server.close();
+
+  // Wait for the server to fully close
+  yield *
+    call(
+      () =>
+        new Promise<void>((resolve) => {
+          server.on("close", resolve);
+        }),
+    );
+}
+```
+
+This is critical! Just calling `server.close()` isn't enough—we need to wait for it to actually close. Otherwise, the process might exit before connections are properly terminated.
+
+## Adding Routes
+
+Let's add some useful routes:
+
+```typescript
+export function useExpressServer(
+  port: number,
+  hostname: string,
+): Operation<ExpressServerHandle> {
+  return resource<ExpressServerHandle>(function* (provide) {
+    const app: Express = express();
+
+    // Disable x-powered-by header
+    app.disable("x-powered-by");
+
+    // Health check endpoint
+    app.get("/health", (_req: Request, res: Response) => {
+      res.json({
+        status: "ok",
+        hostname,
+        port,
+        uptime: process.uptime(),
+      });
+    });
+
+    // Default route - shows which backend handled the request
+    app.use((req: Request, res: Response) => {
+      res.json({
+        message: `Hello from ${hostname}!`,
+        backend: { hostname, port },
+        request: {
+          method: req.method,
+          path: req.path,
+          headers: {
+            host: req.get("host"),
+          },
+        },
+        timestamp: new Date().toISOString(),
+      });
+    });
+
+    // ... rest of the resource ...
+  });
+}
+```
+
+## The Daemon Pattern
+
+What if the server crashes unexpectedly? We want to know about it. The "daemon pattern" adds a watcher that throws if the server dies:
+
+```typescript
+import { spawn } from "effection";
+
+export class ServerDaemonError extends Error {
+  constructor(
+    readonly hostname: string,
+    readonly port: number,
+    readonly cause?: Error,
+  ) {
+    super(`Server "${hostname}" on port ${port} unexpectedly closed`);
+    this.name = "ServerDaemonError";
+  }
+}
+
+export function* useExpressServerDaemon(
+  port: number,
+  hostname: string,
+): Operation<ExpressServerHandle> {
+  const handle = yield* useExpressServer(port, hostname);
+
+  // Spawn a watcher that throws if server unexpectedly closes
+  yield* spawn(function* () {
+    const error = yield* call(
+      () =>
+        new Promise<Error | undefined>((resolve) => {
+          handle.server.on("close", () => resolve(undefined));
+          handle.server.on("error", (err) => resolve(err));
+        }),
+    );
+
+    // If we get here, the server closed unexpectedly
+    throw new ServerDaemonError(hostname, port, error);
+  });
+
+  return handle;
+}
+```
+
+Now if the server crashes, the error propagates up the operation tree and can be handled appropriately.
+
+## Testing It
+
+```typescript
+import { main, sleep } from "effection";
+import { useExpressServer } from "./server-resource";
+
+await main(function* () {
+  const { port, hostname } = yield* useExpressServer(3000, "test-app");
+
+  console.log(`Server running at http://localhost:${port}`);
+  console.log("Press Ctrl+C to stop...");
+
+  // Keep running for 10 seconds
+  yield* sleep(10000);
+
+  console.log("Shutting down...");
+  // Server automatically closes when we exit main()
+});
+```
+
+Run it:
+
+```bash
+npx tsx test-server.ts
+```
+
+Then in another terminal:
+
+```bash
+curl http://localhost:3000/health
+curl http://localhost:3000/
+```
+
+## Key Takeaways
+
+1. **Resources wrap long-lived services** — the server stays alive until the resource ends
+2. **`call()` bridges Promises** — simple way to await Promise results
+3. **Graceful shutdown in `finally`** — wait for server to actually close
+4. **Daemon pattern for monitoring** — spawn a watcher to detect unexpected failures
+
+## Next Up
+
+Now that we can create individual servers, let's build a [Server Pool](./server-pool.mdx) that manages multiple servers dynamically.

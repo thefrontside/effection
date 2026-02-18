@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg
+  viewBox="0 0 700 200"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+  role="img"
+  aria-label="Request flow from Client through Switchboard to Backend server"
+>
+  <defs>
+    <style>
+    .svg-title {
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .svg-label {
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .svg-mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 11px;
+    }
+    .svg-mono-sm {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 10px;
+    }
+
+    /* Light mode */
+    .svg-box {
+      fill: #ffffff;
+      stroke: #64748b;
+      stroke-width: 2;
+    }
+    .svg-box-highlight {
+      fill: #dbeafe;
+      stroke: #2563eb;
+      stroke-width: 2;
+    }
+
+    .svg-line {
+      stroke: #64748b;
+      stroke-width: 1.5;
+      fill: none;
+    }
+    .svg-line-request {
+      stroke: #2563eb;
+      stroke-width: 2;
+      fill: none;
+    }
+    .svg-line-response {
+      stroke: #16a34a;
+      stroke-width: 2;
+      fill: none;
+      stroke-dasharray: 6 3;
+    }
+    .svg-arrow {
+      fill: #64748b;
+    }
+    .svg-arrow-request {
+      fill: #2563eb;
+    }
+    .svg-arrow-response {
+      fill: #16a34a;
+    }
+
+    .svg-text {
+      fill: #1e293b;
+    }
+    .svg-text-muted {
+      fill: #64748b;
+    }
+    .svg-text-blue {
+      fill: #1d4ed8;
+    }
+    .svg-text-green {
+      fill: #15803d;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .svg-box {
+        fill: #1e293b;
+        stroke: #475569;
+      }
+      .svg-box-highlight {
+        fill: #1e3a5f;
+        stroke: #3b82f6;
+      }
+
+      .svg-line {
+        stroke: #64748b;
+      }
+      .svg-line-request {
+        stroke: #60a5fa;
+      }
+      .svg-line-response {
+        stroke: #4ade80;
+      }
+      .svg-arrow {
+        fill: #64748b;
+      }
+      .svg-arrow-request {
+        fill: #60a5fa;
+      }
+      .svg-arrow-response {
+        fill: #4ade80;
+      }
+
+      .svg-text {
+        fill: #f1f5f9;
+      }
+      .svg-text-muted {
+        fill: #94a3b8;
+      }
+      .svg-text-blue {
+        fill: #60a5fa;
+      }
+      .svg-text-green {
+        fill: #4ade80;
+      }
+    }
+    </style>
+  </defs>
+
+  <!-- Client box -->
+  <rect class="svg-box" x="20" y="70" width="100" height="60" rx="8" />
+  <text class="svg-title svg-text" x="45" y="105">Client</text>
+
+  <!-- Switchboard box -->
+  <rect
+    class="svg-box-highlight"
+    x="250"
+    y="40"
+    width="200"
+    height="120"
+    rx="8"
+  />
+  <text class="svg-title svg-text-blue" x="305" y="65">Switchboard</text>
+  <text class="svg-mono-sm svg-text-muted" x="280" y="90"
+  >1. Extract hostname</text>
+  <text class="svg-mono-sm svg-text-muted" x="280" y="108"
+  >2. pool.getOrCreate()</text>
+  <text class="svg-mono-sm svg-text-muted" x="280" y="126"
+  >3. Proxy request</text>
+
+  <!-- Backend box -->
+  <rect class="svg-box" x="580" y="70" width="100" height="60" rx="8" />
+  <text class="svg-title svg-text" x="595" y="98">Backend</text>
+  <text class="svg-mono-sm svg-text-muted" x="600" y="115">:3001</text>
+
+  <!-- Request arrow: Client -> Switchboard -->
+  <line class="svg-line-request" x1="120" y1="85" x2="245" y2="85" />
+  <polygon class="svg-arrow-request" points="240,80 250,85 240,90" />
+  <text class="svg-mono-sm svg-text-blue" x="135" y="78">GET /</text>
+  <text class="svg-mono-sm svg-text-muted" x="130" y="68"
+  >Host: app-a.localhost</text>
+
+  <!-- Request arrow: Switchboard -> Backend -->
+  <line class="svg-line-request" x1="450" y1="85" x2="575" y2="85" />
+  <polygon class="svg-arrow-request" points="570,80 580,85 570,90" />
+  <text class="svg-mono-sm svg-text-blue" x="490" y="78">GET /</text>
+
+  <!-- Response arrow: Backend -> Switchboard -->
+  <line class="svg-line-response" x1="575" y1="115" x2="450" y2="115" />
+  <polygon class="svg-arrow-response" points="455,110 445,115 455,120" />
+  <text class="svg-mono-sm svg-text-green" x="488" y="135">200 OK</text>
+
+  <!-- Response arrow: Switchboard -> Client -->
+  <line class="svg-line-response" x1="245" y1="115" x2="120" y2="115" />
+  <polygon class="svg-arrow-response" points="125,110 115,115 125,120" />
+  <text class="svg-mono-sm svg-text-green" x="160" y="135">200 OK</text>
+</svg>

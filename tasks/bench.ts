@@ -4,6 +4,7 @@ import {
   all,
   createQueue,
   each,
+  exit,
   main,
   type Operation,
   spawn,
@@ -38,6 +39,15 @@ interface BenchmarkCliOptions {
 }
 
 await main(function* (args) {
+  try {
+    yield* runBench(args);
+  } catch (e) {
+    console.error(`error: ${(e as Error).message}`);
+    yield* exit(1);
+  }
+});
+
+function* runBench(args: string[]): Operation<void> {
   let options = parser()
     .name("bench")
     .description("Run Effection benchmarks")
@@ -80,6 +90,14 @@ await main(function* (args) {
 
   let { include, exclude, repeat, depth, warmup, tasks: taskCount, json } =
     options;
+
+  // Validate regex patterns early (throws with friendly message if invalid)
+  if (include) {
+    validateRegex(include, "--include");
+  }
+  if (exclude) {
+    validateRegex(exclude, "--exclude");
+  }
 
   // Filter scenarios and build typed benchmark options
   const filteredScenarios = filterScenarios(scenarios, { include, exclude });
@@ -157,7 +175,7 @@ await main(function* (args) {
       tasks: taskCount,
     });
   }
-});
+}
 
 function renderTable(
   recursion: BenchmarkDoneEvent[],
@@ -244,6 +262,15 @@ function* runBenchmark(
   });
 
   yield* spawn(function* () {
+    for (let event of yield* each(worker.messageerrors)) {
+      throw new Error(
+        `Worker message serialization failed: ${event.data ?? "unknown error"}`,
+      );
+      // Note: each.next() is unreachable after throw
+    }
+  });
+
+  yield* spawn(function* () {
     for (let event of yield* each(worker.messages)) {
       if (event.data.type === "done") {
         // Validate that worker returned expected kind (prevents silent deadlock)
@@ -273,7 +300,22 @@ function* runBenchmark(
 }
 
 /**
+ * Validate a regex pattern and return the compiled RegExp.
+ * Throws a user-friendly error if the pattern is invalid.
+ */
+function validateRegex(pattern: string, flagName: string): RegExp {
+  try {
+    return new RegExp(pattern);
+  } catch (e) {
+    throw new Error(
+      `Invalid ${flagName} pattern "${pattern}": ${(e as Error).message}`,
+    );
+  }
+}
+
+/**
  * Filter scenarios by include/exclude regex patterns.
+ * Assumes patterns have already been validated via validateRegex().
  */
 function filterScenarios(
   entries: ScenarioEntry[],

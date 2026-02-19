@@ -40,6 +40,45 @@ jobs:
         if: runner.os != 'Windows'
         run: deno task test
 
+  jsr:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: setup deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: dry run publish
+        run: deno publish --dry-run
+
+  npm:
+    needs: test-node
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: setup deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Build NPM
+        run: deno task build:npm 4.0.0-verify.0
+
+      - name: dry run publish
+        run: npm publish --dry-run --tag=verify
+        working-directory: ./build/npm
+
   test-node:
     runs-on: ubuntu-latest
     strategy:

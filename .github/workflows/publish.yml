@@ -10,9 +10,22 @@ permissions:
   id-token: write
 
 jobs:
-  publish-npm:
+  verify-jsr:
     runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
 
+      - name: setup deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: dry run publish
+        run: deno publish --dry-run
+
+  verify-npm:
+    runs-on: ubuntu-latest
     steps:
       - name: checkout
         uses: actions/checkout@v4
@@ -34,11 +47,38 @@ jobs:
       - name: Build NPM
         run: deno task build:npm ${{steps.vars.outputs.version}}
 
+      - name: dry run publish
+        run: npm publish --dry-run --tag=verify
+        working-directory: ./build/npm
+
+      - name: upload build
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-build
+          path: ./build/npm
+
+  publish-npm:
+    needs: [verify-jsr, verify-npm]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: download build
+        uses: actions/download-artifact@v4
+        with:
+          name: npm-build
+          path: ./build/npm
+
       - name: Publish NPM
         run: npm publish --access=public --tag=latest
         working-directory: ./build/npm
 
   publish-jsr:
+    needs: [verify-jsr, verify-npm]
     runs-on: ubuntu-latest
 
     steps:

@@ -54,7 +54,7 @@ export function* using<T extends Disposable | AsyncDisposable>(value: T) {
     try {
       yield* provide(value);
     } finally {
-      yield* call(() => disposer.call(value));
+      yield* call(() => dispose.call(value));
     }
   });
 }

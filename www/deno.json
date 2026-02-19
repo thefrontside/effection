@@ -3,7 +3,8 @@
     "dev": "deno run -A @effectionx/watch deno run -A main.tsx",
     "staticalize": "deno run -A jsr:@frontside/staticalize@0.2.2/cli --site http://localhost:8000 --output=built --base=http://localhost:8000",
     "pagefind": "npx pagefind --site built",
-    "test": "deno test --allow-run --allow-write --allow-read"
+    "test": "deno test --allow-run --allow-write --allow-read",
+    "generate-og-images": "deno run -A scripts/generate-og-images.ts"
   },
   "lint": {
     "exclude": [
@@ -94,6 +95,7 @@
     "hast-util-select": "npm:hast-util-select@6.0.1",
     "unist-util-visit": "npm:unist-util-visit@5.0.0",
     "vfile": "npm:vfile@6.0.3",
-    "zod": "npm:zod@3.23.8"
+    "zod": "npm:zod@3.23.8",
+    "@resvg/resvg-wasm": "npm:@resvg/resvg-wasm@^2.6.2"
   }
 }

@@ -10,6 +10,8 @@ export type Options = {
   title: string;
   description: string;
   head?: JSXElement;
+  /** Custom OG image path (relative to site root, e.g., /blog/post-id/image.png) */
+  ogImage?: string;
 } & HeaderProps;
 
 export interface AppHtmlProps {
@@ -22,10 +24,11 @@ export function* useAppHtml({
   description,
   hasLeftSidebar,
   head,
+  ogImage,
 }: Options): Operation<({ children, search }: AppHtmlProps) => JSX.Element> {
-  let twitterImageURL = yield* useAbsoluteUrl(
-    "/assets/images/meta-effection.png",
-  );
+  // Use custom OG image if provided, otherwise fall back to default
+  let ogImagePath = ogImage ?? "/assets/images/meta-effection.png";
+  let twitterImageURL = yield* useAbsoluteUrl(ogImagePath);
 
   let canonicalURL = yield* useCanonicalUrl({
     base: "https://frontside.com/effection",

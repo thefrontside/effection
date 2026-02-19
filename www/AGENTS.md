@@ -64,6 +64,26 @@ image: "featured-image.svg"
   `svg-glow-light`/`svg-glow-dark`) since CSS cannot change SVG gradient stop
   colors.
 
+### Animations in Featured Images
+
+SVG featured images may include CSS animations (e.g., terminal output appearing
+line-by-line). These work as follows:
+
+- **On the blog page:** The SVG is inlined and animations play normally.
+- **For social media previews:** At build time, `deno task generate-og-images`
+  renders a static PNG from each SVG. Animations are stripped and all animated
+  elements are forced to `opacity: 1`, showing the "final state" where
+  everything is visible.
+
+**Design guidance for animated SVGs:**
+
+- Use the `svg-anim-*` class prefix for animated elements (e.g., `svg-anim-L1`).
+- Animated elements should use `opacity: 0` in their initial state and animate
+  to `opacity: 1` — this pattern allows the OG generator to force visibility.
+- Design the animation assuming the static preview will show all content
+  simultaneously (the "hold" or final state).
+- Keep the SVG at 1200×630 dimensions for proper OG image sizing.
+
 ## Voice
 
 ### Primary author: Taras Mankovski

@@ -28,6 +28,10 @@ jobs:
         with:
           deno-version: v2.6.1
 
+      - name: Generate OG Images
+        run: deno task generate-og-images
+        working-directory: ./www
+
       - name: Serve Website
         run: |
           deno task dev &

@@ -23,7 +23,10 @@ export interface BlogPost {
   id: string;
   title: string;
   description: string;
+  /** SVG image for inline display on the blog post page */
   image: string | undefined;
+  /** PNG image for Open Graph meta tags (social media previews) */
+  ogImage: string | undefined;
   date: Date;
   author: string;
   tags: string[];
@@ -130,6 +133,17 @@ function* loadBlog(): Operation<Blog> {
       );
 
       let frontmatter = mod.frontmatter as Frontmatter;
+      
+      // Compute OG image path: use .png version if SVG exists, else undefined
+      let ogImage: string | undefined;
+      if (frontmatter.image?.endsWith(".svg")) {
+        let pngPath = frontmatter.image.replace(/\.svg$/, ".png");
+        let pngFullPath = `${directory}${id}/${pngPath}`;
+        if (existsSync(pngFullPath)) {
+          ogImage = pngPath;
+        }
+      }
+      
       let post: BlogPost = {
         id,
         date,
@@ -138,6 +152,7 @@ function* loadBlog(): Operation<Blog> {
         author: frontmatter.author,
         tags: frontmatter.tags ?? [],
         image: frontmatter.image,
+        ogImage,
         content: () => mod.default({}) as JSXElement,
       };
 

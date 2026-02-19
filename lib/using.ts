@@ -28,13 +28,13 @@ import type { Operation } from "./types.ts";
 export function* using<T extends Disposable | AsyncDisposable>(
   value: T,
 ): Operation<T> {
-  let disposer = Symbol.asyncDispose in value
+  let dispose = Symbol.asyncDispose in value
     ? value[Symbol.asyncDispose]
     : Symbol.dispose in value
     ? value[Symbol.dispose]
     : undefined;
 
-  if (!disposer) {
+  if (!dispose) {
     throw new TypeError(
       "using() value must implement Symbol.dispose or Symbol.asyncDispose",
     );
@@ -44,7 +44,7 @@ export function* using<T extends Disposable | AsyncDisposable>(
     try {
       yield* provide(value);
     } finally {
-      yield* call(() => disposer.call(value));
+      yield* call(() => dispose.call(value));
     }
   });
 }

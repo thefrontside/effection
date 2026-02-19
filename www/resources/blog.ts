@@ -133,7 +133,7 @@ function* loadBlog(): Operation<Blog> {
       );
 
       let frontmatter = mod.frontmatter as Frontmatter;
-      
+
       // Compute OG image path: use .png version if SVG exists, else undefined
       let ogImage: string | undefined;
       if (frontmatter.image?.endsWith(".svg")) {
@@ -143,7 +143,7 @@ function* loadBlog(): Operation<Blog> {
           ogImage = pngPath;
         }
       }
-      
+
       let post: BlogPost = {
         id,
         date,

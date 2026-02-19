@@ -72,7 +72,10 @@ jobs:
         with:
           node-version: 24
 
-      - name: Build NPM
+      # We use a totally dummy version and tag here
+      # It could be anything. We're just verifying
+      # that the package _could_ publish
+      - name: Build
         run: deno task build:npm 4.0.0-verify.0
 
       - name: dry run publish

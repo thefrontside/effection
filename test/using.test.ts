@@ -1,50 +1,6 @@
 import { createScope, run, suspend, using } from "../mod.ts";
 import { describe, expect, it } from "./suite.ts";
 
-class Resource {
-  value = 100;
-  isDisposed = false;
-
-  getValue() {
-    if (this.isDisposed) {
-      throw new Error("Resource is disposed");
-    }
-    return this.value;
-  }
-
-  [Symbol.dispose]() {
-    this.isDisposed = true;
-  }
-}
-
-class AsyncResource {
-  value = 100;
-  isDisposed = false;
-
-  getValue() {
-    if (this.isDisposed) {
-      throw new Error("Resource is disposed");
-    }
-    return this.value;
-  }
-
-  async [Symbol.asyncDispose]() {
-    await Promise.resolve(void 0);
-    this.isDisposed = true;
-  }
-}
-
-class DelayedAsyncResource {
-  isDisposed = false;
-  disposeStarted = false;
-
-  async [Symbol.asyncDispose]() {
-    this.disposeStarted = true;
-    await new Promise<void>((resolve) => setTimeout(resolve, 20));
-    this.isDisposed = true;
-  }
-}
-
 describe("using", () => {
   it("should dispose sync disposable value without the native 'using' keyword", async () => {
     let value: number | undefined;
@@ -126,3 +82,57 @@ describe("using", () => {
     ).rejects.toThrow();
   });
 });
+
+class Resource {
+  value = 100;
+  isDisposed = false;
+
+  getValue() {
+    if (this.isDisposed) {
+      throw new Error("Resource is disposed");
+    }
+    return this.value;
+  }
+
+  [Symbol.dispose]() {
+    this.isDisposed = true;
+  }
+}
+
+class AsyncResource {
+  value = 100;
+  isDisposed = false;
+
+  getValue() {
+    if (this.isDisposed) {
+      throw new Error("Resource is disposed");
+    }
+    return this.value;
+  }
+
+  async [Symbol.asyncDispose]() {
+    await Promise.resolve(void 0);
+    this.isDisposed = true;
+  }
+}
+
+class DelayedAsyncResource {
+  isDisposed = false;
+  disposeStarted = false;
+
+  async [Symbol.asyncDispose]() {
+    this.disposeStarted = true;
+
+    let id: number | undefined;
+
+    try {
+      await new Promise<void>((resolve) => {
+        id = setTimeout(resolve, 20);
+      });
+
+      this.isDisposed = true;
+    } finally {
+      if (id) clearTimeout(id);
+    }
+  }
+}

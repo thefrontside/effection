@@ -122,17 +122,7 @@ class DelayedAsyncResource {
 
   async [Symbol.asyncDispose]() {
     this.disposeStarted = true;
-
-    let id: number | undefined;
-
-    try {
-      await new Promise<void>((resolve) => {
-        id = setTimeout(resolve, 20);
-      });
-
-      this.isDisposed = true;
-    } finally {
-      if (id) clearTimeout(id);
-    }
+    await new Promise<void>((resolve) => setTimeout(resolve, 20));
+    this.isDisposed = true;
   }
 }

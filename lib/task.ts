@@ -1,3 +1,4 @@
+/// <reference lib="esnext" />
 // deno-lint-ignore-file no-unsafe-finally
 import { DelimiterContext, ErrorContext } from "./delimiter.ts";
 import { createCoroutine } from "./coroutine.ts";
@@ -63,6 +64,10 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
     [Symbol.toStringTag]: {
       enumerable: false,
       value: "Task",
+    },
+    [Symbol.asyncDispose]: {
+      enumerable: false,
+      value: () => task.halt(),
     },
   }) as Task<T>;
 

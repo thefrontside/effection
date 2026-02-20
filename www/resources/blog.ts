@@ -134,13 +134,13 @@ function* loadBlog(): Operation<Blog> {
 
       let frontmatter = mod.frontmatter as Frontmatter;
 
-      // Compute OG image path: use .png version if SVG exists, else undefined
+      // Compute OG image path: if SVG exists, the PNG will be generated on-demand
+      // Note: blog-post-route.tsx prepends /blog/{id}/ to this value
       let ogImage: string | undefined;
       if (frontmatter.image?.endsWith(".svg")) {
-        let pngPath = frontmatter.image.replace(/\.svg$/, ".png");
-        let pngFullPath = `${directory}${id}/${pngPath}`;
-        if (existsSync(pngFullPath)) {
-          ogImage = pngPath;
+        let svgFullPath = `${directory}${id}/${frontmatter.image}`;
+        if (existsSync(svgFullPath)) {
+          ogImage = frontmatter.image.replace(/\.svg$/, ".png");
         }
       }
 

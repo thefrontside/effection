@@ -51,6 +51,7 @@
     "@types/hast": "npm:@types/hast@3.0.4",
     "effection": "npm:effection@^3.6.1",
     "@effectionx/deno-deploy": "jsr:@effectionx/deno-deploy@^0.3.1",
+    "@effectionx/fetch": "npm:@effectionx/fetch@^0.1.0",
     "@effectionx/fs": "npm:@effectionx/fs@^0.2.1",
     "@effectionx/process": "jsr:@effectionx/process@^0.6.2",
     "hast": "npm:hast@^1.0.0",

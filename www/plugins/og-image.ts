@@ -1,8 +1,8 @@
 /**
  * Revolution plugin that generates OG (Open Graph) PNG images from SVG files.
  *
- * Intercepts requests to `/blog/.../image.png` and renders the corresponding
- * SVG to PNG with light mode forced and animations stripped.
+ * Intercepts requests to `*.png` and checks if a corresponding SVG file exists.
+ * If found, renders the SVG to PNG with light mode forced and animations stripped.
  *
  * Uses Web Cache API for caching rendered PNGs.
  */
@@ -12,6 +12,7 @@ import { initWasm, Resvg } from "@resvg/resvg-wasm";
 import { join } from "@std/path";
 import { serveFile } from "@std/http";
 import { exists, readTextFile } from "@effectionx/fs";
+import { fetch } from "@effectionx/fetch";
 
 export interface OgImageOptions {
   readonly basedir: string;
@@ -33,14 +34,27 @@ export function* ogImagePlugin(
   let cache = yield* until(caches.open("og-images"));
 
   return {
-    http(request, next) {
+    *http(request, next) {
       let url = new URL(request.url);
 
-      if (url.pathname.startsWith("/blog/") && url.pathname.endsWith(".png")) {
-        return renderOgImage(request, url.pathname, options, env, cache);
+      // Only handle PNG requests where a corresponding SVG exists
+      if (url.pathname.endsWith(".png")) {
+        let svgPath = join(
+          options.basedir,
+          url.pathname.replace(/\.png$/, ".svg"),
+        );
+        if (yield* exists(svgPath)) {
+          return yield* renderOgImage(
+            request,
+            url.pathname,
+            options,
+            env,
+            cache,
+          );
+        }
       }
 
-      return next(request);
+      return yield* next(request);
     },
   };
 }
@@ -48,11 +62,7 @@ export function* ogImagePlugin(
 function* initializeRenderer(fontsDir: string): Operation<RendererEnv> {
   console.log("📦 Initializing OG image renderer...");
 
-  let response = yield* until(fetch(WASM_URL));
-  if (!response.ok) {
-    throw new Error(`Failed to fetch resvg WASM: ${response.status}`);
-  }
-  let wasmBuffer = yield* until(response.arrayBuffer());
+  let wasmBuffer = yield* fetch(WASM_URL).expect().arrayBuffer();
   yield* until(initWasm(wasmBuffer));
 
   let [inter, jetbrains] = yield* all([
@@ -71,7 +81,6 @@ function* renderOgImage(
   env: RendererEnv,
   cache: Cache,
 ): Operation<Response> {
-  // Check cache first
   let cached = yield* until(cache.match(request));
   if (cached) {
     return cached;
@@ -80,13 +89,8 @@ function* renderOgImage(
   let svgPath = join(options.basedir, pathname.replace(/\.png$/, ".svg"));
 
   try {
-    if (!(yield* exists(svgPath))) {
-      return yield* serveFallback(request, options.basedir);
-    }
-
     let svg = yield* readTextFile(svgPath);
-    svg = transformSvg(svg);
-    let png = renderSvgToPng(svg, env);
+    let png = renderSvgToPng(transformSvg(svg), env);
 
     let response = new Response(png, {
       status: 200,
@@ -133,12 +137,22 @@ const LIGHT_FILL: Record<SvgTextClass, `#${string}`> = {
   "svg-label-heading": "#0b2a5b",
 };
 
+/**
+ * Transform SVG for OG image rendering.
+ *
+ * Applies a pipeline of transformations to prepare SVGs for static PNG output:
+ * 1. Replace system font stacks with embedded font names (Inter, JetBrains Mono)
+ * 2. Fix CSS fills that resvg-wasm doesn't handle (url() references)
+ * 3. Strip CSS animations and force animated elements visible
+ * 4. Inject light mode overrides (colors and element visibility)
+ */
 function transformSvg(svg: string): string {
-  svg = replaceFontFamilies(svg);
-  svg = fixCssFills(svg);
-  svg = stripAnimations(svg);
-  svg = forceLightMode(svg);
-  return svg;
+  return [
+    replaceFontFamilies,
+    fixCssFills,
+    stripAnimations,
+    forceLightMode,
+  ].reduce((s, fn) => fn(s), svg);
 }
 
 function replaceFontFamilies(svg: string): string {
@@ -159,15 +173,16 @@ function fixCssFills(svg: string): string {
 }
 
 function stripAnimations(svg: string): string {
-  svg = svg.replace(/@keyframes\s+[\w-]+\s*\{[^}]*(?:\{[^}]*\}[^}]*)*\}/g, "");
-  svg = svg.replace(/animation:\s*[^;]+;/g, "");
-  svg = svg.replace(/animation-[a-z-]+:\s*[^;]+;/g, "");
+  let result = svg
+    .replace(/@keyframes\s+[\w-]+\s*\{[^}]*(?:\{[^}]*\}[^}]*)*\}/g, "")
+    .replace(/animation:\s*[^;]+;/g, "")
+    .replace(/animation-[a-z-]+:\s*[^;]+;/g, "");
 
   let overrideCSS = `
     [class*="svg-anim-"] { opacity: 1 !important; }
     .svg-cursor { opacity: 0 !important; }
   `;
-  return svg.replace(/<\/style>/i, `${overrideCSS}</style>`);
+  return result.replace(/<\/style>/i, `${overrideCSS}</style>`);
 }
 
 function forceLightMode(svg: string): string {

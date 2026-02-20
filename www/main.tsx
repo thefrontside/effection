@@ -2,6 +2,7 @@ import { main, suspend } from "effection";
 import { createRevolution, ServerInfo } from "revolution";
 
 import { etagPlugin } from "./plugins/etag.ts";
+import { ogImagePlugin } from "./plugins/og-image.ts";
 import { route, sitemapPlugin } from "./plugins/sitemap.ts";
 import { inlineSvgPlugin } from "./plugins/inline-svg.ts";
 import { tailwindPlugin } from "./plugins/tailwind.ts";
@@ -82,6 +83,10 @@ if (import.meta.main) {
         route("/assets/*path", assetsRoute("assets")),
       ],
       plugins: [
+        yield* ogImagePlugin({
+          basedir: new URL(".", import.meta.url).pathname,
+          fontsDir: new URL("./scripts/fonts/", import.meta.url).pathname,
+        }),
         yield* tailwindPlugin({ input: "main.css", outdir: "tailwind" }),
         inlineSvgPlugin({
           basedir: new URL(".", import.meta.url).pathname,

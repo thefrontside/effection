@@ -3,7 +3,7 @@ import type { DurableStream } from "./durable/types.ts";
 
 import { createScope, global } from "./scope.ts";
 import { ReducerContext } from "./reducer.ts";
-import { DurableReducer } from "./durable/durable-reducer.ts";
+import { DurableReducer, toJson } from "./durable/durable-reducer.ts";
 import { InMemoryDurableStream } from "./durable/stream.ts";
 
 /**
@@ -66,5 +66,57 @@ export function run<T>(
   let [scope] = createScope(global);
   scope.set(ReducerContext, reducer);
 
-  return scope.run(operation);
+  // Install scope lifecycle middleware to record/replay scope events.
+  // This must be done before any operations run so all scope creation/
+  // destruction flows through the durable middleware.
+  reducer.installScopeMiddleware(scope);
+
+  let task = scope.run(operation);
+
+  // Wrap the task to record root scope lifecycle events.
+  // The task scope (child of root) gets scope:created/destroyed via middleware.
+  // But the root scope itself is created/destroyed outside the scope tree,
+  // so we record its destruction when the task settles.
+  let originalThen = task.then.bind(task);
+  let originalCatch = task.catch.bind(task);
+
+  // Record root scope:destroyed on task settlement
+  let recordRootDestroyed = (ok: boolean, error?: Error) => {
+    if (reducer.isReplayingRoot()) {
+      reducer.consumeRootDestroyed();
+    } else {
+      stream.append({
+        type: "scope:destroyed",
+        scopeId: "root",
+        result: ok
+          ? { ok: true }
+          : { ok: false, error: { name: error!.name, message: error!.message, stack: error!.stack } },
+      });
+    }
+  };
+
+  // Create a new task-like object that intercepts then/catch
+  let wrappedTask = Object.create(task);
+
+  Object.defineProperty(wrappedTask, "then", {
+    enumerable: false,
+    value: function then<TResult1 = T, TResult2 = never>(
+      onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null,
+      onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | undefined | null,
+    ) {
+      return originalThen(
+        (value: T) => {
+          recordRootDestroyed(true);
+          return onfulfilled ? onfulfilled(value) : value as unknown as TResult1;
+        },
+        (error: unknown) => {
+          recordRootDestroyed(false, error as Error);
+          if (onrejected) return onrejected(error);
+          throw error;
+        },
+      );
+    },
+  });
+
+  return wrappedTask as Task<T>;
 }

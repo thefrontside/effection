@@ -22,4 +22,4 @@ export {
 } from "./types.ts";
 
 export { InMemoryDurableStream } from "./stream.ts";
-export { DurableReducer } from "./durable-reducer.ts";
+export { DurableReducer, toJson } from "./durable-reducer.ts";

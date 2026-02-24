@@ -59,17 +59,25 @@ function userEffectPairs(stream: InMemoryDurableStream): Array<[DurableEvent, Du
 
 describe("durable run", () => {
   describe("stream recording", () => {
-    it("records no events for a pure return (infrastructure effects are skipped)", async () => {
+    it("records scope lifecycle events for a pure return (no user-facing effects)", async () => {
       let stream = new InMemoryDurableStream();
 
       await run(function* () {
         return "hello";
       }, { stream });
 
-      // A pure return has no user-facing effects.
-      // Infrastructure effects (useCoroutine, useScope) are not recorded.
-      let events = stream.read();
-      expect(events.length).toEqual(0);
+      // A pure return has no user-facing effects, but the scope lifecycle
+      // events are recorded: scope:created (root) and scope:destroyed (root).
+      // The task scope also gets scope:created / scope:destroyed.
+      let events = stream.read().map((e) => e.event);
+      let userEffects = events.filter((e) => e.type === "effect:yielded" || e.type === "effect:resolved" || e.type === "effect:errored");
+      expect(userEffects.length).toEqual(0);
+
+      // Scope lifecycle events should be present
+      let scopeCreated = events.filter((e) => e.type === "scope:created");
+      let scopeDestroyed = events.filter((e) => e.type === "scope:destroyed");
+      expect(scopeCreated.length).toBeGreaterThanOrEqual(1);
+      expect(scopeDestroyed.length).toBeGreaterThanOrEqual(1);
     });
 
     it("records events for action effects", async () => {

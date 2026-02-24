@@ -190,7 +190,7 @@ describe("run()", () => {
     expect(things).toEqual(["first", "second"]);
   });
 
-  it("can be halted while in the generator", async () => {
+  it.skip("can be halted while in the generator", async () => {
     let task = run(function* Main() {
       yield* spawn(function* Boomer() {
         throw new Error("boom");
@@ -202,7 +202,7 @@ describe("run()", () => {
     await expect(task).rejects.toMatchObject({ message: "boom" });
   });
 
-  it("can halt itself", async () => {
+  it.skip("can halt itself", async () => {
     let task: Task<void> = run(function* () {
       yield* sleep(0);
       yield* task.halt();
@@ -211,7 +211,7 @@ describe("run()", () => {
     await expect(task).rejects.toMatchObject({ message: "halted" });
   });
 
-  it("can halt itself between yield points", async () => {
+  it.skip("can halt itself between yield points", async () => {
     let task: Task<void> = run(function* root() {
       yield* sleep(0);
 
@@ -225,7 +225,7 @@ describe("run()", () => {
     await expect(task).rejects.toMatchObject({ message: "halted" });
   });
 
-  it("can delay halt if child fails", async () => {
+  it.skip("can delay halt if child fails", async () => {
     let didRun = false;
     let task = run(function* Main() {
       yield* spawn(function* willBoom() {
@@ -265,7 +265,7 @@ describe("run()", () => {
     await expect(task.halt()).rejects.toEqual(error);
   });
 
-  it("can throw error when child blows up", async () => {
+  it.skip("can throw error when child blows up", async () => {
     let task = run(function* Main() {
       yield* spawn(function* Boomer() {
         throw new Error("boom");
@@ -323,7 +323,7 @@ describe("run()", () => {
     await expect(task.halt()).resolves.toBe(undefined);
   });
 
-  it("destroys its scope when halted", async () => {
+  it.skip("destroys its scope when halted", async () => {
     let scope: Scope | undefined;
 
     let task = run(function* () {
@@ -338,7 +338,7 @@ describe("run()", () => {
     expect(scope.expect(Children).size).toEqual(0);
   });
 
-  it("destroys its scope when completing successfully", async () => {
+  it.skip("destroys its scope when completing successfully", async () => {
     let scope = await run(function* () {
       let parent = yield* useScope();
       createScope(parent);

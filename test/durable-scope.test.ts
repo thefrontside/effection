@@ -1,5 +1,6 @@
 import { action, run, sleep, spawn, suspend } from "../mod.ts";
 import { InMemoryDurableStream } from "../lib/durable/stream.ts";
+import { DivergenceError } from "../lib/durable/types.ts";
 import type { DurableEvent } from "../lib/durable/types.ts";
 import { describe, expect, it } from "./suite.ts";
 
@@ -331,6 +332,83 @@ describe("durable scope lifecycle", () => {
 
       expect(created.length).toBeGreaterThanOrEqual(1);
       expect(destroyed.length).toBeGreaterThanOrEqual(1);
+    });
+  });
+
+  describe("workflow:return in scope lifecycle", () => {
+    it("emits workflow:return before scope:destroyed for each task scope", async () => {
+      let stream = new InMemoryDurableStream();
+
+      await run(function* () {
+        let task = yield* spawn(function* () {
+          return 42;
+        });
+        return yield* task;
+      }, { stream });
+
+      let events = allEvents(stream);
+      let workflowReturns = events.filter((e) => e.type === "workflow:return");
+
+      // Should have workflow:return events
+      expect(workflowReturns.length).toBeGreaterThanOrEqual(1);
+
+      // Each workflow:return should appear before its scope's scope:destroyed
+      for (let wr of workflowReturns) {
+        if (wr.type === "workflow:return") {
+          let wrIdx = events.indexOf(wr);
+          let destroyIdx = events.findIndex(
+            (e) => e.type === "scope:destroyed" && e.scopeId === wr.scopeId,
+          );
+          if (destroyIdx >= 0) {
+            expect(wrIdx).toBeLessThan(destroyIdx);
+          }
+        }
+      }
+    });
+  });
+
+  describe("scope hierarchy divergence", () => {
+    it("detects parent mismatch during replay", async () => {
+      // Record a workflow with spawn (creates parent-child scopes)
+      let recordStream = new InMemoryDurableStream();
+
+      await run(function* () {
+        let task = yield* spawn(function* () {
+          yield* action<void>((resolve) => {
+            resolve();
+            return () => {};
+          }, "child-work");
+          return 42;
+        });
+        return yield* task;
+      }, { stream: recordStream });
+
+      // Tamper with the stream: change the parentScopeId of a child scope
+      let events = recordStream.read().map((e) => e.event);
+      let tamperedEvents = events.map((e) => {
+        if (e.type === "scope:created" && e.parentScopeId) {
+          return { ...e, parentScopeId: "wrong-parent" };
+        }
+        return e;
+      });
+
+      let replayStream = InMemoryDurableStream.from(tamperedEvents);
+
+      try {
+        await run(function* () {
+          let task = yield* spawn(function* () {
+            yield* action<void>((resolve) => {
+              resolve();
+              return () => {};
+            }, "child-work");
+            return 42;
+          });
+          return yield* task;
+        }, { stream: replayStream });
+        throw new Error("should have thrown DivergenceError");
+      } catch (error) {
+        expect(error).toBeInstanceOf(DivergenceError);
+      }
     });
   });
 });

@@ -1,4 +1,4 @@
-import { action, run, sleep, suspend, until } from "../mod.ts";
+import { action, run, sleep, spawn, suspend, until } from "../mod.ts";
 import { InMemoryDurableStream } from "../lib/durable/stream.ts";
 import { DivergenceError } from "../lib/durable/types.ts";
 import type { DurableEvent, EffectResolved, EffectErrored } from "../lib/durable/types.ts";
@@ -453,6 +453,268 @@ describe("durable run", () => {
       expect(yieldedDescs).toContain("suspend");
       // sleep(1) goes through action internally
       expect(yieldedDescs.some((d) => d === "sleep(1)" || d === "action")).toEqual(true);
+    });
+  });
+
+  describe("workflow:return", () => {
+    it("emits workflow:return before scope:destroyed for a simple workflow", async () => {
+      let stream = new InMemoryDurableStream();
+
+      await run(function* () {
+        return 42;
+      }, { stream });
+
+      let events = stream.read().map((e) => e.event);
+
+      // Find workflow:return events
+      let workflowReturns = events.filter((e) => e.type === "workflow:return");
+      expect(workflowReturns.length).toBeGreaterThanOrEqual(1);
+
+      // The root scope's workflow:return should have value 42
+      let rootReturn = workflowReturns.find(
+        (e) => e.type === "workflow:return" && e.scopeId === "root",
+      );
+      expect(rootReturn).toBeDefined();
+      if (rootReturn && rootReturn.type === "workflow:return") {
+        expect(rootReturn.value).toEqual(42);
+      }
+
+      // workflow:return should appear before scope:destroyed for the same scope
+      let rootReturnIdx = events.indexOf(rootReturn!);
+      let rootDestroyIdx = events.findIndex(
+        (e) => e.type === "scope:destroyed" && e.scopeId === "root",
+      );
+      expect(rootReturnIdx).toBeLessThan(rootDestroyIdx);
+    });
+
+    it("emits workflow:return for spawned child tasks", async () => {
+      let stream = new InMemoryDurableStream();
+
+      await run(function* () {
+        let task = yield* spawn(function* () {
+          yield* sleep(1);
+          return 42;
+        });
+        return yield* task;
+      }, { stream });
+
+      let events = stream.read().map((e) => e.event);
+      let workflowReturns = events.filter((e) => e.type === "workflow:return");
+
+      // Should have workflow:return for at least the child task scope and root
+      expect(workflowReturns.length).toBeGreaterThanOrEqual(2);
+
+      // Find the child scope's workflow:return (not root, not scope-1)
+      let childReturns = workflowReturns.filter(
+        (e) => e.type === "workflow:return" && e.scopeId !== "root",
+      );
+      // At least one child scope should have returned 42
+      let has42 = childReturns.some(
+        (e) => e.type === "workflow:return" && e.value === 42,
+      );
+      expect(has42).toEqual(true);
+    });
+
+    it("does not emit workflow:return when workflow errors", async () => {
+      let stream = new InMemoryDurableStream();
+
+      try {
+        await run(function* () {
+          throw new Error("boom");
+        }, { stream });
+      } catch {
+        // expected
+      }
+
+      let events = stream.read().map((e) => e.event);
+      let workflowReturns = events.filter((e) => e.type === "workflow:return");
+
+      // No workflow:return for the root scope since it errored
+      let rootReturn = workflowReturns.find(
+        (e) => e.type === "workflow:return" && e.scopeId === "root",
+      );
+      expect(rootReturn).toBeUndefined();
+    });
+
+    it("does not emit workflow:return when halted", async () => {
+      let stream = new InMemoryDurableStream();
+
+      let task = run(function* () {
+        yield* suspend();
+        return "unreachable";
+      }, { stream });
+
+      await task.halt();
+
+      let events = stream.read().map((e) => e.event);
+      // No workflow:return for the main task scope (scope-1) since it was halted
+      // Root scope also should not have workflow:return since task was halted
+      let rootReturn = events.find(
+        (e) => e.type === "workflow:return" && e.scopeId === "root",
+      );
+      expect(rootReturn).toBeUndefined();
+    });
+
+    it("workflow:return is replayed correctly", async () => {
+      // Step 1: Record
+      let recordStream = new InMemoryDurableStream();
+      await run(function* () {
+        yield* sleep(1);
+        return "hello";
+      }, { stream: recordStream });
+
+      // Step 2: Replay
+      let replayStream = InMemoryDurableStream.from(
+        recordStream.read().map((e) => e.event),
+      );
+
+      let result = await run(function* () {
+        yield* sleep(1);
+        return "hello";
+      }, { stream: replayStream });
+
+      expect(result).toEqual("hello");
+    });
+  });
+
+  describe("durable spawn resume", () => {
+    it("replays a full spawn workflow without re-executing child effects", async () => {
+      // Step 1: Record
+      let recordStream = new InMemoryDurableStream();
+
+      await run(function* () {
+        let task = yield* spawn(function* () {
+          yield* action<void>((resolve) => {
+            resolve();
+            return () => {};
+          }, "child-work");
+          return 42;
+        });
+        return yield* task;
+      }, { stream: recordStream });
+
+      // Step 2: Replay
+      let replayStream = InMemoryDurableStream.from(
+        recordStream.read().map((e) => e.event),
+      );
+
+      let childExecuted = false;
+      let result = await run(function* () {
+        let task = yield* spawn(function* () {
+          yield* action<void>((resolve) => {
+            childExecuted = true;
+            resolve();
+            return () => {};
+          }, "child-work");
+          return 42;
+        });
+        return yield* task;
+      }, { stream: replayStream });
+
+      expect(childExecuted).toEqual(false);
+      expect(result).toEqual(42);
+    });
+
+    it("resumes mid-workflow after spawn completes", async () => {
+      // Step 1: Record a workflow where parent spawns child and awaits result
+      let recordStream = new InMemoryDurableStream();
+
+      await run(function* () {
+        let task = yield* spawn(function* () {
+          yield* action<void>((resolve) => {
+            resolve();
+            return () => {};
+          }, "child-work");
+          return 10;
+        });
+        let childResult = yield* task;
+        // Second user effect after the spawn completes
+        let extra = yield* action<number>((resolve) => {
+          resolve(20);
+          return () => {};
+        }, "parent-extra");
+        return childResult + extra;
+      }, { stream: recordStream });
+
+      // Step 2: Create a partial stream — include everything up to and
+      // including the child's completion, but NOT the parent's second effect.
+      let allEvents = recordStream.read().map((e) => e.event);
+
+      // Find the parent's "parent-extra" effect:yielded — cut before it
+      let parentExtraIdx = allEvents.findIndex(
+        (e) => e.type === "effect:yielded" &&
+          e.description === "parent-extra",
+      );
+      expect(parentExtraIdx).toBeGreaterThan(0);
+
+      let partialStream = InMemoryDurableStream.from(
+        allEvents.slice(0, parentExtraIdx),
+      );
+
+      // Step 3: Resume — child replays, parent continues live
+      let childExecuted = false;
+      let parentExtraExecuted = false;
+
+      let result = await run(function* () {
+        let task = yield* spawn(function* () {
+          yield* action<void>((resolve) => {
+            childExecuted = true;
+            resolve();
+            return () => {};
+          }, "child-work");
+          return 10;
+        });
+        let childResult = yield* task;
+        let extra = yield* action<number>((resolve) => {
+          parentExtraExecuted = true;
+          resolve(20);
+          return () => {};
+        }, "parent-extra");
+        return childResult + extra;
+      }, { stream: partialStream });
+
+      // Child should have been replayed (not re-executed)
+      expect(childExecuted).toEqual(false);
+      // Parent's second effect should have executed live
+      expect(parentExtraExecuted).toEqual(true);
+      expect(result).toEqual(30);
+    });
+
+    it("detects divergence when child effect description changes", async () => {
+      // Step 1: Record with one child effect description
+      let recordStream = new InMemoryDurableStream();
+
+      await run(function* () {
+        let task = yield* spawn(function* () {
+          yield* action<void>((resolve) => {
+            resolve();
+            return () => {};
+          }, "original-work");
+          return 42;
+        });
+        return yield* task;
+      }, { stream: recordStream });
+
+      // Step 2: Replay with a different child effect description
+      let replayStream = InMemoryDurableStream.from(
+        recordStream.read().map((e) => e.event),
+      );
+
+      try {
+        await run(function* () {
+          let task = yield* spawn(function* () {
+            yield* action<void>((resolve) => {
+              resolve();
+              return () => {};
+            }, "changed-work"); // Different description!
+            return 42;
+          });
+          return yield* task;
+        }, { stream: replayStream });
+        throw new Error("should have thrown DivergenceError");
+      } catch (error) {
+        expect(error).toBeInstanceOf(DivergenceError);
+      }
     });
   });
 });

@@ -2,6 +2,7 @@ import { InstructionQueue, type Instruction } from "../reducer.ts";
 import { Err, Ok, type Result } from "../result.ts";
 import type { Context, Coroutine, Effect, Operation, Scope } from "../types.ts";
 import { api as effection } from "../api.ts";
+import { DelimiterContext } from "../delimiter.ts";
 import type { DurableStream } from "./types.ts";
 import {
   type Json,
@@ -248,6 +249,10 @@ export class DurableReducer {
           throw error;
         } finally {
           if (scopeId) {
+            // Emit workflow:return before scope:destroyed if the scope's
+            // task completed with a value. The Delimiter holds the outcome.
+            reducer.emitWorkflowReturn(scope, scopeId);
+
             if (reducer.isReplaying) {
               // Consume the scope:destroyed event
               let ev = reducer.peekReplay();
@@ -347,11 +352,31 @@ export class DurableReducer {
   }
 
   /**
-   * Record a workflow:return event. Called from the run() wrapper
-   * just before the workflow scope is destroyed.
+   * Emit a workflow:return event for a scope that is about to be destroyed.
+   *
+   * Reads the task's return value from the scope's DelimiterContext.
+   * Only emits when the Delimiter has a computed, successful outcome
+   * (i.e., the task completed normally, not halted or errored).
+   *
+   * Called from the scope destroy middleware, before scope:destroyed.
+   * Also called from run() for the root scope, passing the value directly.
    */
-  recordWorkflowReturn(scope: Scope, value: unknown): void {
-    let scopeId = this.getScopeId(scope);
+  emitWorkflowReturn(scope: Scope, scopeId: string, value?: unknown): void {
+    // If a value was passed explicitly (root scope from run()), use it.
+    // Otherwise, try to read the Delimiter's outcome from the scope.
+    let returnValue: unknown = value;
+    let hasValue = arguments.length > 2;
+
+    if (!hasValue) {
+      let delimiter = scope.get(DelimiterContext);
+      if (delimiter && delimiter.computed && delimiter.outcome?.exists && delimiter.outcome.value.ok) {
+        returnValue = delimiter.outcome.value.value;
+        hasValue = true;
+      }
+    }
+
+    if (!hasValue) return;
+
     if (this.isReplaying) {
       let ev = this.peekReplay();
       if (ev && ev.type === "workflow:return" && ev.scopeId === scopeId) {
@@ -361,7 +386,7 @@ export class DurableReducer {
       this.stream.append({
         type: "workflow:return",
         scopeId,
-        value: toJson(value),
+        value: toJson(returnValue),
       });
     }
   }

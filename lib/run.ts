@@ -78,10 +78,16 @@ export function run<T>(
   // But the root scope itself is created/destroyed outside the scope tree,
   // so we record its destruction when the task settles.
   let originalThen = task.then.bind(task);
-  let originalCatch = task.catch.bind(task);
 
-  // Record root scope:destroyed on task settlement
-  let recordRootDestroyed = (ok: boolean, error?: Error) => {
+  // Record root scope lifecycle events on task settlement.
+  // Emits workflow:return (for successful completion) followed by
+  // scope:destroyed for the root scope.
+  let recordRootSettlement = (ok: boolean, value?: T, error?: Error) => {
+    if (ok) {
+      // Emit workflow:return for the root scope before scope:destroyed
+      reducer.emitWorkflowReturn(scope, "root", value);
+    }
+
     if (reducer.isReplayingRoot()) {
       reducer.consumeRootDestroyed();
     } else {
@@ -106,11 +112,11 @@ export function run<T>(
     ) {
       return originalThen(
         (value: T) => {
-          recordRootDestroyed(true);
+          recordRootSettlement(true, value);
           return onfulfilled ? onfulfilled(value) : value as unknown as TResult1;
         },
         (error: unknown) => {
-          recordRootDestroyed(false, error as Error);
+          recordRootSettlement(false, undefined, error as Error);
           if (onrejected) return onrejected(error);
           throw error;
         },

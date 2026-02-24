@@ -498,7 +498,8 @@ export class DurableReducer {
       description === "useCoroutine()" ||
       description.startsWith("do <") ||
       description === "useScope()" ||
-      description === "trap return"
+      description === "trap return" ||
+      description === "await resource"
     );
   }
 

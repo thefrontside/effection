@@ -4,6 +4,7 @@ import type { Context, Coroutine, Effect, Operation, Scope } from "../types.ts";
 import { api as effection } from "../api.ts";
 import { DelimiterContext } from "../delimiter.ts";
 import type { DurableStream } from "./types.ts";
+import type { DurableEvent } from "./types.ts";
 import {
   type Json,
   type SerializedError,
@@ -37,28 +38,21 @@ export function toJson(value: unknown): Json {
   }
 
   if (typeof value === "object") {
-    // Check if it's a plain object (serializable)
     let proto = Object.getPrototypeOf(value);
     if (proto === Object.prototype || proto === null) {
       try {
-        // Try JSON roundtrip to verify serializability
         let json = JSON.stringify(value);
         return JSON.parse(json) as Json;
       } catch {
         return createLiveOnlySentinel(value) as unknown as Json;
       }
     }
-    // Non-plain objects (Scope, Coroutine, etc.) get sentinel
     return createLiveOnlySentinel(value) as unknown as Json;
   }
 
-  // Functions, symbols, etc.
   return createLiveOnlySentinel(value) as unknown as Json;
 }
 
-/**
- * Serialize an Error into a JSON-safe structure.
- */
 function serializeError(error: Error): SerializedError {
   return {
     name: error.name,
@@ -67,9 +61,6 @@ function serializeError(error: Error): SerializedError {
   };
 }
 
-/**
- * Deserialize a SerializedError back into an Error instance.
- */
 function deserializeError(serialized: SerializedError): Error {
   let error = new Error(serialized.message);
   error.name = serialized.name;
@@ -77,6 +68,249 @@ function deserializeError(serialized: SerializedError): Error {
     error.stack = serialized.stack;
   }
   return error;
+}
+
+/**
+ * Indexes replay events for per-scope access.
+ *
+ * During concurrent execution, effects from different scopes interleave
+ * non-deterministically. Both effect events and lifecycle events can
+ * appear in different orders during replay. This index provides:
+ *
+ * 1. Per-scope effect cursors (effect:yielded + resolutions)
+ * 2. Per-scope lifecycle event lookup (scope:created, scope:destroyed,
+ *    workflow:return indexed by scopeId)
+ * 3. Ordered scope creation list (for assigning scope IDs during replay)
+ */
+class ReplayIndex {
+  /**
+   * Per-scope list of user-facing effect events.
+   */
+  private scopeEffects = new Map<string, Array<{ offset: number; event: DurableEvent }>>();
+
+  /**
+   * Per-scope cursor into the scopeEffects arrays.
+   */
+  private scopeCursors = new Map<string, number>();
+
+  /**
+   * Map from effectId to its resolution event.
+   */
+  private resolutions = new Map<string, DurableEvent>();
+
+  /**
+   * scope:created events indexed by scopeId for direct lookup.
+   */
+  private scopeCreatedEvents = new Map<string, DurableEvent & { type: "scope:created" }>();
+
+  /**
+   * scope:destroyed events indexed by scopeId.
+   */
+  private scopeDestroyedEvents = new Map<string, DurableEvent & { type: "scope:destroyed" }>();
+
+  /**
+   * workflow:return events indexed by scopeId.
+   */
+  private workflowReturnEvents = new Map<string, DurableEvent & { type: "workflow:return" }>();
+
+  /**
+   * Ordered list of scope:created events for sequential consumption
+   * during replay (scopes are created deterministically in tree order).
+   */
+  private scopeCreationOrder: Array<DurableEvent & { type: "scope:created" }> = [];
+  private scopeCreationCursor = 0;
+
+  /**
+   * Set of consumed scope IDs (for lifecycle events).
+   */
+  private consumedCreations = new Set<string>();
+  private consumedDestructions = new Set<string>();
+  private consumedReturns = new Set<string>();
+
+  /**
+   * Whether there are any replay events at all.
+   */
+  readonly hasEvents: boolean;
+
+  constructor(
+    entries: ReturnType<DurableStream["read"]>,
+    isInfrastructure: (description: string) => boolean,
+  ) {
+    this.hasEvents = entries.length > 0;
+
+    let infraEffectIds = new Set<string>();
+
+    for (let i = 0; i < entries.length; i++) {
+      let { event } = entries[i];
+
+      if (event.type === "scope:created") {
+        this.scopeCreatedEvents.set(event.scopeId, event);
+        this.scopeCreationOrder.push(event);
+        continue;
+      }
+
+      if (event.type === "scope:destroyed") {
+        this.scopeDestroyedEvents.set(event.scopeId, event);
+        continue;
+      }
+
+      if (event.type === "workflow:return") {
+        this.workflowReturnEvents.set(event.scopeId, event);
+        continue;
+      }
+
+      if (event.type === "scope:set" || event.type === "scope:delete") {
+        // These are informational; not currently replayed with ordering
+        continue;
+      }
+
+      if (event.type === "effect:yielded") {
+        if (isInfrastructure(event.description)) {
+          infraEffectIds.add(event.effectId);
+          continue;
+        }
+
+        let scopeId = event.scopeId;
+        if (!this.scopeEffects.has(scopeId)) {
+          this.scopeEffects.set(scopeId, []);
+        }
+        this.scopeEffects.get(scopeId)!.push({ offset: i, event });
+        continue;
+      }
+
+      if (event.type === "effect:resolved" || event.type === "effect:errored") {
+        if (infraEffectIds.has(event.effectId)) {
+          continue;
+        }
+        this.resolutions.set(event.effectId, event);
+        continue;
+      }
+    }
+  }
+
+  // ── Scope creation (deterministic tree order) ────────────────────
+
+  /**
+   * Peek at the next scope:created event in creation order.
+   */
+  peekScopeCreation(): (DurableEvent & { type: "scope:created" }) | undefined {
+    if (this.scopeCreationCursor < this.scopeCreationOrder.length) {
+      let ev = this.scopeCreationOrder[this.scopeCreationCursor];
+      if (this.consumedCreations.has(ev.scopeId)) {
+        // Already consumed (e.g., root was consumed directly)
+        this.scopeCreationCursor++;
+        return this.peekScopeCreation();
+      }
+      return ev;
+    }
+    return undefined;
+  }
+
+  /**
+   * Consume the current scope:created event.
+   */
+  consumeScopeCreation(scopeId: string): void {
+    this.consumedCreations.add(scopeId);
+    // Advance cursor past consumed events
+    while (
+      this.scopeCreationCursor < this.scopeCreationOrder.length &&
+      this.consumedCreations.has(this.scopeCreationOrder[this.scopeCreationCursor].scopeId)
+    ) {
+      this.scopeCreationCursor++;
+    }
+  }
+
+  /**
+   * Check if a specific scope has a recorded creation event.
+   */
+  hasScopeCreation(scopeId: string): boolean {
+    return this.scopeCreatedEvents.has(scopeId) && !this.consumedCreations.has(scopeId);
+  }
+
+  /**
+   * Get the scope:created event for a specific scopeId.
+   */
+  getScopeCreation(scopeId: string): (DurableEvent & { type: "scope:created" }) | undefined {
+    if (this.consumedCreations.has(scopeId)) return undefined;
+    return this.scopeCreatedEvents.get(scopeId);
+  }
+
+  /**
+   * Check if there are more scope creation events to replay.
+   */
+  get hasMoreCreations(): boolean {
+    return this.peekScopeCreation() !== undefined;
+  }
+
+  // ── Scope destruction (per-scope lookup) ─────────────────────────
+
+  /**
+   * Check if a scope has a recorded destruction event.
+   */
+  hasScopeDestruction(scopeId: string): boolean {
+    return this.scopeDestroyedEvents.has(scopeId) && !this.consumedDestructions.has(scopeId);
+  }
+
+  /**
+   * Consume the scope:destroyed event for a specific scope.
+   */
+  consumeScopeDestruction(scopeId: string): void {
+    this.consumedDestructions.add(scopeId);
+  }
+
+  // ── Workflow return (per-scope lookup) ────────────────────────────
+
+  /**
+   * Check if a scope has a recorded workflow:return event.
+   */
+  hasWorkflowReturn(scopeId: string): boolean {
+    return this.workflowReturnEvents.has(scopeId) && !this.consumedReturns.has(scopeId);
+  }
+
+  /**
+   * Consume the workflow:return event for a specific scope.
+   */
+  consumeWorkflowReturn(scopeId: string): void {
+    this.consumedReturns.add(scopeId);
+  }
+
+  // ── Per-scope effect cursors ─────────────────────────────────────
+
+  peekScopeEffect(scopeId: string): DurableEvent | undefined {
+    let effects = this.scopeEffects.get(scopeId);
+    if (!effects) return undefined;
+    let cursor = this.scopeCursors.get(scopeId) ?? 0;
+    if (cursor < effects.length) {
+      return effects[cursor].event;
+    }
+    return undefined;
+  }
+
+  consumeScopeEffect(scopeId: string): void {
+    let cursor = this.scopeCursors.get(scopeId) ?? 0;
+    this.scopeCursors.set(scopeId, cursor + 1);
+  }
+
+  getScopeEffectOffset(scopeId: string): number {
+    let effects = this.scopeEffects.get(scopeId);
+    if (!effects) return -1;
+    let cursor = this.scopeCursors.get(scopeId) ?? 0;
+    if (cursor < effects.length) {
+      return effects[cursor].offset;
+    }
+    return -1;
+  }
+
+  hasScopeEffects(scopeId: string): boolean {
+    let effects = this.scopeEffects.get(scopeId);
+    if (!effects) return false;
+    let cursor = this.scopeCursors.get(scopeId) ?? 0;
+    return cursor < effects.length;
+  }
+
+  getResolution(effectId: string): DurableEvent | undefined {
+    return this.resolutions.get(effectId);
+  }
 }
 
 /**
@@ -90,54 +324,28 @@ function deserializeError(serialized: SerializedError): Error {
  * resolutions to the DurableStream. On the replay path, it reads
  * stored results and feeds them back without calling enter().
  *
- * The mode (live vs replay) is implicit from the stream cursor:
- *   - cursor < stored events matching current scope → replay
- *   - cursor exhausted → live
- *
- * Phase 2: Also manages scope lifecycle events via Api.Scope middleware.
- * Scope creation, destruction, context set/delete are recorded to the
- * stream and validated during replay.
+ * Phase 5: Uses per-scope cursors and per-scope lifecycle lookups
+ * for replay to handle concurrent interleaving correctly.
  */
 export class DurableReducer {
   reducing = false;
   readonly queue = new InstructionQueue();
 
-  /**
-   * Cursor into the stream's event list. Points to the next event
-   * we expect to consume during replay.
-   */
-  private cursor = 0;
-
-  /**
-   * Pre-loaded replay events from the stream, indexed for fast access.
-   */
-  private replayEvents: ReturnType<DurableStream["read"]>;
-
-  /**
-   * Maps live Scope objects to their durable scope IDs.
-   */
+  private replayIndex: ReplayIndex;
   private scopeIds = new WeakMap<Scope, string>();
-
-  /**
-   * Monotonic counter for generating child scope IDs.
-   */
   private scopeOrdinal = 0;
 
   constructor(public readonly stream: DurableStream) {
-    this.replayEvents = stream.read(0);
+    this.replayIndex = new ReplayIndex(
+      stream.read(0),
+      (desc) => this.isInfrastructureEffect(desc),
+    );
   }
 
-  /**
-   * Generate the next scope ID.
-   */
   private nextScopeId(): string {
     return `scope-${++this.scopeOrdinal}`;
   }
 
-  /**
-   * Get the durable scope ID for a live Scope object.
-   * Throws if the scope was not registered (lifecycle bug).
-   */
   getScopeId(scope: Scope): string {
     let id = this.scopeIds.get(scope);
     if (!id) {
@@ -149,40 +357,20 @@ export class DurableReducer {
     return id;
   }
 
-  /**
-   * Register a scope with a durable ID.
-   */
   private registerScope(scope: Scope, id: string): void {
     this.scopeIds.set(scope, id);
   }
 
-  /**
-   * Unregister a scope (after destruction).
-   */
   private unregisterScope(scope: Scope): void {
     this.scopeIds.delete(scope);
   }
 
-  /**
-   * Install Api.Scope middleware on the given scope to record/replay
-   * scope lifecycle events. Must be called on the run scope before
-   * any operations execute.
-   *
-   * The middleware is installed at "max" priority so it wraps around
-   * all other scope middleware (including the core implementation).
-   */
   installScopeMiddleware(runScope: Scope): void {
-    // Register the run scope as "root"
     this.registerScope(runScope, "root");
 
     // Record or consume scope:created for the root scope
-    if (this.isReplaying) {
-      let ev = this.peekReplay();
-      if (ev && ev.type === "scope:created" && ev.scopeId === "root" && !ev.parentScopeId) {
-        this.consumeReplay();
-      }
-      // If no matching event, that's OK for backwards compatibility
-      // with Phase 1 streams that don't have scope events
+    if (this.replayIndex.hasScopeCreation("root")) {
+      this.replayIndex.consumeScopeCreation("root");
     } else {
       this.stream.append({
         type: "scope:created",
@@ -192,35 +380,26 @@ export class DurableReducer {
 
     let reducer = this;
 
-    // Install middleware at "max" priority (outermost wrapper)
     runScope.around(api, {
-      // Wrap scope creation to record/replay scope:created events
       create(args: [Scope], next: (parent: Scope) => [Scope, () => Operation<void>]) {
         let [parent] = args;
         let parentScopeId = reducer.scopeIds.get(parent);
 
-        // Delegate to the real scope creation
         let [child, destroy] = next(parent);
 
-        if (reducer.isReplaying) {
-          // During replay, consume the scope:created event and use its scopeId
-          let ev = reducer.peekReplay();
-          if (ev && ev.type === "scope:created") {
-            // Validate parent relationship
-            if (parentScopeId && ev.parentScopeId !== parentScopeId) {
-              throw new DivergenceError(
-                `scope:created with parent ${ev.parentScopeId}`,
-                `scope:created with parent ${parentScopeId}`,
-                reducer.cursor,
-              );
-            }
-            reducer.registerScope(child, ev.scopeId);
-            reducer.consumeReplay();
-          } else {
-            // No scope:created in stream — assign a new ID (backwards compat)
-            let scopeId = reducer.nextScopeId();
-            reducer.registerScope(child, scopeId);
+        // Check if the next scope creation in the replay matches
+        let ev = reducer.replayIndex.peekScopeCreation();
+        if (ev) {
+          // Validate parent relationship
+          if (parentScopeId && ev.parentScopeId !== parentScopeId) {
+            throw new DivergenceError(
+              `scope:created with parent ${ev.parentScopeId}`,
+              `scope:created with parent ${parentScopeId}`,
+              -1,
+            );
           }
+          reducer.registerScope(child, ev.scopeId);
+          reducer.replayIndex.consumeScopeCreation(ev.scopeId);
         } else {
           // Live path: assign ID and record
           let scopeId = reducer.nextScopeId();
@@ -235,12 +414,10 @@ export class DurableReducer {
         return [child, destroy];
       },
 
-      // Wrap scope destruction to record/replay scope:destroyed events
       *destroy(args: [Scope], next: (scope: Scope) => Operation<void>) {
         let [scope] = args;
         let scopeId = reducer.scopeIds.get(scope);
 
-        // Always run real destruction
         let outcome: { ok: true } | { ok: false; error: SerializedError } = { ok: true };
         try {
           yield* next(scope);
@@ -249,16 +426,11 @@ export class DurableReducer {
           throw error;
         } finally {
           if (scopeId) {
-            // Emit workflow:return before scope:destroyed if the scope's
-            // task completed with a value. The Delimiter holds the outcome.
+            // Emit workflow:return before scope:destroyed
             reducer.emitWorkflowReturn(scope, scopeId);
 
-            if (reducer.isReplaying) {
-              // Consume the scope:destroyed event
-              let ev = reducer.peekReplay();
-              if (ev && ev.type === "scope:destroyed" && ev.scopeId === scopeId) {
-                reducer.consumeReplay();
-              }
+            if (reducer.replayIndex.hasScopeDestruction(scopeId)) {
+              reducer.replayIndex.consumeScopeDestruction(scopeId);
             } else {
               reducer.stream.append({
                 type: "scope:destroyed",
@@ -271,56 +443,38 @@ export class DurableReducer {
         }
       },
 
-      // Wrap context set to record scope:set events
       set(args: [Scope, Context<unknown>, unknown], next: (scope: Scope, context: Context<unknown>, value: unknown) => unknown) {
         let [scope, context, value] = args;
         let result = next(scope, context, value);
 
         let scopeId = reducer.scopeIds.get(scope);
-        if (scopeId) {
-          let serializedValue = toJson(value);
-          if (reducer.isReplaying) {
-            let ev = reducer.peekReplay();
-            if (ev && ev.type === "scope:set" && ev.scopeId === scopeId && ev.contextName === context.name) {
-              reducer.consumeReplay();
-            }
-          } else {
-            // Only record user-facing context sets, not infrastructure
-            // (Priority, Children, DelimiterContext, ErrorContext, TaskGroupContext, ReducerContext are infra)
-            if (!isInfrastructureContext(context.name)) {
-              reducer.stream.append({
-                type: "scope:set",
-                scopeId,
-                contextName: context.name,
-                value: serializedValue,
-              });
-            }
+        if (scopeId && !isInfrastructureContext(context.name)) {
+          // Only record in live mode (not during replay of this scope)
+          if (!reducer.replayIndex.hasScopeEffects(scopeId) && !reducer.replayIndex.hasScopeDestruction(scopeId)) {
+            reducer.stream.append({
+              type: "scope:set",
+              scopeId,
+              contextName: context.name,
+              value: toJson(value),
+            });
           }
         }
 
         return result;
       },
 
-      // Wrap context delete to record scope:delete events
       delete(args: [Scope, Context<unknown>], next: (scope: Scope, context: Context<unknown>) => boolean) {
         let [scope, context] = args;
         let result = next(scope, context);
 
         let scopeId = reducer.scopeIds.get(scope);
-        if (scopeId) {
-          if (reducer.isReplaying) {
-            let ev = reducer.peekReplay();
-            if (ev && ev.type === "scope:delete" && ev.scopeId === scopeId && ev.contextName === context.name) {
-              reducer.consumeReplay();
-            }
-          } else {
-            if (!isInfrastructureContext(context.name)) {
-              reducer.stream.append({
-                type: "scope:delete",
-                scopeId,
-                contextName: context.name,
-              });
-            }
+        if (scopeId && !isInfrastructureContext(context.name)) {
+          if (!reducer.replayIndex.hasScopeEffects(scopeId) && !reducer.replayIndex.hasScopeDestruction(scopeId)) {
+            reducer.stream.append({
+              type: "scope:delete",
+              scopeId,
+              contextName: context.name,
+            });
           }
         }
 
@@ -329,41 +483,15 @@ export class DurableReducer {
     }, { at: "max" });
   }
 
-  /**
-   * Check if the replay cursor is pointing at a root scope:destroyed event.
-   * Used by run() to consume root lifecycle events during replay.
-   */
   isReplayingRoot(): boolean {
-    if (!this.isReplaying) return false;
-    let ev = this.peekReplay();
-    return !!(ev && ev.type === "scope:destroyed" && ev.scopeId === "root");
+    return this.replayIndex.hasScopeDestruction("root");
   }
 
-  /**
-   * Consume the root scope:destroyed event during replay.
-   */
   consumeRootDestroyed(): void {
-    if (this.isReplaying) {
-      let ev = this.peekReplay();
-      if (ev && ev.type === "scope:destroyed" && ev.scopeId === "root") {
-        this.consumeReplay();
-      }
-    }
+    this.replayIndex.consumeScopeDestruction("root");
   }
 
-  /**
-   * Emit a workflow:return event for a scope that is about to be destroyed.
-   *
-   * Reads the task's return value from the scope's DelimiterContext.
-   * Only emits when the Delimiter has a computed, successful outcome
-   * (i.e., the task completed normally, not halted or errored).
-   *
-   * Called from the scope destroy middleware, before scope:destroyed.
-   * Also called from run() for the root scope, passing the value directly.
-   */
   emitWorkflowReturn(scope: Scope, scopeId: string, value?: unknown): void {
-    // If a value was passed explicitly (root scope from run()), use it.
-    // Otherwise, try to read the Delimiter's outcome from the scope.
     let returnValue: unknown = value;
     let hasValue = arguments.length > 2;
 
@@ -377,11 +505,8 @@ export class DurableReducer {
 
     if (!hasValue) return;
 
-    if (this.isReplaying) {
-      let ev = this.peekReplay();
-      if (ev && ev.type === "workflow:return" && ev.scopeId === scopeId) {
-        this.consumeReplay();
-      }
+    if (this.replayIndex.hasWorkflowReturn(scopeId)) {
+      this.replayIndex.consumeWorkflowReturn(scopeId);
     } else {
       this.stream.append({
         type: "workflow:return",
@@ -391,51 +516,6 @@ export class DurableReducer {
     }
   }
 
-  /**
-   * Peek at the next replay event without advancing the cursor.
-   * Returns undefined if replay is exhausted.
-   */
-  private peekReplay() {
-    if (this.cursor < this.replayEvents.length) {
-      return this.replayEvents[this.cursor].event;
-    }
-    return undefined;
-  }
-
-  /**
-   * Advance the cursor past the current replay event.
-   */
-  private consumeReplay() {
-    this.cursor++;
-  }
-
-  /**
-   * Check if we're in replay mode (have unconsumed stored events).
-   */
-  private get isReplaying(): boolean {
-    return this.cursor < this.replayEvents.length;
-  }
-
-  /**
-   * Skip over non-effect events in the replay stream (scope events, etc.)
-   * that were not consumed by the scope middleware.
-   * These are informational and don't correspond to generator yields.
-   */
-  private skipNonEffectEvents(): void {
-    while (this.isReplaying) {
-      let ev = this.peekReplay();
-      if (!ev || ev.type === "effect:yielded") break;
-      this.consumeReplay();
-    }
-  }
-
-  /**
-   * The reduce method — drop-in replacement for Reducer.reduce.
-   *
-   * This is an arrow function property to match Effection's Reducer
-   * which also declares `reduce` as an arrow function (important for
-   * `this` binding when passed around).
-   */
   reduce = (instruction: Instruction) => {
     let { queue } = this;
 
@@ -476,6 +556,14 @@ export class DurableReducer {
             throw result.error;
           }
         } catch (error) {
+          if (error instanceof DivergenceError) {
+            // DivergenceError is a fatal infrastructure error that must
+            // propagate immediately. It cannot go through the normal
+            // instruction queue because the Delimiter validator may
+            // drop it during replay (the scope finalizes synchronously
+            // before the error instruction is dequeued).
+            throw error;
+          }
           routine.next(Err(error as Error));
         }
         item = queue.dequeue();
@@ -485,119 +573,61 @@ export class DurableReducer {
     }
   };
 
-  /**
-   * Check if an effect description belongs to Effection's internal
-   * infrastructure (task setup, scope management, etc.).
-   *
-   * These effects are always executed live — they create non-serializable
-   * values (Coroutine, Scope) that are needed for the runtime to function.
-   * During replay, matching infrastructure events in the stream are skipped.
-   */
   private isInfrastructureEffect(description: string): boolean {
     return (
       description === "useCoroutine()" ||
       description.startsWith("do <") ||
       description === "useScope()" ||
       description === "trap return" ||
-      description === "await resource"
+      description === "await resource" ||
+      description === "await winner" ||
+      description === "await delimiter" ||
+      description === "await future" ||
+      description === "await destruction" ||
+      description === "await callcc" ||
+      description === "await each done" ||
+      description === "await each context"
     );
   }
 
-  /**
-   * Skip infrastructure effect events (yielded + resolution pair) in the
-   * replay stream. These correspond to effects that are always re-executed
-   * live and don't need replay.
-   */
-  private skipInfrastructureEvents(): void {
-    while (this.isReplaying) {
-      let ev = this.peekReplay();
-      if (!ev) break;
-
-      // Skip non-effect events (scope events, workflow events)
-      if (ev.type !== "effect:yielded") {
-        this.consumeReplay();
-        continue;
-      }
-
-      // If it's an infrastructure effect, skip it and its resolution
-      if (this.isInfrastructureEffect(ev.description)) {
-        let infraId = ev.effectId;
-        this.consumeReplay(); // skip yielded
-
-        // Also skip the corresponding resolution
-        let resolution = this.peekReplay();
-        if (
-          resolution &&
-          (resolution.type === "effect:resolved" || resolution.type === "effect:errored") &&
-          resolution.effectId === infraId
-        ) {
-          this.consumeReplay();
-        }
-        continue;
-      }
-
-      // Found a non-infrastructure effect:yielded — stop skipping
-      break;
-    }
-  }
-
-  /**
-   * Handle a yielded effect — either replay from stream or execute live.
-   */
   private handleEffect(effect: Effect<unknown>, routine: Coroutine): void {
     let description = effect.description ?? "unknown";
     let effectId = nextEffectId();
 
-    // Resolve the scope ID for this coroutine's scope
     let scopeId = this.scopeIds.get(routine.scope) ?? "unknown";
 
-    // Infrastructure effects always execute live — skip matching events
-    // in the replay stream and fall through to the live path.
+    // Infrastructure effects always execute live
     if (this.isInfrastructureEffect(description)) {
-      // Skip any infrastructure events at current cursor position
-      this.skipInfrastructureEvents();
-      // Fall through to live execution (don't record — these are
-      // recreated on each run)
       routine.data.exit = effect.enter(routine.next, routine);
       return;
     }
 
-    // Skip infrastructure events in the replay stream to find the
-    // next user-facing effect event
-    this.skipInfrastructureEvents();
-
-    // Check if we can replay this effect
-    let replayEvent = this.peekReplay();
+    // Check if we can replay this effect (per-scope cursor)
+    let replayEvent = this.replayIndex.peekScopeEffect(scopeId);
 
     if (replayEvent && replayEvent.type === "effect:yielded") {
-      // Divergence detection: the description must match
+      // Divergence detection
       if (replayEvent.description !== description) {
         throw new DivergenceError(
           replayEvent.description,
           description,
-          this.cursor,
+          this.replayIndex.getScopeEffectOffset(scopeId),
         );
       }
 
-      // Consume the effect:yielded event
       effectId = replayEvent.effectId;
-      this.consumeReplay();
+      this.replayIndex.consumeScopeEffect(scopeId);
 
-      // Now look for the corresponding resolution event
-      let resolutionEvent = this.peekReplay();
+      let resolutionEvent = this.replayIndex.getResolution(effectId);
 
-      if (resolutionEvent && resolutionEvent.type === "effect:resolved" && resolutionEvent.effectId === effectId) {
-        // Replay: feed stored result without calling enter()
-        this.consumeReplay();
+      if (resolutionEvent && resolutionEvent.type === "effect:resolved") {
         let result: Result<unknown> = Ok(resolutionEvent.value);
         routine.data.exit = (resolve) => resolve(Ok());
         routine.next(result);
         return;
       }
 
-      if (resolutionEvent && resolutionEvent.type === "effect:errored" && resolutionEvent.effectId === effectId) {
-        // Replay: feed stored error without calling enter()
-        this.consumeReplay();
+      if (resolutionEvent && resolutionEvent.type === "effect:errored") {
         let error = deserializeError(resolutionEvent.error);
         let result: Result<unknown> = Err(error);
         routine.data.exit = (resolve) => resolve(Ok());
@@ -605,8 +635,7 @@ export class DurableReducer {
         return;
       }
 
-      // Resolution event missing or doesn't match — fall through to live
-      // (This handles the case where the stream was truncated mid-effect)
+      // Resolution missing — fall through to live
     }
 
     // Live path: record and execute
@@ -617,12 +646,10 @@ export class DurableReducer {
       description,
     });
 
-    // Wrap routine.next to intercept the resolution
     let originalNext = routine.next.bind(routine);
     let stream = this.stream;
 
     let wrappedNext = (result: Result<unknown>) => {
-      // Record the resolution
       if (result.ok) {
         stream.append({
           type: "effect:resolved",
@@ -637,33 +664,25 @@ export class DurableReducer {
         });
       }
 
-      // Restore original next and forward
       routine.next = originalNext;
       originalNext(result);
     };
 
-    // Temporarily replace routine.next with our wrapper
     routine.next = wrappedNext;
-
-    // Execute the effect live
     routine.data.exit = effect.enter(routine.next, routine);
   }
 }
 
-/**
- * Check if a context name belongs to Effection's internal infrastructure.
- * These are not recorded as scope:set/scope:delete events.
- */
 function isInfrastructureContext(name: string): boolean {
   return (
-    name === "@effection/scope.generation" || // Priority
-    name === "@effection/scope.children" ||   // Children
-    name === "@effection/coroutine" ||        // Routine
-    name === "@effection/reducer" ||          // ReducerContext
-    name === "@effection/delimiter" ||        // DelimiterContext
-    name === "@effection/boundary" ||         // ErrorContext
-    name === "@effection/task-group" ||       // TaskGroupContext
-    name === "each" ||                        // EachStack
-    name.startsWith("api::")                  // Api contexts (api::Scope, api::Main, etc.)
+    name === "@effection/scope.generation" ||
+    name === "@effection/scope.children" ||
+    name === "@effection/coroutine" ||
+    name === "@effection/reducer" ||
+    name === "@effection/delimiter" ||
+    name === "@effection/boundary" ||
+    name === "@effection/task-group" ||
+    name === "each" ||
+    name.startsWith("api::")
   );
 }

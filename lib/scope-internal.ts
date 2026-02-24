@@ -133,7 +133,7 @@ export function buildScopeInternal(
       if (destruction) {
         return yield* destruction.operation;
       }
-      destruction = withResolvers<void>();
+      destruction = withResolvers<void>("await destruction");
       parent?.expect(Children).delete(scope);
       unbind();
       let outcome = Ok();

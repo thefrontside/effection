@@ -695,10 +695,20 @@ describe("durable run", () => {
         return yield* task;
       }, { stream: recordStream });
 
-      // Step 2: Replay with a different child effect description
-      let replayStream = InMemoryDurableStream.from(
-        recordStream.read().map((e) => e.event),
+      // Step 2: Partial replay — truncate before the child's effect resolves
+      // so the child must re-execute with the divergent description.
+      // We keep scope events and the child's effect:yielded but remove
+      // its resolution, forcing live execution of the child.
+      let events = recordStream.read().map((e) => e.event);
+      let childResolvedIdx = events.findIndex(
+        (e) => e.type === "effect:resolved" && e.effectId ===
+          (events.find((ev) => ev.type === "effect:yielded" && ev.description === "original-work") as any)?.effectId,
       );
+      expect(childResolvedIdx).toBeGreaterThan(0);
+
+      // Truncate at the child's resolution — child effect is yielded but
+      // not resolved, so the child must re-execute.
+      let partialStream = InMemoryDurableStream.from(events.slice(0, childResolvedIdx));
 
       try {
         await run(function* () {
@@ -710,7 +720,7 @@ describe("durable run", () => {
             return 42;
           });
           return yield* task;
-        }, { stream: replayStream });
+        }, { stream: partialStream });
         throw new Error("should have thrown DivergenceError");
       } catch (error) {
         expect(error).toBeInstanceOf(DivergenceError);

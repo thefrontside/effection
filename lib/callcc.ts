@@ -11,7 +11,7 @@ export function* callcc<T>(
     reject: (error: Error) => Operation<void>,
   ) => Operation<void>,
 ): Operation<T> {
-  let result = withResolvers<Result<T>>();
+  let result = withResolvers<Result<T>>("await callcc");
 
   let resolve = lift((value: T) => result.resolve(Ok(value)));
 

@@ -10,7 +10,7 @@ export class Delimiter<T>
   implements Operation<Maybe<Result<T>>>, ErrorBoundary {
   level = 0;
   finalized = false;
-  future = withResolvers<Maybe<Result<T>>>();
+  future = withResolvers<Maybe<Result<T>>>("await delimiter");
   computed = false;
   routine?: Coroutine;
   outcome?: Maybe<Result<T>>;

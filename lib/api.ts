@@ -2,6 +2,7 @@
 import type { Api, Context, Operation, Scope } from "./types.ts";
 import { createApiInternal } from "./api-internal.ts";
 import type { ScopeInternal } from "./scope-internal.ts";
+import type { Instruction } from "./reducer.ts";
 
 export function createApi<A extends {}>(name: string, core: A): Api<A> {
   return createApiInternal(name, core);
@@ -18,9 +19,14 @@ interface MainApi {
   main(body: (args: string[]) => Operation<void>): Promise<void>;
 }
 
+interface ReducerApi {
+  reduce(instruction: Instruction): void;
+}
+
 interface Apis {
   Scope: Api<ScopeApi>;
   Main: Api<MainApi>;
+  Reducer: Api<ReducerApi>;
 }
 
 export const api: Apis = {
@@ -39,6 +45,11 @@ export const api: Apis = {
   Main: createApi<MainApi>("Main", {
     main() {
       throw new TypeError(`missing handler for "main()"`);
+    },
+  }),
+  Reducer: createApi<ReducerApi>("Reducer", {
+    reduce() {
+      throw new TypeError(`no handler for Reducer.reduce()`);
     },
   }),
 };

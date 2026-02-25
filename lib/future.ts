@@ -9,7 +9,7 @@ export interface FutureWithResolvers<T> {
 }
 export function createFuture<T>(): FutureWithResolvers<T> {
   let promise = lazyPromiseWithResolvers<T>();
-  let operation = withResolvers<T>();
+  let operation = withResolvers<T>("await future");
 
   let resolve = (value: T) => {
     promise.resolve(value);

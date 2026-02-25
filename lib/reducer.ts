@@ -58,7 +58,7 @@ export class Reducer {
   };
 }
 
-type Instruction = [
+export type Instruction = [
   number,
   Coroutine<unknown>,
   Result<unknown>,
@@ -66,7 +66,7 @@ type Instruction = [
   "return" | "next",
 ];
 
-class InstructionQueue extends PriorityQueue<Instruction> {
+export class InstructionQueue extends PriorityQueue<Instruction> {
   enqueue(instruction: Instruction): void {
     let [priority] = instruction;
     this.push(priority, instruction);

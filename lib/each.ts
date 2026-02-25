@@ -37,8 +37,8 @@ export function each<T>(stream: Stream<T, unknown>): Operation<Iterable<T>> {
         scope.set(EachStack, []);
       }
 
-      let done = withResolvers<void>();
-      let cxt = withResolvers<EachLoop<T>>();
+      let done = withResolvers<void>("await each done");
+      let cxt = withResolvers<EachLoop<T>>("await each context");
 
       yield* spawn(function* () {
         let subscription = yield* stream;

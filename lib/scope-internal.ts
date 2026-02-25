@@ -1,12 +1,14 @@
 import type { ApiInternal } from "./api-internal.ts";
 import { api as effection } from "./api.ts";
 import { Children, Priority } from "./contexts.ts";
+import { Reducer } from "./reducer.ts";
 import { Err, Ok, unbox } from "./result.ts";
 import { createTask } from "./task.ts";
 import type { Context, Operation, Scope, Task } from "./types.ts";
 import { type WithResolvers, withResolvers } from "./with-resolvers.ts";
 
 const api = effection.Scope;
+const reducerApi = effection.Reducer;
 
 export function createScopeInternal(
   parent?: Scope,
@@ -16,6 +18,12 @@ export function createScopeInternal(
     global.around(api, {
       create([parent]) {
         return buildScopeInternal(parent);
+      },
+    }, { at: "min" });
+    let defaultReducer = new Reducer();
+    global.around(reducerApi, {
+      reduce([instruction]) {
+        defaultReducer.reduce(instruction);
       },
     }, { at: "min" });
     return [global, destroy] as const;
@@ -133,7 +141,7 @@ export function buildScopeInternal(
       if (destruction) {
         return yield* destruction.operation;
       }
-      destruction = withResolvers<void>();
+      destruction = withResolvers<void>("await destruction");
       parent?.expect(Children).delete(scope);
       unbind();
       let outcome = Ok();

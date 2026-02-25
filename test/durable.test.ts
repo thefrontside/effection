@@ -368,6 +368,135 @@ describe("durable run", () => {
       expect(result).toEqual(30); // 10 (replayed) + 20 (live)
       expect(liveEffectExecuted).toEqual(true);
     });
+
+    it("heals unresolved replay boundary and fully replays on next run", async () => {
+      // Step 1: Record a full run with a tail after sleep(1)
+      let recordStream = new InMemoryDurableStream();
+
+      let recorded = await run(function* () {
+        let first = yield* action<string>((resolve) => {
+          resolve("A");
+          return () => {};
+        }, "first-action");
+
+        yield* sleep(1);
+
+        let second = yield* action<string>((resolve) => {
+          resolve("B");
+          return () => {};
+        }, "second-action");
+
+        yield* sleep(1);
+        return `${first}-${second}`;
+      }, { stream: recordStream });
+
+      expect(recorded).toEqual("A-B");
+
+      // Step 2: Truncate after sleep(1) yielded but before its resolution.
+      // This simulates an interrupted run at an unresolved boundary.
+      let allEvents = recordStream.read().map((e) => e.event);
+      let boundaryIdx = allEvents.findIndex((e, i) => {
+        if (e.type !== "effect:yielded" || e.description !== "sleep(1)") {
+          return false;
+        }
+        let next = allEvents[i + 1];
+        return !next || next.type !== "effect:resolved" || next.effectId !== e.effectId;
+      });
+
+      if (boundaryIdx === -1) {
+        boundaryIdx = allEvents.findIndex(
+          (e) => e.type === "effect:yielded" && e.description === "sleep(1)",
+        );
+      }
+
+      expect(boundaryIdx).toBeGreaterThan(0);
+
+      let boundaryEvent = allEvents[boundaryIdx];
+      expect(boundaryEvent.type).toEqual("effect:yielded");
+      let boundaryEffectId = boundaryEvent.type === "effect:yielded"
+        ? boundaryEvent.effectId
+        : "";
+
+      let partialStream = InMemoryDurableStream.from(allEvents.slice(0, boundaryIdx + 1));
+
+      // Step 3: Resume — prefix replays, unresolved boundary + tail execute live.
+      let run2FirstEntered = false;
+      let run2SecondEntered = false;
+
+      let resumed = await run(function* () {
+        let first = yield* action<string>((resolve) => {
+          run2FirstEntered = true;
+          resolve("WRONG");
+          return () => {};
+        }, "first-action");
+
+        yield* sleep(1);
+
+        let second = yield* action<string>((resolve) => {
+          run2SecondEntered = true;
+          resolve("B");
+          return () => {};
+        }, "second-action");
+
+        yield* sleep(1);
+        return `${first}-${second}`;
+      }, { stream: partialStream });
+
+      expect(resumed).toEqual("A-B");
+      expect(run2FirstEntered).toEqual(false);
+      expect(run2SecondEntered).toEqual(true);
+
+      // Stream should be healed: no duplicate yielded IDs, and boundary has a resolution.
+      let afterRun2 = partialStream.read().map((e) => e.event);
+      let yieldedIds = new Map<string, number>();
+      for (let event of afterRun2) {
+        if (event.type === "effect:yielded") {
+          yieldedIds.set(event.effectId, (yieldedIds.get(event.effectId) ?? 0) + 1);
+        }
+      }
+
+      let duplicates = Array.from(yieldedIds.entries()).filter(([, count]) => count > 1);
+      expect(duplicates).toEqual([]);
+
+      let boundaryYieldedCount = afterRun2.filter(
+        (e) => e.type === "effect:yielded" && e.effectId === boundaryEffectId,
+      ).length;
+      let boundaryResolvedCount = afterRun2.filter(
+        (e) =>
+          (e.type === "effect:resolved" || e.type === "effect:errored") &&
+          e.effectId === boundaryEffectId,
+      ).length;
+
+      expect(boundaryYieldedCount).toEqual(1);
+      expect(boundaryResolvedCount).toEqual(1);
+
+      // Step 4: Replay again from the healed stream — should be full replay.
+      let run3FirstEntered = false;
+      let run3SecondEntered = false;
+
+      let replayed = await run(function* () {
+        let first = yield* action<string>((resolve) => {
+          run3FirstEntered = true;
+          resolve("WRONG");
+          return () => {};
+        }, "first-action");
+
+        yield* sleep(1);
+
+        let second = yield* action<string>((resolve) => {
+          run3SecondEntered = true;
+          resolve("WRONG");
+          return () => {};
+        }, "second-action");
+
+        yield* sleep(1);
+        return `${first}-${second}`;
+      }, { stream: partialStream });
+
+      expect(replayed).toEqual("A-B");
+      expect(run3FirstEntered).toEqual(false);
+      expect(run3SecondEntered).toEqual(false);
+    });
   });
 
   describe("divergence detection", () => {

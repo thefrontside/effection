@@ -593,6 +593,7 @@ export class DurableReducer {
   private handleEffect(effect: Effect<unknown>, routine: Coroutine): void {
     let description = effect.description ?? "unknown";
     let effectId = nextEffectId();
+    let shouldRecordYielded = true;
 
     let scopeId = this.scopeIds.get(routine.scope) ?? "unknown";
 
@@ -635,16 +636,20 @@ export class DurableReducer {
         return;
       }
 
-      // Resolution missing — fall through to live
+      // Resolution missing — run live and record only the missing
+      // resolution for the existing effectId (do not re-record yielded).
+      shouldRecordYielded = false;
     }
 
     // Live path: record and execute
-    this.stream.append({
-      type: "effect:yielded",
-      scopeId,
-      effectId,
-      description,
-    });
+    if (shouldRecordYielded) {
+      this.stream.append({
+        type: "effect:yielded",
+        scopeId,
+        effectId,
+        description,
+      });
+    }
 
     let originalNext = routine.next.bind(routine);
     let stream = this.stream;

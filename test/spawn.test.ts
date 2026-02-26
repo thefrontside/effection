@@ -255,4 +255,31 @@ describe("spawn", () => {
 
     expect(sequence).toEqual(["parent", "second", "first"]);
   });
+
+  it("does not fail parent scope when error from child halt is caught", async () => {
+    let result = run(function* () {
+      let task = yield* spawn(function* () {
+        try {
+          yield* suspend();
+        } finally {
+          throw new Error("finally-boom");
+        }
+      });
+
+      yield* sleep(0);
+
+      try {
+        yield* task.halt();
+      } catch (error) {
+        // Error is explicitly caught — parent scope should remain healthy
+        expect((error as Error).message).toEqual("finally-boom");
+      }
+
+      return "success";
+    });
+
+    // The parent caught the error, so it should resolve with "success",
+    // not reject with "finally-boom"
+    await expect(result).resolves.toEqual("success");
+  });
 });

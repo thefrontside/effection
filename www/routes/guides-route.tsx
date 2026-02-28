@@ -30,15 +30,17 @@ export function guidesRoute({
 }): SitemapRoute<JSXElement> {
   return {
     *routemap(pathname) {
-      let { series: SERIES } = yield* useConfig();
-      let paths = SERIES.map(function* (series) {
+      let { series } = yield* useConfig();
+      // Only stable series have guides (no prereleases)
+      let stableSeries = series.filter((s) => !s.includePrerelease);
+      let paths = stableSeries.map(function* (s) {
         let paths: RoutePath[] = [];
 
-        let pages = yield* useGuides(series);
+        let pages = yield* useGuides(s.name);
 
         for (let page of yield* pages.all()) {
           paths.push({
-            pathname: pathname({ id: page.id, series }),
+            pathname: pathname({ id: page.id, series: s.name }),
           });
         }
         return paths;
@@ -46,7 +48,9 @@ export function guidesRoute({
       return (yield* all(paths)).flat();
     },
     *handler(req) {
-      let { series: SERIES, current } = yield* useConfig();
+      let { series: allSeries, current } = yield* useConfig();
+      // Only stable series have guides (no prereleases)
+      let stableSeries = allSeries.filter((s) => !s.includePrerelease);
 
       let { id, series = current } = yield* useParams<{
         id: string | undefined;
@@ -114,21 +118,21 @@ export function guidesRoute({
       }
 
       let versionToggle = yield* all(
-        SERIES.map(function* (s) {
-          let target = yield* useGuides(s);
+        stableSeries.map(function* (s) {
+          let target = yield* useGuides(s.name);
           let targetPage = yield* target.get(page.id);
-          let base = current === s ? "docs" : `guides/${s}`;
+          let base = current === s.name ? "docs" : `guides/${s.name}`;
           let url = yield* createRootUrl(base)(targetPage ? page.id : "/");
           return (
             <a
               href={url}
               class={`text-base ${
-                s === series
+                s.name === series
                   ? "font-bold text-sky-500"
                   : "text-gray-600 dark:text-gray-400 hover:text-sky-500"
               }`}
             >
-              {s}
+              {s.name}
             </a>
           );
         }),

@@ -6,9 +6,8 @@ import { useAppHtml } from "./app.html.tsx";
 import { ApiPage } from "../components/api/api-page.tsx";
 import { usePackage } from "../lib/package.ts";
 import { createSibling } from "../lib/links-resolvers.ts";
-import { SiteConfig } from "../context/config.ts";
 
-export function apiReferenceRoute(series: SiteConfig["series"][number], {
+export function apiReferenceRoute(series: string, {
   search,
 }: {
   search: boolean;

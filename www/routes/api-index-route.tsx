@@ -3,7 +3,8 @@ import { type JSXElement } from "revolution";
 import { Icon } from "../components/type/icon.tsx";
 import { DocPage } from "../hooks/use-deno-doc.tsx";
 import { ResolveLinkFunction } from "../hooks/use-markdown.tsx";
-import { usePackage } from "../lib/package.ts";
+import { Package, usePackage } from "../lib/package.ts";
+import { gt } from "../lib/semver.ts";
 import { SitemapRoute } from "../plugins/sitemap.ts";
 import { useAppHtml } from "./app.html.tsx";
 import { createChildURL } from "../lib/links-resolvers.ts";
@@ -25,6 +26,14 @@ export function apiIndexRoute(
         type: "worktree",
         series: "v4",
       });
+
+      let v4Next = yield* usePackage({
+        type: "worktree",
+        series: "v4-next",
+      });
+
+      // Only show prerelease link if it's newer than stable
+      let showV4Prerelease = gt(v4Next.version, v4.version);
 
       let docs = {
         v3: yield* v3.docs(),
@@ -50,6 +59,11 @@ export function apiIndexRoute(
                   <span class="icon icon-link" />
                 </a>
               </h3>
+              {yield* PrereleaseNote({
+                show: showV4Prerelease,
+                pkg: v4Next,
+                seriesPath: "v4-next",
+              })}
               <ul class="columns-3 pl-0">
                 {yield* listPages({
                   pages: docs.v4["."],
@@ -80,6 +94,36 @@ export function apiIndexRoute(
       );
     },
   };
+}
+
+function* PrereleaseNote({
+  show,
+  pkg,
+  seriesPath,
+}: {
+  show: boolean;
+  pkg: Package;
+  seriesPath: string;
+}) {
+  if (!show) {
+    return <></>;
+  }
+
+  // Get the first symbol to link to
+  let docs = yield* pkg.docs();
+  let firstSymbol = docs["."]?.[0]?.name ?? "run";
+
+  return (
+    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 mb-3">
+      Also available:{" "}
+      <a
+        href={`/api/${seriesPath}/${firstSymbol}`}
+        class="text-blue-600 dark:text-blue-400 hover:underline"
+      >
+        {pkg.version}
+      </a>
+    </p>
+  );
 }
 
 function* listPages({

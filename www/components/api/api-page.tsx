@@ -227,7 +227,7 @@ function* Menu({
           )
           : (
             <a
-              class="rounded px-2 block w-full py-2 hover:bg-gray-100"
+              class="rounded px-2 block w-full py-2 hover:bg-gray-100 dark:hover:bg-gray-800"
               href={yield* linkResolver(page.name)}
             >
               <Icon kind={page.kind} />

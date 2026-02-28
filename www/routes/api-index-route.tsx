@@ -3,7 +3,7 @@ import { type JSXElement } from "revolution";
 import { Icon } from "../components/type/icon.tsx";
 import { DocPage } from "../hooks/use-deno-doc.tsx";
 import { ResolveLinkFunction } from "../hooks/use-markdown.tsx";
-import { Package, usePackage } from "../lib/package.ts";
+import { usePackage } from "../lib/package.ts";
 import { gt } from "../lib/semver.ts";
 import { SitemapRoute } from "../plugins/sitemap.ts";
 import { useAppHtml } from "./app.html.tsx";
@@ -35,6 +35,10 @@ export function apiIndexRoute(
       // Only show prerelease link if it's newer than stable
       let showV4Prerelease = gt(v4Next.version, v4.version);
 
+      // Get first symbol for prerelease link
+      let v4NextDocs = showV4Prerelease ? yield* v4Next.docs() : null;
+      let v4NextFirstSymbol = v4NextDocs?.["."]?.[0]?.name ?? "run";
+
       let docs = {
         v3: yield* v3.docs(),
         v4: yield* v4.docs(),
@@ -52,6 +56,18 @@ export function apiIndexRoute(
             <section>
               <h3 id={v4.version} class="group scroll-mt-[200px]">
                 {v4.version}
+                {showV4Prerelease && (
+                  <span class="text-sm font-normal text-gray-500 dark:text-gray-400 ml-2">
+                    ·{" "}
+                    <a
+                      href={`/api/v4-next/${v4NextFirstSymbol}`}
+                      class="text-blue-600 dark:text-blue-400 hover:underline"
+                    >
+                      {v4Next.version}
+                    </a>{" "}
+                    also available
+                  </span>
+                )}
                 <a
                   href={`#${v4.version}`}
                   class="opacity-0 group-hover:opacity-100 after:content-['#'] after:ml-1.5 no-underline"
@@ -59,11 +75,6 @@ export function apiIndexRoute(
                   <span class="icon icon-link" />
                 </a>
               </h3>
-              {yield* PrereleaseNote({
-                show: showV4Prerelease,
-                pkg: v4Next,
-                seriesPath: "v4-next",
-              })}
               <ul class="columns-3 pl-0">
                 {yield* listPages({
                   pages: docs.v4["."],
@@ -94,36 +105,6 @@ export function apiIndexRoute(
       );
     },
   };
-}
-
-function* PrereleaseNote({
-  show,
-  pkg,
-  seriesPath,
-}: {
-  show: boolean;
-  pkg: Package;
-  seriesPath: string;
-}) {
-  if (!show) {
-    return <></>;
-  }
-
-  // Get the first symbol to link to
-  let docs = yield* pkg.docs();
-  let firstSymbol = docs["."]?.[0]?.name ?? "run";
-
-  return (
-    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 mb-3">
-      Also available:{" "}
-      <a
-        href={`/api/${seriesPath}/${firstSymbol}`}
-        class="text-blue-600 dark:text-blue-400 hover:underline"
-      >
-        {pkg.version}
-      </a>
-    </p>
-  );
 }
 
 function* listPages({

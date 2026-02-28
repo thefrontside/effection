@@ -63,14 +63,16 @@ export function* ApiPage({
         ),
         linkResolver: createSibling,
         versionToggle: yield* (function* () {
-          const { series: SERIES } = yield* useConfig();
+          const { series } = yield* useConfig();
+          // Only show stable series in version toggle (no prereleases)
+          const stableSeries = series.filter((s) => !s.includePrerelease);
           const currentSeries = `v${major(pkg.version)}`;
 
           const links = yield* all(
-            SERIES.map(function* (s) {
+            stableSeries.map(function* (s) {
               const seriesPkg = yield* usePackage({
                 type: "worktree",
-                series: s,
+                series: s.name,
               });
               const seriesDocs = yield* seriesPkg.docs();
               const hasSymbol = seriesDocs["."].some((node) =>
@@ -81,9 +83,9 @@ export function* ApiPage({
 
               return (
                 <a
-                  href={yield* createRootUrl(`api/${s}`)(current)}
+                  href={yield* createRootUrl(`api/${s.name}`)(current)}
                   class={`text-base ${
-                    s === currentSeries
+                    s.name === currentSeries
                       ? "font-bold text-sky-500"
                       : "text-gray-600 dark:text-gray-400 hover:text-sky-500"
                   }`}

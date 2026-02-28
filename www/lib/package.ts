@@ -3,7 +3,7 @@ import { relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import z from "zod";
-import { SiteConfig } from "../context/config.ts";
+import { findSeries, type SeriesConfig, useConfig } from "../context/config.ts";
 import { useJSRClient } from "../context/jsr.ts";
 import { LocalDocsPages, useDocPages } from "../hooks/use-deno-doc.tsx";
 import { useDescription, useTitle } from "../hooks/use-description-parse.tsx";
@@ -19,7 +19,10 @@ import { useWorktree } from "./worktrees.ts";
 
 export type WorkTreePackageOptions = {
   type: "worktree";
-  series: SiteConfig["series"][number];
+  /** Series name, e.g., "v4", "v4-next" */
+  series: string;
+  /** Override series config (optional, will look up from SiteConfig if not provided) */
+  seriesConfig?: SeriesConfig;
 };
 
 export type ClonePackageOptions = {
@@ -72,9 +75,26 @@ export function* usePackage(options: PackageOptions): Operation<Package> {
   if (options.type === "worktree") {
     let repo = createRepo({ name: "effection", owner: "thefrontside" });
 
-    let tags = yield* repo.tags(new RegExp(`effection-${options.series}.*`));
+    // Get series config from options or look it up
+    let seriesConfig = options.seriesConfig;
+    if (!seriesConfig) {
+      let config = yield* useConfig();
+      seriesConfig = findSeries(config, options.series);
+      if (!seriesConfig) {
+        throw new Error(`unknown series: ${options.series}`);
+      }
+    }
 
-    let ref = findLatestSemverTag(tags);
+    // Fetch all tags for this major version
+    let tags = yield* repo.tags(
+      new RegExp(`effection-v${seriesConfig.major}.*`),
+    );
+
+    // Use semver range to find latest (excludes prereleases unless configured)
+    let range = `${seriesConfig.major}.x`;
+    let ref = findLatestSemverTag(tags, range, {
+      includePrerelease: seriesConfig.includePrerelease,
+    });
 
     if (!ref) {
       throw new Error(`unable to find package ref for ${options.series}`);

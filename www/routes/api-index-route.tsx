@@ -4,6 +4,7 @@ import { Icon } from "../components/type/icon.tsx";
 import { DocPage } from "../hooks/use-deno-doc.tsx";
 import { ResolveLinkFunction } from "../hooks/use-markdown.tsx";
 import { usePackage } from "../lib/package.ts";
+import { gt } from "../lib/semver.ts";
 import { SitemapRoute } from "../plugins/sitemap.ts";
 import { useAppHtml } from "./app.html.tsx";
 import { createChildURL } from "../lib/links-resolvers.ts";
@@ -26,6 +27,18 @@ export function apiIndexRoute(
         series: "v4",
       });
 
+      let v4Next = yield* usePackage({
+        type: "worktree",
+        series: "v4-next",
+      });
+
+      // Only show prerelease link if it's newer than stable
+      let showV4Prerelease = gt(v4Next.version, v4.version);
+
+      // Get first symbol for prerelease link
+      let v4NextDocs = showV4Prerelease ? yield* v4Next.docs() : null;
+      let v4NextFirstSymbol = v4NextDocs?.["."]?.[0]?.name ?? "run";
+
       let docs = {
         v3: yield* v3.docs(),
         v4: yield* v4.docs(),
@@ -43,6 +56,18 @@ export function apiIndexRoute(
             <section>
               <h3 id={v4.version} class="group scroll-mt-[200px]">
                 {v4.version}
+                {showV4Prerelease && (
+                  <span class="text-sm font-normal text-gray-500 dark:text-gray-400 ml-2">
+                    ·{" "}
+                    <a
+                      href={`/api/v4-next/${v4NextFirstSymbol}`}
+                      class="text-blue-600 dark:text-blue-400 hover:underline"
+                    >
+                      {v4Next.version}
+                    </a>{" "}
+                    also available
+                  </span>
+                )}
                 <a
                   href={`#${v4.version}`}
                   class="opacity-0 group-hover:opacity-100 after:content-['#'] after:ml-1.5 no-underline"

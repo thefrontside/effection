@@ -37,11 +37,16 @@ if (import.meta.main) {
   await main(function* () {
     let { current, series } = yield* useConfig();
 
+    // Get stable series (no prereleases) for guides
+    let stableSeries = series.filter((s) => !s.includePrerelease);
+
     yield* initClones("build/clones");
     yield* initWorktrees("build/worktrees");
     yield* initGuides({
       current,
-      worktrees: series.filter((s) => s !== current),
+      worktrees: stableSeries
+        .filter((s) => s.name !== current)
+        .map((s) => s.name),
     });
 
     yield* initBlog();
@@ -58,8 +63,9 @@ if (import.meta.main) {
         route("/search", searchRoute()),
         route("/docs", redirectIndexRoute(firstPage(current))),
         route("/docs/:id", redirectDocsRoute(current)),
-        ...series.map((s) =>
-          route(`/guides/${s}`, redirectIndexRoute(firstPage(s)))
+        // Guides only for stable series (no prereleases)
+        ...stableSeries.map((s) =>
+          route(`/guides/${s.name}`, redirectIndexRoute(firstPage(s.name)))
         ),
         route("/guides/:series/:id", guidesRoute({ search: true })),
         route("/contrib", xIndexRedirect()),
@@ -67,8 +73,12 @@ if (import.meta.main) {
         route("/x", xIndexRoute({ search: true })),
         route("/x/:workspacePath", xPackageRoute({ search: true })),
         route("/api", apiIndexRoute({ search: true })),
+        // API docs for all series including prereleases
         ...series.map((s) =>
-          route(`/api/${s}/:symbol`, apiReferenceRoute(s, { search: true }))
+          route(
+            `/api/${s.name}/:symbol`,
+            apiReferenceRoute(s.name, { search: true }),
+          )
         ),
         route("/blog", blogIndexRoute({ search: true })),
         route("/blog/feed.xml", blogFeedRoute()),

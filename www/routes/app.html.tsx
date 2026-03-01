@@ -72,7 +72,7 @@ export function* useAppHtml({
         <link
           rel="alternate"
           type="text/plain"
-          href="/assets/llms.txt"
+          href="/llms.txt"
           title="LLM Documentation"
         />
         <link

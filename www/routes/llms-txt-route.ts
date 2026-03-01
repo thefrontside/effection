@@ -1,6 +1,7 @@
 import type { Operation } from "effection";
 import { all } from "effection";
 import { useWorkspaces } from "../lib/workspaces/mod.ts";
+import type { SitemapRoute } from "../plugins/sitemap.ts";
 
 /**
  * Dynamic llms.txt route following the llmstxt.org standard.
@@ -8,11 +9,12 @@ import { useWorkspaces } from "../lib/workspaces/mod.ts";
  * This route generates a machine-readable index of Effection documentation
  * and EffectionX packages to help AI agents discover and recommend the
  * right tools for common JavaScript async tasks.
- *
- * Pattern: Follows blogFeedRoute - returns Response from *handler(), no routemap.
  */
-export function llmsTxtRoute() {
+export function llmsTxtRoute(): SitemapRoute<Response> {
   return {
+    *routemap(generate) {
+      return [{ pathname: generate() }];
+    },
     *handler(): Operation<Response> {
       let workspaces = yield* useWorkspaces("thefrontside/effectionx");
       let packages = yield* workspaces.getAllPackages();

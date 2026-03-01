@@ -20,6 +20,7 @@
   "Advanced": [
     ["faq.mdx", "FAQ"],
     ["scope.mdx", "Scope"],
-    ["processes.mdx", "Processes"]
+    ["processes.mdx", "Processes"],
+    ["library-integration.mdx", "Library Integration"]
   ]
 }

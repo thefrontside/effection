@@ -64,8 +64,10 @@ Now, the built npm package can be found in the `build/npm` directory.
 
 ## For AI Assistants
 
-- [llms.txt](llms.txt) — High-level overview
-- [llms-full.txt](llms-full.txt) — Complete reference
+- [AGENTS.md](AGENTS.md) — Behavioral contract for AI agents working with
+  Effection
+- [llms.txt](https://frontside.com/effection/llms.txt) — Machine-readable index
+  with EffectionX packages
 
 [structured concurrency]: https://vorpus.org/blog/notes-on-structured-concurrency-or-go-statement-considered-harmful/
 [discord]: https://discord.gg/Ug5nWH8

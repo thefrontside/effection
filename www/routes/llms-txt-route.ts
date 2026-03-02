@@ -2,6 +2,61 @@ import type { Operation } from "effection";
 import { all } from "effection";
 import { useWorkspaces } from "../lib/workspaces/mod.ts";
 import type { SitemapRoute } from "../plugins/sitemap.ts";
+import type { Package } from "../lib/package/types.ts";
+
+/**
+ * Category definitions for grouping packages.
+ * Order determines display order in llms.txt.
+ */
+const CATEGORIES: { keyword: string; label: string; description: string }[] = [
+  {
+    keyword: "testing",
+    label: "Testing",
+    description: "Test frameworks, adapters, and assertion helpers",
+  },
+  {
+    keyword: "io",
+    label: "I/O & Network",
+    description: "HTTP, WebSocket, file system, and Node.js adapters",
+  },
+  {
+    keyword: "process",
+    label: "Processes",
+    description: "Child process management and file watching",
+  },
+  {
+    keyword: "streams",
+    label: "Streams",
+    description: "Stream transformation, parsing, and storage",
+  },
+  {
+    keyword: "concurrency",
+    label: "Concurrency",
+    description: "Rate limiting, timeouts, and flow control",
+  },
+  {
+    keyword: "reactivity",
+    label: "Reactivity",
+    description: "Reactive state and async workflows",
+  },
+  {
+    keyword: "interop",
+    label: "Interop",
+    description: "Integration with other ecosystems and patterns",
+  },
+  {
+    keyword: "platform",
+    label: "Platform",
+    description: "Browser and runtime-specific APIs",
+  },
+];
+
+interface PackageEntry {
+  name: string;
+  description: string;
+  workspaceName: string;
+  keywords: string[];
+}
 
 /**
  * Dynamic llms.txt route following the llmstxt.org standard.
@@ -9,6 +64,8 @@ import type { SitemapRoute } from "../plugins/sitemap.ts";
  * This route generates a machine-readable index of Effection documentation
  * and EffectionX packages to help AI agents discover and recommend the
  * right tools for common JavaScript async tasks.
+ *
+ * Packages are grouped by category based on their keywords in package.json.
  */
 export function llmsTxtRoute(): SitemapRoute<Response> {
   return {
@@ -20,26 +77,52 @@ export function llmsTxtRoute(): SitemapRoute<Response> {
       let packages = yield* workspaces.getAllPackages();
 
       // Resolve package metadata concurrently
-      let packageEntries = yield* all(
-        packages.map(function* (pkg) {
+      let packageEntries: PackageEntry[] = yield* all(
+        packages.map(function* (pkg: Package) {
           let name = yield* pkg.getName();
           let description = yield* pkg.getDescription();
+          let keywords = yield* pkg.getKeywords();
 
-          // Truncate to first sentence for agent-friendly consumption
-          // Descriptions from README can be verbose paragraphs
-          let shortDesc = truncateToFirstSentence(description, 120);
-
-          return `- [${name}](https://frontside.com/effection/x/${pkg.workspaceName}): ${shortDesc}`;
+          return {
+            name,
+            description,
+            workspaceName: pkg.workspaceName,
+            keywords,
+          };
         }),
       );
+
+      // Group packages by category
+      let categorizedContent = CATEGORIES.map((category) => {
+        let categoryPackages = packageEntries.filter((pkg) =>
+          pkg.keywords.includes(category.keyword)
+        );
+
+        if (categoryPackages.length === 0) {
+          return "";
+        }
+
+        let packageLines = categoryPackages.map((pkg) => {
+          let shortDesc = truncateToFirstSentence(pkg.description, 120);
+          return `- [${pkg.name}](https://frontside.com/effection/x/${pkg.workspaceName}): ${shortDesc}`;
+        });
+
+        return [
+          `### ${category.label}`,
+          "",
+          category.description,
+          "",
+          ...packageLines,
+        ].join("\n");
+      }).filter(Boolean);
 
       let content = [
         LLMS_TXT_HEADER,
         "## EffectionX Packages",
         "",
-        "Extension packages for common JavaScript tasks. Install from npm (`@effectionx/*`) or JSR (`jsr:@effectionx/*`).",
+        "Extension packages for common JavaScript tasks. Install from npm (`@effectionx/*`).",
         "",
-        ...packageEntries,
+        ...categorizedContent,
         "",
         LLMS_TXT_FOOTER,
       ].join("\n");

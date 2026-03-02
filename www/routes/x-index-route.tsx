@@ -98,62 +98,6 @@ export function xIndexRoute({
         }),
       ).filter((cat) => cat.packages.length > 0);
 
-      // Pre-render sidebar links
-      let sidebarLinks = yield* all(
-        categorizedPackages.map(function* (category) {
-          return (
-            <a
-              href={`#${category.keyword}`}
-              class="block py-1.5 px-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
-            >
-              {category.label}{" "}
-              <span class="text-gray-400 dark:text-gray-500">
-                ({category.packages.length})
-              </span>
-            </a>
-          );
-        }),
-      );
-
-      // Pre-render category sections
-      let categorySections = yield* all(
-        categorizedPackages.map(function* (category) {
-          let packageItems = yield* all(
-            category.packages.map(function* (pkg) {
-              return (
-                <li>
-                  <a
-                    href={pkg.url}
-                    class="grid grid-flow-row no-underline pb-4 pt-4 px-4 text-cyan-700 dark:text-blue-400"
-                  >
-                    <span class="text-cyan-700 dark:text-blue-400 text-lg font-semibold">
-                      {pkg.name}
-                    </span>
-                    <span class="text-gray-800 dark:text-gray-200">
-                      {pkg.description}
-                    </span>
-                  </a>
-                </li>
-              );
-            }),
-          );
-
-          return (
-            <section
-              id={category.keyword}
-              class="ring-1 ring-slate-300 dark:ring-slate-700 rounded"
-            >
-              <h2 class="p-4 bg-slate-100 dark:bg-gray-800 mb-0 text-lg text-gray-900 dark:text-gray-200">
-                {category.label}
-              </h2>
-              <ul class="list-none px-0 divide-y-1 divide-solid divide-slate-200 dark:divide-slate-700">
-                {packageItems}
-              </ul>
-            </section>
-          );
-        }),
-      );
-
       return (
         <AppHTML search={search}>
           <div class="flex flex-row gap-8 max-w-6xl mx-auto">
@@ -169,7 +113,19 @@ export function xIndexRoute({
                 >
                   Frameworks
                 </a>
-                {sidebarLinks}
+                <div>
+                  {categorizedPackages.map((category) => (
+                    <a
+                      href={`#${category.keyword}`}
+                      class="block py-1.5 px-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
+                    >
+                      {category.label}{" "}
+                      <span class="text-gray-400 dark:text-gray-500">
+                        ({category.packages.length})
+                      </span>
+                    </a>
+                  ))}
+                </div>
               </nav>
             </aside>
 
@@ -218,7 +174,35 @@ export function xIndexRoute({
               </section>
 
               {/* Category sections */}
-              {categorySections}
+              <div class="space-y-4">
+                {categorizedPackages.map((category) => (
+                  <section
+                    id={category.keyword}
+                    class="ring-1 ring-slate-300 dark:ring-slate-700 rounded"
+                  >
+                    <h2 class="p-4 bg-slate-100 dark:bg-gray-800 mb-0 text-lg text-gray-900 dark:text-gray-200">
+                      {category.label}
+                    </h2>
+                    <ul class="list-none px-0 divide-y-1 divide-solid divide-slate-200 dark:divide-slate-700">
+                      {category.packages.map((pkg) => (
+                        <li>
+                          <a
+                            href={pkg.url}
+                            class="grid grid-flow-row no-underline pb-4 pt-4 px-4 text-cyan-700 dark:text-blue-400"
+                          >
+                            <span class="text-cyan-700 dark:text-blue-400 text-lg font-semibold">
+                              {pkg.name}
+                            </span>
+                            <span class="text-gray-800 dark:text-gray-200">
+                              {pkg.description}
+                            </span>
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+                ))}
+              </div>
             </article>
           </div>
         </AppHTML>

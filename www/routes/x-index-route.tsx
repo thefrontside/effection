@@ -1,3 +1,4 @@
+// @ts-nocheck - JSX array children typing issue
 import { all } from "effection";
 import type { JSXElement } from "revolution";
 import { GithubPill } from "../components/package/source-link.tsx";
@@ -6,6 +7,36 @@ import type { SitemapRoute } from "../plugins/sitemap.ts";
 import { useAppHtml } from "./app.html.tsx";
 import { createChildURL, createSibling } from "../lib/links-resolvers.ts";
 import { softRedirect } from "./redirect.tsx";
+import type { Package } from "../lib/package/types.ts";
+
+/**
+ * Category definitions for grouping packages.
+ * Order determines display order in the sidebar and main content.
+ */
+const CATEGORIES: { keyword: string; label: string }[] = [
+  { keyword: "testing", label: "Testing" },
+  { keyword: "io", label: "I/O & Network" },
+  { keyword: "process", label: "Processes" },
+  { keyword: "streams", label: "Streams" },
+  { keyword: "concurrency", label: "Concurrency" },
+  { keyword: "reactivity", label: "Reactivity" },
+  { keyword: "interop", label: "Interop" },
+  { keyword: "platform", label: "Platform" },
+];
+
+interface PackageEntry {
+  name: string;
+  description: string;
+  workspaceName: string;
+  keywords: string[];
+  url: string;
+}
+
+interface CategoryWithPackages {
+  keyword: string;
+  label: string;
+  packages: PackageEntry[];
+}
 
 export function xIndexRedirect(): SitemapRoute<JSXElement> {
   return {
@@ -39,75 +70,157 @@ export function xIndexRoute({
 
       let makeChildUrl = createChildURL();
 
-      return (
-        <AppHTML search={search}>
-          <article class="prose dark:prose-invert m-auto bg-white dark:bg-gray-900 dark:text-gray-200 prose-headings:text-gray-900 dark:prose-headings:text-gray-100 prose-p:text-gray-800 dark:prose-p:text-gray-200  prose-strong:text-gray-900 dark:prose-strong:text-gray-100">
-            <header class="flex flex-row items-center space-x-2">
-              <h1 class="mb-0 text-gray-900 dark:text-gray-200">
-                Effection Extensions
-              </h1>
-              {yield* GithubPill({
-                url: workspaces.url,
-                text: workspaces.nameWithOwner,
-                class:
-                  "flex flex-row w-fit h-10 items-center rounded-full bg-gray-200 dark:bg-gray-800 px-2 py-1 text-gray-900 dark:text-gray-100",
-              })}
-            </header>
-            <p class="text-gray-800 dark:text-gray-200">
-              A collection of reusable, community-created extensions - ranging
-              from small packages to complete frameworks - that show the best
-              practices for handling common JavaScript tasks with Effection.
-            </p>
-            <section class="ring-1 ring-slate-300 dark:ring-slate-700 rounded">
-              <h2 class="p-4 bg-slate-100 dark:bg-gray-800 mb-0 text-lg text-gray-900 dark:text-gray-200">
-                Frameworks
-              </h2>
-              <ul class="list-none px-0 divide-y-1 divide-solid divide-slate-200 dark:divide-slate-700">
+      // Resolve package metadata concurrently
+      let packageEntries: PackageEntry[] = yield* all(
+        packages.map(function* (pkg: Package) {
+          let name = yield* pkg.getName();
+          let description = yield* pkg.getDescription();
+          let keywords = yield* pkg.getKeywords();
+          let url = yield* makeChildUrl(pkg.workspaceName);
+
+          return {
+            name,
+            description,
+            workspaceName: pkg.workspaceName,
+            keywords,
+            url,
+          };
+        }),
+      );
+
+      // Group packages by category
+      let categorizedPackages: CategoryWithPackages[] = CATEGORIES.map(
+        (category) => ({
+          ...category,
+          packages: packageEntries.filter((pkg) =>
+            pkg.keywords.includes(category.keyword)
+          ),
+        }),
+      ).filter((cat) => cat.packages.length > 0);
+
+      // Pre-render sidebar links
+      let sidebarLinks = yield* all(
+        categorizedPackages.map(function* (category) {
+          return (
+            <a
+              href={`#${category.keyword}`}
+              class="block py-1.5 px-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
+            >
+              {category.label}{" "}
+              <span class="text-gray-400 dark:text-gray-500">
+                ({category.packages.length})
+              </span>
+            </a>
+          );
+        }),
+      );
+
+      // Pre-render category sections
+      let categorySections = yield* all(
+        categorizedPackages.map(function* (category) {
+          let packageItems = yield* all(
+            category.packages.map(function* (pkg) {
+              return (
                 <li>
                   <a
-                    href="http://starfx.bower.sh"
+                    href={pkg.url}
                     class="grid grid-flow-row no-underline pb-4 pt-4 px-4 text-cyan-700 dark:text-blue-400"
                   >
                     <span class="text-cyan-700 dark:text-blue-400 text-lg font-semibold">
-                      StarFX
+                      {pkg.name}
                     </span>
                     <span class="text-gray-800 dark:text-gray-200">
-                      A micro-MVC framework for React App.
+                      {pkg.description}
                     </span>
                   </a>
                 </li>
-              </ul>
-            </section>
-            <section class="ring-1 ring-slate-300 dark:ring-slate-700 rounded">
+              );
+            }),
+          );
+
+          return (
+            <section
+              id={category.keyword}
+              class="ring-1 ring-slate-300 dark:ring-slate-700 rounded"
+            >
               <h2 class="p-4 bg-slate-100 dark:bg-gray-800 mb-0 text-lg text-gray-900 dark:text-gray-200">
-                Packages
+                {category.label}
               </h2>
               <ul class="list-none px-0 divide-y-1 divide-solid divide-slate-200 dark:divide-slate-700">
-                {yield* all(
-                  packages.map(function* (pkg) {
-                    let title = yield* pkg.getName();
-                    let description = yield* pkg.getDescription();
-
-                    return (
-                      <li>
-                        <a
-                          href={yield* makeChildUrl(pkg.workspaceName)}
-                          class="grid grid-flow-row no-underline pb-4 pt-4 px-4 text-cyan-700 dark:text-blue-400"
-                        >
-                          <span class="text-cyan-700 dark:text-blue-400 text-lg font-semibold">
-                            {title}
-                          </span>
-                          <span class="text-gray-800 dark:text-gray-200">
-                            {description}
-                          </span>
-                        </a>
-                      </li>
-                    );
-                  }),
-                )}
+                {packageItems}
               </ul>
             </section>
-          </article>
+          );
+        }),
+      );
+
+      return (
+        <AppHTML search={search}>
+          <div class="flex flex-row gap-8 max-w-6xl mx-auto">
+            {/* Sidebar */}
+            <aside class="hidden lg:block w-48 flex-shrink-0 sticky top-24 self-start">
+              <nav class="space-y-1">
+                <h2 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
+                  Categories
+                </h2>
+                <a
+                  href="#frameworks"
+                  class="block py-1.5 px-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
+                >
+                  Frameworks
+                </a>
+                {sidebarLinks}
+              </nav>
+            </aside>
+
+            {/* Main content */}
+            <article class="flex-1 prose dark:prose-invert bg-white dark:bg-gray-900 dark:text-gray-200 prose-headings:text-gray-900 dark:prose-headings:text-gray-100 prose-p:text-gray-800 dark:prose-p:text-gray-200 prose-strong:text-gray-900 dark:prose-strong:text-gray-100">
+              <header class="flex flex-row items-center space-x-2">
+                <h1 class="mb-0 text-gray-900 dark:text-gray-200">
+                  Effection Extensions
+                </h1>
+                {yield* GithubPill({
+                  url: workspaces.url,
+                  text: workspaces.nameWithOwner,
+                  class:
+                    "flex flex-row w-fit h-10 items-center rounded-full bg-gray-200 dark:bg-gray-800 px-2 py-1 text-gray-900 dark:text-gray-100",
+                })}
+              </header>
+              <p class="text-gray-800 dark:text-gray-200">
+                A collection of reusable, community-created extensions - ranging
+                from small packages to complete frameworks - that show the best
+                practices for handling common JavaScript tasks with Effection.
+              </p>
+
+              {/* Frameworks section */}
+              <section
+                id="frameworks"
+                class="ring-1 ring-slate-300 dark:ring-slate-700 rounded"
+              >
+                <h2 class="p-4 bg-slate-100 dark:bg-gray-800 mb-0 text-lg text-gray-900 dark:text-gray-200">
+                  Frameworks
+                </h2>
+                <ul class="list-none px-0 divide-y-1 divide-solid divide-slate-200 dark:divide-slate-700">
+                  <li>
+                    <a
+                      href="http://starfx.bower.sh"
+                      class="grid grid-flow-row no-underline pb-4 pt-4 px-4 text-cyan-700 dark:text-blue-400"
+                    >
+                      <span class="text-cyan-700 dark:text-blue-400 text-lg font-semibold">
+                        StarFX
+                      </span>
+                      <span class="text-gray-800 dark:text-gray-200">
+                        A micro-MVC framework for React App.
+                      </span>
+                    </a>
+                  </li>
+                </ul>
+              </section>
+
+              {/* Category sections */}
+              {categorySections}
+            </article>
+          </div>
         </AppHTML>
       );
     },

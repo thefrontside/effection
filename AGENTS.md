@@ -372,6 +372,10 @@ for (const item of yield * each(stream(asyncIterable))) {
 - After resolve/reject, yielding the `operation` always produces the same
   outcome; calling resolve/reject again has no effect.
 
+## Code style
+
+- Always use braces for `if` statements. No bare/braceless `if` blocks.
+
 ## Commit and PR conventions
 
 Use [gitmoji](https://gitmoji.dev) for commit and pull request subjects. For

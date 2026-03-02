@@ -26,6 +26,9 @@ export interface PackageManifest {
   /** Package version */
   version?: string;
 
+  /** Package description from package.json */
+  description?: string;
+
   /**
    * Normalized exports - always Record<string, string>.
    * For Node packages, uses the "development" condition.

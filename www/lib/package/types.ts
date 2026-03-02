@@ -29,6 +29,8 @@ export interface PackageManifest {
   /** Package description from package.json */
   description?: string;
 
+  /** Package keywords for categorization */
+  keywords?: string[];
   /**
    * Normalized exports - always Record<string, string>.
    * For Node packages, uses the "development" condition.
@@ -105,6 +107,9 @@ export interface Package {
 
   /** Extract description from README */
   getDescription(): Operation<string>;
+
+  /** Get keywords for categorization */
+  getKeywords(): Operation<string[]>;
 
   /** Is this a Deno package (has deno.json) */
   deno: boolean;

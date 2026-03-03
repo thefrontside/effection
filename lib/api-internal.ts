@@ -19,7 +19,7 @@ export interface ApiInternal<A> extends Api<A> {
     min: Partial<Around<A>>[];
   }>;
   core: A;
-  cache: WeakMap<Scope, A>;
+  cacheKey: string;
   invalidate(scope: Scope): void;
 }
 
@@ -31,14 +31,14 @@ export function createApiInternal<A extends {}>(
 
   let context = createContext(`api::${name}`) as ApiInternal<A>["context"];
 
-  let cache = new WeakMap<Scope, A>();
+  let cacheKey = `${context.name}::cache`;
 
   let api: ApiInternal<A> = {
     core,
     context,
-    cache,
+    cacheKey,
     invalidate(scope: Scope) {
-      cache.delete(scope);
+      delete (scope as ScopeInternal).contexts[cacheKey];
       let children = scope.get(Children);
       if (children) {
         for (let child of children) {
@@ -47,10 +47,13 @@ export function createApiInternal<A extends {}>(
       }
     },
     invoke: (scope, key, args) => {
-      let handle = cache.get(scope);
+      let contexts = (scope as ScopeInternal).contexts;
+      let handle = Object.hasOwn(contexts, cacheKey)
+        ? contexts[cacheKey] as A
+        : undefined;
       if (!handle) {
         handle = createHandle(api, scope as ScopeInternal);
-        cache.set(scope, handle);
+        contexts[cacheKey] = handle;
       }
       let member = handle[key];
       if (typeof member === "function") {

@@ -1,0 +1,614 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg
+  width="1200"
+  height="630"
+  viewBox="0 0 1200 630"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+  role="img"
+  aria-label="What is Strict Structured Concurrency — comparing classic structured concurrency where the scope waits for background tasks, versus strict structured concurrency where background tasks are automatically reclaimed at scope exit"
+>
+  <defs>
+    <!-- Light-mode background gradient -->
+    <linearGradient
+      id="bg-light-grad"
+      x1="0"
+      y1="0"
+      x2="1200"
+      y2="630"
+      gradientUnits="userSpaceOnUse"
+    >
+      <stop offset="0" stop-color="#F8FAFF" />
+      <stop offset="0.55" stop-color="#F2F7FF" />
+      <stop offset="1" stop-color="#ECF3FF" />
+    </linearGradient>
+
+    <!-- Light-mode decorative glow -->
+    <radialGradient
+      id="glow-light-grad"
+      cx="0"
+      cy="0"
+      r="1"
+      gradientUnits="userSpaceOnUse"
+      gradientTransform="translate(900 120) rotate(120) scale(560 420)"
+    >
+      <stop offset="0" stop-color="#2B6FF7" stop-opacity="0.22" />
+      <stop offset="0.55" stop-color="#2B6FF7" stop-opacity="0.07" />
+      <stop offset="1" stop-color="#2B6FF7" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Dark-mode decorative glow -->
+    <radialGradient
+      id="glow-dark-grad"
+      cx="0"
+      cy="0"
+      r="1"
+      gradientUnits="userSpaceOnUse"
+      gradientTransform="translate(900 120) rotate(120) scale(560 420)"
+    >
+      <stop offset="0" stop-color="#60A5FA" stop-opacity="0.10" />
+      <stop offset="0.55" stop-color="#60A5FA" stop-opacity="0.03" />
+      <stop offset="1" stop-color="#60A5FA" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Light-mode title gradient -->
+    <linearGradient id="ink" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0B2A5B" />
+      <stop offset="1" stop-color="#0C3A7A" />
+    </linearGradient>
+
+    <!-- Light-mode shadow (card) -->
+    <filter
+      id="softShadow-light"
+      x="-40"
+      y="-40"
+      width="1280"
+      height="710"
+      filterUnits="userSpaceOnUse"
+      color-interpolation-filters="sRGB"
+    >
+      <feDropShadow
+        dx="0"
+        dy="10"
+        stdDeviation="18"
+        flood-color="#0B2A5B"
+        flood-opacity="0.12"
+      />
+    </filter>
+
+    <!-- Dark-mode shadow (card) -->
+    <filter
+      id="softShadow-dark"
+      x="-40"
+      y="-40"
+      width="1280"
+      height="710"
+      filterUnits="userSpaceOnUse"
+      color-interpolation-filters="sRGB"
+    >
+      <feDropShadow
+        dx="0"
+        dy="10"
+        stdDeviation="18"
+        flood-color="#000000"
+        flood-opacity="0.25"
+      />
+    </filter>
+
+    <!-- Return arrowhead -->
+    <marker
+      id="arrowhead-return"
+      viewBox="0 0 10 10"
+      refX="9"
+      refY="5"
+      markerWidth="10"
+      markerHeight="10"
+      orient="auto"
+    >
+      <path d="M 0 1 L 9 5 L 0 9 z" class="svg-ret-arrow-fill" />
+    </marker>
+
+    <!-- Fade-out gradient for teardown zone (light) -->
+    <linearGradient id="fade-bg-light" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#9ca3af" stop-opacity="0.35" />
+      <stop offset="0.85" stop-color="#9ca3af" stop-opacity="0" />
+    </linearGradient>
+    <!-- Fade-out gradient for teardown zone (dark) -->
+    <linearGradient id="fade-bg-dark" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#6b7280" stop-opacity="0.35" />
+      <stop offset="0.85" stop-color="#6b7280" stop-opacity="0" />
+    </linearGradient>
+
+    <!-- Clip paths for bar growth animation -->
+    <clipPath id="clip-classic-fg">
+      <rect
+        class="clip-classic-fg-rect"
+        x="100"
+        y="0"
+        width="280"
+        height="630"
+      />
+    </clipPath>
+    <clipPath id="clip-classic-bg">
+      <rect
+        class="clip-classic-bg-rect"
+        x="100"
+        y="0"
+        width="430"
+        height="630"
+      />
+    </clipPath>
+    <clipPath id="clip-strict-fg">
+      <rect
+        class="clip-strict-fg-rect"
+        x="640"
+        y="0"
+        width="280"
+        height="630"
+      />
+    </clipPath>
+    <!-- Static clip: cuts strict BG bar at scope exit boundary -->
+    <clipPath id="clip-strict-bg">
+      <rect x="0" y="0" width="920" height="630" />
+    </clipPath>
+
+    <style>/* ---- Font stacks ---- */
+    .svg-title {
+      font-family:
+        ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
+        Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      font-size: 48px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .svg-subtitle {
+      font-family:
+        ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
+        Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+    .svg-caption {
+      font-family:
+        ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
+        Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      font-size: 18px;
+      font-weight: 600;
+    }
+    .svg-mono-sm {
+      font-family:
+        ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+    }
+    .svg-label {
+      font-family:
+        ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
+        Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .svg-label-heading {
+      font-size: 22px;
+      letter-spacing: 0.04em;
+    }
+    .svg-card-caption {
+      font-family:
+        ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
+        Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    /* ---- Light mode (default) ---- */
+    .svg-bg-light { display: block; }
+    .svg-bg-dark { display: none; }
+    .svg-glow-light { display: block; }
+    .svg-glow-dark { display: none; }
+    .svg-shadow-light { display: block; }
+    .svg-shadow-dark { display: none; }
+
+    .svg-grid { opacity: 0.25; }
+    .svg-grid-line { stroke: #c9d9f2; stroke-width: 1; }
+    .svg-card { fill: #ffffff; }
+    .svg-divider { stroke: #d6e4ff; stroke-dasharray: 4 4; stroke-width: 1; }
+
+    .svg-fg-bar { fill: #2b6ff7; opacity: 0.85; }
+    .svg-fg-bar-border { fill: none; stroke: #2b6ff7; stroke-width: 2; }
+
+    .svg-bg-bar { fill: #9ca3af; opacity: 0.35; }
+    .svg-bg-bar-border { fill: none; stroke: #9ca3af; stroke-width: 1.5; stroke-dasharray: 6 3; }
+
+    .svg-fade-light { display: block; }
+    .svg-fade-dark { display: none; }
+
+    .svg-boundary-line { stroke: #2b6ff7; stroke-width: 2.5; }
+    .svg-boundary-dashed { stroke: #9ca3af; stroke-width: 1.5; stroke-dasharray: 6 4; }
+    .svg-ret-arrow-fill { fill: #16a34a; }
+    .svg-ret-line { stroke: #16a34a; stroke-width: 2; fill: none; }
+    .svg-ret-text { fill: #16a34a; }
+
+    .svg-warn-fill { fill: #ea580c; opacity: 0.18; }
+    .svg-warn-border { fill: none; stroke: #ea580c; stroke-width: 1.5; stroke-dasharray: 4 3; }
+    .svg-warn-text { fill: #ea580c; }
+
+    .svg-title { fill: url(#ink); }
+    .svg-subtitle { fill: #33547b; }
+    .svg-caption { fill: #23435f; }
+    .svg-mono-sm { fill: #1e3a8a; }
+    .svg-fg-label { fill: #2b6ff7; }
+    .svg-bg-label { fill: #6b7280; }
+    .svg-boundary-label { fill: #2b6ff7; }
+    .svg-label-heading { fill: #0b2a5b; }
+
+    /* ---- Dark mode ---- */
+    @media (prefers-color-scheme: dark) {
+      .svg-bg-light { display: none; }
+      .svg-bg-dark { display: block; }
+      .svg-glow-light { display: none; }
+      .svg-glow-dark { display: block; }
+      .svg-shadow-light { display: none; }
+      .svg-shadow-dark { display: block; }
+
+      .svg-grid { opacity: 0.20; }
+      .svg-grid-line { stroke: #374151; }
+      .svg-card { fill: #1f2937; }
+      .svg-divider { stroke: #374151; }
+
+      .svg-fg-bar { fill: #60a5fa; opacity: 0.80; }
+      .svg-fg-bar-border { stroke: #60a5fa; }
+
+      .svg-bg-bar { fill: #6b7280; opacity: 0.35; }
+      .svg-bg-bar-border { stroke: #6b7280; }
+
+      .svg-fade-light { display: none; }
+      .svg-fade-dark { display: block; }
+
+      .svg-boundary-line { stroke: #60a5fa; }
+      .svg-boundary-dashed { stroke: #6b7280; }
+      .svg-ret-arrow-fill { fill: #4ade80; }
+      .svg-ret-line { stroke: #4ade80; }
+      .svg-ret-text { fill: #4ade80; }
+
+      .svg-warn-fill { fill: #fb923c; opacity: 0.18; }
+      .svg-warn-border { stroke: #fb923c; }
+      .svg-warn-text { fill: #fb923c; }
+
+      .svg-title { fill: #f3f4f6; }
+      .svg-subtitle { fill: #9ca3af; }
+      .svg-caption { fill: #9ca3af; }
+      .svg-mono-sm { fill: #e5e7eb; }
+      .svg-fg-label { fill: #60a5fa; }
+      .svg-bg-label { fill: #9ca3af; }
+      .svg-boundary-label { fill: #60a5fa; }
+      .svg-label-heading { fill: #f3f4f6; }
+    }
+
+    /* ======== ANIMATIONS ======== */
+
+    /* Classic foreground bar grows (280px) */
+    .clip-classic-fg-rect {
+      animation: grow-classic-fg 0.8s ease-out 0.2s both;
+    }
+    @keyframes grow-classic-fg {
+      from { width: 0; }
+      to { width: 280px; }
+    }
+
+    /* Classic background bar grows (430px, overshoots) */
+    .clip-classic-bg-rect {
+      animation: grow-classic-bg 1.3s linear 0.2s both;
+    }
+    @keyframes grow-classic-bg {
+      from { width: 0; }
+      to { width: 430px; }
+    }
+
+    /* Strict foreground bar grows (280px) */
+    .clip-strict-fg-rect {
+      animation: grow-strict-fg 0.8s ease-out 0.2s both;
+    }
+    @keyframes grow-strict-fg {
+      from { width: 0; }
+      to { width: 280px; }
+    }
+
+    /* Phased fade-ins */
+    .svg-anim-boundary {
+      opacity: 0;
+      animation: svg-fade-in 0.4s ease-out 1.6s forwards;
+    }
+    .svg-anim-zone {
+      opacity: 0;
+      animation: svg-fade-in 0.4s ease-out 2.0s forwards;
+    }
+    .svg-anim-arrow {
+      opacity: 0;
+      animation: svg-fade-in 0.4s ease-out 2.4s forwards;
+    }
+    .svg-anim-caption {
+      opacity: 0;
+      animation: svg-fade-in 0.5s ease-out 2.8s forwards;
+    }
+
+    @keyframes svg-fade-in {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      .clip-classic-fg-rect,
+      .clip-classic-bg-rect,
+      .clip-strict-fg-rect {
+        animation: none;
+      }
+      .svg-anim-boundary,
+      .svg-anim-zone,
+      .svg-anim-arrow,
+      .svg-anim-caption {
+        animation: none;
+        opacity: 1;
+      }
+    }</style>
+  </defs>
+
+  <!-- ======== BACKGROUND ======== -->
+  <rect
+    class="svg-bg-light"
+    x="0"
+    y="0"
+    width="1200"
+    height="630"
+    fill="url(#bg-light-grad)"
+  />
+  <rect
+    class="svg-bg-dark"
+    x="0"
+    y="0"
+    width="1200"
+    height="630"
+    fill="#111827"
+  />
+  <rect
+    class="svg-glow-light"
+    x="0"
+    y="0"
+    width="1200"
+    height="630"
+    fill="url(#glow-light-grad)"
+  />
+  <rect
+    class="svg-glow-dark"
+    x="0"
+    y="0"
+    width="1200"
+    height="630"
+    fill="url(#glow-dark-grad)"
+  />
+
+  <!-- ======== SUBTLE GRID ======== -->
+  <g class="svg-grid">
+    <path class="svg-grid-line" d="M90 90H1110" />
+    <path class="svg-grid-line" d="M90 150H1110" />
+    <path class="svg-grid-line" d="M90 210H1110" />
+    <path class="svg-grid-line" d="M90 270H1110" />
+    <path class="svg-grid-line" d="M90 330H1110" />
+    <path class="svg-grid-line" d="M90 390H1110" />
+    <path class="svg-grid-line" d="M90 450H1110" />
+    <path class="svg-grid-line" d="M90 510H1110" />
+    <path class="svg-grid-line" d="M90 570H1110" />
+    <path class="svg-grid-line" d="M120 80V580" />
+    <path class="svg-grid-line" d="M200 80V580" />
+    <path class="svg-grid-line" d="M280 80V580" />
+    <path class="svg-grid-line" d="M360 80V580" />
+    <path class="svg-grid-line" d="M440 80V580" />
+    <path class="svg-grid-line" d="M520 80V580" />
+    <path class="svg-grid-line" d="M600 80V580" />
+    <path class="svg-grid-line" d="M680 80V580" />
+    <path class="svg-grid-line" d="M760 80V580" />
+    <path class="svg-grid-line" d="M840 80V580" />
+    <path class="svg-grid-line" d="M920 80V580" />
+    <path class="svg-grid-line" d="M1000 80V580" />
+    <path class="svg-grid-line" d="M1080 80V580" />
+  </g>
+
+  <!-- ======== DIAGRAM CARD (full width) ======== -->
+  <g class="svg-shadow-light" filter="url(#softShadow-light)">
+    <rect class="svg-card" x="60" y="80" width="1080" height="470" rx="24" />
+  </g>
+  <g class="svg-shadow-dark" filter="url(#softShadow-dark)">
+    <rect class="svg-card" x="60" y="80" width="1080" height="470" rx="24" />
+  </g>
+
+  <!-- ======== DIVIDER ======== -->
+  <line class="svg-divider" x1="600" y1="108" x2="600" y2="522" />
+
+  <!-- ================================================================ -->
+  <!-- LEFT HALF: CLASSIC STRUCTURED CONCURRENCY                        -->
+  <!-- ================================================================ -->
+
+  <!-- Section heading -->
+  <text
+    x="340"
+    y="130"
+    class="svg-label svg-label-heading"
+    text-anchor="middle"
+  >Classic</text>
+
+  <!-- Foreground bar -->
+  <text x="100" y="195" class="svg-label svg-fg-label">Foreground</text>
+  <g clip-path="url(#clip-classic-fg)">
+    <rect class="svg-fg-bar" x="100" y="206" width="280" height="48" rx="7" />
+    <rect
+      class="svg-fg-bar-border"
+      x="100"
+      y="206"
+      width="280"
+      height="48"
+      rx="7"
+    />
+  </g>
+
+  <!-- Background bar (extends past foreground end) -->
+  <text x="100" y="306" class="svg-label svg-bg-label">Background</text>
+  <g clip-path="url(#clip-classic-bg)">
+    <rect class="svg-bg-bar" x="100" y="316" width="430" height="48" rx="7" />
+    <rect
+      class="svg-bg-bar-border"
+      x="100"
+      y="316"
+      width="430"
+      height="48"
+      rx="7"
+    />
+  </g>
+
+  <!-- Dashed boundary line where foreground finishes -->
+  <g class="svg-anim-boundary">
+    <line
+      class="svg-boundary-dashed"
+      x1="380"
+      y1="188"
+      x2="380"
+      y2="375"
+    />
+  </g>
+
+  <!-- Orange wasted zone overlay -->
+  <g class="svg-anim-zone">
+    <path
+      d="M380,316 L523,316 Q530,316 530,323 L530,357 Q530,364 523,364 L380,364 Z"
+      class="svg-warn-fill"
+    />
+    <path
+      d="M380,316 L523,316 Q530,316 530,323 L530,357 Q530,364 523,364 L380,364"
+      class="svg-warn-border"
+    />
+    <text
+      x="455"
+      y="345"
+      text-anchor="middle"
+      class="svg-mono-sm svg-warn-text"
+    >wasted</text>
+  </g>
+
+  <!-- Classic caption -->
+  <text
+    x="340"
+    y="440"
+    text-anchor="middle"
+    class="svg-card-caption svg-warn-text svg-anim-caption"
+  >waits for background</text>
+
+  <!-- ================================================================ -->
+  <!-- RIGHT HALF: STRICT STRUCTURED CONCURRENCY                        -->
+  <!-- ================================================================ -->
+
+  <!-- Section heading -->
+  <text
+    x="870"
+    y="130"
+    class="svg-label svg-label-heading"
+    text-anchor="middle"
+  >Strict</text>
+
+  <!-- Foreground bar -->
+  <text x="640" y="195" class="svg-label svg-fg-label">Foreground</text>
+  <g clip-path="url(#clip-strict-fg)">
+    <rect class="svg-fg-bar" x="640" y="206" width="280" height="48" rx="7" />
+    <rect
+      class="svg-fg-bar-border"
+      x="640"
+      y="206"
+      width="280"
+      height="48"
+      rx="7"
+    />
+  </g>
+
+  <!-- Background bar (clipped at scope exit) -->
+  <text x="640" y="306" class="svg-label svg-bg-label">Background</text>
+  <g clip-path="url(#clip-strict-bg)">
+    <rect class="svg-bg-bar" x="640" y="316" width="300" height="48" rx="7" />
+    <rect
+      class="svg-bg-bar-border"
+      x="640"
+      y="316"
+      width="300"
+      height="48"
+      rx="7"
+    />
+  </g>
+
+  <!-- Teardown fade zone past scope exit -->
+  <g class="svg-anim-zone">
+    <path
+      class="svg-fade-light"
+      d="M920,316 L993,316 Q1000,316 1000,323 L1000,357 Q1000,364 993,364 L920,364 Z"
+      fill="url(#fade-bg-light)"
+    />
+    <path
+      class="svg-fade-dark"
+      d="M920,316 L993,316 Q1000,316 1000,323 L1000,357 Q1000,364 993,364 L920,364 Z"
+      fill="url(#fade-bg-dark)"
+    />
+    <path
+      d="M920,316 L993,316 Q1000,316 1000,323 L1000,357 Q1000,364 993,364 L920,364"
+      class="svg-bg-bar-border"
+    />
+    <text
+      x="960"
+      y="345"
+      text-anchor="middle"
+      class="svg-mono-sm svg-bg-label"
+    >teardown</text>
+  </g>
+
+  <!-- Scope exit boundary line (solid blue) -->
+  <g class="svg-anim-boundary">
+    <text
+      x="920"
+      y="180"
+      text-anchor="middle"
+      class="svg-mono-sm svg-boundary-label"
+    >scope exit</text>
+    <line
+      class="svg-boundary-line"
+      x1="920"
+      y1="188"
+      x2="920"
+      y2="375"
+    />
+  </g>
+
+  <!-- Return arrow -->
+  <g class="svg-anim-arrow">
+    <line
+      class="svg-ret-line"
+      x1="920"
+      y1="230"
+      x2="1060"
+      y2="230"
+      marker-end="url(#arrowhead-return)"
+    />
+    <text
+      x="990"
+      y="222"
+      text-anchor="middle"
+      class="svg-mono-sm svg-ret-text"
+    >return</text>
+  </g>
+
+  <!-- Strict caption -->
+  <text
+    x="870"
+    y="440"
+    text-anchor="middle"
+    class="svg-card-caption svg-ret-text svg-anim-caption"
+  >cleanup is automatic</text>
+</svg>

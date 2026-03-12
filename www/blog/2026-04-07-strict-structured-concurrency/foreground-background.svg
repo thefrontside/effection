@@ -1,0 +1,428 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg
+  width="720"
+  height="440"
+  viewBox="0 0 720 440"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+  role="img"
+  aria-label="Dependency graph of getUserInfo showing foreground operations (all, fetchUser, fetchGroups) that produce the return value, and background tasks (spinner, timeout) that do not"
+>
+  <defs>
+    <linearGradient
+      id="bg-light-grad"
+      x1="0"
+      y1="0"
+      x2="720"
+      y2="480"
+      gradientUnits="userSpaceOnUse"
+    >
+      <stop offset="0" stop-color="#F8FAFF" />
+      <stop offset="0.55" stop-color="#F2F7FF" />
+      <stop offset="1" stop-color="#ECF3FF" />
+    </linearGradient>
+
+    <radialGradient
+      id="glow-light-grad"
+      cx="0"
+      cy="0"
+      r="1"
+      gradientUnits="userSpaceOnUse"
+      gradientTransform="translate(540 100) rotate(120) scale(340 260)"
+    >
+      <stop offset="0" stop-color="#2B6FF7" stop-opacity="0.22" />
+      <stop offset="0.55" stop-color="#2B6FF7" stop-opacity="0.07" />
+      <stop offset="1" stop-color="#2B6FF7" stop-opacity="0" />
+    </radialGradient>
+
+    <radialGradient
+      id="glow-dark-grad"
+      cx="0"
+      cy="0"
+      r="1"
+      gradientUnits="userSpaceOnUse"
+      gradientTransform="translate(540 100) rotate(120) scale(340 260)"
+    >
+      <stop offset="0" stop-color="#60A5FA" stop-opacity="0.10" />
+      <stop offset="0.55" stop-color="#60A5FA" stop-opacity="0.03" />
+      <stop offset="1" stop-color="#60A5FA" stop-opacity="0" />
+    </radialGradient>
+
+    <linearGradient id="ink" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0B2A5B" />
+      <stop offset="1" stop-color="#0C3A7A" />
+    </linearGradient>
+
+    <filter
+      id="softShadow-light"
+      x="-20"
+      y="-20"
+      width="760"
+      height="520"
+      filterUnits="userSpaceOnUse"
+      color-interpolation-filters="sRGB"
+    >
+      <feDropShadow
+        dx="0"
+        dy="6"
+        stdDeviation="12"
+        flood-color="#0B2A5B"
+        flood-opacity="0.10"
+      />
+    </filter>
+
+    <filter
+      id="softShadow-dark"
+      x="-20"
+      y="-20"
+      width="760"
+      height="520"
+      filterUnits="userSpaceOnUse"
+      color-interpolation-filters="sRGB"
+    >
+      <feDropShadow
+        dx="0"
+        dy="6"
+        stdDeviation="12"
+        flood-color="#000000"
+        flood-opacity="0.25"
+      />
+    </filter>
+
+    <!-- Arrowhead: auto-orients to line direction, placed at marker-end -->
+    <marker
+      id="arrowhead-blue"
+      viewBox="0 0 10 10"
+      refX="9"
+      refY="5"
+      markerWidth="8"
+      markerHeight="8"
+      orient="auto"
+    >
+      <path d="M 0 1 L 9 5 L 0 9 z" class="svg-fg-arrow-fill" />
+    </marker>
+
+    <marker
+      id="arrowhead-green"
+      viewBox="0 0 10 10"
+      refX="9"
+      refY="5"
+      markerWidth="8"
+      markerHeight="8"
+      orient="auto"
+    >
+      <path d="M 0 1 L 9 5 L 0 9 z" class="svg-ret-arrow-fill" />
+    </marker>
+
+    <style>.svg-mono {
+      font-family:
+        ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+      font-size: 14px;
+    }
+    .svg-mono-lg {
+      font-family:
+        ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+      font-size: 15px;
+      font-weight: 600;
+    }
+    .svg-mono-sm {
+      font-family:
+        ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+    }
+    .svg-label-lg {
+      font-family:
+        ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
+        Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    /* ---- Light mode (default) ---- */
+    .svg-bg-light { display: block; }
+    .svg-bg-dark { display: none; }
+    .svg-glow-light { display: block; }
+    .svg-glow-dark { display: none; }
+    .svg-shadow-light { display: block; }
+    .svg-shadow-dark { display: none; }
+
+    .svg-scope-box {
+      fill: #f7fbff;
+      stroke: #97b7ff;
+      stroke-width: 2;
+    }
+    .svg-scope-label-bg { fill: #e6f0ff; }
+    .svg-scope-label-text { fill: #1e3a8a; }
+
+    .svg-section-box-fg {
+      fill: none;
+      stroke: #2b6ff7;
+      stroke-width: 1.5;
+      stroke-dasharray: 6 3;
+      opacity: 0.5;
+    }
+    .svg-section-box-bg {
+      fill: none;
+      stroke: #9ca3af;
+      stroke-width: 1.5;
+      stroke-dasharray: 6 3;
+      opacity: 0.5;
+    }
+
+    .svg-fg-box {
+      fill: #ffffff;
+      stroke: #2b6ff7;
+      stroke-width: 2;
+    }
+    .svg-fg-dot { fill: #2b6ff7; }
+    .svg-fg-line {
+      stroke: #2b6ff7;
+      stroke-width: 2;
+      fill: none;
+    }
+    .svg-fg-arrow-fill { fill: #2b6ff7; }
+    .svg-fg-mono { fill: #1e3a8a; }
+
+    .svg-ret-box {
+      fill: #ffffff;
+      stroke: #16a34a;
+      stroke-width: 2;
+    }
+    .svg-ret-line {
+      stroke: #16a34a;
+      stroke-width: 2;
+      fill: none;
+    }
+    .svg-ret-arrow-fill { fill: #16a34a; }
+    .svg-ret-text { fill: #16a34a; }
+
+    .svg-bg-box {
+      fill: #ffffff;
+      stroke: #64748b;
+      stroke-width: 2;
+    }
+    .svg-bg-dot { fill: #64748b; }
+    .svg-bg-mono { fill: #334155; }
+
+    .svg-label-fg { fill: #2b6ff7; }
+    .svg-label-bg { fill: #6b7280; }
+
+    .svg-annotation {
+      fill: #6b7280;
+      font-family:
+        ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
+        Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      font-size: 12px;
+      font-style: italic;
+    }
+
+    /* ---- Dark mode ---- */
+    @media (prefers-color-scheme: dark) {
+      .svg-bg-light { display: none; }
+      .svg-bg-dark { display: block; }
+      .svg-glow-light { display: none; }
+      .svg-glow-dark { display: block; }
+      .svg-shadow-light { display: none; }
+      .svg-shadow-dark { display: block; }
+
+      .svg-scope-box {
+        fill: #111827;
+        stroke: #374151;
+      }
+      .svg-scope-label-bg { fill: #1e3a8a; }
+      .svg-scope-label-text { fill: #e5e7eb; }
+
+      .svg-section-box-fg { stroke: #60a5fa; }
+      .svg-section-box-bg { stroke: #6b7280; }
+
+      .svg-fg-box {
+        fill: #1f2937;
+        stroke: #60a5fa;
+      }
+      .svg-fg-dot { fill: #60a5fa; }
+      .svg-fg-line { stroke: #60a5fa; }
+      .svg-fg-arrow-fill { fill: #60a5fa; }
+      .svg-fg-mono { fill: #e5e7eb; }
+
+      .svg-ret-box {
+        fill: #1f2937;
+        stroke: #4ade80;
+      }
+      .svg-ret-line { stroke: #4ade80; }
+      .svg-ret-arrow-fill { fill: #4ade80; }
+      .svg-ret-text { fill: #4ade80; }
+
+      .svg-bg-box {
+        fill: #1f2937;
+        stroke: #94a3b8;
+      }
+      .svg-bg-dot { fill: #94a3b8; }
+      .svg-bg-mono { fill: #cbd5e1; }
+
+      .svg-label-fg { fill: #60a5fa; }
+      .svg-label-bg { fill: #9ca3af; }
+
+      .svg-annotation { fill: #9ca3af; }
+    }</style>
+  </defs>
+
+  <!-- ======== BACKGROUND (transparent) ======== -->
+  <!--
+  <rect class="svg-bg-light" width="720" height="500" fill="url(#bg-light-grad)" />
+  <rect class="svg-bg-dark" width="720" height="500" fill="#111827" />
+  <rect class="svg-glow-light" width="720" height="500" fill="url(#glow-light-grad)" />
+  <rect class="svg-glow-dark" width="720" height="500" fill="url(#glow-dark-grad)" />
+  -->
+
+  <!-- ======== RETURN BOX (outside scope, to the left) ======== -->
+  <rect class="svg-ret-box" x="16" y="136" width="100" height="42" rx="8" />
+  <text
+    x="66"
+    y="162"
+    class="svg-mono-lg svg-ret-text"
+    text-anchor="middle"
+  >return</text>
+
+  <!-- ======== OUTER SCOPE BOX: getUserInfo() ======== -->
+  <g class="svg-shadow-light" filter="url(#softShadow-light)">
+    <rect
+      class="svg-scope-box"
+      x="148"
+      y="24"
+      width="548"
+      height="392"
+      rx="18"
+    />
+  </g>
+  <g class="svg-shadow-dark" filter="url(#softShadow-dark)">
+    <rect
+      class="svg-scope-box"
+      x="148"
+      y="24"
+      width="548"
+      height="392"
+      rx="18"
+    />
+  </g>
+
+  <!-- scope label pill -->
+  <rect
+    class="svg-scope-label-bg"
+    x="164"
+    y="36"
+    width="180"
+    height="26"
+    rx="8"
+  />
+  <text
+    x="176"
+    y="54"
+    class="svg-mono-sm svg-scope-label-text"
+  >getUserInfo(userId)</text>
+
+  <!-- ════════ FOREGROUND SECTION ════════ -->
+
+  <!-- dotted box around foreground -->
+  <rect
+    class="svg-section-box-fg"
+    x="168"
+    y="70"
+    width="510"
+    height="170"
+    rx="12"
+  />
+  <text x="180" y="90" class="svg-label-lg svg-label-fg">Foreground</text>
+
+  <!-- all() → return arrow: starts inside scope, pierces boundary, ends at return box -->
+  <!-- Line goes right-to-left so marker-end points left -->
+  <line
+    class="svg-ret-line"
+    x1="198"
+    y1="157"
+    x2="116"
+    y2="157"
+    marker-end="url(#arrowhead-green)"
+  />
+
+  <!-- all() box -->
+  <rect class="svg-fg-box" x="200" y="136" width="90" height="42" rx="8" />
+  <circle class="svg-fg-dot" cx="220" cy="157" r="5" />
+  <text
+    x="252"
+    y="162"
+    class="svg-mono-lg svg-fg-mono"
+    text-anchor="middle"
+  >all()</text>
+
+  <!-- fetchUser → all arrow (right-to-left, arrowhead at all) -->
+  <polyline
+    class="svg-fg-line"
+    points="372,125 330,125 330,147 290,147"
+    marker-end="url(#arrowhead-blue)"
+  />
+
+  <!-- fetchGroups → all arrow (right-to-left, arrowhead at all) -->
+  <polyline
+    class="svg-fg-line"
+    points="372,187 330,187 330,167 290,167"
+    marker-end="url(#arrowhead-blue)"
+  />
+
+  <!-- fetchUser box -->
+  <rect class="svg-fg-box" x="374" y="105" width="286" height="40" rx="8" />
+  <circle class="svg-fg-dot" cx="394" cy="125" r="5" />
+  <text
+    x="524"
+    y="130"
+    class="svg-mono svg-fg-mono"
+    text-anchor="middle"
+  >fetchUser(userId)</text>
+
+  <!-- fetchGroups box -->
+  <rect class="svg-fg-box" x="374" y="167" width="286" height="40" rx="8" />
+  <circle class="svg-fg-dot" cx="394" cy="187" r="5" />
+  <text
+    x="524"
+    y="192"
+    class="svg-mono svg-fg-mono"
+    text-anchor="middle"
+  >fetchGroups(userId)</text>
+
+  <!-- ════════ BACKGROUND SECTION ════════ -->
+
+  <!-- dotted box around background -->
+  <rect
+    class="svg-section-box-bg"
+    x="168"
+    y="260"
+    width="510"
+    height="140"
+    rx="12"
+  />
+  <text x="180" y="282" class="svg-label-lg svg-label-bg">Background</text>
+
+  <!-- spinner -->
+  <rect class="svg-bg-box" x="200" y="296" width="240" height="40" rx="8" />
+  <circle class="svg-bg-dot" cx="220" cy="316" r="5" />
+  <text
+    x="328"
+    y="321"
+    class="svg-mono svg-bg-mono"
+    text-anchor="middle"
+  >spinner</text>
+
+  <!-- timeout -->
+  <rect class="svg-bg-box" x="200" y="350" width="240" height="40" rx="8" />
+  <circle class="svg-bg-dot" cx="220" cy="370" r="5" />
+  <text
+    x="328"
+    y="375"
+    class="svg-mono svg-bg-mono"
+    text-anchor="middle"
+  >timeout</text>
+</svg>

@@ -153,7 +153,7 @@
       font-family:
         ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
         Arial, "Apple Color Emoji", "Segoe UI Emoji";
-      font-size: 44px;
+      font-size: 52px;
       font-weight: 800;
       letter-spacing: -0.02em;
     }
@@ -645,16 +645,15 @@
   </g>
 
   <!-- ======== TITLE AREA (top) ======== -->
-  <text x="110" y="72" class="svg-subtitle">Effection</text>
-  <text x="110" y="118" class="svg-title">Strict Structured</text>
-  <text x="110" y="166" class="svg-title">Concurrency</text>
+  <text x="110" y="68" class="svg-subtitle">Effection</text>
+  <text x="110" y="122" class="svg-title">Strict Structured Concurrency</text>
 
   <!-- ======== DIAGRAM CARD ======== -->
   <g class="svg-shadow-light" filter="url(#softShadow-light)">
-    <rect class="svg-card" x="90" y="192" width="1020" height="398" rx="20" />
+    <rect class="svg-card" x="90" y="152" width="1020" height="438" rx="20" />
   </g>
   <g class="svg-shadow-dark" filter="url(#softShadow-dark)">
-    <rect class="svg-card" x="90" y="192" width="1020" height="398" rx="20" />
+    <rect class="svg-card" x="90" y="152" width="1020" height="438" rx="20" />
   </g>
 
   <!-- ======== SCOPE BOUNDARY ======== -->
@@ -662,9 +661,9 @@
     <rect
       class="svg-scope-parent"
       x="110"
-      y="208"
+      y="168"
       width="980"
-      height="324"
+      height="406"
       rx="14"
     />
   </g>
@@ -672,9 +671,9 @@
     <rect
       class="svg-scope-parent"
       x="110"
-      y="208"
+      y="168"
       width="980"
-      height="324"
+      height="406"
       rx="14"
     />
   </g>
@@ -683,66 +682,64 @@
   <rect
     class="svg-scope-label-bg"
     x="126"
-    y="218"
+    y="178"
     width="120"
     height="22"
     rx="7"
   />
-  <text x="140" y="233" class="svg-mono-sm">getUserInfo()</text>
+  <text x="140" y="193" class="svg-mono-sm">getUserInfo()</text>
 
   <!-- ======== TIME AXIS ======== -->
-  <line class="svg-time-axis" x1="200" y1="260" x2="1050" y2="260" />
-  <polygon class="svg-time-arrow" points="1050,256 1060,260 1050,264" />
-  <text x="1012" y="252" class="svg-time-label">time</text>
+  <line class="svg-time-axis" x1="200" y1="220" x2="1050" y2="220" />
+  <polygon class="svg-time-arrow" points="1050,216 1060,220 1050,224" />
+  <text x="1012" y="212" class="svg-time-label">time</text>
 
-  <!-- ======== ROW LABELS (left side) ======== -->
-  <!-- Foreground section label -->
-  <text x="136" y="310" class="svg-label svg-fg-label">FG</text>
-  <text x="136" y="358" class="svg-label svg-fg-label">FG</text>
+  <!-- ======== SECTION HEADINGS ======== -->
+  <!-- Foreground heading -->
+  <text x="200" y="252" class="svg-label svg-fg-label">FOREGROUND</text>
 
-  <!-- Background section label -->
-  <text x="136" y="422" class="svg-label svg-bg-label-text">BG</text>
-  <text x="136" y="470" class="svg-label svg-bg-label-text">BG</text>
-
-  <!-- Subtle divider between FG and BG rows -->
+  <!-- Subtle divider between FG and BG sections -->
   <line
     x1="130"
-    y1="386"
+    y1="370"
     x2="1070"
-    y2="386"
+    y2="370"
     stroke-dasharray="4 4"
     stroke-width="1"
     class="svg-tick"
   />
 
+  <!-- Background heading -->
+  <text x="200" y="398" class="svg-label svg-bg-label-text">BACKGROUND</text>
+
   <!-- ======== FOREGROUND BARS ======== -->
 
   <!-- Bar 1: fetchUser (shorter — ends at x=630) -->
   <g clip-path="url(#svg-clip-fg1)">
-    <rect class="svg-fg-bar" x="200" y="294" width="430" height="32" rx="6" />
+    <rect class="svg-fg-bar" x="200" y="268" width="430" height="34" rx="6" />
     <rect
       class="svg-fg-bar-border"
       x="200"
-      y="294"
+      y="268"
       width="430"
-      height="32"
+      height="34"
       rx="6"
     />
-    <text x="212" y="315" class="svg-mono" style="fill: #fff">fetchUser()</text>
+    <text x="212" y="290" class="svg-mono" style="fill: #fff">fetchUser()</text>
   </g>
 
   <!-- Bar 2: fetchGroups (longer — ends at x=680, the boundary) -->
   <g clip-path="url(#svg-clip-fg2)">
-    <rect class="svg-fg-bar" x="200" y="342" width="480" height="32" rx="6" />
+    <rect class="svg-fg-bar" x="200" y="318" width="480" height="34" rx="6" />
     <rect
       class="svg-fg-bar-border"
       x="200"
-      y="342"
+      y="318"
       width="480"
-      height="32"
+      height="34"
       rx="6"
     />
-    <text x="212" y="363" class="svg-mono" style="fill: #fff"
+    <text x="212" y="340" class="svg-mono" style="fill: #fff"
     >fetchGroups()</text>
   </g>
 
@@ -750,16 +747,16 @@
 
   <!-- Bar 3: spinner — solid portion (up to boundary at x=680) -->
   <g clip-path="url(#svg-clip-bg1)">
-    <rect class="svg-bg-bar" x="200" y="406" width="480" height="32" rx="6" />
+    <rect class="svg-bg-bar" x="200" y="414" width="480" height="34" rx="6" />
     <rect
       class="svg-bg-bar-border"
       x="200"
-      y="406"
+      y="414"
       width="480"
-      height="32"
+      height="34"
       rx="6"
     />
-    <text x="212" y="427" class="svg-mono svg-bg-label-text">spinner</text>
+    <text x="212" y="436" class="svg-mono svg-bg-label-text">spinner</text>
   </g>
 
   <!-- Bar 3 overshoot: spinner past boundary (fades away) -->
@@ -767,33 +764,33 @@
     <rect
       class="svg-bg-overshoot"
       x="680"
-      y="406"
+      y="414"
       width="80"
-      height="32"
+      height="34"
       rx="0"
     />
     <rect
       class="svg-bg-overshoot-border"
       x="680"
-      y="406"
+      y="414"
       width="80"
-      height="32"
+      height="34"
       rx="0"
     />
   </g>
 
   <!-- Bar 4: timeout — solid portion (up to boundary) -->
   <g clip-path="url(#svg-clip-bg2)">
-    <rect class="svg-bg-bar" x="200" y="454" width="480" height="32" rx="6" />
+    <rect class="svg-bg-bar" x="200" y="464" width="480" height="34" rx="6" />
     <rect
       class="svg-bg-bar-border"
       x="200"
-      y="454"
+      y="464"
       width="480"
-      height="32"
+      height="34"
       rx="6"
     />
-    <text x="212" y="475" class="svg-mono svg-bg-label-text">timeout</text>
+    <text x="212" y="486" class="svg-mono svg-bg-label-text">timeout</text>
   </g>
 
   <!-- Bar 4 overshoot: timeout past boundary (fades away) -->
@@ -801,17 +798,17 @@
     <rect
       class="svg-bg-overshoot"
       x="680"
-      y="454"
+      y="464"
       width="40"
-      height="32"
+      height="34"
       rx="0"
     />
     <rect
       class="svg-bg-overshoot-border"
       x="680"
-      y="454"
+      y="464"
       width="40"
-      height="32"
+      height="34"
       rx="0"
     />
   </g>
@@ -822,14 +819,14 @@
     <line
       class="svg-boundary-line"
       x1="680"
-      y1="268"
+      y1="228"
       x2="680"
-      y2="522"
+      y2="562"
     />
     <!-- Boundary label -->
     <text
       x="680"
-      y="518"
+      y="558"
       text-anchor="middle"
       class="svg-mono-sm svg-boundary-label"
     >scope exits</text>
@@ -837,15 +834,15 @@
 
   <!-- ======== RESULT LABELS ======== -->
 
-  <!-- Foreground complete label (left of boundary) -->
+  <!-- Foreground complete label (between bars and divider) -->
   <g class="svg-anim-label-fg">
-    <text x="490" y="290" class="svg-mono-sm svg-check-text"
+    <text x="490" y="364" class="svg-mono-sm svg-check-text"
     >&#x2713; values consumed</text>
   </g>
 
   <!-- Background reclaimed label (right of boundary) -->
   <g class="svg-anim-label-bg">
-    <text x="700" y="443" class="svg-mono-sm svg-cancel-text"
+    <text x="700" y="456" class="svg-mono-sm svg-cancel-text"
     >&#x2717; reclaimed</text>
   </g>
 
@@ -853,7 +850,7 @@
   <g class="svg-anim-caption">
     <text
       x="600"
-      y="570"
+      y="616"
       text-anchor="middle"
       class="svg-caption"
     >Scope lifetime aligned with what the scope computes</text>

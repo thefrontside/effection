@@ -6,7 +6,7 @@
   fill="none"
   xmlns="http://www.w3.org/2000/svg"
   role="img"
-  aria-label="Strict Structured Concurrency — foreground tasks express the algorithm, background tasks are automatically reclaimed when the scope exits"
+  aria-label="Strict Structured Concurrency — a timeline showing foreground tasks completing naturally while background tasks are automatically reclaimed at the scope boundary"
 >
   <defs>
     <!-- Light-mode background gradient -->
@@ -133,13 +133,27 @@
       />
     </filter>
 
+    <!-- Clip paths for bar growth animation -->
+    <clipPath id="svg-clip-fg1">
+      <rect class="svg-clip-fg1-rect" x="200" y="0" width="430" height="630" />
+    </clipPath>
+    <clipPath id="svg-clip-fg2">
+      <rect class="svg-clip-fg2-rect" x="200" y="0" width="480" height="630" />
+    </clipPath>
+    <clipPath id="svg-clip-bg1">
+      <rect class="svg-clip-bg1-rect" x="200" y="0" width="560" height="630" />
+    </clipPath>
+    <clipPath id="svg-clip-bg2">
+      <rect class="svg-clip-bg2-rect" x="200" y="0" width="520" height="630" />
+    </clipPath>
+
     <style>
     /* ---- Font stacks ---- */
     .svg-title {
       font-family:
         ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
         Arial, "Apple Color Emoji", "Segoe UI Emoji";
-      font-size: 48px;
+      font-size: 44px;
       font-weight: 800;
       letter-spacing: -0.02em;
     }
@@ -147,23 +161,23 @@
       font-family:
         ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
         Arial, "Apple Color Emoji", "Segoe UI Emoji";
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 600;
-      letter-spacing: 0.02em;
+      letter-spacing: 0.06em;
       text-transform: uppercase;
     }
     .svg-caption {
       font-family:
         ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
         Arial, "Apple Color Emoji", "Segoe UI Emoji";
-      font-size: 18px;
+      font-size: 17px;
       font-weight: 600;
     }
     .svg-mono {
       font-family:
         ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
         "Liberation Mono", "Courier New", monospace;
-      font-size: 14px;
+      font-size: 13px;
     }
     .svg-mono-sm {
       font-family:
@@ -175,9 +189,18 @@
       font-family:
         ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
         Arial, "Apple Color Emoji", "Segoe UI Emoji";
-      font-size: 15px;
+      font-size: 13px;
       font-weight: 700;
-      letter-spacing: 0.03em;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .svg-time-label {
+      font-family:
+        ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
+        Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
     }
 
@@ -212,42 +235,6 @@
     .svg-card {
       fill: #ffffff;
     }
-    .svg-divider {
-      stroke: #d6e4ff;
-      stroke-dasharray: 4 4;
-      stroke-width: 1;
-    }
-
-    /* Foreground side */
-    .svg-fg-box {
-      fill: #ffffff;
-      stroke: #2b6ff7;
-      stroke-width: 2;
-    }
-    .svg-fg-dot {
-      fill: #2b6ff7;
-    }
-    .svg-fg-label {
-      fill: #2b6ff7;
-    }
-
-    /* Background side */
-    .svg-bg-box {
-      fill: #ffffff;
-      stroke: #9ca3af;
-      stroke-width: 1.5;
-      stroke-dasharray: 6 3;
-    }
-    .svg-bg-dot {
-      fill: #9ca3af;
-    }
-    .svg-bg-label {
-      fill: #6b7280;
-    }
-    .svg-bg-fade {
-      fill: #9ca3af;
-      opacity: 0.4;
-    }
 
     /* Scope */
     .svg-scope-parent {
@@ -255,25 +242,71 @@
       stroke: #97b7ff;
       stroke-width: 2;
     }
-    .svg-scope-label {
+    .svg-scope-label-bg {
       fill: #e6f0ff;
     }
-    .svg-dot-primary {
+
+    /* Foreground bars */
+    .svg-fg-bar {
       fill: #2b6ff7;
+      opacity: 0.85;
     }
-    .svg-check-text {
-      fill: #16a34a;
-      stroke: #16a34a;
-    }
-    .svg-cancel-text {
-      fill: #9ca3af;
-    }
-    .svg-arrow-line {
-      stroke: #97b7ff;
+    .svg-fg-bar-border {
       fill: none;
+      stroke: #2b6ff7;
+      stroke-width: 2;
     }
 
-    /* Shared text */
+    /* Background bars */
+    .svg-bg-bar {
+      fill: #9ca3af;
+      opacity: 0.35;
+    }
+    .svg-bg-bar-border {
+      fill: none;
+      stroke: #9ca3af;
+      stroke-width: 1.5;
+      stroke-dasharray: 6 3;
+    }
+
+    /* Background overshoot (past scope boundary) */
+    .svg-bg-overshoot {
+      fill: #9ca3af;
+      opacity: 0.35;
+    }
+    .svg-bg-overshoot-border {
+      fill: none;
+      stroke: #9ca3af;
+      stroke-width: 1.5;
+      stroke-dasharray: 6 3;
+    }
+
+    /* Scope exit boundary line */
+    .svg-boundary-line {
+      stroke: #2b6ff7;
+      stroke-width: 2;
+      stroke-dasharray: 8 5;
+    }
+
+    /* Time axis */
+    .svg-time-axis {
+      stroke: #97b7ff;
+      stroke-width: 1.5;
+    }
+    .svg-time-arrow {
+      fill: #97b7ff;
+    }
+    .svg-time-label {
+      fill: #97b7ff;
+    }
+
+    /* Tick marks */
+    .svg-tick {
+      stroke: #c9d9f2;
+      stroke-width: 1;
+    }
+
+    /* Text colors */
     .svg-title {
       fill: url(#ink);
     }
@@ -281,7 +314,7 @@
       fill: #33547b;
     }
     .svg-caption {
-      fill: #23435f;
+      fill: #33547b;
     }
     .svg-mono {
       fill: #1e3a8a;
@@ -294,6 +327,21 @@
     }
     .svg-label-heading {
       fill: #0b2a5b;
+    }
+    .svg-fg-label {
+      fill: #2b6ff7;
+    }
+    .svg-bg-label-text {
+      fill: #6b7280;
+    }
+    .svg-check-text {
+      fill: #16a34a;
+    }
+    .svg-cancel-text {
+      fill: #9ca3af;
+    }
+    .svg-boundary-label {
+      fill: #2b6ff7;
     }
 
     /* ---- Dark mode ---- */
@@ -327,55 +375,55 @@
       .svg-card {
         fill: #1f2937;
       }
-      .svg-divider {
-        stroke: #374151;
-      }
-
-      .svg-fg-box {
-        fill: #1f2937;
-        stroke: #60a5fa;
-      }
-      .svg-fg-dot {
-        fill: #60a5fa;
-      }
-      .svg-fg-label {
-        fill: #60a5fa;
-      }
-
-      .svg-bg-box {
-        fill: #1f2937;
-        stroke: #6b7280;
-      }
-      .svg-bg-dot {
-        fill: #6b7280;
-      }
-      .svg-bg-label {
-        fill: #9ca3af;
-      }
-      .svg-bg-fade {
-        fill: #6b7280;
-        opacity: 0.4;
-      }
 
       .svg-scope-parent {
         fill: #111827;
         stroke: #374151;
       }
-      .svg-scope-label {
+      .svg-scope-label-bg {
         fill: #1e3a8a;
       }
-      .svg-dot-primary {
+
+      .svg-fg-bar {
+        fill: #60a5fa;
+        opacity: 0.80;
+      }
+      .svg-fg-bar-border {
+        stroke: #60a5fa;
+      }
+
+      .svg-bg-bar {
+        fill: #6b7280;
+        opacity: 0.35;
+      }
+      .svg-bg-bar-border {
+        stroke: #6b7280;
+      }
+
+      .svg-bg-overshoot {
+        fill: #6b7280;
+        opacity: 0.35;
+      }
+      .svg-bg-overshoot-border {
+        stroke: #6b7280;
+      }
+
+      .svg-boundary-line {
+        stroke: #60a5fa;
+      }
+
+      .svg-time-axis {
+        stroke: #60a5fa;
+      }
+      .svg-time-arrow {
         fill: #60a5fa;
       }
-      .svg-check-text {
-        fill: #4ade80;
-        stroke: #4ade80;
+      .svg-time-label {
+        fill: #60a5fa;
       }
-      .svg-cancel-text {
-        fill: #6b7280;
-      }
-      .svg-arrow-line {
-        stroke: #60a5fa;
+
+      .svg-tick {
+        stroke: #374151;
       }
 
       .svg-title {
@@ -385,7 +433,7 @@
         fill: #9ca3af;
       }
       .svg-caption {
-        fill: #d1d5db;
+        fill: #9ca3af;
       }
       .svg-mono {
         fill: #e5e7eb;
@@ -398,6 +446,139 @@
       }
       .svg-label-heading {
         fill: #f3f4f6;
+      }
+      .svg-fg-label {
+        fill: #60a5fa;
+      }
+      .svg-bg-label-text {
+        fill: #9ca3af;
+      }
+      .svg-check-text {
+        fill: #4ade80;
+      }
+      .svg-cancel-text {
+        fill: #6b7280;
+      }
+      .svg-boundary-label {
+        fill: #60a5fa;
+      }
+    }
+
+    /* ======== ANIMATIONS ======== */
+
+    /* Phase 1: Bars grow (0s - 1.5s) */
+    /* Foreground bar 1: fetchUser — grows to 430px wide */
+    .svg-clip-fg1-rect {
+      animation: svg-grow-fg1 1.2s ease-out 0.2s both;
+    }
+    @keyframes svg-grow-fg1 {
+      from {
+        width: 0;
+      }
+      to {
+        width: 430px;
+      }
+    }
+
+    /* Foreground bar 2: fetchGroups — grows to 480px wide */
+    .svg-clip-fg2-rect {
+      animation: svg-grow-fg2 1.4s ease-out 0.2s both;
+    }
+    @keyframes svg-grow-fg2 {
+      from {
+        width: 0;
+      }
+      to {
+        width: 480px;
+      }
+    }
+
+    /* Background bar 1: spinner — grows to 560px wide (past boundary) */
+    .svg-clip-bg1-rect {
+      animation: svg-grow-bg1 1.8s linear 0.2s both;
+    }
+    @keyframes svg-grow-bg1 {
+      from {
+        width: 0;
+      }
+      to {
+        width: 560px;
+      }
+    }
+
+    /* Background bar 2: timeout — grows to 520px wide (past boundary) */
+    .svg-clip-bg2-rect {
+      animation: svg-grow-bg2 1.7s linear 0.2s both;
+    }
+    @keyframes svg-grow-bg2 {
+      from {
+        width: 0;
+      }
+      to {
+        width: 520px;
+      }
+    }
+
+    /* Phase 2: Scope boundary appears (1.8s) */
+    .svg-anim-boundary {
+      opacity: 0;
+      animation: svg-fade-in 0.5s ease-out 1.8s forwards;
+    }
+
+    /* Phase 3: Overshoot fades out (2.3s - 3.0s) */
+    .svg-anim-overshoot {
+      animation: svg-overshoot-fade 0.8s ease-in 2.3s forwards;
+    }
+    @keyframes svg-overshoot-fade {
+      from {
+        opacity: 1;
+      }
+      to {
+        opacity: 0;
+      }
+    }
+
+    /* Phase 4: Labels appear (2.8s) */
+    .svg-anim-label-fg {
+      opacity: 0;
+      animation: svg-fade-in 0.5s ease-out 2.6s forwards;
+    }
+    .svg-anim-label-bg {
+      opacity: 0;
+      animation: svg-fade-in 0.5s ease-out 2.9s forwards;
+    }
+    .svg-anim-caption {
+      opacity: 0;
+      animation: svg-fade-in 0.6s ease-out 3.2s forwards;
+    }
+
+    @keyframes svg-fade-in {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    /* Reduced motion: show final state immediately */
+    @media (prefers-reduced-motion: reduce) {
+      .svg-clip-fg1-rect,
+      .svg-clip-fg2-rect,
+      .svg-clip-bg1-rect,
+      .svg-clip-bg2-rect {
+        animation: none;
+      }
+      .svg-anim-boundary,
+      .svg-anim-label-fg,
+      .svg-anim-label-bg,
+      .svg-anim-caption {
+        animation: none;
+        opacity: 1;
+      }
+      .svg-anim-overshoot {
+        animation: none;
+        opacity: 0;
       }
     }
     </style>
@@ -463,89 +644,218 @@
     <path class="svg-grid-line" d="M1080 80V580" />
   </g>
 
+  <!-- ======== TITLE AREA (top) ======== -->
+  <text x="110" y="72" class="svg-subtitle">Effection</text>
+  <text x="110" y="118" class="svg-title">Strict Structured</text>
+  <text x="110" y="166" class="svg-title">Concurrency</text>
+
   <!-- ======== DIAGRAM CARD ======== -->
   <g class="svg-shadow-light" filter="url(#softShadow-light)">
-    <rect class="svg-card" x="90" y="40" width="1020" height="550" rx="24" />
+    <rect class="svg-card" x="90" y="192" width="1020" height="398" rx="20" />
   </g>
   <g class="svg-shadow-dark" filter="url(#softShadow-dark)">
-    <rect class="svg-card" x="90" y="40" width="1020" height="550" rx="24" />
+    <rect class="svg-card" x="90" y="192" width="1020" height="398" rx="20" />
   </g>
 
   <!-- ======== SCOPE BOUNDARY ======== -->
   <g class="svg-shadow-light" filter="url(#tinyShadow-light)">
     <rect
       class="svg-scope-parent"
-      x="120"
-      y="70"
-      width="960"
-      height="420"
-      rx="16"
+      x="110"
+      y="208"
+      width="980"
+      height="324"
+      rx="14"
     />
   </g>
   <g class="svg-shadow-dark" filter="url(#tinyShadow-dark)">
     <rect
       class="svg-scope-parent"
-      x="120"
-      y="70"
-      width="960"
-      height="420"
-      rx="16"
+      x="110"
+      y="208"
+      width="980"
+      height="324"
+      rx="14"
     />
   </g>
-  <rect class="svg-scope-label" x="140" y="82" width="72" height="24" rx="8" />
-  <text x="152" y="99" class="svg-mono-sm">scope</text>
 
-  <!-- ======== DIVIDER ======== -->
-  <line class="svg-divider" x1="600" y1="120" x2="600" y2="470" />
+  <!-- Scope label pill -->
+  <rect
+    class="svg-scope-label-bg"
+    x="126"
+    y="218"
+    width="120"
+    height="22"
+    rx="7"
+  />
+  <text x="140" y="233" class="svg-mono-sm">getUserInfo()</text>
 
-  <!-- ======== LEFT: FOREGROUND ======== -->
-  <text x="370" y="140" class="svg-label svg-label-heading" text-anchor="middle"
-  >Foreground</text>
+  <!-- ======== TIME AXIS ======== -->
+  <line class="svg-time-axis" x1="200" y1="260" x2="1050" y2="260" />
+  <polygon class="svg-time-arrow" points="1050,256 1060,260 1050,264" />
+  <text x="1012" y="252" class="svg-time-label">time</text>
 
-  <rect class="svg-fg-box" x="200" y="168" width="340" height="48" rx="10" />
-  <circle class="svg-fg-dot" cx="224" cy="192" r="6" />
+  <!-- ======== ROW LABELS (left side) ======== -->
+  <!-- Foreground section label -->
+  <text x="136" y="310" class="svg-label svg-fg-label">FG</text>
+  <text x="136" y="358" class="svg-label svg-fg-label">FG</text>
 
-  <rect class="svg-fg-box" x="220" y="232" width="300" height="44" rx="10" />
-  <circle class="svg-fg-dot" cx="244" cy="254" r="6" />
+  <!-- Background section label -->
+  <text x="136" y="422" class="svg-label svg-bg-label-text">BG</text>
+  <text x="136" y="470" class="svg-label svg-bg-label-text">BG</text>
 
-  <rect class="svg-fg-box" x="220" y="290" width="300" height="44" rx="10" />
-  <circle class="svg-fg-dot" cx="244" cy="312" r="6" />
-
-  <!-- Check mark -->
-  <text x="220" y="416" class="svg-mono svg-check-text" stroke="none"
-  >&#x2713; values consumed</text>
-
-  <!-- ======== RIGHT: BACKGROUND ======== -->
-  <text x="830" y="140" class="svg-label svg-label-heading" text-anchor="middle"
-  >Background</text>
-
-  <rect class="svg-bg-box" x="680" y="168" width="300" height="48" rx="10" />
-  <circle class="svg-bg-dot" cx="704" cy="192" r="6" />
-
-  <rect class="svg-bg-box" x="680" y="232" width="300" height="48" rx="10" />
-  <circle class="svg-bg-dot" cx="704" cy="256" r="6" />
-
-  <rect class="svg-bg-box" x="680" y="296" width="300" height="48" rx="10" />
-  <circle class="svg-bg-dot" cx="704" cy="320" r="6" />
-
-  <!-- Fading out indication -->
-  <text x="720" y="386" class="svg-mono svg-cancel-text">scope exits</text>
-
-  <!-- Down arrow -->
+  <!-- Subtle divider between FG and BG rows -->
   <line
-    x1="790"
-    y1="396"
-    x2="790"
-    y2="428"
-    stroke-width="2"
-    class="svg-arrow-line"
-  />
-  <path
-    d="M784 422 L790 432 L796 422"
-    stroke-width="2"
-    class="svg-arrow-line"
+    x1="130"
+    y1="386"
+    x2="1070"
+    y2="386"
+    stroke-dasharray="4 4"
+    stroke-width="1"
+    class="svg-tick"
   />
 
-  <text x="720" y="460" class="svg-mono svg-cancel-text"
-  >&#x2717; automatically halted</text>
+  <!-- ======== FOREGROUND BARS ======== -->
+
+  <!-- Bar 1: fetchUser (shorter — ends at x=630) -->
+  <g clip-path="url(#svg-clip-fg1)">
+    <rect class="svg-fg-bar" x="200" y="294" width="430" height="32" rx="6" />
+    <rect
+      class="svg-fg-bar-border"
+      x="200"
+      y="294"
+      width="430"
+      height="32"
+      rx="6"
+    />
+    <text x="212" y="315" class="svg-mono" style="fill: #fff">fetchUser()</text>
+  </g>
+
+  <!-- Bar 2: fetchGroups (longer — ends at x=680, the boundary) -->
+  <g clip-path="url(#svg-clip-fg2)">
+    <rect class="svg-fg-bar" x="200" y="342" width="480" height="32" rx="6" />
+    <rect
+      class="svg-fg-bar-border"
+      x="200"
+      y="342"
+      width="480"
+      height="32"
+      rx="6"
+    />
+    <text x="212" y="363" class="svg-mono" style="fill: #fff"
+    >fetchGroups()</text>
+  </g>
+
+  <!-- ======== BACKGROUND BARS ======== -->
+
+  <!-- Bar 3: spinner — solid portion (up to boundary at x=680) -->
+  <g clip-path="url(#svg-clip-bg1)">
+    <rect class="svg-bg-bar" x="200" y="406" width="480" height="32" rx="6" />
+    <rect
+      class="svg-bg-bar-border"
+      x="200"
+      y="406"
+      width="480"
+      height="32"
+      rx="6"
+    />
+    <text x="212" y="427" class="svg-mono svg-bg-label-text">spinner</text>
+  </g>
+
+  <!-- Bar 3 overshoot: spinner past boundary (fades away) -->
+  <g class="svg-anim-overshoot" clip-path="url(#svg-clip-bg1)">
+    <rect
+      class="svg-bg-overshoot"
+      x="680"
+      y="406"
+      width="80"
+      height="32"
+      rx="0"
+    />
+    <rect
+      class="svg-bg-overshoot-border"
+      x="680"
+      y="406"
+      width="80"
+      height="32"
+      rx="0"
+    />
+  </g>
+
+  <!-- Bar 4: timeout — solid portion (up to boundary) -->
+  <g clip-path="url(#svg-clip-bg2)">
+    <rect class="svg-bg-bar" x="200" y="454" width="480" height="32" rx="6" />
+    <rect
+      class="svg-bg-bar-border"
+      x="200"
+      y="454"
+      width="480"
+      height="32"
+      rx="6"
+    />
+    <text x="212" y="475" class="svg-mono svg-bg-label-text">timeout</text>
+  </g>
+
+  <!-- Bar 4 overshoot: timeout past boundary (fades away) -->
+  <g class="svg-anim-overshoot" clip-path="url(#svg-clip-bg2)">
+    <rect
+      class="svg-bg-overshoot"
+      x="680"
+      y="454"
+      width="40"
+      height="32"
+      rx="0"
+    />
+    <rect
+      class="svg-bg-overshoot-border"
+      x="680"
+      y="454"
+      width="40"
+      height="32"
+      rx="0"
+    />
+  </g>
+
+  <!-- ======== SCOPE EXIT BOUNDARY LINE ======== -->
+  <!-- Vertical dashed line at x=680 (where foreground completes) -->
+  <g class="svg-anim-boundary">
+    <line
+      class="svg-boundary-line"
+      x1="680"
+      y1="268"
+      x2="680"
+      y2="522"
+    />
+    <!-- Boundary label -->
+    <text
+      x="680"
+      y="518"
+      text-anchor="middle"
+      class="svg-mono-sm svg-boundary-label"
+    >scope exits</text>
+  </g>
+
+  <!-- ======== RESULT LABELS ======== -->
+
+  <!-- Foreground complete label (left of boundary) -->
+  <g class="svg-anim-label-fg">
+    <text x="490" y="290" class="svg-mono-sm svg-check-text"
+    >&#x2713; values consumed</text>
+  </g>
+
+  <!-- Background reclaimed label (right of boundary) -->
+  <g class="svg-anim-label-bg">
+    <text x="700" y="443" class="svg-mono-sm svg-cancel-text"
+    >&#x2717; reclaimed</text>
+  </g>
+
+  <!-- ======== CAPTION ======== -->
+  <g class="svg-anim-caption">
+    <text
+      x="600"
+      y="570"
+      text-anchor="middle"
+      class="svg-caption"
+    >Scope lifetime aligned with what the scope computes</text>
+  </g>
 </svg>

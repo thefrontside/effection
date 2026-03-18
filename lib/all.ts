@@ -10,8 +10,7 @@ import { trap } from "./task.ts";
  *
  * If any of the operations become errored, then `all` will also become errored.
  *
- * ### Example
- *
+ * @example
  * ``` javascript
  * import { all, expect, main } from 'effection';
  *

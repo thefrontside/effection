@@ -79,12 +79,29 @@ export function resource<T>(
 }
 
 /**
+ * Provide `value` to the calling operation as a resource.
+ * @returns an operation that suspends the resource operation until the caller is completed.
+ *
+ * @example
+ * ```ts
+ * function useValue() {
+ *   return resource(function* (provide: Provide<number>) {
+ *     yield* provide(42);
+ *   });
+ * }
+ *
+ * console.log(yield* useValue); // 42
+ *
+ * // alternatively, the preferred pattern is
+ * function useValue() {
+ *   return resource<number>(function* (provide) {
+ *     yield* provide(42);
+ *   });
+ * }
+ * ```
+ *
  * @since 3.0
  */
 export interface Provide<T> {
-  /**
-   * Provide `value` to the calling operation as a resource.
-   * @returns an operation that suspends the resource operation until the caller is completed.
-   */
   (value: T): Operation<void>;
 }

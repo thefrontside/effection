@@ -7,6 +7,17 @@ import { action } from "./action.ts";
  * or a {@link Channel} as the mechanism, but `Queue` allows you to manage
  * a single subscription directly.
  *
+ * @example
+ * ```ts
+ * let queue = createQueue<number, void>();
+ * queue.add(1);
+ *
+ * let first = yield* queue.next();
+ * if (!first.done) {
+ *   console.log(first.value); // 1
+ * }
+ * ```
+ *
  * @typeParam T the type of the items in the queue
  * @typeParam TClose the type of the value that the queue is closed with
  * @since 3.0

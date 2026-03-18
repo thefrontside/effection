@@ -16,12 +16,21 @@ import { Err, Ok, type Result } from "./result.ts";
  * @example
  *
  * ```typescript
- * import { main, race, fetch } from 'effection';
+ * import { race, sleep } from "effection";
  *
- * await main(function*() {
- *  let fastest = yield* race([fetch('http://google.com'), fetch('http://bing.com')]);
- *  // ...
- * });
+ *   let fastest = yield* race([
+ *     (function* () {
+ *       yield* sleep(100);
+ *       // this is halted as it loses the race
+ *       return "slow";
+ *     })(),
+ *     (function* () {
+ *       yield* sleep(10);
+ *       return "fast";
+ *     })(),
+ *   ]);
+ *
+ *   console.log(fastest); // "fast"
  * ```
  *
  * @param operations a list of operations to race against each other

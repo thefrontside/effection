@@ -12,6 +12,7 @@ import type { Operation } from "./types.ts";
  * APIs that accept `Callable` values allow end developers to pass simple
  * functions without necessarily needing to know anything about Operations.
  *
+ * @example
  * ```javascript
  * function hello(to: Callable<string>): Operation<string> {
  *   return function*() {

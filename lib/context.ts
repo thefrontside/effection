@@ -5,6 +5,41 @@ import { Do } from "./do.ts";
 /**
  * Create a new {@link Context}
  *
+ * @example
+ * ```ts
+ * import { createContext, main } from "effection";
+ *
+ * let YourContext = createContext<string>("context-id");
+ *
+ * await main(function* () {
+ *   yield* YourContext.with("abc-123", function* () {
+ *     console.log(yield* YourContext.expect()); // "abc-123"
+ *   });
+ * });
+ * ```
+ *
+ * @example
+ * ```ts
+ * import { createContext, main } from "effection";
+ *
+ * let YourContext = createContext<string>("context-id");
+ *
+ * await main(function* () {
+ *   let scope = yield* useScope();
+ *   scope.set(YourContext, "abc-123");
+ *
+ *   // loop through operations and run each within child scope
+ *   // where the arbitrary operations need access to the context value.
+ *   for (let operation of operations) {
+ *     yield* scope.run(function*() {
+ *       const value = yield* YourContext.expect(); // "abc-123"
+ *       // or set a different value for children of this scope
+ *       YourContext.set("def-456");
+ *     });
+ *   }
+ * });
+ * ```
+ *
  * @param name - the unique name to give this context.
  * @returns the new context
  * @since 3.0

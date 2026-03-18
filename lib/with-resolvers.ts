@@ -5,6 +5,14 @@ import type { Operation } from "./types.ts";
 /**
  * The return type of {@link withResolvers}. It contains an operation bundled with
  * synchronous functions that determine its outcome.
+ *
+ * @example
+ * ```ts
+ * let deferred: WithResolvers<string> = withResolvers<string>();
+ * deferred.resolve("ready");
+ *
+ * console.log(yield* deferred.operation); // "ready"
+ * ```
  * @since 3.2
  */
 export interface WithResolvers<T> {
@@ -36,11 +44,27 @@ export interface WithResolvers<T> {
 }
 
 /**
- * Create an {link @Operation} and two functions to resolve or reject
+ * Create an {@link Operation} and two functions to resolve or reject
  * it, corresponding to the two parameters passed to the executor of
  * the {@link action} constructor. This is the Effection equivalent of
  * [Promise.withResolvers()]{@link
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/withResolvers}
+ *
+ * @example
+ * ```ts
+ * import { once, spawn, withResolvers } from "effection";
+ *
+ * // one may pass a type for any value (or nothing) to resolve
+ * let ready = withResolvers<Event>();
+ *
+ * yield* spawn(function* () {
+ *   // do some work
+ *   ready.resolve(yield* once(socket, "open"));
+ * });
+ *
+ * let event = yield* ready.operation;
+ * console.log(event.type); // "open"
+ * ```
  *
  * @returns an operation and its resolvers.
  * @since 3.2

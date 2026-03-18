@@ -5,6 +5,7 @@ import type { Stream } from "./types.ts";
 /**
  * Consume an interval as an infinite stream.
  *
+ * @example
  * ```ts
  * let startTime = Date.now();
  *
@@ -14,6 +15,7 @@ import type { Stream } from "./types.ts";
  *   yield* each.next();
  * }
  * ```
+ *
  * @param milliseconds - how long to delay between each item in the stream
  * @since 3.6
  */

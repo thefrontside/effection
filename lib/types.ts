@@ -52,6 +52,18 @@ export interface Operation<T> {
  * can also be evaluated directly within another operation, so among other
  * things, if the operation resolves synchronously, it will continue within the
  * same tick of the run loop.
+ *
+ * @example
+ * ```ts
+ * let task = run(function* () {
+ *   return 42;
+ * });
+ *
+ * // in an effection scope
+ * let valueFromYield = yield* task;
+ * // in an async function
+ * let valueFromAwait = await task;
+ * ```
  * @since 3.0
  */
 export interface Future<T> extends Operation<T>, Promise<T> {}
@@ -159,6 +171,12 @@ export interface Task<T> extends Future<T> {
  * via the next() method. Normally a subscription is created via a
  * {@link Stream}.
  *
+ * @example
+ * ```ts
+ * let subscription = yield* stream;
+ * let next = yield* subscription.next();
+ * ```
+ *
  * @see https://effection.deno.dev/docs/collections#subscription
  * @since 3.0
  */
@@ -172,6 +190,16 @@ export interface Subscription<T, TDone> {
  * Like async iterables, streams do not actually have state themselves, but
  * contain the recipe for how to create a {@link Subscription}
  *
+ * @example
+ * ```ts
+ * let subscription = yield* stream;
+ * let next = yield* subscription.next();
+ * while (!next.done) {
+ *   console.log(next.value);
+ *   next = yield* subscription.next();
+ * }
+ * ```
+ *
  * @see https://frontside.com/effection/docs/collections#stream
  * @since 3.0
  */
@@ -183,6 +211,13 @@ export type Stream<T, TReturn> = Operation<Subscription<T, TReturn>>;
  *
  * Unless a context value is defined for a particular scope, it will inherit
  * its value from its parent scope.
+ *
+ * @example
+ * ```ts
+ * let User = createContext<string>("user");
+ * yield* User.set("alice");
+ * console.log(yield* User.expect()); // "alice"
+ * ```
  * @since 3.0
  */
 export interface Context<T> {

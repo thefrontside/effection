@@ -10,6 +10,7 @@ import { api } from "./api.ts";
  * Halt process execution immediately and initiate shutdown. If a message is
  * provided, it will be logged to the console after shutdown:
  *
+ * @example
  * ```js
  * if (invalidArgs()) {
  *   yield* exit(5, "invalid arguments")
@@ -17,7 +18,7 @@ import { api } from "./api.ts";
  * ```
  * @param status - the exit code to use for the process exit
  * @param message - message to print to the console before exiting.
- * @param returns an operation that exits the program
+ * @returns an operation that exits the program
  * @since 3.0
  */
 export function* exit(status: number, message?: string): Operation<void> {

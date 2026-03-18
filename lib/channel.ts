@@ -7,6 +7,15 @@ import { lift } from "./lift.ts";
  * via the same {@link Stream}, and messages sent to the channel are
  * received by all consumers. The channel is not buffered, so if there
  * are no consumers, the message is dropped.
+ *
+ * @example
+ * ```ts
+ * let channel = createChannel<string>();
+ * let subscription = yield* channel;
+ *
+ * yield* channel.send("hello");
+ * console.log(yield* subscription.next()); // { done: false, value: "hello" }
+ * ```
  * @since 3.0
  */
 export interface Channel<T, TClose> extends Stream<T, TClose> {

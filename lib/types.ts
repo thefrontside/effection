@@ -391,6 +391,34 @@ export interface Scope {
  * sensitivity such as dependency injection, test mocking, and
  * instrumentation.
  *
+ * @example
+ * ```ts
+ * import { createApi, type Operation } from "effection";
+ *
+ * interface DbApi {
+ *   query(sql: string): Operation<{ id: number; title: string }[]>;
+ * }
+ *
+ * let DatabaseApi = createApi<DbApi>("database", {
+ *   *query(sql) {
+ *     console.log("running", sql);
+ *     return [];
+ *   },
+ * });
+ *
+ * // scope-local decoration: logging, metrics, retries, mocks, etc.
+ * yield* DatabaseApi.around({
+ *   *query(args, next) {
+ *     let [sql] = args;
+ *     console.log("SQL:", sql);
+ *     return yield* next(...args);
+ *   },
+ * });
+ *
+ * let rows = yield* DatabaseApi.operations.query("select * from posts");
+ * console.log(rows.length);
+ * ```
+ *
  * @template A - core shape of the Api
  * @see {@link createApi}
  * @since 4.1
@@ -433,8 +461,23 @@ export interface Api<A> {
 }
 
 /**
- * An general function that can be used to surround any other function
+ * A general function that can be used to surround any other function
  * or value.
+ *
+ * @example
+ * ```ts
+ * import type { Operation } from "effection";
+ *
+ * function* DbMiddleware<[string], Operation<{ id: number; title: string }[]>>(args, next) {
+ *   let [sql] = args;
+ *   let start = Date.now();
+ *   try {
+ *     return yield* next(...args);
+ *   } finally {
+ *     console.log("query ms", Date.now() - start, sql);
+ *   }
+ * };
+ * ```
  *
  * @since 4.1
  */
@@ -456,6 +499,30 @@ export interface Middleware<TArgs extends unknown[], TReturn> {
  * The shape of middlewares can surround a particular {Api}
  *
  * Members of an Api that are values are surrounded by no-arg functions.
+ *
+ * @example
+ * ```ts
+ * import type { Operation } from "effection";
+ *
+ * interface DatabaseApiShape {
+ *   query(sql: string): Operation<{ id: number; title: string }[]>;
+ *   close(): Operation<void>;
+ * }
+ *
+ * let around: Partial<Around<DatabaseApiShape>> = {
+ *   *query(args, next) {
+ *     let [sql] = args;
+ *     if (sql.includes("select")) {
+ *       console.log("read query");
+ *     }
+ *     return yield* next(...args);
+ *   },
+ *   *close(args, next) {
+ *     console.log("closing db connection");
+ *     return yield* next(...args);
+ *   },
+ * };
+ * ```
  */
 export type Around<Api> = {
   [K in keyof Api]: Api[K] extends (...args: infer TArgs) => infer TReturn
@@ -467,11 +534,15 @@ export type Around<Api> = {
  * Unwrap the type of an `Operation`.
  * Analogous to the built in [`Awaited`](https://www.typescriptlang.org/docs/handbook/utility-types.html#awaitedtype) type.
  * `Yielded<Operation<T>> === T`
+ *
+ * @example
+ * ```ts
+ * type Text = Yielded<Operation<string>>;
+ * ```
  * @since 3.1
  */
-export type Yielded<T extends Operation<unknown>> = T extends
-  Operation<infer TYield> ? TYield
-  : never;
+export type Yielded<T extends Operation<unknown>> =
+  T extends Operation<infer TYield> ? TYield : never;
 
 // low-level private apis.
 

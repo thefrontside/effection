@@ -382,6 +382,9 @@ Use [gitmoji](https://gitmoji.dev) for commit and pull request subjects. For
 changes to files that direct the behavior of AI such as AGENTS.md or llms.txt
 use a robot emoji instead of the standard gitmoji for documentation
 
+Do not include any agent marketing material (e.g. "Generated with...",
+"Co-Authored-By: \<agent>") in commits, pull requests, issues, or comments.
+
 ## Pre-commit workflow
 
 Before committing any changes to this repository:

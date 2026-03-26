@@ -393,7 +393,8 @@ export interface Scope {
  *
  * @example
  * ```ts
- * import { createApi, type Operation } from "effection";
+ * import { type Operation } from "effection";
+ * import { createApi } from "effection/experimental";
  *
  * interface DbApi {
  *   query(sql: string): Operation<{ id: number; title: string }[]>;

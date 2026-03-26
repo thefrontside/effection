@@ -90,7 +90,7 @@ export function resource<T>(
  *   });
  * }
  *
- * console.log(yield* useValue); // 42
+ * console.log(yield* useValue()); // 42
  *
  * // alternatively, the preferred pattern is
  * function useValue() {

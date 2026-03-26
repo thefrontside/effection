@@ -6,7 +6,7 @@ import type { ScopeInternal } from "./scope-internal.ts";
 /**
  * Create a new {@link Api}. This is the constructor behind
  * middleware decoration used through core such as with {@link Scope#around}.
- * One may implement an API for any operation to
+ * One may implement an API around any operation or value and then decorate it per-scope.
  *
  * @example
  * ```ts

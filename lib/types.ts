@@ -469,7 +469,7 @@ export interface Api<A> {
  * ```ts
  * import type { Operation } from "effection";
  *
- * function* DbMiddleware<[string], Operation<{ id: number; title: string }[]>>(args, next) {
+ * function* DbMiddleware(args, next): <[string], Operation<{ id: number; title: string }[]>> {
  *   let [sql] = args;
  *   let start = Date.now();
  *   try {

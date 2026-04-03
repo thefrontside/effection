@@ -19,15 +19,15 @@ import { Err, Ok, type Result } from "./result.ts";
  * import { race, sleep } from "effection";
  *
  *   let fastest = yield* race([
- *     (function* () {
+ *     call(function* () {
  *       yield* sleep(100);
  *       // this is halted as it loses the race
  *       return "slow";
- *     })(),
- *     (function* () {
+ *     }),
+ *     call(function* () {
  *       yield* sleep(10);
  *       return "fast";
- *     })(),
+ *     }),
  *   ]);
  *
  *   console.log(fastest); // "fast"

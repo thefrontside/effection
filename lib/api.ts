@@ -81,7 +81,7 @@ export const api: Apis = {
     },
     *destroy() {},
     set(scope, context, value) {
-      return ((scope as ScopeInternal).contexts[context.name] = value);
+      return (scope as ScopeInternal).contexts[context.name] = value;
     },
     delete(scope, context) {
       return delete (scope as ScopeInternal).contexts[context.name];

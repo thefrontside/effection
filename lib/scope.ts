@@ -4,15 +4,6 @@ import { createScopeInternal } from "./scope-internal.ts";
 
 /**
  * The root of all Effection Scopes.
- *
- * @example
- * ```ts
- * import { global, sleep } from "effection";
- *
- * await global.run(function* () {
- *   yield* sleep(10);
- * });
- * ```
  * @since 4.0
  */
 export const global = createScopeInternal()[0] as Scope;

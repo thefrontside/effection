@@ -9,7 +9,7 @@ import { Do } from "./do.ts";
  * ```ts
  * import { createContext, main } from "effection";
  *
- * let YourContext = createContext<string>("context-id");
+ * const YourContext = createContext<string>("context-id");
  *
  * await main(function* () {
  *   yield* YourContext.with("abc-123", function* () {

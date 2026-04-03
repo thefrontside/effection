@@ -94,8 +94,7 @@
       />
     </filter>
 
-    <style>
-    /* ---- Font stacks ---- */
+    <style>/* ---- Font stacks ---- */
     .svg-title {
       font-family:
         ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
@@ -636,8 +635,7 @@
         opacity: 0;
         animation: none;
       }
-    }
-    </style>
+    }</style>
   </defs>
 
   <!-- ======== BACKGROUND ======== -->
@@ -678,7 +676,7 @@
   <text x="60" y="52" class="svg-subtitle">Effection Blog</text>
   <text y="100" class="svg-title">
     <tspan x="60" class="svg-title-mono">AbortController.abort()</tspan>
-    <tspan class="svg-title"> Doesn't Mean It Stopped</tspan>
+    <tspan class="svg-title">Doesn't Mean It Stopped</tspan>
   </text>
 
   <!-- ======== LEFT TERMINAL: AbortController ======== -->
@@ -745,31 +743,70 @@
   <!-- Left terminal content -->
   <g class="svg-mono">
     <text x="80" y="210" class="svg-terminal-text svg-cursor">█</text>
-    <text x="80" y="210" class="svg-terminal-text svg-anim-line svg-anim-L1"
+    <text
+      x="80"
+      y="210"
+      class="svg-terminal-text svg-anim-line svg-anim-L1"
     >tick: STILL RUNNING</text>
-    <text x="80" y="230" class="svg-terminal-text svg-anim-line svg-anim-L2"
+    <text
+      x="80"
+      y="230"
+      class="svg-terminal-text svg-anim-line svg-anim-L2"
     >tick: STILL RUNNING</text>
-    <text x="80" y="250" class="svg-terminal-text svg-anim-line svg-anim-L3"
+    <text
+      x="80"
+      y="250"
+      class="svg-terminal-text svg-anim-line svg-anim-L3"
     >tick: STILL RUNNING</text>
-    <text x="80" y="280" class="svg-terminal-dim svg-anim-line svg-anim-L4"
+    <text
+      x="80"
+      y="280"
+      class="svg-terminal-dim svg-anim-line svg-anim-L4"
     >>>> calling abort()</text>
-    <text x="80" y="300" class="svg-terminal-dim svg-anim-line svg-anim-L5"
+    <text
+      x="80"
+      y="300"
+      class="svg-terminal-dim svg-anim-line svg-anim-L5"
     >>>> abort() returned</text>
-    <text x="80" y="330" class="svg-terminal-info svg-anim-line svg-anim-L6"
+    <text
+      x="80"
+      y="330"
+      class="svg-terminal-info svg-anim-line svg-anim-L6"
     >task ended with: aborted</text>
-    <text x="80" y="360" class="svg-terminal-dim svg-anim-line svg-anim-L7"
+    <text
+      x="80"
+      y="360"
+      class="svg-terminal-dim svg-anim-line svg-anim-L7"
     >>>> caller thinks it's done</text>
-    <text x="80" y="400" class="svg-terminal-warn svg-anim-line svg-anim-L8"
+    <text
+      x="80"
+      y="400"
+      class="svg-terminal-warn svg-anim-line svg-anim-L8"
     >tick: STILL RUNNING</text>
-    <text x="80" y="420" class="svg-terminal-warn svg-anim-line svg-anim-L9"
+    <text
+      x="80"
+      y="420"
+      class="svg-terminal-warn svg-anim-line svg-anim-L9"
     >tick: STILL RUNNING</text>
-    <text x="80" y="440" class="svg-terminal-warn svg-anim-line svg-anim-L10"
+    <text
+      x="80"
+      y="440"
+      class="svg-terminal-warn svg-anim-line svg-anim-L10"
     >tick: STILL RUNNING</text>
-    <text x="80" y="460" class="svg-terminal-warn svg-anim-line svg-anim-L11"
+    <text
+      x="80"
+      y="460"
+      class="svg-terminal-warn svg-anim-line svg-anim-L11"
     >tick: STILL RUNNING</text>
-    <text x="80" y="480" class="svg-terminal-warn svg-anim-line svg-anim-L12"
+    <text
+      x="80"
+      y="480"
+      class="svg-terminal-warn svg-anim-line svg-anim-L12"
     >tick: STILL RUNNING</text>
-    <text x="80" y="500" class="svg-terminal-dim svg-anim-line svg-anim-L13"
+    <text
+      x="80"
+      y="500"
+      class="svg-terminal-dim svg-anim-line svg-anim-L13"
     >...</text>
   </g>
 
@@ -858,17 +895,35 @@
   <!-- Right terminal content -->
   <g class="svg-mono">
     <text x="640" y="210" class="svg-terminal-text svg-cursor">█</text>
-    <text x="640" y="210" class="svg-terminal-text svg-anim-line svg-anim-R1"
+    <text
+      x="640"
+      y="210"
+      class="svg-terminal-text svg-anim-line svg-anim-R1"
     >tick: RUNNING</text>
-    <text x="640" y="230" class="svg-terminal-text svg-anim-line svg-anim-R2"
+    <text
+      x="640"
+      y="230"
+      class="svg-terminal-text svg-anim-line svg-anim-R2"
     >tick: RUNNING</text>
-    <text x="640" y="250" class="svg-terminal-text svg-anim-line svg-anim-R3"
+    <text
+      x="640"
+      y="250"
+      class="svg-terminal-text svg-anim-line svg-anim-R3"
     >tick: RUNNING</text>
-    <text x="640" y="280" class="svg-terminal-dim svg-anim-line svg-anim-R4"
+    <text
+      x="640"
+      y="280"
+      class="svg-terminal-dim svg-anim-line svg-anim-R4"
     >>>> leaving scope</text>
-    <text x="640" y="300" class="svg-terminal-dim svg-anim-line svg-anim-R5"
+    <text
+      x="640"
+      y="300"
+      class="svg-terminal-dim svg-anim-line svg-anim-R5"
     >>>> scope exited</text>
-    <text x="640" y="350" class="svg-terminal-success svg-anim-line svg-anim-R6"
+    <text
+      x="640"
+      y="350"
+      class="svg-terminal-success svg-anim-line svg-anim-R6"
     >all children stopped</text>
   </g>
 

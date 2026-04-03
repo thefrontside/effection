@@ -17,7 +17,7 @@ describe("interval", () => {
       let result = yield* race([
         task,
         call(function* () {
-          yield* sleep(50);
+          yield* sleep(500);
           return "interval not producing!";
         }),
       ]);

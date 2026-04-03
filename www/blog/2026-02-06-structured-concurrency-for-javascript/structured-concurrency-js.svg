@@ -133,8 +133,7 @@
       />
     </filter>
 
-    <style>
-    /* ---- Font stacks ---- */
+    <style>/* ---- Font stacks ---- */
     .svg-title {
       font-family:
         ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
@@ -411,8 +410,7 @@
       .svg-label-heading {
         fill: #f3f4f6;
       }
-    }
-    </style>
+    }</style>
   </defs>
 
   <!-- ======== BACKGROUND ======== -->
@@ -498,7 +496,11 @@
   <!-- ======== LEFT SIDE: PROMISES ======== -->
 
   <!-- Section heading -->
-  <text x="680" y="128" class="svg-label svg-label-heading" text-anchor="middle"
+  <text
+    x="680"
+    y="128"
+    class="svg-label svg-label-heading"
+    text-anchor="middle"
   >Promises</text>
 
   <!-- Dashed function boundary — intentionally small so boxes overflow -->
@@ -573,17 +575,27 @@
   <!-- Status text below (warning color) -->
   <text x="592" y="430" class="svg-mono-sm svg-leak-text">● still pending</text>
   <text x="592" y="450" class="svg-mono-sm svg-leak-text">● still ticking</text>
-  <text x="592" y="470" class="svg-mono-sm svg-leak-text"
+  <text
+    x="592"
+    y="470"
+    class="svg-mono-sm svg-leak-text"
   >● port still bound</text>
 
   <!-- Punchline -->
-  <text x="592" y="508" class="svg-mono-sm svg-uncertain-text"
+  <text
+    x="592"
+    y="508"
+    class="svg-mono-sm svg-uncertain-text"
   >finally {} ?</text>
 
   <!-- ======== RIGHT SIDE: EFFECTION ======== -->
 
   <!-- Section heading -->
-  <text x="975" y="128" class="svg-label svg-label-heading" text-anchor="middle"
+  <text
+    x="975"
+    y="128"
+    class="svg-label svg-label-heading"
+    text-anchor="middle"
   >Effection</text>
 
   <!-- Parent scope (solid boundary) — wide enough for the boxes -->
@@ -698,10 +710,17 @@
   />
 
   <!-- Checkmark -->
-  <text x="880" y="498" class="svg-mono-sm svg-check-text" stroke="none"
+  <text
+    x="880"
+    y="498"
+    class="svg-mono-sm svg-check-text"
+    stroke="none"
   >✓ halted + cleaned up</text>
 
   <!-- ======== BOTTOM TAGLINE ======== -->
-  <text x="90" y="560" class="svg-mono svg-caption"
+  <text
+    x="90"
+    y="560"
+    class="svg-mono svg-caption"
   >Async should just feel normal.</text>
 </svg>

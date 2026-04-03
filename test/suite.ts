@@ -117,11 +117,12 @@ export function x(
       },
       lines: stream(tinyexec),
       *kill(signal) {
-        tinyexec.kill(signal);
         if (
           Deno.build.os === "windows" && signal === "SIGINT" && tinyexec.pid
         ) {
           ctrlc(tinyexec.pid);
+        } else {
+          tinyexec.kill(signal);
         }
         let result = yield* output;
 

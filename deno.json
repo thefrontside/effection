@@ -1,6 +1,5 @@
 {
   "name": "@effection/effection",
-  "exports": "./mod.ts",
   "license": "ISC",
   "publish": { "include": ["lib", "mod.ts", "experimental.ts", "README.md"] },
   "lock": false,

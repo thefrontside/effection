@@ -49,6 +49,14 @@ export function* useMarkdown(
   );
   let sanitized = yield* sanitize(markdown);
 
+  // Escape generic type parameters like <T>, <TSend, TRecv> that MDX
+  // would interpret as JSX tags. Only matches uppercase-starting identifiers
+  // inside angle brackets to avoid escaping actual HTML tags.
+  sanitized = sanitized.replace(
+    /<([A-Z]\w*(?:\s*,\s*[A-Z]\w*)*)>/g,
+    "&lt;$1&gt;",
+  );
+
   let mod = yield* useMDX(sanitized, {
     remarkPlugins: [remarkGfm, ...(options?.remarkPlugins ?? [])],
     rehypePlugins: [

@@ -45,7 +45,10 @@ export function llmsTxtRoute(): SitemapRoute<Response> {
       );
 
       // Group packages by category
-      let categorizedContent = groupPackagesByCategory(categories, packageEntries).map(
+      let categorizedContent = groupPackagesByCategory(
+        categories,
+        packageEntries,
+      ).map(
         (category) => {
           let packageLines = category.packages.map((pkg) => {
             let shortDesc = truncateToFirstSentence(pkg.description, 120);

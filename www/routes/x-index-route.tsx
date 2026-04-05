@@ -67,7 +67,10 @@ export function xIndexRoute({
       );
 
       // Group packages by category
-      let categorizedPackages = groupPackagesByCategory(categories, packageEntries);
+      let categorizedPackages = groupPackagesByCategory(
+        categories,
+        packageEntries,
+      );
 
       return (
         <AppHTML search={search}>

@@ -125,7 +125,7 @@ export function xIndexRoute({
               {/* Frameworks section */}
               <section
                 id="frameworks"
-                class="ring-1 ring-slate-300 dark:ring-slate-700 rounded"
+                class="scroll-mt-[100px] ring-1 ring-slate-300 dark:ring-slate-700 rounded"
               >
                 <h2 class="p-4 bg-slate-100 dark:bg-gray-800 mb-0 text-lg text-gray-900 dark:text-gray-200">
                   Frameworks
@@ -152,7 +152,7 @@ export function xIndexRoute({
                 {categorizedPackages.map((category) => (
                   <section
                     id={category.keyword}
-                    class="ring-1 ring-slate-300 dark:ring-slate-700 rounded"
+                    class="scroll-mt-[100px] ring-1 ring-slate-300 dark:ring-slate-700 rounded"
                   >
                     <h2 class="p-4 bg-slate-100 dark:bg-gray-800 mb-0 text-lg text-gray-900 dark:text-gray-200">
                       {category.label}

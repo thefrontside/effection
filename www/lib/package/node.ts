@@ -196,10 +196,7 @@ export function createNodePackage(
         name: packageJson.name,
         version: packageJson.version,
         description: packageJson.description,
-<<<<<<< HEAD
-=======
         keywords: packageJson.keywords,
->>>>>>> 600b14e0 (✨ Add keywords and description to package manifest schema)
         exports: normalizeExports(packageJson.exports),
         license: packageJson.license,
         imports: buildImports(packageJson),

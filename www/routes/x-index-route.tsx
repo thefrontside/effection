@@ -1,4 +1,3 @@
-// @ts-nocheck - JSX array children typing issue
 import { all } from "effection";
 import type { JSXElement } from "revolution";
 import { GithubPill } from "../components/package/source-link.tsx";
@@ -8,35 +7,12 @@ import { useAppHtml } from "./app.html.tsx";
 import { createChildURL, createSibling } from "../lib/links-resolvers.ts";
 import { softRedirect } from "./redirect.tsx";
 import type { Package } from "../lib/package/types.ts";
+import {
+  groupPackagesByCategory,
+  type PackageSummary,
+} from "../lib/package/categories.ts";
 
-/**
- * Category definitions for grouping packages.
- * Order determines display order in the sidebar and main content.
- */
-const CATEGORIES: { keyword: string; label: string }[] = [
-  { keyword: "testing", label: "Testing" },
-  { keyword: "io", label: "I/O & Network" },
-  { keyword: "process", label: "Processes" },
-  { keyword: "streams", label: "Streams" },
-  { keyword: "concurrency", label: "Concurrency" },
-  { keyword: "reactivity", label: "Reactivity" },
-  { keyword: "interop", label: "Interop" },
-  { keyword: "platform", label: "Platform" },
-];
-
-interface PackageEntry {
-  name: string;
-  description: string;
-  workspaceName: string;
-  keywords: string[];
-  url: string;
-}
-
-interface CategoryWithPackages {
-  keyword: string;
-  label: string;
-  packages: PackageEntry[];
-}
+type PackageEntry = PackageSummary & { url: string };
 
 export function xIndexRedirect(): SitemapRoute<JSXElement> {
   return {
@@ -89,14 +65,7 @@ export function xIndexRoute({
       );
 
       // Group packages by category
-      let categorizedPackages: CategoryWithPackages[] = CATEGORIES.map(
-        (category) => ({
-          ...category,
-          packages: packageEntries.filter((pkg) =>
-            pkg.keywords.includes(category.keyword)
-          ),
-        }),
-      ).filter((cat) => cat.packages.length > 0);
+      let categorizedPackages = groupPackagesByCategory(packageEntries);
 
       return (
         <AppHTML search={search}>

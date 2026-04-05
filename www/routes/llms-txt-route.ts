@@ -3,60 +3,10 @@ import { all } from "effection";
 import { useWorkspaces } from "../lib/workspaces/mod.ts";
 import type { SitemapRoute } from "../plugins/sitemap.ts";
 import type { Package } from "../lib/package/types.ts";
-
-/**
- * Category definitions for grouping packages.
- * Order determines display order in llms.txt.
- */
-const CATEGORIES: { keyword: string; label: string; description: string }[] = [
-  {
-    keyword: "testing",
-    label: "Testing",
-    description: "Test frameworks, adapters, and assertion helpers",
-  },
-  {
-    keyword: "io",
-    label: "I/O & Network",
-    description: "HTTP, WebSocket, file system, and Node.js adapters",
-  },
-  {
-    keyword: "process",
-    label: "Processes",
-    description: "Child process management and file watching",
-  },
-  {
-    keyword: "streams",
-    label: "Streams",
-    description: "Stream transformation, parsing, and storage",
-  },
-  {
-    keyword: "concurrency",
-    label: "Concurrency",
-    description: "Rate limiting, timeouts, and flow control",
-  },
-  {
-    keyword: "reactivity",
-    label: "Reactivity",
-    description: "Reactive state and async workflows",
-  },
-  {
-    keyword: "interop",
-    label: "Interop",
-    description: "Integration with other ecosystems and patterns",
-  },
-  {
-    keyword: "platform",
-    label: "Platform",
-    description: "Browser and runtime-specific APIs",
-  },
-];
-
-interface PackageEntry {
-  name: string;
-  description: string;
-  workspaceName: string;
-  keywords: string[];
-}
+import {
+  groupPackagesByCategory,
+  type PackageSummary,
+} from "../lib/package/categories.ts";
 
 /**
  * Dynamic llms.txt route following the llmstxt.org standard.
@@ -77,7 +27,7 @@ export function llmsTxtRoute(): SitemapRoute<Response> {
       let packages = yield* workspaces.getAllPackages();
 
       // Resolve package metadata concurrently
-      let packageEntries: PackageEntry[] = yield* all(
+      let packageEntries: PackageSummary[] = yield* all(
         packages.map(function* (pkg: Package) {
           let name = yield* pkg.getName();
           let description = yield* pkg.getDescription();
@@ -93,28 +43,22 @@ export function llmsTxtRoute(): SitemapRoute<Response> {
       );
 
       // Group packages by category
-      let categorizedContent = CATEGORIES.map((category) => {
-        let categoryPackages = packageEntries.filter((pkg) =>
-          pkg.keywords.includes(category.keyword)
-        );
+      let categorizedContent = groupPackagesByCategory(packageEntries).map(
+        (category) => {
+          let packageLines = category.packages.map((pkg) => {
+            let shortDesc = truncateToFirstSentence(pkg.description, 120);
+            return `- [${pkg.name}](https://frontside.com/effection/x/${pkg.workspaceName}): ${shortDesc}`;
+          });
 
-        if (categoryPackages.length === 0) {
-          return "";
-        }
-
-        let packageLines = categoryPackages.map((pkg) => {
-          let shortDesc = truncateToFirstSentence(pkg.description, 120);
-          return `- [${pkg.name}](https://frontside.com/effection/x/${pkg.workspaceName}): ${shortDesc}`;
-        });
-
-        return [
-          `### ${category.label}`,
-          "",
-          category.description,
-          "",
-          ...packageLines,
-        ].join("\n");
-      }).filter(Boolean);
+          return [
+            `### ${category.label}`,
+            "",
+            category.description,
+            "",
+            ...packageLines,
+          ].join("\n");
+        },
+      );
 
       let content = [
         LLMS_TXT_HEADER,

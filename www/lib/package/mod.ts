@@ -1,10 +1,12 @@
 export type { Package, PackageManifest, Ref } from "./types.ts";
 export {
+  DEFAULT_CATEGORIES,
   groupPackagesByCategory,
-  PACKAGE_CATEGORIES,
+  type CategoryDefinition,
   type PackageCategoryGroup,
   type PackageSummary,
 } from "./categories.ts";
+export { useTaxonomy } from "./taxonomy.ts";
 export {
   createNodePackage,
   type PackageJson,

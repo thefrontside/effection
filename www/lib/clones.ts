@@ -16,6 +16,9 @@ export function* useClone(nameWithOwner: string): Operation<string> {
   let dirpath = resolve(`${basepath}/${nameWithOwner}`);
   if (!existsSync(dirpath)) {
     yield* $(`git clone https://github.com/${nameWithOwner} ${dirpath}`);
+  } else {
+    yield* $(`git -C ${dirpath} fetch origin`);
+    yield* $(`git -C ${dirpath} reset --hard origin/main`);
   }
   return dirpath;
 }

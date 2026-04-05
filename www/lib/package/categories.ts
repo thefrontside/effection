@@ -1,4 +1,18 @@
-export const PACKAGE_CATEGORIES = [
+/**
+ * A single category definition from the effectionx root package.json.
+ */
+export interface CategoryDefinition {
+  keyword: string;
+  label: string;
+  description: string;
+}
+
+/**
+ * Fallback taxonomy used when the cloned effectionx repo does not yet
+ * contain an `effectionx.categories` field (e.g. during PR review
+ * before the taxonomy PR is merged).
+ */
+export const DEFAULT_CATEGORIES: readonly CategoryDefinition[] = [
   {
     keyword: "testing",
     label: "Testing",
@@ -39,7 +53,7 @@ export const PACKAGE_CATEGORIES = [
     label: "Platform",
     description: "Browser and runtime-specific APIs",
   },
-] as const;
+];
 
 export interface PackageSummary {
   name: string;
@@ -51,18 +65,23 @@ export interface PackageSummary {
 export interface PackageCategoryGroup<
   T extends PackageSummary = PackageSummary,
 > {
-  keyword: (typeof PACKAGE_CATEGORIES)[number]["keyword"];
-  label: (typeof PACKAGE_CATEGORIES)[number]["label"];
-  description: (typeof PACKAGE_CATEGORIES)[number]["description"];
+  keyword: string;
+  label: string;
+  description: string;
   packages: T[];
 }
 
+/**
+ * Group packages by category based on their keywords.
+ * Categories with no matching packages are omitted.
+ */
 export function groupPackagesByCategory<T extends PackageSummary>(
+  categories: readonly CategoryDefinition[],
   packages: readonly T[],
 ): PackageCategoryGroup<T>[] {
   let categorizedPackages: PackageCategoryGroup<T>[] = [];
 
-  for (let category of PACKAGE_CATEGORIES) {
+  for (let category of categories) {
     let categoryPackages = packages.filter((pkg) =>
       pkg.keywords.includes(category.keyword)
     );

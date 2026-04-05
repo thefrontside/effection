@@ -7,6 +7,7 @@ import {
   groupPackagesByCategory,
   type PackageSummary,
 } from "../lib/package/categories.ts";
+import { useTaxonomy } from "../lib/package/taxonomy.ts";
 
 /**
  * Dynamic llms.txt route following the llmstxt.org standard.
@@ -24,6 +25,7 @@ export function llmsTxtRoute(): SitemapRoute<Response> {
     },
     *handler(): Operation<Response> {
       let workspaces = yield* useWorkspaces("thefrontside/effectionx");
+      let categories = yield* useTaxonomy("thefrontside/effectionx");
       let packages = yield* workspaces.getAllPackages();
 
       // Resolve package metadata concurrently
@@ -43,7 +45,7 @@ export function llmsTxtRoute(): SitemapRoute<Response> {
       );
 
       // Group packages by category
-      let categorizedContent = groupPackagesByCategory(packageEntries).map(
+      let categorizedContent = groupPackagesByCategory(categories, packageEntries).map(
         (category) => {
           let packageLines = category.packages.map((pkg) => {
             let shortDesc = truncateToFirstSentence(pkg.description, 120);

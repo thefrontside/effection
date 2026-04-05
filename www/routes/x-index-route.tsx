@@ -11,6 +11,7 @@ import {
   groupPackagesByCategory,
   type PackageSummary,
 } from "../lib/package/categories.ts";
+import { useTaxonomy } from "../lib/package/taxonomy.ts";
 
 type PackageEntry = PackageSummary & { url: string };
 
@@ -36,6 +37,7 @@ export function xIndexRoute({
     },
     *handler() {
       let workspaces = yield* useWorkspaces("thefrontside/effectionx");
+      let categories = yield* useTaxonomy("thefrontside/effectionx");
       let packages = yield* workspaces.getAllPackages();
 
       let AppHTML = yield* useAppHtml({
@@ -65,7 +67,7 @@ export function xIndexRoute({
       );
 
       // Group packages by category
-      let categorizedPackages = groupPackagesByCategory(packageEntries);
+      let categorizedPackages = groupPackagesByCategory(categories, packageEntries);
 
       return (
         <AppHTML search={search}>

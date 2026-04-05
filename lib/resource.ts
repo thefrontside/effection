@@ -84,18 +84,22 @@ export function resource<T>(
  *
  * @example
  * ```ts
+ * type ConxPool = { ... } // example resource which manages a connection pool
+ *
  * function useValue() {
- *   return resource(function* (provide: Provide<number>) {
- *     yield* provide(42);
+ *   return resource(function* (provide: Provide<ConxPool>) {
+ *     const pool: ConxPool = setupPool();
+ *     yield* provide(pool);
  *   });
  * }
  *
- * console.log(yield* useValue()); // 42
+ * console.log(yield* useValue()); // pool
  *
  * // alternatively, the preferred pattern is
  * function useValue() {
- *   return resource<number>(function* (provide) {
- *     yield* provide(42);
+ *   return resource<ConxPool>(function* (provide) {
+ *     const pool: ConxPool = setupPool();
+ *     yield* provide(pool);
  *   });
  * }
  * ```

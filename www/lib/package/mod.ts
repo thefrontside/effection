@@ -1,6 +1,5 @@
 export type { Package, PackageManifest, Ref } from "./types.ts";
 export {
-  DEFAULT_CATEGORIES,
   groupPackagesByCategory,
   type CategoryDefinition,
   type PackageCategoryGroup,

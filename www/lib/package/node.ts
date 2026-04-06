@@ -41,6 +41,7 @@ export const PackageJsonSchema = z.object({
   name: z.string().optional(),
   version: z.string().optional(),
   description: z.string().optional(),
+  keywords: z.array(z.string()).optional(),
   exports: ExportsSchema.optional(),
   license: z.string().optional(),
   dependencies: z.record(z.string()).optional(),
@@ -195,6 +196,7 @@ export function createNodePackage(
         name: packageJson.name,
         version: packageJson.version,
         description: packageJson.description,
+        keywords: packageJson.keywords,
         exports: normalizeExports(packageJson.exports),
         license: packageJson.license,
         imports: buildImports(packageJson),
@@ -294,6 +296,11 @@ export function createNodePackage(
       // Fall back to README-inferred description
       let readme = yield* this.getReadme();
       return yield* useDescription(readme);
+    },
+
+    *getKeywords(): Operation<string[]> {
+      let manifest = yield* this.getManifest();
+      return manifest.keywords ?? [];
     },
   };
 

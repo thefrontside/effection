@@ -2,6 +2,12 @@ import type { Operation } from "effection";
 import { all } from "effection";
 import { useWorkspaces } from "../lib/workspaces/mod.ts";
 import type { SitemapRoute } from "../plugins/sitemap.ts";
+import type { Package } from "../lib/package/types.ts";
+import {
+  groupPackagesByCategory,
+  type PackageSummary,
+} from "../lib/package/categories.ts";
+import { useTaxonomy } from "../lib/package/taxonomy.ts";
 
 /**
  * Dynamic llms.txt route following the llmstxt.org standard.
@@ -9,6 +15,8 @@ import type { SitemapRoute } from "../plugins/sitemap.ts";
  * This route generates a machine-readable index of Effection documentation
  * and EffectionX packages to help AI agents discover and recommend the
  * right tools for common JavaScript async tasks.
+ *
+ * Packages are grouped by category based on their keywords in package.json.
  */
 export function llmsTxtRoute(): SitemapRoute<Response> {
   return {
@@ -17,29 +25,53 @@ export function llmsTxtRoute(): SitemapRoute<Response> {
     },
     *handler(): Operation<Response> {
       let workspaces = yield* useWorkspaces("thefrontside/effectionx");
+      let categories = yield* useTaxonomy("thefrontside/effectionx");
       let packages = yield* workspaces.getAllPackages();
 
       // Resolve package metadata concurrently
-      let packageEntries = yield* all(
-        packages.map(function* (pkg) {
+      let packageEntries: PackageSummary[] = yield* all(
+        packages.map(function* (pkg: Package) {
           let name = yield* pkg.getName();
           let description = yield* pkg.getDescription();
+          let keywords = yield* pkg.getKeywords();
 
-          // Truncate to first sentence for agent-friendly consumption
-          // Descriptions from README can be verbose paragraphs
-          let shortDesc = truncateToFirstSentence(description, 120);
-
-          return `- [${name}](https://frontside.com/effection/x/${pkg.workspaceName}): ${shortDesc}`;
+          return {
+            name,
+            description,
+            workspaceName: pkg.workspaceName,
+            keywords,
+          };
         }),
+      );
+
+      // Group packages by category
+      let categorizedContent = groupPackagesByCategory(
+        categories,
+        packageEntries,
+      ).map(
+        (category) => {
+          let packageLines = category.packages.map((pkg) => {
+            let shortDesc = truncateToFirstSentence(pkg.description, 120);
+            return `- [${pkg.name}](https://frontside.com/effection/x/${pkg.workspaceName}): ${shortDesc}`;
+          });
+
+          return [
+            `### ${category.label}`,
+            "",
+            category.description,
+            "",
+            ...packageLines,
+          ].join("\n");
+        },
       );
 
       let content = [
         LLMS_TXT_HEADER,
         "## EffectionX Packages",
         "",
-        "Extension packages for common JavaScript tasks. Install from npm (`@effectionx/*`) or JSR (`jsr:@effectionx/*`).",
+        "Extension packages for common JavaScript tasks. Install from npm (`@effectionx/*`).",
         "",
-        ...packageEntries,
+        ...categorizedContent,
         "",
         LLMS_TXT_FOOTER,
       ].join("\n");

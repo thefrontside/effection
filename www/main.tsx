@@ -19,9 +19,12 @@ import { initJSRClient } from "./context/jsr.ts";
 import { initWorktrees } from "./lib/worktrees.ts";
 import { initGuides } from "./resources/guides.ts";
 import { initBlog } from "./resources/blog.ts";
+import { initFonts } from "./resources/fonts.ts";
+import { initImageStore } from "./resources/image-store.ts";
 import { apiIndexRoute } from "./routes/api-index-route.tsx";
 import { blogIndexRoute } from "./routes/blog-index-route.tsx";
 import { blogPostRoute } from "./routes/blog-post-route.tsx";
+import { blogImageRoute } from "./routes/blog-image-route.ts";
 import { blogTagRoute } from "./routes/blog-tag-route.tsx";
 import { blogFeedRoute } from "./routes/blog-feed-route.tsx";
 import { llmsTxtRoute } from "./routes/llms-txt-route.ts";
@@ -51,6 +54,8 @@ if (import.meta.main) {
     });
 
     yield* initBlog();
+    yield* initFonts();
+    yield* initImageStore();
 
     yield* initJSRClient();
     yield* initFetch();
@@ -86,6 +91,7 @@ if (import.meta.main) {
         route("/llms.txt", llmsTxtRoute()),
         route("/blog/tags/:tag", blogTagRoute({ search: true })),
         route("/blog/:id", blogPostRoute({ search: true })),
+        route("/blog/:id/:name.png", blogImageRoute()),
         route("/blog{/*path}", assetsRoute("blog")),
         route(
           "/pagefind{/*path}",

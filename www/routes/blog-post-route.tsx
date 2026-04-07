@@ -44,6 +44,9 @@ export function blogPostRoute({
       let AppHtml = yield* useAppHtml({
         title: `${post.title} | Blog | Effection`,
         description: post.description,
+        image: `/blog/${post.id}/${
+          post.image.replace(/\.svg$/, ".png")
+        }?w=2400&h=1260`,
       });
 
       return (

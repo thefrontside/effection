@@ -48,9 +48,9 @@ export interface Queue<T, TClose> extends Subscription<T, TClose> {
  *
  * await main(function*() {
  *   let queue = createQueue<number>();
- *   queue.send(1);
- *   queue.send(2);
- *   queue.send(3);
+ *   queue.add(1);
+ *   queue.add(2);
+ *   queue.add(3);
  *
  *   let next = yield* queue.subscription.next();
  *   while (!next.done) {

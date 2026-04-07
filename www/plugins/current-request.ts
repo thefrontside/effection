@@ -25,16 +25,12 @@ export function* useAbsoluteUrl(path: string = "/"): Operation<string> {
 export function* useAbsoluteUrlFactory(): Operation<(path: string) => string> {
   let request = yield* CurrentRequest.expect();
 
+  let origin = new URL(request.url).origin;
+
   return (path) => {
-    let normalizedPath = posixNormalize(path);
-    if (normalizedPath.startsWith("/")) {
-      let url = new URL(request.url);
-      url.pathname = normalizedPath;
-      url.search = "";
-      return url.toString();
-    } else {
-      return new URL(path, request.url).toString();
-    }
+    let url = new URL(path, origin);
+    url.pathname = posixNormalize(url.pathname);
+    return url.toString();
   };
 }
 

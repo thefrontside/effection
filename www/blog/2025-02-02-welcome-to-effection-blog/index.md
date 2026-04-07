@@ -3,6 +3,7 @@ title: "Welcome to the Effection Blog"
 description: "Introducing the new Effection blog - your source for tutorials, release announcements, and insights about structured concurrency in JavaScript."
 author: "Taras Mankovski"
 tags: ["announcement", "effection"]
+image: meta-effection.png
 ---
 
 Welcome to the official Effection blog! This is where we'll share tutorials,

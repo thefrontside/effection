@@ -12,6 +12,7 @@ import rehypePrismPlus from "rehype-prism-plus";
 import rehypeSlug from "rehype-slug";
 import rehypeAddClasses from "rehype-add-classes";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
+import z from "zod";
 
 export interface Blog {
   get(id: string): BlogPost | undefined;
@@ -23,20 +24,20 @@ export interface BlogPost {
   id: string;
   title: string;
   description: string;
-  image: string | undefined;
+  image: string;
   date: Date;
   author: string;
   tags: string[];
   content: () => JSXElement;
 }
 
-interface Frontmatter {
-  title: string;
-  description: string;
-  author: string;
-  tags: string[];
-  image?: string;
-}
+let Frontmatter = z.object({
+  title: z.string(),
+  description: z.string(),
+  author: z.string(),
+  tags: z.array(z.string()).default([]),
+  image: z.string(),
+});
 
 const BlogContext = createContext<Blog>("blog");
 
@@ -129,14 +130,14 @@ function* loadBlog(): Operation<Blog> {
         })
       );
 
-      let frontmatter = mod.frontmatter as Frontmatter;
+      let frontmatter = Frontmatter.parse(mod.frontmatter);
       let post: BlogPost = {
         id,
         date,
         title: frontmatter.title,
         description: frontmatter.description,
         author: frontmatter.author,
-        tags: frontmatter.tags ?? [],
+        tags: frontmatter.tags,
         image: frontmatter.image,
         content: () => mod.default({}) as JSXElement,
       };

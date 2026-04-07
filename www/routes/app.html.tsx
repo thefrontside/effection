@@ -10,6 +10,7 @@ export type Options = {
   title: string;
   description: string;
   head?: JSXElement;
+  image?: string;
 } & HeaderProps;
 
 export interface AppHtmlProps {
@@ -22,10 +23,9 @@ export function* useAppHtml({
   description,
   hasLeftSidebar,
   head,
+  image = "/assets/images/meta-effection.png",
 }: Options): Operation<({ children, search }: AppHtmlProps) => JSX.Element> {
-  let twitterImageURL = yield* useAbsoluteUrl(
-    "/assets/images/meta-effection.png",
-  );
+  let ogImageURL = yield* useAbsoluteUrl(image);
 
   let canonicalURL = yield* useCanonicalUrl({
     base: "https://frontside.com/effection",
@@ -38,12 +38,12 @@ export function* useAppHtml({
       <head>
         <meta charset="UTF-8" />
         <title>{title}</title>
-        <meta property="og:image" content={twitterImageURL} />
+        <meta property="og:image" content={ogImageURL} />
         <meta property="og:title" content={title} data-rh="true" />
         <meta property="og:url" content={canonicalURL} />
         <meta property="og:description" content={description} />
         <meta name="description" content={description} />
-        <meta name="twitter:image" content={twitterImageURL} />
+        <meta name="twitter:image" content={ogImageURL} />
         <link rel="icon" href="/assets/images/favicon-effection.png" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="canonical" href={canonicalURL} />

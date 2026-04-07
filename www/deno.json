@@ -94,6 +94,7 @@
     "hast-util-select": "npm:hast-util-select@6.0.1",
     "unist-util-visit": "npm:unist-util-visit@5.0.0",
     "vfile": "npm:vfile@6.0.3",
-    "zod": "npm:zod@3.23.8"
+    "zod": "npm:zod@3.23.8",
+    "@resvg/resvg-wasm": "npm:@resvg/resvg-wasm@2.6.2"
   }
 }

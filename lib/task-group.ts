@@ -1,6 +1,8 @@
 import { createContext } from "./context.ts";
 import { box } from "./box.ts";
+import { DelimiterContext } from "./delimiter.ts";
 import { Ok, unbox } from "./result.ts";
+import { useScope } from "./scope.ts";
 import type { Operation, Task } from "./types.ts";
 
 export class TaskGroup {
@@ -40,7 +42,14 @@ export function encapsulate<T>(operation: () => Operation<T>): Operation<T> {
     try {
       return yield* operation();
     } finally {
-      yield* group.halt();
+      let scope = yield* useScope();
+      let delimiter = scope.expect(DelimiterContext);
+      delimiter.settle();
+      try {
+        yield* group.halt();
+      } finally {
+        delimiter.settling = false;
+      }
     }
   });
 }

@@ -12,6 +12,7 @@ export class Delimiter<T>
   finalized = false;
   future = withResolvers<Maybe<Result<T>>>();
   computed = false;
+  settling = false;
   routine?: Coroutine;
   outcome?: Maybe<Result<T>>;
 
@@ -33,6 +34,10 @@ export class Delimiter<T>
     this.exit(Nothing());
   }
 
+  settle(): void {
+    this.settling = true;
+  }
+
   *close(): Operation<void> {
     let done = this.future.operation;
     let interrupted = !this.computed;
@@ -45,6 +50,8 @@ export class Delimiter<T>
     };
     if (!this.outcome) {
       this.interrupt();
+      yield* this.close();
+    } else if (!this.finalized) {
       yield* this.close();
     } else {
       if (interrupted && this.outcome.exists && !this.outcome.value.ok) {
@@ -65,7 +72,7 @@ export class Delimiter<T>
     if (!this.routine) {
       this.finalized = true;
       this.future.resolve(this.outcome);
-    } else {
+    } else if (!this.settling) {
       this.routine.return(Ok(this.outcome));
     }
   }

@@ -4,6 +4,7 @@ import { Children } from "../lib/contexts.ts";
 import {
   action,
   createScope,
+  resource,
   run,
   type Scope,
   sleep,
@@ -164,6 +165,33 @@ describe("run()", () => {
     await expect(task).rejects.toMatchObject({ message: "halted" });
 
     expect(completed).toEqual(true);
+  });
+
+  it("halts only after resource cleanup finishes", async () => {
+    let events: string[] = [];
+    let entered = Promise.withResolvers<void>();
+
+    let task = run(function* () {
+      yield* resource(function* (provide) {
+        try {
+          yield* provide("resource");
+        } finally {
+          events.push("cleanup:entered");
+          entered.resolve();
+          yield* sleep(50);
+          events.push("cleanup:finished");
+        }
+      });
+    });
+
+    await entered.promise;
+
+    await task.halt();
+    events.push("halt:resolved");
+
+    expect(events.indexOf("halt:resolved")).toBeGreaterThan(
+      events.indexOf("cleanup:finished"),
+    );
   });
 
   it("can suspend in yielded finally block", async () => {

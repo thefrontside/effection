@@ -91,12 +91,20 @@ function normalizeExports(
   let result: Record<string, string> = {};
   for (let [key, value] of Object.entries(exports)) {
     let resolved = resolveExportValue(value);
-    if (resolved) {
+    if (resolved && isDocumentable(resolved)) {
       result[key] = resolved;
     }
   }
 
   return Object.keys(result).length > 0 ? result : { ".": "./src/index.ts" };
+}
+
+/**
+ * Check if an export path points to a documentable source file.
+ * Filters out binary artifacts like .wasm files that can't be parsed as TypeScript/JavaScript.
+ */
+function isDocumentable(path: string): boolean {
+  return !path.endsWith(".wasm");
 }
 
 /**

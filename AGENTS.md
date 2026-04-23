@@ -156,9 +156,19 @@ const task = yield * op; // returns a TASK (Future) and starts it
 - `all()` accepts an array of operations and evaluates them concurrently.
 - It returns an array of results in input order.
 - If any member errors, `all()` errors and halts the other members.
-- If you need "all operations either complete or error" (no fail-fast), wrap
-  each member to return a railway-style result (e.g. `{ ok: true, value }` /
-  `{ ok: false, error }`) instead of letting errors escape.
+- If you need all results regardless of success or failure, use `allSettled()`
+  instead of wrapping each member in railway-style results.
+
+## `allSettled()`
+
+**Rules**
+
+- `allSettled()` accepts an array of operations and evaluates them concurrently.
+- It returns an array of `Result<T>` objects in input order
+  (`{ ok: true, value }` or `{ ok: false, error }`).
+- It never short-circuits on error — all operations run to completion.
+- It is analogous to `Promise.allSettled()`, but uses Effection's `Result<T>`
+  shape.
 
 ## `call()`
 

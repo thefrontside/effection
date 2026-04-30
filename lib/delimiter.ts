@@ -1,5 +1,6 @@
 // deno-lint-ignore-file no-unsafe-finally
 import { createContext } from "./context.ts";
+import { Draining } from "./contexts.ts";
 import { useCoroutine } from "./coroutine.ts";
 import { Just, type Maybe, Nothing } from "./maybe.ts";
 import { Err, Ok, type Result } from "./result.ts";
@@ -46,6 +47,8 @@ export class Delimiter<T>
     if (!this.outcome) {
       this.interrupt();
       yield* this.close();
+    } else if (!this.finalized) {
+      yield* this.close();
     } else {
       if (interrupted && this.outcome.exists && !this.outcome.value.ok) {
         throw this.outcome.value.error;
@@ -61,11 +64,20 @@ export class Delimiter<T>
       (this.outcome && this.outcome.exists && !this.outcome.value.ok)
         ? this.outcome
         : outcome;
+    let scope = this.routine?.scope;
+    if (scope?.get(Draining)) {
+      // A shutdown is already in progress on this scope. The merged
+      // outcome above will be observed by the in-flight drain when its
+      // iterator reaches its finally. Firing a second routine.return
+      // here would cut across the unwind.
+      return;
+    }
     this.level++;
-    if (!this.routine) {
+    if (!scope || !this.routine) {
       this.finalized = true;
       this.future.resolve(this.outcome);
     } else {
+      scope.set(Draining, true);
       this.routine.return(Ok(this.outcome));
     }
   }

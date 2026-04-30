@@ -1,5 +1,6 @@
 import { createContext } from "./context.ts";
 import { box } from "./box.ts";
+import { Draining } from "./contexts.ts";
 import { Ok, unbox } from "./result.ts";
 import type { Operation, Task } from "./types.ts";
 
@@ -40,6 +41,7 @@ export function encapsulate<T>(operation: () => Operation<T>): Operation<T> {
     try {
       return yield* operation();
     } finally {
+      yield* Draining.set(true);
       yield* group.halt();
     }
   });

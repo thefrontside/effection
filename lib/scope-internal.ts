@@ -1,4 +1,4 @@
-import { Children, Priority } from "./contexts.ts";
+import { Children, Draining, Priority } from "./contexts.ts";
 import { Err, Ok, unbox } from "./result.ts";
 import { createTask } from "./task.ts";
 import type { Context, Operation, Scope, Task } from "./types.ts";
@@ -59,6 +59,11 @@ export function createScopeInternal(
 
   scope.set(Priority, scope.expect(Priority) + 1);
   scope.set(Children, new Set());
+  // Each scope gets its own Draining state. Without this, a child scope
+  // would inherit `true` from a parent that is winding down, which would
+  // wrongly suppress routine.return on the child's own delimiter when the
+  // parent's encapsulate halts it.
+  scope.set(Draining, false);
   parent?.expect(Children).add(scope);
 
   let unbind = parent ? (parent as ScopeInternal).ensure(destroy) : () => {};

@@ -1,5 +1,6 @@
 // deno-lint-ignore-file no-unsafe-finally
 import {
+  createScope,
   type Operation,
   run,
   sleep,
@@ -9,6 +10,7 @@ import {
   until,
   useScope,
 } from "../mod.ts";
+import { Children } from "../lib/contexts.ts";
 import { expect } from "./suite.ts";
 
 // These tests encode general invariants the cancellation model is supposed
@@ -224,5 +226,34 @@ defineTest(
     ).catch((e) => (e as Error).message);
 
     expect(result).not.toEqual("TIMEOUT:principle-5");
+  },
+);
+
+defineTest(
+  "Phase 2: task.halt() synchronously triggers halt without needing .then or await",
+  async () => {
+    let cleanedUp = false;
+    let task = run(function* () {
+      try {
+        yield* suspend();
+      } finally {
+        cleanedUp = true;
+      }
+    });
+
+    // give the task a tick to enter suspend
+    await new Promise<void>((r) => setTimeout(r, 0));
+
+    // On v4: task.halt() returns a dormant thenable; no halt is triggered
+    // until .then/.catch/.finally is invoked. After Phase 2: calling
+    // task.halt() synchronously interrupts the top delimiter, so the task
+    // begins unwinding immediately even if the returned thenable is
+    // discarded.
+    task.halt();
+
+    // give the unwind a chance to run
+    await new Promise<void>((r) => setTimeout(r, 10));
+
+    expect(cleanedUp).toEqual(true);
   },
 );

@@ -26,10 +26,46 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
   let [scope, destroy] = createScopeInternal(owner);
   let future = createFuture<T>();
 
+  let top = new Delimiter<T>(() => encapsulate(operation));
+  scope.set(DelimiterContext, top as Delimiter<unknown>);
+
+  // The Promise surface of task.halt() must NOT spawn a parallel
+  // coroutine in the owner scope (which is what the previous
+  // owner.run(destroy) implementation did, and which was the source of
+  // #1159). Instead, synchronously interrupt the task's own delimiter
+  // and resolve when the task's future settles.
+  //
+  // halt() rejects when the cleanup chain itself produced an error
+  // (e.g., a finally block threw). It resolves when the task halted
+  // cleanly, when it had already shut down before halt was called, or
+  // when it errored naturally without halt being involved. The
+  // discriminator is `top.level > 0`: level is bumped only when exit
+  // actually fires routine.return, so an outcome of Just(Err) with
+  // level > 0 means an interrupt was issued and the cleanup that ran
+  // produced the error — that is the case v4's owner.run(destroy)
+  // chain would have thrown on.
   let task = Object.defineProperties(future.future, {
     halt: {
       enumerable: false,
       value() {
+        if (!top.finalized) {
+          top.interrupt();
+        }
+        let waitForTeardown = (): Promise<void> =>
+          new Promise<void>((resolve, reject) => {
+            let settle = () => {
+              if (
+                top.outcome?.exists &&
+                !top.outcome.value.ok &&
+                top.level > 0
+              ) {
+                reject(top.outcome.value.error);
+              } else {
+                resolve();
+              }
+            };
+            future.future.then(settle, settle);
+          });
         return Object.defineProperties(Object.create(Promise.prototype), {
           [Symbol.iterator]: {
             enumerable: false,
@@ -38,19 +74,19 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
           then: {
             enumerable: false,
             value(...args: Parameters<Promise<void>["then"]>) {
-              return owner.run(destroy).then(...args);
+              return waitForTeardown().then(...args);
             },
           },
           catch: {
             enumerable: false,
             value(...args: Parameters<Promise<void>["catch"]>) {
-              return owner.run(destroy).catch(...args);
+              return waitForTeardown().catch(...args);
             },
           },
           finally: {
             enumerable: false,
             value(...args: Parameters<Promise<void>["finally"]>) {
-              return owner.run(destroy).finally(...args);
+              return waitForTeardown().finally(...args);
             },
           },
         });
@@ -69,9 +105,6 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
       value: () => task.halt(),
     },
   }) as Task<T>;
-
-  let top = new Delimiter<T>(() => encapsulate(operation));
-  scope.set(DelimiterContext, top as Delimiter<unknown>);
 
   let group = scope.expect(TaskGroupContext);
   group.add(task);

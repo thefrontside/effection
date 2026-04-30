@@ -72,14 +72,21 @@ export class Delimiter<T>
       // here would cut across the unwind.
       return;
     }
-    this.level++;
     if (!scope || !this.routine) {
-      this.finalized = true;
-      this.future.resolve(this.outcome);
-    } else {
-      scope.set(Draining, true);
-      this.routine.return(Ok(this.outcome));
+      // The routine has not started yet. The outcome is recorded on
+      // this.outcome; the iterator will see it on entry and skip
+      // running the operation, going straight to its finally. We must
+      // NOT bump level here — the start() instruction is already in
+      // the reducer queue and would be invalidated by a level mismatch,
+      // leaving the routine permanently unscheduled.
+      return;
     }
+    // Bumping level invalidates stale instructions queued for this
+    // routine; do it only when we actually fire the return that drains
+    // the routine.
+    this.level++;
+    scope.set(Draining, true);
+    this.routine.return(Ok(this.outcome));
   }
 
   get validator(): () => boolean {
@@ -91,10 +98,12 @@ export class Delimiter<T>
     this.routine = yield* useCoroutine();
 
     try {
-      let value = yield* this.operation();
-      if (this.level === 0) {
-        this.computed = true;
-        this.outcome = Just(Ok(value));
+      if (!this.outcome) {
+        let value = yield* this.operation();
+        if (this.level === 0) {
+          this.computed = true;
+          this.outcome = Just(Ok(value));
+        }
       }
     } catch (error) {
       this.computed = true;

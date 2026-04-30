@@ -257,3 +257,21 @@ defineTest(
     expect(cleanedUp).toEqual(true);
   },
 );
+
+defineTest(
+  "Phase 3: yield* task.halt() from inside the task throws SelfHaltError",
+  async () => {
+    let captured: Error | undefined;
+    let task: Task<void> = run(function* () {
+      yield* sleep(0);
+      try {
+        yield* task.halt();
+      } catch (e) {
+        captured = e as Error;
+      }
+    });
+
+    await withTimeout(task.catch(() => {}), 1000, "phase-3");
+    expect(captured?.name).toEqual("SelfHaltError");
+  },
+);

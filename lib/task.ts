@@ -3,11 +3,32 @@ import { DelimiterContext, ErrorContext } from "./delimiter.ts";
 import { createCoroutine } from "./coroutine.ts";
 import { Delimiter } from "./delimiter.ts";
 import { createFuture } from "./future.ts";
+import { currentRoutine } from "./reducer.ts";
 import { Ok } from "./result.ts";
 import { createScopeInternal, type ScopeInternal } from "./scope-internal.ts";
 import type { Coroutine, Operation, Scope, Task } from "./types.ts";
 import { encapsulate, TaskGroupContext } from "./task-group.ts";
 import { useScope } from "./scope.ts";
+
+/**
+ * Thrown when `task.halt()` is invoked from inside the task's own
+ * routine. Halting yourself is a self-join: the calling code can't
+ * finish unwinding because it is the work being unwound.
+ *
+ * Use a separate operation (e.g. spawn a sibling task to halt this
+ * one) or rethrow this error to abort the current task instead.
+ *
+ * @since 4.1
+ */
+export class SelfHaltError extends Error {
+  override name = "SelfHaltError";
+  constructor() {
+    super(
+      "task.halt() was called from inside the task's own routine; " +
+        "use a separate operation to halt this task or rethrow to abort it",
+    );
+  }
+}
 
 export interface TaskOptions<T> {
   owner: ScopeInternal;
@@ -29,6 +50,12 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
   let top = new Delimiter<T>(() => encapsulate(operation));
   scope.set(DelimiterContext, top as Delimiter<unknown>);
 
+  // Captured after createCoroutine below. Both task.halt() surfaces
+  // compare the reducer's currently-executing routine to this one to
+  // detect self-halt synchronously and throw SelfHaltError instead of
+  // self-joining.
+  let mainRoutine: Coroutine | undefined;
+
   // The Promise surface of task.halt() must NOT spawn a parallel
   // coroutine in the owner scope (which is what the previous
   // owner.run(destroy) implementation did, and which was the source of
@@ -48,6 +75,9 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
     halt: {
       enumerable: false,
       value() {
+        if (mainRoutine && currentRoutine === mainRoutine) {
+          throw new SelfHaltError();
+        }
         if (!top.finalized) {
           top.interrupt();
         }
@@ -143,6 +173,7 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
       }
     },
   });
+  mainRoutine = routine;
 
   let start = () => routine.next(Ok());
 

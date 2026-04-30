@@ -202,16 +202,22 @@ describe("run()", () => {
     await expect(task).rejects.toMatchObject({ message: "boom" });
   });
 
-  it("can halt itself", async () => {
+  it("self-halt throws SelfHaltError", async () => {
+    let captured: Error | undefined;
     let task: Task<void> = run(function* () {
       yield* sleep(0);
-      yield* task.halt();
+      try {
+        yield* task.halt();
+      } catch (e) {
+        captured = e as Error;
+      }
     });
 
-    await expect(task).rejects.toMatchObject({ message: "halted" });
+    await task.catch(() => {});
+    expect(captured?.name).toEqual("SelfHaltError");
   });
 
-  it("can halt itself between yield points", async () => {
+  it("can halt itself from a spawned child (cross-routine halt)", async () => {
     let task: Task<void> = run(function* root() {
       yield* sleep(0);
 

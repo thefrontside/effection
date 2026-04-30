@@ -3,6 +3,17 @@ import { PriorityQueue } from "./priority-queue.ts";
 import { Err, type Result } from "./result.ts";
 import type { Coroutine } from "./types.ts";
 
+/**
+ * The routine whose iterator is currently being driven by the reducer.
+ * Read by `task.halt()` to detect self-halt synchronously: if the
+ * calling code is running inside the same routine that owns the task
+ * being halted, halt is a self-join and must throw rather than queue
+ * a return that would unwind the caller before it can react.
+ *
+ * @internal
+ */
+export let currentRoutine: Coroutine<unknown> | undefined;
+
 export class Reducer {
   reducing = false;
   readonly queue = new InstructionQueue();
@@ -22,6 +33,8 @@ export class Reducer {
       let item = queue.dequeue();
       while (item) {
         let [, routine, result, _, method = "next" as const] = item;
+        let prevRoutine = currentRoutine;
+        currentRoutine = routine;
         try {
           let iterator = routine.data.iterator;
           if (result.ok) {
@@ -49,6 +62,8 @@ export class Reducer {
           }
         } catch (error) {
           routine.next(Err(error as Error));
+        } finally {
+          currentRoutine = prevRoutine;
         }
         item = queue.dequeue();
       }

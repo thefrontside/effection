@@ -25,3 +25,4 @@ export * from "./with-resolvers.ts";
 export * from "./async.ts";
 export * from "./scoped.ts";
 export * from "./until.ts";
+export { SelfHaltError } from "./task.ts";

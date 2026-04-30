@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-unsafe-finally
 import { createContext } from "./context.ts";
-import { Draining } from "./contexts.ts";
+import { Cancelled, Draining } from "./contexts.ts";
 import { useCoroutine } from "./coroutine.ts";
 import { Just, type Maybe, Nothing } from "./maybe.ts";
 import { Err, Ok, type Result } from "./result.ts";
@@ -86,6 +86,7 @@ export class Delimiter<T>
     // the routine.
     this.level++;
     scope.set(Draining, true);
+    scope.set(Cancelled, true);
     this.routine.return(Ok(this.outcome));
   }
 

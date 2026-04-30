@@ -27,3 +27,36 @@ export const Draining = createContext<boolean>(
   "@effection/scope.draining",
   false,
 );
+
+/**
+ * `true` once a forced unwind has been requested for this scope —
+ * either via task.halt() (interrupt) or via an error propagating up
+ * the delimiter chain (raise). Distinct from `Draining`: natural
+ * completion of an operation marks the scope as draining (so a
+ * concurrent halt does not re-fire return), but does not mark it as
+ * cancelled.
+ *
+ * In v4.x, `Cancelled` is read by tooling that wants to know whether
+ * the work currently running is cleanup-after-halt vs. normal flow.
+ * In v5, yields outside `critical()` will short-circuit when their
+ * scope is `Cancelled`.
+ *
+ * @since 4.1
+ */
+export const Cancelled = createContext<boolean>(
+  "@effection/scope.cancelled",
+  false,
+);
+
+/**
+ * `true` inside `critical()`. Marks a region of code that should
+ * complete even when its surrounding scope is `Cancelled`. In v4.x
+ * this is a marker only; in v5 it suppresses the sticky-return
+ * behaviour that otherwise short-circuits yields in cancelled scopes.
+ *
+ * @since 4.1
+ */
+export const Shielded = createContext<boolean>(
+  "@effection/scope.shielded",
+  false,
+);

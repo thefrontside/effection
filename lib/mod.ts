@@ -26,3 +26,4 @@ export * from "./async.ts";
 export * from "./scoped.ts";
 export * from "./until.ts";
 export { SelfHaltError } from "./task.ts";
+export * from "./critical.ts";

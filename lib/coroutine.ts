@@ -17,7 +17,6 @@ export function createCoroutine<T>(
   let iterator: Coroutine<T>["data"]["iterator"] | undefined = undefined;
 
   let routine = {
-    runLevel: 0,
     scope,
     data: {
       get iterator() {

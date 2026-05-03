@@ -79,13 +79,32 @@ export function resource<T>(
 }
 
 /**
- * Provide `value` to the calling operation as a resource.
+ * Provide `value` to the calling operation as a {@link resource}. You likely will not need
+ * to use this interface directly; instead, it is passed as an argument to `resource`.
  * @returns an operation that suspends the resource operation until the caller is completed.
  *
  * @example
  * ```ts
  * type ConxPool = { ... } // example resource which manages a connection pool
  *
+ * // preferred pattern in implementing a resource
+ * function useValue(): Operation<ConxPool> {
+ *   return resource(function* (provide) {
+ *     const pool: ConxPool = setupPool();
+ *     yield* provide(pool);
+ *   });
+ * }
+ * 
+ * // alternatively if you can't type the return value
+ * // then prefer typing the resource argument
+ * function useValue() {
+ *   return resource<ConxPool>(function* (provide) {
+ *     const pool: ConxPool = setupPool();
+ *     yield* provide(pool);
+ *   });
+ * }
+ * 
+ * // if neither pattern above is possible, then use `Provide<T>` directly
  * function useValue() {
  *   return resource(function* (provide: Provide<ConxPool>) {
  *     const pool: ConxPool = setupPool();
@@ -94,14 +113,6 @@ export function resource<T>(
  * }
  *
  * console.log(yield* useValue()); // pool
- *
- * // alternatively, the preferred pattern is
- * function useValue() {
- *   return resource<ConxPool>(function* (provide) {
- *     const pool: ConxPool = setupPool();
- *     yield* provide(pool);
- *   });
- * }
  * ```
  *
  * @since 3.0

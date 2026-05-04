@@ -1,9 +1,10 @@
 import { lazyPromiseWithResolvers } from "./lazy-promise.ts";
-import type { Future } from "./types.ts";
+import type { Future, Operation } from "./types.ts";
 import { withResolvers } from "./with-resolvers.ts";
 
 export interface FutureWithResolvers<T> {
   future: Future<T>;
+  operation: Operation<T>;
   resolve(value: T): void;
   reject(error: Error): void;
 }
@@ -24,6 +25,7 @@ export function createFuture<T>(): FutureWithResolvers<T> {
   let future = Object.defineProperties(promise.promise, {
     [Symbol.iterator]: {
       enumerable: false,
+      configurable: true,
       value: operation.operation[Symbol.iterator],
     },
     [Symbol.toStringTag]: {
@@ -33,5 +35,5 @@ export function createFuture<T>(): FutureWithResolvers<T> {
     },
   }) as Future<T>;
 
-  return { future, resolve, reject };
+  return { future, operation: operation.operation, resolve, reject };
 }

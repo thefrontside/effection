@@ -33,7 +33,10 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
         return Object.defineProperties(Object.create(Promise.prototype), {
           [Symbol.iterator]: {
             enumerable: false,
-            value: destroy,
+            *value() {
+              yield* assertNonCircular(scope);
+              yield* destroy();
+            },
           },
           then: {
             enumerable: false,
@@ -58,7 +61,10 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
     },
     [Symbol.iterator]: {
       enumerable: false,
-      value: future.future[Symbol.iterator],
+      *value() {
+        yield* assertNonCircular(scope);
+        return yield* future.operation;
+      },
     },
     [Symbol.toStringTag]: {
       enumerable: false,
@@ -145,5 +151,33 @@ export function* trap<T>(operation: () => Operation<T>): Operation<T> {
         return (didExit) => didExit(Ok());
       },
     }) as T;
+  }
+}
+
+function* assertNonCircular(scope: Scope) {
+  let caller = (yield* useScope()) as ScopeInternal;
+
+  if (isSelfOrAncestor(scope as ScopeInternal, caller)) {
+    throw new CircularTaskError();
+  }
+}
+
+function isSelfOrAncestor(scope: ScopeInternal, child: ScopeInternal) {
+  for (
+    let contexts = child.contexts;
+    contexts;
+    contexts = Object.getPrototypeOf(contexts)
+  ) {
+    if (scope.contexts === contexts) {
+      return true;
+    }
+  }
+  return false;
+}
+
+class CircularTaskError extends Error {
+  constructor() {
+    super("a task may not depend on itself");
+    this.name = "CircularTaskError";
   }
 }

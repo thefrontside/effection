@@ -202,29 +202,6 @@ describe("run()", () => {
     await expect(task).rejects.toMatchObject({ message: "boom" });
   });
 
-  it("can halt itself", async () => {
-    let task: Task<void> = run(function* () {
-      yield* sleep(0);
-      yield* task.halt();
-    });
-
-    await expect(task).rejects.toMatchObject({ message: "halted" });
-  });
-
-  it("can halt itself between yield points", async () => {
-    let task: Task<void> = run(function* root() {
-      yield* sleep(0);
-
-      yield* spawn(function* child() {
-        yield* task.halt();
-      });
-
-      yield* suspend();
-    });
-
-    await expect(task).rejects.toMatchObject({ message: "halted" });
-  });
-
   it("can delay halt if child fails", async () => {
     let didRun = false;
     let task = run(function* Main() {
@@ -385,5 +362,145 @@ describe("run()", () => {
     expect(error).toBeDefined();
     expect(error?.message).toEqual("halted");
     expect(halted).toEqual(true);
+  });
+
+  describe("task dependencies", () => {
+    it("throws an error if a task depends on itself", async () => {
+      await expect(run(function* () {
+        let task: Task<string> = yield* spawn(function* () {
+          yield* sleep(1);
+          yield* task;
+          return "hello world";
+        });
+        return yield* task;
+      })).rejects.toMatchObject({ name: "CircularTaskError" });
+    });
+
+    it("throws an error if a task depends on its own halt()", async () => {
+      await expect(run(function* () {
+        let task: Task<string> = yield* spawn(function* () {
+          yield* sleep(1);
+          yield* task.halt();
+          return "hello world";
+        });
+        return yield* task;
+      })).rejects.toMatchObject({ name: "CircularTaskError" });
+    });
+
+    it("throws an error if a task depends on its parent's halt()", async () => {
+      let parent: Task<void>;
+      parent = run(function* () {
+        yield* spawn(function* () {
+          yield* sleep(1);
+          yield* parent.halt();
+        });
+        yield* suspend();
+      });
+      await expect(parent).rejects.toMatchObject({ name: "CircularTaskError" });
+    });
+
+    it("throws an error if a task depends on its parent", async () => {
+      let parent: Task<void>;
+      parent = run(function* () {
+        yield* spawn(function* () {
+          yield* sleep(1);
+          yield* parent;
+        });
+        yield* suspend();
+      });
+      await expect(parent).rejects.toMatchObject({ name: "CircularTaskError" });
+    });
+
+    it("throws an error if a task depends on an ancestor's halt()", async () => {
+      let root: Task<void>;
+      root = run(function* () {
+        yield* spawn(function* () {
+          yield* spawn(function* () {
+            yield* sleep(1);
+            yield* root.halt();
+          });
+          yield* suspend();
+        });
+        yield* suspend();
+      });
+      await expect(root).rejects.toMatchObject({ name: "CircularTaskError" });
+    });
+
+    it("throws an error if a task depends on an ancestor", async () => {
+      let root: Task<void>;
+      root = run(function* () {
+        yield* spawn(function* () {
+          yield* spawn(function* () {
+            yield* sleep(1);
+            yield* root;
+          });
+          yield* suspend();
+        });
+        yield* suspend();
+      });
+      await expect(root).rejects.toMatchObject({ name: "CircularTaskError" });
+    });
+
+    it("allows a task to depend on a sibling", async () => {
+      let observed = await run(function* () {
+        let scope = yield* useScope();
+        let producer = scope.run(function* () {
+          yield* sleep(1);
+          return "produced";
+        });
+        let consumer = scope.run(function* () {
+          return yield* producer;
+        });
+        return yield* consumer;
+      });
+      expect(observed).toEqual("produced");
+    });
+
+    it("allows a task to depend on a sibling's halt()", async () => {
+      let halted = false;
+      await run(function* () {
+        let scope = yield* useScope();
+        let target = scope.run(function* () {
+          try {
+            yield* suspend();
+          } finally {
+            halted = true;
+          }
+        });
+        yield* sleep(1);
+        let halter = scope.run(function* () {
+          yield* target.halt();
+        });
+        yield* halter;
+      });
+      expect(halted).toEqual(true);
+    });
+
+    it("allows a task to depend on its child", async () => {
+      let observed = await run(function* () {
+        let child = yield* spawn(function* () {
+          yield* sleep(1);
+          return "child-result";
+        });
+        return yield* child;
+      });
+      expect(observed).toEqual("child-result");
+    });
+
+    it("allows a task to depend on its child's halt()", async () => {
+      let halted = false;
+      await run(function* () {
+        let child = yield* spawn(function* () {
+          try {
+            yield* suspend();
+          } finally {
+            halted = true;
+          }
+        });
+        yield* sleep(1);
+        yield* child.halt();
+      });
+      expect(halted).toEqual(true);
+    });
   });
 });

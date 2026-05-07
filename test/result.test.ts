@@ -21,7 +21,7 @@ describe("Result", () => {
     }
 
     expect(result.error).toBeInstanceOf(Error);
-    expect(result.error.name).toEqual("ThrowValueError");
+    expect(result.error.name).toEqual("ThrownValueError");
     expect(result.error.message).toEqual("oh no");
     expect(result.error.cause).toEqual("oh no");
   });

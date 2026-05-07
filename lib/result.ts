@@ -1,8 +1,9 @@
 /**
  * A value representing either a successful outcome or an error.
  *
- * `Result<T>` is used in APIs when you want to preserve both successes and
- * failures instead of short-circuiting on the first error.
+ * `Result<T>` is used in APIs when you want to make explicit flow control
+ * decisions about success/failure rather than allowing them to
+ * automatically percolate.
  *
  * A successful result has the shape `{ ok: true, value }` and a failed result
  * has the shape `{ ok: false, error }`.
@@ -54,23 +55,20 @@ export function Ok<T>(value?: T): Result<T | undefined> {
  *
  * @since 4.1
  */
-export const Err = <T>(cause: unknown): Result<T> => ({
-  ok: false,
-  error: toError(cause),
-});
-
-class ThrowValueError extends Error {
-  constructor(message: string, options?: ErrorOptions) {
-    super(message, options);
-    this.name = "ThrowValueError";
-  }
+export function Err<T>(cause: unknown): Result<T> {
+  return {
+    ok: false,
+    error: cause instanceof Error
+      ? cause
+      : new ThrownValueError(String(cause), { cause }),
+  };
 }
 
-function toError(cause: unknown): Error {
-  if (cause instanceof Error) {
-    return cause;
+class ThrownValueError extends Error {
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options);
+    this.name = "ThrownValueError";
   }
-  return new ThrowValueError(String(cause), { cause });
 }
 
 /**

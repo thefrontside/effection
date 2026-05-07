@@ -8,3 +8,9 @@
 /.env
 /.aider*
 .agent-shell
+
+# AI assistant directories
+.claude/
+.hyperresearch/
+CLAUDE.md
+research/

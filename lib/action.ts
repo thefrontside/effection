@@ -63,7 +63,7 @@ export function action<T>(executor: Executor<T>, desc?: string): Operation<T> {
               discard();
               discarded(Ok());
             } catch (error) {
-              discarded(Err(error as Error));
+              discarded(Err(error));
             }
           };
         },

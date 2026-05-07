@@ -86,7 +86,7 @@ export class Delimiter<T>
       }
     } catch (error) {
       this.computed = true;
-      this.outcome = Just(Err(error as Error));
+      this.outcome = Just(Err(error));
     } finally {
       this.finalized = true;
       this.outcome = this.outcome ?? Nothing();

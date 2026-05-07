@@ -54,7 +54,24 @@ export function Ok<T>(value?: T): Result<T | undefined> {
  *
  * @since 4.1
  */
-export const Err = <T>(error: Error): Result<T> => ({ ok: false, error });
+export const Err = <T>(cause: unknown): Result<T> => ({
+  ok: false,
+  error: toError(cause),
+});
+
+class ThrowValueError extends Error {
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options);
+    this.name = "ThrowValueError";
+  }
+}
+
+function toError(cause: unknown): Error {
+  if (cause instanceof Error) {
+    return cause;
+  }
+  return new ThrowValueError(String(cause), { cause });
+}
 
 /**
  * @ignore

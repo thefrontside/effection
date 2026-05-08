@@ -48,7 +48,7 @@ export class Reducer {
             throw result.error;
           }
         } catch (error) {
-          routine.next(Err(error as Error));
+          routine.next(Err(error));
         }
         item = queue.dequeue();
       }

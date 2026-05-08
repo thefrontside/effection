@@ -79,7 +79,7 @@ export function createScopeInternal(
           destructors.delete(destructor);
           yield* destructor();
         } catch (error) {
-          outcome = Err(error as Error);
+          outcome = Err(error);
         }
       }
     } finally {

@@ -45,7 +45,7 @@ export function* race<T extends Operation<unknown>>(
             let value = yield* operation;
             winner.resolve(Ok(value as Yielded<T>));
           } catch (error) {
-            winner.resolve(Err(error as Error));
+            winner.resolve(Err(error));
           }
         }),
       );

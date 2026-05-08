@@ -9,13 +9,15 @@ describe("until", () => {
       expect(yield* until(Promise.resolve(42))).toEqual(42);
     });
   });
-  it("throws on error", async () => {
-    expect.assertions(1);
+  it("wraps non-Error promise rejections", async () => {
+    expect.assertions(3);
     await run(function* () {
       try {
         yield* until(Promise.reject("error"));
       } catch (error) {
-        expect(error).toBe("error");
+        expect(error).toBeInstanceOf(Error);
+        expect((error as Error).message).toBe("error");
+        expect((error as Error).cause).toBe("error");
       }
     });
   });

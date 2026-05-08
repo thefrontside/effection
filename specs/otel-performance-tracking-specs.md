@@ -1,19 +1,34 @@
 # Definitions
 
-Spans - a span is a unit of work with a clear beginning and end used to provide context for log records.
-LogRecords - individual measurement taken during a span used to capture a measurement for each iteration. Each value is preserved.
-Metrics - individual measurement taken during a span used to capture a metric for each iteration. One aggregated value is preserved.
-PostHog's row-per-event model - every captured event is one row in a single ClickHouse table called `events`, with metadata flattened into a JSON property bag on that row.
-HogQL - a SQL-like query language for ClickHouse, used to query the `events` table.
-ClickHouse - a columnar database optimized for OLAP workloads.
-OLAP - On-Line Analytical Processing - analyze large volumes of data in real-time.
-Five-level OTEL hierarchy - OTEL data model has five nested levels for any signal.
-OTEL Resource - Things true for the entire process lifetime. Ex: CPU model name, OS version, Pipeline Run id.
-OTEL InstrumentationScope - The code that emits OTEL data - name + version. Ex: `effection.benchmark` at `0.1.0`.
-DataPoint - Per-measurement labels. Ex: `benchmark.scenario = "recursion"`, `benchmark.iteration = 7`, `benchmark.phase = "measurement"`
-Examplar - A raw sample preserved alongside an aggregated DataPoint (e.g., one actual duration value attached to a Histogram bucket so you can drill down from "P99 spiked" to a specific trace)
-OTEL Timseries - A timeseries is a full set of attributes attached to a metric.
-Cardinality - The number of unique attribute values for a given metric. Low good, high bad.
+## OTEL signals
+
+- **Span** — A unit of work with a clear beginning and end. Provides context for the LogRecords and Metrics emitted within it.
+- **LogRecord** — An individual measurement emitted during a span, used to capture a value for each iteration. Every value is preserved.
+- **Metric** — An aggregated measurement emitted during a span, used to capture a single rolled-up value across iterations. Only the aggregate is preserved.
+
+## OTEL data model
+
+- **Five-level OTEL hierarchy** — Every OTEL signal is wrapped in five nested levels: Resource → InstrumentationScope → Metric/Span/LogRecord → DataPoint → Exemplar.
+- **Resource** — Attributes that are invariant for the producing process's lifetime. Ex: CPU model name, OS version, pipeline run ID.
+- **InstrumentationScope** — The name and version of the code that emitted the data. Ex: `effection.benchmark` at `0.1.0`.
+- **DataPoint** — Per-measurement labels attached to a single observation. Ex: `benchmark.scenario = "recursion"`, `benchmark.iteration = 7`, `benchmark.phase = "measurement"`.
+- **Exemplar** — A raw sample preserved alongside an aggregated DataPoint (e.g., one actual duration value attached to a Histogram bucket, so you can drill from "P99 spiked" back to a specific trace).
+- **Timeseries** — A unique combination of attribute values attached to a metric. Two measurements share a timeseries only if every attribute value matches.
+- **Cardinality** — The number of unique values an attribute can take. Low cardinality is cheap; high cardinality multiplies timeseries count when placed on DataPoints.
+
+## OTEL transport
+
+- **Collector** — Receives OTEL data from instrumented applications via OTLP, processes it through a `receivers → processors → exporters` pipeline (batching, attribute transforms, format conversion), and exports it to one or more backends.
+- **OTLP** — OpenTelemetry Protocol. The wire format and transport (Protocol Buffers over gRPC or HTTP) used to ship OTEL data between components.
+- **Cumulative temporality** — Each metric DataPoint reports the value accumulated since a fixed start timestamp (typically process start). Successive points share the same start time; consumers compute rates by subtracting consecutive points.
+- **Delta temporality** — Each metric DataPoint reports only the value for the just-ended export interval. Each point has its own start/end timestamps. Required for PostHog's row-per-event model, where each event must stand alone.
+
+## PostHog backend
+
+- **PostHog row-per-event model** — Every captured event is one row in a single ClickHouse table called `events`, with metadata flattened into a JSON property bag on that row.
+- **ClickHouse** — A columnar database optimized for OLAP workloads. PostHog's underlying storage.
+- **OLAP** — Online Analytical Processing. A workload pattern focused on aggregating large volumes of data in real time.
+- **HogQL** — A SQL-like query language over ClickHouse, used to query the `events` table.
 
 # Architecture
 
@@ -42,3 +57,34 @@ Avoid putting high-cardinality attributes on **DataPoints**, where they multiply
 1. One write = one row. Every `/capture` POST creates exactly one row.
 2. Aggregation happens at query time, not write time.
 3. All metadata lives inside `properties`, a flat JSON-ish map.
+
+## Rejected alternatives
+
+### SpanMetrics Connector
+
+The benefit of the SpanMetrics connector is that it allows you to convert OTEL Span data into OTEL Metric DataPoints without doign extra work. 
+
+For example,
+```
+Span: effection.benchmark.scenario
+  start: 14:32:01.142
+  end:   14:32:05.387        → duration = 4245 ms
+  attrs: { benchmark.scenario: "recursion" }
+```
+
+The SpanMetrics Connector reads spans flowing through the Collector, computes `end - start`, and emits a Histogram metric DataPoint into the metrics pipeline — without any code in your application calling `histogram.record()`.
+
+It's convenient but it was rejected in research because, 
+
+1. It's default flush interval is 60-seconds which maybe too quick for an Effection benchmark running in CI. The collector will shutdown before recording any data.
+2. Connector's bucket boundaries are designed for HTTP latencies in millisecond to second range. For Effection benchmarks, we'll need nanosecond to microsecond level resolution.
+3. PostHog expected Delta Temporality, but the SpanMetrics Connector uses Cumulative Temporality. Conversion increases complexity.
+4. SpanMetrics requires a Collector sidecar in every CI runner.
+
+## Examplars to connect metrics to spans
+
+Examples exist because because Histograms throw away raw samples in exchange for bucket counts. Examplars provide a represenative sample after aggregation.
+
+We're going to record timings using LogRecords with every sample preserved verbatim - we're not going to aggregate as SDK time. We're also not going to record fine-grained spans inside scenarios, at least not for the foreesable future, which means that we won't have anything to drill into. 
+
+We might reconsider this if we end up having spans with >10k iterations.

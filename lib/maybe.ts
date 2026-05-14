@@ -16,5 +16,7 @@ export function Just<T>(value?: T): Maybe<T | undefined> {
 }
 
 export function Nothing<T = void>(): Maybe<T> {
-  return { exists: false };
+  return nothing as Maybe<T>;
 }
+
+const nothing = { exists: false };

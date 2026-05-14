@@ -1,6 +1,7 @@
 // deno-lint-ignore-file no-unsafe-finally
 import { describe, expect, it } from "./suite.ts";
-import { run, sleep, spawn, suspend, until } from "../mod.ts";
+import { run } from "../lib/run.ts";
+import { sleep, spawn, suspend, until } from "../mod.ts";
 
 describe("spawn", () => {
   it("can spawn a new child task", async () => {
@@ -254,5 +255,32 @@ describe("spawn", () => {
     await task.halt();
 
     expect(sequence).toEqual(["parent", "second", "first"]);
+  });
+
+  it("does not fail parent scope when error from child halt is caught", async () => {
+    let result = run(function* () {
+      let task = yield* spawn(function* () {
+        try {
+          yield* suspend();
+        } finally {
+          throw new Error("finally-boom");
+        }
+      });
+
+      yield* sleep(0);
+
+      try {
+        yield* task.halt();
+      } catch (error) {
+        // Error is explicitly caught — parent scope should remain healthy
+        expect((error as Error).message).toEqual("finally-boom");
+      }
+
+      return "success";
+    });
+
+    // The parent caught the error, so it should resolve with "success",
+    // not reject with "finally-boom"
+    await expect(result).resolves.toEqual("success");
   });
 });

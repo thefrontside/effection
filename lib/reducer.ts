@@ -1,52 +1,38 @@
 import { createContext } from "./context.ts";
-import type { Delimiter } from "./delimiter.ts";
+import { Priority } from "./contexts.ts";
+import { SettleContext } from "./coroutine.ts";
+import { Just } from "./maybe.ts";
 import { PriorityQueue } from "./priority-queue.ts";
-import { Err, type Result } from "./result.ts";
+import { Err, Ok } from "./result.ts";
 import type { Coroutine, Effect } from "./types.ts";
 
 export class Reducer {
   reducing = false;
   readonly queue = new InstructionQueue();
 
-  reduce = (
-    instruction: Instruction,
-  ) => {
+  schedule = (routine: Coroutine) => {
     let { queue } = this;
 
-    queue.enqueue(instruction);
+    queue.enqueue(routine, routine.scope.expect(Priority));
 
     if (this.reducing) return;
 
     try {
       this.reducing = true;
 
-      for (let item = queue.dequeue(); item; item = queue.dequeue()) {
-        let [, routine, result, delim, epoch] = item;
-        let step = delim.nextStep(result, epoch);
-        if (step === "drop") continue;
+      for (let routine = queue.dequeue(); routine; routine = queue.dequeue()) {
         try {
-          let iterator = routine.data.iterator;
-          let next: IteratorResult<Effect<unknown>, unknown>;
-          if (step === "next") {
-            next = iterator.next(result.ok ? result.value : undefined);
-          } else if (step === "return") {
-            next = iterator.return
-              ? iterator.return(result.ok ? result.value : undefined)
-              : { done: true, value: undefined };
+          let next: IteratorResult<Effect<unknown>, unknown> = routine.step();
+
+          if (next.done) {
+            let settle = routine.scope.expect(SettleContext);
+            settle(Just(Ok(next.value)), routine.settle);
           } else {
-            let value = result.ok ? result.value : result.error;
-            if (iterator.throw) {
-              next = iterator.throw(value);
-            } else {
-              throw value;
-            }
-          }
-          if (!next.done) {
-            let action = next.value;
-            routine.data.exit = action.enter(routine.next, routine);
+            routine.perform(next.value);
           }
         } catch (error) {
-          routine.next(Err(error));
+          let settle = routine.scope.expect(SettleContext);
+          settle(Just(Err(error as Error)), routine.settle);
         }
       }
     } finally {
@@ -55,21 +41,19 @@ export class Reducer {
   };
 }
 
-type Instruction = [
-  number,
-  Coroutine<unknown>,
-  Result<unknown>,
-  Delimiter<unknown>,
-  number,
-];
-
-class InstructionQueue extends PriorityQueue<Instruction> {
-  enqueue(instruction: Instruction): void {
-    let [priority] = instruction;
-    this.push(priority, instruction);
+class InstructionQueue extends PriorityQueue<Coroutine> {
+  enqueue(routine: Coroutine, priority: number): void {
+    if (!routine.data.enqueued) {
+      routine.data.enqueued = true;
+      this.push(priority, routine);
+    }
   }
-  dequeue(): Instruction | undefined {
-    return this.pop();
+  dequeue(): Coroutine | undefined {
+    let routine = this.pop();
+    if (routine) {
+      routine.data.enqueued = false;
+      return routine;
+    }
   }
 }
 

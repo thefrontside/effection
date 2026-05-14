@@ -1,5 +1,5 @@
 import type { Operation } from "./types.ts";
-import { trap } from "./task.ts";
+import { trap } from "./trap.ts";
 import { useCoroutine } from "./coroutine.ts";
 import { createScopeInternal } from "./scope-internal.ts";
 

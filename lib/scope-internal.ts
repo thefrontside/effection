@@ -1,13 +1,15 @@
 import { Children, Priority } from "./contexts.ts";
+import { createFuture } from "./future.ts";
 import { Err, Ok, unbox } from "./result.ts";
 import { createTask } from "./task.ts";
+
 import type { Context, Operation, Scope, Task } from "./types.ts";
-import { type WithResolvers, withResolvers } from "./with-resolvers.ts";
 
 export function createScopeInternal(
   parent?: Scope,
 ): [ScopeInternal, () => Operation<void>] {
   let destructors = new Set<() => Operation<void>>();
+  let destruction = createFuture<void>();
 
   let contexts: Record<string, unknown> = Object.create(
     parent ? (parent as ScopeInternal).contexts : null,
@@ -37,16 +39,12 @@ export function createScopeInternal(
       return !!Reflect.getOwnPropertyDescriptor(contexts, context.name);
     },
     run<T>(operation: () => Operation<T>): Task<T> {
-      let { task, start } = createTask({ operation, owner: scope });
-      start();
-      return task;
+      return createTask({ owner: scope, operation });
     },
     spawn<T>(operation: () => Operation<T>): Operation<Task<T>> {
       return {
         *[Symbol.iterator]() {
-          let { task, start } = createTask({ operation, owner: scope });
-          start();
-          return task;
+          return createTask({ owner: scope, operation });
         },
       };
     },
@@ -61,25 +59,22 @@ export function createScopeInternal(
   scope.set(Children, new Set());
   parent?.expect(Children).add(scope);
 
-  let unbind = parent ? (parent as ScopeInternal).ensure(destroy) : () => {};
+  let destroy = function* (): Operation<void> {
+    destroy = () => destruction.future;
 
-  let destruction: WithResolvers<void> | undefined = undefined;
-
-  function* destroy(): Operation<void> {
-    if (destruction) {
-      return yield* destruction.operation;
-    }
-    destruction = withResolvers<void>();
     parent?.expect(Children).delete(scope);
     unbind();
     let outcome = Ok();
     try {
-      for (let destructor of destructors) {
-        try {
-          destructors.delete(destructor);
-          yield* destructor();
-        } catch (error) {
-          outcome = Err(error);
+      while (destructors.size > 0) {
+        let current = [...destructors];
+        destructors.clear();
+        for (let destructor of current) {
+          try {
+            yield* destructor();
+          } catch (error) {
+            outcome = Err(error as Error);
+          }
         }
       }
     } finally {
@@ -91,9 +86,13 @@ export function createScopeInternal(
     }
 
     unbox(outcome);
-  }
+  };
 
-  return [scope, destroy];
+  let unbind = parent
+    ? (parent as ScopeInternal).ensure(() => destroy())
+    : () => {};
+
+  return [scope, () => destroy()];
 }
 
 export interface ScopeInternal extends Scope, AsyncDisposable {

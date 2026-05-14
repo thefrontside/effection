@@ -1,5 +1,5 @@
 import { spawn } from "./spawn.ts";
-import { trap } from "./task.ts";
+import { trap } from "./trap.ts";
 import type { Operation, Task, Yielded } from "./types.ts";
 import { withResolvers } from "./with-resolvers.ts";
 import { Err, Ok, type Result } from "./result.ts";

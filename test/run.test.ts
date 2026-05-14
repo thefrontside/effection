@@ -1,10 +1,10 @@
 // deno-lint-ignore-file no-unsafe-finally
 import assert from "node:assert";
 import { Children } from "../lib/contexts.ts";
+import { run } from "../lib/run.ts";
 import {
   action,
   createScope,
-  run,
   type Scope,
   sleep,
   spawn,
@@ -12,6 +12,7 @@ import {
   type Task,
   until,
   useScope,
+  withResolvers,
 } from "../mod.ts";
 import { blowUp, createNumber, describe, expect, it } from "./suite.ts";
 
@@ -190,7 +191,7 @@ describe("run()", () => {
     expect(things).toEqual(["first", "second"]);
   });
 
-  it("can be halted while in the generator", async () => {
+  it("raises errors from the background", async () => {
     let task = run(function* Main() {
       yield* spawn(function* Boomer() {
         throw new Error("boom");
@@ -202,7 +203,7 @@ describe("run()", () => {
     await expect(task).rejects.toMatchObject({ message: "boom" });
   });
 
-  it("can halt itself", async () => {
+  it("cannot halt itself", async () => {
     let task: Task<void> = run(function* () {
       yield* sleep(0);
       yield* task.halt();
@@ -211,7 +212,7 @@ describe("run()", () => {
     await expect(task).rejects.toMatchObject({ message: "halted" });
   });
 
-  it("can halt itself between yield points", async () => {
+  it("cannot halt itself between yield points", async () => {
     let task: Task<void> = run(function* root() {
       yield* sleep(0);
 
@@ -223,6 +224,33 @@ describe("run()", () => {
     });
 
     await expect(task).rejects.toMatchObject({ message: "halted" });
+  });
+
+  it("rejects task after Promise-side halt is signaled", async () => {
+    let events: string[] = [];
+    await run(function* () {
+      let ready = withResolvers<void>();
+      let scope = yield* useScope();
+      let task = scope.run(function* () {
+        events.push("child:start");
+        ready.resolve();
+        yield* suspend();
+      });
+      yield* ready.operation;
+      events.push("parent:halt-request");
+      task.halt().catch(() => {});
+      try {
+        yield* task;
+        events.push("parent:task:ok");
+      } catch (error) {
+        events.push(`parent:task:${(error as Error).message}`);
+      }
+    });
+    expect(events).toEqual([
+      "child:start",
+      "parent:halt-request",
+      "parent:task:halted",
+    ]);
   });
 
   it("can delay halt if child fails", async () => {
@@ -385,5 +413,41 @@ describe("run()", () => {
     expect(error).toBeDefined();
     expect(error?.message).toEqual("halted");
     expect(halted).toEqual(true);
+  });
+
+  // E1: parent body returns; destroy iterates children sequentially.
+  // While awaiting one child's slow halt, another sibling errors in the
+  // background. That error is captured via raise → forcedOutcome → task
+  // settles with the background error.
+  // TODO: we may need another test case to make sure that all siblings are torn down.
+  it("background child error during sibling halt becomes task outcome", async () => {
+    let release = withResolvers<void>();
+
+    let task = run(function* () {
+      // spawn errorLater FIRST so reverse iteration halts it LAST
+      yield* spawn(function* errorLater() {
+        yield* sleep(10);
+        throw new Error("background-boom");
+      });
+      // spawn slowHalt SECOND → halted FIRST, blocks on release
+      yield* spawn(function* slowHalt() {
+        try {
+          yield* suspend();
+        } finally {
+          yield* release.operation;
+        }
+      });
+      yield* suspend();
+    });
+
+    // trigger halt; slowHalt's destruction blocks; errorLater fires
+    let halted = task.halt();
+
+    // wait for errorLater to fire, then release slowHalt
+    await new Promise((r) => setTimeout(r, 20));
+    release.resolve();
+
+    await halted.catch(() => {});
+    await expect(task).rejects.toHaveProperty("message", "background-boom");
   });
 });

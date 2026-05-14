@@ -1,149 +1,221 @@
-// deno-lint-ignore-file no-unsafe-finally
-import { DelimiterContext, ErrorContext } from "./delimiter.ts";
-import { createCoroutine } from "./coroutine.ts";
-import { Delimiter } from "./delimiter.ts";
-import { createFuture } from "./future.ts";
-import { Ok } from "./result.ts";
+// deno-lint-ignore-file no-explicit-any
+import { Priority } from "./contexts.ts";
+import { createCoroutine, critical, SettleContext } from "./coroutine.ts";
+import { type Maybe, Nothing } from "./maybe.ts";
+import { Ok, type Result } from "./result.ts";
 import { createScopeInternal, type ScopeInternal } from "./scope-internal.ts";
-import type { Coroutine, Operation, Scope, Task } from "./types.ts";
 import { encapsulate, TaskGroupContext } from "./task-group.ts";
-import { useScope } from "./scope.ts";
+import { ErrorContext, trap } from "./trap.ts";
+import type {
+  Coroutine,
+  Future,
+  Operation,
+  Task as TaskInterface,
+} from "./types.ts";
 
 export interface TaskOptions<T> {
   owner: ScopeInternal;
   operation(): Operation<T>;
+  prioritize?: boolean;
 }
 
-export interface NewTask<T> {
-  scope: Scope;
-  routine: Coroutine;
-  task: Task<T>;
-  start(): void;
-}
-
-export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
+export function createTask<T>(options: TaskOptions<T>): TaskInterface<T> {
   let { owner, operation } = options;
   let [scope, destroy] = createScopeInternal(owner);
-  let future = createFuture<T>();
-
-  let task = Object.defineProperties(future.future, {
-    halt: {
-      enumerable: false,
-      value() {
-        return Object.defineProperties(Object.create(Promise.prototype), {
-          [Symbol.iterator]: {
-            enumerable: false,
-            value: destroy,
-          },
-          then: {
-            enumerable: false,
-            value(...args: Parameters<Promise<void>["then"]>) {
-              return owner.run(destroy).then(...args);
-            },
-          },
-          catch: {
-            enumerable: false,
-            value(...args: Parameters<Promise<void>["catch"]>) {
-              return owner.run(destroy).catch(...args);
-            },
-          },
-          finally: {
-            enumerable: false,
-            value(...args: Parameters<Promise<void>["finally"]>) {
-              return owner.run(destroy).finally(...args);
-            },
-          },
-        });
-      },
-    },
-    [Symbol.iterator]: {
-      enumerable: false,
-      value: future.future[Symbol.iterator],
-    },
-    [Symbol.toStringTag]: {
-      enumerable: false,
-      value: "Task",
-    },
-    [Symbol.asyncDispose]: {
-      enumerable: false,
-      value: () => task.halt(),
-    },
-  }) as Task<T>;
-
-  let top = new Delimiter<T>(() => encapsulate(operation));
-  scope.set(DelimiterContext, top as Delimiter<unknown>);
-
-  let group = scope.expect(TaskGroupContext);
-  group.add(task);
-
-  let boundary = owner.expect(ErrorContext);
-  scope.set(ErrorContext, top);
-
-  scope.ensure(function* () {
-    try {
-      yield* top.close();
-    } finally {
-      group.delete(task);
-      let { outcome } = top;
-      if (outcome!.exists) {
-        let result = outcome!.value;
-        if (result.ok) {
-          future.resolve(result.value);
-        } else {
-          let { error } = result;
-          future.reject(error);
-          boundary.raise(error);
-        }
-      } else {
-        future.reject(new Error("halted"));
-      }
-    }
-  });
-
   let routine = createCoroutine({
     scope,
     *operation() {
       try {
-        yield* top;
+        return yield* trap(() => encapsulate(operation));
       } finally {
-        yield* destroy();
+        yield* critical(destroy);
       }
     },
   });
 
-  let start = () => routine.next(Ok());
+  let task = new Task(routine, owner);
+  let group = scope.expect(TaskGroupContext);
+  group.tasks.add(task);
 
-  return { scope, routine, task, start };
+  let unbind = owner.ensure(task.halt);
+
+  scope.ensure(function* () {
+    unbind();
+    group.tasks.delete(task);
+  });
+
+  if (options.prioritize) {
+    scope.set(Priority, owner.get(Priority));
+  }
+
+  routine.resume(Ok());
+
+  return task;
 }
 
-export function* trap<T>(operation: () => Operation<T>): Operation<T> {
-  let scope = yield* useScope();
+class Task<T> implements TaskInterface<T> {
+  declare halt: () => Future<void>;
+  declare then: (...args: Parameters<Promise<T>["then"]>) => Promise<any>;
+  declare catch: (...args: Parameters<Promise<T>["catch"]>) => Promise<any>;
+  declare finally: (...args: Parameters<Promise<T>["finally"]>) => Promise<any>;
+  declare [Symbol.asyncDispose]: () => Promise<void>;
+  declare [Symbol.iterator]: Operation<T>[typeof Symbol.iterator];
+  declare [Symbol.toStringTag]: string;
 
-  let original = {
-    error: scope.expect(ErrorContext),
-    delimiter: scope.expect(DelimiterContext),
-  };
+  constructor(routine: Coroutine<T>, owner: ScopeInternal) {
+    let internal = new TaskInternal(routine, owner);
+    Object.defineProperties(this, {
+      halt: { value: () => internal.halt() },
+      then: { value: (...args: any[]) => internal.then(...args) },
+      catch: { value: (...args: any[]) => internal.catch(...args) },
+      finally: { value: (...args: any[]) => internal.finally(...args) },
+      [Symbol.asyncDispose]: { value: () => internal[Symbol.asyncDispose]() },
+      [Symbol.iterator]: { value: () => internal[Symbol.iterator]() },
+      [Symbol.toStringTag]: { value: internal[Symbol.toStringTag] },
+    });
+  }
+}
 
-  let delimiter = new Delimiter(operation, original.delimiter);
+class TaskInternal<T> implements TaskInterface<T> {
+  _promise?: Promise<T>;
+  scope: ScopeInternal;
+  control: TaskControl;
+  constructor(public routine: Coroutine<T>, owner: ScopeInternal) {
+    this.control = new TaskControl(routine, owner);
+    this.scope = this.routine.scope as ScopeInternal;
+    this.scope.set(SettleContext, this.control.settle.bind(this.control));
+  }
 
-  scope.set(ErrorContext, delimiter);
-  scope.set(DelimiterContext, delimiter as Delimiter<unknown>);
-  try {
-    yield* delimiter;
-  } finally {
-    scope.set(ErrorContext, original.error);
-    scope.set(DelimiterContext, original.delimiter);
-    let outcome = delimiter.outcome!;
-    return (yield {
-      description: "trap return",
-      enter(resolve) {
-        if (outcome.exists) {
-          resolve(outcome.value);
-        } else {
-          original.delimiter.interrupt();
+  then(...args: any[]): Promise<any> {
+    return this.promise.then(...args);
+  }
+  catch(...args: any[]): Promise<any> {
+    return this.promise.catch(...args);
+  }
+  finally(...args: any[]): Promise<any> {
+    return this.promise.finally(...args);
+  }
+
+  halt(): Future<void> {
+    let signal = () => this.control.interrupt();
+    let { future } = this.routine;
+    let { control } = this;
+    let halted = () =>
+      future.then((outcome) => {
+        if (control.interrupted && outcome.exists && !outcome.value.ok) {
+          throw outcome.value.error;
         }
-        return (didExit) => didExit(Ok());
+      });
+    return Object.defineProperties(Object.create(Promise.prototype), {
+      [Symbol.iterator]: {
+        enumerable: false,
+        value: function* () {
+          signal();
+          let outcome = yield* future;
+          if (control.interrupted && outcome.exists && !outcome.value.ok) {
+            throw outcome.value.error;
+          }
+        },
       },
-    }) as T;
+      then: {
+        enumerable: false,
+        value(...args: Parameters<Promise<void>["then"]>) {
+          signal();
+          return halted().then(...args);
+        },
+      },
+      catch: {
+        enumerable: false,
+        value(...args: Parameters<Promise<void>["catch"]>) {
+          signal();
+          return halted().catch(...args);
+        },
+      },
+      finally: {
+        enumerable: false,
+        value(...args: Parameters<Promise<void>["finally"]>) {
+          signal();
+          return halted().finally(...args);
+        },
+      },
+    });
+  }
+  [Symbol.asyncDispose](): Promise<void> {
+    return this.halt();
+  }
+
+  *[Symbol.iterator]() {
+    let outcome = yield* this.routine.future;
+    if (outcome.exists) {
+      let result = outcome.value;
+      if (result.ok) {
+        return result.value;
+      } else {
+        throw result.error;
+      }
+    } else {
+      throw new Error(`halted`);
+    }
+  }
+
+  [Symbol.toStringTag] = "Task";
+
+  get promise() {
+    if (this._promise) {
+      return this._promise;
+    }
+    return this._promise = new Promise((resolve, reject) => {
+      this.routine.future.then((outcome) => {
+        if (outcome.exists) {
+          let result = outcome.value;
+          if (result.ok) {
+            resolve(result.value);
+          } else {
+            reject(result.error);
+          }
+        } else {
+          reject(new Error("halted"));
+        }
+      });
+    });
+  }
+}
+
+class TaskControl {
+  interrupted = false;
+  settled = false;
+  constructor(
+    public routine: Coroutine<unknown>,
+    private owner: ScopeInternal,
+  ) {}
+
+  interrupt() {
+    if (this.settled || this.interrupted) return;
+    this.interrupted = true;
+    this.routine.unwind();
+  }
+
+  settle(
+    outcome: Maybe<Result<unknown>>,
+    next: (outcome: Maybe<Result<unknown>>) => void,
+  ): void {
+    this.settled = true;
+
+    let final: Maybe<Result<unknown>>;
+    if (outcome.exists && !outcome.value.ok) {
+      final = outcome;
+    } else if (outcome.exists && this.interrupted) {
+      final = Nothing();
+    } else {
+      final = outcome;
+    }
+
+    next(final);
+
+    if (final.exists && !final.value.ok && !this.interrupted) {
+      // raise if there was an error, and we were not halted.
+      this.owner.expect(ErrorContext)
+        .raise(final.value.error);
+    }
   }
 }

@@ -2,24 +2,19 @@ import { createContext } from "./context.ts";
 import { box } from "./box.ts";
 import { Ok, unbox } from "./result.ts";
 import type { Operation, Task } from "./types.ts";
+import { critical } from "./coroutine.ts";
 
 export class TaskGroup {
   tasks = new Set<Task<unknown>>();
 
-  add(task: Task<unknown>) {
-    this.tasks.add(task);
-  }
-
-  delete(task: Task<unknown>) {
-    this.tasks.delete(task);
-  }
-
-  *halt(): Operation<void> {
+  *halt() {
+    let set = this.tasks;
     let total = Ok();
-    while (this.tasks.size > 0) {
-      let tasks = [...this.tasks].reverse();
-      this.tasks.clear();
-      for (let task of tasks) {
+    while (set.size > 0) {
+      let tasks = [...set];
+      set.clear();
+      for (let i = tasks.length - 1; i >= 0; i--) {
+        let task = tasks[i];
         let result = yield* box(task.halt);
         if (!result.ok) {
           total = result;
@@ -40,7 +35,7 @@ export function encapsulate<T>(operation: () => Operation<T>): Operation<T> {
     try {
       return yield* operation();
     } finally {
-      yield* group.halt();
+      yield* critical(() => group.halt());
     }
   });
 }

@@ -1,10 +1,10 @@
 import { suspend } from "./suspend.ts";
 import type { Operation } from "./types.ts";
-import { createTask, trap } from "./task.ts";
-import { Ok } from "./result.ts";
-import { useCoroutine } from "./coroutine.ts";
+import { createTask } from "./task.ts";
 import type { ScopeInternal } from "./scope-internal.ts";
-import { Priority } from "./contexts.ts";
+import { trap } from "./trap.ts";
+import { withResolvers } from "./with-resolvers.ts";
+import { useScope } from "./scope.ts";
 
 /**
  * Define an Effection [resource](https://frontside.com/effection/docs/resources)
@@ -49,30 +49,25 @@ export function resource<T>(
 ): Operation<T> {
   return {
     *[Symbol.iterator]() {
-      let caller = yield* useCoroutine();
+      let ready = withResolvers<T>();
 
       function* provide(value: T): Operation<void> {
-        caller.next(Ok(value));
+        ready.resolve(value);
         yield* suspend();
       }
+
+      let caller = yield* useScope();
 
       // establishing a control boundary lets us catch errors in
       // resource initializer
       return yield* trap<T>(function* () {
-        let { scope, start } = createTask<void>({
-          owner: caller.scope as ScopeInternal,
+        createTask<void>({
+          owner: caller as ScopeInternal,
           operation: () => op(provide),
+          prioritize: true,
         });
 
-        // a resource runs at the priority of its parent
-        scope.set(Priority, caller.scope.expect(Priority));
-
-        start();
-
-        return (yield {
-          description: "await resource",
-          enter: () => (uninstalled) => uninstalled(Ok()),
-        }) as T;
+        return yield* ready.operation;
       });
     },
   };

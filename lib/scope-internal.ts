@@ -1,13 +1,14 @@
 import { Children, Priority } from "./contexts.ts";
+import { createFuture } from "./future.ts";
 import { Err, Ok, unbox } from "./result.ts";
 import { createTask } from "./task.ts";
-import type { Context, Operation, Scope, Task } from "./types.ts";
-import { type WithResolvers, withResolvers } from "./with-resolvers.ts";
+import type { Context, Future, Operation, Scope, Task } from "./types.ts";
 
 export function createScopeInternal(
   parent?: Scope,
 ): [ScopeInternal, () => Operation<void>] {
   let destructors = new Set<() => Operation<void>>();
+  let destruction = createFuture<void>();
 
   let contexts: Record<string, unknown> = Object.create(
     parent ? (parent as ScopeInternal).contexts : null,
@@ -15,6 +16,7 @@ export function createScopeInternal(
   let scope: ScopeInternal = Object.create({
     [Symbol.toStringTag]: "Scope",
     contexts,
+    destroyed: destruction.future,
     get<T>(context: Context<T>): T | undefined {
       return (contexts[context.name] ?? context.defaultValue) as T | undefined;
     },
@@ -61,15 +63,9 @@ export function createScopeInternal(
   scope.set(Children, new Set());
   parent?.expect(Children).add(scope);
 
-  let unbind = parent ? (parent as ScopeInternal).ensure(destroy) : () => {};
+  let destroy = function* (): Operation<void> {
+    destroy = () => destruction.future;
 
-  let destruction: WithResolvers<void> | undefined = undefined;
-
-  function* destroy(): Operation<void> {
-    if (destruction) {
-      return yield* destruction.operation;
-    }
-    destruction = withResolvers<void>();
     parent?.expect(Children).delete(scope);
     unbind();
     let outcome = Ok();
@@ -91,12 +87,17 @@ export function createScopeInternal(
     }
 
     unbox(outcome);
-  }
+  };
 
-  return [scope, destroy];
+  let unbind = parent
+    ? (parent as ScopeInternal).ensure(() => destroy())
+    : () => {};
+
+  return [scope, () => destroy()];
 }
 
 export interface ScopeInternal extends Scope, AsyncDisposable {
   contexts: Record<string, unknown>;
+  destroyed: Future<void>;
   ensure(op: () => Operation<void>): () => void;
 }

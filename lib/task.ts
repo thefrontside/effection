@@ -5,7 +5,7 @@ import { Delimiter } from "./delimiter.ts";
 import { createFuture } from "./future.ts";
 import { Ok } from "./result.ts";
 import { createScopeInternal, type ScopeInternal } from "./scope-internal.ts";
-import type { Coroutine, Operation, Scope, Task } from "./types.ts";
+import type { Coroutine, Effect, Operation, Scope, Task } from "./types.ts";
 import { encapsulate, TaskGroupContext } from "./task-group.ts";
 import { useScope } from "./scope.ts";
 
@@ -24,33 +24,43 @@ export interface NewTask<T> {
 export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
   let { owner, operation } = options;
   let [scope, destroy] = createScopeInternal(owner);
+  let { destroyed } = scope;
   let future = createFuture<T>();
+
+  let top = new Delimiter<T>(() => encapsulate(operation));
 
   let task = Object.defineProperties(future.future, {
     halt: {
       enumerable: false,
       value() {
+        let signal = () => top.interrupt();
         return Object.defineProperties(Object.create(Promise.prototype), {
           [Symbol.iterator]: {
             enumerable: false,
-            value: destroy,
+            value: function* () {
+              signal();
+              yield* destroyed;
+            },
           },
           then: {
             enumerable: false,
             value(...args: Parameters<Promise<void>["then"]>) {
-              return owner.run(destroy).then(...args);
+              signal();
+              return destroyed.then(...args);
             },
           },
           catch: {
             enumerable: false,
             value(...args: Parameters<Promise<void>["catch"]>) {
-              return owner.run(destroy).catch(...args);
+              signal();
+              return destroyed.catch(...args);
             },
           },
           finally: {
             enumerable: false,
             value(...args: Parameters<Promise<void>["finally"]>) {
-              return owner.run(destroy).finally(...args);
+              signal();
+              return destroyed.finally(...args);
             },
           },
         });
@@ -70,40 +80,38 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
     },
   }) as Task<T>;
 
-  let top = new Delimiter<T>(() => encapsulate(operation));
-  scope.set(DelimiterContext, top as Delimiter<unknown>);
-
-  let group = scope.expect(TaskGroupContext);
-  group.add(task);
-
-  let boundary = owner.expect(ErrorContext);
-  scope.set(ErrorContext, top);
-
-  scope.ensure(function* () {
-    try {
-      yield* top.close();
-    } finally {
-      group.delete(task);
-      let { outcome } = top;
-      if (outcome!.exists) {
-        let result = outcome!.value;
-        if (result.ok) {
-          future.resolve(result.value);
-        } else {
-          let { error } = result;
-          future.reject(error);
-          boundary.raise(error);
-        }
-      } else {
-        future.reject(new Error("halted"));
-      }
-    }
-  });
-
   let routine = createCoroutine({
     scope,
     *operation() {
       try {
+        scope.set(DelimiterContext, top as Delimiter<unknown>);
+        scope.set(ErrorContext, top);
+        let group = scope.expect(TaskGroupContext);
+        group.add(task);
+        let boundary = owner.expect(ErrorContext);
+        scope.ensure(function* () {
+          try {
+            yield* top.close();
+          } finally {
+            group.delete(task);
+            let { outcome } = top;
+            if (outcome!.exists) {
+              let result = outcome!.value;
+              if (result.ok) {
+                future.resolve(result.value);
+              } else {
+                let { error } = result;
+                future.reject(error);
+                boundary.raise(error);
+              }
+            } else {
+              future.reject(new Error("halted"));
+            }
+          }
+        });
+
+        yield started;
+
         yield* top;
       } finally {
         yield* destroy();
@@ -111,7 +119,15 @@ export function createTask<T>(options: TaskOptions<T>): NewTask<T> {
     },
   });
 
-  let start = () => routine.next(Ok());
+  top.routine = routine;
+
+  let start = () => {
+    let { done, value } = routine.data.iterator.next();
+    if (done || value !== started) {
+      throw new Error("Corrupted task: body did not yield the ready sentinel");
+    }
+    routine.next(Ok());
+  };
 
   return { scope, routine, task, start };
 }
@@ -147,3 +163,11 @@ export function* trap<T>(operation: () => Operation<T>): Operation<T> {
     }) as T;
   }
 }
+
+const started = {
+  description:
+    "A sentinel effect that is never evaluated. It just ensures that the routine is entered so that teardown can be treated normally",
+  enter() {
+    return () => {};
+  },
+} satisfies Effect<never>;

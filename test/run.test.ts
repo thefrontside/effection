@@ -12,6 +12,7 @@ import {
   type Task,
   until,
   useScope,
+  withResolvers,
 } from "../mod.ts";
 import { blowUp, createNumber, describe, expect, it } from "./suite.ts";
 
@@ -202,6 +203,13 @@ describe("run()", () => {
     await expect(task).rejects.toMatchObject({ message: "boom" });
   });
 
+  // https://github.com/thefrontside/effection/issues/1160 — self-halt
+  // (`yield* task.halt()` from inside the task being halted) used to risk
+  // wedging the runtime in a self-join. With halt unified around
+  // `signalHalt + observe scope.destroyed`, halt is purely lazy: the
+  // caller's routine signals, then observes the destruction future.
+  // Unwinding and destruction run on the same routine the caller is
+  // already on, with no second routine to wait for.
   it("can halt itself", async () => {
     let task: Task<void> = run(function* () {
       yield* sleep(0);
@@ -223,6 +231,43 @@ describe("run()", () => {
     });
 
     await expect(task).rejects.toMatchObject({ message: "halted" });
+  });
+
+  // https://github.com/thefrontside/effection/issues/1159 — observing
+  // `task.halt()` through its Promise surface used to leave the task in a
+  // state where a subsequent `yield* task` would hang indefinitely. The
+  // dual-routine pattern (Promise side spawned `owner.run(destroy)` while
+  // the task's own routine was being kicked) had two paths racing to
+  // touch the same delimiter. Halt unification collapses this to a
+  // single signal-and-observe; Promise and Operation surfaces converge
+  // on the same `scope.destroyed` future and the same idempotent
+  // `signalHalt` call. `yield* task` after a Promise-side halt now
+  // observes the expected `"halted"` rejection.
+  it("yield* task after Promise-side halt observes halted", async () => {
+    let events: string[] = [];
+    await run(function* () {
+      let ready = withResolvers<void>();
+      let scope = yield* useScope();
+      let task = scope.run(function* () {
+        events.push("child:start");
+        ready.resolve();
+        yield* suspend();
+      });
+      yield* ready.operation;
+      events.push("parent:halt-request");
+      void task.halt().catch(() => {});
+      try {
+        yield* task;
+        events.push("parent:task:ok");
+      } catch (error) {
+        events.push(`parent:task:${(error as Error).message}`);
+      }
+    });
+    expect(events).toEqual([
+      "child:start",
+      "parent:halt-request",
+      "parent:task:halted",
+    ]);
   });
 
   it("can delay halt if child fails", async () => {

@@ -1,7 +1,8 @@
 import { createContext } from "./context.ts";
+import type { Delimiter } from "./delimiter.ts";
 import { PriorityQueue } from "./priority-queue.ts";
 import { Err, type Result } from "./result.ts";
-import type { Coroutine } from "./types.ts";
+import type { Coroutine, Effect } from "./types.ts";
 
 export class Reducer {
   reducing = false;
@@ -19,38 +20,34 @@ export class Reducer {
     try {
       this.reducing = true;
 
-      let item = queue.dequeue();
-      while (item) {
-        let [, routine, result, _, method = "next" as const] = item;
+      for (let item = queue.dequeue(); item; item = queue.dequeue()) {
+        let [, routine, result, delim, epoch] = item;
+        let step = delim.nextStep(result, epoch);
+        if (step === "drop") continue;
         try {
           let iterator = routine.data.iterator;
-          if (result.ok) {
-            if (method === "next") {
-              let next = iterator.next(result.value);
-              if (!next.done) {
-                let action = next.value;
-                routine.data.exit = action.enter(routine.next, routine);
-              }
-            } else if (iterator.return) {
-              let next = iterator.return(result.value);
-              if (!next.done) {
-                let action = next.value;
-                routine.data.exit = action.enter(routine.next, routine);
-              }
-            }
-          } else if (iterator.throw) {
-            let next = iterator.throw(result.error);
-            if (!next.done) {
-              let action = next.value;
-              routine.data.exit = action.enter(routine.next, routine);
-            }
+          let next: IteratorResult<Effect<unknown>, unknown>;
+          if (step === "next") {
+            next = iterator.next(result.ok ? result.value : undefined);
+          } else if (step === "return") {
+            next = iterator.return
+              ? iterator.return(result.ok ? result.value : undefined)
+              : { done: true, value: undefined };
           } else {
-            throw result.error;
+            let value = result.ok ? result.value : result.error;
+            if (iterator.throw) {
+              next = iterator.throw(value);
+            } else {
+              throw value;
+            }
+          }
+          if (!next.done) {
+            let action = next.value;
+            routine.data.exit = action.enter(routine.next, routine);
           }
         } catch (error) {
           routine.next(Err(error));
         }
-        item = queue.dequeue();
       }
     } finally {
       this.reducing = false;
@@ -62,8 +59,8 @@ type Instruction = [
   number,
   Coroutine<unknown>,
   Result<unknown>,
-  () => boolean,
-  "return" | "next",
+  Delimiter<unknown>,
+  number,
 ];
 
 class InstructionQueue extends PriorityQueue<Instruction> {
@@ -72,18 +69,7 @@ class InstructionQueue extends PriorityQueue<Instruction> {
     this.push(priority, instruction);
   }
   dequeue(): Instruction | undefined {
-    while (true) {
-      let top = this.pop();
-      if (!top) {
-        return undefined;
-      } else {
-        let validate = top[3];
-        if (!validate()) {
-          continue;
-        }
-        return top;
-      }
-    }
+    return this.pop();
   }
 }
 

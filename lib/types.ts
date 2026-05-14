@@ -370,7 +370,6 @@ export interface Coroutine<T = unknown> {
     iterator: Iterator<Effect<unknown>, T, unknown>;
   };
   next(result: Result<unknown>): void;
-  return<R>(result: Result<R>): void;
 }
 
 /**

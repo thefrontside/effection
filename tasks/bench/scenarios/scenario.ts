@@ -9,6 +9,7 @@ import {
   spawn,
 } from "../../../mod.ts";
 import type {
+  BenchmarkKind,
   BenchmarkOptions,
   BenchmarkStats,
   BenchmarkWorkerEvent,
@@ -58,19 +59,24 @@ export function scenario(
   return main(function* () {
     try {
       yield* callcc<void>(function* (exit) {
-        let work = createChannel<BenchmarkOptions, never>();
+        let work = createChannel<
+          { options: BenchmarkOptions; kind: BenchmarkKind },
+          never
+        >();
         yield* spawn(function* () {
           for (let command of yield* each(commands)) {
             if (command.type === "close") {
               yield* exit();
-            } else {
-              yield* work.send(command);
+            } else if ("kind" in command) {
+              // Typed options - extract kind
+              yield* work.send({ options: command, kind: command.kind });
             }
+            // Ignore legacy options without kind (shouldn't happen with new CLI)
             yield* each.next();
           }
         });
 
-        for (let options of yield* each(work)) {
+        for (let { options, kind } of yield* each(work)) {
           // Warmup runs: execute but don't time or report
           for (let i = 0; i < options.warmup; i++) {
             yield* encapsulate(() => perform(options.depth));
@@ -95,12 +101,13 @@ export function scenario(
             ...stats,
           });
 
-          send({ type: "done", name, result });
+          send({ type: "done", kind, name, result });
 
           yield* each.next();
         }
       });
     } catch (error) {
+      // On error, we don't have a kind available, so omit it
       send({ type: "done", name, result: Err(error as Error) });
     } finally {
       send({ type: "closed", result: Ok() });

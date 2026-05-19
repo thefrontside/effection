@@ -4,6 +4,7 @@ import {
   all,
   createQueue,
   each,
+  exit,
   main,
   type Operation,
   spawn,
@@ -14,10 +15,13 @@ import scenarios from "./bench/scenarios.ts";
 import type {
   BenchmarkDoneEvent,
   BenchmarkJsonOutput,
+  BenchmarkKind,
   BenchmarkOptions,
   BenchmarkResultEntry,
-  BenchmarkStats,
+  BenchmarkStatsByKind,
   BenchmarkWorkerEvent,
+  CancellationResultEntry,
+  ScenarioEntry,
   WorkerCommand,
 } from "./bench/types.ts";
 
@@ -30,10 +34,20 @@ interface BenchmarkCliOptions {
   repeat: number;
   depth: number;
   warmup: number;
+  tasks: number;
   json: boolean;
 }
 
 await main(function* (args) {
+  try {
+    yield* runBench(args);
+  } catch (e) {
+    console.error(`error: ${(e as Error).message}`);
+    yield* exit(1);
+  }
+});
+
+function* runBench(args: string[]): Operation<void> {
   let options = parser()
     .name("bench")
     .description("Run Effection benchmarks")
@@ -62,6 +76,11 @@ await main(function* (args) {
         description: "number of warmup runs to discard",
         alias: "w",
       },
+      tasks: {
+        type: z.number().positive().default(10),
+        description: "number of concurrent tasks for cancellation benchmarks",
+        alias: "t",
+      },
       json: {
         type: z.boolean().default(false),
         description: "output results as JSON",
@@ -69,29 +88,58 @@ await main(function* (args) {
     })
     .parse(args) as BenchmarkCliOptions;
 
-  let { include, exclude, repeat, depth, warmup, json } = options;
+  let { include, exclude, repeat, depth, warmup, tasks: taskCount, json } =
+    options;
 
-  let tasks: Task<BenchmarkDoneEvent>[] = [];
+  // Validate regex patterns early (throws with friendly message if invalid)
+  if (include) {
+    validateRegex(include, "--include");
+  }
+  if (exclude) {
+    validateRegex(exclude, "--exclude");
+  }
 
-  for (let scenario of filter(scenarios, { include, exclude })) {
-    tasks.push(
-      yield* spawn(() =>
-        runBenchmark(scenario, {
-          type: "benchmark",
-          repeat,
-          depth,
-          warmup,
-        })
-      ),
+  // Filter scenarios and build typed benchmark options
+  const filteredScenarios = filterScenarios(scenarios, { include, exclude });
+
+  // Track results by kind for proper grouping
+  const resultsByKind: Record<BenchmarkKind, BenchmarkDoneEvent[]> = {
+    recursion: [],
+    events: [],
+    cancellation: [],
+  };
+
+  let benchTasks: Task<{ kind: BenchmarkKind; event: BenchmarkDoneEvent }>[] =
+    [];
+
+  for (const entry of filteredScenarios) {
+    const benchOptions = buildOptions(entry.kind, {
+      repeat,
+      depth,
+      warmup,
+      tasks: taskCount,
+    });
+
+    benchTasks.push(
+      yield* spawn(function* () {
+        const event = yield* runBenchmark(entry.path, entry.kind, benchOptions);
+        return { kind: entry.kind, event };
+      }),
     );
   }
 
-  let results = yield* all(tasks);
+  const results = yield* all(benchTasks);
 
-  let events = results.filter((result) => result.name.match("events"));
-  let recursion = results.filter((result) => result.name.match("recursion"));
+  // Group results by kind (using the typed entry, not filename regex)
+  for (const { kind, event } of results) {
+    resultsByKind[kind].push(event);
+  }
 
-  if (events.length == 0 && recursion.length === 0) {
+  const { recursion, events, cancellation } = resultsByKind;
+
+  if (
+    events.length === 0 && recursion.length === 0 && cancellation.length === 0
+  ) {
     console.log("no benchmarks run");
     return;
   }
@@ -104,24 +152,38 @@ await main(function* (args) {
         repeat,
         warmup,
         depth,
+        ...(cancellation.length > 0 ? { tasks: taskCount } : {}),
       },
       results: {
         recursion: recursion.map(toJsonEntry).filter(notNull),
         events: events.map(toJsonEntry).filter(notNull),
+        ...(cancellation.length > 0
+          ? {
+            cancellation: cancellation.map(toCancellationJsonEntry).filter(
+              notNull,
+            ),
+          }
+          : {}),
       },
     };
     console.log(JSON.stringify(output, null, 2));
   } else {
-    renderTable(recursion, events, { repeat, warmup, depth });
+    renderTable(recursion, events, cancellation, {
+      repeat,
+      warmup,
+      depth,
+      tasks: taskCount,
+    });
   }
-});
+}
 
 function renderTable(
   recursion: BenchmarkDoneEvent[],
   events: BenchmarkDoneEvent[],
-  options: { repeat?: number; warmup?: number; depth?: number },
+  cancellation: BenchmarkDoneEvent[],
+  options: { repeat?: number; warmup?: number; depth?: number; tasks?: number },
 ) {
-  const headers = [
+  const timingHeaders = [
     "Library",
     "Avg",
     "Min",
@@ -131,33 +193,64 @@ function renderTable(
     "p95",
     "p99",
   ];
+
+  const cancellationHeaders = [
+    "Library",
+    "Avg",
+    "Min",
+    "Max",
+    "StdDev",
+    "Alloc",
+    "Released",
+    "Leaked",
+  ];
+
   let rows = [];
 
   if (recursion.length > 0) {
     const title =
       `Basic Recursion (${options.repeat} reps, ${options.warmup} warmup, depth ${options.depth})`;
-    rows.push(Row.from([new Cell(title).colSpan(headers.length).border()]));
-    rows.push(Row.from<Cell | string>(headers).border());
+    rows.push(
+      Row.from([new Cell(title).colSpan(timingHeaders.length).border()]),
+    );
+    rows.push(Row.from<Cell | string>(timingHeaders).border());
     rows.push(...recursion.map((event) => Row.from(toTableRow(event))));
   }
 
   if (events.length > 0) {
     const title =
       `Recursive Events (${options.repeat} reps, ${options.warmup} warmup, depth ${options.depth})`;
-    rows.push(Row.from([new Cell(title).colSpan(headers.length).border()]));
-    rows.push(Row.from<Cell | string>(headers).border());
+    rows.push(
+      Row.from([new Cell(title).colSpan(timingHeaders.length).border()]),
+    );
+    rows.push(Row.from<Cell | string>(timingHeaders).border());
     rows.push(...events.map((event) => Row.from(toTableRow(event))));
+  }
+
+  if (cancellation.length > 0) {
+    const title =
+      `Cancellation Cascade (${options.repeat} reps, ${options.warmup} warmup, ${options.tasks} tasks, depth ${options.depth})`;
+    rows.push(
+      Row.from([new Cell(title).colSpan(cancellationHeaders.length).border()]),
+    );
+    rows.push(Row.from<Cell | string>(cancellationHeaders).border());
+    rows.push(
+      ...cancellation.map((event) => Row.from(toCancellationTableRow(event))),
+    );
   }
 
   Table.from(rows).render();
 }
 
 function* runBenchmark(
-  scenario: string,
+  scenarioPath: string,
+  expectedKind: BenchmarkKind,
   options: BenchmarkOptions,
 ): Operation<BenchmarkDoneEvent> {
   let results = createQueue<BenchmarkDoneEvent, never>();
-  let worker = yield* useWorker<WorkerCommand, BenchmarkWorkerEvent>(scenario);
+  let worker = yield* useWorker<WorkerCommand, BenchmarkWorkerEvent>(
+    scenarioPath,
+  );
 
   yield* spawn(function* () {
     for (let event of yield* each(worker.errors)) {
@@ -169,8 +262,24 @@ function* runBenchmark(
   });
 
   yield* spawn(function* () {
+    for (let event of yield* each(worker.messageerrors)) {
+      throw new Error(
+        `Worker message serialization failed: ${event.data ?? "unknown error"}`,
+      );
+      // Note: each.next() is unreachable after throw
+    }
+  });
+
+  yield* spawn(function* () {
     for (let event of yield* each(worker.messages)) {
       if (event.data.type === "done") {
+        // Validate that worker returned expected kind (prevents silent deadlock)
+        const actualKind = event.data.kind;
+        if (actualKind && actualKind !== expectedKind) {
+          throw new Error(
+            `Benchmark kind mismatch: expected "${expectedKind}", got "${actualKind}" from ${event.data.name}`,
+          );
+        }
         results.add(event.data);
       } else if (event.data.type === "closed") {
         if (!event.data.result.ok) {
@@ -190,19 +299,65 @@ function* runBenchmark(
   }
 }
 
-function filter(
-  strings: string[],
+/**
+ * Validate a regex pattern and return the compiled RegExp.
+ * Throws a user-friendly error if the pattern is invalid.
+ */
+function validateRegex(pattern: string, flagName: string): RegExp {
+  try {
+    return new RegExp(pattern);
+  } catch (e) {
+    throw new Error(
+      `Invalid ${flagName} pattern "${pattern}": ${(e as Error).message}`,
+    );
+  }
+}
+
+/**
+ * Filter scenarios by include/exclude regex patterns.
+ * Assumes patterns have already been validated via validateRegex().
+ */
+function filterScenarios(
+  entries: ScenarioEntry[],
   options: { include?: string; exclude?: string },
-): string[] {
+): ScenarioEntry[] {
   let { include, exclude } = options;
-  let result = strings;
+  let result = entries;
   if (include) {
-    result = result.filter((s) => basename(s).match(new RegExp(include)));
+    const regex = new RegExp(include);
+    result = result.filter((e) => basename(e.path).match(regex));
   }
   if (exclude) {
-    result = result.filter((s) => !basename(s).match(new RegExp(exclude)));
+    const regex = new RegExp(exclude);
+    result = result.filter((e) => !basename(e.path).match(regex));
   }
   return result;
+}
+
+/**
+ * Build typed benchmark options based on kind.
+ */
+function buildOptions(
+  kind: BenchmarkKind,
+  params: { repeat: number; depth: number; warmup: number; tasks: number },
+): BenchmarkOptions {
+  const { repeat, depth, warmup, tasks } = params;
+
+  switch (kind) {
+    case "recursion":
+      return { type: "benchmark", kind: "recursion", repeat, depth, warmup };
+    case "events":
+      return { type: "benchmark", kind: "events", repeat, depth, warmup };
+    case "cancellation":
+      return {
+        type: "benchmark",
+        kind: "cancellation",
+        repeat,
+        depth,
+        warmup,
+        tasks,
+      };
+  }
 }
 
 function toTableRow(event: BenchmarkDoneEvent): string[] {
@@ -233,6 +388,38 @@ function toJsonEntry(event: BenchmarkDoneEvent): BenchmarkResultEntry | null {
     };
   }
   return null;
+}
+
+function toCancellationJsonEntry(
+  event: BenchmarkDoneEvent,
+): CancellationResultEntry | null {
+  let [name = event.name] = event.name.split(".");
+  if (event.result.ok && "correctness" in event.result.value) {
+    return {
+      name,
+      stats: event.result.value as BenchmarkStatsByKind["cancellation"],
+    };
+  }
+  return null;
+}
+
+function toCancellationTableRow(event: BenchmarkDoneEvent): string[] {
+  let [name = event.name] = event.name.split(".");
+  if (event.result.ok) {
+    const stats = event.result.value as BenchmarkStatsByKind["cancellation"];
+    return [
+      name,
+      formatMs(stats.avgTime),
+      formatMs(stats.minTime),
+      formatMs(stats.maxTime),
+      formatMs(stats.stdDev),
+      String(stats.correctness.allocated),
+      String(stats.correctness.released),
+      stats.correctness.leaked === 0 ? "0" : `${stats.correctness.leaked}`,
+    ];
+  } else {
+    return [name, "", "", "", "", "", "", ""];
+  }
 }
 
 function notNull<T>(value: T | null): value is T {

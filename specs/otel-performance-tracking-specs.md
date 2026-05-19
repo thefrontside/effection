@@ -46,23 +46,25 @@ Resource                               ← describes the PROCESS (invariant for 
 
 Every unique combination of attribute values is a *separate* timeseries that the backend must store, index, and keep alive forever (or until retention drops it). Two `record()` calls land in the same timeseries only if they share *every* attribute value.
 
-### Avoid the cardinality trap
-
-Since every unique combination of attribute values is a separate timeseries, adding attributes that have a high cardinality will grow the number of timeseries with every unique value. `benchmark.scenario="recursion"` has low cardinality because the set of scenario names is small and fixed — every measurement reuses one of a handful of values, so no new timeseries is created. `commit.sha` has high cardinality because every commit produces a new value, and every new value creates a new timeseries.
-
-Avoid putting high-cardinality attributes on **DataPoints**, where they multiply timeseries count. Put them on **Resource** instead — Resource attributes describe the producing process, not the timeseries identity, so commit SHA, runner ID, and pipeline run ID stay queryable without inflating storage.
-
-### Observer-effect overhead
-
-Observer-effect overhead occurs when the measurement harness distorts the measurements it is recording. Invoking the OTEL SDK during scenario execution introduces attribute-map construction, object allocation, batch-processor queue writes, and cache pollution — costs that can distort sub-millisecond measurements. We avoid this by starting the scenario span before the loop, buffering per-iteration timings in a fixed-size array during the loop, and emitting one LogRecord per buffered value after the loop ends. End the span last so the LogRecords retain `trace_id` correlation with the scenario span.
-
-Warmup iterations exist to let the JIT inline the scenario code before the first measured iteration, so measurement #1 doesn't pay JIT compilation cost that #2–#10 don't. Emission is already outside the measured window and doesn't need its own warmup.
-
 ## PostHog data model
 
 1. One write = one row. Every `/capture` POST creates exactly one row.
 2. Aggregation happens at query time, not write time.
 3. All metadata lives inside `properties`, a flat JSON-ish map.
+
+# Design
+
+## Avoid the cardinality trap
+
+Since every unique combination of attribute values is a separate timeseries, adding attributes that have a high cardinality will grow the number of timeseries with every unique value. `benchmark.scenario="recursion"` has low cardinality because the set of scenario names is small and fixed — every measurement reuses one of a handful of values, so no new timeseries is created. `commit.sha` has high cardinality because every commit produces a new value, and every new value creates a new timeseries.
+
+Avoid putting high-cardinality attributes on **DataPoints**, where they multiply timeseries count. Put them on **Resource** instead — Resource attributes describe the producing process, not the timeseries identity, so commit SHA, runner ID, and pipeline run ID stay queryable without inflating storage.
+
+## Observer-effect overhead
+
+Observer-effect overhead occurs when the measurement harness distorts the measurements it is recording. Invoking the OTEL SDK during scenario execution introduces attribute-map construction, object allocation, batch-processor queue writes, and cache pollution — costs that can distort sub-millisecond measurements. We avoid this by starting the scenario span before the loop, buffering per-iteration timings in a fixed-size array during the loop, and emitting one LogRecord per buffered value after the loop ends. End the span last so the LogRecords retain `trace_id` correlation with the scenario span.
+
+Warmup iterations exist to let the JIT inline the scenario code before the first measured iteration, so measurement #1 doesn't pay JIT compilation cost that #2–#10 don't. Emission is already outside the measured window and doesn't need its own warmup.
 
 ## Rejected alternatives
 
@@ -87,7 +89,7 @@ It's convenient but it was rejected in research because,
 3. PostHog expected Delta Temporality, but the SpanMetrics Connector uses Cumulative Temporality. Conversion increases complexity.
 4. SpanMetrics requires a Collector sidecar in every CI runner.
 
-## Examplars to connect metrics to spans
+### Examplars to connect metrics to spans
 
 Examples exist because because Histograms throw away raw samples in exchange for bucket counts. Examplars provide a represenative sample after aggregation.
 

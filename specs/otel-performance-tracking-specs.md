@@ -52,6 +52,12 @@ Since every unique combination of attribute values is a separate timeseries, add
 
 Avoid putting high-cardinality attributes on **DataPoints**, where they multiply timeseries count. Put them on **Resource** instead — Resource attributes describe the producing process, not the timeseries identity, so commit SHA, runner ID, and pipeline run ID stay queryable without inflating storage.
 
+### Observer-effect overhead
+
+Observer-effect overhead occurs when the measurement harness distorts the measurements it is recording. Invoking the OTEL SDK during scenario execution introduces attribute-map construction, object allocation, batch-processor queue writes, and cache pollution — costs that can distort sub-millisecond measurements. We avoid this by starting the scenario span before the loop, buffering per-iteration timings in a fixed-size array during the loop, and emitting one LogRecord per buffered value after the loop ends. End the span last so the LogRecords retain `trace_id` correlation with the scenario span.
+
+Warmup iterations exist to let the JIT inline the scenario code before the first measured iteration, so measurement #1 doesn't pay JIT compilation cost that #2–#10 don't. Emission is already outside the measured window and doesn't need its own warmup.
+
 ## PostHog data model
 
 1. One write = one row. Every `/capture` POST creates exactly one row.

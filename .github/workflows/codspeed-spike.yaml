@@ -1,0 +1,31 @@
+name: CodSpeed Spike
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [codspeed-spike]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  spike:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: setup deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: cache npm deps (incl. native prebuild)
+        run: deno cache --node-modules-dir=auto tasks/bench/spike-codspeed.ts
+
+      - name: run spike under CodSpeed
+        uses: CodSpeedHQ/action@v4
+        with:
+          mode: simulation
+          run: deno run -A --node-modules-dir=auto tasks/bench/spike-codspeed.ts

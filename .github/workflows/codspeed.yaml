@@ -1,16 +1,18 @@
-name: CodSpeed Spike (Node)
+name: CodSpeed
 
 on:
-  workflow_dispatch:
   push:
-    branches: [codspeed-spike]
+    branches: v[3-9]
+  pull_request:
+    branches: v[3-9]
+  workflow_dispatch:
 
 permissions:
   contents: read
   id-token: write
 
 jobs:
-  spike:
+  benchmarks:
     runs-on: ubuntu-latest
     steps:
       - name: checkout
@@ -26,6 +28,8 @@ jobs:
         with:
           node-version: "22"
 
+      # Build the npm package from THIS checkout, so CodSpeed's PR-vs-base
+      # comparison reflects the PR's own Effection source.
       - name: build effection npm package
         run: |
           deno task build:npm 0.0.0-bench
@@ -33,14 +37,17 @@ jobs:
           npm pack
           mv *.tgz ../../effection.tgz
 
+      # --legacy-peer-deps: the locally-built tarball is stamped 0.0.0-bench,
+      # which doesn't satisfy @effectionx/inline's `peer effection@"^3 || ^4"`,
+      # even though it IS Effection 4. Overriding the peer check is correct here.
       - name: install bench-node deps
         working-directory: bench-node
         run: |
-          npm install ../effection.tgz
-          npm install
+          npm install ../effection.tgz --legacy-peer-deps
+          npm install --legacy-peer-deps
 
-      - name: run spike under CodSpeed
+      - name: run benchmarks under CodSpeed
         uses: CodSpeedHQ/action@v4
         with:
           mode: simulation
-          run: node --experimental-strip-types bench-node/spike.bench.ts
+          run: node --experimental-strip-types bench-node/codspeed.bench.ts

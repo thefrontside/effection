@@ -19,14 +19,14 @@ emissions, testing subscription lifecycle management and operator chaining
 efficiency.
 `.trim();
 import { action, type Operation } from "effection";
-import type { Scenario, ScenarioCtx } from "./types.ts";
+import type { Scenario } from "./types.ts";
 
 /**
  * Wrapper that runs RxJS observable as an Effection operation.
  */
-function* run(depth: number, ctx: ScenarioCtx): Operation<void> {
+function* run(depth: number): Operation<void> {
   yield* action<void>((resolve) => {
-    const observable = recurse(depth, ctx).subscribe({
+    const observable = recurse(depth).subscribe({
       complete() {
         resolve();
       },
@@ -36,22 +36,19 @@ function* run(depth: number, ctx: ScenarioCtx): Operation<void> {
 }
 
 /**
- * Recursive RxJS observable. `ctx` is captured by closure and used to mark
- * peak memory inside the deepest subscriber (when the full chain is alive).
+ * Recursive RxJS observable.
  */
-function recurse(depth: number, ctx: ScenarioCtx): Observable<void> {
+function recurse(depth: number): Observable<void> {
   return new Observable<void>((subscriber: Subscriber<void>) => {
     if (depth > 1) {
       subscriber.add(
-        recurse(depth - 1, ctx).subscribe({
+        recurse(depth - 1).subscribe({
           complete() {
             subscriber.complete();
           },
         }),
       );
     } else {
-      // Peak: the entire subscriber chain is established when we hit the leaf.
-      ctx.markPeak();
       subscriber.add(
         defer(() => from(Promise.resolve()))
           .pipe(repeat(100))

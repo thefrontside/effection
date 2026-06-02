@@ -20,17 +20,15 @@ function chain that bottoms out with 100 awaited Promise.resolve() calls.
 This represents the minimal overhead of JavaScript's built-in async machinery,
 providing a reference point for comparing structured concurrency libraries.
 `.trim();
-import type { Scenario, ScenarioCtx } from "./types.ts";
+import type { Scenario } from "./types.ts";
 
 /**
  * Recursive async function.
  */
-async function recurse(depth: number, ctx: ScenarioCtx): Promise<void> {
+async function recurse(depth: number): Promise<void> {
   if (depth > 1) {
-    await recurse(depth - 1, ctx);
+    await recurse(depth - 1);
   } else {
-    // Peak: all `depth` async frames are alive here before the inner loop runs.
-    ctx.markPeak();
     for (let i = 0; i < 100; i++) {
       await Promise.resolve();
     }
@@ -40,8 +38,8 @@ async function recurse(depth: number, ctx: ScenarioCtx): Promise<void> {
 /**
  * Wrapper that converts async to Operation.
  */
-function* run(depth: number, ctx: ScenarioCtx): Operation<void> {
-  yield* call(() => recurse(depth, ctx));
+function* run(depth: number): Operation<void> {
+  yield* call(() => recurse(depth));
 }
 
 /**

@@ -22,14 +22,11 @@ import { scenarios } from "./scenarios/mod.ts";
 // must be identical across runs. Matches the upstream default.
 const DEPTH = 100;
 
-// CodSpeed measures CPU instructions, not memory, so peak-marking is a no-op.
-const noopCtx = { markPeak() {} };
-
 const bench = withCodSpeed(new Bench());
 
 for (const [name, scenario] of Object.entries(scenarios)) {
   bench.add(name, async () => {
-    await run(() => scenario.run(DEPTH, noopCtx));
+    await run(() => scenario.run(DEPTH));
   });
 }
 

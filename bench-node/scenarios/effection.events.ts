@@ -18,21 +18,18 @@ Creates a recursive chain of EventTarget listeners using Effection's \`on()\`
 and \`each()\` APIs. Events dispatched at the root propagate through the entire
 chain, testing subscription management and structured cleanup.
 `.trim();
-import type { Scenario, ScenarioCtx } from "./types.ts";
+import type { Scenario } from "./types.ts";
 
 /**
  * Start the events benchmark.
  */
-function* start(depth: number, ctx: ScenarioCtx): Operation<void> {
+function* start(depth: number): Operation<void> {
   const target = new EventTarget();
   const task = yield* spawn(() => recurse(target, depth));
   for (let i = 0; i < 100; i++) {
     yield* sleep(0);
     target.dispatchEvent(new Event("foo"));
   }
-  // Peak: full chain of `depth` listeners is alive and 100 events have been
-  // processed; teardown via task.halt() hasn't started yet.
-  ctx.markPeak();
   yield* sleep(0);
   yield* task.halt();
 }

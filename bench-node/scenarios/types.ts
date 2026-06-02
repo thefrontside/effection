@@ -1,25 +1,17 @@
 /**
  * Minimal scenario types for the CodSpeed Node benchmark.
  *
- * Trimmed from the effection-benchmarks observatory's harness types: CodSpeed
- * measures CPU instructions, so the memory-sampling machinery is dropped and
- * `markPeak()` is a no-op here.
+ * Trimmed from the effection-benchmarks observatory: CodSpeed measures CPU
+ * instructions, so the memory-sampling machinery (and its `markPeak` hook) is
+ * dropped — scenarios are just `(depth) => Operation<void>`.
  *
  * @module
  */
 
 import type { Operation } from "effection";
 
-/**
- * Per-iteration context handed to a scenario. In the observatory this records
- * peak memory; under CodSpeed it is a no-op (CPU instructions are measured).
- */
-export interface ScenarioCtx {
-  markPeak(): void;
-}
-
 /** A benchmark scenario function. */
-export type ScenarioFn = (depth: number, ctx: ScenarioCtx) => Operation<void>;
+export type ScenarioFn = (depth: number) => Operation<void>;
 
 /** A registered scenario with metadata. */
 export interface Scenario {

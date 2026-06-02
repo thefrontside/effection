@@ -20,14 +20,12 @@ forking, and scoped resource cleanup with native browser-like events.
 `.trim();
 
 import { call, type Operation } from "effection";
-import type { Scenario, ScenarioCtx } from "./types.ts";
+import type { Scenario } from "./types.ts";
 
 /**
- * Run the Effect events benchmark. `ctx` is captured by closure and used to
- * mark peak memory after all events have been dispatched and before fiber
- * interruption tears the chain down.
+ * Run the Effect events benchmark.
  */
-const effectRun = (depth: number, ctx: ScenarioCtx): Effect.Effect<void> =>
+const effectRun = (depth: number): Effect.Effect<void> =>
   Effect.gen(function* () {
     const target = new EventTarget();
 
@@ -43,9 +41,6 @@ const effectRun = (depth: number, ctx: ScenarioCtx): Effect.Effect<void> =>
       target.dispatchEvent(new Event("foo"));
     }
 
-    // Peak: full chain of `depth` Stream subscriptions is alive and 100
-    // events have propagated; fiber teardown hasn't started.
-    ctx.markPeak();
 
     yield* Effect.yieldNow();
 
@@ -87,8 +82,8 @@ function recurse(
 /**
  * Wrapper that runs Effect as an Effection operation.
  */
-function* run(depth: number, ctx: ScenarioCtx): Operation<void> {
-  yield* call(() => Effect.runPromise(effectRun(depth, ctx)));
+function* run(depth: number): Operation<void> {
+  yield* call(() => Effect.runPromise(effectRun(depth)));
 }
 
 /**

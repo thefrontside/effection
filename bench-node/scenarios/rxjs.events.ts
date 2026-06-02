@@ -9,15 +9,6 @@
 
 import { fromEvent, Observable, Subject, takeUntil, type Subscriber } from "rxjs";
 
-/**
- * Description of this benchmark scenario for the dashboard.
- */
-export const description = `
-Measures RxJS event handling with nested Observable chains. Uses \`fromEvent()\`
-to create recursive event listeners that propagate events through the chain.
-Tests subscription management, Subject-based cancellation via \`takeUntil()\`,
-and cleanup when the event stream completes.
-`.trim();
 import { action, type Operation, sleep, spawn } from "effection";
 import type { Scenario } from "./types.ts";
 

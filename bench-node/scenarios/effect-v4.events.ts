@@ -18,14 +18,6 @@
 // (for runtime resolution).
 import { Effect, Fiber, Stream } from "effect-v4";
 
-/**
- * Description of this benchmark scenario for the dashboard.
- */
-export const description = `
-Measures Effect v4 (beta) event handling with native EventTarget. Mirrors the
-Effect v3 events scenario so the two majors are directly comparable.
-`.trim();
-
 import { call, type Operation } from "effection";
 import type { Scenario } from "./types.ts";
 
@@ -47,7 +39,6 @@ const effectRun = (depth: number): Effect.Effect<void> =>
       yield* Effect.yieldNow;
       target.dispatchEvent(new Event("foo"));
     }
-
 
     yield* Effect.yieldNow;
 

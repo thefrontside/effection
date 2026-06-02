@@ -9,15 +9,6 @@
 
 import { defer, from, Observable, repeat, type Subscriber } from "rxjs";
 
-/**
- * Description of this benchmark scenario for the dashboard.
- */
-export const description = `
-Measures RxJS Observable overhead for deeply nested subscriptions. Creates a
-recursive chain of Observables that bottoms out with 100 deferred Promise
-emissions, testing subscription lifecycle management and operator chaining
-efficiency.
-`.trim();
 import { action, type Operation } from "effection";
 import type { Scenario } from "./types.ts";
 

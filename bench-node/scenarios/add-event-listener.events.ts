@@ -11,15 +11,6 @@
 
 import { call, type Operation } from "effection";
 
-/**
- * Description of this benchmark scenario for the dashboard.
- */
-export const description = `
-Baseline measurement using native addEventListener. Creates a recursive chain
-of EventTarget listeners with manual cleanup via AbortController. This
-represents the minimal overhead for event handling without any abstraction
-layer, providing a reference point for comparing reactive libraries.
-`.trim();
 import type { Scenario } from "./types.ts";
 
 /**

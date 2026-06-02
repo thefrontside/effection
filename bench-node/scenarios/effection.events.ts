@@ -9,15 +9,6 @@
 
 import { each, on, type Operation, sleep, spawn } from "effection";
 
-/**
- * Description of this benchmark scenario for the dashboard.
- */
-export const description = `
-Measures Effection's event handling performance with nested event propagation.
-Creates a recursive chain of EventTarget listeners using Effection's \`on()\`
-and \`each()\` APIs. Events dispatched at the root propagate through the entire
-chain, testing subscription management and structured cleanup.
-`.trim();
 import type { Scenario } from "./types.ts";
 
 /**

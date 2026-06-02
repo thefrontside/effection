@@ -10,16 +10,6 @@
 import { call, type Operation } from "effection";
 import { inline } from "@effectionx/inline";
 
-/**
- * Description of this benchmark scenario for the dashboard.
- */
-export const description = `
-Measures Effection's performance when using the inline() optimization.
-The inline() function replaces nested generator delegation with an explicit
-iterator stack, collapsing O(depth) frame unwinding to O(1). This shows
-the potential performance gain from opting into the optimization on hot paths.
-`.trim();
-
 import type { Scenario } from "./types.ts";
 
 /**

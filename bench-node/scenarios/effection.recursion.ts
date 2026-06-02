@@ -9,15 +9,6 @@
 
 import { call, type Operation } from "effection";
 
-/**
- * Description of this benchmark scenario for the dashboard.
- */
-export const description = `
-Measures Effection's structured concurrency overhead for deeply nested generator
-calls. Creates a recursive chain of operations that bottoms out with 100
-Promise.resolve() calls, testing how efficiently Effection manages operation
-lifecycles and context propagation through the call stack.
-`.trim();
 import type { Scenario } from "./types.ts";
 
 /**

@@ -9,15 +9,6 @@
 
 import { Effect } from "effect";
 
-/**
- * Description of this benchmark scenario for the dashboard.
- */
-export const description = `
-Measures Effect-TS overhead for deeply nested generator-based effects. Creates
-a recursive chain using \`Effect.gen()\` that bottoms out with 100
-\`Effect.promise()\` calls, testing fiber management and effect composition
-efficiency.
-`.trim();
 import { call, type Operation } from "effection";
 import type { Scenario } from "./types.ts";
 

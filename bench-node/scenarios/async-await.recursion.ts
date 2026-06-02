@@ -11,15 +11,6 @@
 
 import { call, type Operation } from "effection";
 
-/**
- * Description of this benchmark scenario for the dashboard.
- */
-export const description = `
-Baseline measurement using native async/await. Creates a recursive async
-function chain that bottoms out with 100 awaited Promise.resolve() calls.
-This represents the minimal overhead of JavaScript's built-in async machinery,
-providing a reference point for comparing structured concurrency libraries.
-`.trim();
 import type { Scenario } from "./types.ts";
 
 /**

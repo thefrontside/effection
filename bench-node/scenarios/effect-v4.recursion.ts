@@ -13,15 +13,6 @@
 // (for runtime resolution).
 import { Effect } from "effect-v4";
 
-/**
- * Description of this benchmark scenario for the dashboard.
- */
-export const description = `
-Measures Effect v4 (beta) overhead for deeply nested generator-based effects.
-Mirrors the Effect v3 recursion scenario so the two majors are directly
-comparable.
-`.trim();
-
 import { call, type Operation } from "effection";
 import type { Scenario } from "./types.ts";
 

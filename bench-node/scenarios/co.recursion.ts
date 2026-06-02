@@ -9,15 +9,6 @@
 
 import { call, type Operation } from "effection";
 
-/**
- * Description of this benchmark scenario for the dashboard.
- */
-export const description = `
-Measures the classic \`co\` library's overhead for nested generator execution.
-Creates a recursive generator chain that bottoms out with 100 Promise yields,
-serving as a historical baseline for generator-based async patterns that
-predated async/await.
-`.trim();
 import co from "co";
 import type { Scenario } from "./types.ts";
 

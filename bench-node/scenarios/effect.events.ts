@@ -9,16 +9,6 @@
 
 import { Effect, Fiber, Stream } from "effect";
 
-/**
- * Description of this benchmark scenario for the dashboard.
- */
-export const description = `
-Measures Effect-TS event handling with native EventTarget. Uses
-Stream.fromEventListener to create recursive event listeners that propagate
-events through a nested chain. Tests Stream subscription overhead, fiber
-forking, and scoped resource cleanup with native browser-like events.
-`.trim();
-
 import { call, type Operation } from "effection";
 import type { Scenario } from "./types.ts";
 
@@ -40,7 +30,6 @@ const effectRun = (depth: number): Effect.Effect<void> =>
       yield* Effect.yieldNow();
       target.dispatchEvent(new Event("foo"));
     }
-
 
     yield* Effect.yieldNow();
 

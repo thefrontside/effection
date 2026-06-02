@@ -1,0 +1,9 @@
+{
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "@codspeed/tinybench-plugin": "^5.5.0",
+    "effection": "file:../effection.tgz",
+    "tinybench": "^4"
+  }
+}

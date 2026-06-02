@@ -1,4 +1,4 @@
-name: CodSpeed Spike
+name: CodSpeed Spike (Node)
 
 on:
   workflow_dispatch:
@@ -21,11 +21,26 @@ jobs:
         with:
           deno-version: v2.x
 
-      - name: cache npm deps (incl. native prebuild)
-        run: deno cache --node-modules-dir=auto tasks/bench/spike-codspeed.ts
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: build effection npm package
+        run: |
+          deno task build:npm 0.0.0-bench
+          cd build/npm
+          npm pack
+          mv *.tgz ../../effection.tgz
+
+      - name: install bench-node deps
+        working-directory: bench-node
+        run: |
+          npm install ../effection.tgz
+          npm install
 
       - name: run spike under CodSpeed
         uses: CodSpeedHQ/action@v4
         with:
           mode: simulation
-          run: deno run -A --node-modules-dir=auto tasks/bench/spike-codspeed.ts
+          run: node --experimental-strip-types bench-node/spike.bench.ts

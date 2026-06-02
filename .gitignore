@@ -8,3 +8,6 @@
 /.env
 /.aider*
 .agent-shell
+
+# Built Effection tarball for Node benchmarks
+effection.tgz

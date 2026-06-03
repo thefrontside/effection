@@ -8,7 +8,7 @@
  * comparison-library scenarios are pinned baselines, recorded for historic
  * cross-library context in CodSpeed.
  *
- * Run: node --experimental-strip-types bench-node/codspeed.bench.ts
+ * Run: node --experimental-strip-types bench/codspeed.bench.ts
  *
  * @module
  */

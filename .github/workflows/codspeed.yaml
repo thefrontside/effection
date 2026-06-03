@@ -40,8 +40,8 @@ jobs:
       # --legacy-peer-deps: the locally-built tarball is stamped 0.0.0-bench,
       # which doesn't satisfy @effectionx/inline's `peer effection@"^3 || ^4"`,
       # even though it IS Effection 4. Overriding the peer check is correct here.
-      - name: install bench-node deps
-        working-directory: bench-node
+      - name: install bench deps
+        working-directory: bench
         run: |
           npm install ../effection.tgz --legacy-peer-deps
           npm install --legacy-peer-deps
@@ -50,4 +50,4 @@ jobs:
         uses: CodSpeedHQ/action@v4
         with:
           mode: simulation
-          run: node --experimental-strip-types bench-node/codspeed.bench.ts
+          run: node --experimental-strip-types bench/codspeed.bench.ts

@@ -12,11 +12,11 @@
   },
   "lint": {
     "rules": { "exclude": ["prefer-const", "require-yield"] },
-    "exclude": ["build", "docs", "tasks", "bench-node"],
+    "exclude": ["build", "docs", "tasks", "bench"],
     "plugins": ["lint/prefer-let.ts"]
   },
-  "fmt": { "exclude": ["build", "bench-node"] },
-  "test": { "exclude": ["build", "bench-node"] },
+  "fmt": { "exclude": ["build", "bench"] },
+  "test": { "exclude": ["build", "bench"] },
   "compilerOptions": {
     "lib": ["deno.ns", "esnext", "dom", "dom.iterable", "deno.unstable"]
   },

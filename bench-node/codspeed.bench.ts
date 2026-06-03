@@ -46,15 +46,22 @@ const scenarios: Scenario[] = [
   addEventListenerEvents,
 ];
 
-// Fixed depth: CodSpeed tracks a benchmark by its stable name, so the workload
-// must be identical across runs. Matches the upstream default.
-const DEPTH = 100;
+// Depth must be identical across runs (CodSpeed keys a benchmark by name).
+// Recursion scenarios instrument cheaply at depth 100. The events scenarios
+// cascade 100 events through the whole chain (~events × depth dispatches),
+// which explodes under CodSpeed's CPU simulation — effect.events at depth 100
+// doesn't finish — so they run at a much smaller depth. Still ~1,000 dispatches
+// at depth 10, plenty to surface an instruction-count regression.
+const RECURSION_DEPTH = 100;
+const EVENTS_DEPTH = 10;
+const depthFor = (scenario: Scenario) =>
+  scenario.type === "events" ? EVENTS_DEPTH : RECURSION_DEPTH;
 
 const bench = withCodSpeed(new Bench());
 
 for (const scenario of scenarios) {
   bench.add(scenario.name, async () => {
-    await run(() => scenario.run(DEPTH));
+    await run(() => scenario.run(depthFor(scenario)));
   });
 }
 

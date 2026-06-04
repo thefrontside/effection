@@ -46,8 +46,14 @@ jobs:
           npm install ../effection.tgz --legacy-peer-deps
           npm install --legacy-peer-deps
 
-      - name: run benchmarks under CodSpeed
+      - name: run benchmarks under CodSpeed (performance)
         uses: CodSpeedHQ/action@v4
         with:
           mode: simulation
+          run: node --experimental-strip-types bench/codspeed.bench.ts
+
+      - name: run benchmarks under CodSpeed (memory)
+        uses: CodSpeedHQ/action@v4
+        with:
+          mode: memory
           run: node --experimental-strip-types bench/codspeed.bench.ts

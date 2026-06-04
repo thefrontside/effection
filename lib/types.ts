@@ -1,3 +1,4 @@
+import type { Maybe } from "./maybe.ts";
 import type { Result } from "./result.ts";
 
 /**
@@ -364,12 +365,20 @@ export interface Effect<T> {
  * @ignore
  */
 export interface Coroutine<T = unknown> {
+  future: Future<Maybe<Result<T>>>;
   scope: Scope;
   data: {
     exit(resolve: Resolve<Result<unknown>>): void;
-    iterator: Iterator<Effect<unknown>, T, unknown>;
+    enqueued: boolean;
+    critical: boolean;
+    unwinding: boolean;
+    resumeWith: Result<unknown>;
   };
-  next(result: Result<unknown>): void;
+  resume(result: Result<unknown>): void;
+  step(): IteratorResult<Effect<unknown>, T>;
+  unwind(): void;
+  perform(effect: Effect<unknown>): void;
+  settle(outcome: Maybe<Result<T>>): void;
 }
 
 /**

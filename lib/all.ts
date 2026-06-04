@@ -1,6 +1,6 @@
 import type { Operation, Task, Yielded } from "./types.ts";
 import { spawn } from "./spawn.ts";
-import { trap } from "./task.ts";
+import { trap } from "./trap.ts";
 
 /**
  * Block and wait for all of the given operations to complete. Returns

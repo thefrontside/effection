@@ -6,6 +6,7 @@ import {
   sleep,
   spawn,
   suspend,
+  until,
 } from "../mod.ts";
 
 type State = { status: string };
@@ -136,6 +137,60 @@ describe("resource", () => {
       "second done",
       "first start",
       "first done",
+    ]);
+  });
+
+  // https://github.com/thefrontside/effection/issues/1153 — task.halt()
+  // resolved before async resource cleanup finished. The parent body
+  // completes naturally, encapsulate's finally halts the resource, and
+  // the resource finalizer blocks on an external promise. External
+  // task.halt() must not settle until the finalizer drains.
+  it("task.halt() does not resolve until async resource cleanup finishes", async () => {
+    let events: string[] = [];
+    let cleanupEntered = Promise.withResolvers<void>();
+    let release = Promise.withResolvers<void>();
+
+    let task = run(function* () {
+      yield* resource<string>(function* (provide) {
+        try {
+          yield* provide("resource");
+        } finally {
+          events.push("cleanup:entered");
+          cleanupEntered.resolve();
+          yield* until(release.promise);
+          events.push("cleanup:after-block");
+        }
+      });
+      events.push("main:return");
+    });
+
+    // parent body returns; encapsulate's finally halts the resource;
+    // resource cleanup starts and blocks on `release`.
+    await cleanupEntered.promise;
+    events.push("outside:calling-halt");
+
+    let haltSettled = false;
+    let haltPromise = task.halt().then(() => {
+      haltSettled = true;
+      events.push("halt:resolved");
+    });
+
+    // give halt a chance to mistakenly resolve early; it must not
+    await new Promise((r) => setTimeout(r, 10));
+    expect(haltSettled).toBe(false);
+
+    events.push("outside:releasing-cleanup");
+    release.resolve();
+    await haltPromise;
+
+    expect(haltSettled).toBe(true);
+    expect(events).toEqual([
+      "main:return",
+      "cleanup:entered",
+      "outside:calling-halt",
+      "outside:releasing-cleanup",
+      "cleanup:after-block",
+      "halt:resolved",
     ]);
   });
 });

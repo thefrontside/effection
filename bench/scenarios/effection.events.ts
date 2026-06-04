@@ -1,9 +1,20 @@
-import { scenario } from "./scenario.ts";
-import { each, on, type Operation, sleep, spawn } from "../../../mod.ts";
+/**
+ * Effection events benchmark scenario.
+ *
+ * Ported from upstream:
+ * https://github.com/thefrontside/effection/blob/v4/tasks/bench/scenarios/effection.events.ts
+ *
+ * @module
+ */
 
-await scenario("effection.events", start);
+import { each, on, type Operation, sleep, spawn } from "effection";
 
-export function* start(depth: number): Operation<void> {
+import type { Scenario } from "./types.ts";
+
+/**
+ * Start the events benchmark.
+ */
+function* start(depth: number): Operation<void> {
   const target = new EventTarget();
   const task = yield* spawn(() => recurse(target, depth));
   for (let i = 0; i < 100; i++) {
@@ -14,6 +25,9 @@ export function* start(depth: number): Operation<void> {
   yield* task.halt();
 }
 
+/**
+ * Recursive event listener chain.
+ */
 function* recurse(target: EventTarget, depth: number): Operation<void> {
   const eventStream = on(target, "foo");
   if (depth > 1) {
@@ -29,3 +43,13 @@ function* recurse(target: EventTarget, depth: number): Operation<void> {
     }
   }
 }
+
+/**
+ * Effection events scenario.
+ */
+export const effectionEvents: Scenario = {
+  name: "effection.events",
+  library: "effection",
+  type: "events",
+  run: start,
+};

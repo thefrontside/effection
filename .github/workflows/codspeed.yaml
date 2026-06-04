@@ -1,0 +1,53 @@
+name: CodSpeed
+
+on:
+  push:
+    branches: v[3-9]
+  pull_request:
+    branches: v[3-9]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  benchmarks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: setup deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      # Build the npm package from THIS checkout, so CodSpeed's PR-vs-base
+      # comparison reflects the PR's own Effection source.
+      - name: build effection npm package
+        run: |
+          deno task build:npm 0.0.0-bench
+          cd build/npm
+          npm pack
+          mv *.tgz ../../effection.tgz
+
+      # --legacy-peer-deps: the locally-built tarball is stamped 0.0.0-bench,
+      # which doesn't satisfy @effectionx/inline's `peer effection@"^3 || ^4"`,
+      # even though it IS Effection 4. Overriding the peer check is correct here.
+      - name: install bench deps
+        working-directory: bench
+        run: |
+          npm install ../effection.tgz --legacy-peer-deps
+          npm install --legacy-peer-deps
+
+      - name: run benchmarks under CodSpeed
+        uses: CodSpeedHQ/action@v4
+        with:
+          mode: simulation
+          run: node --experimental-strip-types bench/codspeed.bench.ts

@@ -8,16 +8,15 @@
     "test": "deno test --allow-run --allow-read --allow-env --allow-ffi",
     "test:node": "deno run -A tasks/built-test.ts",
     "build:npm": "deno run -A tasks/build-npm.ts",
-    "bench": "deno run -A tasks/bench.ts",
     "build:jsr": "deno run -A tasks/build-jsr.ts"
   },
   "lint": {
     "rules": { "exclude": ["prefer-const", "require-yield"] },
-    "exclude": ["build", "docs", "tasks"],
+    "exclude": ["build", "docs", "tasks", "bench"],
     "plugins": ["lint/prefer-let.ts"]
   },
-  "fmt": { "exclude": ["build"] },
-  "test": { "exclude": ["build"] },
+  "fmt": { "exclude": ["build", "bench"] },
+  "test": { "exclude": ["build", "bench"] },
   "compilerOptions": {
     "lib": ["deno.ns", "esnext", "dom", "dom.iterable", "deno.unstable"]
   },

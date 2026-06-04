@@ -573,8 +573,16 @@
   </g>
 
   <!-- Status text below (warning color) -->
-  <text x="592" y="430" class="svg-mono-sm svg-leak-text">● still pending</text>
-  <text x="592" y="450" class="svg-mono-sm svg-leak-text">● still ticking</text>
+  <text
+    x="592"
+    y="430"
+    class="svg-mono-sm svg-leak-text"
+  >● still pending</text>
+  <text
+    x="592"
+    y="450"
+    class="svg-mono-sm svg-leak-text"
+  >● still ticking</text>
   <text
     x="592"
     y="470"

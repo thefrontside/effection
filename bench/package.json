@@ -1,0 +1,14 @@
+{
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "@codspeed/tinybench-plugin": "^5.5.0",
+    "@effectionx/inline": "https://pkg.pr.new/thefrontside/effectionx/@effectionx/inline@117",
+    "co": "4.6.0",
+    "effect": "3.14.0",
+    "effect-v4": "npm:effect@4.0.0-beta.64",
+    "effection": "file:../effection.tgz",
+    "rxjs": "7.8.1",
+    "tinybench": "^4"
+  }
+}

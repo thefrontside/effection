@@ -35,15 +35,6 @@ const scenarios: Scenario[] = [
   effectionRecursion,
   effectionEvents,
   effectionInlineRecursion,
-  asyncAwaitRecursion,
-  rxjsRecursion,
-  rxjsEvents,
-  coRecursion,
-  effectRecursion,
-  effectEvents,
-  effectV4Recursion,
-  effectV4Events,
-  addEventListenerEvents,
 ];
 
 // Depth must be identical across runs (CodSpeed keys a benchmark by name).

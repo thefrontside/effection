@@ -114,4 +114,31 @@ describe("Coroutine", () => {
     ]);
     expect(events).not.toContain("after-unreachable");
   });
+
+  it("it raises errors that happen in effect.enter()", async () => {
+    await using scope = createScope();
+    let { resume: next, future } = createCoroutine({
+      scope,
+      *operation() {
+        try {
+          yield {
+            description: "throws on enter",
+            enter() {
+              throw new Error("boom!");
+            },
+          };
+          return "unreachable";
+        } catch (error) {
+          return error;
+        }
+      },
+    });
+
+    next(Ok());
+
+    await expect(future).resolves.toMatchObject({
+      exists: true,
+      value: { ok: true, value: { message: "boom!" } },
+    });
+  });
 });

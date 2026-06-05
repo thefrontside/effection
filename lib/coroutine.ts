@@ -1,5 +1,5 @@
 import { ReducerContext } from "./reducer.ts";
-import { Ok } from "./result.ts";
+import { Err, Ok } from "./result.ts";
 import type { Coroutine, Effect, Operation, Scope } from "./types.ts";
 import type { Maybe } from "./maybe.ts";
 import type { Result } from "./result.ts";
@@ -92,7 +92,11 @@ export function createCoroutine<T>(
           routine.resume(result);
         }
       };
-      routine.data.exit = effect.enter(resolve, routine);
+      try {
+        routine.data.exit = effect.enter(resolve, routine);
+      } catch (error) {
+        routine.resume(Err(error));
+      }
     },
   } as Coroutine<T>;
 

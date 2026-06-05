@@ -1,5 +1,6 @@
+import { Do } from "./do.ts";
 import { Err, Ok } from "./result.ts";
-import type { Effect, Operation } from "./types.ts";
+import type { Operation } from "./types.ts";
 
 /**
  * A function used to define how an {@link action} will be resolved. This
@@ -46,29 +47,24 @@ interface Executor<T> {
  * @since 3.0
  */
 export function action<T>(executor: Executor<T>, desc?: string): Operation<T> {
-  return {
-    *[Symbol.iterator]() {
-      let action: Effect<T> = {
-        description: desc ?? "action",
-        enter: (settle) => {
-          let resolve = (value: T) => {
-            settle(Ok(value));
-          };
-          let reject = (error: Error) => {
-            settle(Err(error));
-          };
-          let discard = executor(resolve, reject);
-          return (discarded) => {
-            try {
-              discard();
-              discarded(Ok());
-            } catch (error) {
-              discarded(Err(error));
-            }
-          };
-        },
+  return Do({
+    description: desc ?? "action",
+    enter: (settle) => {
+      let resolve = (value: T) => {
+        settle(Ok(value));
       };
-      return (yield action) as T;
+      let reject = (error: Error) => {
+        settle(Err(error));
+      };
+      let discard = executor(resolve, reject);
+      return (discarded) => {
+        try {
+          discard();
+          discarded(Ok());
+        } catch (error) {
+          discarded(Err(error));
+        }
+      };
     },
-  };
+  });
 }

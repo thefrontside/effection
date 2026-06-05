@@ -40,7 +40,7 @@ export function createCoroutine<T>(
       set iterator(value) {
         iterator = value;
       },
-      exit: (resolve) => resolve(Ok()),
+      exit: noopExit,
       resumeWith: Ok(),
       enqueued: false,
       critical: false,
@@ -49,7 +49,7 @@ export function createCoroutine<T>(
     resume(result) {
       resolver = null;
       routine.data.exit((exitResult) => {
-        routine.data.exit = (didExit) => didExit(Ok());
+        routine.data.exit = noopExit;
 
         routine.data.resumeWith = exitResult.ok ? result : exitResult;
 
@@ -135,3 +135,5 @@ export function* critical<T>(operation: () => Operation<T>): Operation<T> {
     routine.data.critical = original;
   }
 }
+
+const noopExit: Coroutine<unknown>["data"]["exit"] = (didExit) => didExit(Ok());

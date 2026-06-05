@@ -1,5 +1,5 @@
 import type { Context, Effect, Operation, Scope } from "./types.ts";
-import { Ok } from "./result.ts";
+import { Err, Ok } from "./result.ts";
 import { Do } from "./do.ts";
 
 /**
@@ -52,7 +52,11 @@ function UseScope<T>(fn: (scope: Scope) => T, description: string): Effect<T> {
   return {
     description,
     enter: (resolve, { scope }) => {
-      resolve(Ok(fn(scope)));
+      try {
+        resolve(Ok(fn(scope)));
+      } catch (error) {
+        resolve(Err(error));
+      }
       return (resolve) => {
         resolve(Ok());
       };

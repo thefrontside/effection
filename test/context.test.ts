@@ -41,6 +41,18 @@ describe("context", () => {
     })).rejects.toHaveProperty("name", "MissingContextError");
   });
 
+  it("can catch a missing-context expect() error in-generator", async () => {
+    let caught: unknown;
+    await run(function* () {
+      try {
+        yield* createContext("missing").expect();
+      } catch (error) {
+        caught = error;
+      }
+    });
+    expect((caught as Error)?.name).toEqual("MissingContextError");
+  });
+
   it("inherits values from parent tasks", async () => {
     let context = createContext<string>("just-a-string");
     await run(function* () {

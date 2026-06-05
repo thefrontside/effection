@@ -36,9 +36,9 @@ export function Ok(): Result<void>;
 export function Ok<T>(value: T): Result<T>;
 export function Ok<T>(value?: T): Result<T | undefined> {
   if (typeof value === "undefined") {
-    return { ok: true } as Result<T>;
+    return Unit as Result<T>;
   }
-  return ({ ok: true, value });
+  return { ok: true, value };
 }
 
 /**
@@ -81,3 +81,5 @@ export function unbox<T>(result: Result<T>): T {
     throw result.error;
   }
 }
+
+const Unit = Object.freeze({ ok: true });

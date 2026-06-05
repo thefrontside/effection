@@ -1,91 +1,58 @@
 export class PriorityQueue<T> {
   public tiers: Tier<T>[] = [];
-  public heap: Tier<T>[] = [];
-
-  push(priority: number, item: T) {
+  public min: number = 0;
+  public max: number = 0;
+  push(priority: number, item: T): void {
     let tier = this.tiers[priority];
-    if (tier) {
-      tier.items.unshift(item);
-    } else {
-      let tier = new Tier(priority, [item]);
-      this.tiers[priority] = tier;
-      let current = this.heap.length;
-      this.heap.push(tier);
-      while (current > 0) {
-        let p = parentOf(current);
-        if (priority < this.heap[p].priority) {
-          this.heap[current] = this.heap[p];
-          this.heap[p] = tier;
-        }
-        current = p;
-      }
+    if (!tier) {
+      tier = this.tiers[priority] = new Tier();
+    }
+    tier.push(item);
+    if (priority < this.min) {
+      this.min = priority;
+    }
+    if (priority > this.max) {
+      this.max = priority;
     }
   }
-
   pop(): T | undefined {
-    let top = this.heap[0];
-    if (!top) {
-      return;
-    }
-    let value = top.items.pop()!;
-    if (top.items.length === 0) {
-      delete this.tiers[top.priority];
-      let tier = this.heap.pop()!;
-      if (this.heap.length > 0) {
-        let current = 0;
-        this.heap[0] = tier;
-        while (current < this.heap.length - 1) {
-          let left_i = leftOf(current);
-          let right_i = rightOf(current);
-          let left = this.heap[left_i];
-          let right = this.heap[right_i];
-
-          if (left) {
-            if (right) {
-              if (
-                (tier.priority > left.priority) ||
-                (tier.priority > right.priority)
-              ) {
-                if (left.priority < right.priority) {
-                  this.heap[current] = left;
-                  this.heap[left_i] = tier;
-                  current = left_i;
-                } else {
-                  this.heap[current] = right;
-                  this.heap[right_i] = tier;
-                  current = right_i;
-                }
-              } else {
-                break;
-              }
-            } else if (left.priority < tier.priority) {
-              this.heap[current] = left;
-              this.heap[left_i] = tier;
-              current = left_i;
-            } else {
-              break;
-            }
-          } else {
-            break;
-          }
-        }
+    for (let current = this.min; current <= this.max; current++) {
+      let items = this.tiers[current];
+      if (items && items.length > 0) {
+        let value = items.shift()!;
+        this.min = items.length === 0 ? current + 1 : current;
+        return value;
       }
     }
-    return value;
+    this.min = 0;
+    this.max = 0;
   }
 }
 
 class Tier<T> {
-  constructor(public priority: number, public items: T[]) {}
-}
+  items: (T | undefined)[] = [];
+  head = 0;
+  constructor(public maxDeadSlots = 1024) {}
 
-function parentOf(index: number): number {
-  return Math.floor((index - 1) / 2);
-}
-function leftOf(index: number) {
-  return index * 2 + 1;
-}
+  push(item: T): void {
+    this.items.push(item);
+  }
 
-function rightOf(index: number) {
-  return index * 2 + 2;
+  shift(): T | undefined {
+    if (this.head < this.items.length) {
+      let item = this.items[this.head];
+      this.items[this.head] = undefined;
+      this.head++;
+      // maybe compact
+      if (this.head > this.maxDeadSlots) {
+        this.items = this.items.slice(this.head);
+        this.head = 0;
+      }
+      return item;
+    }
+  }
+
+  get length() {
+    return this.items.length - this.head;
+  }
 }

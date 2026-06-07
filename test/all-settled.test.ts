@@ -130,10 +130,10 @@ describe("allSettled()", () => {
     expect(teardown).toEqual(true);
   });
 
-  it("runs teardown for all operations after allSettled completes", async () => {
-    let teardowns: string[] = [];
-    let result = await run(() =>
-      allSettled([
+  it("runs teardown for all operations before allSettled completes", async () => {
+    let observed = await run(function* () {
+      let teardowns: string[] = [];
+      let result = yield* allSettled([
         call(function* () {
           try {
             return "foo";
@@ -148,12 +148,14 @@ describe("allSettled()", () => {
             teardowns.push("failure");
           }
         }),
-      ])
-    );
+      ]);
 
-    expect(teardowns.sort()).toEqual(["failure", "success"]);
-    expect(result[0]).toMatchObject({ ok: true, value: "foo" });
-    expect(result[1]).toMatchObject({
+      return { result, teardowns: teardowns.sort() };
+    });
+
+    expect(observed.teardowns).toEqual(["failure", "success"]);
+    expect(observed.result[0]).toMatchObject({ ok: true, value: "foo" });
+    expect(observed.result[1]).toMatchObject({
       ok: false,
       error: { message: "boom: bar" },
     });

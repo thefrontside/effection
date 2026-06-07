@@ -16,12 +16,12 @@ import type { Operation, Yielded } from "./types.ts";
  * ### Example
  *
  * ``` javascript
- * import { allSettled, expect, main } from 'effection';
+ * import { allSettled, main, until } from 'effection';
  *
  * await main(function*() {
  *  let [google, notASite] = yield* allSettled([
- *    expect(fetch('http://google.com')),
- *    expect(fetch('http://nope.example')),
+ *    until(fetch('http://google.com')),
+ *    until(fetch('http://nope.example')),
  *   ]);
  *  // google => { ok: true, value: Response }
  *  // notASite => { ok: false, error: Error }
@@ -45,7 +45,7 @@ export function* allSettled<T extends readonly Operation<unknown>[] | []>(
 
 /**
  * This type allows you to infer heterogenous operation types.
- * e.g. `allSettled([sleep(0), expect(fetch("https://google.com"))])`
+ * e.g. `allSettled([sleep(0), until(fetch("https://google.com"))])`
  * will have a type of `Operation<[Result<void>, Result<Request>]>`
  */
 type AllSettled<T extends readonly Operation<unknown>[] | []> = {

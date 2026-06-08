@@ -163,6 +163,19 @@ main(function *() {
 });
 ```
 
+If you need to wait for all operations to settle regardless of whether they
+succeed or fail, use [`allSettled()`][allSettled] instead. Unlike `all()`,
+`allSettled()` never short-circuits on error — each result is represented as
+[`Result<T>`][result]: `{ ok: true, value }` or `{ ok: false, error }`.
+
+``` javascript
+import { allSettled, main } from 'effection';
+
+main(function *() {
+  let [dayUS, daySweden] = yield* allSettled([fetchWeekDay('est'), fetchWeekDay('cet')]);
+});
+```
+
 ## Spawning in a Scope
 
 The `spawn()` operation always runs its operation as a child of the current
@@ -207,4 +220,6 @@ You can learn more about this in the [scope guide](./scope).
 [sc-for-js]: /blog/2026-02-06-structured-concurrency-for-javascript
 [express]: https://expressjs.org
 [scope.run]: /api/v4/Scope
+[allSettled]: /api/v4/allSettled
+[result]: /api/v4/Result
 [Operation]: /api/v4/Operation

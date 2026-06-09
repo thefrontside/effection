@@ -1,7 +1,13 @@
 import { run } from "../mod.ts";
 import { createApi } from "../experimental.ts";
 import { constant } from "../lib/constant.ts";
-import { type Operation, spawn } from "../lib/mod.ts";
+import {
+  type Operation,
+  resource,
+  scoped,
+  spawn,
+  useScope,
+} from "../lib/mod.ts";
 import { describe, expect, it } from "./suite.ts";
 
 describe("api", () => {
@@ -154,11 +160,14 @@ describe("api", () => {
   });
 
   it("applies outer scope maxima more maximally than inner scopes maxima", async () => {
-    let api = createApi("test", {
-      *test(order: string[]): Operation<string[]> {
-        return order;
-      },
-    });
+    let api = createApi(
+      "test",
+      {
+        *test(order: string[]): Operation<string[]> {
+          return order;
+        },
+      } as const,
+    );
 
     await run(function* outer() {
       yield* api.around({
@@ -205,6 +214,212 @@ describe("api", () => {
         "/innermax",
         "/outermax",
       ]);
+    });
+  });
+
+  it("propagates new ancestor middleware to existing child scopes", async () => {
+    let api = createApi("test", {
+      *num(value: number): Operation<number> {
+        return value;
+      },
+    });
+
+    await run(function* () {
+      let nummer = yield* resource<{ num(): Operation<number> }>(
+        function* (provide) {
+          let scope = yield* useScope();
+          yield* provide({
+            *num() {
+              return yield* scope.run(() => api.operations.num(5));
+            },
+          });
+        },
+      );
+
+      yield* api.around({
+        *num(args, next) {
+          return (yield* next(...args)) * 2;
+        },
+      });
+
+      expect(yield* nummer.num()).toEqual(10);
+    });
+  });
+
+  it("propagates new ancestor middleware to existing child scopes that also have middleware", async () => {
+    let api = createApi("test", {
+      *test(order: string[]): Operation<string[]> {
+        return order;
+      },
+    });
+
+    await run(function* () {
+      let tester = yield* resource<{ test(): Operation<string[]> }>(
+        function* (provide) {
+          let scope = yield* useScope();
+          yield* api.around({
+            *test(args, next) {
+              let [input] = args;
+              let output = yield* next(input.concat("child"));
+              return output.concat("/child");
+            },
+          });
+          yield* provide({
+            *test() {
+              return yield* scope.run(() => api.operations.test([]));
+            },
+          });
+        },
+      );
+
+      yield* api.around({
+        *test(args, next) {
+          let [input] = args;
+          let output = yield* next(input.concat("parent"));
+          return output.concat("/parent");
+        },
+      });
+
+      expect(yield* tester.test()).toEqual([
+        "parent",
+        "child",
+        "/child",
+        "/parent",
+      ]);
+    });
+  });
+
+  it("isolates sibling scopes from each other's middleware", async () => {
+    let api = createApi("test", {
+      *test(order: string[]): Operation<string[]> {
+        return order;
+      },
+    });
+
+    function sibling(label: string) {
+      return resource<{ test(): Operation<string[]> }>(function* (provide) {
+        let scope = yield* useScope();
+        yield* api.around({
+          *test(args, next) {
+            let [input] = args;
+            return (yield* next(input.concat(label))).concat(`/${label}`);
+          },
+        });
+        yield* provide({
+          *test() {
+            return yield* scope.run(() => api.operations.test([]));
+          },
+        });
+      });
+    }
+
+    await run(function* () {
+      let a = yield* sibling("a");
+      let b = yield* sibling("b");
+
+      expect(yield* a.test()).toEqual(["a", "/a"]);
+      expect(yield* b.test()).toEqual(["b", "/b"]);
+      expect(yield* api.operations.test([])).toEqual([]);
+    });
+  });
+
+  it("composes middleware across a three-level scope tree", async () => {
+    let api = createApi("test", {
+      *test(order: string[]): Operation<string[]> {
+        return order;
+      },
+    });
+
+    function layer(label: string) {
+      return resource<{ test(): Operation<string[]> }>(function* (provide) {
+        let scope = yield* useScope();
+        yield* api.around({
+          *test(args, next) {
+            let [input] = args;
+            return (yield* next(input.concat(label))).concat(`/${label}`);
+          },
+        });
+        yield* provide({
+          *test() {
+            return yield* scope.run(() => api.operations.test([]));
+          },
+        });
+      });
+    }
+
+    await run(function* () {
+      yield* api.around({
+        *test(args, next) {
+          let [input] = args;
+          return (yield* next(input.concat("grand"))).concat("/grand");
+        },
+      });
+
+      let leaf = yield* resource<{ test(): Operation<string[]> }>(
+        function* (provide) {
+          yield* api.around({
+            *test(args, next) {
+              let [input] = args;
+              return (yield* next(input.concat("parent"))).concat("/parent");
+            },
+          });
+          let child = yield* layer("child");
+          yield* provide(child);
+        },
+      );
+
+      expect(yield* leaf.test()).toEqual([
+        "grand",
+        "parent",
+        "child",
+        "/child",
+        "/parent",
+        "/grand",
+      ]);
+    });
+  });
+
+  it("does not affect un-aroundified keys when middleware is installed for a different key", async () => {
+    let api = createApi("test", {
+      *foo(): Operation<number> {
+        return 1;
+      },
+      *bar(): Operation<number> {
+        return 1;
+      },
+    });
+
+    await run(function* () {
+      yield* api.around({
+        *foo(args, next) {
+          return (yield* next(...args)) * 100;
+        },
+      });
+
+      expect(yield* api.operations.foo()).toEqual(100);
+      expect(yield* api.operations.bar()).toEqual(1);
+    });
+  });
+
+  it("does not leak middleware from a finished child scope back to its parent", async () => {
+    let api = createApi("test", {
+      *num(value: number): Operation<number> {
+        return value;
+      },
+    });
+
+    await run(function* () {
+      let result = yield* scoped(function* () {
+        yield* api.around({
+          *num(args, next) {
+            return (yield* next(...args)) * 2;
+          },
+        });
+        return yield* api.operations.num(5);
+      });
+
+      expect(result).toEqual(10);
+      expect(yield* api.operations.num(5)).toEqual(5);
     });
   });
 });

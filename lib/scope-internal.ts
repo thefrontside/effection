@@ -1,4 +1,4 @@
-import type { ApiInternal } from "./api-internal.ts";
+import { type ApiInternal, decorateApi } from "./api-internal.ts";
 import { api as effection } from "./api.ts";
 import { Children, Priority } from "./contexts.ts";
 import { createFuture } from "./future.ts";
@@ -71,50 +71,16 @@ export function buildScopeInternal(
         },
       };
     },
-
     around<A extends {}>(
       api: ApiInternal<A>,
       ...params: Parameters<ApiInternal<A>["around"]>
     ) {
-      let [around, options] = params;
-      if (!scope.hasOwn(api.context)) {
-        scope.set(api.context, { min: [], max: [] });
-      }
-
-      let { min, max } = scope.expect(api.context);
-
-      if (options?.at === "min") {
-        min.push(around);
-      } else {
-        max.push(around);
-      }
-
-      api.invalidate(scope);
+      decorateApi(scope, api, ...params);
     },
 
     ensure(op: () => Operation<void>): () => void {
       destructors.add(op);
       return () => destructors.delete(op);
-    },
-
-    reduce<T, S>(
-      context: Context<T>,
-      fn: (sum: S, item: T) => S,
-      initial: S,
-    ): S {
-      let sum = initial;
-      let current = contexts;
-      while (current) {
-        if (Object.hasOwn(current, context.name)) {
-          let item = current[context.name] as T;
-          if (item) {
-            sum = fn(sum, item);
-          }
-        }
-
-        current = Object.getPrototypeOf(current);
-      }
-      return sum;
     },
   });
 

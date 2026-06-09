@@ -9,18 +9,16 @@ import type {
   Operation,
   Scope,
 } from "./types.ts";
-import type { ScopeInternal } from "./scope-internal.ts";
 import { Children } from "./contexts.ts";
 import { Ok } from "./result.ts";
 
 export interface ApiInternal<A> extends Api<A> {
   context: Context<{
-    max: Partial<Around<A>>[];
-    min: Partial<Around<A>>[];
+    local: Decorator<A>;
+    total: Decorator<A>;
+    handle: A;
   }>;
   core: A;
-  cache: WeakMap<Scope, A>;
-  invalidate(scope: Scope): void;
 }
 
 export function createApiInternal<A extends {}>(
@@ -31,27 +29,13 @@ export function createApiInternal<A extends {}>(
 
   let context = createContext(`api::${name}`) as ApiInternal<A>["context"];
 
-  let cache = new WeakMap<Scope, A>();
-
   let api: ApiInternal<A> = {
     core,
     context,
-    cache,
-    invalidate(scope: Scope) {
-      cache.delete(scope);
-      let children = scope.get(Children);
-      if (children) {
-        for (let child of children) {
-          api.invalidate(child);
-        }
-      }
-    },
+
     invoke: (scope, key, args) => {
-      let handle = cache.get(scope);
-      if (!handle) {
-        handle = createHandle(api, scope as ScopeInternal);
-        cache.set(scope, handle);
-      }
+      let handle = scope.get(api.context)?.handle ?? core;
+
       let member = handle[key];
       if (typeof member === "function") {
         return member(...args);
@@ -62,7 +46,7 @@ export function createApiInternal<A extends {}>(
     around: (decorator, options = { at: "max" }) => ({
       *[Symbol.iterator]() {
         let scope = (yield GetScope) as Scope;
-        scope.around(api, decorator, options);
+        decorateApi(scope, api, decorator, options);
       },
     }),
     operations: fields.reduce((sum, field) => {
@@ -93,50 +77,107 @@ export function createApiInternal<A extends {}>(
   return api;
 }
 
-function createHandle<A extends {}>(
+export function decorateApi<A>(
+  scope: Scope,
   api: ApiInternal<A>,
-  scope: ScopeInternal,
-): A {
-  // there is no middleware at all for this api, so the handle _is_ the core.
-  if (!scope.get(api.context)) {
-    return api.core;
+  decorator: Partial<Around<A>>,
+  options?: {
+    at: "min" | "max";
+  },
+) {
+  // read existing total and local
+  let current = scope.get(api.context) ?? { total: {}, local: {} };
+
+  let local = decorate(current.local, {
+    [options?.at ?? "max"]: decorator,
+  });
+
+  if (!scope.hasOwn(api.context)) {
+    scope.set(api.context, {
+      local,
+      total: current.total,
+      handle: api.core,
+    });
+  } else {
+    current.local = local;
   }
 
-  let handle = Object.create(api.core);
+  install(scope, api, current.total);
+}
 
-  for (let key of Object.keys(api.core) as Array<keyof A>) {
-    let { min, max } = scope.reduce(api.context, (sum, current) => {
-      let min = current.min.flatMap((around) =>
-        around[key] ? [around[key]] : []
-      );
-      let max = current.max.flatMap((around) =>
-        around[key] ? [around[key]] : []
-      );
+function decorate<A>(base: Decorator<A>, next: Decorator<A>): Decorator<A> {
+  return {
+    max: base.max ? next.max ? append(base.max, next.max) : base.max : next.max,
+    min: next.min ? base.min ? append(next.min, base.min) : next.min : base.min,
+  };
+}
 
-      sum.min.push(...min);
-      sum.max.unshift(...max);
-
-      return sum;
-    }, {
-      min: [] as Around<A>[typeof key][],
-      max: [] as Around<A>[typeof key][],
-    });
-
-    let stack = combine(max.concat(min) as Middleware<unknown[], unknown>[]);
-
-    if (typeof api.core[key] === "function") {
-      handle[key] = (...args: unknown[]) =>
-        stack(args, api.core[key] as (...args: unknown[]) => unknown);
+function append<A>(
+  outer: Partial<Around<A>>,
+  inner: Partial<Around<A>>,
+): Partial<Around<A>> {
+  let result: Partial<Around<A>> = { ...outer };
+  for (let key of Object.keys(inner) as (keyof A)[]) {
+    let current = outer[key];
+    let decoration = inner[key];
+    if (!current) {
+      result[key] = decoration;
     } else {
-      Object.defineProperty(handle, key, {
-        enumerable: true,
-        get() {
-          return stack([], () => api.core[key]);
-        },
-      });
+      let pair = [current, decoration] as Middleware<unknown[], unknown>[];
+      result[key] = combine(pair) as Around<A>[keyof A];
     }
   }
+  return result;
+}
 
+function install<A>(
+  scope: Scope,
+  api: ApiInternal<A>,
+  total: Decorator<A>,
+): void {
+  if (scope.hasOwn(api.context)) {
+    let context = scope.expect(api.context);
+
+    context.total = total;
+
+    total = decorate(context.total, context.local);
+
+    context.handle = createApiHandle(total, api.core);
+  }
+
+  for (let child of scope.expect(Children)) {
+    install(child, api, total);
+  }
+}
+
+function createApiHandle<A>(decoration: Decorator<A>, core: A): A {
+  let around = decoration.max
+    ? decoration.min ? append(decoration.max, decoration.min) : decoration.max
+    : decoration.min;
+  if (!around) {
+    return core;
+  }
+  let handle: A = {} as A;
+  for (let key of Object.keys(core as object) as Array<keyof A>) {
+    let middleware = around[key] as Middleware<unknown[], unknown> | undefined;
+    if (middleware) {
+      if (typeof core[key] === "function") {
+        handle[key] = ((...args: unknown[]) =>
+          middleware(args, core[key] as (...args: unknown[]) => unknown)) as A[
+            keyof A
+          ];
+      } else {
+        Object.defineProperty(handle, key, {
+          enumerable: true,
+          get() {
+            return middleware([], () => core[key]);
+          },
+        });
+      }
+    } else {
+      handle[key] = core[key];
+    }
+  }
   return handle;
 }
 
@@ -163,6 +204,11 @@ function combine<TArgs extends unknown[], TReturn>(
   return middlewares.reduceRight((sum, middleware) => (args, next) =>
     middleware(args, (...args) => sum(args, next))
   );
+}
+
+interface Decorator<A> {
+  min?: Partial<Around<A>>;
+  max?: Partial<Around<A>>;
 }
 
 const GetScope: Effect<Scope> = {

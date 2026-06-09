@@ -28,7 +28,9 @@ export const api: Apis = {
     create() {
       throw new TypeError(`no handler for Scope.create()`);
     },
-    *destroy() {},
+    destroy(scope) {
+      return (scope as ScopeInternal).destroy();
+    },
     set(scope, context, value) {
       return (scope as ScopeInternal).contexts[context.name] = value;
     },

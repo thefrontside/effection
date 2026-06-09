@@ -33,6 +33,10 @@ export function buildScopeInternal(
 ): [ScopeInternal, () => Operation<void>] {
   let destructors = new Set<() => Operation<void>>();
   let destruction = createFuture<void>();
+  let signaled = false;
+  let unbind = parent
+    ? (parent as ScopeInternal).ensure(() => destroy())
+    : () => {};
 
   let contexts: Record<string, unknown> = Object.create(
     parent ? (parent as ScopeInternal).contexts : null,
@@ -82,21 +86,12 @@ export function buildScopeInternal(
       destructors.add(op);
       return () => destructors.delete(op);
     },
-  });
 
-  scope.set(Priority, scope.expect(Priority) + 1);
-  scope.set(Children, new Set());
-  parent?.expect(Children).add(scope);
-
-  let destroy = () => api.invoke(scope, "destroy", [scope]);
-  let unbind = parent
-    ? (parent as ScopeInternal).ensure(() => destroy())
-    : () => {};
-
-  scope.around(api, {
     *destroy(): Operation<void> {
-      destroy = () => destruction.future;
-
+      if (signaled) {
+        return yield* destruction.future;
+      }
+      signaled = true;
       parent?.expect(Children).delete(scope);
       unbind();
       let outcome = Ok();
@@ -122,17 +117,19 @@ export function buildScopeInternal(
 
       unbox(outcome);
     },
-  }, { at: "min" });
+  });
 
-  return [scope, () => destroy()];
+  scope.set(Priority, scope.expect(Priority) + 1);
+  scope.set(Children, new Set());
+  parent?.expect(Children).add(scope);
+
+  let destroy = () => api.invoke(scope, "destroy", [scope]);
+
+  return [scope, destroy];
 }
 
 export interface ScopeInternal extends Scope, AsyncDisposable {
   contexts: Record<string, unknown>;
   ensure(op: () => Operation<void>): () => void;
-  reduce<T, TSum>(
-    context: Context<T>,
-    fn: (sum: TSum, item: T) => TSum,
-    initial: TSum,
-  ): TSum;
+  destroy(): Operation<void>;
 }

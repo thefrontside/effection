@@ -1,28 +1,6 @@
 import { call } from "./call.ts";
 import { resource } from "./resource.ts";
-
-type DisposableLike = {
-  [Symbol.dispose]?(): void;
-  [Symbol.asyncDispose]?(): PromiseLike<void> | void;
-};
-
-function getDisposer(value: DisposableLike): () => PromiseLike<void> | void {
-  let asyncDispose = value[Symbol.asyncDispose];
-
-  if (typeof asyncDispose === "function") {
-    return asyncDispose.bind(value);
-  }
-
-  let dispose = value[Symbol.dispose];
-
-  if (typeof dispose === "function") {
-    return dispose.bind(value);
-  }
-
-  throw new TypeError(
-    "using() value must implement Symbol.dispose or Symbol.asyncDispose",
-  );
-}
+import type { Operation } from "./types.ts";
 
 /**
  * Bind a JavaScript disposable value to the current Effection scope.
@@ -47,14 +25,26 @@ function getDisposer(value: DisposableLike): () => PromiseLike<void> | void {
  * });
  * ```
  */
-export function* using<T extends Disposable | AsyncDisposable>(value: T) {
-  let disposer = getDisposer(value);
+export function* using<T extends Disposable | AsyncDisposable>(
+  value: T,
+): Operation<T> {
+  let dispose = Symbol.asyncDispose in value
+    ? value[Symbol.asyncDispose]
+    : Symbol.dispose in value
+    ? value[Symbol.dispose]
+    : undefined;
+
+  if (!dispose) {
+    throw new TypeError(
+      "using() value must implement Symbol.dispose or Symbol.asyncDispose",
+    );
+  }
 
   return yield* resource<T>(function* (provide) {
     try {
       yield* provide(value);
     } finally {
-      yield* call(() => disposer.call(value));
+      yield* call(() => dispose.call(value));
     }
   });
 }

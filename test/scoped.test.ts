@@ -1,12 +1,15 @@
 import { box } from "../lib/box.ts";
+import { callcc } from "../lib/callcc.ts";
 import {
   createContext,
+  race,
   resource,
   run,
   scoped,
   sleep,
   spawn,
   suspend,
+  useScope,
 } from "../mod.ts";
 import { describe, expect, it } from "./suite.ts";
 
@@ -177,5 +180,64 @@ describe("scoped", () => {
     });
 
     await expect(task).rejects.toMatchObject({ message: "boom!" });
+  });
+
+  // regression for https://github.com/thefrontside/effection/issues/1185:
+  // externally resolving a callcc must unwind a scoped() + race() body and
+  // stop the surrounding loop instead of continuing to the next iteration.
+  it("propagates halt out of a scoped() + race() loop when callcc resolves externally", async () => {
+    let events: string[] = [];
+    let triggerShutdown!: () => void;
+
+    let task = run(function* () {
+      return yield* callcc<{ status: number }>(function* (resolve) {
+        let scope = yield* useScope();
+
+        triggerShutdown = () => {
+          scope.run(() => resolve({ status: 130 }));
+        };
+
+        for (let round of [1, 2, 3]) {
+          events.push(`round-${round}-start`);
+
+          yield* scoped(function* () {
+            events.push(`round-${round}-resource`);
+            try {
+              for (let step of [1, 2, 3]) {
+                // both candidates sleep so neither can resolve before the
+                // synchronous triggerShutdown() below; duration only bounds
+                // how fast a regression (no halt) fails.
+                let result = yield* race([
+                  (function* () {
+                    yield* sleep(10);
+                    return "timeout";
+                  })(),
+                  (function* () {
+                    yield* sleep(10);
+                    return `step-${step}`;
+                  })(),
+                ]);
+                events.push(`step-${step}-result: ${result}`);
+              }
+            } finally {
+              events.push(`round-${round}-teardown`);
+            }
+          });
+
+          events.push(`round-${round}-complete`);
+        }
+      });
+    });
+
+    // round 1 is now suspended inside race(); halt it from the outside.
+    triggerShutdown();
+
+    await expect(task).resolves.toEqual({ status: 130 });
+
+    expect(events).toEqual([
+      "round-1-start",
+      "round-1-resource",
+      "round-1-teardown",
+    ]);
   });
 });

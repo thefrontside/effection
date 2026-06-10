@@ -1,0 +1,15 @@
+# This file lives at the package root (inline/.cargo), not next to the crate
+# (inline/swc), because `build:bundle` runs cargo from inline/ with
+# `--manifest-path swc/Cargo.toml`, and cargo discovers config relative to the
+# working directory. Placed under swc/ these rustflags would be silently ignored.
+#
+# Required for backward compatibility with @swc/core >= 1.15.0.
+# Enables the Unknown variant on AST enums so the plugin can handle
+# node types introduced in newer SWC versions.
+#
+# --allow-undefined keeps the SWC host-ABI symbols (__emit_diagnostics,
+# *_proxy, __set_transform_result, …) as wasm imports resolved by the plugin
+# host at runtime. Newer rust-lld/wasm-ld no longer leaves undefined symbols as
+# imports by default, so without this the release link fails for the plugin.
+[target.'cfg(target_arch = "wasm32")']
+rustflags = ["--cfg=swc_ast_unknown", "-C", "link-arg=--allow-undefined"]

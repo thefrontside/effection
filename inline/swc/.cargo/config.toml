@@ -1,5 +1,0 @@
-# Required for backward compatibility with @swc/core >= 1.15.0.
-# Enables the Unknown variant on AST enums so the plugin can handle
-# node types introduced in newer SWC versions.
-[target.'cfg(target_arch = "wasm32")']
-rustflags = ["--cfg=swc_ast_unknown"]

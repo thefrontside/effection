@@ -178,4 +178,21 @@ describe("scoped", () => {
 
     await expect(task).rejects.toMatchObject({ message: "boom!" });
   });
+
+  it("does not execute code after scoped() when halted during async teardown", async () => {
+    let leaked = false;
+    let task = run(function* () {
+      yield* scoped(function* () {
+        yield* spawn(function* () {
+          yield* sleep(5000);
+        });
+        yield* suspend();
+      });
+      leaked = true;
+    });
+
+    await task.halt();
+
+    expect(leaked).toBe(false);
+  });
 });

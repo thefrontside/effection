@@ -1,12 +1,16 @@
 import { box } from "../lib/box.ts";
 import {
+  action,
   createContext,
+  race,
   resource,
   run,
   scoped,
   sleep,
   spawn,
   suspend,
+  type Operation,
+  useScope,
 } from "../mod.ts";
 import { describe, expect, it } from "./suite.ts";
 
@@ -194,5 +198,107 @@ describe("scoped", () => {
     await task.halt();
 
     expect(leaked).toBe(false);
+  });
+
+  it("does not advance loop after external resolve with nested scoped + race", async () => {
+    let events: string[] = [];
+
+    function* scopedAction<T>(
+      op: (
+        resolve: (value: T) => void,
+        reject: (error: Error) => void,
+      ) => Operation<void>,
+    ): Operation<T> {
+      let scope = yield* useScope();
+      return yield* action((resolve, reject) => {
+        let task = scope.run(() => scoped(() => op(resolve, reject)));
+        return () => task.halt();
+      });
+    }
+
+    let task = run(function* () {
+      return yield* scopedAction<{ status: number }>(function* (resolve) {
+        let scope = yield* useScope();
+        for (let round of [1, 2]) {
+          events.push(`round-${round}-start`);
+
+          let result = yield* scoped(function* () {
+            yield* scoped(function* () {
+              yield* race([
+                (function* () {
+                  yield* sleep(5000);
+                  return "timeout";
+                })(),
+                (function* () {
+                  yield* sleep(50);
+                  return "step";
+                })(),
+              ]);
+            });
+
+            if (round === 1) {
+              return { passed: false };
+            }
+
+            return { passed: true };
+          });
+
+          events.push(`round-${round}-result:${result.passed}`);
+
+          if (!result.passed) {
+            events.push("round-failed-trigger-shutdown");
+            scope.run(function* () {
+              resolve({ status: 130 });
+            });
+          }
+        }
+
+        resolve({ status: 0 });
+      });
+    });
+
+    await task;
+
+    expect(events).toContain("round-failed-trigger-shutdown");
+    expect(events).not.toContain("round-2-start");
+  });
+
+  it("does not advance loop after external resolve in minimal action baseline", async () => {
+    let events: string[] = [];
+
+    function* scopedAction<T>(
+      op: (
+        resolve: (value: T) => void,
+        reject: (error: Error) => void,
+      ) => Operation<void>,
+    ): Operation<T> {
+      let scope = yield* useScope();
+      return yield* action((resolve, reject) => {
+        let task = scope.run(() => op(resolve, reject));
+        return () => task.halt();
+      });
+    }
+
+    let task = run(function* () {
+      return yield* scopedAction<{ status: number }>(function* (resolve) {
+        let scope = yield* useScope();
+        for (let round of [1, 2]) {
+          events.push(`round-${round}-start`);
+          yield* sleep(10);
+          if (round === 1) {
+            events.push("round-failed-trigger-shutdown");
+            scope.run(function* () {
+              resolve({ status: 130 });
+            });
+          }
+        }
+        resolve({ status: 0 });
+      });
+    });
+
+    await task;
+
+    expect(events).toContain("round-failed-trigger-shutdown");
+    expect(events).not.toContain("round-2-start");
   });
 });

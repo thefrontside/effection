@@ -1,7 +1,7 @@
 {
   "name": "@effectionx/signals",
   "description": "Reactive signals and computed values for Effection operations",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "keywords": ["reactivity"],
   "type": "module",
   "main": "./dist/mod.js",
@@ -31,6 +31,7 @@
   },
   "sideEffects": false,
   "devDependencies": {
+    "@effectionx/timebox": "workspace:*",
     "@effectionx/vitest": "workspace:*",
     "effection": "^4"
   }

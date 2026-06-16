@@ -102,6 +102,12 @@ matches the predicate. It's useful when you want to wait for a signal to enter a
 specific state. Some of the common use cases are waiting for an array to reach a
 given length or for a boolean signal to become true or false.
 
+`is` observes the signal's current state as well as any matching change, so it
+completes deterministically without the producer having to `yield` or `sleep`
+before publishing. It establishes its subscription before checking the current
+value, so a matching update that lands while it is starting to wait is never
+lost.
+
 ```ts
 import { run, spawn } from "effection";
 import { createBooleanSignal, is } from "@effectionx/signals";
@@ -114,6 +120,7 @@ await run(function* () {
     console.log("floodgates are open!");
   });
 
+  // No sleep or yield needed before publishing.
   open.set(true);
 });
 ```

@@ -60,7 +60,7 @@ it("processes items concurrently", function* () {
 From `signals/helpers.test.ts`:
 
 ```typescript
-import { sleep, spawn, withResolvers } from "effection";
+import { spawn, withResolvers } from "effection";
 import { createBooleanSignal, is } from "@effectionx/signals";
 
 it("waits until the value of the stream matches the predicate", function* () {
@@ -76,7 +76,7 @@ it("waits until the value of the stream matches the predicate", function* () {
   });
 
   yield* spawn(function* () {
-    yield* sleep(1);
+    // is() observes the change deterministically; no sleep needed first.
     open.set(true);
   });
 
@@ -115,10 +115,12 @@ it("resolves when the assertion passes within the timeout", function* () {
 
 ### Compliant: is() with signals for state changes
 
-From `stream-helpers/test-helpers/faucet.test.ts`:
+Wait for a signal to reach a target state with `is()`. The producer publishes
+immediately — `is()` observes the matching change deterministically, so no
+`sleep()` is required to "give the consumer time to subscribe":
 
 ```typescript
-import { each, sleep, spawn } from "effection";
+import { each, spawn } from "effection";
 import { createArraySignal, is } from "@effectionx/signals";
 import { useFaucet } from "@effectionx/stream-helpers";
 
@@ -134,7 +136,6 @@ it("creates a faucet that can pour items", function* () {
   });
 
   yield* spawn(function* () {
-    yield* sleep(1);
     yield* faucet.pour([1, 2, 3]);
   });
 

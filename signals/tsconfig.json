@@ -8,6 +8,9 @@
   "exclude": ["**/*.test.ts", "dist"],
   "references": [
     {
+      "path": "../timebox"
+    },
+    {
       "path": "../vitest"
     }
   ]

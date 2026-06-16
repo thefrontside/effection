@@ -1,7 +1,7 @@
 {
   "name": "@effectionx/stream-helpers",
   "description": "Type-safe stream operators like filter, map, reduce, and forEach",
-  "version": "0.8.2",
+  "version": "0.8.3",
   "keywords": ["streams"],
   "type": "module",
   "main": "./dist/mod.js",

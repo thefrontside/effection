@@ -94,8 +94,7 @@
       />
     </filter>
 
-    <style>
-    /* ---- Font stacks ---- */
+    <style>/* ---- Font stacks ---- */
     .svg-title {
       font-family:
         ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
@@ -636,8 +635,7 @@
         opacity: 0;
         animation: none;
       }
-    }
-    </style>
+    }</style>
   </defs>
 
   <!-- ======== BACKGROUND ======== -->

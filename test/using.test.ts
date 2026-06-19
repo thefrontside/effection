@@ -123,7 +123,7 @@ class DelayedAsyncResource {
   async [Symbol.asyncDispose]() {
     this.disposeStarted = true;
 
-    let id: number | undefined;
+    let id: ReturnType<typeof setTimeout> | undefined;
 
     try {
       await new Promise<void>((resolve) => {

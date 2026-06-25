@@ -125,6 +125,23 @@ export const SettleContext = createContext<Settleware>(
   (outcome, next) => next(outcome),
 );
 
+/**
+ * Prevents `operation` from being interrupted by unwind, ensuring teardown runs
+ * to completion. Use this inside a `finally` block when teardown needs
+ * multiple steps before the coroutine can exit.
+ *
+ * @example
+ * ```ts
+ * try {
+ *   yield* something();
+ * } finally {
+ *   yield* critical(function* () {
+ *     releaseLock();
+ *     yield* closeHandle();
+ *   });
+ * }
+ * ```
+ */
 export function* critical<T>(operation: () => Operation<T>): Operation<T> {
   let routine = yield* useCoroutine();
   let original = routine.data.critical;

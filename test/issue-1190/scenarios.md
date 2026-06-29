@@ -33,8 +33,8 @@ already prevent that resurrection.
 12. Parent to middle to child, where middle also has async `finally`.
 13. Parent to middle to child, where child has async `finally`, middle has
     synchronous `finally`.
-14. Parent to middle to child, where child completes cleanup but middle has code
-    after `yield* child()`.
+14. Removed as redundant with scenario 13: the middle continuation after
+    `yield* child()` is already observed there.
 15. Parent to middle to child, where both middle and parent have code after
     delegation.
 

@@ -2,7 +2,7 @@ import { expect } from "@std/expect";
 import { run, sleep, suspend } from "../../mod.ts";
 
 Deno.test(
-  "scenario 002: halt does not resume after delegated async finally",
+  "scenario 003: halt does not resume and continue yielding after delegated async finally",
   async () => {
     let events: string[] = [];
 
@@ -21,6 +21,8 @@ Deno.test(
     let task = run(function* () {
       yield* child();
       events.push("parent:after-child");
+      yield* sleep(0);
+      events.push("parent:after-yield");
     });
 
     await task.halt();

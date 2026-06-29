@@ -23,8 +23,8 @@ already prevent that resurrection.
    characterize whether it suppresses the `"halted"` outcome.)
 8. Same as 2, but child throws from `finally`.
 9. Same as 2, but child `finally` yields twice before completing.
-10. Same as 2, but child `finally` yields, then runs synchronous cleanup after
-    the yield.
+10. Removed as redundant with scenario 2: post-yield synchronous cleanup is
+    already represented by the event pushed after `yield* sleep(0)`.
 
 ## Nested Delegation Depth
 

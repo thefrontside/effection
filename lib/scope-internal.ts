@@ -5,6 +5,54 @@ import { createTask } from "./task.ts";
 
 import type { Context, Operation, Scope, Task } from "./types.ts";
 
+// Shared prototype so all scope instances have the same hidden class,
+// avoiding deoptimization when V8 encounters differently-shaped scope objects.
+const scopePrototype = {
+  [Symbol.toStringTag]: "Scope",
+  get<T>(this: ScopeInternal, context: Context<T>): T | undefined {
+    return (this.contexts[context.name] ?? context.defaultValue) as
+      | T
+      | undefined;
+  },
+  set<T>(this: ScopeInternal, context: Context<T>, value: T): T {
+    return this.contexts[context.name] = value;
+  },
+  expect<T>(this: ScopeInternal, context: Context<T>): T {
+    let value = this.get(context);
+    if (typeof value === "undefined") {
+      let error = new Error(context.name);
+      error.name = `MissingContextError`;
+      throw error;
+    }
+    return value;
+  },
+  delete<T>(this: ScopeInternal, context: Context<T>): boolean {
+    return delete this.contexts[context.name];
+  },
+  hasOwn<T>(this: ScopeInternal, context: Context<T>): boolean {
+    return !!Reflect.getOwnPropertyDescriptor(this.contexts, context.name);
+  },
+  run<T>(this: ScopeInternal, operation: () => Operation<T>): Task<T> {
+    return createTask({ owner: this, operation });
+  },
+  spawn<T>(
+    this: ScopeInternal,
+    operation: () => Operation<T>,
+  ): Operation<Task<T>> {
+    // deno-lint-ignore no-this-alias
+    let owner = this;
+    return {
+      *[Symbol.iterator]() {
+        return createTask({ owner, operation });
+      },
+    };
+  },
+  ensure(this: ScopeInternal, op: () => Operation<void>): () => void {
+    this.destructors.add(op);
+    return () => this.destructors.delete(op);
+  },
+};
+
 export function createScopeInternal(
   parent?: Scope,
 ): [ScopeInternal, () => Operation<void>] {
@@ -14,46 +62,9 @@ export function createScopeInternal(
   let contexts: Record<string, unknown> = Object.create(
     parent ? (parent as ScopeInternal).contexts : null,
   );
-  let scope: ScopeInternal = Object.create({
-    [Symbol.toStringTag]: "Scope",
-    contexts,
-    get<T>(context: Context<T>): T | undefined {
-      return (contexts[context.name] ?? context.defaultValue) as T | undefined;
-    },
-    set<T>(context: Context<T>, value: T): T {
-      return contexts[context.name] = value;
-    },
-    expect<T>(context: Context<T>): T {
-      let value = scope.get(context);
-      if (typeof value === "undefined") {
-        let error = new Error(context.name);
-        error.name = `MissingContextError`;
-        throw error;
-      }
-      return value;
-    },
-    delete<T>(context: Context<T>): boolean {
-      return delete contexts[context.name];
-    },
-    hasOwn<T>(context: Context<T>): boolean {
-      return !!Reflect.getOwnPropertyDescriptor(contexts, context.name);
-    },
-    run<T>(operation: () => Operation<T>): Task<T> {
-      return createTask({ owner: scope, operation });
-    },
-    spawn<T>(operation: () => Operation<T>): Operation<Task<T>> {
-      return {
-        *[Symbol.iterator]() {
-          return createTask({ owner: scope, operation });
-        },
-      };
-    },
-
-    ensure(op: () => Operation<void>): () => void {
-      destructors.add(op);
-      return () => destructors.delete(op);
-    },
-  });
+  let scope: ScopeInternal = Object.create(scopePrototype);
+  scope.contexts = contexts;
+  scope.destructors = destructors;
 
   scope.set(Priority, scope.expect(Priority) + 1);
   scope.set(Children, new Set());
@@ -97,5 +108,6 @@ export function createScopeInternal(
 
 export interface ScopeInternal extends Scope, AsyncDisposable {
   contexts: Record<string, unknown>;
+  destructors: Set<() => Operation<void>>;
   ensure(op: () => Operation<void>): () => void;
 }

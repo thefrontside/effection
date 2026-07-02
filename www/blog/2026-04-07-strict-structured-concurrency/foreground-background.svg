@@ -114,7 +114,8 @@
       <path d="M 0 1 L 9 5 L 0 9 z" class="svg-ret-arrow-fill" />
     </marker>
 
-    <style>.svg-mono {
+    <style>
+    .svg-mono {
       font-family:
         ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
         "Liberation Mono", "Courier New", monospace;
@@ -346,7 +347,8 @@
       .svg-annotation {
         fill: #9ca3af;
       }
-    }</style>
+    }
+    </style>
   </defs>
 
   <!-- ======== BACKGROUND (transparent) ======== -->

@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- ✨ Add `using` helper for JS disposable resources #1115
+
 ## 4.0.3
 
 - ✨ Explicit Resource Management for Task and Scope #1073

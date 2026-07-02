@@ -152,7 +152,8 @@
       <rect x="0" y="0" width="920" height="630" />
     </clipPath>
 
-    <style>/* ---- Font stacks ---- */
+    <style>
+    /* ---- Font stacks ---- */
     .svg-title {
       font-family:
         ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
@@ -520,7 +521,8 @@
         animation: none;
         opacity: 1;
       }
-    }</style>
+    }
+    </style>
   </defs>
 
   <!-- ======== BACKGROUND ======== -->

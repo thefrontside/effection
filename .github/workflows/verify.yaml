@@ -23,7 +23,7 @@ jobs:
       - name: setup deno
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.x
+          deno-version: v2.9.1
 
       - name: format
         run: deno fmt --check
@@ -50,7 +50,7 @@ jobs:
       - name: setup deno
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.x
+          deno-version: v2.9.1
 
       - name: dry run publish
         run: deno publish --dry-run
@@ -65,7 +65,7 @@ jobs:
       - name: setup deno
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.x
+          deno-version: v2.9.1
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -95,7 +95,7 @@ jobs:
       - name: setup deno
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.x
+          deno-version: v2.9.1
 
       - name: Setup Node
         uses: actions/setup-node@v4

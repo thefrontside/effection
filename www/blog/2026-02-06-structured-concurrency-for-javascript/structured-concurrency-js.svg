@@ -133,7 +133,8 @@
       />
     </filter>
 
-    <style>/* ---- Font stacks ---- */
+    <style>
+    /* ---- Font stacks ---- */
     .svg-title {
       font-family:
         ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
@@ -410,7 +411,8 @@
       .svg-label-heading {
         fill: #f3f4f6;
       }
-    }</style>
+    }
+    </style>
   </defs>
 
   <!-- ======== BACKGROUND ======== -->

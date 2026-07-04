@@ -4,7 +4,7 @@ import { useConfig } from "../../context/config.ts";
 import { LocalDocPage } from "../../hooks/use-deno-doc.tsx";
 import { ResolveLinkFunction, useMarkdown } from "../../hooks/use-markdown.tsx";
 import { Package, usePackage } from "../../lib/package.ts";
-import { major } from "../../lib/semver.ts";
+import { gt, major } from "../../lib/semver.ts";
 import { createRootUrl } from "../../lib/links-resolvers.ts";
 import { SourceCodeIcon } from "../icons/source-code.tsx";
 import { GithubPill } from "../package/source-link.tsx";
@@ -82,18 +82,31 @@ export function* ApiPage({
         ),
         versionToggle: yield* (function* () {
           const { series } = yield* useConfig();
-          // Only show stable series in version toggle (no prereleases)
-          const stableSeries = series.filter((s) => !s.includePrerelease);
-          const currentSeries = `v${major(pkg.version)}`;
           const entrypoint = currentExperimental ? "./experimental" : ".";
           const suffix = currentExperimental ? "/experimental" : "";
 
+          // Toggle across every series that documents the current symbol:
+          // stable releases show their version (e.g. 3.6.1, 4.0.3), and the
+          // prerelease shows as "next" — but only when it's actually newer
+          // than its stable parent (otherwise there's nothing to switch to).
           const links = yield* all(
-            stableSeries.map(function* (s) {
+            series.map(function* (s) {
               const seriesPkg = yield* usePackage({
                 type: "worktree",
                 series: s.name,
               });
+
+              if (s.includePrerelease) {
+                const parent = series.find((p) => p.name === s.parent);
+                if (parent) {
+                  const parentPkg = yield* usePackage({
+                    type: "worktree",
+                    series: parent.name,
+                  });
+                  if (!gt(seriesPkg.version, parentPkg.version)) return null;
+                }
+              }
+
               const seriesDocs = yield* seriesPkg.docs();
               const hasSymbol = (seriesDocs[entrypoint] ?? []).some((node) =>
                 node.name === current
@@ -101,16 +114,19 @@ export function* ApiPage({
 
               if (!hasSymbol) return null;
 
+              const isCurrent = s.name === seriesName;
+              const label = s.includePrerelease ? "next" : seriesPkg.version;
+
               return (
                 <a
                   href={yield* createRootUrl(`api/${s.name}${suffix}`)(current)}
                   class={`text-base ${
-                    s.name === currentSeries
+                    isCurrent
                       ? "font-bold text-sky-500"
                       : "text-gray-600 dark:text-gray-400 hover:text-sky-500"
                   }`}
                 >
-                  {seriesPkg.version}
+                  {label}
                 </a>
               );
             }),

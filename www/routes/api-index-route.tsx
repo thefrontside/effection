@@ -35,12 +35,11 @@ export function apiIndexRoute(
       // Only show prerelease link if it's newer than stable
       let showV4Prerelease = gt(v4Next.version, v4.version);
 
-      // v4-next docs feed both the prerelease link and the experimental
-      // symbols (which are only exported from the prerelease's
-      // `./experimental` entrypoint).
+      // v4-next docs feed the "also available" prerelease link. The
+      // prerelease's own experimental APIs are surfaced when you click through
+      // to its symbol pages (their sidebar lists them, badged).
       let v4NextDocs = yield* v4Next.docs();
       let v4NextFirstSymbol = v4NextDocs?.["."]?.[0]?.name ?? "run";
-      let experimentalPages = v4NextDocs?.["./experimental"] ?? [];
 
       let docs = {
         v3: yield* v3.docs(),
@@ -87,8 +86,10 @@ export function apiIndexRoute(
                       experimental: false,
                     },
                     {
-                      pages: experimentalPages,
-                      linkResolver: createChildURL("v4-next/experimental"),
+                      // Experimental APIs for the stable release itself (empty
+                      // until a stable version exports `./experimental`).
+                      pages: docs.v4["./experimental"] ?? [],
+                      linkResolver: createChildURL("v4/experimental"),
                       experimental: true,
                     },
                   ],
@@ -113,6 +114,11 @@ export function apiIndexRoute(
                       pages: docs.v3["."],
                       linkResolver: createChildURL("v3"),
                       experimental: false,
+                    },
+                    {
+                      pages: docs.v3["./experimental"] ?? [],
+                      linkResolver: createChildURL("v3/experimental"),
+                      experimental: true,
                     },
                   ],
                 })}

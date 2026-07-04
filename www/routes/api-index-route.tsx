@@ -1,6 +1,6 @@
 import { type JSXElement } from "revolution";
 
-import { Icon } from "../components/type/icon.tsx";
+import { ExperimentalBadge, Icon } from "../components/type/icon.tsx";
 import { DocPage } from "../hooks/use-deno-doc.tsx";
 import { ResolveLinkFunction } from "../hooks/use-markdown.tsx";
 import { usePackage } from "../lib/package.ts";
@@ -35,9 +35,12 @@ export function apiIndexRoute(
       // Only show prerelease link if it's newer than stable
       let showV4Prerelease = gt(v4Next.version, v4.version);
 
-      // Get first symbol for prerelease link
-      let v4NextDocs = showV4Prerelease ? yield* v4Next.docs() : null;
+      // v4-next docs feed both the prerelease link and the experimental
+      // symbols (which are only exported from the prerelease's
+      // `./experimental` entrypoint).
+      let v4NextDocs = yield* v4Next.docs();
       let v4NextFirstSymbol = v4NextDocs?.["."]?.[0]?.name ?? "run";
+      let experimentalPages = v4NextDocs?.["./experimental"] ?? [];
 
       let docs = {
         v3: yield* v3.docs(),
@@ -77,8 +80,18 @@ export function apiIndexRoute(
               </h3>
               <ul class="columns-3 pl-0">
                 {yield* listPages({
-                  pages: docs.v4["."],
-                  linkResolver: createChildURL("v4"),
+                  groups: [
+                    {
+                      pages: docs.v4["."],
+                      linkResolver: createChildURL("v4"),
+                      experimental: false,
+                    },
+                    {
+                      pages: experimentalPages,
+                      linkResolver: createChildURL("v4-next/experimental"),
+                      experimental: true,
+                    },
+                  ],
                 })}
               </ul>
             </section>
@@ -95,8 +108,13 @@ export function apiIndexRoute(
               </h3>
               <ul class="columns-3 pl-0">
                 {yield* listPages({
-                  pages: docs.v3["."],
-                  linkResolver: createChildURL("v3"),
+                  groups: [
+                    {
+                      pages: docs.v3["."],
+                      linkResolver: createChildURL("v3"),
+                      experimental: false,
+                    },
+                  ],
                 })}
               </ul>
             </section>
@@ -107,23 +125,35 @@ export function apiIndexRoute(
   };
 }
 
-function* listPages({
-  pages,
-  linkResolver,
-}: {
+interface PageGroup {
   pages: DocPage[];
   linkResolver: ResolveLinkFunction;
-}) {
-  let elements = [];
+  experimental: boolean;
+}
 
-  for (let page of pages.sort((a, b) => a.name.localeCompare(b.name))) {
-    let link = yield* linkResolver(page.name);
+function* listPages({ groups }: { groups: PageGroup[] }) {
+  // Resolve links first (linkResolver is an Operation), then merge every
+  // group into a single alphabetically-sorted list so experimental symbols
+  // sit inline with stable ones, each carrying its own badge and link.
+  let items: Array<{ page: DocPage; link: string; experimental: boolean }> = [];
+  for (let group of groups) {
+    for (let page of group.pages) {
+      let link = yield* group.linkResolver(page.name);
+      items.push({ page, link, experimental: group.experimental });
+    }
+  }
+
+  items.sort((a, b) => a.page.name.localeCompare(b.page.name));
+
+  let elements = [];
+  for (let { page, link, experimental } of items) {
     elements.push(
       <li class="list-none pb-1">
         <a class="text-blue-700 dark:text-blue-400" href={link}>
           <Icon kind={page.kind} class="mr-2" />
           {page.name}
         </a>
+        {experimental ? <ExperimentalBadge class="ml-2" /> : ""}
       </li>,
     );
   }

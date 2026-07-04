@@ -1,31 +1,50 @@
-import { all } from "effection";
+import { all, type Operation } from "effection";
 import type { JSXElement } from "revolution";
 import { useConfig } from "../../context/config.ts";
 import { LocalDocPage } from "../../hooks/use-deno-doc.tsx";
 import { ResolveLinkFunction, useMarkdown } from "../../hooks/use-markdown.tsx";
 import { Package, usePackage } from "../../lib/package.ts";
 import { major } from "../../lib/semver.ts";
-import { createRootUrl, createSibling } from "../../lib/links-resolvers.ts";
+import { createRootUrl } from "../../lib/links-resolvers.ts";
 import { SourceCodeIcon } from "../icons/source-code.tsx";
 import { GithubPill } from "../package/source-link.tsx";
-import { Icon } from "../type/icon.tsx";
+import { ExperimentalBadge, Icon } from "../type/icon.tsx";
 import { Type } from "../type/jsx.tsx";
 import { Keyword } from "../type/tokens.tsx";
+
+/**
+ * Root-based URL for a symbol's doc page. Experimental symbols live under a
+ * `/experimental` segment, so linking cannot be relative to the current page
+ * (which would resolve into or out of the wrong namespace).
+ */
+function* pageHref(
+  seriesName: string,
+  page: LocalDocPage,
+): Operation<string> {
+  let base = page.experimental
+    ? `api/${seriesName}/experimental`
+    : `api/${seriesName}`;
+  return yield* createRootUrl(base)(page.name);
+}
 
 export function* ApiPage({
   pages,
   current,
+  currentExperimental = false,
+  seriesName,
   pkg,
-  externalLinkResolver,
   banner,
 }: {
   current: string;
+  currentExperimental?: boolean;
+  seriesName: string;
   pages: LocalDocPage[];
   pkg: Package;
   banner?: JSXElement;
-  externalLinkResolver: ResolveLinkFunction;
 }) {
-  const page = pages.find((node) => node.name === current);
+  const page = pages.find((node) =>
+    node.name === current && !!node.experimental === currentExperimental
+  );
 
   if (!page) throw new Error(`Could not find a doc page for ${current}`);
 
@@ -35,14 +54,12 @@ export function* ApiPage({
     method,
   ) {
     const target = pages &&
-      pages.find((page) => page.name === symbol && page.kind !== "import");
+      pages.find((page) => page.name === symbol);
 
     if (target) {
-      return `[${
-        [symbol, connector, method].join(
-          "",
-        )
-      }](${yield* externalLinkResolver(symbol, connector, method)})`;
+      let href = yield* pageHref(seriesName, target);
+      if (connector && method) href = `${href}#${method}`;
+      return `[${[symbol, connector, method].join("")}](${href})`;
     } else {
       return symbol;
     }
@@ -53,6 +70,8 @@ export function* ApiPage({
       {yield* ApiReference({
         pages,
         current,
+        currentExperimental,
+        seriesName,
         pkg,
         content: (
           <>
@@ -61,12 +80,13 @@ export function* ApiPage({
             {yield* ApiBody({ page, linkResolver })}
           </>
         ),
-        linkResolver: createSibling,
         versionToggle: yield* (function* () {
           const { series } = yield* useConfig();
           // Only show stable series in version toggle (no prereleases)
           const stableSeries = series.filter((s) => !s.includePrerelease);
           const currentSeries = `v${major(pkg.version)}`;
+          const entrypoint = currentExperimental ? "./experimental" : ".";
+          const suffix = currentExperimental ? "/experimental" : "";
 
           const links = yield* all(
             stableSeries.map(function* (s) {
@@ -75,7 +95,7 @@ export function* ApiPage({
                 series: s.name,
               });
               const seriesDocs = yield* seriesPkg.docs();
-              const hasSymbol = seriesDocs["."].some((node) =>
+              const hasSymbol = (seriesDocs[entrypoint] ?? []).some((node) =>
                 node.name === current
               );
 
@@ -83,7 +103,7 @@ export function* ApiPage({
 
               return (
                 <a
-                  href={yield* createRootUrl(`api/${s.name}`)(current)}
+                  href={yield* createRootUrl(`api/${s.name}${suffix}`)(current)}
                   class={`text-base ${
                     s.name === currentSeries
                       ? "font-bold text-sky-500"
@@ -153,15 +173,17 @@ export function* ApiReference({
   pkg,
   content,
   current,
+  currentExperimental,
+  seriesName,
   pages,
-  linkResolver,
   versionToggle,
 }: {
   pkg: Package;
   content: JSXElement;
   current: string;
+  currentExperimental: boolean;
+  seriesName: string;
   pages: LocalDocPage[];
-  linkResolver: ResolveLinkFunction;
   versionToggle: JSXElement;
 }) {
   return (
@@ -172,7 +194,7 @@ export function* ApiReference({
             <span class="font-bold">API Reference</span>
             {versionToggle}
           </h3>
-          {yield* Menu({ pages, current, linkResolver })}
+          {yield* Menu({ pages, current, currentExperimental, seriesName })}
         </nav>
       </aside>
       <article
@@ -210,30 +232,36 @@ export function* SymbolHeader(
 function* Menu({
   pages,
   current,
-  linkResolver,
+  currentExperimental,
+  seriesName,
 }: {
   current: string;
+  currentExperimental: boolean;
+  seriesName: string;
   pages: LocalDocPage[];
-  linkResolver: ResolveLinkFunction;
 }) {
   const elements = [];
   for (const page of pages.sort((a, b) => a.name.localeCompare(b.name))) {
+    const isCurrent = current === page.name &&
+      !!page.experimental === currentExperimental;
     elements.push(
       <li>
-        {current === page.name
+        {isCurrent
           ? (
             <span class="rounded px-2 block w-full py-2 bg-gray-100 dark:bg-gray-700 cursor-default ">
               <Icon kind={page.kind} />
               {page.name}
+              {page.experimental ? <ExperimentalBadge class="ml-1" /> : ""}
             </span>
           )
           : (
             <a
               class="rounded px-2 block w-full py-2 hover:bg-gray-100 dark:hover:bg-gray-800"
-              href={yield* linkResolver(page.name)}
+              href={yield* pageHref(seriesName, page)}
             >
               <Icon kind={page.kind} />
               {page.name}
+              {page.experimental ? <ExperimentalBadge class="ml-1" /> : ""}
             </a>
           )}
       </li>,

@@ -1,13 +1,12 @@
 import { Operation } from "effection";
 import type {
   ClassMethodDef,
-  DocNode,
   ParamDef,
   TsTypeDef,
   TsTypeParamDef,
 } from "@deno/doc";
 import { toHtml } from "hast-util-to-html";
-import { DocPage } from "../../hooks/use-deno-doc.tsx";
+import { type DocNode, DocPage } from "../../hooks/use-deno-doc.tsx";
 import { Icon } from "./icon.tsx";
 
 const NEW =
@@ -61,9 +60,10 @@ export function* extract(
   }
 
   if (node.kind === "class") {
-    if (node.classDef.constructors.length > 0) {
+    let constructors = node.def.constructors ?? [];
+    if (constructors.length > 0) {
       lines.push(`### Constructors`, "<dl>");
-      for (let constructor of node.classDef.constructors) {
+      for (let constructor of constructors) {
         lines.push(
           `<dt>${NEW} **${node.name}**(${
             constructor.params
@@ -78,14 +78,15 @@ export function* extract(
       lines.push("</dl>");
     }
 
-    let nonStatic = node.classDef.methods.filter(
+    let methods = node.def.methods ?? [];
+    let nonStatic = methods.filter(
       (method) => !method.isStatic,
     );
     if (nonStatic.length > 0) {
       lines.push("### Methods", `<dl>`, ...methodList(nonStatic), "</dl>");
     }
 
-    let staticMethods = node.classDef.methods.filter(
+    let staticMethods = methods.filter(
       (method) => method.isStatic,
     );
     if (staticMethods.length > 0) {
@@ -99,9 +100,13 @@ export function* extract(
   }
 
   if (node.kind === "namespace") {
-    let variables = node.namespaceDef.elements.flatMap((node) =>
-      node.kind === "variable" ? [node] : []
-    ) ?? [];
+    // v2 namespace elements are grouped symbols; flatten their declarations
+    // back into flat variable nodes (re-attaching the symbol name).
+    let variables: DocNode[] = node.def.elements.flatMap((element) =>
+      element.declarations
+        .filter((declaration) => declaration.kind === "variable")
+        .map((declaration) => ({ ...declaration, name: element.name }))
+    );
     if (variables.length > 0) {
       lines.push("### Variables");
       lines.push("<dl>");
@@ -136,13 +141,12 @@ export function* extract(
   }
 
   if (node.kind === "interface") {
-    if (node.name === "Completed") console.log(node);
+    lines.push("\n", ...TypeParams(node.def.typeParams ?? [], node));
 
-    lines.push("\n", ...TypeParams(node.interfaceDef.typeParams, node));
-
-    if (node.interfaceDef.properties.length > 0) {
+    let properties = node.def.properties ?? [];
+    if (properties.length > 0) {
       lines.push("### Properties", "<dl>");
-      for (let property of node.interfaceDef.properties) {
+      for (let property of properties) {
         let typeDef = property.tsType ? TypeDef(property.tsType) : "";
         let description = property.jsDoc?.doc || NO_DOCS_AVAILABLE;
         lines.push(
@@ -157,10 +161,11 @@ export function* extract(
       lines.push("</dl>");
     }
 
-    if (node.interfaceDef.methods.length > 0) {
+    let methods = node.def.methods ?? [];
+    if (methods.length > 0) {
       lines.push("### Methods", "<dl>");
-      for (let method of node.interfaceDef.methods) {
-        let typeParams = method.typeParams.map(TypeParam).join(", ");
+      for (let method of methods) {
+        let typeParams = (method.typeParams ?? []).map(TypeParam).join(", ");
         let params = method.params.map(Param).join(", ");
         let returnType = method.returnType ? TypeDef(method.returnType) : "";
         let description = method.jsDoc?.doc || NO_DOCS_AVAILABLE;
@@ -178,13 +183,13 @@ export function* extract(
   }
 
   if (node.kind === "typeAlias") {
-    lines.push("\n", ...TypeParams(node.typeAliasDef.typeParams, node));
+    lines.push("\n", ...TypeParams(node.def.typeParams ?? [], node));
   }
 
   if (node.kind === "function") {
-    lines.push(...TypeParams(node.functionDef.typeParams, node));
+    lines.push(...TypeParams(node.def.typeParams ?? [], node));
 
-    let { params } = node.functionDef;
+    let { params } = node.def;
     if (params.length > 0) {
       lines.push("### Parameters");
       let jsDocs = node.jsDoc?.tags?.flatMap((tag) =>
@@ -200,8 +205,8 @@ export function* extract(
       }
     }
 
-    if (node.functionDef.returnType) {
-      lines.push("### Return Type", "\n", TypeDef(node.functionDef.returnType));
+    if (node.def.returnType) {
+      lines.push("### Return Type", "\n", TypeDef(node.def.returnType));
       let jsDocs = node.jsDoc?.tags?.find((tag) => tag.kind === "return");
       if (jsDocs && jsDocs.doc) {
         lines.push("\n", jsDocs.doc);
@@ -209,8 +214,8 @@ export function* extract(
     }
   }
 
-  if (node.kind === "variable" && node.variableDef.tsType) {
-    lines.push("### Type", "\n", TypeDef(node.variableDef.tsType));
+  if (node.kind === "variable" && node.def.tsType) {
+    lines.push("### Type", "\n", TypeDef(node.def.tsType));
   }
 
   let see: string[] = [];
@@ -267,76 +272,76 @@ export function TypeParams(typeParams: TsTypeParamDef[], node: DocNode) {
 export function TypeDef(typeDef: TsTypeDef): string {
   switch (typeDef.kind) {
     case "fnOrConstructor": {
-      let params = typeDef.fnOrConstructor.params.map(Param).join(", ");
-      let tparams = typeDef.fnOrConstructor.typeParams
+      let params = typeDef.value.params.map(Param).join(", ");
+      let tparams = (typeDef.value.typeParams ?? [])
         .map(TypeParam)
         .join(", ");
       return `${tparams.length > 0 ? `&lt;${tparams}&gt;` : ""}(${params}) => ${
         TypeDef(
-          typeDef.fnOrConstructor.tsType,
+          typeDef.value.tsType,
         )
       }`;
     }
     case "typeRef": {
-      let tparams = typeDef.typeRef.typeParams?.map(TypeDef).join(", ");
-      return `{@link ${typeDef.typeRef.typeName}}${
+      let tparams = typeDef.value.typeParams?.map(TypeDef).join(", ");
+      return `{@link ${typeDef.value.typeName}}${
         tparams && tparams?.length > 0 ? `&lt;${tparams}&gt;` : ""
       }`;
     }
     case "keyword": {
-      return typeDef.keyword;
+      return typeDef.value;
     }
     case "union": {
-      return typeDef.union.map(TypeDef).join(" | ");
+      return typeDef.value.map(TypeDef).join(" | ");
     }
     case "array": {
-      return `${TypeDef(typeDef.array)}&lbrack;&rbrack;`;
+      return `${TypeDef(typeDef.value)}&lbrack;&rbrack;`;
     }
     case "typeOperator": {
-      return `${typeDef.typeOperator.operator} ${
+      return `${typeDef.value.operator} ${
         TypeDef(
-          typeDef.typeOperator.tsType,
+          typeDef.value.tsType,
         )
       }`;
     }
     case "tuple": {
-      return `&lbrack;${typeDef.tuple.map(TypeDef).join(", ")}&rbrack;`;
+      return `&lbrack;${typeDef.value.map(TypeDef).join(", ")}&rbrack;`;
     }
     case "parenthesized": {
-      return TypeDef(typeDef.parenthesized);
+      return TypeDef(typeDef.value);
     }
     case "intersection": {
-      return typeDef.intersection.map(TypeDef).join(" &amp; ");
+      return typeDef.value.map(TypeDef).join(" &amp; ");
     }
     case "typeLiteral": {
       // todo(taras): this is incomplete
       return `&#123;&#125;`;
     }
     case "mapped": {
-      return `[${TypeParam(typeDef.mappedType.typeParam)}]: ${
-        typeDef.mappedType.tsType ? TypeDef(typeDef.mappedType.tsType) : ""
+      return `[${TypeParam(typeDef.value.typeParam)}]: ${
+        typeDef.value.tsType ? TypeDef(typeDef.value.tsType) : ""
       }`;
     }
     case "conditional": {
-      return `${TypeDef(typeDef.conditionalType.checkType)} extends ${
+      return `${TypeDef(typeDef.value.checkType)} extends ${
         TypeDef(
-          typeDef.conditionalType.extendsType,
+          typeDef.value.extendsType,
         )
       } ? ${
         TypeDef(
-          typeDef.conditionalType.trueType,
+          typeDef.value.trueType,
         )
-      } : ${TypeDef(typeDef.conditionalType.falseType)}`;
+      } : ${TypeDef(typeDef.value.falseType)}`;
     }
     case "indexedAccess": {
-      return `${TypeDef(typeDef.indexedAccess.objType)}[${
+      return `${TypeDef(typeDef.value.objType)}[${
         TypeDef(
-          typeDef.indexedAccess.indexType,
+          typeDef.value.indexType,
         )
       }]`;
     }
     case "literal": {
-      return `*${typeDef.repr}*`;
+      return `*${typeDef.repr ?? ""}*`;
     }
     case "importType":
     case "infer":
@@ -355,7 +360,7 @@ function TypeParam(paramDef: TsTypeParamDef) {
   if (paramDef.constraint) {
     if (
       paramDef.constraint.kind === "typeOperator" &&
-      paramDef.constraint.typeOperator.operator === "keyof"
+      paramDef.constraint.value.operator === "keyof"
     ) {
       parts.push(`in ${TypeDef(paramDef.constraint)}`);
     } else {
@@ -390,10 +395,10 @@ function Param(paramDef: ParamDef): string {
 export function methodList(methods: ClassMethodDef[]) {
   let lines = [];
   for (let method of methods) {
-    let typeParams = method.functionDef.typeParams.map(TypeParam).join(", ");
-    let params = method.functionDef.params.map(Param).join(", ");
-    let returnType = method.functionDef.returnType
-      ? TypeDef(method.functionDef.returnType)
+    let typeParams = (method.def.typeParams ?? []).map(TypeParam).join(", ");
+    let params = method.def.params.map(Param).join(", ");
+    let returnType = method.def.returnType
+      ? TypeDef(method.def.returnType)
       : "";
     let description = method.jsDoc?.doc || NO_DOCS_AVAILABLE;
     lines.push(

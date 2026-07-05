@@ -1,13 +1,14 @@
 import { JSXElement } from "revolution/jsx-runtime";
 import { type Operation } from "effection";
 import type {
+  Declaration,
   ParamDef,
   TsTypeDef,
   TsTypeParamDef,
   TsTypeRefDef,
   VariableDef,
 } from "@deno/doc";
-import type { DocNode } from "../../hooks/use-deno-doc.tsx";
+import type { SymbolInfo } from "../../hooks/use-deno-doc.tsx";
 import {
   Builtin,
   ClassName,
@@ -18,11 +19,13 @@ import {
 } from "./tokens.tsx";
 
 interface TypeProps {
-  node: DocNode;
+  declaration: Declaration;
+  symbol: SymbolInfo;
 }
 
 export function* Type(props: TypeProps): Operation<JSXElement> {
-  let { node } = props;
+  // `node` aliases the declaration; `symbol` supplies the name.
+  let { declaration: node, symbol } = props;
 
   switch (node.kind) {
     case "function": {
@@ -32,7 +35,7 @@ export function* Type(props: TypeProps): Operation<JSXElement> {
           {node.def.isAsync ? <Punctuation>{"async "}</Punctuation> : <></>}
           <Keyword>{node.kind}</Keyword>
           {node.def.isGenerator ? <Punctuation>*</Punctuation> : <></>}{" "}
-          <span class="token function">{node.name}</span>
+          <span class="token function">{symbol.name}</span>
           {typeParams.length > 0
             ? <InterfaceTypeParams typeParams={typeParams} />
             : <></>}
@@ -48,7 +51,7 @@ export function* Type(props: TypeProps): Operation<JSXElement> {
       let impl /* implements */ = node.def.implements ?? [];
       return (
         <span class="language-ts code-highlight inline-block">
-          <Keyword>{node.kind}</Keyword> <ClassName>{node.name}</ClassName>
+          <Keyword>{node.kind}</Keyword> <ClassName>{symbol.name}</ClassName>
           {node.def.extends
             ? (
               <>
@@ -77,7 +80,7 @@ export function* Type(props: TypeProps): Operation<JSXElement> {
       let ext = node.def.extends ?? [];
       return (
         <span class="language-ts code-highlight inline-block">
-          <Keyword>{node.kind}</Keyword> <ClassName>{node.name}</ClassName>
+          <Keyword>{node.kind}</Keyword> <ClassName>{symbol.name}</ClassName>
           {typeParams.length > 0
             ? <InterfaceTypeParams typeParams={typeParams} />
             : <></>}
@@ -99,14 +102,14 @@ export function* Type(props: TypeProps): Operation<JSXElement> {
     case "variable":
       return (
         <span class="inline-block">
-          <TSVariableDef variableDef={node.def} name={node.name} />
+          <TSVariableDef variableDef={node.def} name={symbol.name} />
         </span>
       );
     case "typeAlias":
       return (
         <span class="inline-block">
           <Keyword>{"type "}</Keyword>
-          {node.name}
+          {symbol.name}
           <Operator>{" = "}</Operator>
           <TypeDef typeDef={node.def.tsType} />
         </span>
@@ -117,7 +120,7 @@ export function* Type(props: TypeProps): Operation<JSXElement> {
       console.log("<Type> unimplemented", node.kind);
       return (
         <span class="inline-block">
-          <Keyword>{node.kind}</Keyword> {node.name}
+          <Keyword>{node.kind}</Keyword> {symbol.name}
         </span>
       );
   }

@@ -169,17 +169,17 @@ function* initPackage(
             experimental: entrypoint === "./experimental",
             sections: page.sections.map((section) => ({
               ...section,
-              node: {
-                ...section.node,
+              declaration: {
+                ...section.declaration,
                 location: {
-                  ...section.node.location,
+                  ...section.declaration.location,
                   url: new URL(
                     `${
                       relative(
                         path,
-                        fileURLToPath(section.node.location.filename),
+                        fileURLToPath(section.declaration.location.filename),
                       )
-                    }#L${section.node.location.line + 1}`,
+                    }#L${section.declaration.location.line + 1}`,
                     `${ref.url}/`,
                   ),
                 },

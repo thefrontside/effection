@@ -1,12 +1,13 @@
 import { Operation } from "effection";
 import type {
   ClassMethodDef,
+  Declaration,
   ParamDef,
   TsTypeDef,
   TsTypeParamDef,
 } from "@deno/doc";
 import { toHtml } from "hast-util-to-html";
-import { type DocNode, DocPage } from "../../hooks/use-deno-doc.tsx";
+import { DocPage, type SymbolInfo } from "../../hooks/use-deno-doc.tsx";
 import { Icon } from "./icon.tsx";
 
 const NEW =
@@ -19,7 +20,8 @@ const READONLY =
 export const NO_DOCS_AVAILABLE = "*No documentation available.*";
 
 export function* extract(
-  node: DocNode,
+  node: Declaration,
+  symbol: SymbolInfo,
 ): Operation<{ markdown: string; ignore: boolean; pages: DocPage[] }> {
   let lines = [];
   let pages: DocPage[] = [];
@@ -65,7 +67,7 @@ export function* extract(
       lines.push(`### Constructors`, "<dl>");
       for (let constructor of constructors) {
         lines.push(
-          `<dt>${NEW} **${node.name}**(${
+          `<dt>${NEW} **${symbol.name}**(${
             constructor.params
               .map(Param)
               .join(", ")
@@ -100,29 +102,29 @@ export function* extract(
   }
 
   if (node.kind === "namespace") {
-    // v2 namespace elements are grouped symbols; flatten their declarations
-    // back into flat variable nodes (re-attaching the symbol name).
-    let variables: DocNode[] = node.def.elements.flatMap((element) =>
+    // v2 namespace elements are member symbols; render each variable member,
+    // passing the member's own symbol for its name/identity.
+    let members = node.def.elements.flatMap((element) =>
       element.declarations
         .filter((declaration) => declaration.kind === "variable")
-        .map((declaration) => ({ ...declaration, name: element.name }))
+        .map((declaration) => ({ declaration, member: element }))
     );
-    if (variables.length > 0) {
+    if (members.length > 0) {
       lines.push("### Variables");
       lines.push("<dl>");
-      for (let variable of variables) {
-        let name = `${node.name}.${variable.name}`;
-        let section = yield* extract(variable);
-        let description = variable.jsDoc?.doc || NO_DOCS_AVAILABLE;
+      for (let { declaration, member } of members) {
+        let name = `${symbol.name}.${member.name}`;
+        let section = yield* extract(declaration, member);
+        let description = declaration.jsDoc?.doc || NO_DOCS_AVAILABLE;
         pages.push({
           name,
-          kind: variable.kind,
+          kind: declaration.kind,
           description,
           dependencies: [],
           sections: [
             {
-              id: exportHash(variable, 0),
-              node: variable,
+              id: exportHash(declaration, member, 0),
+              declaration,
               markdown: section.markdown,
               ignore: section.ignore,
             },
@@ -130,7 +132,7 @@ export function* extract(
         });
         lines.push(
           `<dt>`,
-          toHtml(<Icon kind={variable.kind} />),
+          toHtml(<Icon kind={declaration.kind} />),
           `[${name}](${name})`,
           `</dt>`,
         );
@@ -245,11 +247,15 @@ export function* extract(
   };
 }
 
-export function exportHash(node: DocNode, index: number): string {
-  return [node.kind, node.name, index].filter(Boolean).join("_");
+export function exportHash(
+  declaration: Declaration,
+  symbol: SymbolInfo,
+  index: number,
+): string {
+  return [declaration.kind, symbol.name, index].filter(Boolean).join("_");
 }
 
-export function TypeParams(typeParams: TsTypeParamDef[], node: DocNode) {
+export function TypeParams(typeParams: TsTypeParamDef[], node: Declaration) {
   let lines = [];
   if (typeParams.length > 0) {
     lines.push("### Type Parameters");

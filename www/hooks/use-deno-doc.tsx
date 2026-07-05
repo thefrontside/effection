@@ -6,6 +6,7 @@ import {
   type Document,
   LoadResponse,
   Location,
+  type Symbol as DocSymbol,
 } from "@deno/doc";
 import { call, type Operation, until, useScope } from "effection";
 import { createGraph } from "@deno/graph";
@@ -22,14 +23,15 @@ export const npmSpecifierPattern = regex(
 );
 
 /**
- * A single documented declaration.
+ * A symbol's identity without its declarations.
  *
- * As of `@deno/doc` v2 (>=0.195.0), `doc()` returns a `Document` per module
- * whose `symbols` group declarations by name. `DocNode` re-attaches the symbol
- * `name` onto each `Declaration` so the rest of the rendering pipeline can keep
- * treating a documented symbol as a single flat node.
+ * `@deno/doc` v2 groups a module's declarations under a `Symbol` ({ name,
+ * isDefault?, declarations }). Renderers only need the identity (name /
+ * isDefault), not the sibling declarations — which would duplicate the
+ * per-section `Declaration`s — so they take a `SymbolInfo`. A full `Symbol` is
+ * structurally assignable to it, so build-time code can pass the real Symbol.
  */
-export type DocNode = Declaration & { name: string };
+export type SymbolInfo = Omit<DocSymbol, "declarations">;
 
 export function* useDenoDoc(
   specifiers: string[],
@@ -49,7 +51,7 @@ export interface DocPage {
   name: string;
   sections: DocPageSection[];
   description: string;
-  kind: DocNode["kind"];
+  kind: Declaration["kind"];
   dependencies: Dependency[];
   /**
    * True when this symbol is exported from the package's `./experimental`
@@ -61,7 +63,7 @@ export interface DocPage {
 export interface DocPageSection {
   id: string;
 
-  node: DocNode;
+  declaration: Declaration;
 
   markdown?: string;
 
@@ -142,19 +144,17 @@ export function* useDocPages(
   for (let [url, document] of Object.entries(docs)) {
     let pages: DocPage[] = [];
     for (let symbol of document.symbols) {
-      // v2 groups declarations by symbol name; re-attach the name to each
-      // declaration so downstream rendering can treat it as a flat node.
-      let nodes: DocNode[] = symbol.declarations.map((declaration) => ({
-        ...declaration,
-        name: symbol.name,
-      }));
-
+      // v2 groups declarations under a symbol; render each declaration as a
+      // section, passing the owning symbol for its name/identity.
       let sections: DocPageSection[] = [];
-      for (let node of nodes) {
-        let { markdown, ignore, pages: _pages } = yield* extract(node);
+      for (let declaration of symbol.declarations) {
+        let { markdown, ignore, pages: _pages } = yield* extract(
+          declaration,
+          symbol,
+        );
         sections.push({
-          id: exportHash(node, sections.length),
-          node,
+          id: exportHash(declaration, symbol, sections.length),
+          declaration,
           markdown,
           ignore,
         });
@@ -175,7 +175,7 @@ export function* useDocPages(
 
       pages.push({
         name: symbol.name,
-        kind: nodes.at(0)?.kind!,
+        kind: symbol.declarations.at(0)?.kind!,
         description,
         sections,
         dependencies: externalDependencies,
@@ -281,8 +281,8 @@ function isDocPageSection(value: unknown): value is DocPageSection {
 
   return (
     typeof section.id === "string" &&
-    typeof section.node === "object" &&
-    section.node !== null && // You might need a guard for DocNode if it's complex
+    typeof section.declaration === "object" &&
+    section.declaration !== null &&
     (typeof section.markdown === "undefined" ||
       typeof section.markdown === "string") &&
     typeof section.ignore === "boolean"
@@ -318,19 +318,19 @@ function* extractImports(
 }
 
 /**
- * LocalDocsPages are DocNodes that are stored locally
+ * LocalDocsPages are declarations that are stored locally
  * but they represent symbols hosted on GitHub. They
- * have LocalDocNode locations that include URLs to GitHub.
+ * have LocalDeclaration locations that include URLs to GitHub.
  */
 export type LocalDocsPages = Record<string, LocalDocPage[]>;
 
 export type LocalDocPage = DocPage & { sections: LocalDocPageSection[] };
 
 export type LocalDocPageSection = DocPageSection & {
-  node: LocalDocNode;
+  declaration: LocalDeclaration;
 };
 
-export type LocalDocNode = DocNode & {
+export type LocalDeclaration = Declaration & {
   location: LocalLocation;
 };
 

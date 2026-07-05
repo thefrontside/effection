@@ -178,7 +178,7 @@ function* initPackage(
                         path,
                         fileURLToPath(section.declaration.location.filename),
                       )
-                    }#L${section.declaration.location.line}`,
+                    }#L${section.declaration.location.line + 1}`,
                     `${ref.url}/`,
                   ),
                 },

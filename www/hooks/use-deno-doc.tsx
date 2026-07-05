@@ -1,10 +1,12 @@
 import {
   CacheSetting,
+  type Declaration,
   doc,
-  type DocNode,
   type DocOptions,
+  type Document,
   LoadResponse,
   Location,
+  type Symbol as DocSymbol,
 } from "@deno/doc";
 import { call, type Operation, until, useScope } from "effection";
 import { createGraph } from "@deno/graph";
@@ -20,12 +22,21 @@ export const npmSpecifierPattern = regex(
   "^(?:(?<scope>@[^/]+)/)?(?<package>[^/]+)(?<subpath>/.*)?$",
 );
 
-export type { DocNode };
+/**
+ * A symbol's identity without its declarations.
+ *
+ * `@deno/doc` v2 groups a module's declarations under a `Symbol` ({ name,
+ * isDefault?, declarations }). Renderers only need the identity (name /
+ * isDefault), not the sibling declarations — which would duplicate the
+ * per-section `Declaration`s — so they take a `SymbolInfo`. A full `Symbol` is
+ * structurally assignable to it, so build-time code can pass the real Symbol.
+ */
+export type SymbolInfo = Omit<DocSymbol, "declarations">;
 
 export function* useDenoDoc(
   specifiers: string[],
   docOptions?: DocOptions,
-): Operation<Record<string, DocNode[]>> {
+): Operation<Record<string, Document>> {
   let docs = yield* until(doc(specifiers, docOptions));
   return docs;
 }
@@ -40,14 +51,14 @@ export interface DocPage {
   name: string;
   sections: DocPageSection[];
   description: string;
-  kind: DocNode["kind"];
+  kind: Declaration["kind"];
   dependencies: Dependency[];
 }
 
 export interface DocPageSection {
   id: string;
 
-  node: DocNode;
+  declaration: Declaration;
 
   markdown?: string;
 
@@ -125,46 +136,45 @@ export function* useDocPages(
 
   let entrypoints: Record<string, DocPage[]> = {};
 
-  for (let [url, all] of Object.entries(docs)) {
+  for (let [url, document] of Object.entries(docs)) {
     let pages: DocPage[] = [];
-    for (
-      let [symbol, nodes] of Object.entries(
-        Object.groupBy(all, (node) => node.name),
-      )
-    ) {
-      if (nodes) {
-        let sections: DocPageSection[] = [];
-        for (let node of nodes) {
-          let { markdown, ignore, pages: _pages } = yield* extract(node);
-          sections.push({
-            id: exportHash(node, sections.length),
-            node,
-            markdown,
-            ignore,
-          });
-          pages.push(
-            ..._pages.map((page) => ({
-              ...page,
-              dependencies: externalDependencies,
-            })),
-          );
-        }
-
-        let markdown = sections
-          .map((s) => s.markdown)
-          .filter((m) => m)
-          .join("");
-
-        let description = yield* useDescription(markdown);
-
-        pages.push({
-          name: symbol,
-          kind: nodes?.at(0)?.kind!,
-          description,
-          sections,
-          dependencies: externalDependencies,
+    for (let symbol of document.symbols) {
+      // v2 groups declarations under a symbol; render each declaration as a
+      // section, passing the owning symbol for its name/identity.
+      let sections: DocPageSection[] = [];
+      for (let declaration of symbol.declarations) {
+        let { markdown, ignore, pages: _pages } = yield* extract(
+          declaration,
+          symbol,
+        );
+        sections.push({
+          id: exportHash(declaration, symbol, sections.length),
+          declaration,
+          markdown,
+          ignore,
         });
+        pages.push(
+          ..._pages.map((page) => ({
+            ...page,
+            dependencies: externalDependencies,
+          })),
+        );
       }
+
+      let markdown = sections
+        .map((s) => s.markdown)
+        .filter((m) => m)
+        .join("");
+
+      let description = yield* useDescription(markdown);
+
+      pages.push({
+        name: symbol.name,
+        kind: symbol.declarations.at(0)?.kind!,
+        description,
+        sections,
+        dependencies: externalDependencies,
+      });
     }
 
     entrypoints[url] = pages;
@@ -266,8 +276,8 @@ function isDocPageSection(value: unknown): value is DocPageSection {
 
   return (
     typeof section.id === "string" &&
-    typeof section.node === "object" &&
-    section.node !== null && // You might need a guard for DocNode if it's complex
+    typeof section.declaration === "object" &&
+    section.declaration !== null &&
     (typeof section.markdown === "undefined" ||
       typeof section.markdown === "string") &&
     typeof section.ignore === "boolean"
@@ -303,19 +313,19 @@ function* extractImports(
 }
 
 /**
- * LocalDocsPages are DocNodes that are stored locally
+ * LocalDocsPages are declarations that are stored locally
  * but they represent symbols hosted on GitHub. They
- * have LocalDocNode locations that include URLs to GitHub.
+ * have LocalDeclaration locations that include URLs to GitHub.
  */
 export type LocalDocsPages = Record<string, LocalDocPage[]>;
 
 export type LocalDocPage = DocPage & { sections: LocalDocPageSection[] };
 
 export type LocalDocPageSection = DocPageSection & {
-  node: LocalDocNode;
+  declaration: LocalDeclaration;
 };
 
-export type LocalDocNode = DocNode & {
+export type LocalDeclaration = Declaration & {
   location: LocalLocation;
 };
 

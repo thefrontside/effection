@@ -35,7 +35,7 @@ export function* ApiPage({
     method,
   ) {
     const target = pages &&
-      pages.find((page) => page.name === symbol && page.kind !== "import");
+      pages.find((page) => page.name === symbol);
 
     if (target) {
       return `[${
@@ -123,14 +123,17 @@ export function* ApiBody({
             <h2
               class="my-0! grow"
               id={section.id}
-              data-kind={section.node.kind}
-              data-name={section.node.name}
+              data-kind={section.declaration.kind}
+              data-name={page.name}
             >
-              {yield* Type({ node: section.node })}
+              {yield* Type({
+                declaration: section.declaration,
+                symbol: { name: page.name },
+              })}
             </h2>
             <a
               class="opacity-40 before:content-['View_code'] group-hover:opacity-100 before:flex before:text-xs before:mr-1 p-2 flex-none flex rounded no-underline items-center h-8"
-              href={`${section.node.location.url}`}
+              href={`${section.declaration.location.url}`}
             >
               <SourceCodeIcon />
             </a>

@@ -3,6 +3,16 @@ import { CurrentRequest } from "../context/request.ts";
 import { dirname, join } from "@std/path";
 import { ResolveLinkFunction } from "../hooks/use-markdown.tsx";
 
+/**
+ * The API series being viewed, read from the current request. Symbol pages are
+ * always `/api/<series>/…` (or `/api/<series>/experimental/…`), so the series
+ * is the second path segment.
+ */
+export function* useApiSeries(): Operation<string> {
+  let request = yield* CurrentRequest.expect();
+  return new URL(request.url).pathname.split("/")[2];
+}
+
 export const createSibling: ResolveLinkFunction = function* (
   pathname,
   connector,

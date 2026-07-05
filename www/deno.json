@@ -61,6 +61,8 @@
     "octokit": "npm:octokit@4.0.3",
     "pagefind": "npm:pagefind@1.3.0",
     "path-to-regexp": "npm:path-to-regexp@8.2.0",
+    "refractor": "npm:refractor@4.8.1",
+    "refractor/all": "npm:refractor@4.8.1/lib/all.js",
     "rehype-add-classes": "npm:rehype-add-classes@1.0.0",
     "rehype-autolink-headings": "npm:rehype-autolink-headings@7.1.0",
     "rehype-infer-description-meta": "npm:rehype-infer-description-meta@2.0.0",

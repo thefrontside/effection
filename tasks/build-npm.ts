@@ -17,10 +17,12 @@ await build({
   },
   test: false,
   typeCheck: false,
+  declaration: "separate",
+  skipSourceOutput: true,
   compilerOptions: {
     lib: ["ESNext", "DOM"],
     target: "ES2020",
-    sourceMap: true,
+    sourceMap: false,
   },
   package: {
     // package.json properties

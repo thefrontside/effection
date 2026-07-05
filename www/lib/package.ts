@@ -166,6 +166,7 @@ function* initPackage(
         docs[entrypoint] = pages[`${url}`].map((page) => {
           return {
             ...page,
+            experimental: entrypoint === "./experimental",
             sections: page.sections.map((section) => ({
               ...section,
               declaration: {

@@ -44,3 +44,20 @@ export function Icon(props: { kind: string; class?: string }) {
   }
   return <></>;
 }
+
+/**
+ * A small pill marking a symbol that is exported from the package's
+ * `./experimental` entrypoint. Rendered inline next to a symbol's name.
+ */
+export function ExperimentalBadge(props: { class?: string }) {
+  return (
+    <span
+      class={`${
+        props.class ? props.class : ""
+      } inline-block align-middle rounded bg-amber-100 dark:bg-amber-900 px-1.5 text-xs font-medium text-amber-800 dark:text-amber-200`}
+      title="Experimental API — may change or be removed in a future release"
+    >
+      experimental
+    </span>
+  );
+}

@@ -53,6 +53,11 @@ export interface DocPage {
   description: string;
   kind: Declaration["kind"];
   dependencies: Dependency[];
+  /**
+   * True when this symbol is exported from the package's `./experimental`
+   * entrypoint. Drives the "experimental" badge and the namespaced doc URL.
+   */
+  experimental?: boolean;
 }
 
 export interface DocPageSection {

@@ -20,7 +20,7 @@ export function* PackageExports({
   let elements: JSXElement[] = [];
 
   for (let [exportName, docPages] of Object.entries(docs)) {
-    if (docPages.filter((page) => page.kind !== "import").length > 0) {
+    if (docPages.length > 0) {
       elements.push(
         yield* PackageExport({
           linkResolver,
@@ -51,8 +51,7 @@ function* PackageExport({
   let exports: JSXChild[] = [];
 
   for (
-    let page of docPages
-      .flatMap((page) => (page.kind === "import" ? [] : [page]))
+    let page of [...docPages]
       .sort((a, b) => a.name.localeCompare(b.name))
   ) {
     exports.push(

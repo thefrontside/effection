@@ -35,7 +35,7 @@ export function* ApiPage({
     method,
   ) {
     const target = pages &&
-      pages.find((page) => page.name === symbol && page.kind !== "import");
+      pages.find((page) => page.name === symbol);
 
     if (target) {
       return `[${

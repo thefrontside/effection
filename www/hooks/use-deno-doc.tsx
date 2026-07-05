@@ -1,8 +1,9 @@
 import {
   CacheSetting,
+  type Declaration,
   doc,
-  type DocNode,
   type DocOptions,
+  type Document,
   LoadResponse,
   Location,
 } from "@deno/doc";
@@ -20,12 +21,20 @@ export const npmSpecifierPattern = regex(
   "^(?:(?<scope>@[^/]+)/)?(?<package>[^/]+)(?<subpath>/.*)?$",
 );
 
-export type { DocNode };
+/**
+ * A single documented declaration.
+ *
+ * As of `@deno/doc` v2 (>=0.195.0), `doc()` returns a `Document` per module
+ * whose `symbols` group declarations by name. `DocNode` re-attaches the symbol
+ * `name` onto each `Declaration` so the rest of the rendering pipeline can keep
+ * treating a documented symbol as a single flat node.
+ */
+export type DocNode = Declaration & { name: string };
 
 export function* useDenoDoc(
   specifiers: string[],
   docOptions?: DocOptions,
-): Operation<Record<string, DocNode[]>> {
+): Operation<Record<string, Document>> {
   let docs = yield* until(doc(specifiers, docOptions));
   return docs;
 }
@@ -125,46 +134,47 @@ export function* useDocPages(
 
   let entrypoints: Record<string, DocPage[]> = {};
 
-  for (let [url, all] of Object.entries(docs)) {
+  for (let [url, document] of Object.entries(docs)) {
     let pages: DocPage[] = [];
-    for (
-      let [symbol, nodes] of Object.entries(
-        Object.groupBy(all, (node) => node.name),
-      )
-    ) {
-      if (nodes) {
-        let sections: DocPageSection[] = [];
-        for (let node of nodes) {
-          let { markdown, ignore, pages: _pages } = yield* extract(node);
-          sections.push({
-            id: exportHash(node, sections.length),
-            node,
-            markdown,
-            ignore,
-          });
-          pages.push(
-            ..._pages.map((page) => ({
-              ...page,
-              dependencies: externalDependencies,
-            })),
-          );
-        }
+    for (let symbol of document.symbols) {
+      // v2 groups declarations by symbol name; re-attach the name to each
+      // declaration so downstream rendering can treat it as a flat node.
+      let nodes: DocNode[] = symbol.declarations.map((declaration) => ({
+        ...declaration,
+        name: symbol.name,
+      }));
 
-        let markdown = sections
-          .map((s) => s.markdown)
-          .filter((m) => m)
-          .join("");
-
-        let description = yield* useDescription(markdown);
-
-        pages.push({
-          name: symbol,
-          kind: nodes?.at(0)?.kind!,
-          description,
-          sections,
-          dependencies: externalDependencies,
+      let sections: DocPageSection[] = [];
+      for (let node of nodes) {
+        let { markdown, ignore, pages: _pages } = yield* extract(node);
+        sections.push({
+          id: exportHash(node, sections.length),
+          node,
+          markdown,
+          ignore,
         });
+        pages.push(
+          ..._pages.map((page) => ({
+            ...page,
+            dependencies: externalDependencies,
+          })),
+        );
       }
+
+      let markdown = sections
+        .map((s) => s.markdown)
+        .filter((m) => m)
+        .join("");
+
+      let description = yield* useDescription(markdown);
+
+      pages.push({
+        name: symbol.name,
+        kind: nodes.at(0)?.kind!,
+        description,
+        sections,
+        dependencies: externalDependencies,
+      });
     }
 
     entrypoints[url] = pages;

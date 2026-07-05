@@ -94,7 +94,7 @@ export function xPackageRoute({
             return internal;
           }
           let page = docs["."].find(
-            (page) => page.name === symbol && page.kind !== "import",
+            (page) => page.name === symbol,
           );
 
           if (page) {

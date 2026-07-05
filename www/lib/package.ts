@@ -179,7 +179,7 @@ function* initPackage(
                         path,
                         fileURLToPath(section.node.location.filename),
                       )
-                    }#L${section.node.location.line}`,
+                    }#L${section.node.location.line + 1}`,
                     `${ref.url}/`,
                   ),
                 },

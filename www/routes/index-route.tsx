@@ -32,14 +32,9 @@ export function indexRoute(): SitemapRoute<JSXElement> {
             {/* ============ 1 · THE DEAL (hero) ============ */}
             <section class="mx-auto max-w-4xl px-4 pt-16 md:px-12">
               <div class="mx-auto max-w-2xl text-center">
-                <h1 class="text-4xl font-extrabold leading-[1.12] tracking-tight md:text-5xl">
-                  <span class="text-gray-400 dark:text-gray-500">
-                    JavaScript cleans up your memory.
-                  </span>
-                  <br />
-                  <span class="text-[#14315D] dark:text-gray-100">
-                    It never cleans up your async.
-                  </span>
+                <h1 class="text-[2.5rem] font-extrabold leading-[1.15] tracking-tight text-[#14315D] [text-wrap:balance] dark:text-gray-100">
+                  JavaScript cleans up your memory. It never cleans up your
+                  async.
                 </h1>
                 <p class="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-gray-600 dark:text-gray-300">
                   Every value belongs to a scope; when the scope is gone, the
@@ -180,12 +175,12 @@ export function indexRoute(): SitemapRoute<JSXElement> {
               <OperationTree />
             </section>
 
-            {/* three superpowers */}
+            {/* structural features */}
             <section class="mx-auto mt-24 max-w-4xl px-6">
               <SectionHead
-                eyebrow="Three superpowers you get for free"
+                eyebrow="The same tree, twice"
                 title="Structured lifetimes unlock more than cleanup"
-                lead="Once every operation has a well-defined lifetime, a few things that were painful in plain async become trivial."
+                lead="The tree above works in both directions. Teardown flows up it — and values can flow down it."
               />
             </section>
             <div class="mx-auto mt-12 flex max-w-4xl flex-col gap-20 px-6">
@@ -215,23 +210,8 @@ yield* task.halt();   // stops the child and all it spawned`}
               />
               <Power
                 n="2"
-                kicker="Synchronous by default"
-                flip
-                title="Stay synchronous until you actually need async"
-                lead="A single yield* can resolve synchronously or asynchronously — where await always defers to the next tick. The same call reads a warm cache on the current tick, and crosses into async only on a real miss."
-                code={`function* getUser(id) {
-  // yield* resolves on THIS tick when warm, and
-  // upgrades to an async fetch only on a miss.
-  // (await would cost a tick even on a hit.)
-  return yield* cache.read(id, function* () {
-    return yield* fetchUser(id);
-  });
-}`}
-                filename="cache.ts"
-              />
-              <Power
-                n="3"
                 kicker="Context"
+                flip
                 title="Share state down the call tree, no prop-drilling"
                 lead="Set a value once; read it anywhere below. It's scoped to the operation, so it disappears when the operation exits — dependency injection for async, without prop-drilling. TC39's AsyncContext is chasing the same idea; Effection has it today, tied to structured lifetimes."
                 code={`const Token = createContext("token");
@@ -243,6 +223,21 @@ function* fetchUser() {
   const token = yield* Token.expect();   // reads from context
 }`}
                 filename="context.ts"
+              />
+              <Power
+                n="3"
+                kicker="Synchronous by default"
+                title="Stay synchronous until you actually need async"
+                lead="A single yield* can resolve synchronously or asynchronously — where await always defers to the next tick. The same call reads a warm cache on the current tick, and crosses into async only on a real miss."
+                code={`function* getUser(id) {
+  // yield* resolves on THIS tick when warm, and
+  // upgrades to an async fetch only on a miss.
+  // (await would cost a tick even on a hit.)
+  return yield* cache.read(id, function* () {
+    return yield* fetchUser(id);
+  });
+}`}
+                filename="cache.ts"
               />
             </div>
 

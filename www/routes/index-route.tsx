@@ -32,17 +32,23 @@ export function indexRoute(): SitemapRoute<JSXElement> {
             {/* ============ 1 · THE DEAL (hero) ============ */}
             <section class="mx-auto max-w-4xl px-4 pt-16 md:px-12">
               <div class="mx-auto max-w-2xl text-center">
-                <h1 class="text-4xl font-extrabold leading-[1.1] tracking-tight text-[#14315D] dark:text-gray-100 md:text-5xl">
-                  In JavaScript, you never free memory.
+                <h1 class="text-4xl font-extrabold leading-[1.12] tracking-tight md:text-5xl">
+                  <span class="text-gray-400 dark:text-gray-500">
+                    JavaScript cleans up your memory.
+                  </span>
+                  <br />
+                  <span class="text-[#14315D] dark:text-gray-100">
+                    It never cleans up your async.
+                  </span>
                 </h1>
                 <p class="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-gray-600 dark:text-gray-300">
-                  Every value belongs to a scope. When the scope is gone, the
-                  runtime reclaims the value — you don't think about it, and
-                  that's precisely what lets simple code be correct.
+                  Every value belongs to a scope; when the scope is gone, the
+                  runtime reclaims it. Async work belongs to nothing — it runs
+                  until it's done, whether or not the code that started it is
+                  still around.
                 </p>
                 <p class="mx-auto mt-4 max-w-xl text-lg font-semibold leading-relaxed text-[#14315D] dark:text-gray-100">
-                  Effection is a tiny library that brings the same idea to
-                  asynchronous code.
+                  Effection makes async work the way memory already does.
                 </p>
               </div>
             </section>
@@ -54,19 +60,24 @@ export function indexRoute(): SitemapRoute<JSXElement> {
                 title="Memory is reclaimed according to the structure of your code. Asynchronous operations aren't."
                 lead={
                   <>
-                    A promise doesn't belong to the function that created it.
-                    When the function exits, the work keeps running, holding
-                    whatever it holds. Every abort, unsubscribe and close you've
-                    written by hand is you doing, manually, what the runtime
-                    does for memory.
+                    A promise doesn't belong to the scope that created it. When
+                    the scope exits, the promise keeps running — and because it
+                    belongs to nothing, the runtime has no way of knowing when
+                    its lifetime is over.
                   </>
                 }
               />
-              <p class="mx-auto mt-9 max-w-xl text-center text-lg leading-relaxed text-gray-700 dark:text-gray-200">
-                It's why we all stopped trusting simple async code. The distrust
-                was earned — the straightforward solution really was missing a
-                cleanup hook, a cancellation signal, another layer of defensive
-                plumbing.
+              <p class="mx-auto mt-9 max-w-2xl text-center text-lg leading-relaxed text-gray-700 dark:text-gray-200">
+                So that knowledge has to come from you. The{" "}
+                <code>AbortSignal</code>{" "}
+                you thread through every call, the unsubscribe you remember, the
+                {" "}
+                <code>close()</code> in a <code>finally</code>, the{" "}
+                <code>using</code>{" "}
+                you declare one resource at a time — different tools, all
+                reconstructing the same missing information:{" "}
+                <em>when this work should end</em>. We spent a decade
+                reconstructing this missing lifetime by hand.
               </p>
             </section>
 
@@ -85,13 +96,14 @@ export function indexRoute(): SitemapRoute<JSXElement> {
                 </span>
                 <span class="text-[#14315D] dark:text-gray-100">.</span>
               </p>
-              <p class="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-gray-600 dark:text-gray-300">
-                Structured concurrency is the name for that missing property:
-                async work belongs to the operation that started it, and when
-                that operation exits, its children are reclaimed — the same way
-                unreachable values are.
-              </p>
             </section>
+
+            <p class="mx-auto mt-9 max-w-2xl px-6 text-center text-lg leading-relaxed text-gray-700 dark:text-gray-200">
+              But none of it would be necessary if the work simply belonged to
+              the scope that started it — the runtime would know when it ends,
+              the same way it knows when a value dies. That's not a workaround.
+              It's a property a language either has or doesn't.
+            </p>
 
             {/* ============ EFFECTION ============ */}
             <section class="mx-auto max-w-4xl px-6 pt-20 text-center">
@@ -139,7 +151,7 @@ export function indexRoute(): SitemapRoute<JSXElement> {
             {/* ============ THE EVIDENCE ============ */}
             <section class="mx-auto mt-24 max-w-4xl px-6">
               <SectionHead
-                eyebrow="The evidence"
+                eyebrow="See for yourself"
                 title="The obvious code, tested"
                 lead="If async work really is reclaimed when its operation exits, the defensive code should disappear. Look for the abort, the unsubscribe, the cancellation flag — they aren't there. And where teardown is genuinely needed, you declare it once and it's guaranteed to run."
               />
@@ -163,7 +175,7 @@ export function indexRoute(): SitemapRoute<JSXElement> {
                 The operation tree
               </p>
               <h3 class="mb-7 text-center text-2xl font-extrabold tracking-tight text-[#14315D] dark:text-gray-100">
-                Halt forces control back — teardown always runs
+                Every operation belongs to the one that started it
               </h3>
               <OperationTree />
             </section>

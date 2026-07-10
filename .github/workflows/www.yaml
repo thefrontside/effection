@@ -1,25 +1,30 @@
 name: www
+
 on:
-  workflow_dispatch: # Allows manual trigger
-  schedule:
-    - cron: "0 */8 * * *" # Runs every 8 hours
+  workflow_dispatch:
   pull_request:
   push:
     branches:
       - v4
 
+permissions:
+  contents: read
+
 jobs:
-  www:
+  deploy-preview:
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 15
-
+    environment:
+      name: Preview
+      url: ${{ steps.netlify.outputs.unique-url }}
     permissions:
-      id-token: write # Needed for auth with Deno Deploy
-      contents: read # Needed to clone the repository
+      contents: read
+      pull-requests: write
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -43,7 +48,7 @@ jobs:
 
       - name: Download Staticalize
         run: |
-          wget https://github.com/thefrontside/staticalize/releases/download/v0.2.2/staticalize-linux.tar.gz \
+          wget https://github.com/thefrontside/staticalize/releases/download/v0.2.6/staticalize-linux.tar.gz \
             -O /tmp/staticalize-linux.tar.gz
           tar -xzf /tmp/staticalize-linux.tar.gz -C /usr/local/bin
           chmod +x /usr/local/bin/staticalize-linux
@@ -53,14 +58,116 @@ jobs:
           staticalize-linux \
             --site=http://127.0.0.1:8000 \
             --output=www/built \
-            --base=https://effection.deno.dev
+            --base=https://effection.netlify.app
 
-      - run: npx pagefind --site built
+      - name: Pagefind
+        run: npx pagefind --site built
         working-directory: ./www
 
-      - name: Upload to Deno Deploy
-        uses: denoland/deployctl@v1
+      - name: Deploy Preview to Netlify
+        id: netlify
+        run: |
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          COMMIT_SHA="${{ github.event.pull_request.head.sha }}"
+
+          DEPLOY_OUTPUT=$(npx netlify-cli deploy \
+            --dir=www/built \
+            --alias="pr-$PR_NUMBER" \
+            --message="Preview for PR #$PR_NUMBER at commit $COMMIT_SHA" \
+            --auth=${{ secrets.NETLIFY_AUTH_TOKEN }} \
+            --site=${{ secrets.NETLIFY_SITE_ID }} \
+            --json)
+
+          DEPLOY_ID=$(echo "$DEPLOY_OUTPUT" | jq -r '.deploy_id')
+          SITE_NAME=$(echo "$DEPLOY_OUTPUT" | jq -r '.site_name')
+
+          UNIQUE_URL="https://${DEPLOY_ID}--${SITE_NAME}.netlify.app"
+          STABLE_URL="https://pr-${PR_NUMBER}--${SITE_NAME}.netlify.app"
+
+          echo "unique-url=$UNIQUE_URL" >> $GITHUB_OUTPUT
+          echo "stable-url=$STABLE_URL" >> $GITHUB_OUTPUT
+
+      - name: Comment PR with Preview Link
+        uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88 # v3.0.5
         with:
-          project: effection
-          entrypoint: "jsr:@std/http/file-server"
-          root: www/built
+          header: netlify-preview-deploy
+          message: |
+            🚀 **Deploy Preview Ready!**
+
+            * **Stable Review Link:** ${{ steps.netlify.outputs.stable-url }}
+            * **Latest Commit Snapshot:** ${{ steps.netlify.outputs.unique-url }}
+
+  deploy-production:
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: Production
+      url: https://effection.netlify.app
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.9.1
+
+      - name: Serve Website
+        run: |
+          deno run -A main.tsx &
+          until curl --output /dev/null --silent --head --fail http://127.0.0.1:8000; do
+            printf '.'
+            sleep 1
+          done
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          JSR_API: ${{ secrets.JSR_API }}
+        timeout-minutes: 5
+        working-directory: ./www
+
+      - name: Download Staticalize
+        run: |
+          wget https://github.com/thefrontside/staticalize/releases/download/v0.2.6/staticalize-linux.tar.gz \
+            -O /tmp/staticalize-linux.tar.gz
+          tar -xzf /tmp/staticalize-linux.tar.gz -C /usr/local/bin
+          chmod +x /usr/local/bin/staticalize-linux
+
+      - name: Staticalize
+        run: |
+          staticalize-linux \
+            --site=http://127.0.0.1:8000 \
+            --output=www/built \
+            --base=https://effection.netlify.app
+
+      - name: Pagefind
+        run: npx pagefind --site built
+        working-directory: ./www
+
+      - name: Deploy to Production
+        run: |
+          npx netlify-cli deploy \
+            --dir=www/built \
+            --prod \
+            --auth=${{ secrets.NETLIFY_AUTH_TOKEN }} \
+            --site=${{ secrets.NETLIFY_SITE_ID }}
+
+  trigger-frontside-rebuild:
+    needs: deploy-production
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Wait for Netlify propagation
+        run: sleep 60
+
+      - name: Trigger frontside.com production rebuild
+        env:
+          GH_TOKEN: ${{ secrets.FRONTSIDEJACK_GITHUB_TOKEN }}
+        run: |
+          gh workflow run deploy.yaml \
+            --repo thefrontside/frontside.com \
+            --ref production

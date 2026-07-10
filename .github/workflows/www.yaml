@@ -24,7 +24,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -48,7 +48,7 @@ jobs:
 
       - name: Download Staticalize
         run: |
-          wget https://github.com/thefrontside/staticalize/releases/download/v0.2.2/staticalize-linux.tar.gz \
+          wget https://github.com/thefrontside/staticalize/releases/download/v0.2.6/staticalize-linux.tar.gz \
             -O /tmp/staticalize-linux.tar.gz
           tar -xzf /tmp/staticalize-linux.tar.gz -C /usr/local/bin
           chmod +x /usr/local/bin/staticalize-linux
@@ -107,7 +107,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -131,7 +131,7 @@ jobs:
 
       - name: Download Staticalize
         run: |
-          wget https://github.com/thefrontside/staticalize/releases/download/v0.2.2/staticalize-linux.tar.gz \
+          wget https://github.com/thefrontside/staticalize/releases/download/v0.2.6/staticalize-linux.tar.gz \
             -O /tmp/staticalize-linux.tar.gz
           tar -xzf /tmp/staticalize-linux.tar.gz -C /usr/local/bin
           chmod +x /usr/local/bin/staticalize-linux

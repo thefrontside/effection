@@ -69,7 +69,8 @@ export function createScopeInternal(
       while (destructors.size > 0) {
         let current = [...destructors];
         destructors.clear();
-        for (let destructor of current) {
+        for (let i = current.length - 1; i >= 0; i--) {
+          let destructor = current[i];
           try {
             yield* destructor();
           } catch (error) {

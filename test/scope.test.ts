@@ -1,6 +1,7 @@
 import {
   createContext,
   createScope,
+  ensure,
   resource,
   run,
   sleep,
@@ -51,6 +52,28 @@ describe("Scope", () => {
 
     await expect(destroy()).resolves.toBeUndefined();
     expect(halted).toEqual(true);
+  });
+
+  it("runs destructors in reverse order of registration", async () => {
+    let order: string[] = [];
+    let [scope, destroy] = createScope();
+
+    scope.run(function* () {
+      yield* ensure(() => {
+        order.push("first");
+      });
+      yield* ensure(() => {
+        order.push("second");
+      });
+      yield* ensure(() => {
+        order.push("third");
+      });
+      yield* suspend();
+    });
+
+    await destroy();
+
+    expect(order).toEqual(["third", "second", "first"]);
   });
 
   it("errors on close if there is an problem in teardown", async () => {

@@ -15,6 +15,9 @@ counterparts is reflected in the “Async Rosetta Stone.”
 | `Promise`                 | `Operation`       |
 | `new Promise()`           | `action()`        |
 | `Promise.withResolvers()` | `withResolvers()` |
+| `Promise.allSettled()`    | `allSettled()`    |
+| `using`                   | `using()`         |
+| `await using`             | `using()`         |
 | `for await`               | `for yield* each` |
 | `AsyncIterable`           | `Stream`          |
 | `AsyncIterator`           | `Subscription`    |
@@ -201,6 +204,82 @@ function* main() {
 };
 ```
 
+## `Promise.allSettled()` \<=> `allSettled()`
+
+Wait for all operations to settle regardless of whether they succeed
+or fail. Unlike [`all()`][all], [`allSettled()`][allSettled] never
+short-circuits. Every result is represented as either `{ ok: true, value }` 
+or `{ ok: false, error }`.
+
+Wait for all promises to settle with `Promise.allSettled()`:
+
+```js
+let [user, comments] = await Promise.allSettled([
+  fetchUser(id),
+  fetchComments(id),
+]);
+```
+
+Wait for all operations to settle with `allSettled()`:
+
+```js
+import { allSettled } from 'effection';
+
+let [user, comments] = yield* allSettled([
+  fetchUser(id),
+  fetchComments(id),
+]);
+```
+
+The shape of the results is slightly different from `Promise.allSettled()`.
+Effection uses its [`Result<T>`][result] type so that settled results compose
+the same way they do elsewhere in the library. You can construct these values
+with [`Ok()`][ok] and [`Err()`][err].
+
+## `using` \<=> `using()`
+
+Bind a disposable to a block with the `using` declaration:
+
+```js
+async function main() {
+  using conn = new Connection();
+  await conn.send("hello");
+} // conn[Symbol.dispose]() runs here
+```
+
+Bind a disposable to an operation with [`using()`][using]:
+
+```js
+import { using } from 'effection';
+
+function* main() {
+  let conn = yield* using(new Connection());
+  yield* conn.send("hello");
+} // conn[Symbol.dispose]() runs when the enclosing scope exits
+```
+
+## `await using` \<=> `using()`
+
+Bind an async disposable to a block with `await using`:
+
+```js
+async function main() {
+  await using conn = new Connection();
+  await conn.send("hello");
+} // await conn[Symbol.asyncDispose]() runs here
+```
+
+Bind an async disposable to an operation with [`using()`][using]:
+
+```js
+import { using } from 'effection';
+
+function* main() {
+  let conn = yield* using(new Connection());
+  yield* until(conn.send("hello"));
+} // conn[Symbol.asyncDispose]() is awaited when the enclosing scope exits
+```
+
 ## `for await` \<=> `for yield* each`
 
 Loop over an AsyncIterable with `for await`:
@@ -284,9 +363,15 @@ let subscription = subscribe(asyncIterator);
 ```
 
 [call]: /api/v4/call
+[all]: /api/v4/all
+[allSettled]: /api/v4/allSettled
+[result]: /api/v4/Result
+[ok]: /api/v4/Ok
+[err]: /api/v4/Err
 [until]: /api/v4/until
 [run]: /api/v4/run
 [scope-run]: /api/v4/Scope#interface_Scope-methods
 [each]: /api/v4/each
 [stream]: /api/v4/stream
 [subscribe]: /api/v4/subscribe
+[using]: /api/v4/using

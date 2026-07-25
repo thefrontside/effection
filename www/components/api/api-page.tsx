@@ -1,48 +1,53 @@
-import { all } from "effection";
+import { all, type Operation } from "effection";
 import type { JSXElement } from "revolution";
 import { useConfig } from "../../context/config.ts";
 import { LocalDocPage } from "../../hooks/use-deno-doc.tsx";
 import { ResolveLinkFunction, useMarkdown } from "../../hooks/use-markdown.tsx";
 import { Package, usePackage } from "../../lib/package.ts";
-import { major } from "../../lib/semver.ts";
-import { createRootUrl, createSibling } from "../../lib/links-resolvers.ts";
+import { gt, major } from "../../lib/semver.ts";
+import { createRootUrl, useApiSeries } from "../../lib/links-resolvers.ts";
 import { SourceCodeIcon } from "../icons/source-code.tsx";
 import { GithubPill } from "../package/source-link.tsx";
-import { Icon } from "../type/icon.tsx";
+import { ExperimentalBadge, Icon } from "../type/icon.tsx";
 import { Type } from "../type/jsx.tsx";
 import { Keyword } from "../type/tokens.tsx";
+
+/**
+ * Root-based URL for a symbol's doc page. Experimental symbols live under a
+ * `/experimental` segment, so linking cannot be relative to the current page
+ * (which would resolve into or out of the wrong namespace).
+ */
+function* pageHref(page: LocalDocPage): Operation<string> {
+  let series = yield* useApiSeries();
+  let base = page.experimental ? `api/${series}/experimental` : `api/${series}`;
+  return yield* createRootUrl(base)(page.name);
+}
 
 export function* ApiPage({
   pages,
   current,
   pkg,
-  externalLinkResolver,
   banner,
 }: {
-  current: string;
+  current: LocalDocPage;
   pages: LocalDocPage[];
   pkg: Package;
   banner?: JSXElement;
-  externalLinkResolver: ResolveLinkFunction;
 }) {
-  const page = pages.find((node) => node.name === current);
-
-  if (!page) throw new Error(`Could not find a doc page for ${current}`);
-
   const linkResolver: ResolveLinkFunction = function* resolve(
     symbol,
     connector,
     method,
   ) {
     const target = pages &&
-      pages.find((page) => page.name === symbol && page.kind !== "import");
+      pages.find((page) => page.name === symbol);
 
     if (target) {
-      return `[${
-        [symbol, connector, method].join(
-          "",
-        )
-      }](${yield* externalLinkResolver(symbol, connector, method)})`;
+      let href = yield* pageHref(target);
+      if (connector && method) {
+        href = `${href}#${method}`;
+      }
+      return `[${[symbol, connector, method].join("")}](${href})`;
     } else {
       return symbol;
     }
@@ -57,40 +62,64 @@ export function* ApiPage({
         content: (
           <>
             <>{banner}</>
-            {yield* SymbolHeader({ pkg, page })}
-            {yield* ApiBody({ page, linkResolver })}
+            {yield* SymbolHeader({ pkg, page: current })}
+            {yield* ApiBody({ page: current, linkResolver })}
           </>
         ),
-        linkResolver: createSibling,
         versionToggle: yield* (function* () {
-          const { series } = yield* useConfig();
-          // Only show stable series in version toggle (no prereleases)
-          const stableSeries = series.filter((s) => !s.includePrerelease);
-          const currentSeries = `v${major(pkg.version)}`;
+          const { series: allSeries } = yield* useConfig();
+          const series = yield* useApiSeries();
+          const entrypoint = current.experimental ? "./experimental" : ".";
+          const suffix = current.experimental ? "/experimental" : "";
 
+          // Toggle across every series that documents the current symbol:
+          // stable releases show their version (e.g. 3.6.1, 4.0.3), and the
+          // prerelease shows as "next" — but only when it's actually newer
+          // than its stable parent (otherwise there's nothing to switch to).
           const links = yield* all(
-            stableSeries.map(function* (s) {
+            allSeries.map(function* (s) {
               const seriesPkg = yield* usePackage({
                 type: "worktree",
                 series: s.name,
               });
+
+              if (s.includePrerelease) {
+                const parent = allSeries.find((p) => p.name === s.parent);
+                if (parent) {
+                  const parentPkg = yield* usePackage({
+                    type: "worktree",
+                    series: parent.name,
+                  });
+                  if (!gt(seriesPkg.version, parentPkg.version)) {
+                    return null;
+                  }
+                }
+              }
+
               const seriesDocs = yield* seriesPkg.docs();
-              const hasSymbol = seriesDocs["."].some((node) =>
-                node.name === current
+              const hasSymbol = (seriesDocs[entrypoint] ?? []).some((node) =>
+                node.name === current.name
               );
 
-              if (!hasSymbol) return null;
+              if (!hasSymbol) {
+                return null;
+              }
+
+              const isCurrent = s.name === series;
+              const label = s.includePrerelease ? "next" : seriesPkg.version;
 
               return (
                 <a
-                  href={yield* createRootUrl(`api/${s.name}`)(current)}
+                  href={yield* createRootUrl(`api/${s.name}${suffix}`)(
+                    current.name,
+                  )}
                   class={`text-base ${
-                    s.name === currentSeries
+                    isCurrent
                       ? "font-bold text-sky-500"
                       : "text-gray-600 dark:text-gray-400 hover:text-sky-500"
                   }`}
                 >
-                  {seriesPkg.version}
+                  {label}
                 </a>
               );
             }),
@@ -123,14 +152,17 @@ export function* ApiBody({
             <h2
               class="my-0! grow"
               id={section.id}
-              data-kind={section.node.kind}
-              data-name={section.node.name}
+              data-kind={section.declaration.kind}
+              data-name={page.name}
             >
-              {yield* Type({ node: section.node })}
+              {yield* Type({
+                declaration: section.declaration,
+                symbol: { name: page.name },
+              })}
             </h2>
             <a
               class="opacity-40 before:content-['View_code'] group-hover:opacity-100 before:flex before:text-xs before:mr-1 p-2 flex-none flex rounded no-underline items-center h-8"
-              href={`${section.node.location.url}`}
+              href={`${section.declaration.location.url}`}
             >
               <SourceCodeIcon />
             </a>
@@ -154,14 +186,12 @@ export function* ApiReference({
   content,
   current,
   pages,
-  linkResolver,
   versionToggle,
 }: {
   pkg: Package;
   content: JSXElement;
-  current: string;
+  current: LocalDocPage;
   pages: LocalDocPage[];
-  linkResolver: ResolveLinkFunction;
   versionToggle: JSXElement;
 }) {
   return (
@@ -172,7 +202,7 @@ export function* ApiReference({
             <span class="font-bold">API Reference</span>
             {versionToggle}
           </h3>
-          {yield* Menu({ pages, current, linkResolver })}
+          {yield* Menu({ pages, current })}
         </nav>
       </aside>
       <article
@@ -210,30 +240,32 @@ export function* SymbolHeader(
 function* Menu({
   pages,
   current,
-  linkResolver,
 }: {
-  current: string;
+  current: LocalDocPage;
   pages: LocalDocPage[];
-  linkResolver: ResolveLinkFunction;
 }) {
   const elements = [];
   for (const page of pages.sort((a, b) => a.name.localeCompare(b.name))) {
+    const isCurrent = page.name === current.name &&
+      !!page.experimental === !!current.experimental;
     elements.push(
       <li>
-        {current === page.name
+        {isCurrent
           ? (
             <span class="rounded px-2 block w-full py-2 bg-gray-100 dark:bg-gray-700 cursor-default ">
               <Icon kind={page.kind} />
               {page.name}
+              {page.experimental ? <ExperimentalBadge class="ml-1" /> : ""}
             </span>
           )
           : (
             <a
               class="rounded px-2 block w-full py-2 hover:bg-gray-100 dark:hover:bg-gray-800"
-              href={yield* linkResolver(page.name)}
+              href={yield* pageHref(page)}
             >
               <Icon kind={page.kind} />
               {page.name}
+              {page.experimental ? <ExperimentalBadge class="ml-1" /> : ""}
             </a>
           )}
       </li>,

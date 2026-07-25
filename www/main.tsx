@@ -86,6 +86,17 @@ if (import.meta.main) {
             apiReferenceRoute(s.name, { search: true }),
           )
         ),
+        // Experimental API docs (namespaced; empty for series without the
+        // `./experimental` entrypoint)
+        ...series.map((s) =>
+          route(
+            `/api/${s.name}/experimental/:symbol`,
+            apiReferenceRoute(s.name, {
+              search: true,
+              entrypoint: "./experimental",
+            }),
+          )
+        ),
         route("/blog", blogIndexRoute({ search: true })),
         route("/blog/feed.xml", blogFeedRoute()),
         route("/llms.txt", llmsTxtRoute()),

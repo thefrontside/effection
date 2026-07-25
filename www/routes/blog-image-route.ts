@@ -61,7 +61,9 @@ export function blogImageRoute(): {
 }
 
 function pngResponse(png: Uint8Array): Response {
-  return new Response(png, {
+  // `Uint8Array<ArrayBufferLike>` (deno's newer lib types) is a valid
+  // `BodyInit` at runtime; cast to satisfy the narrower DOM signature.
+  return new Response(png as unknown as BodyInit, {
     headers: {
       "Content-Type": "image/png",
       "Cache-Control": "public, max-age=31536000, immutable",

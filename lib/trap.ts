@@ -27,7 +27,7 @@ export function* trap<T>(operation: () => Operation<T>): Operation<T> {
   }
 }
 
-class Trap<T> implements ErrorBoundary {
+export class Trap<T> implements ErrorBoundary {
   outcome = Nothing<Result<T>>();
 
   constructor(public routine: Coroutine<unknown>) {}

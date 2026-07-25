@@ -114,7 +114,8 @@
       <path d="M 0 1 L 9 5 L 0 9 z" class="svg-ret-arrow-fill" />
     </marker>
 
-    <style>.svg-mono {
+    <style>
+    .svg-mono {
       font-family:
         ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
         "Liberation Mono", "Courier New", monospace;
@@ -144,20 +145,36 @@
     }
 
     /* ---- Light mode (default) ---- */
-    .svg-bg-light { display: block; }
-    .svg-bg-dark { display: none; }
-    .svg-glow-light { display: block; }
-    .svg-glow-dark { display: none; }
-    .svg-shadow-light { display: block; }
-    .svg-shadow-dark { display: none; }
+    .svg-bg-light {
+      display: block;
+    }
+    .svg-bg-dark {
+      display: none;
+    }
+    .svg-glow-light {
+      display: block;
+    }
+    .svg-glow-dark {
+      display: none;
+    }
+    .svg-shadow-light {
+      display: block;
+    }
+    .svg-shadow-dark {
+      display: none;
+    }
 
     .svg-scope-box {
       fill: #f7fbff;
       stroke: #97b7ff;
       stroke-width: 2;
     }
-    .svg-scope-label-bg { fill: #e6f0ff; }
-    .svg-scope-label-text { fill: #1e3a8a; }
+    .svg-scope-label-bg {
+      fill: #e6f0ff;
+    }
+    .svg-scope-label-text {
+      fill: #1e3a8a;
+    }
 
     .svg-section-box-fg {
       fill: none;
@@ -179,14 +196,20 @@
       stroke: #2b6ff7;
       stroke-width: 2;
     }
-    .svg-fg-dot { fill: #2b6ff7; }
+    .svg-fg-dot {
+      fill: #2b6ff7;
+    }
     .svg-fg-line {
       stroke: #2b6ff7;
       stroke-width: 2;
       fill: none;
     }
-    .svg-fg-arrow-fill { fill: #2b6ff7; }
-    .svg-fg-mono { fill: #1e3a8a; }
+    .svg-fg-arrow-fill {
+      fill: #2b6ff7;
+    }
+    .svg-fg-mono {
+      fill: #1e3a8a;
+    }
 
     .svg-ret-box {
       fill: #ffffff;
@@ -198,19 +221,31 @@
       stroke-width: 2;
       fill: none;
     }
-    .svg-ret-arrow-fill { fill: #16a34a; }
-    .svg-ret-text { fill: #16a34a; }
+    .svg-ret-arrow-fill {
+      fill: #16a34a;
+    }
+    .svg-ret-text {
+      fill: #16a34a;
+    }
 
     .svg-bg-box {
       fill: #ffffff;
       stroke: #64748b;
       stroke-width: 2;
     }
-    .svg-bg-dot { fill: #64748b; }
-    .svg-bg-mono { fill: #334155; }
+    .svg-bg-dot {
+      fill: #64748b;
+    }
+    .svg-bg-mono {
+      fill: #334155;
+    }
 
-    .svg-label-fg { fill: #2b6ff7; }
-    .svg-label-bg { fill: #6b7280; }
+    .svg-label-fg {
+      fill: #2b6ff7;
+    }
+    .svg-label-bg {
+      fill: #6b7280;
+    }
 
     .svg-annotation {
       fill: #6b7280;
@@ -223,52 +258,97 @@
 
     /* ---- Dark mode ---- */
     @media (prefers-color-scheme: dark) {
-      .svg-bg-light { display: none; }
-      .svg-bg-dark { display: block; }
-      .svg-glow-light { display: none; }
-      .svg-glow-dark { display: block; }
-      .svg-shadow-light { display: none; }
-      .svg-shadow-dark { display: block; }
+      .svg-bg-light {
+        display: none;
+      }
+      .svg-bg-dark {
+        display: block;
+      }
+      .svg-glow-light {
+        display: none;
+      }
+      .svg-glow-dark {
+        display: block;
+      }
+      .svg-shadow-light {
+        display: none;
+      }
+      .svg-shadow-dark {
+        display: block;
+      }
 
       .svg-scope-box {
         fill: #111827;
         stroke: #374151;
       }
-      .svg-scope-label-bg { fill: #1e3a8a; }
-      .svg-scope-label-text { fill: #e5e7eb; }
+      .svg-scope-label-bg {
+        fill: #1e3a8a;
+      }
+      .svg-scope-label-text {
+        fill: #e5e7eb;
+      }
 
-      .svg-section-box-fg { stroke: #60a5fa; }
-      .svg-section-box-bg { stroke: #6b7280; }
+      .svg-section-box-fg {
+        stroke: #60a5fa;
+      }
+      .svg-section-box-bg {
+        stroke: #6b7280;
+      }
 
       .svg-fg-box {
         fill: #1f2937;
         stroke: #60a5fa;
       }
-      .svg-fg-dot { fill: #60a5fa; }
-      .svg-fg-line { stroke: #60a5fa; }
-      .svg-fg-arrow-fill { fill: #60a5fa; }
-      .svg-fg-mono { fill: #e5e7eb; }
+      .svg-fg-dot {
+        fill: #60a5fa;
+      }
+      .svg-fg-line {
+        stroke: #60a5fa;
+      }
+      .svg-fg-arrow-fill {
+        fill: #60a5fa;
+      }
+      .svg-fg-mono {
+        fill: #e5e7eb;
+      }
 
       .svg-ret-box {
         fill: #1f2937;
         stroke: #4ade80;
       }
-      .svg-ret-line { stroke: #4ade80; }
-      .svg-ret-arrow-fill { fill: #4ade80; }
-      .svg-ret-text { fill: #4ade80; }
+      .svg-ret-line {
+        stroke: #4ade80;
+      }
+      .svg-ret-arrow-fill {
+        fill: #4ade80;
+      }
+      .svg-ret-text {
+        fill: #4ade80;
+      }
 
       .svg-bg-box {
         fill: #1f2937;
         stroke: #94a3b8;
       }
-      .svg-bg-dot { fill: #94a3b8; }
-      .svg-bg-mono { fill: #cbd5e1; }
+      .svg-bg-dot {
+        fill: #94a3b8;
+      }
+      .svg-bg-mono {
+        fill: #cbd5e1;
+      }
 
-      .svg-label-fg { fill: #60a5fa; }
-      .svg-label-bg { fill: #9ca3af; }
+      .svg-label-fg {
+        fill: #60a5fa;
+      }
+      .svg-label-bg {
+        fill: #9ca3af;
+      }
 
-      .svg-annotation { fill: #9ca3af; }
-    }</style>
+      .svg-annotation {
+        fill: #9ca3af;
+      }
+    }
+    </style>
   </defs>
 
   <!-- ======== BACKGROUND (transparent) ======== -->

@@ -1,13 +1,14 @@
 import { JSXElement } from "revolution/jsx-runtime";
 import { type Operation } from "effection";
 import type {
-  DocNode,
+  Declaration,
   ParamDef,
   TsTypeDef,
   TsTypeParamDef,
   TsTypeRefDef,
   VariableDef,
 } from "@deno/doc";
+import type { SymbolInfo } from "../../hooks/use-deno-doc.tsx";
 import {
   Builtin,
   ClassName,
@@ -18,51 +19,53 @@ import {
 } from "./tokens.tsx";
 
 interface TypeProps {
-  node: DocNode;
+  declaration: Declaration;
+  symbol: SymbolInfo;
 }
 
 export function* Type(props: TypeProps): Operation<JSXElement> {
-  let { node } = props;
+  // `node` aliases the declaration; `symbol` supplies the name.
+  let { declaration: node, symbol } = props;
 
   switch (node.kind) {
-    case "function":
+    case "function": {
+      let typeParams = node.def.typeParams ?? [];
       return (
         <span class="language-ts code-highlight inline-block">
-          {node.functionDef.isAsync
-            ? <Punctuation>{"async "}</Punctuation>
-            : <></>}
+          {node.def.isAsync ? <Punctuation>{"async "}</Punctuation> : <></>}
           <Keyword>{node.kind}</Keyword>
-          {node.functionDef.isGenerator ? <Punctuation>*</Punctuation> : <></>}
-          {" "}
-          <span class="token function">{node.name}</span>
-          {node.functionDef.typeParams.length > 0
-            ? <InterfaceTypeParams typeParams={node.functionDef.typeParams} />
+          {node.def.isGenerator ? <Punctuation>*</Punctuation> : <></>}{" "}
+          <span class="token function">{symbol.name}</span>
+          {typeParams.length > 0
+            ? <InterfaceTypeParams typeParams={typeParams} />
             : <></>}
           <Punctuation>(</Punctuation>
-          <FunctionParams params={node.functionDef.params} />
-          <Punctuation>)</Punctuation>: {node.functionDef.returnType
-            ? <TypeDef typeDef={node.functionDef.returnType} />
+          <FunctionParams params={node.def.params} />
+          <Punctuation>)</Punctuation>: {node.def.returnType
+            ? <TypeDef typeDef={node.def.returnType} />
             : <></>}
         </span>
       );
-    case "class":
+    }
+    case "class": {
+      let impl /* implements */ = node.def.implements ?? [];
       return (
         <span class="language-ts code-highlight inline-block">
-          <Keyword>{node.kind}</Keyword> <ClassName>{node.name}</ClassName>
-          {node.classDef.extends
+          <Keyword>{node.kind}</Keyword> <ClassName>{symbol.name}</ClassName>
+          {node.def.extends
             ? (
               <>
                 <Keyword>{" extends "}</Keyword>
-                <ClassName>{node.classDef.extends}</ClassName>
+                <ClassName>{node.def.extends}</ClassName>
               </>
             )
             : <></>}
-          {node.classDef.implements
+          {impl.length > 0
             ? (
               <>
                 <Keyword>{" implements "}</Keyword>
                 <>
-                  {node.classDef.implements
+                  {impl
                     .flatMap((typeDef) => [<TypeDef typeDef={typeDef} />, ", "])
                     .slice(0, -1)}
                 </>
@@ -71,19 +74,22 @@ export function* Type(props: TypeProps): Operation<JSXElement> {
             : <></>}
         </span>
       );
-    case "interface":
+    }
+    case "interface": {
+      let typeParams = node.def.typeParams ?? [];
+      let ext = node.def.extends ?? [];
       return (
         <span class="language-ts code-highlight inline-block">
-          <Keyword>{node.kind}</Keyword> <ClassName>{node.name}</ClassName>
-          {node.interfaceDef.typeParams.length > 0
-            ? <InterfaceTypeParams typeParams={node.interfaceDef.typeParams} />
+          <Keyword>{node.kind}</Keyword> <ClassName>{symbol.name}</ClassName>
+          {typeParams.length > 0
+            ? <InterfaceTypeParams typeParams={typeParams} />
             : <></>}
-          {node.interfaceDef.extends.length > 0
+          {ext.length > 0
             ? (
               <>
                 <Keyword>{" extends "}</Keyword>
                 <>
-                  {node.interfaceDef.extends
+                  {ext
                     .flatMap((typeDef) => [<TypeDef typeDef={typeDef} />, ", "])
                     .slice(0, -1)}
                 </>
@@ -92,30 +98,29 @@ export function* Type(props: TypeProps): Operation<JSXElement> {
             : <></>}
         </span>
       );
+    }
     case "variable":
       return (
         <span class="inline-block">
-          <TSVariableDef variableDef={node.variableDef} name={node.name} />
+          <TSVariableDef variableDef={node.def} name={symbol.name} />
         </span>
       );
     case "typeAlias":
       return (
         <span class="inline-block">
           <Keyword>{"type "}</Keyword>
-          {node.name}
+          {symbol.name}
           <Operator>{" = "}</Operator>
-          <TypeDef typeDef={node.typeAliasDef.tsType} />
+          <TypeDef typeDef={node.def.tsType} />
         </span>
       );
     case "enum":
-    case "import":
-    case "moduleDoc":
     case "namespace":
     default:
       console.log("<Type> unimplemented", node.kind);
       return (
         <span class="inline-block">
-          <Keyword>{node.kind}</Keyword> {node.name}
+          <Keyword>{node.kind}</Keyword> {symbol.name}
         </span>
       );
   }
@@ -187,51 +192,51 @@ function TSParam({ param }: { param: ParamDef }) {
 export function TypeDef({ typeDef }: { typeDef: TsTypeDef }) {
   switch (typeDef.kind) {
     case "literal":
-      switch (typeDef.literal.kind) {
+      switch (typeDef.value.kind) {
         case "string":
-          return <span class="token string">"{typeDef.repr}"</span>;
+          return <span class="token string">"{typeDef.repr ?? ""}"</span>;
         case "number":
-          return <span class="token number">{typeDef.repr}</span>;
+          return <span class="token number">{typeDef.repr ?? ""}</span>;
         case "boolean":
-          return <span class="token boolean">{typeDef.repr}</span>;
+          return <span class="token boolean">{typeDef.repr ?? ""}</span>;
         case "bigInt":
-          return <span class="token number">{typeDef.repr}</span>;
+          return <span class="token number">{typeDef.repr ?? ""}</span>;
         default:
           // TODO(taras): implement template
           return <></>;
       }
     case "keyword":
-      if (["number", "string", "boolean", "bigint"].includes(typeDef.keyword)) {
-        return <Builtin>{typeDef.keyword}</Builtin>;
+      if (["number", "string", "boolean", "bigint"].includes(typeDef.value)) {
+        return <Builtin>{typeDef.value}</Builtin>;
       } else {
-        return <Keyword>{typeDef.keyword}</Keyword>;
+        return <Keyword>{typeDef.value}</Keyword>;
       }
     case "typeRef":
-      return <TypeRef typeRef={typeDef.typeRef} />;
+      return <TypeRef typeRef={typeDef.value} />;
     case "union":
-      return <TypeDefUnion union={typeDef.union} />;
+      return <TypeDefUnion union={typeDef.value} />;
     case "fnOrConstructor":
-      if (typeDef.fnOrConstructor.constructor) {
-        console.log(`<TypeDef> unimplemeneted`, typeDef.fnOrConstructor);
+      if (typeDef.value.constructor) {
+        console.log(`<TypeDef> unimplemeneted`, typeDef.value);
         // TODO(taras): implement
         return <></>;
       } else {
         return (
           <>
             <Punctuation>(</Punctuation>
-            <FunctionParams params={typeDef.fnOrConstructor.params} />
+            <FunctionParams params={typeDef.value.params} />
             <Punctuation>)</Punctuation>
             <Operator>{" => "}</Operator>
-            <TypeDef typeDef={typeDef.fnOrConstructor.tsType} />
+            <TypeDef typeDef={typeDef.value.tsType} />
           </>
         );
       }
     case "indexedAccess":
       return (
         <>
-          <TypeDef typeDef={typeDef.indexedAccess.objType} />
+          <TypeDef typeDef={typeDef.value.objType} />
           <Punctuation>[</Punctuation>
-          <TypeDef typeDef={typeDef.indexedAccess.indexType} />
+          <TypeDef typeDef={typeDef.value.indexType} />
           <Punctuation>]</Punctuation>
         </>
       );
@@ -240,7 +245,7 @@ export function TypeDef({ typeDef }: { typeDef: TsTypeDef }) {
         <>
           <Punctuation>[</Punctuation>
           <>
-            {typeDef.tuple
+            {typeDef.value
               .flatMap((tp) => [<TypeDef typeDef={tp} />, ", "])
               .slice(0, -1)}
           </>
@@ -250,22 +255,22 @@ export function TypeDef({ typeDef }: { typeDef: TsTypeDef }) {
     case "array":
       return (
         <>
-          <TypeDef typeDef={typeDef.array} />
+          <TypeDef typeDef={typeDef.value} />
           <Punctuation>[]</Punctuation>
         </>
       );
     case "typeOperator":
       return (
         <>
-          <Keyword>{typeDef.typeOperator.operator}</Keyword>{" "}
-          <TypeDef typeDef={typeDef.typeOperator.tsType} />
+          <Keyword>{typeDef.value.operator}</Keyword>{" "}
+          <TypeDef typeDef={typeDef.value.tsType} />
         </>
       );
     case "parenthesized": {
       return (
         <>
           <Punctuation>(</Punctuation>
-          <TypeDef typeDef={typeDef.parenthesized} />
+          <TypeDef typeDef={typeDef.value} />
           <Punctuation>)</Punctuation>
         </>
       );
@@ -273,7 +278,7 @@ export function TypeDef({ typeDef }: { typeDef: TsTypeDef }) {
     case "intersection": {
       return (
         <>
-          {typeDef.intersection
+          {typeDef.value
             .flatMap((tp) => [
               <TypeDef typeDef={tp} />,
               <Operator>{" & "}</Operator>,
@@ -294,13 +299,13 @@ export function TypeDef({ typeDef }: { typeDef: TsTypeDef }) {
     case "conditional": {
       return (
         <>
-          <TypeDef typeDef={typeDef.conditionalType.checkType} />
+          <TypeDef typeDef={typeDef.value.checkType} />
           <Keyword>{" extends "}</Keyword>
-          <TypeDef typeDef={typeDef.conditionalType.extendsType} />
+          <TypeDef typeDef={typeDef.value.extendsType} />
           <Operator>{" ? "}</Operator>
-          <TypeDef typeDef={typeDef.conditionalType.trueType} />
+          <TypeDef typeDef={typeDef.value.trueType} />
           <Operator>{" : "}</Operator>
-          <TypeDef typeDef={typeDef.conditionalType.falseType} />
+          <TypeDef typeDef={typeDef.value.falseType} />
         </>
       );
     }
@@ -308,7 +313,7 @@ export function TypeDef({ typeDef }: { typeDef: TsTypeDef }) {
       return (
         <>
           <Keyword>{"infer "}</Keyword>
-          {typeDef.infer.typeParam.name}
+          {typeDef.value.typeParam.name}
         </>
       );
     }
@@ -316,15 +321,15 @@ export function TypeDef({ typeDef }: { typeDef: TsTypeDef }) {
       return (
         <>
           <Punctuation>[</Punctuation>
-          {typeDef.mappedType.typeParam.name}
+          {typeDef.value.typeParam.name}
           <Keyword>{` in `}</Keyword>
-          {typeDef.mappedType.typeParam.constraint
-            ? <TypeDef typeDef={typeDef.mappedType.typeParam.constraint} />
+          {typeDef.value.typeParam.constraint
+            ? <TypeDef typeDef={typeDef.value.typeParam.constraint} />
             : <></>}
           <Punctuation>]</Punctuation>
           <Operator>{" : "}</Operator>
-          {typeDef.mappedType.tsType
-            ? <TypeDef typeDef={typeDef.mappedType.tsType} />
+          {typeDef.value.tsType
+            ? <TypeDef typeDef={typeDef.value.tsType} />
             : <></>}
         </>
       );

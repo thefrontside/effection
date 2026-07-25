@@ -152,7 +152,8 @@
       <rect x="0" y="0" width="920" height="630" />
     </clipPath>
 
-    <style>/* ---- Font stacks ---- */
+    <style>
+    /* ---- Font stacks ---- */
     .svg-title {
       font-family:
         ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
@@ -205,87 +206,237 @@
     }
 
     /* ---- Light mode (default) ---- */
-    .svg-bg-light { display: block; }
-    .svg-bg-dark { display: none; }
-    .svg-glow-light { display: block; }
-    .svg-glow-dark { display: none; }
-    .svg-shadow-light { display: block; }
-    .svg-shadow-dark { display: none; }
+    .svg-bg-light {
+      display: block;
+    }
+    .svg-bg-dark {
+      display: none;
+    }
+    .svg-glow-light {
+      display: block;
+    }
+    .svg-glow-dark {
+      display: none;
+    }
+    .svg-shadow-light {
+      display: block;
+    }
+    .svg-shadow-dark {
+      display: none;
+    }
 
-    .svg-grid { opacity: 0.25; }
-    .svg-grid-line { stroke: #c9d9f2; stroke-width: 1; }
-    .svg-card { fill: #ffffff; }
-    .svg-divider { stroke: #d6e4ff; stroke-dasharray: 4 4; stroke-width: 1; }
+    .svg-grid {
+      opacity: 0.25;
+    }
+    .svg-grid-line {
+      stroke: #c9d9f2;
+      stroke-width: 1;
+    }
+    .svg-card {
+      fill: #ffffff;
+    }
+    .svg-divider {
+      stroke: #d6e4ff;
+      stroke-dasharray: 4 4;
+      stroke-width: 1;
+    }
 
-    .svg-fg-bar { fill: #2b6ff7; opacity: 0.85; }
-    .svg-fg-bar-border { fill: none; stroke: #2b6ff7; stroke-width: 2; }
+    .svg-fg-bar {
+      fill: #2b6ff7;
+      opacity: 0.85;
+    }
+    .svg-fg-bar-border {
+      fill: none;
+      stroke: #2b6ff7;
+      stroke-width: 2;
+    }
 
-    .svg-bg-bar { fill: #9ca3af; opacity: 0.35; }
-    .svg-bg-bar-border { fill: none; stroke: #9ca3af; stroke-width: 1.5; stroke-dasharray: 6 3; }
+    .svg-bg-bar {
+      fill: #9ca3af;
+      opacity: 0.35;
+    }
+    .svg-bg-bar-border {
+      fill: none;
+      stroke: #9ca3af;
+      stroke-width: 1.5;
+      stroke-dasharray: 6 3;
+    }
 
-    .svg-fade-light { display: block; }
-    .svg-fade-dark { display: none; }
+    .svg-fade-light {
+      display: block;
+    }
+    .svg-fade-dark {
+      display: none;
+    }
 
-    .svg-boundary-line { stroke: #2b6ff7; stroke-width: 2.5; }
-    .svg-boundary-dashed { stroke: #9ca3af; stroke-width: 1.5; stroke-dasharray: 6 4; }
-    .svg-ret-arrow-fill { fill: #16a34a; }
-    .svg-ret-line { stroke: #16a34a; stroke-width: 2; fill: none; }
-    .svg-ret-text { fill: #16a34a; }
+    .svg-boundary-line {
+      stroke: #2b6ff7;
+      stroke-width: 2.5;
+    }
+    .svg-boundary-dashed {
+      stroke: #9ca3af;
+      stroke-width: 1.5;
+      stroke-dasharray: 6 4;
+    }
+    .svg-ret-arrow-fill {
+      fill: #16a34a;
+    }
+    .svg-ret-line {
+      stroke: #16a34a;
+      stroke-width: 2;
+      fill: none;
+    }
+    .svg-ret-text {
+      fill: #16a34a;
+    }
 
-    .svg-warn-fill { fill: #ea580c; opacity: 0.18; }
-    .svg-warn-border { fill: none; stroke: #ea580c; stroke-width: 1.5; stroke-dasharray: 4 3; }
-    .svg-warn-text { fill: #ea580c; }
+    .svg-warn-fill {
+      fill: #ea580c;
+      opacity: 0.18;
+    }
+    .svg-warn-border {
+      fill: none;
+      stroke: #ea580c;
+      stroke-width: 1.5;
+      stroke-dasharray: 4 3;
+    }
+    .svg-warn-text {
+      fill: #ea580c;
+    }
 
-    .svg-title { fill: url(#ink); }
-    .svg-subtitle { fill: #33547b; }
-    .svg-caption { fill: #23435f; }
-    .svg-mono-sm { fill: #1e3a8a; }
-    .svg-fg-label { fill: #2b6ff7; }
-    .svg-bg-label { fill: #6b7280; }
-    .svg-boundary-label { fill: #2b6ff7; }
-    .svg-label-heading { fill: #0b2a5b; }
+    .svg-title {
+      fill: url(#ink);
+    }
+    .svg-subtitle {
+      fill: #33547b;
+    }
+    .svg-caption {
+      fill: #23435f;
+    }
+    .svg-mono-sm {
+      fill: #1e3a8a;
+    }
+    .svg-fg-label {
+      fill: #2b6ff7;
+    }
+    .svg-bg-label {
+      fill: #6b7280;
+    }
+    .svg-boundary-label {
+      fill: #2b6ff7;
+    }
+    .svg-label-heading {
+      fill: #0b2a5b;
+    }
 
     /* ---- Dark mode ---- */
     @media (prefers-color-scheme: dark) {
-      .svg-bg-light { display: none; }
-      .svg-bg-dark { display: block; }
-      .svg-glow-light { display: none; }
-      .svg-glow-dark { display: block; }
-      .svg-shadow-light { display: none; }
-      .svg-shadow-dark { display: block; }
+      .svg-bg-light {
+        display: none;
+      }
+      .svg-bg-dark {
+        display: block;
+      }
+      .svg-glow-light {
+        display: none;
+      }
+      .svg-glow-dark {
+        display: block;
+      }
+      .svg-shadow-light {
+        display: none;
+      }
+      .svg-shadow-dark {
+        display: block;
+      }
 
-      .svg-grid { opacity: 0.20; }
-      .svg-grid-line { stroke: #374151; }
-      .svg-card { fill: #1f2937; }
-      .svg-divider { stroke: #374151; }
+      .svg-grid {
+        opacity: 0.20;
+      }
+      .svg-grid-line {
+        stroke: #374151;
+      }
+      .svg-card {
+        fill: #1f2937;
+      }
+      .svg-divider {
+        stroke: #374151;
+      }
 
-      .svg-fg-bar { fill: #60a5fa; opacity: 0.80; }
-      .svg-fg-bar-border { stroke: #60a5fa; }
+      .svg-fg-bar {
+        fill: #60a5fa;
+        opacity: 0.80;
+      }
+      .svg-fg-bar-border {
+        stroke: #60a5fa;
+      }
 
-      .svg-bg-bar { fill: #6b7280; opacity: 0.35; }
-      .svg-bg-bar-border { stroke: #6b7280; }
+      .svg-bg-bar {
+        fill: #6b7280;
+        opacity: 0.35;
+      }
+      .svg-bg-bar-border {
+        stroke: #6b7280;
+      }
 
-      .svg-fade-light { display: none; }
-      .svg-fade-dark { display: block; }
+      .svg-fade-light {
+        display: none;
+      }
+      .svg-fade-dark {
+        display: block;
+      }
 
-      .svg-boundary-line { stroke: #60a5fa; }
-      .svg-boundary-dashed { stroke: #6b7280; }
-      .svg-ret-arrow-fill { fill: #4ade80; }
-      .svg-ret-line { stroke: #4ade80; }
-      .svg-ret-text { fill: #4ade80; }
+      .svg-boundary-line {
+        stroke: #60a5fa;
+      }
+      .svg-boundary-dashed {
+        stroke: #6b7280;
+      }
+      .svg-ret-arrow-fill {
+        fill: #4ade80;
+      }
+      .svg-ret-line {
+        stroke: #4ade80;
+      }
+      .svg-ret-text {
+        fill: #4ade80;
+      }
 
-      .svg-warn-fill { fill: #fb923c; opacity: 0.18; }
-      .svg-warn-border { stroke: #fb923c; }
-      .svg-warn-text { fill: #fb923c; }
+      .svg-warn-fill {
+        fill: #fb923c;
+        opacity: 0.18;
+      }
+      .svg-warn-border {
+        stroke: #fb923c;
+      }
+      .svg-warn-text {
+        fill: #fb923c;
+      }
 
-      .svg-title { fill: #f3f4f6; }
-      .svg-subtitle { fill: #9ca3af; }
-      .svg-caption { fill: #9ca3af; }
-      .svg-mono-sm { fill: #e5e7eb; }
-      .svg-fg-label { fill: #60a5fa; }
-      .svg-bg-label { fill: #9ca3af; }
-      .svg-boundary-label { fill: #60a5fa; }
-      .svg-label-heading { fill: #f3f4f6; }
+      .svg-title {
+        fill: #f3f4f6;
+      }
+      .svg-subtitle {
+        fill: #9ca3af;
+      }
+      .svg-caption {
+        fill: #9ca3af;
+      }
+      .svg-mono-sm {
+        fill: #e5e7eb;
+      }
+      .svg-fg-label {
+        fill: #60a5fa;
+      }
+      .svg-bg-label {
+        fill: #9ca3af;
+      }
+      .svg-boundary-label {
+        fill: #60a5fa;
+      }
+      .svg-label-heading {
+        fill: #f3f4f6;
+      }
     }
 
     /* ======== ANIMATIONS ======== */
@@ -295,8 +446,12 @@
       animation: grow-classic-fg 0.8s ease-out 0.2s both;
     }
     @keyframes grow-classic-fg {
-      from { width: 0; }
-      to { width: 280px; }
+      from {
+        width: 0;
+      }
+      to {
+        width: 280px;
+      }
     }
 
     /* Classic background bar grows (430px, overshoots) */
@@ -304,8 +459,12 @@
       animation: grow-classic-bg 1.3s linear 0.2s both;
     }
     @keyframes grow-classic-bg {
-      from { width: 0; }
-      to { width: 430px; }
+      from {
+        width: 0;
+      }
+      to {
+        width: 430px;
+      }
     }
 
     /* Strict foreground bar grows (280px) */
@@ -313,8 +472,12 @@
       animation: grow-strict-fg 0.8s ease-out 0.2s both;
     }
     @keyframes grow-strict-fg {
-      from { width: 0; }
-      to { width: 280px; }
+      from {
+        width: 0;
+      }
+      to {
+        width: 280px;
+      }
     }
 
     /* Phased fade-ins */
@@ -336,8 +499,12 @@
     }
 
     @keyframes svg-fade-in {
-      from { opacity: 0; }
-      to { opacity: 1; }
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
     }
 
     /* Reduced motion */
@@ -354,7 +521,8 @@
         animation: none;
         opacity: 1;
       }
-    }</style>
+    }
+    </style>
   </defs>
 
   <!-- ======== BACKGROUND ======== -->

@@ -14,13 +14,8 @@ interface ScopeApi {
   delete<T>(scope: Scope, context: Context<T>): boolean;
 }
 
-interface MainApi {
-  main(body: (args: string[]) => Operation<void>): Promise<void>;
-}
-
 interface Apis {
   Scope: Api<ScopeApi>;
-  Main: Api<MainApi>;
 }
 
 export const api: Apis = {
@@ -36,11 +31,6 @@ export const api: Apis = {
     },
     delete(scope, context) {
       return delete (scope as ScopeInternal).contexts[context.name];
-    },
-  }),
-  Main: createApi<MainApi>("Main", {
-    main() {
-      throw new TypeError(`missing handler for "main()"`);
     },
   }),
 };

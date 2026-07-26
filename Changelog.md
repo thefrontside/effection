@@ -1,13 +1,27 @@
 # Changelog
 
+## Unreleased
+
+- ✨ Add `using` helper for JS disposable resources #1115
+
+## 4.0.3
+
+- ✨ Explicit Resource Management for Task and Scope #1073
+- 🐛 propagate unwind out of scoped()'s async teardown #1186
+- ✨ add allSettled() operation congruent with Promise.allSettled() #1158
+- ✨ expose Result<T> as public API #1149
+- 🐛 Catch errors in effect.enter() #1179
+- ♻️ Unify task / coroutine lifecycles #1168
+
 ## 4.0.2
 
-- 🐛 fix regression in resource destruction order (#1091)
+- ♻️ simplify spawn() by delegating to scope.run #1078
+- 🐛 fix regression in resource destruction order #1091
 
 ## 4.0.1
 
-- 🐛 fix: move all task finalization into the scope destructor (#1085)
-- 🐛 fix: destroy task scope when halting to prevent memory leak (#1081)
+- 🐛 fix: move all task finalization into the scope destructor #1085
+- 🐛 fix: destroy task scope when halting to prevent memory leak #1081
 
 ## 4.0.0
 

@@ -26,8 +26,8 @@ Here's the tour:
 
 With our trusty robotic sidekicks in tow, we've spent hours delving into the
 performance profile of Effection to find out where the highest-impact
-optimizations could be found. As a result, we've made Effection's already
-simple runtime even faster.
+optimizations could be found. As a result, we've made Effection's already simple
+runtime even faster.
 
 **priority queue**: the hottest path in the system, through which every effect
 in every operation flows, is now `O(1)` for both `push()` _and_ `pop()`. Not
@@ -36,16 +36,16 @@ means less time allocating and less time garbage collecting under load. See
 [#1171](https://github.com/thefrontside/effection/pull/1171) for details.
 
 **allocation trimming**: There were a bunch of places where the same object was
-being re-created over and over again. Each bit of savings was small, but the
-sum total of reducing them all to singletons was significant. See
+being re-created over and over again. Each bit of savings was small, but the sum
+total of reducing them all to singletons was significant. See
 [#1175](https://github.com/thefrontside/effection/pull/1175),
 [#1176](https://github.com/thefrontside/effection/pull/1176), and
 [#1173](https://github.com/thefrontside/effection/pull/1173) for details.
 
 **performance in CI**: Now that we have these performance gains, we can safely
 keep them as we add new features to Effection because we have a series of
-benchmarks that gate any new code that gets introduced. From now on, if it
-isn't fast, and it isn't efficient, then it isn't part of Effection. See
+benchmarks that gate any new code that gets introduced. From now on, if it isn't
+fast, and it isn't efficient, then it isn't part of Effection. See
 [#1169](https://github.com/thefrontside/effection/pull/1169) and
 [#1173](https://github.com/thefrontside/effection/pull/1173).
 
@@ -65,9 +65,9 @@ at HEAD.
 
 Effection is Structured Concurrency and Effects for JavaScript. Its goal is not
 to be a completely separate ecosystem, but to augment the full JavaScript
-experience with the addition of async work that is safe by default. To that
-end, our mantra is: "If it's part of the JavaScript standard library, then it's
-also part of Effection." That's why we've added seamless interoperation between
+experience with the addition of async work that is safe by default. To that end,
+our mantra is: "If it's part of the JavaScript standard library, then it's also
+part of Effection." That's why we've added seamless interoperation between
 Effection 4.1 and
 [Explicitly managed resources](https://github.com/tc39/proposal-explicit-resource-management).
 
@@ -81,8 +81,8 @@ it is in vanilla JavaScript. That's because instead of a bunch of syntactic
 variants, as well as the normal sync/async divide, in Effection there is just a
 single simple function to learn: `using()`. It allows us to work with any type
 of resource: synchronous or asynchronous. For example, if you have a Connection
-object that needs to be closed upon scope exit, you might write it in
-JavaScript like:
+object that needs to be closed upon scope exit, you might write it in JavaScript
+like:
 
 ```js
 function main() {
@@ -102,9 +102,9 @@ function* main() {
 } // conn[Symbol.asyncDispose]() is awaited when the enclosing scope exits
 ```
 
-It's nice because it works the same whether you're doing an async operation
-over the network, or just something synchronous locally. Here's an example
-using a synchronous lock mechanism:
+It's nice because it works the same whether you're doing an async operation over
+the network, or just something synchronous locally. Here's an example using a
+synchronous lock mechanism:
 
 ```js
 import { mutex } from "mutex";
@@ -269,9 +269,9 @@ middleware.
 
 ```js
 import { main } from "effection";
-import { logging, info } from "./logging.js";
+import { info, logging } from "./logging.js";
 
-await main(function*() {
+await main(function* () {
   yield* logging.around({
     info([msg], next) {
       return next(`INFO: ${msg}`);
@@ -280,7 +280,7 @@ await main(function*() {
       return next(`WARN: ${msg}`);
     },
   });
-  
+
   yield* info("this is info");
   yield* warn("this is a warning");
 });
@@ -298,9 +298,9 @@ Let's completely silence `info` messages and only show warnings is a child:
 
 ```js
 import { main } from "effection";
-import { logging, info } from "./logging.js";
+import { info, logging } from "./logging.js";
 
-await main(function*() {
+await main(function* () {
   yield* logging.around({
     *info([msg], next) {
       return yield* next(`INFO: ${msg}`);
@@ -309,18 +309,18 @@ await main(function*() {
       return yield* next(`WARN: ${msg}`);
     },
   });
-  
-  let child = yield* spawn(function*() {
+
+  let child = yield* spawn(function* () {
     yield* logging.around({
       // do not invoke the `next()` function
       // effectively silencing `info()`
       *info() {},
     });
-    
+
     yield* info("child info");
     yield* warn("child warning");
   });
-  
+
   yield* info("this is info");
   yield* warn("this is a warning");
   yield* child;

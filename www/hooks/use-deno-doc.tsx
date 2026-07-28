@@ -87,27 +87,8 @@ export function* useDocPages(
   ));
 
   let resolve = resolvedImports
-    ? (specifier: string, referrer: string) => {
-      let resolved: string = specifier;
-      if (specifier in resolvedImports) {
-        resolved = resolvedImports[specifier];
-      } else if (specifier.startsWith(".")) {
-        resolved = new URL(specifier, referrer).toString();
-      } else if (specifier.startsWith("node:")) {
-        resolved = `npm:@types/node@^22.13.5`;
-      } else {
-        let match = npmSpecifierPattern.exec(specifier);
-        if (match) {
-          let { scope, package: pkg, subpath } = match.groups;
-          let baseKey = scope ? `${scope}/${pkg}` : pkg;
-          if (baseKey in resolvedImports) {
-            let baseUrl = resolvedImports[baseKey];
-            resolved = subpath ? `${baseUrl}${subpath}` : baseUrl;
-          }
-        }
-      }
-      return resolved;
-    }
+    ? (specifier: string, referrer: string) =>
+      resolveDocSpecifier(specifier, referrer, resolvedImports)
     : undefined;
 
   let graph = yield* call(() =>
@@ -119,7 +100,7 @@ export function* useDocPages(
 
   let externalDependencies: Dependency[] = graph.modules.flatMap((module) => {
     if (module.kind === "external") {
-      let parts = module.specifier.match(/(.*):(.*)@(.*)/);
+      let parts = module.specifier.match(/^(npm|jsr):(.+)@([^@]+)$/);
       if (parts) {
         let [, source, name, version] = parts;
         return [
@@ -188,7 +169,39 @@ export function* useDocPages(
   return entrypoints;
 }
 
-function docLoader(
+export function resolveDocSpecifier(
+  specifier: string,
+  referrer: string,
+  imports: Record<string, string>,
+): string {
+  if (specifier in imports) {
+    return imports[specifier];
+  }
+  if (specifier.startsWith(".")) {
+    return new URL(specifier, referrer).toString();
+  }
+  if (specifier.startsWith("node:")) {
+    return "npm:@types/node@^22.13.5";
+  }
+  if (URL.parse(specifier)) {
+    return specifier;
+  }
+
+  let match = npmSpecifierPattern.exec(specifier);
+  if (match) {
+    let { scope, package: pkg, subpath } = match.groups;
+    let baseKey = scope ? `${scope}/${pkg}` : pkg;
+    if (baseKey in imports) {
+      let baseUrl = imports[baseKey];
+      return subpath ? `${baseUrl}${subpath}` : baseUrl;
+    }
+    return `external:${specifier}`;
+  }
+
+  return specifier;
+}
+
+export function docLoader(
   specifier: string,
   _isDynamic?: boolean,
   _cacheSetting?: CacheSetting,
@@ -220,9 +233,12 @@ function docLoader(
           cause: response,
         });
       }
-    } else {
-      console.log(`Ignoring ${url} while reading docs`);
     }
+
+    return {
+      kind: "external",
+      specifier,
+    };
   };
 }
 

@@ -1,13 +1,17 @@
-import { createContext, type Operation, type Task, useScope } from "effection";
+import {
+  createContext,
+  Err,
+  Ok,
+  type Operation,
+  type Result,
+  type Task,
+  useScope,
+} from "effection";
 import { $ } from "../context/shell.ts";
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 
 type Checkout = (nameWithOwner: string) => Operation<string>;
-
-type Attempt =
-  | { ok: true; dirpath: string }
-  | { ok: false; error: unknown };
 
 const Clones = createContext<Checkout>("clones");
 
@@ -16,7 +20,7 @@ export function* initClones(path: string): Operation<void> {
   yield* $(`mkdir -p ${path}`);
 
   let scope = yield* useScope();
-  let attempts = new Map<string, Task<Attempt>>();
+  let attempts = new Map<string, Task<Result<string>>>();
 
   // `git fetch` / `reset --hard` mutate a single working tree shared by every
   // request, so running them concurrently corrupts it (index-lock contention,
@@ -41,7 +45,7 @@ export function* initClones(path: string): Operation<void> {
         attempts.delete(nameWithOwner);
         throw outcome.error;
       }
-      return outcome.dirpath;
+      return outcome.value;
     },
   }));
 }
@@ -54,7 +58,7 @@ export function* useClone(nameWithOwner: string): Operation<string> {
 function* cloneOrRefresh(
   basepath: string,
   nameWithOwner: string,
-): Operation<Attempt> {
+): Operation<Result<string>> {
   let dirpath = resolve(`${basepath}/${nameWithOwner}`);
   try {
     if (!existsSync(dirpath)) {
@@ -63,8 +67,8 @@ function* cloneOrRefresh(
       yield* $(`git -C ${dirpath} fetch origin`);
       yield* $(`git -C ${dirpath} reset --hard origin/main`);
     }
-    return { ok: true, dirpath };
+    return Ok(dirpath);
   } catch (error) {
-    return { ok: false, error };
+    return Err(error as Error);
   }
 }

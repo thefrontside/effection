@@ -1,4 +1,4 @@
-import { call, main, type Operation } from "npm:effection@4.0.0-alpha.4";
+import { call, main, type Operation } from "effection4";
 import { join, relative } from "@std/path";
 
 import { generatePagefind } from "./e4.ts";

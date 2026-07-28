@@ -1,11 +1,4 @@
-import {
-  call,
-  type Operation,
-  race,
-  resource,
-  run,
-  sleep,
-} from "npm:effection@4.0.0-alpha.4";
+import { call, type Operation, race, resource, run, sleep } from "effection4";
 
 import {
   close,

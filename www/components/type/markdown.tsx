@@ -2,6 +2,7 @@ import { Operation } from "effection";
 import type {
   ClassMethodDef,
   Declaration,
+  FunctionDef,
   ParamDef,
   TsTypeDef,
   TsTypeParamDef,
@@ -401,10 +402,11 @@ function Param(paramDef: ParamDef): string {
 export function methodList(methods: ClassMethodDef[]) {
   let lines = [];
   for (let method of methods) {
-    let typeParams = (method.def.typeParams ?? []).map(TypeParam).join(", ");
-    let params = method.def.params.map(Param).join(", ");
-    let returnType = method.def.returnType
-      ? TypeDef(method.def.returnType)
+    let definition = classMethodFunctionDef(method);
+    let typeParams = (definition.typeParams ?? []).map(TypeParam).join(", ");
+    let params = definition.params.map(Param).join(", ");
+    let returnType = definition.returnType
+      ? TypeDef(definition.returnType)
       : "";
     let description = method.jsDoc?.doc || NO_DOCS_AVAILABLE;
     lines.push(
@@ -417,4 +419,23 @@ export function methodList(methods: ClassMethodDef[]) {
     );
   }
   return lines;
+}
+
+/**
+ * `@deno/doc` 0.199 declares class method function details as `def`, but its
+ * WASM runtime still emits them as `functionDef`. Accept both representations
+ * at this boundary so documentation rendering remains compatible with either.
+ */
+function classMethodFunctionDef(method: ClassMethodDef): FunctionDef {
+  let runtimeMethod = method as Omit<ClassMethodDef, "def"> & {
+    def?: FunctionDef;
+    functionDef?: FunctionDef;
+  };
+  let definition = runtimeMethod.def ?? runtimeMethod.functionDef;
+  if (!definition) {
+    throw new TypeError(
+      `Class method ${method.name} has no function definition`,
+    );
+  }
+  return definition;
 }

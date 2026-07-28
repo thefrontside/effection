@@ -225,15 +225,11 @@ export function xPackageRoute({
           </AppHTML>
         );
       } catch (e) {
-        console.error(e);
-        let AppHTML = yield* useAppHtml({
-          title: `${params.workspacePath} not found`,
-          description: `Failed to load ${params.workspacePath} due to error.`,
-        });
-        return (
-          <AppHTML>
-            <p>Failed to load {params.workspacePath} due to error.</p>
-          </AppHTML>
+        throw new Error(
+          `Failed to load ${params.workspacePath} documentation`,
+          {
+            cause: e,
+          },
         );
       }
     },

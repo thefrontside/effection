@@ -6,7 +6,7 @@ import type { RoutePath } from "../plugins/sitemap.ts";
 
 function pathnames(pagefindDir: string): Promise<string[]> {
   return run(function* () {
-    let route = pagefindRoute({ pagefindDir, publicDir: "./pagefind-site/" });
+    let route = pagefindRoute({ pagefindDir });
     let paths = (yield* route.routemap!(
       () => "/pagefind/",
       new Request("http://localhost/sitemap.xml"),

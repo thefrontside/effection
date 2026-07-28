@@ -1,9 +1,7 @@
-import { call, type Operation, spawn, type Task } from "effection";
-import { GET } from "revolution";
+import { call, type Operation } from "effection";
 import { relative } from "@std/path";
 
 import { assetsRoute } from "./assets-route.ts";
-import { generate } from "../e4.ts";
 import { exists } from "../lib/fs.ts";
 import type { RoutePath, SitemapRoute } from "../plugins/sitemap.ts";
 
@@ -20,36 +18,18 @@ import type { RoutePath, SitemapRoute } from "../plugins/sitemap.ts";
  * works the same way when the site is mounted below `/effection/` on
  * frontside.com: its proxy re-prefixes these sitemap entries and crawls them.
  *
- * Building the bundle is a separate step (`deno task pagefind`, see
- * `pagefind.ts`) that runs before the site is staticalized. `routemap` only
- * reports files that already exist on disk and never triggers generation — the
- * generation pass staticalizes the site itself, so generating here would
- * recurse.
+ * Building the bundle is owned by `pagefindPlugin`; this route only serves and
+ * advertises what already exists on disk. `routemap` reports nothing while the
+ * bundle is absent, so the generation pass never requests `/pagefind/*` and
+ * cannot recurse.
  */
 export function pagefindRoute(
-  { pagefindDir, publicDir }: { pagefindDir: string; publicDir: string },
+  { pagefindDir }: { pagefindDir: string },
 ): SitemapRoute<Response> {
-  let assets = assetsRoute(pagefindDir);
   let fsRoot = new URL(import.meta.resolve(`../${pagefindDir}`)).pathname;
-  let generation: Task<unknown> | undefined;
-
-  let handler = GET<Response>(function* (request, next) {
-    // In CI the bundle is generated up front by `deno task pagefind`; here we
-    // build it on demand so that `deno task dev` just works.
-    if (!(yield* exists(fsRoot))) {
-      if (!generation) {
-        let host = new URL(new URL(request.url).origin);
-        generation = yield* spawn(() =>
-          call(generate({ host, publicDir, pagefindDir, rootSelector: "main" }))
-        );
-      }
-      yield* generation;
-    }
-    return yield* assets(request, next);
-  });
 
   return {
-    handler,
+    handler: assetsRoute(pagefindDir),
     *routemap(): Operation<RoutePath[]> {
       if (!(yield* exists(fsRoot))) {
         return [];

@@ -6,11 +6,11 @@ image: announcing-effection-4-1.svg
 ---
 
 It's been six months since we released Effection 4.0 in December of 2025. Since
-that time, we've been tuning, stabilizing, and improving it will new features
-that range from incremental to the face-meltingly powerful. It's been in the
-works all year, but we're happy to finally announce the release of Effection 4.1
+that time, we've been tuning, stabilizing, and improving it with new features
+that range from incremental to face-meltingly powerful. It's been in the works
+all year, but we're happy to finally announce the release of Effection 4.1,
 which includes an impressive raft of performance upgrades, better parity with
-JavaScript async apis, and last but not least: a new experimental entry point
+JavaScript async APIs, and last but not least: a new experimental entry point
 whose first member is the peerlessly powerful "Contextual APIs".
 
 Here's the tour:
@@ -25,25 +25,26 @@ Here's the tour:
 ## ⚡️ A faster, leaner runtime
 
 With our trusty robotic sidekicks in tow, we've spent hours delving into the
-performance profile of Effection to find out where the highest impact
-optimizations can be found. As a result, we've made Effection's already simple
-runtime even faster.
+performance profile of Effection to find out where the highest-impact
+optimizations could be found. As a result, we've made Effection's already
+simple runtime even faster.
 
-**priority queue**: the hottest path in the system through which every effect in
-evey operation flows, is now `O(1)` for both `push()` _and_ `pop()`. Not only
-that, but the amount of memory it used has been drastically cut which means less
-time allocatiing and less time garbage collecting under load. See #1171 for
-details.
+**priority queue**: the hottest path in the system, through which every effect
+in every operation flows, is now `O(1)` for both `push()` _and_ `pop()`. Not
+only that, but the amount of memory it uses has been drastically cut, which
+means less time allocating and less time garbage collecting under load. See
+#1171 for details.
 
-**allocation triming**: There were a bunch of places where the same object was
-being re-created over and over again. Each bit of savings was small, but the sum
-total of reducing them all to singletons was significant. See #1175, #1176,
-#1173 for details
+**allocation trimming**: There were a bunch of places where the same object was
+being re-created over and over again. Each bit of savings was small, but the
+sum total of reducing them all to singletons was significant. See #1175, #1176,
+#1173 for details.
 
 **performance in CI**: Now that we have these performance gains, we can safely
 keep them as we add new features to Effection because we have a series of
-benchmarks that gate any new code that gets introduced. From now on, if it isn't
-fast, and it is'nt effectient, then it isn't part of Effection. See #1169, #1173
+benchmarks that gate any new code that gets introduced. From now on, if it
+isn't fast, and it isn't efficient, then it isn't part of Effection. See #1169,
+#1173.
 
 **a leaner npm package**: The runtime bundle your app actually loads was already
 optimal at **5.8 KB min+gzip**, the published tarball has been trimmed down from
@@ -58,26 +59,26 @@ at HEAD.
 
 ## 🤝 Closer parity with async JavaScript
 
-Effection is Structured Concurrency and Effects for Javascript. It's goal is not
+Effection is Structured Concurrency and Effects for JavaScript. Its goal is not
 to be a completely separate ecosystem, but to augment the full JavaScript
-experience with addition of async work that is safe by default. To that end, our
-mantra is: "If it's part of the JavaScript standard library, then it's also part
-of Effection." That's why we've add added seamless interoperation between
+experience with the addition of async work that is safe by default. To that
+end, our mantra is: "If it's part of the JavaScript standard library, then it's
+also part of Effection." That's why we've added seamless interoperation between
 Effection 4.1 and
 [Explicitly managed resources](https://github.com/tc39/proposal-explicit-resource-management).
 
-Introduced in in JavaScript is in stage 3 and has been adopted by most browsers
-and runtimes, so it made sense to add first class support in Effection
+The proposal is at stage 3 in JavaScript and has been adopted by most browsers
+and runtimes, so it made sense to add first-class support in Effection.
 
 ### `using()` — meet JavaScript's disposables where they are
 
-Working with explicitly managed resources is almost _easier_ in Effection that
+Working with explicitly managed resources is almost _easier_ in Effection than
 it is in vanilla JavaScript. That's because instead of a bunch of syntactic
-variants as well as the normal sync/async divide, in Effection there is just a
+variants, as well as the normal sync/async divide, in Effection there is just a
 single simple function to learn: `using()`. It allows us to work with any type
 of resource: synchronous or asynchronous. For example, if you have a Connection
-object that needs to be closed upon scope exit, you might write it in JavaScript
-like:
+object that needs to be closed upon scope exit, you might write it in
+JavaScript like:
 
 ```js
 function main() {
@@ -86,7 +87,7 @@ function main() {
 } // connection[Symbol.asyncDispose]() runs here
 ```
 
-The equivalent in effection with `using()` is nearly identical
+The equivalent in Effection with `using()` is nearly identical:
 
 ```js
 import { using } from "effection";
@@ -97,9 +98,9 @@ function* main() {
 } // conn[Symbol.asyncDispose]() is awaited when the enclosing scope exits
 ```
 
-A it's nice because it works the same whethere you're doing async operation over
-the network, or just something synchronous locally. Here's an example of using a
-synchronous lock mechanism
+It's nice because it works the same whether you're doing an async operation
+over the network, or just something synchronous locally. Here's an example
+using a synchronous lock mechanism:
 
 ```js
 import { mutex } from "mutex";

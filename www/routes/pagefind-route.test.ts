@@ -1,21 +1,12 @@
 import { assertEquals } from "@std/assert";
-import { run, until } from "effection";
-import { ensureFile } from "@std/fs";
+import { run } from "effection";
 
 import { pagefindRoute } from "./pagefind-route.ts";
 import type { RoutePath } from "../plugins/sitemap.ts";
 
-// The fixture lives next to the route so it resolves the same way the real
-// `pagefind` dir does (`import.meta.resolve("../<pagefindDir>")`).
-let fixtureDir = "__pagefind_test__";
-let fixtureRoot = new URL(import.meta.resolve(`../${fixtureDir}`)).pathname;
-
-function pathnames(): Promise<string[]> {
+function pathnames(pagefindDir: string): Promise<string[]> {
   return run(function* () {
-    let route = pagefindRoute({
-      pagefindDir: fixtureDir,
-      publicDir: "./pagefind-site/",
-    });
+    let route = pagefindRoute({ pagefindDir, publicDir: "./pagefind-site/" });
     let paths = (yield* route.routemap!(
       () => "/pagefind/",
       new Request("http://localhost/sitemap.xml"),
@@ -25,34 +16,14 @@ function pathnames(): Promise<string[]> {
 }
 
 Deno.test("routemap advertises every file in the pagefind bundle", async () => {
-  try {
-    await run(function* () {
-      for (
-        let path of [
-          "pagefind.js",
-          "pagefind-entry.json",
-          "wasm.unknown.pagefind",
-          "fragment/en_0001.pf_fragment",
-          "index/en_0001.pf_index",
-        ]
-      ) {
-        yield* until(ensureFile(`${fixtureRoot}/${path}`));
-      }
-    });
-
-    assertEquals(await pathnames(), [
-      "/pagefind/fragment/en_0001.pf_fragment",
-      "/pagefind/index/en_0001.pf_index",
-      "/pagefind/pagefind-entry.json",
-      "/pagefind/pagefind.js",
-      "/pagefind/wasm.unknown.pagefind",
-    ]);
-  } finally {
-    await Deno.remove(fixtureRoot, { recursive: true }).catch(() => {});
-  }
+  // test-fixtures/search-bundle stands in for a built `pagefind` directory.
+  assertEquals(await pathnames("test-fixtures/search-bundle"), [
+    "/pagefind/fragment/en_0001.pf_fragment",
+    "/pagefind/index/en_0001.pf_index",
+    "/pagefind/wasm.unknown.pagefind",
+  ]);
 });
 
 Deno.test("routemap advertises nothing when the bundle is absent", async () => {
-  await Deno.remove(fixtureRoot, { recursive: true }).catch(() => {});
-  assertEquals(await pathnames(), []);
+  assertEquals(await pathnames("test-fixtures/does-not-exist"), []);
 });

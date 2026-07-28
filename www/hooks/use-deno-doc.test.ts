@@ -25,7 +25,7 @@ Deno.test("resolves package, subpath, builtin, and relative imports", () => {
   );
   assertEquals(
     resolveDocSpecifier("node:test", referrer, imports),
-    "npm:@types/node@^22.13.5",
+    "node:test",
   );
   assertEquals(
     resolveDocSpecifier("./local.ts", referrer, imports),

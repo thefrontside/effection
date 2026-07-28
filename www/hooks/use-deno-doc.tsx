@@ -180,9 +180,6 @@ export function resolveDocSpecifier(
   if (specifier.startsWith(".")) {
     return new URL(specifier, referrer).toString();
   }
-  if (specifier.startsWith("node:")) {
-    return "npm:@types/node@^22.13.5";
-  }
   if (URL.parse(specifier)) {
     return specifier;
   }

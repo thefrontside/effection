@@ -33,22 +33,26 @@ simple runtime even faster.
 in every operation flows, is now `O(1)` for both `push()` _and_ `pop()`. Not
 only that, but the amount of memory it uses has been drastically cut, which
 means less time allocating and less time garbage collecting under load. See
-#1171 for details.
+[#1171](https://github.com/thefrontside/effection/pull/1171) for details.
 
 **allocation trimming**: There were a bunch of places where the same object was
 being re-created over and over again. Each bit of savings was small, but the
-sum total of reducing them all to singletons was significant. See #1175, #1176,
-#1173 for details.
+sum total of reducing them all to singletons was significant. See
+[#1175](https://github.com/thefrontside/effection/pull/1175),
+[#1176](https://github.com/thefrontside/effection/pull/1176), and
+[#1173](https://github.com/thefrontside/effection/pull/1173) for details.
 
 **performance in CI**: Now that we have these performance gains, we can safely
 keep them as we add new features to Effection because we have a series of
 benchmarks that gate any new code that gets introduced. From now on, if it
-isn't fast, and it isn't efficient, then it isn't part of Effection. See #1169,
-#1173.
+isn't fast, and it isn't efficient, then it isn't part of Effection. See
+[#1169](https://github.com/thefrontside/effection/pull/1169) and
+[#1173](https://github.com/thefrontside/effection/pull/1173).
 
 **a leaner npm package**: The runtime bundle your app actually loads was already
 optimal at **5.8 KB min+gzip**, the published tarball has been trimmed down from
-**80 KB → 40 KB** on the wire and from **521 KB → 213 KB** unpacked. See #1206.
+**80 KB → 40 KB** on the wire and from **521 KB → 213 KB** unpacked. See
+[#1206](https://github.com/thefrontside/effection/pull/1206).
 
 As a result of these changes, the speed of Effection code has increased anywhere
 from 25% to 500% depending on your use-case. See the full arc on the
@@ -336,4 +340,6 @@ middleware, but also the middleware of all its ancestors.
 
 There is a even more to them that, but hopefully this gives you an inkling of
 the power they posess and why we're so excited about having them in Effection.
-See #1211, #1101, #1183 for details.
+See [#1211](https://github.com/thefrontside/effection/pull/1211),
+[#1101](https://github.com/thefrontside/effection/pull/1101), and
+[#1183](https://github.com/thefrontside/effection/pull/1183) for details.

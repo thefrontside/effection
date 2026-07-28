@@ -1,5 +1,4 @@
 import { call, type Operation } from "effection";
-import { relative } from "@std/path";
 
 import { assetsRoute } from "./assets-route.ts";
 import { exists } from "../lib/fs.ts";
@@ -35,8 +34,11 @@ export function pagefindRoute(
         return [];
       }
       let files = yield* collectFiles(fsRoot);
+      // collectFiles builds paths as `${fsRoot}/…` with forward slashes, so
+      // strip the prefix directly rather than using @std/path's `relative`,
+      // which would yield backslash-separated (and thus wrong) URLs on Windows.
       return files
-        .map((file) => relative(fsRoot, file))
+        .map((file) => file.slice(fsRoot.length + 1))
         .sort()
         .map((path) => ({
           pathname: `/pagefind/${

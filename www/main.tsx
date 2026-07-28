@@ -106,7 +106,10 @@ if (import.meta.main) {
         route("/blog{/*path}", assetsRoute("blog")),
         route(
           "/pagefind{/*path}",
-          pagefindRoute({ pagefindDir: "pagefind", publicDir: "./built/" }),
+          pagefindRoute({
+            pagefindDir: "pagefind",
+            publicDir: "./pagefind-site/",
+          }),
         ),
         route("/assets/*path", assetsRoute("assets")),
       ],

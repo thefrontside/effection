@@ -53,16 +53,16 @@ jobs:
           tar -xzf /tmp/staticalize-linux.tar.gz -C /usr/local/bin
           chmod +x /usr/local/bin/staticalize-linux
 
+      - name: Pagefind
+        run: deno task pagefind
+        working-directory: ./www
+
       - name: Staticalize
         run: |
           staticalize-linux \
             --site=http://127.0.0.1:8000 \
             --output=www/built \
             --base=https://effection.netlify.app
-
-      - name: Pagefind
-        run: deno task pagefind
-        working-directory: ./www
 
       - name: Deploy Preview to Netlify
         id: netlify
@@ -136,16 +136,16 @@ jobs:
           tar -xzf /tmp/staticalize-linux.tar.gz -C /usr/local/bin
           chmod +x /usr/local/bin/staticalize-linux
 
+      - name: Pagefind
+        run: deno task pagefind
+        working-directory: ./www
+
       - name: Staticalize
         run: |
           staticalize-linux \
             --site=http://127.0.0.1:8000 \
             --output=www/built \
             --base=https://effection.netlify.app
-
-      - name: Pagefind
-        run: deno task pagefind
-        working-directory: ./www
 
       - name: Deploy to Production
         run: |

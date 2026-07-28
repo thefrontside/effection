@@ -7,18 +7,18 @@ image: announcing-effection-4-1.svg
 
 It's been six months since we released Effection 4.0 in December of 2025. Since
 that time, we've been tuning, stabilizing, and improving it with new features
-that range from incremental to face-meltingly powerful. It's been in the works
-all year, but we're happy to finally announce the release of Effection 4.1,
-which includes an impressive raft of performance upgrades, better parity with
-JavaScript async APIs, and last but not least: a new experimental entry point
-whose first member is the peerlessly powerful "Contextual APIs".
+that range from the incremental to the face-meltingly powerful. It's been in the
+works all year, but we're happy to finally announce the release of Effection
+4.1, which includes an impressive raft of performance upgrades, better parity
+with JavaScript async APIs, and last but not least: a new experimental entry
+point whose first member is the peerlessly powerful "Contextual APIs".
 
 Here's the tour:
 
-- ⚡️ **A faster, leaner runtime** — a rewritten priority queue, hot-path
-  allocations eliminated, benchmarks watching every commit.
-- 🤝 **Closer parity with async JavaScript** — `allSettled()` and `using()` land
-  alongside their `Promise`/keyword counterparts.
+- ⚡️ **A faster, leaner runtime** — a rewritten priority queue, and a ton of
+  hot-path allocations eliminated.
+- 🤝 **Closer parity with async JavaScript** — first class support for
+  explicitly managed resources.
 - 🧬 **The new `experimental` entry point** — home to **Contextual APIs**, our
   take on algebraic effects.
 
@@ -29,10 +29,10 @@ performance profile of Effection to find out where the highest-impact
 optimizations could be found. As a result, we've made Effection's already simple
 runtime even faster.
 
-**priority queue**: the hottest path in the system, through which every effect
-in every operation flows, is now `O(1)` for both `push()` _and_ `pop()`. Not
-only that, but the amount of memory it uses has been drastically cut, which
-means less time allocating and less time garbage collecting under load. See
+**priority queue**: the hottest path in the system through which every effect in
+every operation flows is now `O(1)` for both `push()` _and_ `pop()`. Not only
+that, but the amount of memory it uses has been drastically cut, which means
+less time allocating and less time garbage collecting under load. See
 [#1171](https://github.com/thefrontside/effection/pull/1171) for details.
 
 **allocation trimming**: There were a bunch of places where the same object was
@@ -343,3 +343,18 @@ the power they posess and why we're so excited about having them in Effection.
 See [#1211](https://github.com/thefrontside/effection/pull/1211),
 [#1101](https://github.com/thefrontside/effection/pull/1101), and
 [#1183](https://github.com/thefrontside/effection/pull/1183) for details.
+
+## The Road Ahead
+
+Effection 4.1 is a release that's all about refinement. It's faster, leaner, and
+feels more at home in the modern JavaScript ecosystem than ever before. At the
+same time, we're opening the door to new ideas through the experimental module,
+starting with Contextual APIs—a feature we're incredibly excited to finally
+share.
+
+As always, thank you to everyone who's filed issues, contributed code, tested
+release candidates, or simply trusted Effection to run your applications. Every
+conversation has helped shape where the project is today.
+
+We're excited to see what you build with 4.1, and even more excited about where
+it's taking us next.

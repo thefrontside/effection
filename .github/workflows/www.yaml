@@ -35,7 +35,7 @@ jobs:
 
       - name: Serve Website
         run: |
-          deno run -A main.tsx &
+          deno run -A main.tsx > /tmp/www-server.log 2>&1 &
           until curl --output /dev/null --silent --head --fail http://127.0.0.1:8000; do
             printf '.'
             sleep 1
@@ -54,7 +54,9 @@ jobs:
           chmod +x /usr/local/bin/staticalize-linux
 
       - name: Build Pagefind index
-        run: curl -sf --max-time 600 http://127.0.0.1:8000/pagefind/pagefind-entry.json -o /dev/null
+        run: |
+          curl -sf --max-time 600 http://127.0.0.1:8000/pagefind/pagefind-entry.json -o /dev/null \
+            || { echo '=== server log ==='; tail -120 /tmp/www-server.log; exit 1; }
 
       - name: Staticalize
         run: |
@@ -117,7 +119,7 @@ jobs:
 
       - name: Serve Website
         run: |
-          deno run -A main.tsx &
+          deno run -A main.tsx > /tmp/www-server.log 2>&1 &
           until curl --output /dev/null --silent --head --fail http://127.0.0.1:8000; do
             printf '.'
             sleep 1
@@ -136,7 +138,9 @@ jobs:
           chmod +x /usr/local/bin/staticalize-linux
 
       - name: Build Pagefind index
-        run: curl -sf --max-time 600 http://127.0.0.1:8000/pagefind/pagefind-entry.json -o /dev/null
+        run: |
+          curl -sf --max-time 600 http://127.0.0.1:8000/pagefind/pagefind-entry.json -o /dev/null \
+            || { echo '=== server log ==='; tail -120 /tmp/www-server.log; exit 1; }
 
       - name: Staticalize
         run: |

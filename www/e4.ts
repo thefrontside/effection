@@ -8,7 +8,7 @@ import {
   SiteDirectory,
   WriteOptions,
 } from "pagefind";
-import { staticalize } from "@frontside/staticalize";
+import { useStaticalizer } from "@frontside/staticalize";
 import * as fs from "@std/fs";
 
 function exists(path: string | URL, options?: fs.ExistsOptions) {
@@ -40,13 +40,21 @@ export function* generatePagefind(
   } else {
     log(`Staticalizing: ${host} to ${built.pathname}`);
 
+    let staticalizer = yield* useStaticalizer({
+      host,
+      base: host,
+      dir: built.pathname,
+      // The site renders package pages by shelling out to git, which races
+      // under a wide crawl and returns transient 500s. Keep concurrency low and
+      // retry so those recover; non-strict mode skips anything that still fails
+      // instead of aborting the whole index.
+      concurrency: 10,
+      retries: 5,
+    });
+
     yield* race([
-      staticalize({
-        host,
-        base: host,
-        dir: built.pathname,
-      }),
-      sleep(60000),
+      staticalizer.staticalize(),
+      sleep(300000),
     ]);
   }
 

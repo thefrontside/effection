@@ -115,10 +115,7 @@ if (import.meta.main) {
         }),
         currentRequestPlugin(),
         etagPlugin(),
-        pagefindPlugin({
-          pagefindDir: "pagefind",
-          publicDir: "./pagefind-site/",
-        }),
+        pagefindPlugin({ pagefindDir: "pagefind" }),
         sitemapPlugin(),
       ],
     });

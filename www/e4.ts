@@ -5,7 +5,6 @@ import {
   resource,
   run,
   sleep,
-  // deno-lint-ignore no-import-prefix
 } from "npm:effection@4.0.0-alpha.4";
 
 import {
@@ -33,41 +32,43 @@ const log = (first: unknown, ...args: unknown[]) =>
   console.log(`💪: ${first}`, ...args);
 
 export function generate(
-  { host, publicDir, pagefindDir, ...indexOptions }: GenerateOptions,
+  options: GenerateOptions,
 ) {
-  return async function () {
-    return await run(function* () {
-      let built = new URL(publicDir, import.meta.url);
+  return () => run(() => generatePagefind(options));
+}
 
-      if (yield* exists(built, { isDirectory: true })) {
-        log(`Reusing existing staticalized ${built.pathname} directory`);
-      } else {
-        log(`Staticalizing: ${host} to ${built.pathname}`);
+export function* generatePagefind(
+  { host, publicDir, pagefindDir, ...indexOptions }: GenerateOptions,
+): Operation<string> {
+  let built = new URL(publicDir, import.meta.url);
 
-        yield* race([
-          staticalize({
-            host,
-            base: host,
-            dir: built.pathname,
-          }),
-          sleep(60000),
-        ]);
-      }
+  if (yield* exists(built, { isDirectory: true })) {
+    log(`Reusing existing staticalized ${built.pathname} directory`);
+  } else {
+    log(`Staticalizing: ${host} to ${built.pathname}`);
 
-      log("Adding index");
+    yield* race([
+      staticalize({
+        host,
+        base: host,
+        dir: built.pathname,
+      }),
+      sleep(60000),
+    ]);
+  }
 
-      let index = yield* createPagefindIndex(indexOptions);
+  log("Adding index");
 
-      log(`Adding directory: ${built.pathname}`);
+  let index = yield* createPagefindIndex(indexOptions);
 
-      let added = yield* index.addDirectory({ path: built.pathname });
+  log(`Adding directory: ${built.pathname}`);
 
-      log(`Addedd ${added} pages from ${built.pathname}`);
+  let added = yield* index.addDirectory({ path: built.pathname });
 
-      log(`Writing files ${pagefindDir}`);
-      return yield* index.writeFiles({ outputPath: pagefindDir });
-    });
-  };
+  log(`Addedd ${added} pages from ${built.pathname}`);
+
+  log(`Writing files ${pagefindDir}`);
+  return yield* index.writeFiles({ outputPath: pagefindDir });
 }
 
 export class EPagefindIndex {

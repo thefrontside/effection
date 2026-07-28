@@ -61,7 +61,7 @@ jobs:
             --base=https://effection.netlify.app
 
       - name: Pagefind
-        run: npx pagefind --site built
+        run: deno task pagefind
         working-directory: ./www
 
       - name: Deploy Preview to Netlify
@@ -144,7 +144,7 @@ jobs:
             --base=https://effection.netlify.app
 
       - name: Pagefind
-        run: npx pagefind --site built
+        run: deno task pagefind
         working-directory: ./www
 
       - name: Deploy to Production

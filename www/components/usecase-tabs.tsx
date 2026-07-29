@@ -80,10 +80,10 @@ const CASES: UseCase[] = [
  * via `:checked ~` sibling selectors in a scoped <style> block.
  */
 export function UseCaseTabs(): JSXElement {
-  let GRADIENT = "linear-gradient(45deg,#f74d7b,#a855f7,#26abe8)";
+  let ACCENT = "#14315D";
   let css =
     CASES.map((_, i) =>
-      `#uc-tab-${i}:checked~.uc-tablist label[for="uc-tab-${i}"]{color:#fff!important;border-color:transparent!important;background-image:${GRADIENT}!important;}` +
+      `#uc-tab-${i}:checked~.uc-tablist label[for="uc-tab-${i}"]{color:#fff!important;border-color:transparent!important;background-color:${ACCENT}!important;}` +
       `#uc-tab-${i}:checked~.uc-panels .uc-p${i}{display:block}`
     ).join("\n") +
     "\n.uc-panel{display:none}.uc-panel{animation:ucfade .25s ease}" +

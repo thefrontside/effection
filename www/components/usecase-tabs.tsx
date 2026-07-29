@@ -19,7 +19,7 @@ const CASES: UseCase[] = [
   ]);
 }`,
     note:
-      "Nothing here cancels the losing request — you'd reach for an AbortController next. You don't have to. When one branch wins, the other is already halted.",
+      "Nothing here cancels the losing request; you'd reach for an AbortController next. You don't have to. When one branch wins, the other is already halted.",
   },
   {
     tab: "Parallel",
@@ -33,7 +33,7 @@ const CASES: UseCase[] = [
   return { user, feed, prefs };
 }`,
     note:
-      "Promise.all rejects on the first failure but lets the other requests finish anyway. Here, one failure halts the siblings — no orphaned work.",
+      "Promise.all rejects on the first failure but lets the other requests finish anyway. Here, one failure halts the siblings. No orphaned work.",
   },
   {
     tab: "Stream",
@@ -45,7 +45,7 @@ const CASES: UseCase[] = [
   }
 }`,
     note:
-      "No socket.close(), no removeEventListener. Leave the loop — return, throw, or cancel — and the subscription closes itself.",
+      "No socket.close(), no removeEventListener. Leave the loop however you like (return, throw, or cancel) and the subscription closes itself.",
   },
   {
     tab: "Background",
@@ -55,7 +55,7 @@ const CASES: UseCase[] = [
   yield* serveRequests();
 }`,
     note:
-      "heartbeat runs for as long as entrypoint does. No handle to keep, no teardown to write — when entrypoint returns or is cancelled, it's halted with it.",
+      "heartbeat runs for as long as entrypoint does. No handle to keep, no teardown to write. When entrypoint returns or is cancelled, it's halted with it.",
   },
   {
     tab: "Async teardown",
@@ -69,7 +69,7 @@ const CASES: UseCase[] = [
   return yield* runQueries(db);
 }`,
     note:
-      "conn.close() is async — an await inside a plain finally is exactly what gets abandoned on cancel. The resource's teardown runs to completion when report() exits, every time.",
+      "conn.close() is async, and an await inside a plain finally is exactly what gets abandoned on cancel. The resource's teardown runs to completion when report() exits, every time.",
   },
 ];
 

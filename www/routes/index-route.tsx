@@ -6,6 +6,7 @@ import { CodeWindow } from "../components/code-window.tsx";
 import { OperationTree } from "../components/operation-tree.tsx";
 import { UseCaseTabs } from "../components/usecase-tabs.tsx";
 import { InstallCopy } from "../components/install-copy.tsx";
+import { SectionNav } from "../components/section-nav.tsx";
 import { IconGithub } from "../components/icons/github.tsx";
 import { IconExternal } from "../components/icons/external.tsx";
 
@@ -22,7 +23,7 @@ export function indexRoute(): SitemapRoute<JSXElement> {
       let AppHtml = yield* useAppHtml({
         title: `Effection`,
         description:
-          "Structured concurrency for JavaScript. Leak-proof cleanup, real cancellation and scoped context — in one dependency-free package.",
+          "Structured concurrency for JavaScript. Leak-proof cleanup, real cancellation and scoped context, in one dependency-free package.",
         head: <script type="module" src="/assets/home-islands.js"></script>,
       });
 
@@ -38,7 +39,7 @@ export function indexRoute(): SitemapRoute<JSXElement> {
                 </h1>
                 <p class="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-gray-600 dark:text-gray-300">
                   Every value belongs to a scope; when the scope is gone, the
-                  runtime reclaims it. Async work belongs to nothing — it runs
+                  runtime reclaims it. Async work belongs to nothing. It runs
                   until it's done, whether or not the code that started it is
                   still around.
                 </p>
@@ -46,62 +47,61 @@ export function indexRoute(): SitemapRoute<JSXElement> {
                   Effection makes async work the way memory already does.
                 </p>
               </div>
+              <SectionNav />
             </section>
 
-            {/* ============ 2 · THE EXCEPTION ============ */}
-            <section class="mt-20 rounded-2xl bg-gray-100 px-6 py-16 dark:bg-gray-800/40 md:px-12">
+            {/* ============ 2 · THE PROBLEM ============ */}
+            <section
+              id="problem"
+              class="mt-20 scroll-mt-24 rounded-2xl bg-gray-100 px-6 py-16 dark:bg-gray-800/40 md:px-12"
+            >
               <SectionHead
-                eyebrow="The exception"
                 title="Memory is reclaimed according to the structure of your code. Asynchronous operations aren't."
                 lead={
                   <>
-                    A promise doesn't belong to the scope that created it. When
-                    the scope exits, the promise keeps running — and because it
-                    belongs to nothing, the runtime has no way of knowing when
-                    its lifetime is over.
+                    A promise doesn't belong to the scope that created it. The
+                    scope exits, the promise keeps running, and the runtime has
+                    no way of knowing when its lifetime is over.
                   </>
                 }
               />
               <p class="mx-auto mt-9 max-w-2xl text-center text-lg leading-relaxed text-gray-700 dark:text-gray-200">
                 So that knowledge has to come from you. The{" "}
                 <code>AbortSignal</code>{" "}
-                you thread through every call, the unsubscribe you remember, the
+                you thread through every call. The unsubscribe you remember. The
                 {" "}
-                <code>close()</code> in a <code>finally</code>, the{" "}
-                <code>using</code>{" "}
-                you declare one resource at a time — different tools, all
-                reconstructing the same missing information:{" "}
-                <em>when this work should end</em>. We spent a decade
-                reconstructing this missing lifetime by hand.
+                <code>close()</code> in a{" "}
+                <code>finally</code>. Different tools, all reconstructing the
+                same missing fact:{" "}
+                <em>when this work should end</em>. We spent a decade rebuilding
+                that lifetime by hand.
               </p>
             </section>
 
             {/* the claim — the name for what the reader already understands */}
             <section class="mx-auto max-w-3xl px-6 pt-16 text-center">
-              <p class="text-2xl font-extrabold leading-snug tracking-tight md:text-3xl">
+              <p class="text-2xl font-extrabold leading-snug tracking-tight text-[#14315D] md:text-3xl dark:text-gray-100">
+                JavaScript has{" "}
                 <span class="text-gray-400 dark:text-gray-500">
-                  JavaScript has async/await.
+                  async/await
                 </span>
-                <br />
-                <span class="text-[#14315D] dark:text-gray-100">
-                  It doesn't have{" "}
-                </span>
-                <span class="text-[#26ABE8]">
-                  structured concurrency
-                </span>
-                <span class="text-[#14315D] dark:text-gray-100">.</span>
+                , not{" "}
+                <span class="text-[#26ABE8]">structured concurrency</span>.
               </p>
             </section>
 
             <p class="mx-auto mt-9 max-w-2xl px-6 text-center text-lg leading-relaxed text-gray-700 dark:text-gray-200">
-              But none of it would be necessary if the work simply belonged to
-              the scope that started it — the runtime would know when it ends,
-              the same way it knows when a value dies. That's not a workaround.
-              It's a property a language either has or doesn't.
+              None of it would be necessary if the work simply belonged to the
+              scope that started it. The runtime would know when it ends, the
+              same way it knows when a value dies. That's not a workaround. It's
+              a property a language either has or doesn't.
             </p>
 
             {/* ============ EFFECTION ============ */}
-            <section class="mx-auto max-w-4xl px-6 pt-20 text-center">
+            <section
+              id="effection"
+              class="mx-auto max-w-4xl scroll-mt-24 px-6 pt-20 text-center"
+            >
               <img
                 src="/assets/images/icon-effection.svg"
                 alt="Effection"
@@ -113,11 +113,11 @@ export function indexRoute(): SitemapRoute<JSXElement> {
                 Effection brings it to JavaScript
               </h2>
               <p class="mx-auto mt-4 max-w-xl text-lg leading-relaxed text-gray-600 dark:text-gray-300">
-                Structured concurrency, built on generator functions — the same
-                shapes you already write, with a caller that can always reclaim
-                control. Under 6KB, dependency-free, no build step; it runs in
-                Node, Deno, Bun and the browser, and it's been in production for
-                five years.
+                Structured concurrency, built on the generator functions you
+                already write, with a caller that can always reclaim control.
+                Under 6KB, dependency-free, no build step. It runs in Node,
+                Deno, Bun and the browser, and it's been in production for five
+                years.
               </p>
 
               <div class="mx-auto mt-10 grid max-w-2xl grid-cols-2 overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 md:grid-cols-4">
@@ -144,19 +144,21 @@ export function indexRoute(): SitemapRoute<JSXElement> {
             </section>
 
             {/* ============ THE EVIDENCE ============ */}
-            <section class="mx-auto mt-24 max-w-4xl px-6">
+            <section
+              id="proof"
+              class="mx-auto mt-24 max-w-4xl scroll-mt-24 px-6"
+            >
               <SectionHead
-                eyebrow="See for yourself"
                 title="The obvious code, tested"
-                lead="If async work really is reclaimed when its operation exits, the defensive code should disappear. Look for the abort, the unsubscribe, the cancellation flag — they aren't there. And where teardown is genuinely needed, you declare it once and it's guaranteed to run."
+                lead="If async work really is reclaimed when its operation exits, the defensive code should disappear. Look for the abort, the unsubscribe, the cancellation flag. They aren't there. And where teardown is genuinely needed, you declare it once and it's guaranteed to run."
               />
               <div class="mt-10">
                 <UseCaseTabs />
               </div>
               <p class="mx-auto mt-16 max-w-xl text-center text-2xl font-extrabold leading-snug tracking-tight">
-                <span class="text-gray-400 dark:text-gray-500">
-                  It feels too simple to be correct.
-                </span>
+                <s class="font-semibold text-gray-400 dark:text-gray-500">
+                  It's complex because it's correct.
+                </s>
                 <br />
                 <span class="text-[#14315D] dark:text-gray-100">
                   It's correct because it's simple.
@@ -166,9 +168,6 @@ export function indexRoute(): SitemapRoute<JSXElement> {
 
             {/* operation tree — the proof */}
             <section class="mx-auto mt-20 max-w-2xl px-6">
-              <p class="mb-2 text-center text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">
-                The operation tree
-              </p>
               <h3 class="mb-7 text-center text-2xl font-extrabold tracking-tight text-[#14315D] dark:text-gray-100">
                 Every operation belongs to the one that started it
               </h3>
@@ -178,23 +177,23 @@ export function indexRoute(): SitemapRoute<JSXElement> {
             {/* structural features */}
             <section class="mx-auto mt-24 max-w-4xl px-6">
               <SectionHead
-                eyebrow="The same tree, twice"
                 title="Structured lifetimes unlock more than cleanup"
-                lead="The tree above works in both directions. Teardown flows up it — and values can flow down it."
+                lead="The tree above works in both directions. Teardown flows up it, and values can flow down it."
               />
             </section>
             <div class="mx-auto mt-12 flex max-w-4xl flex-col gap-20 px-6">
               <Power
                 n="1"
                 kicker="Halt"
-                title="Cancel anything — and teardown is guaranteed"
+                title="Cancel anything, and teardown is guaranteed"
                 lead={
                   <>
                     Halt an operation and everything it spawned shuts down with
-                    it — <code>try/finally</code> for synchronous cleanup,{" "}
+                    it. <code>try/finally</code> handles synchronous cleanup and
+                    {" "}
                     <code>ensure</code>{" "}
-                    for teardown that's itself async, both guaranteed to run.
-                    It's the one thing <code>async/await</code>{" "}
+                    handles teardown that's itself async, both guaranteed to
+                    run. It's the one thing <code>async/await</code>{" "}
                     structurally cannot do, and it's how Effection reclaims
                     background work on its own:{" "}
                     <Link href={STRICT_SC}>strict structured concurrency</Link>.
@@ -213,7 +212,7 @@ yield* task.halt();   // stops the child and all it spawned`}
                 kicker="Context"
                 flip
                 title="Share state down the call tree, no prop-drilling"
-                lead="Set a value once; read it anywhere below. It's scoped to the operation, so it disappears when the operation exits — dependency injection for async, without prop-drilling. TC39's AsyncContext is chasing the same idea; Effection has it today, tied to structured lifetimes."
+                lead="Set a value once; read it anywhere below. It's scoped to the operation, so it disappears when the operation exits. That's dependency injection for async, without prop-drilling. TC39's AsyncContext is chasing the same idea; Effection has it today, tied to structured lifetimes."
                 code={`const Token = createContext("token");
 
 yield* Token.set("abc-123");
@@ -228,7 +227,7 @@ function* fetchUser() {
                 n="3"
                 kicker="Synchronous by default"
                 title="Stay synchronous until you actually need async"
-                lead="A single yield* can resolve synchronously or asynchronously — where await always defers to the next tick. The same call reads a warm cache on the current tick, and crosses into async only on a real miss."
+                lead="A single yield* can resolve synchronously or asynchronously, where await always defers to the next tick. The same call reads a warm cache on the current tick, and crosses into async only on a real miss."
                 code={`function* getUser(id) {
   // yield* resolves on THIS tick when warm, and
   // upgrades to an async fetch only on a miss.
@@ -244,15 +243,14 @@ function* fetchUser() {
             {/* capstone — the GC analogy */}
             <section class="mt-24 rounded-2xl bg-gray-100 px-6 py-16 dark:bg-gray-800/40 md:px-12">
               <SectionHead
-                eyebrow="What it all adds up to"
                 title="Complex async, as simple as complex sync"
-                lead="This isn't only about cancellation. Once every operation has a lifetime, the way you compose them changes too — you nest ordinary loops and functions as deep as you like, and none of it needs lifecycle bookkeeping."
+                lead="This isn't only about cancellation. Once every operation has a lifetime, the way you compose them changes too. You nest ordinary loops and functions as deep as you like, and none of it needs lifecycle bookkeeping."
               />
               <div class="mx-auto mt-10 max-w-xl">
                 <CodeWindow
                   filename="server.ts"
                   code={`function* handleConnection(socket) {
-  // each handles messages concurrently — no spawn needed
+  // each handles messages concurrently, no spawn needed
   for (const message of yield* each(socket)) {
     const updates = yield* subscribe(message.channel);
     yield* spawn(() => forward(client, updates));
@@ -269,11 +267,13 @@ function* fetchUser() {
             </section>
 
             {/* ============ ADOPTION COST ============ */}
-            <section class="mx-auto mt-24 max-w-4xl px-6">
+            <section
+              id="adopt"
+              class="mx-auto mt-24 max-w-4xl scroll-mt-24 px-6"
+            >
               <SectionHead
-                eyebrow="A small leap from async/await"
                 title="If you know async/await, you already know most of it"
-                lead="For the serial code that is most of what you write, adopting Effection is a near-mechanical translation. Same functions, loops and try/finally — you mostly swap await for yield*."
+                lead="For the serial code that is most of what you write, adopting Effection is a near-mechanical translation. Same functions, loops and try/finally; you mostly swap await for yield*."
               />
               <div class="mx-auto mt-10 max-w-xl overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
                 <div class="grid grid-cols-2">
@@ -292,7 +292,7 @@ function* fetchUser() {
                     ["Promise.race([ … ])", "race([ … ])"],
                     [
                       "try / finally  (sync cleanup)",
-                      "try / finally — unchanged",
+                      "try / finally (unchanged)",
                     ],
                   ].map(([a, b]) => (
                     <div class="grid grid-cols-2 border-t border-gray-200 dark:border-gray-700">
@@ -311,7 +311,7 @@ function* fetchUser() {
                   href="/docs/async-rosetta-stone"
                   class="text-sm font-semibold"
                 >
-                  Resources, streams &amp; the rest — see the full Async Rosetta
+                  Resources, streams &amp; the rest: see the full Async Rosetta
                   Stone <IconExternal />
                 </Link>
               </p>
@@ -323,8 +323,8 @@ function* fetchUser() {
                 Get structured concurrency in JavaScript today.
               </h2>
               <p class="mx-auto mt-4 max-w-lg text-lg leading-relaxed text-white/85">
-                Leak-proof cleanup, real cancellation and scoped context — in
-                one dependency-free package.
+                Leak-proof cleanup, real cancellation and scoped context, in one
+                dependency-free package.
               </p>
               <div class="mt-7 flex justify-center">
                 <InstallCopy />
@@ -369,22 +369,14 @@ function Link(
 }
 
 function SectionHead(
-  { eyebrow, title, lead }: {
-    eyebrow?: string;
+  { title, lead }: {
     title: string;
     lead?: JSXChild;
   },
 ): JSXElement {
   return (
     <hgroup class="mx-auto max-w-2xl text-center">
-      {eyebrow
-        ? (
-          <p class="text-xs font-bold uppercase tracking-wider text-[#F74D7B]">
-            {eyebrow}
-          </p>
-        )
-        : <></>}
-      <h2 class="mt-2.5 text-3xl font-extrabold leading-tight tracking-tight text-[#14315D] dark:text-gray-100">
+      <h2 class="text-3xl font-extrabold leading-tight tracking-tight text-[#14315D] dark:text-gray-100">
         {title}
       </h2>
       {lead

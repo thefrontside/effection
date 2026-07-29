@@ -3,8 +3,8 @@ import { expect } from "expect";
 import { createJsDocSanitizer, escapeMdxSyntax } from "./use-markdown.tsx";
 
 describe("createJsDocSanitizer", () => {
-  const sanitizer = createJsDocSanitizer();
-  const cases: [string, string][] = [
+  let sanitizer = createJsDocSanitizer();
+  let cases: [string, string][] = [
     ["{@link Context}", "[Context](Context)"],
     ["@{link Scope}", "[Scope](Scope)"],
     ["{@link spawn()}", "[spawn](spawn)"],
@@ -20,7 +20,7 @@ describe("createJsDocSanitizer", () => {
     ],
   ];
 
-  for (const [input, expected] of cases) {
+  for (let [input, expected] of cases) {
     it(`rewrites ${input}`, function* () {
       expect(yield* sanitizer(input)).toEqual(expected);
     });

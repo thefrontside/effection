@@ -29,7 +29,6 @@ import { blogTagRoute } from "./routes/blog-tag-route.tsx";
 import { blogFeedRoute } from "./routes/blog-feed-route.tsx";
 import { llmsTxtRoute } from "./routes/llms-txt-route.ts";
 import { pagefindRoute } from "./routes/pagefind-route.ts";
-import { pagefindPlugin } from "./plugins/pagefind.ts";
 import { redirectDocsRoute } from "./routes/redirect-docs-route.tsx";
 import { redirectIndexRoute } from "./routes/redirect-index-route.tsx";
 import { searchRoute } from "./routes/search-route.tsx";
@@ -115,7 +114,6 @@ if (import.meta.main) {
         }),
         currentRequestPlugin(),
         etagPlugin(),
-        pagefindPlugin({ pagefindDir: "pagefind" }),
         sitemapPlugin(),
       ],
     });

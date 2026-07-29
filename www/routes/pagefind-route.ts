@@ -1,4 +1,4 @@
-import { call, type Operation } from "effection";
+import { call, type Operation, spawn, type Task } from "effection";
 import { fromFileUrl } from "@std/path";
 
 import { assetsRoute } from "./assets-route.ts";
@@ -14,27 +14,49 @@ import type { RoutePath, SitemapRoute } from "../plugins/sitemap.ts";
  * dynamically by the browser — they are never linked from a page, and
  * Staticalize only downloads sitemap URLs plus `link[href]`/`[src]` assets (it
  * does not follow `<a href>` links). So `routemap` lists each bundle file as
- * its own sitemap entry, and Staticalize downloads each one directly. This
- * works the same way when the site is mounted below `/effection/` on
- * frontside.com: its proxy re-prefixes these sitemap entries and crawls them.
+ * its own sitemap entry and Staticalize downloads each one directly. This works
+ * the same way below `/effection/` on frontside.com: its proxy re-prefixes
+ * these sitemap entries and crawls them.
  *
- * Building the bundle is owned by `pagefindPlugin`; this route only serves and
- * advertises what already exists on disk. `routemap` reports nothing while the
- * bundle is absent, so the generation pass never requests `/pagefind/*` and
- * cannot recurse.
+ * Requesting the sitemap builds the bundle if it's missing: `routemap` shells
+ * out to `pagefind.ts` (a subprocess, because generation staticalizes this
+ * running site and doing that crawl in-process corrupts page rendering), waits
+ * for it, then enumerates the files. Generation's own crawl re-requests
+ * `/sitemap.xml`, so while a build is in flight `routemap` returns nothing and
+ * does not await it — awaiting the build from inside the crawl driving it would
+ * deadlock.
  */
 export function pagefindRoute(
   { pagefindDir }: { pagefindDir: string },
 ): SitemapRoute<Response> {
-  // `.pathname` would yield `/C:/…` on Windows; `fromFileUrl` gives a real path.
+  // `.pathname` would yield `/C:/…` on Windows; `fromFileUrl` gives real paths.
   let fsRoot = fromFileUrl(import.meta.resolve(`../${pagefindDir}`));
+  let generatorPath = fromFileUrl(import.meta.resolve("../pagefind.ts"));
+  let cwd = fromFileUrl(import.meta.resolve("../"));
+  let generation: Task<unknown> | undefined;
 
   return {
     handler: assetsRoute(pagefindDir),
     *routemap(): Operation<RoutePath[]> {
       if (!(yield* exists(fsRoot))) {
-        return [];
+        if (generation) {
+          return [];
+        }
+        generation = yield* spawn(function* (): Operation<void> {
+          let command = new Deno.Command("deno", {
+            args: ["run", "-A", generatorPath],
+            cwd,
+            stdout: "inherit",
+            stderr: "inherit",
+          });
+          let { code } = yield* call(() => command.output());
+          if (code !== 0) {
+            throw new Error(`pagefind generation exited with code ${code}`);
+          }
+        });
+        yield* generation;
       }
+
       let files = yield* collectFiles(fsRoot);
       // collectFiles builds paths as `${fsRoot}/…` with forward slashes, so
       // strip the prefix directly rather than using @std/path's `relative`,

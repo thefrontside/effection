@@ -53,9 +53,6 @@ jobs:
           tar -xzf /tmp/staticalize-linux.tar.gz -C /usr/local/bin
           chmod +x /usr/local/bin/staticalize-linux
 
-      - name: Build Pagefind index
-        run: curl -sf --max-time 600 http://127.0.0.1:8000/pagefind/pagefind-entry.json -o /dev/null
-
       - name: Staticalize
         run: |
           staticalize-linux \
@@ -134,9 +131,6 @@ jobs:
             -O /tmp/staticalize-linux.tar.gz
           tar -xzf /tmp/staticalize-linux.tar.gz -C /usr/local/bin
           chmod +x /usr/local/bin/staticalize-linux
-
-      - name: Build Pagefind index
-        run: curl -sf --max-time 600 http://127.0.0.1:8000/pagefind/pagefind-entry.json -o /dev/null
 
       - name: Staticalize
         run: |

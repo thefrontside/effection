@@ -1,4 +1,5 @@
 import { call, type Operation, spawn, type Task } from "effection";
+import { exec } from "@effectionx/process";
 import { fromFileUrl } from "@std/path";
 
 import { assetsRoute } from "./assets-route.ts";
@@ -25,18 +26,9 @@ export function pagefindRoute(
         if (generation) {
           return [];
         }
-        generation = yield* spawn(function* (): Operation<void> {
-          let command = new Deno.Command("deno", {
-            args: ["run", "-A", generatorPath],
-            cwd,
-            stdout: "inherit",
-            stderr: "inherit",
-          });
-          let { code } = yield* call(() => command.output());
-          if (code !== 0) {
-            throw new Error(`pagefind generation exited with code ${code}`);
-          }
-        });
+        generation = yield* spawn(() =>
+          exec(`deno run -A ${generatorPath}`, { cwd }).expect()
+        );
         yield* generation;
       }
 

@@ -22,17 +22,11 @@ export function* initClones(path: string): Operation<void> {
   let scope = yield* useScope();
   let attempts = new Map<string, Task<Result<string>>>();
 
-  // `git fetch` / `reset --hard` mutate a single working tree shared by every
-  // request, so running them concurrently corrupts it (index-lock contention,
-  // half-applied resets) — which surfaces as intermittent 500s when a wide
-  // crawl hits many `/x` and `/contrib` pages at once. Memoize the checkout per
-  // repository on the root scope so each is fetched and reset exactly once, with
-  // concurrent callers awaiting the same task.
-  //
-  // `cloneOrRefresh` returns an outcome rather than throwing: a task that throws
-  // would tear down the shared scope and take every other checkout — and the
-  // server — down with it. On failure we surface the error to the caller and
-  // drop the entry so a later request can retry.
+  // Concurrent `git fetch` / `reset --hard` on the shared working tree corrupt
+  // it (index-lock contention, half-applied resets), so each repo is fetched
+  // exactly once. A `scope.run` task that throws would tear down this shared
+  // scope and every other checkout with it, so failures come back as a Result
+  // and the entry is evicted to allow a retry.
   yield* Clones.set((nameWithOwner) => ({
     *[Symbol.iterator]() {
       let attempt = attempts.get(nameWithOwner);

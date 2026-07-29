@@ -9,15 +9,14 @@ const IDLE_EDGE = "#cbd5e1";
 
 function initOperationTree() {
   let root = document.getElementById("operation-tree");
-  let haltBtn = document.getElementById("operation-tree-halt");
-  let resetBtn = document.getElementById("operation-tree-reset");
-  if (!root || !haltBtn || !resetBtn) return;
+  let btn = document.getElementById("operation-tree-halt");
+  if (!root || !btn) return;
 
   let nodes = Array.from(root.querySelectorAll("[data-node]"));
   let edges = Array.from(root.querySelectorAll("[data-edge]"));
   let state = {}; // id -> "halting" | "done"
   let timers = [];
-  let running = false;
+  let phase = "alive"; // "alive" | "running" | "torndown"
 
   function nodeFill(st) {
     if (st === "done") return "#fffbeb";
@@ -57,19 +56,19 @@ function initOperationTree() {
     }
   }
 
-  function reset() {
+  // Rebuild the tree back to its living state; the same button then halts again.
+  function revive() {
     timers.forEach(clearTimeout);
     timers = [];
     state = {};
-    running = false;
-    haltBtn.disabled = false;
+    phase = "alive";
+    btn.textContent = "entrypoint.halt()";
     render();
   }
 
   function halt() {
-    if (running) return;
-    running = true;
-    haltBtn.disabled = true;
+    phase = "running";
+    btn.disabled = true;
 
     // 1) halt signal propagates DOWN the tree, fast, reaching every operation
     let haltAt = {
@@ -80,7 +79,7 @@ function initOperationTree() {
       db: 1250,
       fs: 1250,
     };
-    // 2) teardown COMPLETES bottom-up, independently per branch — a parent
+    // 2) teardown COMPLETES bottom-up, independently per branch: a parent
     //    only completes once ALL of its own children have
     let doneAt = {
       sock: 2150,
@@ -103,14 +102,19 @@ function initOperationTree() {
         render();
       }, t));
     }
+    // The tree is fully torn down: the same button now revives it.
     timers.push(setTimeout(() => {
-      running = false;
-      haltBtn.disabled = false;
+      phase = "torndown";
+      btn.textContent = "entrypoint()";
+      btn.disabled = false;
     }, 4700));
   }
 
-  haltBtn.addEventListener("click", halt);
-  resetBtn.addEventListener("click", reset);
+  btn.addEventListener("click", () => {
+    if (phase === "alive") halt();
+    else if (phase === "torndown") revive();
+    // ignore clicks while "running" (button is disabled anyway)
+  });
 }
 
 function initCopyButtons() {

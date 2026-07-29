@@ -124,7 +124,7 @@ export function OperationTree(): JSXElement {
         </span>
       </div>
 
-      <div class="mt-4 flex items-center justify-center gap-3">
+      <div class="mt-4 flex items-center justify-center">
         <button
           id="operation-tree-halt"
           type="button"
@@ -132,18 +132,11 @@ export function OperationTree(): JSXElement {
         >
           entrypoint.halt()
         </button>
-        <button
-          id="operation-tree-reset"
-          type="button"
-          class="rounded border-2 border-[#14315D] font-mono text-[13px] font-semibold text-[#14315D] px-3.5 py-1.5 transition-colors hover:bg-blue-50 dark:border-[#26ABE8] dark:text-[#26ABE8]"
-        >
-          reset
-        </button>
       </div>
 
       <p class="mt-3 text-center text-[13px] text-gray-500 dark:text-gray-400">
         The halt signal travels down the tree (green); teardown then completes
-        bottom-up, rolling up each branch independently (amber) — a parent
+        bottom-up, rolling up each branch independently (amber). A parent
         finishes only once all its children have, each <code>ensure</code>{" "}
         running as its operation exits.
       </p>

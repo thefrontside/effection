@@ -27,21 +27,19 @@ export function* initClones(path: string): Operation<void> {
   // exactly once. A `scope.run` task that throws would tear down this shared
   // scope and every other checkout with it, so failures come back as a Result
   // and the entry is evicted to allow a retry.
-  yield* Clones.set((nameWithOwner) => ({
-    *[Symbol.iterator]() {
-      let attempt = attempts.get(nameWithOwner);
-      if (!attempt) {
-        attempt = scope.run(() => cloneOrRefresh(path, nameWithOwner));
-        attempts.set(nameWithOwner, attempt);
-      }
-      let outcome = yield* attempt;
-      if (!outcome.ok) {
-        attempts.delete(nameWithOwner);
-        throw outcome.error;
-      }
-      return outcome.value;
-    },
-  }));
+  yield* Clones.set(function* (nameWithOwner) {
+    let attempt = attempts.get(nameWithOwner);
+    if (!attempt) {
+      attempt = scope.run(() => cloneOrRefresh(path, nameWithOwner));
+      attempts.set(nameWithOwner, attempt);
+    }
+    let outcome = yield* attempt;
+    if (!outcome.ok) {
+      attempts.delete(nameWithOwner);
+      throw outcome.error;
+    }
+    return outcome.value;
+  });
 }
 
 export function* useClone(nameWithOwner: string): Operation<string> {

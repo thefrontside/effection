@@ -47,15 +47,7 @@ export function* useMarkdown(
   let sanitize = createJsDocSanitizer(
     options?.linkResolver ?? defaultLinkResolver,
   );
-  let sanitized = yield* sanitize(markdown);
-
-  // Escape generic type parameters like <T>, <TSend, TRecv> that MDX
-  // would interpret as JSX tags. Only matches uppercase-starting identifiers
-  // inside angle brackets to avoid escaping actual HTML tags.
-  sanitized = sanitized.replace(
-    /<([A-Z]\w*(?:\s*,\s*[A-Z]\w*)*)>/g,
-    "&lt;$1&gt;",
-  );
+  let sanitized = escapeMdxSyntax(yield* sanitize(markdown));
 
   let mod = yield* useMDX(sanitized, {
     remarkPlugins: [remarkGfm, ...(options?.remarkPlugins ?? [])],
@@ -108,6 +100,52 @@ export function* useMarkdown(
       return <></>;
     }
   });
+}
+
+/**
+ * Escape `<` that opens a type expression (e.g. `Operation<Chain<T>>`,
+ * `From<A | B>`, `Middleware<[], Promise<void>>`) so MDX doesn't parse it as a
+ * JSX tag and throw `ReferenceError: <Name> is not defined` for the type name,
+ * and neutralize stray `{...}` expressions (e.g. a bare `{Scope}` left by a
+ * malformed `{@link}`) that MDX would otherwise evaluate as JavaScript.
+ *
+ * A `<` is treated as a type opener when it is followed by an uppercase
+ * identifier, `[`, or `{`, or when it attaches to a preceding identifier
+ * (`Promise<`, `)<`). Real HTML — `<div>`, ` <img>`, closing `</div>` — sits at
+ * a word boundary starting lowercase (or is a closing tag) and is left intact.
+ * `{`/`}` become their HTML entities so they render as literal braces.
+ * Everything inside inline code and fenced code blocks is left untouched.
+ */
+export function escapeMdxSyntax(markdown: string): string {
+  return markdown
+    .split(/(```[\s\S]*?```|`[^`]*`)/g)
+    .map((part, i) => (i % 2 === 0 ? escapeOutsideCode(part) : part))
+    .join("");
+}
+
+function escapeOutsideCode(text: string): string {
+  let out = "";
+  for (let i = 0; i < text.length; i++) {
+    let char = text[i];
+    if (char === "<") {
+      let next = text[i + 1] ?? "";
+      let prev = text[i - 1] ?? "";
+      let isTypeOpener = next !== "/" &&
+        (/[A-Z[{]/.test(next) || /[A-Za-z0-9_$)\]}]/.test(prev));
+      if (isTypeOpener) {
+        out += "&lt;";
+        continue;
+      }
+    } else if (char === "{") {
+      out += "&#123;";
+      continue;
+    } else if (char === "}") {
+      out += "&#125;";
+      continue;
+    }
+    out += char;
+  }
+  return out;
 }
 
 export function createJsDocSanitizer(

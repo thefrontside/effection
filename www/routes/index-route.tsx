@@ -86,7 +86,7 @@ export function indexRoute(): SitemapRoute<JSXElement> {
                 <span class="text-[#14315D] dark:text-gray-100">
                   It doesn't have{" "}
                 </span>
-                <span class="bg-[linear-gradient(90deg,#14315d,#3b357f_55%,#26abe8)] bg-clip-text text-transparent dark:bg-[linear-gradient(90deg,#26abe8,#a855f7_55%,#f74d7b)]">
+                <span class="text-[#26ABE8]">
                   structured concurrency
                 </span>
                 <span class="text-[#14315D] dark:text-gray-100">.</span>
@@ -318,7 +318,7 @@ function* fetchUser() {
             </section>
 
             {/* ============ CLOSING CTA ============ */}
-            <section class="mt-24 rounded-2xl px-6 py-20 text-center text-white [background-image:linear-gradient(45deg,#14315d_-5%,#44378a,#26abe8_105%)]">
+            <section class="mt-24 rounded-2xl px-6 py-20 text-center text-white bg-[#14315D]">
               <h2 class="text-3xl font-extrabold tracking-tight md:text-4xl">
                 Get structured concurrency in JavaScript today.
               </h2>
@@ -412,7 +412,7 @@ function Power(
   let text = (
     <div>
       <div class="mb-4 flex items-center gap-3">
-        <span class="inline-flex h-7 w-7 items-center justify-center rounded-full font-mono text-[13px] font-bold text-white [background-image:linear-gradient(45deg,#f74d7b,#a855f7,#26abe8)]">
+        <span class="inline-flex h-7 w-7 items-center justify-center rounded-full font-mono text-[13px] font-bold text-white bg-[#14315D]">
           {n}
         </span>
         <span class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">

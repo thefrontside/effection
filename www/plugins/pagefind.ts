@@ -1,5 +1,6 @@
 import { call, type Operation, spawn, type Task } from "effection";
 import type { RevolutionPlugin } from "revolution";
+import { fromFileUrl } from "@std/path";
 
 import { exists } from "../lib/fs.ts";
 
@@ -25,9 +26,10 @@ import { exists } from "../lib/fs.ts";
 export function pagefindPlugin(
   { pagefindDir }: { pagefindDir: string },
 ): RevolutionPlugin {
-  let fsRoot = new URL(import.meta.resolve(`../${pagefindDir}`)).pathname;
-  let generatorPath = new URL(import.meta.resolve("../pagefind.ts")).pathname;
-  let cwd = new URL(import.meta.resolve("../")).pathname;
+  // `.pathname` would yield `/C:/…` on Windows; `fromFileUrl` gives real paths.
+  let fsRoot = fromFileUrl(import.meta.resolve(`../${pagefindDir}`));
+  let generatorPath = fromFileUrl(import.meta.resolve("../pagefind.ts"));
+  let cwd = fromFileUrl(import.meta.resolve("../"));
   let generating = false;
   let generation: Task<unknown> | undefined;
 

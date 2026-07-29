@@ -1,4 +1,5 @@
 import { call, type Operation } from "effection";
+import { fromFileUrl } from "@std/path";
 
 import { assetsRoute } from "./assets-route.ts";
 import { exists } from "../lib/fs.ts";
@@ -25,7 +26,8 @@ import type { RoutePath, SitemapRoute } from "../plugins/sitemap.ts";
 export function pagefindRoute(
   { pagefindDir }: { pagefindDir: string },
 ): SitemapRoute<Response> {
-  let fsRoot = new URL(import.meta.resolve(`../${pagefindDir}`)).pathname;
+  // `.pathname` would yield `/C:/…` on Windows; `fromFileUrl` gives a real path.
+  let fsRoot = fromFileUrl(import.meta.resolve(`../${pagefindDir}`));
 
   return {
     handler: assetsRoute(pagefindDir),

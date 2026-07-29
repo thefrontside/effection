@@ -60,10 +60,6 @@ jobs:
             --output=www/built \
             --base=https://effection.netlify.app
 
-      - name: Pagefind
-        run: npx pagefind --site built
-        working-directory: ./www
-
       - name: Deploy Preview to Netlify
         id: netlify
         run: |
@@ -142,10 +138,6 @@ jobs:
             --site=http://127.0.0.1:8000 \
             --output=www/built \
             --base=https://effection.netlify.app
-
-      - name: Pagefind
-        run: npx pagefind --site built
-        working-directory: ./www
 
       - name: Deploy to Production
         run: |

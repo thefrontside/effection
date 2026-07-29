@@ -104,10 +104,7 @@ if (import.meta.main) {
         route("/blog/:id", blogPostRoute({ search: true })),
         route("/blog/:id/:name.png", blogImageRoute()),
         route("/blog{/*path}", assetsRoute("blog")),
-        route(
-          "/pagefind{/*path}",
-          pagefindRoute({ pagefindDir: "pagefind", publicDir: "./built/" }),
-        ),
+        route("/pagefind{/*path}", pagefindRoute({ pagefindDir: "pagefind" })),
         route("/assets/*path", assetsRoute("assets")),
       ],
       plugins: [

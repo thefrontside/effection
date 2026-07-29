@@ -2,7 +2,6 @@
   "tasks": {
     "dev": "deno run -A @effectionx/watch deno run -A main.tsx",
     "staticalize": "deno run -A jsr:@frontside/staticalize@0.2.2/cli --site http://localhost:8000 --output=built --base=http://localhost:8000",
-    "pagefind": "npx pagefind --site built",
     "test": "deno test --allow-run --allow-write --allow-read"
   },
   "lint": {
@@ -41,7 +40,6 @@
   },
   "imports": {
     "@effectionx/watch": "jsr:@effectionx/watch@^0.3.1",
-    "@frontside/staticalize": "jsr:@frontside/staticalize@0.2.0",
     "@jsdevtools/rehype-toc": "npm:@jsdevtools/rehype-toc@3.0.2",
     "@libs/xml": "jsr:@libs/xml@^7.0.3",
     "@std/assert": "jsr:@std/assert@^1.0.16",
@@ -59,7 +57,6 @@
     "mdast": "npm:mdast@^3.0.0",
     "mdx": "npm:mdx@^0.3.1",
     "octokit": "npm:octokit@4.0.3",
-    "pagefind": "npm:pagefind@1.3.0",
     "path-to-regexp": "npm:path-to-regexp@8.2.0",
     "rehype-add-classes": "npm:rehype-add-classes@1.0.0",
     "rehype-autolink-headings": "npm:rehype-autolink-headings@7.1.0",

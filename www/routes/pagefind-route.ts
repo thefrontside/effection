@@ -6,30 +6,13 @@ import { exists } from "../lib/fs.ts";
 import type { RoutePath, SitemapRoute } from "../plugins/sitemap.ts";
 
 /**
- * Serve Effection's Pagefind search bundle and advertise every file in it
- * through `sitemap.xml`, so Staticalize captures the whole bundle in its normal
+ * Serve Effection's Pagefind search bundle and include every file in it
+ * in the `sitemap.xml` file, so Staticalize captures the whole bundle in its normal
  * crawl.
- *
- * Pagefind's runtime, manifest, WebAssembly, and index fragments are fetched
- * dynamically by the browser — they are never linked from a page, and
- * Staticalize only downloads sitemap URLs plus `link[href]`/`[src]` assets (it
- * does not follow `<a href>` links). So `routemap` lists each bundle file as
- * its own sitemap entry and Staticalize downloads each one directly. This works
- * the same way below `/effection/` on frontside.com: its proxy re-prefixes
- * these sitemap entries and crawls them.
- *
- * Requesting the sitemap builds the bundle if it's missing: `routemap` shells
- * out to `pagefind.ts` (a subprocess, because generation staticalizes this
- * running site and doing that crawl in-process corrupts page rendering), waits
- * for it, then enumerates the files. Generation's own crawl re-requests
- * `/sitemap.xml`, so while a build is in flight `routemap` returns nothing and
- * does not await it — awaiting the build from inside the crawl driving it would
- * deadlock.
  */
 export function pagefindRoute(
   { pagefindDir }: { pagefindDir: string },
 ): SitemapRoute<Response> {
-  // `.pathname` would yield `/C:/…` on Windows; `fromFileUrl` gives real paths.
   let fsRoot = fromFileUrl(import.meta.resolve(`../${pagefindDir}`));
   let generatorPath = fromFileUrl(import.meta.resolve("../pagefind.ts"));
   let cwd = fromFileUrl(import.meta.resolve("../"));

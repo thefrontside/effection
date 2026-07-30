@@ -91,6 +91,20 @@ export function createScope(
 /**
  * Get the scope of the currently running {@link Operation}.
  *
+ * @example
+ * ```ts
+ * import { sleep, useScope } from "effection";
+ *
+ * let scope = yield* useScope();
+ * let task = yield* scope.spawn(function* () {
+ *   yield* sleep(100);
+ *   return "done";
+ * });
+ *
+ * // task is attached to the current scope and cannot outlive it
+ * console.log(yield* task);
+ * ```
+ *
  * @returns an operation yielding the current scope
  * @since 3.0
  */

@@ -16,7 +16,7 @@ import { call } from "./call.ts";
  * ```
  * @param status - the exit code to use for the process exit
  * @param message - message to print to the console before exiting.
- * @param returns an operation that exits the program
+ * @returns an operation that exits the program
  * @since 3.0
  */
 export function* exit(status: number, message?: string): Operation<void> {

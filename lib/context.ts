@@ -5,6 +5,19 @@ import { Do } from "./do.ts";
 /**
  * Create a new {@link Context}
  *
+ * @example
+ * ```ts
+ * import { createContext, main } from "effection";
+ *
+ * const YourContext = createContext<string>("context-id");
+ *
+ * await main(function* () {
+ *   yield* YourContext.with("abc-123", function* () {
+ *     console.log(yield* YourContext.expect()); // "abc-123"
+ *   });
+ * });
+ * ```
+ *
  * @param name - the unique name to give this context.
  * @returns the new context
  * @since 3.0

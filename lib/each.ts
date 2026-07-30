@@ -10,6 +10,7 @@ import { withResolvers } from "./with-resolvers.ts";
  * Given any stream, you can access its values sequentially using the `each()`
  * operation just as you would use `for await of` loop with an async iterable:
  *
+ * @example
  * ```javascript
  * function* logvalues(stream) {
  *   for (let value of yield* each(stream)) {
@@ -18,6 +19,7 @@ import { withResolvers } from "./with-resolvers.ts";
  *   }
  * }
  * ```
+ *
  * You must always invoke `each.next` at the end of each iteration of the loop,
  * including if the interation ends with a `continue` statement.
  *

@@ -1,7 +1,29 @@
 # Changelog
 
+## 4.1.0
+
+- ✨ Introduce context APIs for algebraic effects (#1211)
+- ✨ Add `./experimental` entry point for staging new APIs (#1210)
+- ✨ Add `using` helper for JS disposable resources (#1115)
+
+## 4.0.3
+
+- 🐛 propagate unwind out of `scoped()`'s async teardown (#1186)
+- 🐛 Catch errors in `effect.enter()` (#1179)
+- 🐛 remove banned triple slash (#1121)
+- ✨ add `allSettled()` operation congruent with `Promise.allSettled()` (#1158)
+- ✨ expose `Result<T>` as public API (#1149)
+- ✨ Explicit Resource Management for Task and Scope (#1073)
+- ⚡ Sparse-array PriorityQueue for reducer (#1171)
+- ⚡️ Implement `action` as a pure iterator (#1175)
+- ♻️ Avoid allocating the same noop exit function on every `resume()` (#1177)
+- ♻️ Make `Ok()` a singleton (#1176)
+- ♻️ Unify task / coroutine lifecycles (#1168)
+- ♻️ Invert reducer ↔ delimiter control (#1164)
+
 ## 4.0.2
 
+- ♻️ simplify `spawn()` by delegating to `scope.run` (#1078)
 - 🐛 fix regression in resource destruction order (#1091)
 
 ## 4.0.1

@@ -12,6 +12,7 @@ import type { Operation } from "./types.ts";
  * APIs that accept `Callable` values allow end developers to pass simple
  * functions without necessarily needing to know anything about Operations.
  *
+ * @example
  * ```javascript
  * function hello(to: Callable<string>): Operation<string> {
  *   return function*() {
@@ -21,7 +22,7 @@ import type { Operation } from "./types.ts";
  *
  * await run(() => hello(() => "world!")); // => "hello world!"
  * await run(() => hello(async () => "world!")); // => "hello world!"
- * await run(() => hello(function*() { return "world!" })); "hello world!";
+ * await run(() => hello(function*() { return "world!" })); // => "hello world!"
  * ```
  * @since 3.0
  */
@@ -61,7 +62,7 @@ export interface Callable<
  *
  * The function will be invoked anew every time that the `call()` operation is evaluated.
  *
- * @param callable - the operation, promise, async function, generator funnction,
+ * @param callable - the operation, promise, async function, generator function,
  * or plain function to call as part of this operation
  *
  * @returns an {@link Operation} that evaluates to the result of executing the function to completion

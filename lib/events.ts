@@ -23,6 +23,12 @@ export type EventList<T> = T extends {
  * Create an {@link Operation} that yields the next event to be emitted by an
  * [EventTarget](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget).
  *
+ * @example
+ * ```ts
+ * // wait for connection establishment before proceeding
+ * yield* once(socket, "open");
+ * ```
+ *
  * @param target - the event target to be watched
  * @param name - the name of the event to watch. E.g. "click"
  * @returns an Operation that yields the next emitted event
@@ -47,6 +53,21 @@ export function once<
  *
  * See the guide on [Streams and Subscriptions](https://frontside.com/effection/docs/collections)
  * for details on how to use streams.
+ *
+ * @example
+ * ```ts
+ * import { each, on, once, spawn } from "effection";
+ *
+ * // handle socket errors in a concurrent child task
+ * yield* spawn(function* () {
+ *   throw yield* once(socket, "error");
+ * });
+ *
+ * for (let event of yield* each(on(socket, "message"))) {
+ *   console.log(event.data);
+ *   yield* each.next();
+ * }
+ * ```
  *
  * @param target - the event target whose events will be streamed
  * @param name - the name of the event to stream. E.g. "click"

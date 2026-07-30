@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg
+  width="1200"
+  height="630"
+  viewBox="0 0 1200 630"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+  role="img"
+  aria-label="Announcing Effection 4.1"
+>
+  <defs>
+    <linearGradient
+      id="bg-light-grad"
+      x1="0"
+      y1="0"
+      x2="1200"
+      y2="630"
+      gradientUnits="userSpaceOnUse"
+    >
+      <stop offset="0" stop-color="#F8FAFF" />
+      <stop offset="0.55" stop-color="#F2F7FF" />
+      <stop offset="1" stop-color="#ECF3FF" />
+    </linearGradient>
+
+    <radialGradient
+      id="glow-light-grad"
+      cx="0"
+      cy="0"
+      r="1"
+      gradientUnits="userSpaceOnUse"
+      gradientTransform="translate(900 120) rotate(120) scale(560 420)"
+    >
+      <stop offset="0" stop-color="#2B6FF7" stop-opacity="0.22" />
+      <stop offset="0.55" stop-color="#2B6FF7" stop-opacity="0.07" />
+      <stop offset="1" stop-color="#2B6FF7" stop-opacity="0" />
+    </radialGradient>
+
+    <radialGradient
+      id="glow-dark-grad"
+      cx="0"
+      cy="0"
+      r="1"
+      gradientUnits="userSpaceOnUse"
+      gradientTransform="translate(900 120) rotate(120) scale(560 420)"
+    >
+      <stop offset="0" stop-color="#60A5FA" stop-opacity="0.10" />
+      <stop offset="0.55" stop-color="#60A5FA" stop-opacity="0.03" />
+      <stop offset="1" stop-color="#60A5FA" stop-opacity="0" />
+    </radialGradient>
+
+    <linearGradient id="ink" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0B2A5B" />
+      <stop offset="1" stop-color="#0C3A7A" />
+    </linearGradient>
+
+    <linearGradient id="badge-grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2B6FF7" />
+      <stop offset="1" stop-color="#0C3A7A" />
+    </linearGradient>
+
+    <style>
+    .svg-eyebrow {
+      font-family:
+        ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
+        Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+    }
+    .svg-caption {
+      font-family:
+        ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
+        Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      font-size: 26px;
+      font-weight: 500;
+    }
+    .svg-badge-text {
+      font-family:
+        ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
+        Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      font-size: 220px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      fill: url(#badge-grad);
+    }
+
+    .svg-bg-light {
+      display: block;
+    }
+    .svg-bg-dark {
+      display: none;
+    }
+    .svg-glow-light {
+      display: block;
+    }
+    .svg-glow-dark {
+      display: none;
+    }
+    .svg-wordmark {
+      fill: #0B2A5B;
+    }
+    .svg-eyebrow {
+      fill: #33547B;
+    }
+    .svg-caption {
+      fill: #23435F;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .svg-bg-light {
+        display: none;
+      }
+      .svg-bg-dark {
+        display: block;
+      }
+      .svg-glow-light {
+        display: none;
+      }
+      .svg-glow-dark {
+        display: block;
+      }
+      .svg-wordmark {
+        fill: #F3F4F6;
+      }
+      .svg-eyebrow {
+        fill: #9CA3AF;
+      }
+      .svg-caption {
+        fill: #D1D5DB;
+      }
+      .svg-badge-text {
+        fill: #60A5FA;
+      }
+    }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect
+    class="svg-bg-light"
+    x="0"
+    y="0"
+    width="1200"
+    height="630"
+    fill="url(#bg-light-grad)"
+  />
+  <rect
+    class="svg-bg-dark"
+    x="0"
+    y="0"
+    width="1200"
+    height="630"
+    fill="#111827"
+  />
+  <rect
+    class="svg-glow-light"
+    x="0"
+    y="0"
+    width="1200"
+    height="630"
+    fill="url(#glow-light-grad)"
+  />
+  <rect
+    class="svg-glow-dark"
+    x="0"
+    y="0"
+    width="1200"
+    height="630"
+    fill="url(#glow-dark-grad)"
+  />
+
+  <!-- Eyebrow -->
+  <text
+    x="600"
+    y="140"
+    text-anchor="middle"
+    class="svg-eyebrow"
+  >Announcing</text>
+
+  <!-- Effection logo (156.04 x 24.04 native) scaled ~4.5x, centered horizontally -->
+  <!-- Position: centered at x=600, y=225. Scaled size ≈ 702 x 108 -->
+  <g transform="translate(249, 225) scale(4.5)">
+    <!-- Icon glyph (three rotated squares) -->
+    <g>
+      <rect
+        fill="#1C305A"
+        x="11.31"
+        y="3.47"
+        width="14.45"
+        height="14.45"
+        rx="1.65"
+        transform="translate(-2.14 16.24) rotate(-45)"
+      />
+      <rect
+        fill="#1C305A"
+        x="6.95"
+        y="7.84"
+        width="14.45"
+        height="14.45"
+        rx="1.65"
+        transform="translate(-6.5 14.43) rotate(-45)"
+      />
+      <rect
+        fill="#1C305A"
+        x="2.62"
+        y="3.54"
+        width="14.45"
+        height="14.45"
+        rx="1.65"
+        transform="translate(-4.73 10.11) rotate(-45)"
+      />
+      <rect
+        fill="#26ABE8"
+        x="13.58"
+        y="5.76"
+        width="9.91"
+        height="9.91"
+        rx="1.9"
+        transform="translate(-2.15 16.25) rotate(-45)"
+      />
+      <rect
+        fill="#FFFFFF"
+        x="9.21"
+        y="10.13"
+        width="9.91"
+        height="9.91"
+        rx="1.9"
+        transform="translate(-6.52 14.43) rotate(-45)"
+      />
+      <rect
+        fill="#F74D7B"
+        x="4.91"
+        y="5.84"
+        width="9.91"
+        height="9.91"
+        rx="1.9"
+        transform="translate(-4.74 10.14) rotate(-45)"
+      />
+    </g>
+    <!-- Wordmark: EFFECTION -->
+    <g class="svg-wordmark">
+      <path
+        d="M33.77,5.27H44.53V8.46h-7V10.9h6.82v3.22H37.56v2.64h7V20H33.77Z"
+      />
+      <path d="M47.28,5.27H58V8.46h-7V10.9h6.82v3.22H51.06V20H47.28Z" />
+      <path d="M60.63,5.27H71.39V8.46h-7V10.9h6.82v3.22H64.42V20H60.63Z" />
+      <path d="M74,5.27H84.75V8.46h-7V10.9h6.82v3.22H77.77v2.64h7V20H74Z" />
+      <path
+        d="M86.75,12.62A7.46,7.46,0,0,1,94.58,5,6.82,6.82,0,0,1,101.09,9l-3.25,1.54a3.57,3.57,0,0,0-3.26-2.14,4,4,0,0,0-4,4.25,4,4,0,0,0,4,4.25,3.57,3.57,0,0,0,3.26-2.14l3.25,1.54a6.86,6.86,0,0,1-6.51,3.94A7.47,7.47,0,0,1,86.75,12.62Z"
+      />
+      <path d="M106.55,8.57h-4.12V5.27h12v3.3h-4.09V20h-3.78Z" />
+      <path d="M116.78,5.27h3.78V20h-3.78Z" />
+      <path
+        d="M130.86,5c4.49,0,7.83,3.12,7.83,7.59s-3.34,7.59-7.83,7.59S123,17.09,123,12.62,126.37,5,130.86,5Zm0,3.34a4,4,0,0,0-4,4.25,4,4,0,1,0,8,0A4,4,0,0,0,130.86,8.37Z"
+      />
+      <path d="M144.94,11.08V20h-3.79V5.27h3.9L151,13.72V5.27h3.8V20h-3.65Z" />
+    </g>
+  </g>
+
+  <!-- Big 4.1 -->
+  <text x="600" y="530" text-anchor="middle" class="svg-badge-text">4.1</text>
+</svg>

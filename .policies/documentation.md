@@ -106,4 +106,5 @@ Before marking a review complete, verify:
 
 - [Package.json Metadata](./package-json-metadata.md) - Package description requirements
 - [Backwards Compatibility](./backwards-compatibility.md) - Documenting breaking changes
+- [Code Comments](./code-comments.md) - Inward comments, which are held to the opposite standard
 - [Policies Index](./index.md) - Add your new policy to the Policy Documents table

@@ -65,6 +65,9 @@ When reviewing PRs:
 - Target ES2022
 - Prefer `type` imports for type-only imports
 - Use explicit return types on public functions
+- Comments must say what the code cannot. Do not narrate the next line, and do not
+  restate a rule that already lives in `.policies/`. Before keeping a comment, ask
+  why it is needed at all (see the [Code Comments policy](.policies/code-comments.md))
 
 ### Effection Patterns
 

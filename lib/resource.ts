@@ -25,12 +25,13 @@ import { useScope } from "./scope.ts";
  *     let socket = new WebSocket(url);
  *     yield* once(socket, 'open');
  *
- *     try {
- *       yield* provide(socket);
- *     } finally {
+ *     // teardown that needs `yield*` goes in ensure(), not finally
+ *     yield* ensure(function*() {
  *       socket.close();
  *       yield* once(socket, 'close');
- *     }
+ *     });
+ *
+ *     yield* provide(socket);
  *   })
  * }
  *

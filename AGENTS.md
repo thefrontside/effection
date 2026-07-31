@@ -220,6 +220,7 @@ const task = yield * op; // returns a TASK (Future) and starts it
 **Shape (ordering matters)**
 
 ```ts
+// synchronous teardown
 resource(function* (provide) {
   try {
     yield* provide(value);
@@ -227,16 +228,25 @@ resource(function* (provide) {
     cleanup();
   }
 });
+
+// asynchronous teardown — ensure(), never finally
+resource(function* (provide) {
+  yield* ensure(function* () {
+    yield* cleanup();
+  });
+
+  yield* provide(value);
+});
 ```
 
 **Rules**
 
 - Setup happens before `provide()`.
-- Cleanup must be in `finally` (or after `provide()` guarded by `finally`) so it
-  runs on return/error/halt.
-- Teardown can be asynchronous. If cleanup needs async work, express it as an
-  `Operation` and `yield*` it inside `finally` (wait for teardown to finish)—do
-  not fire-and-forget cleanup.
+- Synchronous cleanup must be in `finally` (or after `provide()` guarded by
+  `finally`) so it runs on return/error/halt.
+- Teardown can be asynchronous, but asynchronous teardown must go in `ensure()`.
+  Do not fire-and-forget cleanup.
+- You must not `yield*` inside a `finally`. See the rationale under `ensure()`.
 
 ## `ensure()`
 
@@ -245,6 +255,38 @@ resource(function* (provide) {
 - `ensure(fn)` registers cleanup to run when the current operation shuts down.
 - `fn` may return `void` (sync cleanup) or an `Operation` (async cleanup).
 - You should wrap sync cleanup bodies in braces so the function returns `void`.
+- **Cleanup that needs `yield*` must use `ensure()`, not a `finally` block.**
+
+**Why `yield*` in a `finally` is unsafe**
+
+When a task is halted, a coroutine is unwound by calling `iterator.return()` on
+its generator. If a `finally` block then yields, the generator suspends _inside_
+the finally and reports `{ done: false }`, so the routine resumes it with
+`iterator.next()` — and that takes the frame out of return-mode. The frame is no
+longer unwinding, so once cleanup finishes, execution continues past the
+operation that was being halted. The halt is lost.
+
+This is the defect fixed inside `scoped()` in #1185: `iter.return()` yielded the
+`destroy()` effects in scoped's finally, but the resume came back as
+`iter.next()`. `scoped()` re-arms the unwind explicitly via `trap.exit()`.
+Ordinary user code has no way to do that.
+
+`ensure()` is not affected. It is implemented as a `resource()`, so its
+`finally` runs in its own task frame with nothing after it, and it is driven by
+scope destruction — which `createTask` wraps in `critical()`, making it
+non-interruptible.
+
+**Gotchas**
+
+- `ensure()` registers on the **current scope**, and `call()` does not create
+  one — it delegates to the target's iterator in the same coroutine frame. An
+  `ensure()` inside `call(function* () { ... })` attaches to the _enclosing
+  task's_ scope and fires far too late. Use `scoped()` or `spawn()` when you
+  need a boundary. Note that `scoped()`'s own async teardown was not correct
+  until 4.1, so code supporting older versions should prefer `spawn()`.
+- Scope destructors run in **reverse order of registration**. Register the
+  `ensure()` where the `try {` would have been — after any `spawn()` calls its
+  cleanup depends on — so cleanup still runs while those children are alive.
 
 ## `useAbortSignal()`
 

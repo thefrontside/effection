@@ -105,12 +105,12 @@ Before marking a review complete, verify:
 
 ## Common Mistakes
 
-| Mistake                          | Fix                                        |
-| -------------------------------- | ------------------------------------------ |
-| `sleep(100)` to wait for result  | Use `withResolvers()`, `when()`, or `is()` |
-| Asserting only on truthy/defined | Assert on specific values and states       |
-| No cleanup verification          | Add `finally` block and assert cleanup ran |
-| Missing halt path test           | Test both success and halt scenarios       |
+| Mistake                          | Fix                                                  |
+| -------------------------------- | ---------------------------------------------------- |
+| `sleep(100)` to wait for result  | Use `withResolvers()`, `when()`, or `is()`           |
+| Asserting only on truthy/defined | Assert on specific values and states                 |
+| No cleanup verification          | Record cleanup in a `finally`/`ensure()` and assert it ran |
+| Missing halt path test           | Test both success and halt scenarios                 |
 
 ## Related Policies
 

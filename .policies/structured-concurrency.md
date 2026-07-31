@@ -14,7 +14,8 @@ This document defines the experimental policy for structured concurrency pattern
 | Consuming Promises          | Use `until(promise)` to integrate with scope lifecycle                        |
 | Cancellation-sensitive APIs | Use `useAbortSignal()` and pass to fetch/timers                               |
 | Background tasks            | Must be spawned children, not detached                                        |
-| Cleanup logic               | Must be in `finally` blocks or resource teardown                              |
+| Synchronous cleanup         | Must be in a `finally` block or resource teardown                             |
+| Cleanup that needs `yield*` | Must be in `ensure()` — see [Async Teardown](./async-teardown.md)             |
 
 ## Examples
 
@@ -64,6 +65,10 @@ function useConnection(url: string): Operation<Connection> {
 }
 ```
 
+`ws.close()` is synchronous, so a `finally` block is fine here. Teardown that needs
+`yield*` must use `ensure()` instead — a `yield*` inside `finally` disarms halt
+propagation for that frame. See [Async Teardown](./async-teardown.md).
+
 ### Non-Compliant: Fire-and-forget spawn
 
 ```typescript
@@ -89,20 +94,23 @@ Before marking a review complete, verify:
 - [ ] All `spawn()` calls are yielded (`yield* spawn(...)`)
 - [ ] Promises are wrapped with `until()` for scope integration
 - [ ] Fetch calls use `useAbortSignal()` for cancellation
-- [ ] Resources have teardown in `finally` blocks
+- [ ] Resources have teardown — `finally` for sync cleanup, `ensure()` when it yields
+- [ ] No `finally` block in the diff contains `yield*`
 - [ ] No fire-and-forget `void asyncFn()` patterns
 
 ## Common Mistakes
 
-| Mistake                         | Fix                                           |
-| ------------------------------- | --------------------------------------------- |
-| `spawn(op)` without yield       | `yield* spawn(op)` to attach to scope         |
-| `await fetch(url)` in operation | `yield* until(fetch(url, { signal }))`        |
-| `setTimeout` without cleanup    | Use `sleep()` or wrap with `useAbortSignal()` |
-| Cleanup in `try` block          | Move to `finally` block for halt safety       |
+| Mistake                         | Fix                                              |
+| ------------------------------- | ------------------------------------------------ |
+| `spawn(op)` without yield       | `yield* spawn(op)` to attach to scope            |
+| `await fetch(url)` in operation | `yield* until(fetch(url, { signal }))`           |
+| `setTimeout` without cleanup    | Use `sleep()` or wrap with `useAbortSignal()`    |
+| Sync cleanup in `try` block     | Move to `finally` block for halt safety          |
+| `yield*` inside a `finally`     | Move it into `ensure()` — the halt is lost       |
 
 ## Related Policies
 
 - [No-Sleep Test Synchronization](./no-sleep-test-sync.md) - Deterministic test patterns for structured concurrency
+- [Async Teardown](./async-teardown.md) - Cleanup that yields belongs in `ensure()`
 - [Stateless Stream Operations](./stateless-streams.md) - Deferred execution pattern
 - [Policies Index](./index.md) - Add your new policy to the Policy Documents table

@@ -152,7 +152,8 @@ operations.
 ### ~~`afterEach`~~
 
 This package doesn't include `afterEach` because it's typically used for clean
-up. With Effection, clean up is done in `finally` block of the resource.
+up. With Effection, clean up is part of the resource: synchronous cleanup can go
+in a `finally` block, and anything that needs `yield*` belongs in `ensure()`.
 Consider creating a resource in beforeEach if you encounter a need for
 `afterEach`.
 

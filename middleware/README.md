@@ -21,7 +21,7 @@ context automatically.
 import { combine } from "@effectionx/middleware";
 import type { Middleware } from "@effectionx/middleware";
 import type { Operation } from "effection";
-import { createContext } from "effection";
+import { createContext, ensure } from "effection";
 
 type Handler = Middleware<[Request], Operation<Response>>;
 
@@ -31,11 +31,10 @@ const DatabaseConnection = createContext<Connection>("database");
 const withDatabase: Handler = function* (args, next) {
   const conn = yield* connect(process.env.DATABASE_URL);
   yield* DatabaseConnection.set(conn);
-  try {
-    return yield* next(...args);
-  } finally {
+  yield* ensure(function* () {
     yield* conn.close();
-  }
+  });
+  return yield* next(...args);
 };
 
 const withTransaction: Handler = function* (args, next) {

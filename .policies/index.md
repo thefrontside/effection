@@ -14,14 +14,15 @@ This is the **single source of truth** for all policies in this repository.
 
 ### Established Policies
 
-| Policy                                                   | State       | Description                                                           |
-| -------------------------------------------------------- | ----------- | --------------------------------------------------------------------- |
-| [No-Sleep Test Synchronization](./no-sleep-test-sync.md) | Recommended | Use deterministic helpers instead of sleep() for test synchronization |
-| [Server-Is-The-Build](./server-is-the-build.md)          | Recommended | Prefer on-demand server generation over build-time scripts            |
-| [Stateless Stream Operations](./stateless-streams.md)    | Recommended | Use `*[Symbol.iterator]` pattern for reusable stream operations       |
-| [Version Bump](./version-bump.md)                        | Recommended | PRs changing package code must include a semantic version bump        |
-| [Package.json Metadata](./package-json-metadata.md)      | Strict      | Every published package must include a description field              |
-| [No Agent Marketing](./no-agent-marketing.md)            | Strict      | No AI tool promotional material in commits, PRs, issues, or comments |
+| Policy                                                   | State       | Description                                                            |
+| -------------------------------------------------------- | ----------- | ---------------------------------------------------------------------- |
+| [No-Sleep Test Synchronization](./no-sleep-test-sync.md) | Recommended | Use deterministic helpers instead of sleep() for test synchronization  |
+| [Server-Is-The-Build](./server-is-the-build.md)          | Recommended | Prefer on-demand server generation over build-time scripts             |
+| [Stateless Stream Operations](./stateless-streams.md)    | Recommended | Use `*[Symbol.iterator]` pattern for reusable stream operations        |
+| [Version Bump](./version-bump.md)                        | Recommended | PRs changing package code must include a semantic version bump         |
+| [Async Teardown](./async-teardown.md)                    | Recommended | Teardown that needs `yield*` must use `ensure()`, not a `finally` block |
+| [Package.json Metadata](./package-json-metadata.md)      | Strict      | Every published package must include a description field               |
+| [No Agent Marketing](./no-agent-marketing.md)            | Strict      | No AI tool promotional material in commits, PRs, issues, or comments   |
 
 ### Experimental Policies (cowboyd Review Patterns)
 
@@ -51,7 +52,8 @@ Lifecycle & Concurrency (core)
 ├── Structured Concurrency ──────► foundation for lifecycle patterns
 │   ├── Deterministic Tests ─────► extends No-Sleep Test Sync
 │   ├── Correctness Invariants ──► tests success/error/halt paths
-│   └── Composable Units ────────► uses resource() for teardown
+│   ├── Composable Units ────────► uses resource() for teardown
+│   └── Async Teardown ──────────► ensure() for cleanup that yields
 
 API Design (balance)
 ├── Minimal APIs ◄──── tension ────► Ergonomics

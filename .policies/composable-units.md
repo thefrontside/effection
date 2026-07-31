@@ -46,17 +46,18 @@ function* readConfig(path: string): Operation<Config> {
 ### Compliant: Resource for setup/teardown
 
 ```typescript
-import { resource, type Operation } from "effection";
+import { ensure, resource, type Operation } from "effection";
 
 // Lifecycle encapsulated in resource
 function useDatabase(url: string): Operation<Database> {
   return resource(function* (provide) {
     let db = yield* connect(url);
-    try {
-      yield* provide(db);
-    } finally {
+
+    yield* ensure(function* () {
       yield* db.close();
-    }
+    });
+
+    yield* provide(db);
   });
 }
 
@@ -130,15 +131,16 @@ Before marking a review complete, verify:
 
 ## Common Mistakes
 
-| Mistake                          | Fix                                  |
-| -------------------------------- | ------------------------------------ |
-| Parse + fetch in one function    | Split: `fetchData()` + `parseData()` |
-| Inline try/finally for cleanup   | Use `resource()` pattern             |
-| "God operation" doing everything | Extract into composable steps        |
-| Copy-pasted operation logic      | Create reusable helper               |
+| Mistake                          | Fix                                        |
+| -------------------------------- | ------------------------------------------ |
+| Parse + fetch in one function    | Split: `fetchData()` + `parseData()`       |
+| Inline try/finally for cleanup   | Use `resource()` with `ensure()` teardown  |
+| "God operation" doing everything | Extract into composable steps              |
+| Copy-pasted operation logic      | Create reusable helper                     |
 
 ## Related Policies
 
 - [Structured Concurrency](./structured-concurrency.md) - Resource lifecycle patterns
+- [Async Teardown](./async-teardown.md) - Cleanup that yields belongs in `ensure()`
 - [Naming Consistency](./naming-consistency.md) - Clear names for extracted helpers
 - [Policies Index](./index.md) - Add your new policy to the Policy Documents table

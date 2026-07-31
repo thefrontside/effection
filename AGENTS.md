@@ -70,6 +70,11 @@ When reviewing PRs:
 
 - Use structured concurrency (spawn, scope)
 - Resources must clean up properly on scope exit
+- **Teardown that needs `yield*` must go in `ensure()`, never in a `finally` block.**
+  When a task is halted Effection unwinds it with `iterator.return()`; if a `finally`
+  yields, the resume comes back as `iterator.next()`, which takes the frame out of
+  return-mode and the halt is lost. Synchronous cleanup in `finally` is fine.
+  See the [Async Teardown policy](.policies/async-teardown.md)
 - Prefer `Operation<T>` for async operations
 - Use `*[Symbol.iterator]` pattern for reusable stream operations (see Stateless Streams policy)
 - Avoid `sleep()` for test synchronization (see No-Sleep Test Sync policy)

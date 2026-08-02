@@ -5,6 +5,7 @@ import {
   call,
   createChannel,
   createSignal,
+  ensure,
   Err,
   Ok,
   type Operation,
@@ -158,11 +159,9 @@ export function watch(options: WatchOptions): Stream<Start, never> {
       }
     });
 
-    try {
-      yield* provide(subscription);
-    } finally {
-      yield* until(watcher.close());
-    }
+    yield* ensure(() => until(watcher.close()));
+
+    yield* provide(subscription);
   });
 }
 

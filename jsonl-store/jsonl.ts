@@ -17,6 +17,7 @@ import {
   createChannel,
   createQueue,
   each,
+  ensure,
   resource,
   spawn,
 } from "effection";
@@ -127,15 +128,16 @@ export class JSONLStore implements Store {
 
       yield* spawn(function* () {
         const reader = lines.getReader();
-        try {
-          while (true) {
-            const { done, value } = yield* call(() => reader.read());
-            yield* channel.send(value as T);
-            if (done) break;
-          }
-        } finally {
+
+        yield* ensure(function* () {
           reader.releaseLock();
           yield* channel.close();
+        });
+
+        while (true) {
+          const { done, value } = yield* call(() => reader.read());
+          yield* channel.send(value as T);
+          if (done) break;
         }
       });
 

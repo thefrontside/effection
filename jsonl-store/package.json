@@ -1,7 +1,7 @@
 {
   "name": "@effectionx/jsonl-store",
   "description": "Streaming JSONL document store with glob-based file selection",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "keywords": ["streams", "io"],
   "type": "module",
   "main": "./dist/mod.js",

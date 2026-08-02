@@ -4,6 +4,7 @@ import {
   type Operation,
   type Subscription,
   createQueue,
+  ensure,
   resource,
   suspend,
   useScope,
@@ -114,9 +115,7 @@ function useTestingPair(
 
     let remote = next.value;
 
-    try {
-      yield* provide([local, remote]);
-    } finally {
+    yield* ensure(function* () {
       // Close websocket connections first so httpServer can close
       local.close();
       remote.close();
@@ -124,7 +123,9 @@ function useTestingPair(
       const closed = withResolvers<void>();
       httpServer.close(() => closed.resolve());
       yield* closed.operation;
-    }
+    });
+
+    yield* provide([local, remote]);
   });
 }
 

@@ -1,5 +1,5 @@
 import { type Effect, Exit, Layer, ManagedRuntime } from "effect";
-import { type Operation, action, resource, until } from "effection";
+import { type Operation, action, ensure, resource, until } from "effection";
 
 /**
  * A runtime for executing Effect programs inside Effection operations.
@@ -174,9 +174,7 @@ export function makeEffectRuntime<R = never>(
       });
     };
 
-    try {
-      yield* provide({ run, runExit });
-    } finally {
+    yield* ensure(function* () {
       const active = Array.from(pending);
       for (const execution of active) {
         execution.abort();
@@ -184,6 +182,8 @@ export function makeEffectRuntime<R = never>(
 
       yield* until(Promise.all(active.map((execution) => execution.settled)));
       yield* until(managedRuntime.dispose());
-    }
+    });
+
+    yield* provide({ run, runExit });
   });
 }

@@ -1,5 +1,5 @@
-import type { Operation, WithResolvers } from "effection";
-import { call, withResolvers } from "effection";
+import type { Operation, Result, WithResolvers } from "effection";
+import { call, ensure, Err, Ok, spawn, withResolvers } from "effection";
 
 /**
  * Resolve a Chain
@@ -113,14 +113,27 @@ function from<T>(source: Operation<T>): From<T> {
         }),
       ),
 
+    // We can't use `scoped` here to prevent losing the halt on effection
+    // older than 4.1, where its own async teardown has that bug.
     finally: (fn) =>
       from(
-        call(function* () {
-          try {
-            return yield* chain;
-          } finally {
-            yield* fn();
+        call(function* (): Operation<T> {
+          let task = yield* spawn(function* (): Operation<Result<T>> {
+            yield* ensure(fn);
+            // Don't let this throw to prevent the error from also reaching
+            // the owning scope, where it escapes the caller's catch and
+            // tears the scope down.
+            try {
+              return Ok(yield* chain);
+            } catch (error) {
+              return Err(error as Error);
+            }
+          });
+          let result = yield* task;
+          if (result.ok) {
+            return result.value;
           }
+          throw result.error;
         }),
       ),
   };

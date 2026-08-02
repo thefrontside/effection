@@ -4,6 +4,7 @@ import {
   type Operation,
   type Result,
   createChannel,
+  ensure,
   on,
   once,
   resource,
@@ -215,96 +216,7 @@ export function useWorker<TSend, TRecv, TReturn, TData>(
       throw event.error;
     });
 
-    try {
-      worker.postMessage({
-        type: "init",
-        data: options?.data,
-      });
-
-      yield* provide({
-        *send(value) {
-          const response = yield* useChannelResponse<TRecv>();
-          worker.postMessage(
-            {
-              type: "send",
-              value,
-              response: response.port,
-            },
-            [response.port],
-          );
-          const result = yield* response;
-          if (result.ok) {
-            return result.value;
-          }
-          throw errorFromSerialized("Worker handler failed", result.error);
-        },
-
-        *forEach<WRequest, WResponse, WProgress = never>(
-          fn: (
-            request: WRequest,
-            ctx: ForEachContext<WProgress>,
-          ) => Operation<WResponse>,
-        ): Operation<TReturn> {
-          // Prevent calling forEach more than once
-          if (forEachCompleted) {
-            throw new Error("forEach has already completed");
-          }
-
-          // Prevent concurrent forEach
-          if (forEachInProgress) {
-            throw new Error("forEach is already in progress");
-          }
-          forEachInProgress = true;
-
-          try {
-            // Iterate until channel closes (when worker sends "close")
-            let next = yield* requestSubscription.next();
-            while (!next.done) {
-              const request = next.value;
-              // Track handler errors - we forward to worker but also re-throw to host
-              let handlerError: Error | undefined;
-
-              // Create a task for this request and wait for it to complete
-              const task = yield* spawn(function* () {
-                const channelRequest = yield* useChannelRequest<
-                  WResponse,
-                  WProgress
-                >(request.response);
-                try {
-                  // Create context with progress method
-                  const ctx: ForEachContext<WProgress> = {
-                    progress: (data: WProgress) =>
-                      channelRequest.progress(data),
-                  };
-                  const result = yield* fn(request.value as WRequest, ctx);
-                  yield* channelRequest.resolve(result);
-                } catch (error) {
-                  // Forward error to worker so it knows the request failed
-                  yield* channelRequest.reject(error as Error);
-                  // Store error to re-throw after forwarding (don't swallow host errors)
-                  handlerError = error as Error;
-                }
-              });
-
-              // Wait for the handler to complete
-              yield* task;
-
-              // If the handler failed, stop processing and re-throw
-              if (handlerError) {
-                throw handlerError;
-              }
-              next = yield* requestSubscription.next();
-            }
-            return yield* outcome.operation;
-          } finally {
-            forEachInProgress = false;
-            forEachCompleted = true;
-          }
-        },
-
-        [Symbol.iterator]: outcome.operation[Symbol.iterator],
-      });
-    } finally {
+    yield* ensure(function* () {
       worker.postMessage({ type: "close" });
       if (!outcomeSettled) {
         while (!outcomeSettled) {
@@ -325,7 +237,95 @@ export function useWorker<TSend, TRecv, TReturn, TData>(
         }
       }
       yield* settled(outcome.operation);
-    }
+    });
+
+    worker.postMessage({
+      type: "init",
+      data: options?.data,
+    });
+
+    yield* provide({
+      *send(value) {
+        const response = yield* useChannelResponse<TRecv>();
+        worker.postMessage(
+          {
+            type: "send",
+            value,
+            response: response.port,
+          },
+          [response.port],
+        );
+        const result = yield* response;
+        if (result.ok) {
+          return result.value;
+        }
+        throw errorFromSerialized("Worker handler failed", result.error);
+      },
+
+      *forEach<WRequest, WResponse, WProgress = never>(
+        fn: (
+          request: WRequest,
+          ctx: ForEachContext<WProgress>,
+        ) => Operation<WResponse>,
+      ): Operation<TReturn> {
+        // Prevent calling forEach more than once
+        if (forEachCompleted) {
+          throw new Error("forEach has already completed");
+        }
+
+        // Prevent concurrent forEach
+        if (forEachInProgress) {
+          throw new Error("forEach is already in progress");
+        }
+        forEachInProgress = true;
+
+        try {
+          // Iterate until channel closes (when worker sends "close")
+          let next = yield* requestSubscription.next();
+          while (!next.done) {
+            const request = next.value;
+            // Track handler errors - we forward to worker but also re-throw to host
+            let handlerError: Error | undefined;
+
+            // Create a task for this request and wait for it to complete
+            const task = yield* spawn(function* () {
+              const channelRequest = yield* useChannelRequest<
+                WResponse,
+                WProgress
+              >(request.response);
+              try {
+                // Create context with progress method
+                const ctx: ForEachContext<WProgress> = {
+                  progress: (data: WProgress) => channelRequest.progress(data),
+                };
+                const result = yield* fn(request.value as WRequest, ctx);
+                yield* channelRequest.resolve(result);
+              } catch (error) {
+                // Forward error to worker so it knows the request failed
+                yield* channelRequest.reject(error as Error);
+                // Store error to re-throw after forwarding (don't swallow host errors)
+                handlerError = error as Error;
+              }
+            });
+
+            // Wait for the handler to complete
+            yield* task;
+
+            // If the handler failed, stop processing and re-throw
+            if (handlerError) {
+              throw handlerError;
+            }
+            next = yield* requestSubscription.next();
+          }
+          return yield* outcome.operation;
+        } finally {
+          forEachInProgress = false;
+          forEachCompleted = true;
+        }
+      },
+
+      [Symbol.iterator]: outcome.operation[Symbol.iterator],
+    });
   });
 }
 

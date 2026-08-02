@@ -1,4 +1,11 @@
-import { call, type Operation, resource, type Stream, stream } from "effection";
+import {
+  call,
+  ensure,
+  type Operation,
+  resource,
+  type Stream,
+  stream,
+} from "effection";
 import { type KillSignal, type Options, type Output, x as $x } from "tinyexec";
 
 /**
@@ -49,10 +56,10 @@ export function x(
       },
     };
 
-    try {
-      yield* provide(tinyproc);
-    } finally {
+    yield* ensure(function* () {
       yield* tinyproc.kill();
-    }
+    });
+
+    yield* provide(tinyproc);
   });
 }

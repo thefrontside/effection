@@ -1,6 +1,6 @@
 import { describe, it } from "@effectionx/vitest";
 import { expect } from "expect";
-import type { Operation } from "effection";
+import { type Operation, sleep, spawn } from "effection";
 
 import { Chain } from "./mod.ts";
 
@@ -36,6 +36,23 @@ describe("chain", () => {
     } catch (_) {
       expect(didExecuteFinally).toEqual(true);
     }
+  });
+
+  it("does not resume the caller after a halt", function* () {
+    let sequence: string[] = [];
+
+    let task = yield* spawn(function* () {
+      yield* new Chain<void>(() => {}).finally(function* () {
+        sequence.push("teardown");
+        yield* sleep(5);
+      });
+      sequence.push("resumed after halt");
+    });
+
+    yield* sleep(1);
+    yield* task.halt();
+
+    expect(sequence).toEqual(["teardown"]);
   });
 
   it("can chain off of an existing operation", function* () {

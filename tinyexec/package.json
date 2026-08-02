@@ -1,7 +1,7 @@
 {
   "name": "@effectionx/tinyexec",
   "description": "Lightweight process execution wrapper around tinyexec",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "keywords": ["process"],
   "type": "module",
   "main": "./dist/mod.js",

@@ -1,7 +1,7 @@
 {
   "name": "@effectionx/watch",
   "description": "Run commands and restart them gracefully when source files change",
-  "version": "0.4.5",
+  "version": "0.4.6",
   "keywords": ["process"],
   "type": "module",
   "main": "./dist/main.js",

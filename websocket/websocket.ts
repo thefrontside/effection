@@ -1,5 +1,6 @@
 import {
   createSignal,
+  ensure,
   once,
   race,
   resource,
@@ -133,41 +134,43 @@ export function useWebSocket<T>(
       close(next.value);
     });
 
-    try {
-      socket.addEventListener("message", messages.send);
-      socket.addEventListener("close", messages.close);
-
-      yield* race([
-        closed,
-        provide({
-          get binaryType() {
-            return socket.binaryType;
-          },
-          get bufferedAmmount() {
-            return socket.bufferedAmount;
-          },
-          get extensions() {
-            return socket.extensions;
-          },
-          get protocol() {
-            return socket.protocol;
-          },
-          get readyState() {
-            return socket.readyState;
-          },
-          get url() {
-            return socket.url;
-          },
-          send: (data) => socket.send(data),
-          [Symbol.iterator]: messages[Symbol.iterator],
-        }),
-      ]);
-    } finally {
+    // Don't hoist this above the spawns — teardown would hang waiting on
+    // `closed`.
+    yield* ensure(function* () {
       socket.close(1000, "released");
       yield* closed;
       socket.removeEventListener("message", messages.send);
       socket.removeEventListener("close", messages.close);
-    }
+    });
+
+    socket.addEventListener("message", messages.send);
+    socket.addEventListener("close", messages.close);
+
+    yield* race([
+      closed,
+      provide({
+        get binaryType() {
+          return socket.binaryType;
+        },
+        get bufferedAmmount() {
+          return socket.bufferedAmount;
+        },
+        get extensions() {
+          return socket.extensions;
+        },
+        get protocol() {
+          return socket.protocol;
+        },
+        get readyState() {
+          return socket.readyState;
+        },
+        get url() {
+          return socket.url;
+        },
+        send: (data) => socket.send(data),
+        [Symbol.iterator]: messages[Symbol.iterator],
+      }),
+    ]);
   });
 }
 

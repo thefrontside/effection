@@ -1,7 +1,7 @@
 {
   "name": "@effectionx/inline",
   "description": "Optimize deeply nested operations by collapsing yield delegation into a single iterator",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "type": "module",
   "main": "./dist/mod.js",
   "types": "./dist/mod.d.ts",
@@ -55,6 +55,7 @@
   "devDependencies": {
     "@effectionx/bdd": "workspace:*",
     "@swc/core": "^1.15.0",
+    "effection": "^4",
     "esbuild": "^0.25.0",
     "expect": "^29"
   }

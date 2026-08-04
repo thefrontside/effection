@@ -19,7 +19,7 @@ importers:
         version: 7.7.1
       effection:
         specifier: ^4
-        version: 4.0.2
+        version: 4.1.0
       expect:
         specifier: ^29
         version: 29.7.0
@@ -52,7 +52,7 @@ importers:
         version: link:../tinyexec
       effection:
         specifier: ^4
-        version: 4.0.2
+        version: 4.1.0
       generatorics:
         specifier: ^1
         version: 1.1.0
@@ -74,7 +74,7 @@ importers:
     devDependencies:
       effection:
         specifier: ^4
-        version: 4.0.2
+        version: 4.1.0
 
   chain:
     devDependencies:
@@ -83,7 +83,7 @@ importers:
         version: link:../vitest
       effection:
         specifier: ^4
-        version: 4.0.2
+        version: 4.1.0
 
   context-api:
     dependencies:
@@ -96,7 +96,7 @@ importers:
         version: link:../vitest
       effection:
         specifier: ^4
-        version: 4.0.2
+        version: 4.1.0
 
   converge:
     dependencies:
@@ -109,7 +109,7 @@ importers:
         version: link:../vitest
       effection:
         specifier: ^4
-        version: 4.0.2
+        version: 4.1.0
 
   effect-ts:
     devDependencies:
@@ -121,7 +121,7 @@ importers:
         version: 3.19.14
       effection:
         specifier: ^4
-        version: 4.0.2
+        version: 4.1.0
 
   fetch:
     dependencies:
@@ -134,7 +134,7 @@ importers:
         version: link:../vitest
       effection:
         specifier: ^4
-        version: 4.0.2
+        version: 4.1.0
 
   fs:
     dependencies:
@@ -147,7 +147,7 @@ importers:
         version: link:../vitest
       effection:
         specifier: ^4
-        version: 4.0.2
+        version: 4.1.0
 
   fx:
     devDependencies:
@@ -156,13 +156,9 @@ importers:
         version: link:../vitest
       effection:
         specifier: ^4
-        version: 4.0.2
+        version: 4.1.0
 
   inline:
-    dependencies:
-      effection:
-        specifier: ^3 || ^4
-        version: 4.0.2
     devDependencies:
       '@effectionx/bdd':
         specifier: workspace:*
@@ -170,6 +166,9 @@ importers:
       '@swc/core':
         specifier: ^1.15.0
         version: 1.15.11
+      effection:
+        specifier: ^4
+        version: 4.1.0
       esbuild:
         specifier: ^0.25.0
         version: 0.25.12
@@ -184,7 +183,7 @@ importers:
         version: link:../vitest
       effection:
         specifier: ^4
-        version: 4.0.2
+        version: 4.1.0
 
   middleware:
     devDependencies:
@@ -199,7 +198,7 @@ importers:
         version: link:../vitest
       effection:
         specifier: ^4
-        version: 4.0.2
+        version: 4.1.0
 
   process:
     dependencies:
@@ -233,7 +232,7 @@ importers:
         version: 6.0.6
       effection:
         specifier: ^4
-        version: 4.0.2
+        version: 4.1.0
 
   raf:
     devDependencies:
@@ -245,7 +244,7 @@ importers:
         version: 1.2.0
       effection:
         specifier: ^4
-        version: 4.0.2
+        version: 4.1.0
 
   scope-eval:
     devDependencies:
@@ -254,7 +253,7 @@ importers:
         version: link:../vitest
       effection:
         specifier: ^4
-        version: 4.0.2
+        version: 4.1.0
 
   signals:
     dependencies:
@@ -270,7 +269,7 @@ importers:
         version: link:../vitest
       effection:
         specifier: ^4
-        version: 4.0.2
+        version: 4.1.0
 
   state-api:
     dependencies:
@@ -283,7 +282,7 @@ importers:
         version: link:../vitest
       effection:
         specifier: ^4
-        version: 4.0.2
+        version: 4.1.0
 
   stream-helpers:
     dependencies:
@@ -305,7 +304,7 @@ importers:
         version: link:../vitest
       effection:
         specifier: ^4
-        version: 4.0.2
+        version: 4.1.0
 
   stream-yaml:
     dependencies:
@@ -321,7 +320,7 @@ importers:
         version: link:../vitest
       effection:
         specifier: ^4
-        version: 4.0.2
+        version: 4.1.0
 
   task-buffer:
     devDependencies:
@@ -336,13 +335,13 @@ importers:
         version: 8.1.5
       effection:
         specifier: ^4
-        version: 4.0.2
+        version: 4.1.0
 
   test-adapter:
     devDependencies:
       effection:
         specifier: ^4
-        version: 4.0.2
+        version: 4.1.0
 
   timebox:
     devDependencies:
@@ -351,7 +350,7 @@ importers:
         version: link:../vitest
       effection:
         specifier: ^4
-        version: 4.0.2
+        version: 4.1.0
 
   tinyexec:
     dependencies:
@@ -361,7 +360,7 @@ importers:
     devDependencies:
       effection:
         specifier: ^4
-        version: 4.0.2
+        version: 4.1.0
 
   vitest:
     dependencies:
@@ -377,7 +376,7 @@ importers:
         version: 7.0.6
       effection:
         specifier: ^4
-        version: 4.0.2
+        version: 4.1.0
       vitest:
         specifier: ^4
         version: 4.1.0(@types/node@22.19.7)(vite@7.3.1(@types/node@22.19.7)(yaml@2.8.2))
@@ -417,7 +416,7 @@ importers:
         version: link:../vitest
       effection:
         specifier: ^4
-        version: 4.0.2
+        version: 4.1.0
 
   websocket:
     devDependencies:
@@ -429,7 +428,7 @@ importers:
         version: 8.18.1
       effection:
         specifier: ^4
-        version: 4.0.2
+        version: 4.1.0
       ws:
         specifier: ^8
         version: 8.19.0
@@ -454,7 +453,7 @@ importers:
         version: link:../vitest
       effection:
         specifier: ^4
-        version: 4.0.2
+        version: 4.1.0
 
 packages:
 
@@ -1188,8 +1187,8 @@ packages:
   effect@3.19.14:
     resolution: {integrity: sha512-3vwdq0zlvQOxXzXNKRIPKTqZNMyGCdaFUBfMPqpsyzZDre67kgC1EEHDV4EoQTovJ4w5fmJW756f86kkuz7WFA==}
 
-  effection@4.0.2:
-    resolution: {integrity: sha512-O8WMGP10nPuJDwbNGILcaCNWS+CvDYjcdsUSD79nWZ+WtUQ8h1MEV7JJwCSZCSeKx8+TdEaZ/8r6qPTR2o/o8w==}
+  effection@4.1.0:
+    resolution: {integrity: sha512-/BJuaYhzDrvC/nrIW054z1itmCNjVNFtyv/J26xrS4pP2MLfm5TG8VFe5f4zl1oGcAoF1fq1GfDO+v0qx6URPw==}
     engines: {node: '>= 16'}
 
   es-module-lexer@2.0.0:
@@ -2063,7 +2062,7 @@ snapshots:
       '@standard-schema/spec': 1.1.0
       fast-check: 3.23.2
 
-  effection@4.0.2: {}
+  effection@4.1.0: {}
 
   es-module-lexer@2.0.0: {}
 

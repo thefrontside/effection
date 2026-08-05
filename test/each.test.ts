@@ -1,5 +1,6 @@
 import { describe, expect, it } from "./suite.ts";
 import {
+  createQueue,
   each,
   type Operation,
   resource,
@@ -51,6 +52,26 @@ describe("each", () => {
         "four",
         "five",
       ]);
+    });
+  });
+
+  it("can iterate subscriptions", async () => {
+    await run(function* () {
+      let queue = createQueue<number, void>();
+
+      queue.add(1);
+      queue.add(2);
+      queue.add(3);
+      queue.close();
+
+      let items = [];
+
+      for (let num of yield* each(queue)) {
+        items.push(num);
+        yield* each.next();
+      }
+
+      expect(items).toEqual([1, 2, 3]);
     });
   });
 

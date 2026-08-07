@@ -200,6 +200,64 @@ describe("fetch()", () => {
     });
   });
 
+  describe("cancellation", () => {
+    it("does not abort a settled native fetch when its scope closes", function* () {
+      let nativeFetch = globalThis.fetch;
+      let requestSignal: AbortSignal | null | undefined;
+
+      globalThis.fetch = (input, init) => {
+        requestSignal = init?.signal;
+        return nativeFetch(input, init);
+      };
+
+      try {
+        let task = yield* spawn(function* () {
+          yield* fetch("data:text/plain,hello");
+        });
+
+        yield* task;
+
+        expect(requestSignal).toBeDefined();
+        expect(requestSignal?.aborted).toBe(false);
+      } finally {
+        globalThis.fetch = nativeFetch;
+      }
+    });
+
+    it("aborts an in-flight native fetch when its scope closes", function* () {
+      let nativeFetch = globalThis.fetch;
+      let started = withResolvers<AbortSignal>();
+
+      globalThis.fetch = (_input, init) =>
+        new Promise((_resolve, reject) => {
+          let signal = init?.signal;
+
+          if (!signal) {
+            reject(new Error("expected fetch to receive an abort signal"));
+            return;
+          }
+
+          started.resolve(signal);
+          signal.addEventListener("abort", () => reject(signal.reason), {
+            once: true,
+          });
+        });
+
+      try {
+        let task = yield* spawn(function* () {
+          yield* fetch("https://example.test/pending");
+        });
+        let requestSignal = yield* started.operation;
+
+        yield* task.halt();
+
+        expect(requestSignal.aborted).toBe(true);
+      } finally {
+        globalThis.fetch = nativeFetch;
+      }
+    });
+  });
+
   describe("middleware API", () => {
     it("can intercept requests with logging", function* () {
       let requestedUrls: string[] = [];

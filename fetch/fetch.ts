@@ -125,7 +125,7 @@ export class HttpError extends Error {
  * Perform an HTTP request using the Fetch API with Effection structured concurrency.
  *
  * Cancellation is automatically handled via the current Effection scope.
- * When the scope exits, the request is aborted.
+ * When the scope exits, an in-flight request is aborted.
  *
  * @param input - The URL or Request object
  * @param init - Optional request configuration (same as RequestInit, but without signal)

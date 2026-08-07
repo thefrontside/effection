@@ -1,7 +1,7 @@
 {
   "name": "@effectionx/fetch",
   "description": "Effection-native fetch with structured concurrency and streaming response support",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "keywords": ["io", "streams"],
   "type": "module",
   "main": "./dist/mod.js",

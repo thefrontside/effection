@@ -132,8 +132,9 @@ Returns a `FetchOperation` that supports both fluent chaining and traditional us
 - `init` - Optional `FetchInit` options (same as `RequestInit` but without `signal`)
 
 Cancellation is handled automatically via Effection's structured concurrency. When the
-scope exits, the request is aborted. The `signal` option is intentionally omitted since
-Effection manages cancellation for you.
+scope exits, an in-flight request is aborted. A native fetch that has already settled is
+left intact. The `signal` option is intentionally omitted since Effection manages
+cancellation for you.
 
 ### `FetchOperation`
 

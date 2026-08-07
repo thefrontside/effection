@@ -289,6 +289,59 @@ describe("api", () => {
     });
   });
 
+  it("does not duplicate existing ancestor middleware when propagating later additions", async () => {
+    let api = createApi("test", {
+      *test(order: string[]): Operation<string[]> {
+        return order;
+      },
+    });
+
+    await run(function* () {
+      yield* api.around({
+        *test(args, next) {
+          let [input] = args;
+          let output = yield* next(input.concat("parent-before"));
+          return output.concat("/parent-before");
+        },
+      });
+
+      let tester = yield* resource<{ test(): Operation<string[]> }>(
+        function* (provide) {
+          let scope = yield* useScope();
+          yield* api.around({
+            *test(args, next) {
+              let [input] = args;
+              let output = yield* next(input.concat("child"));
+              return output.concat("/child");
+            },
+          });
+          yield* provide({
+            *test() {
+              return yield* scope.run(() => api.operations.test([]));
+            },
+          });
+        },
+      );
+
+      yield* api.around({
+        *test(args, next) {
+          let [input] = args;
+          let output = yield* next(input.concat("parent-after"));
+          return output.concat("/parent-after");
+        },
+      });
+
+      expect(yield* tester.test()).toEqual([
+        "parent-before",
+        "parent-after",
+        "child",
+        "/child",
+        "/parent-after",
+        "/parent-before",
+      ]);
+    });
+  });
+
   it("isolates sibling scopes from each other's middleware", async () => {
     let api = createApi("test", {
       *test(order: string[]): Operation<string[]> {

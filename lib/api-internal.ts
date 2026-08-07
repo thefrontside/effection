@@ -87,22 +87,27 @@ export function decorateApi<A>(
 ) {
   // read existing total and local
   let current = scope.get(api.context) ?? { total: {}, local: {} };
+  let hasOwnContext = scope.hasOwn(api.context);
 
-  let local = decorate(current.local, {
+  let total = hasOwnContext
+    ? current.total
+    : decorate(current.total, current.local);
+
+  let local = decorate(hasOwnContext ? current.local : {}, {
     [options?.at ?? "max"]: decorator,
   });
 
-  if (!scope.hasOwn(api.context)) {
+  if (!hasOwnContext) {
     scope.set(api.context, {
       local,
-      total: current.total,
+      total,
       handle: api.core,
     });
   } else {
     current.local = local;
   }
 
-  install(scope, api, current.total);
+  install(scope, api, total);
 }
 
 function decorate<A>(base: Decorator<A>, next: Decorator<A>): Decorator<A> {

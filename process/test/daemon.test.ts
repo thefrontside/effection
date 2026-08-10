@@ -1,20 +1,41 @@
 import process from "node:process";
+import { platform } from "node:os";
 import { beforeEach, describe, it } from "@effectionx/vitest";
-import { type Task, sleep, spawn, until, withResolvers } from "effection";
+import {
+  type Operation,
+  type Task,
+  scoped,
+  sleep,
+  spawn,
+  suspend,
+  until,
+  withResolvers,
+} from "effection";
 import { expect } from "expect";
 
 import { lines } from "@effectionx/stream-helpers";
-import { type Daemon, daemon } from "../mod.ts";
+import { daemon, DaemonExitError, type Process, ProcessApi } from "../mod.ts";
 import { captureError, expectMatch, fetchText } from "./helpers.ts";
 
 const SystemRoot = process.env.SystemRoot;
 
+function* waitForProcessExit(pid: number): Operation<void> {
+  while (true) {
+    try {
+      process.kill(pid, 0);
+      yield* sleep(0);
+    } catch {
+      return;
+    }
+  }
+}
+
 describe("daemon", () => {
   describe("controlling from outside", () => {
     let task: Task<void>;
-    let proc: Daemon;
+    let proc: Process;
     beforeEach(function* () {
-      const result = withResolvers<Daemon>();
+      const result = withResolvers<Process>();
       task = yield* spawn<void>(function* () {
         proc = yield* daemon("node", {
           arguments: [
@@ -29,7 +50,7 @@ describe("daemon", () => {
           cwd: import.meta.dirname,
         });
         result.resolve(proc);
-        yield* proc;
+        yield* suspend();
       });
 
       proc = yield* result.operation;
@@ -67,47 +88,52 @@ describe("daemon", () => {
     });
   });
 
-  describe("shutting down the daemon process prematurely", () => {
-    let task: Task<Error>;
-    beforeEach(function* () {
-      let proc = yield* daemon("node", {
-        arguments: ["--experimental-strip-types", "fixtures/echo-server.ts"],
-        env: {
-          PORT: "29001",
-          PATH: process.env.PATH as string,
-          ...(SystemRoot ? { SystemRoot } : {}),
-        },
-        cwd: import.meta.dirname,
+  describe.skipIf(platform() === "win32")(
+    "shutting down the daemon process prematurely",
+    () => {
+      let sibling: Process;
+      let error: DaemonExitError;
+
+      beforeEach(function* () {
+        const commands: string[] = [];
+
+        yield* ProcessApi.around({
+          *exec(args, next) {
+            commands.push(args[0]);
+            return yield* next(...args);
+          },
+        });
+
+        error = (yield* captureError(
+          scoped(function* () {
+            const failing = yield* daemon("node", {
+              arguments: ["-e", "setInterval(() => {}, 1000)"],
+            });
+            sibling = yield* daemon("node", {
+              arguments: ["-e", "setInterval(() => {}, 1000)"],
+            });
+
+            process.kill(failing.pid, "SIGTERM");
+            yield* suspend();
+          }),
+        )) as DaemonExitError;
+
+        expect(commands).toEqual(["node", "node"]);
       });
 
-      task = yield* spawn(function* () {
-        try {
-          yield* proc;
-        } catch (e) {
-          return e as Error;
-        }
-        return new Error(`this shouldn't happen`);
+      it("propagates the exit and terminates sibling daemons", function* () {
+        expect(error).toBeInstanceOf(DaemonExitError);
+        expect(error.status).toMatchObject({ signal: "SIGTERM" });
+
+        yield* waitForProcessExit(sibling.pid);
+        expect(() => process.kill(sibling.pid, 0)).toThrow();
       });
-
-      const listening = yield* expectMatch(/listening/, lines()(proc.stdout));
-      expect(listening).toBe(true);
-
-      yield* fetchText("http://localhost:29001", {
-        method: "POST",
-        body: "exit",
-      });
-    });
-
-    it("throw an error because it was not expected to close", function* () {
-      yield* until(
-        expect(task).resolves.toHaveProperty("name", "DaemonExitError"),
-      );
-    });
-  });
+    },
+  );
 
   describe("shutting down an effection-based daemon process prematurely", () => {
     let task: Task<void>;
-    let proc: Daemon;
+    let proc: Process;
     beforeEach(function* () {
       const ready = withResolvers<void>();
       task = yield* spawn(function* () {
@@ -117,7 +143,7 @@ describe("daemon", () => {
             cwd: import.meta.dirname,
           });
           ready.resolve();
-          yield* proc;
+          yield* suspend();
         } catch (e) {
           // ignore the error from the process exiting
           //  we just want to check that the finally block runs

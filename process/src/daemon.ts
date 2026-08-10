@@ -3,8 +3,6 @@ import type { Operation } from "effection";
 import { ProcessApi } from "../api.ts";
 import type { ExecOptions, Process } from "./exec.ts";
 
-export interface Daemon extends Operation<void>, Process {}
-
 /**
  * Start a long-running process, like a web server that run perpetually.
  * Daemon operations are expected to run forever, and if they exit pre-maturely
@@ -13,6 +11,6 @@ export interface Daemon extends Operation<void>, Process {}
 export function daemon(
   command: string,
   options: ExecOptions = {},
-): Operation<Daemon> {
+): Operation<Process> {
   return ProcessApi.operations.daemon(command, options);
 }

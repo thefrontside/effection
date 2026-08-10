@@ -1,8 +1,7 @@
 import { type Api, createApi } from "@effectionx/context-api";
 import type { Operation } from "effection";
-import { resource } from "effection";
+import { resource, spawn } from "effection";
 
-import type { Daemon } from "./src/daemon.ts";
 import type { ExecOptions, Process } from "./src/exec/types.ts";
 import { DaemonExitError } from "./src/exec/error.ts";
 import { createPosixProcess } from "./src/exec/posix.ts";
@@ -10,7 +9,7 @@ import { createWin32Process, isWin32 } from "./src/exec/win32.ts";
 
 export interface ProcessHandler {
   exec(command: string, options: ExecOptions): Operation<Process>;
-  daemon(command: string, options: ExecOptions): Operation<Daemon>;
+  daemon(command: string, options: ExecOptions): Operation<Process>;
 }
 
 export const ProcessApi: Api<ProcessHandler> = createApi(
@@ -23,17 +22,16 @@ export const ProcessApi: Api<ProcessHandler> = createApi(
       return yield* createPosixProcess(command, options);
     },
 
-    *daemon(command: string, options: ExecOptions): Operation<Daemon> {
+    *daemon(command: string, options: ExecOptions): Operation<Process> {
       return yield* resource(function* (provide) {
         let process = yield* ProcessApi.operations.exec(command, options);
 
-        yield* provide({
-          *[Symbol.iterator]() {
-            let status = yield* process.join();
-            throw new DaemonExitError(status, command, options);
-          },
-          ...process,
+        yield* spawn(function* supervise() {
+          let status = yield* process.join();
+          throw new DaemonExitError(status, command, options);
         });
+
+        yield* provide(process);
       });
     },
   },

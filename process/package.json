@@ -1,7 +1,7 @@
 {
   "name": "@effectionx/process",
   "description": "Spawn and manage child processes with structured concurrency",
-  "version": "0.8.1",
+  "version": "0.8.2",
   "keywords": ["process"],
   "type": "module",
   "main": "./dist/mod.js",

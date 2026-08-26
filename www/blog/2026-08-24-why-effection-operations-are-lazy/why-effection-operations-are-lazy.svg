@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg
+  width="1200"
+  height="630"
+  viewBox="0 0 1200 630"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+  role="img"
+  aria-label="A promise-returning function starts immediately while an Effection operation remains dormant until yielded"
+>
+  <defs>
+    <linearGradient id="svg-bg-light-gradient" x1="0" y1="0" x2="1200" y2="630"
+      gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F8FAFF" />
+      <stop offset="0.55" stop-color="#F2F7FF" />
+      <stop offset="1" stop-color="#ECF3FF" />
+    </linearGradient>
+    <filter id="svg-card-shadow-light" x="-20%" y="-20%" width="140%"
+      height="150%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="12" stdDeviation="18" flood-color="#0B2A5B"
+        flood-opacity="0.12" />
+    </filter>
+    <filter id="svg-card-shadow-dark" x="-20%" y="-20%" width="140%"
+      height="150%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="12" stdDeviation="18" flood-color="#000000"
+        flood-opacity="0.28" />
+    </filter>
+    <style>
+    .svg-heading {
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+    .svg-status {
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+      font-size: 25px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+    }
+    .svg-code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", monospace;
+      font-size: 21px;
+    }
+    .svg-bg-light,
+    .svg-shadow-light {
+      display: block;
+    }
+    .svg-bg-dark,
+    .svg-shadow-dark {
+      display: none;
+    }
+    .svg-grid {
+      opacity: 0.24;
+    }
+    .svg-grid-line {
+      stroke: #C9D9F2;
+      stroke-width: 1;
+    }
+    .svg-card {
+      fill: #FFFFFF;
+      stroke: #97B7FF;
+      stroke-width: 2;
+    }
+    .svg-card-divider {
+      stroke: #D6E4FF;
+      stroke-width: 1.5;
+    }
+    .svg-heading,
+    .svg-code {
+      fill: #0C3A7A;
+    }
+    .svg-node {
+      fill: #F0F7FF;
+      stroke: #2B6FF7;
+      stroke-width: 2;
+    }
+    .svg-flow {
+      fill: none;
+      stroke: #2B6FF7;
+      stroke-width: 3;
+    }
+    .svg-flow-dot {
+      fill: #2B6FF7;
+    }
+    .svg-dormant {
+      fill: #F8FAFC;
+      stroke: #94A3B8;
+      stroke-width: 2;
+    }
+    .svg-dormant-mark {
+      fill: #94A3B8;
+    }
+    .svg-dormant-text {
+      fill: #64748B;
+    }
+    .svg-running {
+      fill: #F0FDF4;
+      stroke: #22C55E;
+      stroke-width: 2;
+    }
+    .svg-running-mark,
+    .svg-running-text {
+      fill: #16A34A;
+    }
+    @media (prefers-color-scheme: dark) {
+      .svg-bg-light,
+      .svg-shadow-light {
+        display: none;
+      }
+      .svg-bg-dark,
+      .svg-shadow-dark {
+        display: block;
+      }
+      .svg-grid {
+        opacity: 0.18;
+      }
+      .svg-grid-line {
+        stroke: #334155;
+      }
+      .svg-card {
+        fill: #111827;
+        stroke: #25638A;
+      }
+      .svg-card-divider {
+        stroke: #24465D;
+      }
+      .svg-heading,
+      .svg-code {
+        fill: #38BDF8;
+      }
+      .svg-node {
+        fill: #0B1722;
+        stroke: #38BDF8;
+      }
+      .svg-flow {
+        stroke: #38BDF8;
+      }
+      .svg-flow-dot {
+        fill: #38BDF8;
+      }
+      .svg-dormant {
+        fill: #12171D;
+        stroke: #9CA3AF;
+      }
+      .svg-dormant-mark {
+        fill: #9CA3AF;
+      }
+      .svg-dormant-text {
+        fill: #D1D5DB;
+      }
+      .svg-running {
+        fill: #082514;
+        stroke: #4ADE80;
+      }
+      .svg-running-mark,
+      .svg-running-text {
+        fill: #4ADE80;
+      }
+    }
+    </style>
+  </defs>
+
+  <rect class="svg-bg-light" width="1200" height="630"
+    fill="url(#svg-bg-light-gradient)" />
+  <rect class="svg-bg-dark" width="1200" height="630" fill="#07111A" />
+  <g class="svg-grid">
+    <path class="svg-grid-line"
+      d="M40 70H1160M40 140H1160M40 210H1160M40 280H1160M40 350H1160M40 420H1160M40 490H1160M40 560H1160" />
+    <path class="svg-grid-line"
+      d="M80 35V595M160 35V595M240 35V595M320 35V595M400 35V595M480 35V595M560 35V595M640 35V595M720 35V595M800 35V595M880 35V595M960 35V595M1040 35V595M1120 35V595" />
+  </g>
+
+  <g class="svg-shadow-light" filter="url(#svg-card-shadow-light)">
+    <rect class="svg-card" x="55" y="54" width="520" height="522" rx="24" />
+    <rect class="svg-card" x="625" y="54" width="520" height="522" rx="24" />
+  </g>
+  <g class="svg-shadow-dark" filter="url(#svg-card-shadow-dark)">
+    <rect class="svg-card" x="55" y="54" width="520" height="522" rx="24" />
+    <rect class="svg-card" x="625" y="54" width="520" height="522" rx="24" />
+  </g>
+
+  <line class="svg-card-divider" x1="55" y1="142" x2="575" y2="142" />
+  <line class="svg-card-divider" x1="625" y1="142" x2="1145" y2="142" />
+
+  <text class="svg-heading" x="91" y="113">Promise</text>
+  <text class="svg-heading" x="661" y="113">Operation</text>
+
+  <rect class="svg-node" x="150" y="195" width="330" height="68" rx="13" />
+  <text class="svg-code" x="315" y="237"
+    text-anchor="middle">longOperation()</text>
+  <circle class="svg-flow-dot" cx="315" cy="263" r="7" />
+  <path class="svg-flow" d="M315 270V350" />
+  <rect class="svg-running" x="165" y="371" width="300" height="82" rx="14" />
+  <path class="svg-running-mark" d="M213 395L213 429L244 412Z" />
+  <text class="svg-status svg-running-text" x="270" y="421">RUNNING</text>
+
+  <rect class="svg-node" x="720" y="166" width="330" height="64" rx="13" />
+  <text class="svg-code" x="885" y="206"
+    text-anchor="middle">longOperation()</text>
+  <circle class="svg-flow-dot" cx="885" cy="230" r="7" />
+  <path class="svg-flow" d="M885 237V255" />
+  <rect class="svg-dormant" x="755" y="267" width="260" height="66" rx="13" />
+  <rect class="svg-dormant-mark" x="790" y="288" width="24" height="24"
+    rx="2" />
+  <text class="svg-status svg-dormant-text" x="840" y="312">DORMANT</text>
+  <circle class="svg-flow-dot" cx="885" cy="333" r="7" />
+  <path class="svg-flow" d="M885 340V358" />
+  <rect class="svg-node" x="720" y="370" width="330" height="64" rx="13" />
+  <text class="svg-code" x="885" y="410"
+    text-anchor="middle">yield* operation</text>
+  <circle class="svg-flow-dot" cx="885" cy="434" r="7" />
+  <path class="svg-flow" d="M885 441V459" />
+  <rect class="svg-running" x="735" y="471" width="300" height="64" rx="13" />
+  <path class="svg-running-mark" d="M775 486L775 520L806 503Z" />
+  <text class="svg-status svg-running-text" x="825" y="512">RUNNING</text>
+</svg>

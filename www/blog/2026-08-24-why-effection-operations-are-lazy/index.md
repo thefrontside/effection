@@ -1,9 +1,9 @@
 ---
-title: "Why Laziness Matters in Effection"
+title: "Why Effection operations are lazy"
 description: "Async functions start running the moment you call them. Effection operations don't start until you yield them — and that difference changes how you reason about execution and lifetime."
 author: "Joshua Amaju"
 tags: ["effection", "operations", "laziness"]
-image: "why-laziness-matters-in-effection.svg"
+image: "why-effection-operations-are-lazy.svg"
 ---
 
 In JavaScript, async functions are eager by default. Calling an async function

@@ -77,7 +77,7 @@ jobs:
               --message="Preview for PR #$PR_NUMBER at commit $COMMIT_SHA" \
               --json)
 
-            UNIQUE_URL=$(echo "$DEPLOY_OUTPUT" | jq -er '.deploy_url')
+            UNIQUE_URL=$(echo "$DEPLOY_OUTPUT" | jq -er '.site_url')
             STABLE_URL="$UNIQUE_URL"
           else
             DEPLOY_OUTPUT=$(npx netlify-cli deploy \

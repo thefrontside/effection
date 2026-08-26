@@ -144,6 +144,7 @@ jobs:
           npx netlify-cli deploy \
             --dir=www/built \
             --prod \
+            --allow-anonymous \
             --auth=${{ secrets.NETLIFY_AUTH_TOKEN }} \
             --site=${{ secrets.NETLIFY_SITE_ID }}
 

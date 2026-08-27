@@ -6,7 +6,8 @@
  * automatically percolate.
  *
  * A successful result has the shape `{ ok: true, value }` and a failed result
- * has the shape `{ ok: false, error }`.
+ * has the shape `{ ok: false, error }`. The error is the original thrown value
+ * and has type `unknown`.
  *
  * @since 4.1
  */
@@ -15,7 +16,7 @@ export type Result<T> = {
   value: T;
 } | {
   readonly ok: false;
-  error: Error;
+  error: unknown;
 };
 
 /**
@@ -42,7 +43,7 @@ export function Ok<T>(value?: T): Result<T | undefined> {
 }
 
 /**
- * Construct a failed {@link Result}.
+ * Construct a failed {@link Result}, preserving the cause without wrapping it.
  *
  * ### Example
  *
@@ -58,17 +59,8 @@ export function Ok<T>(value?: T): Result<T | undefined> {
 export function Err<T>(cause: unknown): Result<T> {
   return {
     ok: false,
-    error: cause instanceof Error
-      ? cause
-      : new ThrownValueError(String(cause), { cause }),
+    error: cause,
   };
-}
-
-class ThrownValueError extends Error {
-  constructor(message: string, options?: ErrorOptions) {
-    super(message, options);
-    this.name = "ThrownValueError";
-  }
 }
 
 /**
@@ -78,9 +70,7 @@ export function unbox<T>(result: Result<T>): T {
   if (result.ok) {
     return result.value;
   } else {
-    throw result.error instanceof ThrownValueError
-      ? result.error.cause
-      : result.error;
+    throw result.error;
   }
 }
 

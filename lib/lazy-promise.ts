@@ -14,7 +14,7 @@ export function lazyPromiseWithResolvers<T>(): PromiseWithResolvers<T> {
   let resolve = ((value: T) => settle(Ok(value))) as PromiseWithResolvers<
     T
   >["resolve"];
-  let reject = (error: Error) => settle(Err(error));
+  let reject = (error: unknown) => settle(Err(error));
 
   let promise = lazyPromise<T>((resolve, reject) => {
     let record = (result: Result<T>) => {
@@ -38,7 +38,7 @@ export function lazyPromiseWithResolvers<T>(): PromiseWithResolvers<T> {
 export function lazyPromise<T>(
   resolver: (
     resolve: (value: T) => void,
-    reject: (error: Error) => void,
+    reject: (error: unknown) => void,
   ) => void,
 ): Promise<T> {
   let _promise: Promise<T> | undefined = undefined;

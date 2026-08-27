@@ -33,14 +33,14 @@ export interface WithResolvers<T> {
   resolve(value: T): void;
 
   /**
-   * Cause {@link operation} to raise `Error`. Any calling operation
+   * Cause {@link operation} to raise `error`. Any calling operation
    * waiting on `operation` will. Yielding to `operation` subsequently
    * will also raise the same error. * If either `resolve` or`reject`
    * has been called before, this will have no effect.
    *
    * @param error - the error to raise
    */
-  reject(error: Error): void;
+  reject(error: unknown): void;
 }
 
 /**
@@ -105,7 +105,7 @@ export function withResolvers<T>(description?: string): WithResolvers<T> {
   };
 
   let resolve = (value: T) => settle(Ok(value));
-  let reject = (error: Error) => settle(Err(error));
+  let reject = (error: unknown) => settle(Err(error));
 
   return { operation, resolve, reject };
 }

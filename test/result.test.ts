@@ -13,16 +13,9 @@ describe("Result", () => {
     expect(Err(error)).toEqual({ ok: false, error });
   });
 
-  it("wraps non-Error causes passed to Err()", () => {
-    let result = Err("oh no");
+  it("preserves non-Error causes passed to Err()", () => {
+    let cause = "oh no";
 
-    if (result.ok) {
-      throw new Error("expected Err() to produce a failed result");
-    }
-
-    expect(result.error).toBeInstanceOf(Error);
-    expect(result.error.name).toEqual("ThrownValueError");
-    expect(result.error.message).toEqual("oh no");
-    expect(result.error.cause).toEqual("oh no");
+    expect(Err(cause)).toEqual({ ok: false, error: cause });
   });
 });

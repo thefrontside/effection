@@ -19,7 +19,7 @@ export function* trap<T>(operation: () => Operation<T>): Operation<T> {
       trap.outcome = Just(Ok(value));
     }
   } catch (error) {
-    trap.outcome = Just(Err(error as Error));
+    trap.outcome = Just(Err(error));
   } finally {
     scope.set(ErrorContext, original);
     // deno-lint-ignore no-unsafe-finally
@@ -32,7 +32,7 @@ export class Trap<T> implements ErrorBoundary {
 
   constructor(public routine: Coroutine<unknown>) {}
 
-  raise(error: Error): void {
+  raise(error: unknown): void {
     this.outcome = Just(Err(error));
     this.routine.unwind();
   }
@@ -54,7 +54,7 @@ export class Trap<T> implements ErrorBoundary {
 }
 
 export interface ErrorBoundary {
-  raise(error: Error): void;
+  raise(error: unknown): void;
 }
 
 export const ErrorContext = createContext<ErrorBoundary>(

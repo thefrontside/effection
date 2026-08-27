@@ -13,7 +13,7 @@ import type { Operation } from "./types.ts";
  *           action is resolved, rejected, or discarded.
  */
 interface Executor<T> {
-  (resolve: (value: T) => void, reject: (error: Error) => void): () => void;
+  (resolve: (value: T) => void, reject: (error: unknown) => void): () => void;
 }
 
 /**
@@ -53,7 +53,7 @@ export function action<T>(executor: Executor<T>, desc?: string): Operation<T> {
       let resolve = (value: T) => {
         settle(Ok(value));
       };
-      let reject = (error: Error) => {
+      let reject = (error: unknown) => {
         settle(Err(error));
       };
       let discard = executor(resolve, reject);

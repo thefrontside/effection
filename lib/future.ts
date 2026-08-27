@@ -5,7 +5,7 @@ import { withResolvers } from "./with-resolvers.ts";
 export interface FutureWithResolvers<T> {
   future: Future<T>;
   resolve(value: T): void;
-  reject(error: Error): void;
+  reject(error: unknown): void;
 }
 export function createFuture<T>(): FutureWithResolvers<T> {
   let promise = lazyPromiseWithResolvers<T>();
@@ -16,7 +16,7 @@ export function createFuture<T>(): FutureWithResolvers<T> {
     operation.resolve(value);
   };
 
-  let reject = (error: Error) => {
+  let reject = (error: unknown) => {
     promise.reject(error);
     operation.reject(error);
   };

@@ -136,7 +136,7 @@ export async function main(
 
         yield* exit(0);
       } catch (error) {
-        yield* resolve({ status: 1, error: error as Error });
+        yield* resolve({ status: 1, error });
       } finally {
         clearInterval(interval);
       }
@@ -151,7 +151,7 @@ export async function main(
     }
   }
 
-  if (result.error) {
+  if ("error" in result) {
     console.error(result.error);
   }
 
@@ -164,7 +164,7 @@ interface Exit {
   status: number;
   message?: string;
   signal?: string;
-  error?: Error;
+  error?: unknown;
 }
 
 interface HostOperation<T> {

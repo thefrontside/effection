@@ -1,4 +1,4 @@
-import { Err, Ok, type Result } from "./result.ts";
+import { Err, Ok, type Result, unbox } from "./result.ts";
 
 type PromiseWithResolvers<T> = ReturnType<typeof Promise.withResolvers<T>>;
 
@@ -18,10 +18,10 @@ export function lazyPromiseWithResolvers<T>(): PromiseWithResolvers<T> {
 
   let promise = lazyPromise<T>((resolve, reject) => {
     let record = (result: Result<T>) => {
-      if (result.ok) {
-        resolve(result.value);
-      } else {
-        reject(result.error);
+      try {
+        resolve(unbox(result));
+      } catch (error) {
+        reject(error);
       }
     };
 
@@ -38,7 +38,7 @@ export function lazyPromiseWithResolvers<T>(): PromiseWithResolvers<T> {
 export function lazyPromise<T>(
   resolver: (
     resolve: (value: T) => void,
-    reject: (error: Error) => void,
+    reject: (error: unknown) => void,
   ) => void,
 ): Promise<T> {
   let _promise: Promise<T> | undefined = undefined;

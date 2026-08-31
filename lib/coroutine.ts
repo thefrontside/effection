@@ -1,5 +1,5 @@
 import { ReducerContext } from "./reducer.ts";
-import { Err, Ok } from "./result.ts";
+import { Err, Ok, unbox } from "./result.ts";
 import type { Coroutine, Effect, Operation, Scope } from "./types.ts";
 import type { Maybe } from "./maybe.ts";
 import type { Result } from "./result.ts";
@@ -72,10 +72,16 @@ export function createCoroutine<T>(
       let { resumeWith } = routine.data;
       if (!resumeWith.ok) {
         data.unwinding = false;
+        let error: unknown = resumeWith.error;
+        try {
+          unbox(resumeWith);
+        } catch (cause) {
+          error = cause;
+        }
         if (iterator.throw) {
-          return iterator.throw(resumeWith.error);
+          return iterator.throw(error);
         } else {
-          throw resumeWith.error;
+          throw error;
         }
       } else if (data.unwinding && !data.critical) {
         data.unwinding = false;

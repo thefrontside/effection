@@ -15,7 +15,7 @@ export type Result<T> = {
   value: T;
 } | {
   readonly ok: false;
-  error: Error;
+  error: unknown;
 };
 
 /**
@@ -58,17 +58,8 @@ export function Ok<T>(value?: T): Result<T | undefined> {
 export function Err<T>(cause: unknown): Result<T> {
   return {
     ok: false,
-    error: cause instanceof Error
-      ? cause
-      : new ThrownValueError(String(cause), { cause }),
+    error: cause,
   };
-}
-
-class ThrownValueError extends Error {
-  constructor(message: string, options?: ErrorOptions) {
-    super(message, options);
-    this.name = "ThrownValueError";
-  }
 }
 
 /**

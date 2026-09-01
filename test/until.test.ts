@@ -9,6 +9,16 @@ describe("until", () => {
       expect(yield* until(Promise.resolve(42))).toEqual(42);
     });
   });
+  it("resolves promise-like values", async () => {
+    let promiseLike = {
+      then(resolve: (value: number) => void) {
+        resolve(42);
+        return promiseLike;
+      },
+    } as PromiseLike<number>;
+
+    await expect(run(() => until(promiseLike))).resolves.toEqual(42);
+  });
   it("preserves non-Error promise rejections", async () => {
     let cause = { message: "error" };
 

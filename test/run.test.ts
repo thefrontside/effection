@@ -308,6 +308,18 @@ describe("run()", () => {
     await expect(task).rejects.toHaveProperty("message", "bang");
   });
 
+  it("preserves non-Error causes from child tasks", async () => {
+    let cause = { message: "boom" };
+    let task = run(function* Main() {
+      yield* spawn(function* Boomer() {
+        throw cause;
+      });
+      yield* suspend();
+    });
+
+    await expect(task).rejects.toBe(cause);
+  });
+
   it("throws an error in halt() if its finally block blows up", async () => {
     let task = run(function* main() {
       try {

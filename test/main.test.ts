@@ -86,6 +86,17 @@ describe("main", () => {
     });
   });
 
+  it("prints falsy non-Error causes", async () => {
+    await run(function* () {
+      let proc = yield* x("deno", ["run", "test/main/fail.unknown.ts"]);
+
+      let { stderr, exitCode } = yield* proc;
+
+      expect(stderr).toContain("false");
+      expect(exitCode).toEqual(1);
+    });
+  });
+
   it("works even if suspend is the only operation", async () => {
     await run(function* () {
       let proc = yield* x("deno", ["run", "test/main/just.suspend.ts"]);

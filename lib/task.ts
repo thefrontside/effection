@@ -2,7 +2,7 @@
 import { Priority } from "./contexts.ts";
 import { createCoroutine, critical, SettleContext } from "./coroutine.ts";
 import { type Maybe, Nothing } from "./maybe.ts";
-import { Ok, type Result } from "./result.ts";
+import { Ok, type Result, unbox } from "./result.ts";
 import { createScopeInternal, type ScopeInternal } from "./scope-internal.ts";
 import { encapsulate, TaskGroupContext } from "./task-group.ts";
 import { ErrorContext, trap } from "./trap.ts";
@@ -95,7 +95,7 @@ class TaskInternal<T> implements Task<T> {
     let halted = async () => {
       let outcome = await signal();
       if (control.interrupted && outcome.exists && !outcome.value.ok) {
-        throw outcome.value.error;
+        unbox(outcome.value);
       }
     };
 
@@ -104,7 +104,7 @@ class TaskInternal<T> implements Task<T> {
         value: function* halt() {
           let outcome = yield* signal();
           if (control.interrupted && outcome.exists && !outcome.value.ok) {
-            throw outcome.value.error;
+            unbox(outcome.value);
           }
         },
       },
@@ -120,12 +120,7 @@ class TaskInternal<T> implements Task<T> {
   *[Symbol.iterator]() {
     let outcome = yield* this.routine.future;
     if (outcome.exists) {
-      let result = outcome.value;
-      if (result.ok) {
-        return result.value;
-      } else {
-        throw result.error;
-      }
+      return unbox(outcome.value);
     } else {
       throw new Error(`halted`);
     }
@@ -137,19 +132,12 @@ class TaskInternal<T> implements Task<T> {
     if (this._promise) {
       return this._promise;
     }
-    return this._promise = new Promise((resolve, reject) => {
-      this.routine.future.then((outcome) => {
-        if (outcome.exists) {
-          let result = outcome.value;
-          if (result.ok) {
-            resolve(result.value);
-          } else {
-            reject(result.error);
-          }
-        } else {
-          reject(new Error("halted"));
-        }
-      });
+    return this._promise = this.routine.future.then((outcome) => {
+      if (outcome.exists) {
+        return unbox(outcome.value);
+      } else {
+        throw new Error("halted");
+      }
     });
   }
 }

@@ -28,6 +28,11 @@ describe("call", () => {
     );
   });
 
+  it("evaluates a promise-like function", async () => {
+    let promiseLike: PromiseLike<number> = Promise.resolve(42);
+    await expect(run(() => call(() => promiseLike))).resolves.toEqual(42);
+  });
+
   it("evaluates a vanilla function", async () => {
     await expect(run(() => call(() => 42))).resolves.toEqual(42);
   });

@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1680" height="896" viewBox="0 0 1680 896" fill="none">
+  <defs>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="12" stdDeviation="18" flood-color="#8AA0C7" flood-opacity="0.20"/>
+    </filter>
+    <style>
+      .ui { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .mono { font-family: "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
+    </style>
+  </defs>
+
+  <!-- outer background -->
+  <rect width="1680" height="896" fill="#FFFFFF"/>
+  <rect x="39" y="21" width="1608" height="845" rx="30" fill="#F5F8FE" filter="url(#shadow)"/>
+
+  <!-- subtle grid -->
+  <g stroke="#E9EEF7" stroke-width="1">
+    <!-- vertical -->
+    <line x1="146" y1="68" x2="146" y2="820"/>
+    <line x1="253" y1="68" x2="253" y2="820"/>
+    <line x1="360" y1="68" x2="360" y2="820"/>
+    <line x1="468" y1="68" x2="468" y2="820"/>
+    <line x1="575" y1="68" x2="575" y2="820"/>
+    <line x1="682" y1="68" x2="682" y2="820"/>
+    <line x1="789" y1="68" x2="789" y2="820"/>
+    <line x1="897" y1="68" x2="897" y2="820"/>
+    <line x1="1004" y1="68" x2="1004" y2="820"/>
+    <line x1="1111" y1="68" x2="1111" y2="820"/>
+    <line x1="1218" y1="68" x2="1218" y2="820"/>
+    <line x1="1325" y1="68" x2="1325" y2="820"/>
+    <line x1="1432" y1="68" x2="1432" y2="820"/>
+    <line x1="1539" y1="68" x2="1539" y2="820"/>
+    <!-- horizontal -->
+    <line x1="93" y1="116" x2="1594" y2="116"/>
+    <line x1="93" y1="210" x2="1594" y2="210"/>
+    <line x1="93" y1="303" x2="1594" y2="303"/>
+    <line x1="93" y1="397" x2="1594" y2="397"/>
+    <line x1="93" y1="491" x2="1594" y2="491"/>
+    <line x1="93" y1="584" x2="1594" y2="584"/>
+    <line x1="93" y1="678" x2="1594" y2="678"/>
+    <line x1="93" y1="772" x2="1594" y2="772"/>
+  </g>
+
+  <!-- cards -->
+  <rect x="112" y="93" width="699" height="701" rx="34" fill="#FFFFFF" stroke="#8FB2FF" stroke-width="3"/>
+  <rect x="877" y="93" width="699" height="701" rx="34" fill="#FFFFFF" stroke="#8FB2FF" stroke-width="3"/>
+
+  <!-- header dividers -->
+  <line x1="112" y1="212" x2="811" y2="212" stroke="#CAD9FF" stroke-width="2"/>
+  <line x1="877" y1="212" x2="1576" y2="212" stroke="#CAD9FF" stroke-width="2"/>
+
+  <!-- headers -->
+  <text class="ui" x="160" y="173" font-size="34" font-weight="800" fill="#123E7C">Promise</text>
+  <text class="ui" x="925" y="173" font-size="34" font-weight="800" fill="#123E7C">Operation</text>
+
+  <!-- left code box -->
+  <rect x="240" y="244" width="443" height="86" rx="18" fill="#FFFFFF" stroke="#2B6BF3" stroke-width="3"/>
+  <text class="mono" x="461.5" y="299" font-size="31" text-anchor="middle" fill="#113D79">let op = mutation()</text>
+
+  <!-- left connector 1 -->
+  <line x1="461" y1="331" x2="461" y2="407" stroke="#3473F6" stroke-width="4"/>
+  <circle cx="461" cy="330" r="10" fill="#3473F6"/>
+
+  <!-- left running box -->
+  <rect x="240" y="423" width="443" height="86" rx="18" fill="#ECFAF1" stroke="#1FB954" stroke-width="3"/>
+  <polygon points="305,444 305,488 345,466" fill="#13A44C"/>
+  <text class="ui" x="452" y="479" font-size="36" font-weight="800" text-anchor="middle" fill="#10A34A">RUNNING</text>
+
+  <!-- left connector 2 -->
+  <line x1="461" y1="510" x2="461" y2="588" stroke="#93A5C3" stroke-width="4"/>
+  <circle cx="461" cy="510" r="10" fill="#93A5C3"/>
+
+  <!-- left await box -->
+  <rect x="240" y="603" width="443" height="87" rx="18" fill="#F9FAFC" stroke="#9AA9BF" stroke-width="3"/>
+  <text class="mono" x="461.5" y="657" font-size="31" text-anchor="middle" fill="#66758F">await op</text>
+
+  <!-- right top code box -->
+  <rect x="1004" y="244" width="443" height="86" rx="18" fill="#FFFFFF" stroke="#9AA9BF" stroke-width="3"/>
+  <text class="mono" x="1225.5" y="299" font-size="31" text-anchor="middle" fill="#66758F">let op = mutation()</text>
+
+  <!-- right connector 1 -->
+  <line x1="1225" y1="331" x2="1225" y2="407" stroke="#93A5C3" stroke-width="4"/>
+  <circle cx="1225" cy="330" r="10" fill="#93A5C3"/>
+
+  <!-- right yield box -->
+  <rect x="1004" y="423" width="443" height="86" rx="18" fill="#F7FAFF" stroke="#2B6BF3" stroke-width="3"/>
+  <text class="mono" x="1225.5" y="479" font-size="31" text-anchor="middle" fill="#113D79">yield* op</text>
+
+  <!-- right connector 2 -->
+  <line x1="1225" y1="510" x2="1225" y2="588" stroke="#3473F6" stroke-width="4"/>
+  <circle cx="1225" cy="510" r="10" fill="#3473F6"/>
+
+  <!-- right running box -->
+  <rect x="1004" y="603" width="443" height="87" rx="18" fill="#ECFAF1" stroke="#1FB954" stroke-width="3"/>
+  <polygon points="1069,625 1069,669 1109,647" fill="#13A44C"/>
+  <text class="ui" x="1216" y="659" font-size="36" font-weight="800" text-anchor="middle" fill="#10A34A">RUNNING</text>
+</svg>

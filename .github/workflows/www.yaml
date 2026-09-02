@@ -62,28 +62,45 @@ jobs:
 
       - name: Deploy Preview to Netlify
         id: netlify
+        env:
+          IS_FORK: ${{ github.event.pull_request.head.repo.full_name != github.repository }}
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
         run: |
           PR_NUMBER="${{ github.event.pull_request.number }}"
           COMMIT_SHA="${{ github.event.pull_request.head.sha }}"
 
-          DEPLOY_OUTPUT=$(npx netlify-cli deploy \
-            --dir=www/built \
-            --alias="pr-$PR_NUMBER" \
-            --message="Preview for PR #$PR_NUMBER at commit $COMMIT_SHA" \
-            --auth=${{ secrets.NETLIFY_AUTH_TOKEN }} \
-            --site=${{ secrets.NETLIFY_SITE_ID }} \
-            --json)
+          if [[ "$IS_FORK" == "true" ]]; then
+            DEPLOY_OUTPUT=$(npx netlify-cli deploy \
+              --dir=www/built \
+              --allow-anonymous \
+              --message="Preview for PR #$PR_NUMBER at commit $COMMIT_SHA" \
+              --json)
 
-          DEPLOY_ID=$(echo "$DEPLOY_OUTPUT" | jq -r '.deploy_id')
-          SITE_NAME=$(echo "$DEPLOY_OUTPUT" | jq -r '.site_name')
+            UNIQUE_URL=$(echo "$DEPLOY_OUTPUT" | jq -er '.site_url')
+            STABLE_URL="$UNIQUE_URL"
+          else
+            DEPLOY_OUTPUT=$(npx netlify-cli deploy \
+              --dir=www/built \
+              --alias="pr-$PR_NUMBER" \
+              --message="Preview for PR #$PR_NUMBER at commit $COMMIT_SHA" \
+              --auth="$NETLIFY_AUTH_TOKEN" \
+              --site="$NETLIFY_SITE_ID" \
+              --json)
 
-          UNIQUE_URL="https://${DEPLOY_ID}--${SITE_NAME}.netlify.app"
-          STABLE_URL="https://pr-${PR_NUMBER}--${SITE_NAME}.netlify.app"
+            DEPLOY_ID=$(echo "$DEPLOY_OUTPUT" | jq -er '.deploy_id')
+            SITE_NAME=$(echo "$DEPLOY_OUTPUT" | jq -er '.site_name')
+            UNIQUE_URL="https://${DEPLOY_ID}--${SITE_NAME}.netlify.app"
+            STABLE_URL="https://pr-${PR_NUMBER}--${SITE_NAME}.netlify.app"
+          fi
 
-          echo "unique-url=$UNIQUE_URL" >> $GITHUB_OUTPUT
-          echo "stable-url=$STABLE_URL" >> $GITHUB_OUTPUT
+          echo "unique-url=$UNIQUE_URL" >> "$GITHUB_OUTPUT"
+          echo "stable-url=$STABLE_URL" >> "$GITHUB_OUTPUT"
+          echo "### Netlify preview" >> "$GITHUB_STEP_SUMMARY"
+          echo "$UNIQUE_URL" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Comment PR with Preview Link
+        if: github.event.pull_request.head.repo.full_name == github.repository
         uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88 # v3.0.5
         with:
           header: netlify-preview-deploy

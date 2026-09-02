@@ -1,5 +1,11 @@
 # Changelog
 
+## 4.1.1
+
+- 🐛 Run scope destructors in reverse order of registration (#1215)
+- 🐛 Preserve non-`Error` runtime failures (#1230)
+- 🐛 Accept `PromiseLike` values in `call()` and `until()` (#1231)
+
 ## 4.1.0
 
 - ✨ Introduce context APIs for algebraic effects (#1211)

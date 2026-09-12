@@ -1,0 +1,126 @@
+Effection shuts down an operation when it returns, throws an error, or is
+halted. Cleanup belongs to that shutdown path, but the way you express it
+depends on whether the cleanup is synchronous or asynchronous.
+
+The rule is simple:
+
+- Put synchronous cleanup in `finally`.
+- Register cleanup that needs `yield*` with [`ensure()`][ensure].
+
+## Synchronous cleanup
+
+A `finally` block is the right place for cleanup that finishes immediately.
+It runs whether the operation completes, fails, or is halted.
+
+```ts
+import { run, suspend } from "effection";
+import { createServer } from "node:http";
+
+let task = run(function* () {
+  let server = createServer();
+
+  try {
+    yield* suspend();
+  } finally {
+    server.close();
+  }
+});
+
+await task.halt();
+```
+
+Keep the `finally` block synchronous. Do not `yield*`, create a promise without
+observing it, or start cleanup in the background.
+
+## Asynchronous cleanup
+
+Use `ensure()` when cleanup must wait for an operation. It registers a
+destructor on the current scope, and Effection waits for that destructor while
+the scope shuts down.
+
+```ts
+import { ensure, once, run, suspend } from "effection";
+
+let task = run(function* () {
+  let socket = new WebSocket("wss://example.com");
+  yield* once(socket, "open");
+
+  yield* ensure(function* () {
+    socket.close();
+    yield* once(socket, "close");
+  });
+
+  yield* suspend();
+});
+
+await task.halt();
+```
+
+`task.halt()` returns a [`Future<void>`][future]. Awaiting it here observes the
+entire shutdown, including the socket's `close` event.
+
+## Why not yield inside `finally`?
+
+Halting a generator starts unwinding it with `iterator.return()`. If its
+`finally` block yields, the generator suspends midway through that unwind. The
+next resume uses `iterator.next()`, which takes the generator out of return
+mode. When cleanup finishes, execution can continue after the operation that
+was halted.
+
+In other words, yielding inside `finally` can lose the halt. `ensure()` avoids
+this by running the destructor as part of scope destruction, where Effection can
+wait for it without resuming the halted operation.
+
+## Cleanup belongs to the current scope
+
+`ensure()` registers on the current [scope][scope]. This matters when you use
+[`call()`][call], because `call()` does not create a scope boundary:
+
+```ts
+yield* call(function* () {
+  yield* ensure(function* () {
+    yield* closeConnection();
+  });
+
+  return connection;
+});
+```
+
+The cleanup above runs when the enclosing task exits, not when `call()` returns.
+Use [`scoped()`][scoped] when the cleanup must finish before the block returns:
+
+```ts
+let result = yield* scoped(function* () {
+  yield* ensure(function* () {
+    yield* closeConnection();
+  });
+
+  return yield* useConnection();
+});
+```
+
+If you support Effection versions older than 4.1, prefer a spawned task for
+this boundary. Asynchronous teardown in `scoped()` was corrected in 4.1.
+
+## Cleanup order
+
+Scope destructors run in reverse order of registration. When cleanup depends on
+a spawned child, register it after spawning the child. That makes your cleanup
+run first, while the child is still alive.
+
+```ts
+let worker = yield* spawn(runWorker());
+
+yield* ensure(function* () {
+  yield* tellWorkerToStop(worker);
+});
+```
+
+Think of `ensure()` as the asynchronous counterpart to `finally`: register it
+where the `try` would begin, and let the scope own the rest.
+
+[call]: /api/v4/call
+[ensure]: /api/v4/ensure
+[future]: /api/v4/Future
+[scope]: ./scope
+[scoped]: /api/v4/scoped

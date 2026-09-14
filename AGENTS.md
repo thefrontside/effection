@@ -105,6 +105,8 @@ const task = yield * op; // returns a TASK (Future) and starts it
 
 - `spawn()` does not start work by itself. Yielding the spawn operation starts
   work.
+- Yielding `spawn()` does not guarantee that the child has reached any
+  particular point in its body before the parent continues.
 - A spawned task must not outlive its parent scope.
 
 ## `Task.halt()`
@@ -335,18 +337,40 @@ non-interruptible.
 - `suspend()` pauses indefinitely and only resumes when its enclosing scope is
   destroyed.
 
-### `each(stream)` (loop consumption)
+### `each(streamOrSubscription)` (loop consumption)
 
 **Rules**
 
+- `each()` accepts either a `Stream` or an existing `Subscription`, including a
+  `Queue`.
+- Passing a `Stream` subscribes when `yield* each(stream)` is interpreted.
+- Passing a `Subscription` to `each()` consumes that exact subscription; it does
+  not create another subscription.
 - You must call `yield* each.next()` exactly once at the end of every loop
   iteration.
 - You must call `yield* each.next()` even if the iteration ends with `continue`.
+
+**Subscription readiness across `spawn()`**
+
+- If a spawned consumer must receive values sent immediately afterward, create
+  the subscription in the enclosing scope before spawning, then iterate that
+  subscription in the child.
+- Do not use `yield* sleep(0)` after `spawn()` as a subscription-readiness
+  barrier.
+- For `Channel` and `Signal`, values sent after `yield* stream` returns are
+  queued for that active subscription even if the child has not begun iterating.
+  Values sent before the subscription is active are still dropped.
+- Passing a subscription to a child does not transfer or extend its lifetime.
+  The scope that created it must remain active for the consumer's full lifetime.
+- Treat a subscription as a single consumer. For broadcast consumption, create
+  one subscription per consumer before sending values.
 
 **Gotchas**
 
 - If you do not call `each.next()`, the loop throws `IterationError` on the next
   iteration.
+- Leaving `each(subscription)` does not close that subscription. It remains
+  active until its owning scope exits.
 
 **Shape (ordering matters)**
 
@@ -355,6 +379,27 @@ for (let value of yield * each(stream)) {
   // ...
   yield * each.next();
 }
+```
+
+**Shape (subscribe before spawning)**
+
+```ts
+await main(function* () {
+  let channel = createChannel<string>();
+  let subscription = yield* channel;
+
+  let consumer = yield* spawn(function* () {
+    for (let value of yield* each(subscription)) {
+      // ...
+      yield* each.next();
+    }
+  });
+
+  // Safe immediately: the subscription is already active.
+  yield* channel.send("hello");
+  yield* channel.close();
+  yield* consumer;
+});
 ```
 
 ### Channel vs Signal vs Queue
@@ -391,7 +436,8 @@ for (let value of yield * each(stream)) {
 - Use `createQueue()` to construct a `Queue`.
 - You may use `Queue` when you need buffering independent of subscriber timing
   (single consumer).
-- You must consume via `yield* queue.next()`.
+- A `Queue` is already a `Subscription`; consume it via `yield* queue.next()` or
+  iterate it with `each(queue)`.
 
 ## `subscribe()` and `stream()` (async iterable adapters)
 

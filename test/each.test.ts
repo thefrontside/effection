@@ -1,5 +1,6 @@
 import { describe, expect, it } from "./suite.ts";
 import {
+  createChannel,
   each,
   type Operation,
   resource,
@@ -51,6 +52,28 @@ describe("each", () => {
         "four",
         "five",
       ]);
+    });
+  });
+
+  it("can iterate a pre-subscribed stream in a spawned task", async () => {
+    await run(function* () {
+      let channel = createChannel<string, void>();
+      let subscription = yield* channel;
+      let items: string[] = [];
+
+      let consumer = yield* spawn(function* () {
+        for (let item of yield* each(subscription)) {
+          items.push(item);
+          yield* each.next();
+        }
+      });
+
+      yield* channel.send("one");
+      yield* channel.send("two");
+      yield* channel.close();
+      yield* consumer;
+
+      expect(items).toEqual(["one", "two"]);
     });
   });
 

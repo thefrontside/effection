@@ -1,5 +1,5 @@
 import { suspend } from "./suspend.ts";
-import type { Operation } from "./types.ts";
+import type { Operation, RequirementsOf } from "./types.ts";
 import { createTask } from "./task.ts";
 import type { ScopeInternal } from "./scope-internal.ts";
 import { trap } from "./trap.ts";
@@ -44,16 +44,19 @@ import { useScope } from "./scope.ts";
  * @returns an operation yielding the resource
  * @since 3.0
  */
-export function resource<T>(
-  op: (provide: Provide<T>) => Operation<void>,
-): Operation<T> {
+export function resource<
+  T,
+  Body extends Operation<void, unknown> = Operation<void>,
+>(
+  op: (provide: Provide<T>) => Body,
+): Operation<T, RequirementsOf<Body>> {
   return {
     *[Symbol.iterator]() {
       let ready = withResolvers<T>();
 
-      function* provide(value: T): Operation<void> {
+      function* provide(value: T): Operation<void, never> {
         ready.resolve(value);
-        yield* suspend();
+        yield* suspend() as unknown as Operation<void, never>;
       }
 
       let caller = yield* useScope();
@@ -70,7 +73,7 @@ export function resource<T>(
         return yield* ready.operation;
       });
     },
-  };
+  } as Operation<T, RequirementsOf<Body>>;
 }
 
 /**
@@ -81,5 +84,5 @@ export interface Provide<T> {
    * Provide `value` to the calling operation as a resource.
    * @returns an operation that suspends the resource operation until the caller is completed.
    */
-  (value: T): Operation<void>;
+  (value: T): Operation<void, never>;
 }

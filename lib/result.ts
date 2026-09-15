@@ -78,7 +78,9 @@ export function unbox<T>(result: Result<T>): T {
   if (result.ok) {
     return result.value;
   } else {
-    throw result.error;
+    throw result.error instanceof ThrownValueError
+      ? result.error.cause
+      : result.error;
   }
 }
 

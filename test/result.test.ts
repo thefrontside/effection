@@ -1,6 +1,6 @@
 import { describe, expect, it } from "./suite.ts";
 
-import { Err, Ok } from "../mod.ts";
+import { Err, Ok, unbox } from "../mod.ts";
 
 describe("Result", () => {
   it("constructs successful results with Ok()", () => {
@@ -24,5 +24,16 @@ describe("Result", () => {
     expect(result.error.name).toEqual("ThrownValueError");
     expect(result.error.message).toEqual("oh no");
     expect(result.error.cause).toEqual("oh no");
+  });
+
+  it("unboxes non-Error causes", () => {
+    let cause = { message: "oh no" };
+
+    try {
+      unbox(Err(cause));
+      throw new Error("expected unbox() to throw");
+    } catch (error) {
+      expect(error).toBe(cause);
+    }
   });
 });

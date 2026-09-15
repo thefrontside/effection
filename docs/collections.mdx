@@ -110,8 +110,8 @@ manually invoking the `next()` method repeatedly. Instead, you would use the
 work to be done with each item instead of the mechanics of iteration.
 It is the same with Effection streams.
 
-The simplest way to consume a stream in Effection is with the `for
-yield* each` loop. It is almost identical to the `for await` loop from
+The simplest way to consume a stream or subscription in Effection is with the
+`for yield* each` loop. It is almost identical to the `for await` loop from
 `async/await`. The biggest difference is that you _must_ yield to the
 `each.next` operation as the last step of your loop.
 
@@ -143,58 +143,39 @@ to run both the loop _and_ the sending of values concurrently, and as
 we've already learned, when we need to do multiple things
 concurrently, that's when we use `spawn()`.
 
-We could also flip this example around like this:
+## Why Subscriptions?
 
-``` javascript
-import { main, createChannel, next, spawn, sleep } from 'effection';
+When you pass a stream to `each()`, Effection subscribes when the loop begins.
+Most of the time, that is exactly what you want. But sometimes the consumer
+belongs in a spawned task while the producer is ready to send values now.
 
-await main(function*() {
-  let channel = createChannel();
+In that case, create the subscription before spawning the consumer:
 
-  yield* spawn(function*() {
-    for (let value of yield* each(channel)) {
-      console.log('got value:', value);
+```js
+import { createChannel, each, main, spawn } from "effection";
+
+await main(function* () {
+  let channel = createChannel<string>();
+  let subscription = yield* channel;
+
+  let consumer = yield* spawn(function* () {
+    for (let value of yield* each(subscription)) {
+      console.log("got value:", value);
       yield* each.next();
     }
   });
 
-  yield* sleep(1000);
-  yield* channel.send('hello');
-  yield* sleep(1000);
-  yield* channel.send('world');
+  yield* channel.send("hello");
+  yield* channel.send("world");
+  yield* channel.close();
+  yield* consumer;
 });
 ```
 
-## Why Subscriptions?
-
-Unlike listening for one-off events, a subscription guarantees
-that we can never miss any messages. We can see how a subscription
-will not drop a message even though it may receive deliveries even while
-the consumer is doing other things:
-
-``` javascript
-import { main, createChannel, spawn, sleep } from 'effection';
-
-await main(function*() {
-  let channel = createChannel();
-
-  let subscription = yield* channel;
-
-  yield* spawn(function*() {
-    yield* sleep(1000);
-    yield* channel.send('hello');
-    yield* channel.send('world');
-  });
-
-  let { value: firstValue } = yield* subscription.next();
-  console.log(firstValue); // logs 'hello'
-
-  yield* sleep(1000);
-
-  let { value: secondValue } = yield* subscription.next();
-  console.log(secondValue); // logs 'world'
-});
-```
+The subscription is active before the consumer task is spawned, so the channel
+can deliver both values even if the loop has not started consuming them yet.
+Passing that subscription to `each()` gives us the convenient loop syntax
+without requiring us to call `subscription.next()` manually.
 
 ## Closing streams
 

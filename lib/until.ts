@@ -13,9 +13,9 @@ import type { Operation } from "./types.ts";
  * @returns {Operation<T>} that succeeds or fails depending on the outcome of `promise`
  * @since 3.4
  */
-export function until<T>(promise: Promise<T>): Operation<T> {
+export function until<T>(promise: PromiseLike<T>): Operation<T> {
   return action((resolve, reject) => {
-    promise.then(resolve).catch(reject);
+    promise.then(resolve, reject);
     return () => {};
   });
 }

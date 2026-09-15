@@ -2,7 +2,7 @@ import { spawn } from "./spawn.ts";
 import { trap } from "./trap.ts";
 import type { Operation, Task, Yielded } from "./types.ts";
 import { withResolvers } from "./with-resolvers.ts";
-import { Err, Ok, type Result } from "./result.ts";
+import { Err, Ok, type Result, unbox } from "./result.ts";
 
 /**
  * Race the given operations against each other and return the value of
@@ -72,9 +72,5 @@ export function* race<T extends Operation<unknown>>(
     yield* task;
   }
 
-  if (result.ok) {
-    return result.value;
-  } else {
-    throw result.error;
-  }
+  return unbox(result);
 }

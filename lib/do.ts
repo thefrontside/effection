@@ -1,4 +1,4 @@
-import type { Result } from "./result.ts";
+import { type Result, unbox } from "./result.ts";
 import type { Effect, Operation } from "./types.ts";
 
 /**
@@ -25,11 +25,7 @@ export function Do<T, Requires = never>(
       return {
         next() {
           if (result) {
-            if (result.ok) {
-              return { done: true, value: result.value };
-            } else {
-              throw result.error;
-            }
+            return { done: true, value: unbox(result) };
           } else {
             return { done: false, value: perform };
           }

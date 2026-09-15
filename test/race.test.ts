@@ -68,6 +68,13 @@ describe("race()", () => {
     await expect(result).rejects.toHaveProperty("message", "boom: foo");
   });
 
+  it("preserves non-Error causes", async () => {
+    let cause = { message: "boom" };
+    let result = run(() => race([call(() => Promise.reject(cause))]));
+
+    await expect(result).rejects.toBe(cause);
+  });
+
   it("has a type signature equivalent to Promise.race()", () => {
     let resolve = <T>(value: T) => call(() => value);
 

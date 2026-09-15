@@ -18,7 +18,8 @@ export function createCoroutine<T>(
 ): Coroutine<T> {
   let reducer = scope.expect(ReducerContext);
 
-  let iterator: Iterator<Effect<unknown>, T, unknown> | undefined = undefined;
+  let iterator: Iterator<Effect<unknown, unknown>, T, unknown> | undefined =
+    undefined;
   let { future, resolve: settle } = createFuture<Maybe<Result<T>>>();
 
   let resolver: Coroutine<T>["resume"] | null = null;
@@ -62,7 +63,7 @@ export function createCoroutine<T>(
         routine.resume(Ok());
       }
     },
-    step(): IteratorResult<Effect<unknown>, T> {
+    step(): IteratorResult<Effect<unknown, unknown>, T> {
       if (!iterator) {
         iterator = operation()[Symbol.iterator]();
       }

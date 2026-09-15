@@ -7,8 +7,7 @@
     "test": "deno test --allow-run --allow-read --allow-env --allow-ffi",
     "test:node": "deno run -A tasks/built-test.ts",
     "build:npm": "deno run -A tasks/build-npm.ts",
-    "build:jsr": "deno run -A tasks/build-jsr.ts",
-    "prototype:typed-context": "deno check prototypes/typed-context.ts"
+    "build:jsr": "deno run -A tasks/build-jsr.ts"
   },
   "lint": {
     "rules": { "exclude": ["prefer-const", "require-yield", "ban-types"] },

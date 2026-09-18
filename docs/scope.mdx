@@ -257,22 +257,38 @@ It is very common (though not universal) for APIs that perform
 asynchronous operations to accept an `AbortSignal` to make
 sure those operations go away if needed. For example, the standard
 [`fetch`](https://developer.mozilla.org/en-US/docs/Web/API/Fetch) function
-accepts an abort signal to cancel itself when needed.
+accepts an abort signal to cancel itself when needed. This is the standard
+way to call a Promise-based API so that its work belongs to the current
+operation:
 
 ``` javascript
-function* request(url) {
+import { until, useAbortSignal } from 'effection';
+
+function* fetchUser(id) {
   let signal = yield* useAbortSignal();
-  let response = yield* fetch('/some/url', { signal });
-  if (response.ok) {
-    return yield response.text();
-  } else {
-    throw new Error(`failed: ${ response.status }: ${response.statusText}`);
-  }
+  let response = yield* until(fetch(`/users/${id}`, { signal }));
+
+  return yield* until(response.json());
 }
 ```
 
-Now, no matter what happens, when the `request` operation is completed (or
-canceled), the HTTP request is guaranteed to be shut down.
+- `fetch()` returns an ordinary promise, and promises are eager: the request
+  is already in flight.
+- [`until()`][until] lets Effection wait on that promise as an operation.
+- [`useAbortSignal()`][use-abort-signal] connects the promise-based work to
+  the current Effection lifetime. If the operation fails or is halted while
+  the request is active, the signal is aborted.
+- The promise API must honor the signal you hand it. Effection does not
+  intrinsically cancel arbitrary promises; it can only tell an API that
+  accepts an `AbortSignal` to stop.
+- The response body is consumed inside the operation, so what escapes is an
+  ordinary value rather than an effect that depends on a signal which is
+  about to be aborted.
+
+>💡Using `fetch()` often? [`@effectionx/fetch`](/x/fetch), one of the
+> community-created Effection Extensions, packages this pattern into an
+> Effection-native `fetch` operation with cancellation tied to the current
+> scope. To adapt any other cancellable Promise API, use the pattern above.
 
 ## Embedding API
 
@@ -383,5 +399,6 @@ since it will not be destroyed implicitly.
 
 [spawn]: /api/v4/spawn
 [use-abort-signal]: /api/v4/useAbortSignal
+[until]: /api/v4/until
 [scope]: /api/v4/Scope
 [create-scope]: /api/v4/createScope

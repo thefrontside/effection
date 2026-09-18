@@ -58,18 +58,20 @@ export function apiIndexRoute(
             <section>
               <h3 id={v4.version} class="group scroll-mt-[200px]">
                 {v4.version}
-                {showV4Prerelease && (
-                  <span class="text-sm font-normal text-gray-500 dark:text-gray-400 ml-2">
-                    ·{" "}
-                    <a
-                      href={`/api/v4-next/${v4NextFirstSymbol}`}
-                      class="text-blue-600 dark:text-blue-400 hover:underline"
-                    >
-                      {v4Next.version}
-                    </a>{" "}
-                    also available
-                  </span>
-                )}
+                {showV4Prerelease
+                  ? (
+                    <span class="text-sm font-normal text-gray-500 dark:text-gray-400 ml-2">
+                      ·{" "}
+                      <a
+                        href={`/api/v4-next/${v4NextFirstSymbol}`}
+                        class="text-blue-600 dark:text-blue-400 hover:underline"
+                      >
+                        {v4Next.version}
+                      </a>{" "}
+                      also available
+                    </span>
+                  )
+                  : ""}
                 <a
                   href={`#${v4.version}`}
                   class="opacity-0 group-hover:opacity-100 after:content-['#'] after:ml-1.5 no-underline"

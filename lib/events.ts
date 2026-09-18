@@ -1,7 +1,8 @@
 // deno-lint-ignore-file no-explicit-any ban-types
 import { createSignal } from "./signal.ts";
 import { resource } from "./resource.ts";
-import type { Operation, Stream, Subscription } from "./types.ts";
+import type { Operation, Stream, Subscription, Yielded } from "./types.ts";
+import { withResolvers } from "./with-resolvers.ts";
 
 type FN = (...any: any[]) => any;
 
@@ -40,9 +41,15 @@ export function once<
 >(target: T, name: K): Operation<EventTypeFromEventTarget<T, K>> {
   return {
     *[Symbol.iterator]() {
-      let subscription = yield* on(target, name);
-      let next = yield* subscription.next();
-      return next.value;
+      let happened = withResolvers<EventTypeFromEventTarget<T, K>>();
+      let listener = (event: Yielded<typeof happened.operation>) =>
+        happened.resolve(event);
+      try {
+        target.addEventListener(name, listener);
+        return yield* happened.operation;
+      } finally {
+        target.removeEventListener(name, listener);
+      }
     },
   };
 }

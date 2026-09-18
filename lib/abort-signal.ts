@@ -22,9 +22,13 @@ import { resource } from "./resource.ts";
  *
  * @example
  * ```javascript
- * function* request() {
+ * import { until, useAbortSignal } from 'effection';
+ *
+ * function* fetchUser(id) {
  *   let signal = yield* useAbortSignal();
- *   return yield* fetch('/some/url', { signal });
+ *   let response = yield* until(fetch(`/users/${id}`, { signal }));
+ *
+ *   return yield* until(response.json());
  * }
  * ```
  * @since 3.0

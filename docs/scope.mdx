@@ -260,13 +260,16 @@ sure those operations go away if needed. For example, the standard
 accepts an abort signal to cancel itself when needed.
 
 ``` javascript
+import { until, useAbortSignal } from 'effection';
+
 function* request(url) {
   let signal = yield* useAbortSignal();
-  let response = yield* fetch('/some/url', { signal });
+  let response = yield* until(fetch('/some/url', { signal }));
+
   if (response.ok) {
-    return yield response.text();
+    return yield* until(response.text());
   } else {
-    throw new Error(`failed: ${ response.status }: ${response.statusText}`);
+    throw new Error(`failed: ${response.status}: ${response.statusText}`);
   }
 }
 ```

@@ -126,6 +126,21 @@ import { until } from 'effection';
 let operation = until(promise);
 ```
 
+Adapting a _cancellable_ Promise API takes both halves: [`until()`][until] waits
+for the promise, and [`useAbortSignal()`][use-abort-signal] binds the work that
+promise represents to the lifetime of the current operation.
+
+```javascript
+import { until, useAbortSignal } from 'effection';
+
+function* fetchUser(id) {
+  let signal = yield* useAbortSignal();
+  let response = yield* until(fetch(`/users/${id}`, { signal }));
+
+  return yield* until(response.json());
+}
+```
+
 to convert from an operation to a promise, use [`run()`][run] or [`Scope.run`][scope-run]
 
 ```js
@@ -369,6 +384,7 @@ let subscription = subscribe(asyncIterator);
 [ok]: /api/v4/Ok
 [err]: /api/v4/Err
 [until]: /api/v4/until
+[use-abort-signal]: /api/v4/useAbortSignal
 [run]: /api/v4/run
 [scope-run]: /api/v4/Scope#interface_Scope-methods
 [each]: /api/v4/each

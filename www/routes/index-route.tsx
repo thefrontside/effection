@@ -144,7 +144,8 @@ export function indexRoute(): SitemapRoute<JSXElement> {
                       Use <code>let</code>, <code>const</code>, <code>for</code>
                       , <code>while</code>, <code>switch/case</code> and{" "}
                       <code>try/catch/finally</code>{" "}
-                      to write asyncrous operations. They work as you'd expect.
+                      to write asynchronous operations. It's the JavaScript you
+                      already know.
                     </>
                   </Feature>
                   <Feature

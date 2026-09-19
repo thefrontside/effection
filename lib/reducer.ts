@@ -22,7 +22,8 @@ export class Reducer {
 
       for (let routine = queue.dequeue(); routine; routine = queue.dequeue()) {
         try {
-          let next: IteratorResult<Effect<unknown>, unknown> = routine.step();
+          let next: IteratorResult<Effect<unknown, unknown>, unknown> = routine
+            .step();
 
           if (next.done) {
             let settle = routine.scope.expect(SettleContext);

@@ -150,7 +150,7 @@ If any other document conflicts with AGENTS.md, **AGENTS.md takes precedence**.
 ---
 `;
 
-function llmsTxtFooter(url: (path: string) => string): string {
+export function llmsTxtFooter(url: (path: string) => string): string {
   return `## Optional
 
 - [Full EffectionX catalog with documentation](${url("/x/")})
@@ -158,7 +158,7 @@ function llmsTxtFooter(url: (path: string) => string): string {
 
 ---
 
-[AGENTS.md]: https://raw.githubusercontent.com/thefrontside/effection/v4/AGENTS.md
+[AGENTS.md]: ${url("/AGENTS.md")}
 [API]: ${url("/api/")}
 [Guides]: ${url("/guides/v4")}
 [Thinking in Effection]: https://raw.githubusercontent.com/thefrontside/effection/v4/docs/thinking-in-effection.mdx

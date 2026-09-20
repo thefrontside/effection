@@ -21,6 +21,7 @@ environment variable — and the command line wins when both are supplied.
 | `--github-token`       | `GITHUB_TOKEN`       | _unauthenticated_ | GitHub access token for the API                       |
 | `--jsr-api`            | `JSR_API`            | _none_            | JSR API token; the score card is skipped without it   |
 | `--deno-deployment-id` | `DENO_DEPLOYMENT_ID` | fresh id per boot | Deployment identity behind the `ETag`                 |
+| `--effectionx-dir`     | `EFFECTIONX_DIR`     | _none_            | Local effectionx checkout to read instead of cloning  |
 | `--clones-dir`         | `CLONES_DIR`         | `build/clones`    | Git clones of the documented repositories             |
 | `--worktrees-dir`      | `WORKTREES_DIR`      | `build/worktrees` | A git worktree per documented series                  |
 | `--pagefind-dir`       | `PAGEFIND_DIR`       | `pagefind`        | Generated Pagefind search bundle                      |
@@ -30,6 +31,31 @@ environment variable — and the command line wins when both are supplied.
 
 The defaults reproduce what used to be hardcoded, so `deno task dev` and the
 deployment workflow need no flags.
+
+## Development
+
+```
+deno task dev
+```
+
+### Using a local checkout of effectionx
+
+The website clones
+[thefrontside/effectionx](https://github.com/thefrontside/effectionx) into
+`build/clones` and reads its packages from `main`. To see a checkout you are
+working in instead — its branch, its uncommitted changes and all — point
+`EFFECTIONX_DIR` at it:
+
+```
+EFFECTIONX_DIR=../effectionx deno task dev
+```
+
+`--effectionx-dir ../effectionx` does the same thing, as with every other
+parameter in the table above.
+
+The directory is used exactly as it is on disk. It is never fetched or reset, so
+the site cannot disturb work in progress, and a path that does not exist fails
+at startup rather than on the first request that needs it.
 
 ## About Git Integration
 

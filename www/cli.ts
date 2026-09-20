@@ -66,6 +66,13 @@ export const www = command(
     schema(fallback("")),
   ),
   option(
+    name("effectionxDir"),
+    description(
+      "Local checkout of thefrontside/effectionx to read instead of cloning it.",
+    ),
+    schema(fallback("")),
+  ),
+  option(
     name("clonesDir"),
     description("Directory holding git clones of the documented repositories."),
     schema(fallback("build/clones")),

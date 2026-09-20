@@ -34,6 +34,9 @@ describe("agentsMdRoute", () => {
     expect(response.headers.get("Content-Type")).toEqual(
       "text/markdown; charset=utf-8",
     );
+    // the contract is rewritten per environment, so a browser must not hold
+    // one environment's copy and show it in another
+    expect(response.headers.get("Cache-Control")).toEqual("no-cache");
 
     let body = yield* until(response.text());
 

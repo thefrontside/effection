@@ -48,7 +48,10 @@ export function agentsMdRoute(): SitemapRoute<Response> {
       return new Response(rewriteSiteLinks(source, url), {
         headers: {
           "Content-Type": "text/markdown; charset=utf-8",
-          "Cache-Control": "public, max-age=3600",
+          // only the dev server sends this header — a static build copies the
+          // body and netlify supplies its own — so revalidate rather than let
+          // an editor's browser hold a stale contract for an hour
+          "Cache-Control": "no-cache",
         },
       });
     },

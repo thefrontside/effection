@@ -44,7 +44,7 @@ if (import.meta.main) {
     // Get stable series (no prereleases) for guides
     let stableSeries = series.filter((s) => !s.includePrerelease);
 
-    yield* initClones("build/clones");
+    yield* initClones("build/clones", { checkouts: localCheckouts() });
     yield* initWorktrees("build/worktrees");
     yield* initGuides({
       current,
@@ -123,6 +123,20 @@ if (import.meta.main) {
 
     yield* suspend();
   });
+}
+
+/**
+ * Checkouts to use instead of cloning from GitHub, so that a repository you
+ * are working in shows up on the site:
+ *
+ * ```
+ * EFFECTIONX_DIR=../effectionx deno task dev
+ * ```
+ */
+function localCheckouts(): Record<string, string> {
+  let effectionx = Deno.env.get("EFFECTIONX_DIR");
+
+  return effectionx ? { "thefrontside/effectionx": effectionx } : {};
 }
 
 function urlFromServer(server: ServerInfo) {

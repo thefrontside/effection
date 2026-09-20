@@ -3,6 +3,28 @@
 The Effection website shows documentation and packages that it pulls from GIT
 repositories on GitHub.
 
+## Development
+
+```
+deno task dev
+```
+
+### Using a local checkout of effectionx
+
+The website clones
+[thefrontside/effectionx](https://github.com/thefrontside/effectionx) into
+`build/clones` and reads its packages from `main`. To see a checkout you are
+working in instead — its branch, its uncommitted changes and all — point
+`EFFECTIONX_DIR` at it:
+
+```
+EFFECTIONX_DIR=../effectionx deno task dev
+```
+
+The directory is used exactly as it is on disk. It is never fetched or reset, so
+the site cannot disturb work in progress, and a path that does not exist fails
+at startup rather than on the first request that needs it.
+
 ## About Git Integration
 
 The Effection website uses sophisticated GitHub integration to dynamically load

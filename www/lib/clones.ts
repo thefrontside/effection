@@ -15,7 +15,28 @@ type Checkout = (nameWithOwner: string) => Operation<string>;
 
 const Clones = createContext<Checkout>("clones");
 
-export function* initClones(path: string): Operation<void> {
+export interface ClonesOptions {
+  /**
+   * Directories to use in place of a clone, keyed by `owner/repo`.
+   *
+   * A local checkout is used exactly as it is on disk. It is never fetched or
+   * reset, both so that uncommitted work shows up on the site, and so that the
+   * site never touches a checkout you are working in.
+   */
+  checkouts?: Record<string, string>;
+}
+
+export function* initClones(
+  path: string,
+  options: ClonesOptions = {},
+): Operation<void> {
+  // resolved before anything is removed, so that a bad path fails at startup
+  // rather than on the first request that needs the repo
+  let checkouts = resolveCheckouts(options.checkouts ?? {});
+  for (let [nameWithOwner, dirpath] of Object.entries(checkouts)) {
+    console.log(`${nameWithOwner} -> ${dirpath}`);
+  }
+
   yield* $(`rm -rf ${path}`);
   yield* $(`mkdir -p ${path}`);
 
@@ -28,6 +49,11 @@ export function* initClones(path: string): Operation<void> {
   // scope and every other checkout with it, so failures come back as a Result
   // and the entry is evicted to allow a retry.
   yield* Clones.set(function* (nameWithOwner) {
+    let checkout = checkouts[nameWithOwner];
+    if (checkout) {
+      return checkout;
+    }
+
     let attempt = attempts.get(nameWithOwner);
     if (!attempt) {
       attempt = scope.run(() => cloneOrRefresh(path, nameWithOwner));
@@ -45,6 +71,22 @@ export function* initClones(path: string): Operation<void> {
 export function* useClone(nameWithOwner: string): Operation<string> {
   let checkout = yield* Clones.expect();
   return yield* checkout(nameWithOwner);
+}
+
+export function resolveCheckouts(
+  checkouts: Record<string, string>,
+): Record<string, string> {
+  return Object.fromEntries(
+    Object.entries(checkouts).map(([nameWithOwner, path]) => {
+      let dirpath = resolve(path);
+      if (!existsSync(dirpath)) {
+        throw new Error(
+          `cannot use ${dirpath} as a local checkout of ${nameWithOwner}: no such directory`,
+        );
+      }
+      return [nameWithOwner, dirpath];
+    }),
+  );
 }
 
 function* cloneOrRefresh(

@@ -165,7 +165,7 @@ export function llmsTxtFooter(
 ---
 
 [AGENTS.md]: ${url("/AGENTS.md")}
-[API]: ${url("/api/")}
+[API]: ${url("/api.md")}
 [Guides]: ${url(`/guides/${series}`)}
 [Thinking in Effection]: ${url(`/guides/${series}/thinking-in-effection.md`)}
 [Async Rosetta Stone]: ${url(`/guides/${series}/async-rosetta-stone.md`)}

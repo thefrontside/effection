@@ -13,6 +13,7 @@ describe("llmsTxtFooter", () => {
     let footer = llmsTxtFooter(yield* useSiteUrl(), "v4");
 
     expect(footer).toContain("[AGENTS.md]: http://localhost:8000/AGENTS.md");
+    expect(footer).toContain("[API]: http://localhost:8000/api.md");
     expect(footer).toContain(
       "[Operations]: http://localhost:8000/guides/v4/operations.md",
     );
@@ -78,5 +79,18 @@ describe("llmsTxtFooter", () => {
         defined: true,
       });
     }
+  });
+
+  it("leaves the catalog of api symbols to the api index", function* () {
+    yield* CurrentRequest.set(new Request("http://localhost:8000/llms.txt"));
+    Deno.env.delete("SITE_URL");
+
+    let document = `${LLMS_TXT_HEADER}\n${
+      llmsTxtFooter(yield* useSiteUrl(), "v4")
+    }`;
+
+    expect(document).toContain("/api.md");
+    // the index owns the list; llms.txt links to it rather than repeating it
+    expect(document).not.toContain("/api/v4/");
   });
 });

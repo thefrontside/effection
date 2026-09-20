@@ -10,10 +10,11 @@ describe("llmsTxtFooter", () => {
     yield* CurrentRequest.set(new Request("http://localhost:8000/llms.txt"));
     Deno.env.delete("SITE_URL");
 
-    let footer = llmsTxtFooter(yield* useSiteUrl());
+    let footer = llmsTxtFooter(yield* useSiteUrl(), "v4");
 
+    expect(footer).toContain("[AGENTS.md]: http://localhost:8000/AGENTS.md");
     expect(footer).toContain(
-      "[AGENTS.md]: http://localhost:8000/AGENTS.md",
+      "[Operations]: http://localhost:8000/guides/v4/operations.md",
     );
   });
 
@@ -22,27 +23,35 @@ describe("llmsTxtFooter", () => {
     Deno.env.set("SITE_URL", "https://frontside.com/effection");
 
     try {
-      let footer = llmsTxtFooter(yield* useSiteUrl());
+      let footer = llmsTxtFooter(yield* useSiteUrl(), "v4");
 
       expect(footer).toContain(
         "[AGENTS.md]: https://frontside.com/effection/AGENTS.md",
+      );
+      expect(footer).toContain(
+        "[Operations]: https://frontside.com/effection/guides/v4/operations.md",
       );
     } finally {
       Deno.env.delete("SITE_URL");
     }
   });
 
-  it("no longer sends agents to raw.githubusercontent.com for AGENTS.md", function* () {
+  it("no longer sends agents to raw.githubusercontent.com at all", function* () {
     yield* CurrentRequest.set(new Request("http://localhost:8000/llms.txt"));
     Deno.env.delete("SITE_URL");
 
-    let footer = llmsTxtFooter(yield* useSiteUrl());
+    let footer = llmsTxtFooter(yield* useSiteUrl(), "v4");
 
-    let agentsLinks = footer.split("\n").filter((line) =>
-      line.includes("AGENTS.md")
+    expect(footer).not.toContain("raw.githubusercontent.com");
+    expect(footer).not.toContain("github.com");
+
+    let definitions = footer.split("\n").filter((line) =>
+      /^\[[^\]]+\]: /.test(line)
     );
 
-    expect(agentsLinks).toHaveLength(1);
-    expect(agentsLinks[0]).not.toContain("raw.githubusercontent.com");
+    expect(definitions.length).toBeGreaterThan(0);
+    for (let definition of definitions) {
+      expect(definition).toContain("http://localhost:8000/");
+    }
   });
 });

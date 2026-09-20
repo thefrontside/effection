@@ -9,6 +9,7 @@ import { tailwindPlugin } from "./plugins/tailwind.ts";
 import { apiReferenceRoute } from "./routes/api-reference-route.tsx";
 import { assetsRoute } from "./routes/assets-route.ts";
 import { firstPage, guidesRoute } from "./routes/guides-route.tsx";
+import { guidesMarkdownRoute } from "./routes/guides-markdown-route.ts";
 import { indexRoute } from "./routes/index-route.tsx";
 import { xIndexRedirect, xIndexRoute } from "./routes/x-index-route.tsx";
 import { xPackageRedirect, xPackageRoute } from "./routes/x-package-route.tsx";
@@ -74,6 +75,8 @@ if (import.meta.main) {
         ...stableSeries.map((s) =>
           route(`/guides/${s.name}`, redirectIndexRoute(firstPage(s.name)))
         ),
+        // before the page route, so that `.md` is a suffix and not a guide id
+        route("/guides/:series/:id.md", guidesMarkdownRoute()),
         route("/guides/:series/:id", guidesRoute({ search: true })),
         route("/contrib", xIndexRedirect()),
         route("/contrib/:workspacePath", xPackageRedirect()),

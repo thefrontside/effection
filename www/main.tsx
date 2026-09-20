@@ -13,6 +13,7 @@ import { guidesMarkdownRoute } from "./routes/guides-markdown-route.ts";
 import { indexRoute } from "./routes/index-route.tsx";
 import { xIndexRedirect, xIndexRoute } from "./routes/x-index-route.tsx";
 import { xPackageRedirect, xPackageRoute } from "./routes/x-package-route.tsx";
+import { xPackageMarkdownRoute } from "./routes/x-package-markdown-route.ts";
 
 import { useConfig } from "./context/config.ts";
 import { initFetch } from "./context/fetch.ts";
@@ -81,6 +82,8 @@ if (import.meta.main) {
         route("/contrib", xIndexRedirect()),
         route("/contrib/:workspacePath", xPackageRedirect()),
         route("/x", xIndexRoute({ search: true })),
+        // before the page route, so that `.md` is a suffix and not a package
+        route("/x/:workspacePath.md", xPackageMarkdownRoute()),
         route("/x/:workspacePath", xPackageRoute({ search: true })),
         route("/api", apiIndexRoute({ search: true })),
         // API docs for all series including prereleases

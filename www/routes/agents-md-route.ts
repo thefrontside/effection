@@ -4,6 +4,7 @@ import { fromFileUrl } from "@std/path";
 
 import type { SitemapRoute } from "../plugins/sitemap.ts";
 import { useSiteUrl } from "../plugins/current-request.ts";
+import { markdown } from "../lib/markdown-response.ts";
 
 /**
  * The site's canonical url, as documents in the repository spell it. Links
@@ -45,15 +46,7 @@ export function agentsMdRoute(): SitemapRoute<Response> {
       let url = yield* useSiteUrl();
       let source = yield* until(Deno.readTextFile(path));
 
-      return new Response(rewriteSiteLinks(source, url), {
-        headers: {
-          "Content-Type": "text/markdown; charset=utf-8",
-          // only the dev server sends this header — a static build copies the
-          // body and netlify supplies its own — so revalidate rather than let
-          // an editor's browser hold a stale contract for an hour
-          "Cache-Control": "no-cache",
-        },
-      });
+      return markdown(rewriteSiteLinks(source, url));
     },
   };
 }

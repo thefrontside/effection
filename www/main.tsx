@@ -27,6 +27,7 @@ import { blogPostRoute } from "./routes/blog-post-route.tsx";
 import { blogImageRoute } from "./routes/blog-image-route.ts";
 import { blogTagRoute } from "./routes/blog-tag-route.tsx";
 import { blogFeedRoute } from "./routes/blog-feed-route.tsx";
+import { agentsMdRoute } from "./routes/agents-md-route.ts";
 import { llmsTxtRoute } from "./routes/llms-txt-route.ts";
 import { pagefindRoute } from "./routes/pagefind-route.ts";
 import { redirectDocsRoute } from "./routes/redirect-docs-route.tsx";
@@ -100,6 +101,7 @@ if (import.meta.main) {
         route("/blog", blogIndexRoute({ search: true })),
         route("/blog/feed.xml", blogFeedRoute()),
         route("/llms.txt", llmsTxtRoute()),
+        route("/AGENTS.md", agentsMdRoute()),
         route("/blog/tags/:tag", blogTagRoute({ search: true })),
         route("/blog/:id", blogPostRoute({ search: true })),
         route("/blog/:id/:name.png", blogImageRoute()),

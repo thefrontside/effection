@@ -57,7 +57,7 @@ export function llmsTxtRoute(): SitemapRoute<Response> {
           let packageLines = category.packages.map((pkg) => {
             let shortDesc = truncateToFirstSentence(pkg.description, 120);
             return `- [${pkg.name}](${
-              url(`/x/${pkg.workspaceName}`)
+              url(`/x/${pkg.workspaceName}.md`)
             }): ${shortDesc}`;
           });
 

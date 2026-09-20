@@ -31,7 +31,34 @@ export function xPackageMarkdownRoute(): SitemapRoute<Response> {
         return notFound(`there is no package called '${workspacePath}'`);
       }
 
-      return markdown(yield* pkg.getReadme());
+      return markdown(
+        withInstallation(yield* pkg.getReadme(), yield* pkg.getName()),
+      );
     },
   };
+}
+
+/**
+ * Append how to install the package from npm.
+ *
+ * A readme read on its own, away from the page that carries the install
+ * command beside it, otherwise leaves an agent to guess the package name. The
+ * readmes that already give the command are left as they are, so that the
+ * document never says it twice.
+ */
+export function withInstallation(readme: string, name: string): string {
+  let command = `npm install ${name}`;
+
+  if (readme.includes(command)) {
+    return readme;
+  }
+
+  return `${readme.trimEnd()}
+
+## Installation
+
+\`\`\`sh
+${command}
+\`\`\`
+`;
 }

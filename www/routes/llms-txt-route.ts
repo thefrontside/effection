@@ -9,6 +9,7 @@ import {
   type PackageSummary,
 } from "../lib/package/categories.ts";
 import { useTaxonomy } from "../lib/package/taxonomy.ts";
+import { useConfig } from "../context/config.ts";
 
 /**
  * Dynamic llms.txt route following the llmstxt.org standard.
@@ -26,6 +27,7 @@ export function llmsTxtRoute(): SitemapRoute<Response> {
     },
     *handler(): Operation<Response> {
       let url = yield* useSiteUrl();
+      let { current } = yield* useConfig();
       let workspaces = yield* useWorkspaces("thefrontside/effectionx");
       let categories = yield* useTaxonomy("thefrontside/effectionx");
       let packages = yield* workspaces.getAllPackages();
@@ -77,7 +79,7 @@ export function llmsTxtRoute(): SitemapRoute<Response> {
         "",
         ...categorizedContent,
         "",
-        llmsTxtFooter(url),
+        llmsTxtFooter(url, current),
       ].join("\n");
 
       return new Response(content, {
@@ -106,7 +108,8 @@ function truncateToFirstSentence(text: string, maxLength: number): string {
   return firstSentence;
 }
 
-const LLMS_TXT_HEADER = `# Effection — Structured Concurrency for JavaScript
+export const LLMS_TXT_HEADER =
+  `# Effection — Structured Concurrency for JavaScript
 
 > Effection is a JavaScript library for building reliable asynchronous and
 > concurrent programs using structured concurrency.
@@ -145,12 +148,15 @@ If any other document conflicts with AGENTS.md, **AGENTS.md takes precedence**.
   - [Resources]
   - [Spawn]
   - [Collections]
-  - [Browse all guides][docs/]
+  - [Browse all guides][Guides]
 
 ---
 `;
 
-export function llmsTxtFooter(url: (path: string) => string): string {
+export function llmsTxtFooter(
+  url: (path: string) => string,
+  series: string,
+): string {
   return `## Optional
 
 - [Full EffectionX catalog with documentation](${url("/x/")})
@@ -160,13 +166,13 @@ export function llmsTxtFooter(url: (path: string) => string): string {
 
 [AGENTS.md]: ${url("/AGENTS.md")}
 [API]: ${url("/api/")}
-[Guides]: ${url("/guides/v4")}
-[Thinking in Effection]: https://raw.githubusercontent.com/thefrontside/effection/v4/docs/thinking-in-effection.mdx
-[Async Rosetta Stone]: https://raw.githubusercontent.com/thefrontside/effection/v4/docs/async-rosetta-stone.mdx
-[Operations]: https://raw.githubusercontent.com/thefrontside/effection/v4/docs/operations.mdx
-[Scope]: https://raw.githubusercontent.com/thefrontside/effection/v4/docs/scope.mdx
-[Resources]: https://raw.githubusercontent.com/thefrontside/effection/v4/docs/resources.mdx
-[Spawn]: https://raw.githubusercontent.com/thefrontside/effection/v4/docs/spawn.mdx
-[Collections]: https://raw.githubusercontent.com/thefrontside/effection/v4/docs/collections.mdx
+[Guides]: ${url(`/guides/${series}`)}
+[Thinking in Effection]: ${url(`/guides/${series}/thinking-in-effection.md`)}
+[Async Rosetta Stone]: ${url(`/guides/${series}/async-rosetta-stone.md`)}
+[Operations]: ${url(`/guides/${series}/operations.md`)}
+[Scope]: ${url(`/guides/${series}/scope.md`)}
+[Resources]: ${url(`/guides/${series}/resources.md`)}
+[Spawn]: ${url(`/guides/${series}/spawn.md`)}
+[Collections]: ${url(`/guides/${series}/collections.md`)}
 `;
 }

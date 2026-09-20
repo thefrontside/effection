@@ -45,3 +45,30 @@ export function* useCanonicalUrl(options: { base: string }): Operation<string> {
   url.pathname = `${url.pathname}${req.pathname}`;
   return String(url);
 }
+
+/**
+ * Like {@link useAbsoluteUrlFactory}, except that it honors the `SITE_URL`
+ * of the published site when one is configured.
+ *
+ * Absolute urls in HTML are rewritten to the destination site by staticalize
+ * when the site is built, so they can just use the origin of the request.
+ * Urls inside non HTML resources such as `llms.txt` are copied verbatim, so
+ * they need to be published under `SITE_URL` instead of the loopback address
+ * that the build serves from. With no `SITE_URL`, they point at the dev
+ * server, same as every other absolute url.
+ */
+export function* useSiteUrl(): Operation<(path: string) => string> {
+  let siteUrl = Deno.env.get("SITE_URL");
+
+  if (!siteUrl) {
+    return yield* useAbsoluteUrlFactory();
+  }
+
+  let base = new URL(siteUrl);
+
+  return (path) => {
+    let url = new URL(base);
+    url.pathname = posixNormalize(`${base.pathname}/${path}`);
+    return url.toString();
+  };
+}

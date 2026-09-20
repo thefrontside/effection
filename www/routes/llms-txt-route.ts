@@ -2,6 +2,7 @@ import type { Operation } from "effection";
 import { all } from "effection";
 import { useWorkspaces } from "../lib/workspaces/mod.ts";
 import type { SitemapRoute } from "../plugins/sitemap.ts";
+import { useSiteUrl } from "../plugins/current-request.ts";
 import type { Package } from "../lib/package/types.ts";
 import {
   groupPackagesByCategory,
@@ -24,6 +25,7 @@ export function llmsTxtRoute(): SitemapRoute<Response> {
       return [{ pathname: generate() }];
     },
     *handler(): Operation<Response> {
+      let url = yield* useSiteUrl();
       let workspaces = yield* useWorkspaces("thefrontside/effectionx");
       let categories = yield* useTaxonomy("thefrontside/effectionx");
       let packages = yield* workspaces.getAllPackages();
@@ -52,7 +54,9 @@ export function llmsTxtRoute(): SitemapRoute<Response> {
         (category) => {
           let packageLines = category.packages.map((pkg) => {
             let shortDesc = truncateToFirstSentence(pkg.description, 120);
-            return `- [${pkg.name}](https://frontside.com/effection/x/${pkg.workspaceName}): ${shortDesc}`;
+            return `- [${pkg.name}](${
+              url(`/x/${pkg.workspaceName}`)
+            }): ${shortDesc}`;
           });
 
           return [
@@ -73,7 +77,7 @@ export function llmsTxtRoute(): SitemapRoute<Response> {
         "",
         ...categorizedContent,
         "",
-        LLMS_TXT_FOOTER,
+        llmsTxtFooter(url),
       ].join("\n");
 
       return new Response(content, {
@@ -146,16 +150,17 @@ If any other document conflicts with AGENTS.md, **AGENTS.md takes precedence**.
 ---
 `;
 
-const LLMS_TXT_FOOTER = `## Optional
+function llmsTxtFooter(url: (path: string) => string): string {
+  return `## Optional
 
-- [Full EffectionX catalog with documentation](https://frontside.com/effection/x/)
-- [Effection Blog](https://frontside.com/effection/blog)
+- [Full EffectionX catalog with documentation](${url("/x/")})
+- [Effection Blog](${url("/blog")})
 
 ---
 
 [AGENTS.md]: https://raw.githubusercontent.com/thefrontside/effection/v4/AGENTS.md
-[API]: https://frontside.com/effection/api/
-[Guides]: https://frontside.com/effection/guides/v4
+[API]: ${url("/api/")}
+[Guides]: ${url("/guides/v4")}
 [Thinking in Effection]: https://raw.githubusercontent.com/thefrontside/effection/v4/docs/thinking-in-effection.mdx
 [Async Rosetta Stone]: https://raw.githubusercontent.com/thefrontside/effection/v4/docs/async-rosetta-stone.mdx
 [Operations]: https://raw.githubusercontent.com/thefrontside/effection/v4/docs/operations.mdx
@@ -164,3 +169,4 @@ const LLMS_TXT_FOOTER = `## Optional
 [Spawn]: https://raw.githubusercontent.com/thefrontside/effection/v4/docs/spawn.mdx
 [Collections]: https://raw.githubusercontent.com/thefrontside/effection/v4/docs/collections.mdx
 `;
+}

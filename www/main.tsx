@@ -24,6 +24,10 @@ import { initBlog } from "./resources/blog.ts";
 import { initFonts } from "./resources/fonts.ts";
 import { initImageStore } from "./resources/image-store.ts";
 import { apiIndexRoute } from "./routes/api-index-route.tsx";
+import {
+  apiIndexMarkdownRoute,
+  apiSymbolMarkdownRoute,
+} from "./routes/api-markdown-route.ts";
 import { blogIndexRoute } from "./routes/blog-index-route.tsx";
 import { blogPostRoute } from "./routes/blog-post-route.tsx";
 import { blogImageRoute } from "./routes/blog-image-route.ts";
@@ -86,6 +90,17 @@ if (import.meta.main) {
         route("/x/:workspacePath.md", xPackageMarkdownRoute()),
         route("/x/:workspacePath", xPackageRoute({ search: true })),
         route("/api", apiIndexRoute({ search: true })),
+        // before the page routes, so that `.md` is a suffix and not a symbol
+        route("/api.md", apiIndexMarkdownRoute()),
+        ...series.map((s) =>
+          route(`/api/${s.name}/:symbol.md`, apiSymbolMarkdownRoute(s.name))
+        ),
+        ...series.map((s) =>
+          route(
+            `/api/${s.name}/experimental/:symbol.md`,
+            apiSymbolMarkdownRoute(s.name, { entrypoint: "./experimental" }),
+          )
+        ),
         // API docs for all series including prereleases
         ...series.map((s) =>
           route(

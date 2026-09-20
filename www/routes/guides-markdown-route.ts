@@ -3,6 +3,7 @@ import { useParams } from "revolution";
 
 import { useConfig } from "../context/config.ts";
 import { useGuides } from "../resources/guides.ts";
+import { markdown, notFound } from "../lib/markdown-response.ts";
 import type { RoutePath, SitemapRoute } from "../plugins/sitemap.ts";
 
 /**
@@ -50,19 +51,7 @@ export function guidesMarkdownRoute(): SitemapRoute<Response> {
         return notFound(`there is no guide called '${id}' in ${series}`);
       }
 
-      return new Response(page.markdown, {
-        headers: {
-          "Content-Type": "text/markdown; charset=utf-8",
-          "Cache-Control": "no-cache",
-        },
-      });
+      return markdown(page.markdown);
     },
   };
-}
-
-function notFound(message: string): Response {
-  return new Response(`${message}\n`, {
-    status: 404,
-    headers: { "Content-Type": "text/plain; charset=utf-8" },
-  });
 }

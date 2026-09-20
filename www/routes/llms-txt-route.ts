@@ -108,7 +108,8 @@ function truncateToFirstSentence(text: string, maxLength: number): string {
   return firstSentence;
 }
 
-const LLMS_TXT_HEADER = `# Effection — Structured Concurrency for JavaScript
+export const LLMS_TXT_HEADER =
+  `# Effection — Structured Concurrency for JavaScript
 
 > Effection is a JavaScript library for building reliable asynchronous and
 > concurrent programs using structured concurrency.
@@ -147,7 +148,7 @@ If any other document conflicts with AGENTS.md, **AGENTS.md takes precedence**.
   - [Resources]
   - [Spawn]
   - [Collections]
-  - [Browse all guides][docs/]
+  - [Browse all guides][Guides]
 
 ---
 `;

@@ -3,7 +3,7 @@ import { expect } from "expect";
 
 import { CurrentRequest } from "../context/request.ts";
 import { useSiteUrl } from "../plugins/current-request.ts";
-import { llmsTxtFooter } from "./llms-txt-route.ts";
+import { LLMS_TXT_HEADER, llmsTxtFooter } from "./llms-txt-route.ts";
 
 describe("llmsTxtFooter", () => {
   it("points AGENTS.md at the dev server it is served from", function* () {
@@ -52,6 +52,31 @@ describe("llmsTxtFooter", () => {
     expect(definitions.length).toBeGreaterThan(0);
     for (let definition of definitions) {
       expect(definition).toContain("http://localhost:8000/");
+    }
+  });
+
+  it("defines every reference it uses", function* () {
+    yield* CurrentRequest.set(new Request("http://localhost:8000/llms.txt"));
+    Deno.env.delete("SITE_URL");
+
+    let document = `${LLMS_TXT_HEADER}\n${
+      llmsTxtFooter(yield* useSiteUrl(), "v4")
+    }`;
+
+    let defined = new Set(
+      [...document.matchAll(/^\[([^\]]+)\]: /gm)].map(([, label]) => label),
+    );
+    // the label of `[label]` and of `[text][label]`, but not `[text](url)`,
+    // not the text of `[text][label]`, and not a definition
+    let used = [...document.matchAll(/\[([^\]]+)\](?![([:])/g)]
+      .map(([, label]) => label);
+
+    expect(used.length).toBeGreaterThan(0);
+    for (let label of used) {
+      expect({ label, defined: defined.has(label) }).toEqual({
+        label,
+        defined: true,
+      });
     }
   });
 });

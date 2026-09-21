@@ -143,35 +143,70 @@ function* fetchUser(id) {
 
 [`until()`][until] waits for a promise, but the promise is still subject to the
 [Await Event Horizon][await-event-horizon]: halting stops the operation, not the
-promise. An abort signal is the only way to ask the promise to stop — and asking
-is not the same as it having stopped. If your cleanup depends on the work being
-finished, keep the promise and wait for it during teardown with
-[`ensure()`][ensure]. Register that `ensure()` before creating the signal, since
-destructors run in reverse order.
+promise.
+
+If teardown depends on the promise having settled, keep the promise and
+register an [`ensure()`][ensure] that waits for it immediately, before yielding
+any other operation.
+
+For example, suppose `db.save()` returns a promise:
 
 ```javascript
-import { ensure, until, useAbortSignal } from 'effection';
+import { ensure, until } from 'effection';
 
-function* upload(body) {
-  let request;
+function* save(record) {
+  let saving = db.save(record);
 
-  yield* ensure(function*() {
-    try {
-      if (request) {
-        yield* until(request);
-      }
-    } catch {
-      // abort rejects with AbortError; teardown should not throw
-    }
-  });
+  yield* ensure(() => until(saving));
 
-  let signal = yield* useAbortSignal();
-
-  request = fetch('/uploads', { method: 'POST', body, signal });
-
-  return yield* until(request);
+  return yield* until(saving);
 }
 ```
+
+The promise is started and its destructor is registered back-to-back. Do not
+yield another operation between those steps.
+
+If the save fails, its rejection fails the operation. If it rejects while
+teardown is waiting, teardown fails too. That is deliberate: failure to save is
+not successful cleanup.
+
+A cancellable Promise API requires one additional step: teardown must request
+cancellation and then wait for the promise to settle. When those actions must
+happen in order, put both in the same destructor:
+
+```javascript
+import { ensure, until } from 'effection';
+
+function* upload(body) {
+  let controller = new AbortController();
+  let request = fetch('/uploads', {
+    method: 'POST',
+    body,
+    signal: controller.signal,
+  });
+
+  yield* ensure(function*() {
+    controller.abort();
+    yield* until(Promise.allSettled([request]));
+  });
+
+  let response = yield* until(request);
+
+  return response.status;
+}
+```
+
+`AbortController.abort()` asks the request to stop. `Promise.allSettled()` then
+waits for it without allowing the expected abort rejection to become a teardown
+error. Unlike a failed save, this rejection is caused by teardown itself.
+
+Aborting also stops the response body, so consume it inside the scope or return
+a value that does not depend on it. This example returns `response.status`
+rather than the `Response`.
+
+The explicit controller is necessary here because teardown must perform both
+actions in a defined order. When teardown only needs to request cancellation,
+prefer [`useAbortSignal()`][use-abort-signal] as shown above.
 
 to convert from an operation to a promise, use [`run()`][run] or [`Scope.run`][scope-run]
 

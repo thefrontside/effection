@@ -11,15 +11,14 @@ import { global } from "./scope.ts";
  *
  * @example
  * ```javascript
- * import { run, useAbortSignal } from 'effection';
+ * import { run, sleep } from 'effection';
  *
- * async function fetchExample() {
- *   await run(function*() {
- *     let signal = yield* useAbortSignal();
- *     let response = yield* fetch('http://www.example.com', { signal });
- *     yield* response.text();
- *   });
+ * let result = await run(function*() {
+ *   yield* sleep(100);
+ *   return 'hello';
  * });
+ *
+ * console.log(result); // 'hello'
  * ```
  *
  * Run will create a new top-level scope for the operation. However, to run an

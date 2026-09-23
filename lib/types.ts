@@ -294,15 +294,31 @@ export interface Context<
   /** Create a binding whose value is produced by an operation. */
   from<Provider extends Operation<T, unknown>>(
     provider: Provider,
-  ): ContextBinding<T, Name, RequirementsOf<Provider>>;
+  ): ContextBinding<T, Name, Provider>;
+}
+
+export interface ValueBinding<Value, Name extends string> {
+  readonly context: Context<Value, Name>;
+  readonly value: Value;
+}
+
+export interface OperationBinding<
+  Value,
+  Name extends string,
+  Provider extends Operation<Value, unknown>,
+> {
+  readonly context: Context<Value, Name>;
+  readonly operation: Provider;
 }
 
 /** A value or operation that can be installed by `provide()`. */
-export interface ContextBinding<Value, Name extends string, Requires = never> {
-  readonly context: Context<Value, Name>;
-  readonly value?: Value;
-  readonly operation?: Operation<Value, Requires>;
-}
+export type ContextBinding<
+  Value,
+  Name extends string,
+  Provider extends Operation<Value, unknown> = Operation<Value, never>,
+> =
+  | ValueBinding<Value, Name>
+  | OperationBinding<Value, Name, Provider>;
 
 /**
  * A programatic API to interact with an Effection scope from outside of an

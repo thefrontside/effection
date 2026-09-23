@@ -6,12 +6,20 @@ import type {
   Yielded,
 } from "./types.ts";
 
-type AnyBinding = ContextBinding<unknown, string, unknown>;
+type AnyBinding = ContextBinding<unknown, string, Operation<unknown, unknown>>;
 
-type BindingRequires<B> = B extends ContextBinding<unknown, string, infer R> ? R
+type BindingRequires<B> = B extends ContextBinding<
+  unknown,
+  string,
+  infer Provider
+> ? RequirementsOf<Provider>
   : never;
 
-type BindingName<B> = B extends ContextBinding<unknown, infer N, unknown> ? N
+type BindingName<B> = B extends ContextBinding<
+  unknown,
+  infer N,
+  Operation<unknown, unknown>
+> ? N
   : never;
 
 type SetupRequirements<
@@ -82,10 +90,11 @@ export function provide<
   return scoped(() => {
     return (function* () {
       for (let binding of bindings) {
-        let value = "operation" in binding && binding.operation
-          ? yield* binding.operation
-          : binding.value;
-        yield* binding.context.set(value as never);
+        if ("operation" in binding) {
+          yield* binding.context.set(yield* binding.operation);
+        } else {
+          yield* binding.context.set(binding.value);
+        }
       }
       return yield* operation();
     })() as unknown as Child;

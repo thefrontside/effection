@@ -41,7 +41,8 @@ export function createContext<T, const Name extends string = string>(
   name: Name,
   defaultValue?: T,
 ): Context<T, Name, boolean> {
-  let context = {
+  let context: Context<T, Name, boolean>;
+  context = {
     name,
     defaultValue,
     get: () => Do(Get(context)),
@@ -53,11 +54,8 @@ export function createContext<T, const Name extends string = string>(
     },
     from<Provider extends Operation<T, unknown>>(
       operation: Provider,
-    ): ContextBinding<T, Name, RequirementsOf<Provider>> {
-      return {
-        context,
-        operation: operation as Operation<T, RequirementsOf<Provider>>,
-      };
+    ): ContextBinding<T, Name, Provider> {
+      return { context, operation };
     },
     *with<Child extends Operation<unknown, unknown>>(
       value: T,
@@ -80,9 +78,9 @@ export function createContext<T, const Name extends string = string>(
         }
       }
     },
-  } as Context<T, Name, boolean>;
+  };
 
-  return context as Context<T, Name, boolean>;
+  return context;
 }
 
 // private effects for efficiency.

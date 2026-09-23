@@ -56,7 +56,7 @@ export function resource<
 
       function* provide(value: T): Operation<void, never> {
         ready.resolve(value);
-        yield* suspend() as unknown as Operation<void, never>;
+        yield* suspend();
       }
 
       let caller = yield* useScope();

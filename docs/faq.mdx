@@ -142,3 +142,12 @@ class Foo {
 const foo = new Foo();
 console.log(yield * foo.getData());
 ```
+
+## How do I use Effection inside a library while exposing a Promise-based API?
+
+Use `createScope()` to create an integration point, `withResolvers()` to
+synchronize initialization, and `scope.run()` to bridge between Effection
+operations and Promises.
+
+See the full [Library Integration](/docs/library-integration) guide for a
+complete example.

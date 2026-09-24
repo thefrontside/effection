@@ -2,12 +2,14 @@ import type { Operation } from "effection";
 import { all } from "effection";
 import { useWorkspaces } from "../lib/workspaces/mod.ts";
 import type { SitemapRoute } from "../plugins/sitemap.ts";
+import { useSiteUrl } from "../plugins/current-request.ts";
 import type { Package } from "../lib/package/types.ts";
 import {
   groupPackagesByCategory,
   type PackageSummary,
 } from "../lib/package/categories.ts";
 import { useTaxonomy } from "../lib/package/taxonomy.ts";
+import { useConfig } from "../context/config.ts";
 
 /**
  * Dynamic llms.txt route following the llmstxt.org standard.
@@ -24,6 +26,8 @@ export function llmsTxtRoute(): SitemapRoute<Response> {
       return [{ pathname: generate() }];
     },
     *handler(): Operation<Response> {
+      let url = yield* useSiteUrl();
+      let { current } = yield* useConfig();
       let workspaces = yield* useWorkspaces("thefrontside/effectionx");
       let categories = yield* useTaxonomy("thefrontside/effectionx");
       let packages = yield* workspaces.getAllPackages();
@@ -52,7 +56,9 @@ export function llmsTxtRoute(): SitemapRoute<Response> {
         (category) => {
           let packageLines = category.packages.map((pkg) => {
             let shortDesc = truncateToFirstSentence(pkg.description, 120);
-            return `- [${pkg.name}](https://frontside.com/effection/x/${pkg.workspaceName}): ${shortDesc}`;
+            return `- [${pkg.name}](${
+              url(`/x/${pkg.workspaceName}.md`)
+            }): ${shortDesc}`;
           });
 
           return [
@@ -73,13 +79,13 @@ export function llmsTxtRoute(): SitemapRoute<Response> {
         "",
         ...categorizedContent,
         "",
-        LLMS_TXT_FOOTER,
+        llmsTxtFooter(url, current),
       ].join("\n");
 
       return new Response(content, {
         headers: {
           "Content-Type": "text/plain; charset=utf-8",
-          "Cache-Control": "public, max-age=3600",
+          "Cache-Control": "no-cache",
         },
       });
     },
@@ -102,7 +108,8 @@ function truncateToFirstSentence(text: string, maxLength: number): string {
   return firstSentence;
 }
 
-const LLMS_TXT_HEADER = `# Effection — Structured Concurrency for JavaScript
+export const LLMS_TXT_HEADER =
+  `# Effection — Structured Concurrency for JavaScript
 
 > Effection is a JavaScript library for building reliable asynchronous and
 > concurrent programs using structured concurrency.
@@ -141,26 +148,31 @@ If any other document conflicts with AGENTS.md, **AGENTS.md takes precedence**.
   - [Resources]
   - [Spawn]
   - [Collections]
-  - [Browse all guides][docs/]
+  - [Browse all guides][Guides]
 
 ---
 `;
 
-const LLMS_TXT_FOOTER = `## Optional
+export function llmsTxtFooter(
+  url: (path: string) => string,
+  series: string,
+): string {
+  return `## Optional
 
-- [Full EffectionX catalog with documentation](https://frontside.com/effection/x/)
-- [Effection Blog](https://frontside.com/effection/blog)
+- [Full EffectionX catalog with documentation](${url("/x/")})
+- [Effection Blog](${url("/blog")})
 
 ---
 
-[AGENTS.md]: https://raw.githubusercontent.com/thefrontside/effection/v4/AGENTS.md
-[API]: https://frontside.com/effection/api/
-[Guides]: https://frontside.com/effection/guides/v4
-[Thinking in Effection]: https://raw.githubusercontent.com/thefrontside/effection/v4/docs/thinking-in-effection.mdx
-[Async Rosetta Stone]: https://raw.githubusercontent.com/thefrontside/effection/v4/docs/async-rosetta-stone.mdx
-[Operations]: https://raw.githubusercontent.com/thefrontside/effection/v4/docs/operations.mdx
-[Scope]: https://raw.githubusercontent.com/thefrontside/effection/v4/docs/scope.mdx
-[Resources]: https://raw.githubusercontent.com/thefrontside/effection/v4/docs/resources.mdx
-[Spawn]: https://raw.githubusercontent.com/thefrontside/effection/v4/docs/spawn.mdx
-[Collections]: https://raw.githubusercontent.com/thefrontside/effection/v4/docs/collections.mdx
+[AGENTS.md]: ${url("/AGENTS.md")}
+[API]: ${url("/api.md")}
+[Guides]: ${url(`/guides/${series}`)}
+[Thinking in Effection]: ${url(`/guides/${series}/thinking-in-effection.md`)}
+[Async Rosetta Stone]: ${url(`/guides/${series}/async-rosetta-stone.md`)}
+[Operations]: ${url(`/guides/${series}/operations.md`)}
+[Scope]: ${url(`/guides/${series}/scope.md`)}
+[Resources]: ${url(`/guides/${series}/resources.md`)}
+[Spawn]: ${url(`/guides/${series}/spawn.md`)}
+[Collections]: ${url(`/guides/${series}/collections.md`)}
 `;
+}

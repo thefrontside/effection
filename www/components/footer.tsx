@@ -38,10 +38,7 @@ export function Footer(): JSX.Element {
         <a href="/llms.txt" class="text-gray-800 dark:text-gray-200">
           llms.txt
         </a>
-        <a
-          href="https://raw.githubusercontent.com/thefrontside/effection/v4/AGENTS.md"
-          class="text-gray-800 dark:text-gray-200"
-        >
+        <a href="/AGENTS.md" class="text-gray-800 dark:text-gray-200">
           AGENTS.md
         </a>
       </section>

@@ -2,6 +2,7 @@ import type { Operation } from "effection";
 import { stringify } from "@libs/xml";
 
 import { useBlog } from "../resources/blog.ts";
+import { useSiteUrl } from "../plugins/current-request.ts";
 
 /**
  * RSS 2.0 feed for the blog
@@ -11,8 +12,7 @@ export function blogFeedRoute() {
     *handler(): Operation<Response> {
       let blog = yield* useBlog();
       let posts = blog.getPosts();
-
-      let baseUrl = "https://frontside.com/effection";
+      let url = yield* useSiteUrl();
 
       let xml = stringify({
         "@version": "1.0",
@@ -22,18 +22,18 @@ export function blogFeedRoute() {
           "@xmlns:atom": "http://www.w3.org/2005/Atom",
           channel: {
             title: "Effection Blog",
-            link: `${baseUrl}/blog`,
+            link: url("/blog"),
             description:
               "Tutorials, announcements, and insights about structured concurrency in JavaScript with Effection.",
             language: "en-us",
             lastBuildDate: new Date().toUTCString(),
             "atom:link": {
-              "@href": `${baseUrl}/blog/feed.xml`,
+              "@href": url("/blog/feed.xml"),
               "@rel": "self",
               "@type": "application/rss+xml",
             },
             item: posts.slice(0, 20).map((post) => {
-              let postUrl = `${baseUrl}/blog/${post.id}/`;
+              let postUrl = url(`/blog/${post.id}/`);
               return {
                 title: post.title,
                 link: postUrl,

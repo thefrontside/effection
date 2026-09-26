@@ -72,6 +72,13 @@ jobs:
         timeout-minutes: 5
         working-directory: ./www
 
+      - name: Smoke test
+        run: deno task smoke
+        env:
+          SMOKE_URL: http://127.0.0.1:8000
+        timeout-minutes: 5
+        working-directory: ./www
+
       - name: Download Staticalize
         run: |
           wget https://github.com/thefrontside/staticalize/releases/download/v0.2.6/staticalize-linux.tar.gz \
@@ -173,6 +180,13 @@ jobs:
           # url embedded in resources that staticalize does not rewrite, such
           # as llms.txt
           SITE_URL: https://frontside.com/effection
+        timeout-minutes: 5
+        working-directory: ./www
+
+      - name: Smoke test
+        run: deno task smoke
+        env:
+          SMOKE_URL: http://127.0.0.1:8000
         timeout-minutes: 5
         working-directory: ./www
 

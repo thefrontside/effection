@@ -5,10 +5,12 @@ repository-only rules on top of the public behavioral contract, which it does
 not repeat.
 
 Before you modify or reason about Effection code, read the public contract in
-[`docs/agents.md`](docs/agents.md), the copy checked out on this branch. It
-holds the invariants: operations versus promises, scope ownership, tasks and
-halting, context, the concurrency operations, promise interoperability,
-resources and cleanup, `ensure()`, `useAbortSignal()`, and streams.
+[`docs/agents.md`](docs/agents.md), the copy checked out on this branch. The
+website publishes the same document at
+<https://frontside.com/effection/AGENTS.md>. It holds the invariants: operations
+versus promises, scope ownership, tasks and halting, context, the concurrency
+operations, promise interoperability, resources and cleanup, `ensure()`,
+`useAbortSignal()`, and streams.
 
 Instructions scoped to a subdirectory, such as [`www/AGENTS.md`](www/AGENTS.md)
 for the website, apply in addition to this file.

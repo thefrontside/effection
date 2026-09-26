@@ -68,6 +68,13 @@ jobs:
         timeout-minutes: 5
         working-directory: ./www
 
+      - name: Smoke test
+        run: deno task smoke
+        env:
+          SMOKE_URL: http://127.0.0.1:8000
+        timeout-minutes: 5
+        working-directory: ./www
+
       - name: Download Staticalize
         run: |
           wget https://github.com/thefrontside/staticalize/releases/download/v0.3.1/staticalize-linux.tar.gz \
@@ -168,6 +175,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           JSR_API: ${{ secrets.JSR_API }}
+        timeout-minutes: 5
+        working-directory: ./www
+
+      - name: Smoke test
+        run: deno task smoke
+        env:
+          SMOKE_URL: http://127.0.0.1:8000
         timeout-minutes: 5
         working-directory: ./www
 

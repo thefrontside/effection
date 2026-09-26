@@ -3,6 +3,7 @@ import { all } from "effection";
 import { useWorkspaces } from "../lib/workspaces/mod.ts";
 import type { SitemapRoute } from "../plugins/sitemap.ts";
 import { url } from "../context/url.ts";
+import { useConfig } from "../context/config.ts";
 import type { Package } from "../lib/package/types.ts";
 import {
   groupPackagesByCategory,
@@ -25,6 +26,7 @@ export function llmsTxtRoute(): SitemapRoute<Response> {
       return [{ pathname: generate() }];
     },
     *handler(): Operation<Response> {
+      let { current } = yield* useConfig();
       let workspaces = yield* useWorkspaces("thefrontside/effectionx");
       let categories = yield* useTaxonomy("thefrontside/effectionx");
       let packages = yield* workspaces.getAllPackages();
@@ -55,7 +57,7 @@ export function llmsTxtRoute(): SitemapRoute<Response> {
             let packageLines = yield* all(
               category.packages.map(function* (pkg) {
                 let shortDesc = truncateToFirstSentence(pkg.description, 120);
-                let href = yield* url(`/x/${pkg.workspaceName}`);
+                let href = yield* url(`/x/${pkg.workspaceName}.md`);
 
                 return `- [${pkg.name}](${href}): ${shortDesc}`;
               }),
@@ -80,7 +82,7 @@ export function llmsTxtRoute(): SitemapRoute<Response> {
         "",
         ...categorizedContent,
         "",
-        yield* llmsTxtFooter(),
+        yield* llmsTxtFooter(current),
       ].join("\n");
 
       return new Response(content, {
@@ -148,18 +150,33 @@ If any other document conflicts with AGENTS.md, **AGENTS.md takes precedence**.
   - [Resources]
   - [Spawn]
   - [Collections]
-  - [Browse all guides][docs/]
+  - [Browse all guides][Guides]
 
 ---
 `;
 
-function* llmsTxtFooter(): Operation<string> {
-  let [catalog, blog, api, guides] = yield* all([
+const GUIDES = [
+  ["Thinking in Effection", "thinking-in-effection"],
+  ["Async Rosetta Stone", "async-rosetta-stone"],
+  ["Operations", "operations"],
+  ["Scope", "scope"],
+  ["Resources", "resources"],
+  ["Spawn", "spawn"],
+  ["Collections", "collections"],
+] as const;
+
+function* llmsTxtFooter(series: string): Operation<string> {
+  let [catalog, blog, agents, api, guides] = yield* all([
     url("/x/"),
     url("/blog"),
-    url("/api/"),
-    url("/guides/v4"),
+    url("/AGENTS.md"),
+    url("/api.md"),
+    url(`/guides/${series}`),
   ]);
+
+  let definitions = yield* all(GUIDES.map(function* ([label, slug]) {
+    return `[${label}]: ${yield* url(`/guides/${series}/${slug}.md`)}`;
+  }));
 
   return `## Optional
 
@@ -168,15 +185,9 @@ function* llmsTxtFooter(): Operation<string> {
 
 ---
 
-[AGENTS.md]: https://raw.githubusercontent.com/thefrontside/effection/v4/AGENTS.md
+[AGENTS.md]: ${agents}
 [API]: ${api}
 [Guides]: ${guides}
-[Thinking in Effection]: https://raw.githubusercontent.com/thefrontside/effection/v4/docs/thinking-in-effection.mdx
-[Async Rosetta Stone]: https://raw.githubusercontent.com/thefrontside/effection/v4/docs/async-rosetta-stone.mdx
-[Operations]: https://raw.githubusercontent.com/thefrontside/effection/v4/docs/operations.mdx
-[Scope]: https://raw.githubusercontent.com/thefrontside/effection/v4/docs/scope.mdx
-[Resources]: https://raw.githubusercontent.com/thefrontside/effection/v4/docs/resources.mdx
-[Spawn]: https://raw.githubusercontent.com/thefrontside/effection/v4/docs/spawn.mdx
-[Collections]: https://raw.githubusercontent.com/thefrontside/effection/v4/docs/collections.mdx
+${definitions.join("\n")}
 `;
 }

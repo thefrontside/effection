@@ -1,8 +1,9 @@
 {
   "tasks": {
-    "dev": "deno run -A @effectionx/watch deno run -A main.tsx",
+    "dev": "SITE_URL=http://localhost:8000 deno run -A @effectionx/watch deno run -A main.tsx",
     "staticalize": "deno run -A jsr:@frontside/staticalize@0.2.2/cli --site http://localhost:8000 --output=built --base=http://localhost:8000",
-    "test": "deno test --allow-run --allow-write --allow-read"
+    "test": "deno test --allow-run --allow-write --allow-read --allow-env",
+    "smoke": "deno test --allow-net --allow-env tests/markdown-routes.ts"
   },
   "lint": {
     "exclude": [
@@ -54,6 +55,7 @@
     "hast-util-from-html": "npm:hast-util-from-html@2.0.3",
     "hast-util-shift-heading": "npm:hast-util-shift-heading@4.0.0",
     "hast-util-to-html": "npm:hast-util-to-html@9.0.0",
+    "hast-util-to-text": "npm:hast-util-to-text@4.0.2",
     "mdast": "npm:mdast@^3.0.0",
     "mdx": "npm:mdx@^0.3.1",
     "octokit": "npm:octokit@4.0.3",

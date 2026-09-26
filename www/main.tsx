@@ -9,9 +9,11 @@ import { tailwindPlugin } from "./plugins/tailwind.ts";
 import { apiReferenceRoute } from "./routes/api-reference-route.tsx";
 import { assetsRoute } from "./routes/assets-route.ts";
 import { firstPage, guidesRoute } from "./routes/guides-route.tsx";
+import { guidesMarkdownRoute } from "./routes/guides-markdown-route.ts";
 import { indexRoute } from "./routes/index-route.tsx";
 import { xIndexRedirect, xIndexRoute } from "./routes/x-index-route.tsx";
 import { xPackageRedirect, xPackageRoute } from "./routes/x-package-route.tsx";
+import { xPackageMarkdownRoute } from "./routes/x-package-markdown-route.ts";
 
 import { useConfig } from "./context/config.ts";
 import { initFetch } from "./context/fetch.ts";
@@ -22,11 +24,16 @@ import { initBlog } from "./resources/blog.ts";
 import { initFonts } from "./resources/fonts.ts";
 import { initImageStore } from "./resources/image-store.ts";
 import { apiIndexRoute } from "./routes/api-index-route.tsx";
+import {
+  apiIndexMarkdownRoute,
+  apiSymbolMarkdownRoute,
+} from "./routes/api-markdown-route.ts";
 import { blogIndexRoute } from "./routes/blog-index-route.tsx";
 import { blogPostRoute } from "./routes/blog-post-route.tsx";
 import { blogImageRoute } from "./routes/blog-image-route.ts";
 import { blogTagRoute } from "./routes/blog-tag-route.tsx";
 import { blogFeedRoute } from "./routes/blog-feed-route.tsx";
+import { agentsMdRoute } from "./routes/agents-md-route.ts";
 import { llmsTxtRoute } from "./routes/llms-txt-route.ts";
 import { pagefindRoute } from "./routes/pagefind-route.ts";
 import { redirectDocsRoute } from "./routes/redirect-docs-route.tsx";
@@ -73,12 +80,27 @@ if (import.meta.main) {
         ...stableSeries.map((s) =>
           route(`/guides/${s.name}`, redirectIndexRoute(firstPage(s.name)))
         ),
+        // before the page route, so that `.md` is a suffix and not a guide id
+        route("/guides/:series/:id.md", guidesMarkdownRoute()),
         route("/guides/:series/:id", guidesRoute({ search: true })),
         route("/contrib", xIndexRedirect()),
         route("/contrib/:workspacePath", xPackageRedirect()),
         route("/x", xIndexRoute({ search: true })),
+        // before the page route, so that `.md` is a suffix and not a package
+        route("/x/:workspacePath.md", xPackageMarkdownRoute()),
         route("/x/:workspacePath", xPackageRoute({ search: true })),
         route("/api", apiIndexRoute({ search: true })),
+        // before the page routes, so that `.md` is a suffix and not a symbol
+        route("/api.md", apiIndexMarkdownRoute()),
+        ...series.map((s) =>
+          route(`/api/${s.name}/:symbol.md`, apiSymbolMarkdownRoute(s.name))
+        ),
+        ...series.map((s) =>
+          route(
+            `/api/${s.name}/experimental/:symbol.md`,
+            apiSymbolMarkdownRoute(s.name, { entrypoint: "./experimental" }),
+          )
+        ),
         // API docs for all series including prereleases
         ...series.map((s) =>
           route(
@@ -100,6 +122,7 @@ if (import.meta.main) {
         route("/blog", blogIndexRoute({ search: true })),
         route("/blog/feed.xml", blogFeedRoute()),
         route("/llms.txt", llmsTxtRoute()),
+        route("/AGENTS.md", agentsMdRoute()),
         route("/blog/tags/:tag", blogTagRoute({ search: true })),
         route("/blog/:id", blogPostRoute({ search: true })),
         route("/blog/:id/:name.png", blogImageRoute()),

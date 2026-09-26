@@ -10,6 +10,10 @@ on:
 permissions:
   contents: read
 
+env:
+  # name of the netlify site, used to predict the url of a preview deploy
+  NETLIFY_SITE_NAME: effection
+
 jobs:
   deploy-preview:
     if: github.event_name == 'pull_request'
@@ -17,7 +21,9 @@ jobs:
     timeout-minutes: 15
     environment:
       name: Preview
-      url: ${{ steps.netlify.outputs.unique-url }}
+      # the alias deploy, so that this link shares an origin with the urls
+      # baked into the build (see SITE_URL below)
+      url: ${{ steps.netlify.outputs.stable-url }}
     permissions:
       contents: read
       pull-requests: write
@@ -33,6 +39,23 @@ jobs:
         with:
           deno-version: v2.9.1
 
+      - name: Compute Site URL
+        id: site
+        env:
+          IS_FORK: ${{ github.event.pull_request.head.repo.full_name != github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          # an alias deploy lands on a predictable url, so a preview can point
+          # at itself. a fork deploys anonymously to a url that is not known
+          # until after the deploy, so it points at production instead.
+          if [[ "$IS_FORK" == "true" ]]; then
+            URL="https://${NETLIFY_SITE_NAME}.netlify.app"
+          else
+            URL="https://pr-${PR_NUMBER}--${NETLIFY_SITE_NAME}.netlify.app"
+          fi
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+          echo "Preview will be served from $URL" >> "$GITHUB_STEP_SUMMARY"
+
       - name: Serve Website
         run: |
           deno run -A main.tsx &
@@ -43,6 +66,16 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           JSR_API: ${{ secrets.JSR_API }}
+          # url embedded in resources that staticalize does not rewrite, such
+          # as llms.txt
+          SITE_URL: ${{ steps.site.outputs.url }}
+        timeout-minutes: 5
+        working-directory: ./www
+
+      - name: Smoke test
+        run: deno task smoke
+        env:
+          SMOKE_URL: http://127.0.0.1:8000
         timeout-minutes: 5
         working-directory: ./www
 
@@ -90,6 +123,11 @@ jobs:
 
             DEPLOY_ID=$(echo "$DEPLOY_OUTPUT" | jq -er '.deploy_id')
             SITE_NAME=$(echo "$DEPLOY_OUTPUT" | jq -er '.site_name')
+
+            if [[ "$SITE_NAME" != "$NETLIFY_SITE_NAME" ]]; then
+              echo "::warning::deployed to '$SITE_NAME' but urls were built for" \
+                "'$NETLIFY_SITE_NAME'; update NETLIFY_SITE_NAME in this workflow"
+            fi
             UNIQUE_URL="https://${DEPLOY_ID}--${SITE_NAME}.netlify.app"
             STABLE_URL="https://pr-${PR_NUMBER}--${SITE_NAME}.netlify.app"
           fi
@@ -139,6 +177,16 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           JSR_API: ${{ secrets.JSR_API }}
+          # url embedded in resources that staticalize does not rewrite, such
+          # as llms.txt
+          SITE_URL: https://frontside.com/effection
+        timeout-minutes: 5
+        working-directory: ./www
+
+      - name: Smoke test
+        run: deno task smoke
+        env:
+          SMOKE_URL: http://127.0.0.1:8000
         timeout-minutes: 5
         working-directory: ./www
 

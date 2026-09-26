@@ -162,7 +162,8 @@ structured concurrency. Wrong examples teach wrong patterns.
 
 **Before writing any code example:**
 
-- Consult the root `AGENTS.md` for API correctness constraints.
+- Consult [`docs/agents.md`](../docs/agents.md), the Effection behavioral
+  contract, for API correctness constraints.
 - Do NOT use `await` inside a generator function. Use `yield*`.
 - Do NOT call `spawn()` without `yield*` — `spawn()` returns an Operation, not a
   Task.
@@ -175,7 +176,7 @@ structured concurrency. Wrong examples teach wrong patterns.
 - Verify imports match the actual Effection public API.
 - Verify the example would actually work if pasted into a file and run.
 - Check that `try/finally` patterns match the `resource()` and `ensure()`
-  conventions documented in the root `AGENTS.md`.
+  conventions documented in [`docs/agents.md`](../docs/agents.md).
 
 ## Writing Checklist
 
@@ -198,7 +199,7 @@ structured concurrency. Wrong examples teach wrong patterns.
 
 - [ ] Conclusion is brief and is NOT a summary
 - [ ] No marketing-speak crept in
-- [ ] All code examples are correct per the root `AGENTS.md`
+- [ ] All code examples are correct per [`docs/agents.md`](../docs/agents.md)
 - [ ] Frontmatter is complete: title, description, author, tags, image
 - [ ] File is at `www/blog/YYYY-MM-DD-slug/index.md`
 - [ ] Run `deno fmt` and `deno lint`

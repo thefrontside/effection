@@ -61,7 +61,14 @@ export function createApi<A extends {}>(name: string, handler: A): Api<A> {
     let current = yield* context.expect();
     yield* context.set(fields.reduce((sum, field) => {
       let prior = current[field] as Middleware<any[], any>;
-      let middleware = around[field] as Middleware<any[], any>;
+      let middleware = around[field] as Middleware<any[], any> | undefined;
+
+      // `around` is partial: a field it leaves out keeps the middleware it
+      // already had, rather than being replaced by a call to `undefined`.
+      if (!middleware) {
+        return sum;
+      }
+
       return Object.assign(sum, {
         [field]: (args: any, next: any) =>
           middleware(args, (...args) => prior(args, next)),

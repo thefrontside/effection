@@ -1,17 +1,17 @@
 import type { Middleware, RevolutionPlugin } from "revolution";
 import { route as revolutionRoute, useRevolutionOptions } from "revolution";
-import type { Operation } from "effection";
+import { all, type Operation } from "effection";
 import { stringify } from "@libs/xml";
 import { compile } from "path-to-regexp";
-import { useAbsoluteUrlFactory } from "./current-request.ts";
+import { url } from "../context/url.ts";
 
 export function sitemapPlugin(): RevolutionPlugin {
   return {
     *http(request, next) {
       let options = yield* useRevolutionOptions();
-      let url = new URL(request.url);
+      let requested = new URL(request.url);
 
-      if (url.pathname === "/sitemap.xml") {
+      if (requested.pathname === "/sitemap.xml") {
         let app = options.app ?? [];
         let paths: RoutePath[] = [];
         for (let middleware of app) {
@@ -21,21 +21,21 @@ export function sitemapPlugin(): RevolutionPlugin {
           }
         }
 
-        let absolute = yield* useAbsoluteUrlFactory();
+        let entries = yield* all(paths.map(function* (path) {
+          let { pathname, ...entry } = path;
+
+          return {
+            loc: yield* url(pathname),
+            ...entry,
+          };
+        }));
 
         let xml = stringify({
           "@version": "1.0",
           "@encoding": "UTF-8",
           urlset: {
             "@xmlns": "http://www.sitemaps.org/schemas/sitemap/0.9",
-            url: paths.map((path) => {
-              let { pathname, ...entry } = path;
-
-              return {
-                loc: absolute(pathname),
-                ...entry,
-              };
-            }),
+            url: entries,
           },
         });
 

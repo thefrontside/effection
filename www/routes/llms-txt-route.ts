@@ -2,6 +2,7 @@ import type { Operation } from "effection";
 import { all } from "effection";
 import { useWorkspaces } from "../lib/workspaces/mod.ts";
 import type { SitemapRoute } from "../plugins/sitemap.ts";
+import { url } from "../context/url.ts";
 import type { Package } from "../lib/package/types.ts";
 import {
   groupPackagesByCategory,
@@ -45,24 +46,30 @@ export function llmsTxtRoute(): SitemapRoute<Response> {
       );
 
       // Group packages by category
-      let categorizedContent = groupPackagesByCategory(
-        categories,
-        packageEntries,
-      ).map(
-        (category) => {
-          let packageLines = category.packages.map((pkg) => {
-            let shortDesc = truncateToFirstSentence(pkg.description, 120);
-            return `- [${pkg.name}](https://frontside.com/effection/x/${pkg.workspaceName}): ${shortDesc}`;
-          });
+      let categorizedContent = yield* all(
+        groupPackagesByCategory(
+          categories,
+          packageEntries,
+        ).map(
+          function* (category) {
+            let packageLines = yield* all(
+              category.packages.map(function* (pkg) {
+                let shortDesc = truncateToFirstSentence(pkg.description, 120);
+                let href = yield* url(`/x/${pkg.workspaceName}`);
 
-          return [
-            `### ${category.label}`,
-            "",
-            category.description,
-            "",
-            ...packageLines,
-          ].join("\n");
-        },
+                return `- [${pkg.name}](${href}): ${shortDesc}`;
+              }),
+            );
+
+            return [
+              `### ${category.label}`,
+              "",
+              category.description,
+              "",
+              ...packageLines,
+            ].join("\n");
+          },
+        ),
       );
 
       let content = [
@@ -73,7 +80,7 @@ export function llmsTxtRoute(): SitemapRoute<Response> {
         "",
         ...categorizedContent,
         "",
-        LLMS_TXT_FOOTER,
+        yield* llmsTxtFooter(),
       ].join("\n");
 
       return new Response(content, {
@@ -146,16 +153,24 @@ If any other document conflicts with AGENTS.md, **AGENTS.md takes precedence**.
 ---
 `;
 
-const LLMS_TXT_FOOTER = `## Optional
+function* llmsTxtFooter(): Operation<string> {
+  let [catalog, blog, api, guides] = yield* all([
+    url("/x/"),
+    url("/blog"),
+    url("/api/"),
+    url("/guides/v4"),
+  ]);
 
-- [Full EffectionX catalog with documentation](https://frontside.com/effection/x/)
-- [Effection Blog](https://frontside.com/effection/blog)
+  return `## Optional
+
+- [Full EffectionX catalog with documentation](${catalog})
+- [Effection Blog](${blog})
 
 ---
 
 [AGENTS.md]: https://raw.githubusercontent.com/thefrontside/effection/v4/AGENTS.md
-[API]: https://frontside.com/effection/api/
-[Guides]: https://frontside.com/effection/guides/v4
+[API]: ${api}
+[Guides]: ${guides}
 [Thinking in Effection]: https://raw.githubusercontent.com/thefrontside/effection/v4/docs/thinking-in-effection.mdx
 [Async Rosetta Stone]: https://raw.githubusercontent.com/thefrontside/effection/v4/docs/async-rosetta-stone.mdx
 [Operations]: https://raw.githubusercontent.com/thefrontside/effection/v4/docs/operations.mdx
@@ -164,3 +179,4 @@ const LLMS_TXT_FOOTER = `## Optional
 [Spawn]: https://raw.githubusercontent.com/thefrontside/effection/v4/docs/spawn.mdx
 [Collections]: https://raw.githubusercontent.com/thefrontside/effection/v4/docs/collections.mdx
 `;
+}

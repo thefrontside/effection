@@ -1,7 +1,8 @@
-import type { Operation } from "effection";
+import { all, type Operation } from "effection";
 import { stringify } from "@libs/xml";
 
 import { useBlog } from "../resources/blog.ts";
+import { url } from "../context/url.ts";
 
 /**
  * RSS 2.0 feed for the blog
@@ -11,8 +12,26 @@ export function blogFeedRoute() {
     *handler(): Operation<Response> {
       let blog = yield* useBlog();
       let posts = blog.getPosts();
+      let blogUrl = yield* url("/blog");
+      let feed = yield* url("/blog/feed.xml");
+      let items = yield* all(
+        posts.slice(0, 20).map(function* (post) {
+          let postUrl = yield* url(`/blog/${post.id}/`);
 
-      let baseUrl = "https://frontside.com/effection";
+          return {
+            title: post.title,
+            link: postUrl,
+            guid: {
+              "@isPermaLink": "true",
+              "#text": postUrl,
+            },
+            description: post.description,
+            pubDate: post.date.toUTCString(),
+            author: post.author,
+            category: post.tags,
+          };
+        }),
+      );
 
       let xml = stringify({
         "@version": "1.0",
@@ -22,31 +41,17 @@ export function blogFeedRoute() {
           "@xmlns:atom": "http://www.w3.org/2005/Atom",
           channel: {
             title: "Effection Blog",
-            link: `${baseUrl}/blog`,
+            link: blogUrl,
             description:
               "Tutorials, announcements, and insights about structured concurrency in JavaScript with Effection.",
             language: "en-us",
             lastBuildDate: new Date().toUTCString(),
             "atom:link": {
-              "@href": `${baseUrl}/blog/feed.xml`,
+              "@href": feed,
               "@rel": "self",
               "@type": "application/rss+xml",
             },
-            item: posts.slice(0, 20).map((post) => {
-              let postUrl = `${baseUrl}/blog/${post.id}/`;
-              return {
-                title: post.title,
-                link: postUrl,
-                guid: {
-                  "@isPermaLink": "true",
-                  "#text": postUrl,
-                },
-                description: post.description,
-                pubDate: post.date.toUTCString(),
-                author: post.author,
-                category: post.tags,
-              };
-            }),
+            item: items,
           },
         },
       });

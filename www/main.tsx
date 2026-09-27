@@ -1,5 +1,8 @@
 import { main, suspend } from "effection";
+import { parse, printErrors, printHelp } from "@frontside/configliere";
 import { createRevolution, ServerInfo } from "revolution";
+
+import { type Options, www } from "./cli.ts";
 
 import { etagPlugin } from "./plugins/etag.ts";
 import { route, sitemapPlugin } from "./plugins/sitemap.ts";
@@ -35,94 +38,118 @@ import { searchRoute } from "./routes/search-route.tsx";
 import { initClones } from "./lib/clones.ts";
 import { initOctokitContext } from "./lib/octokit.ts";
 import { currentRequestPlugin } from "./plugins/current-request.ts";
+import { verboseLogging } from "./context/logging.ts";
 
 // Learn more at https://docs.deno.com/runtime/manual/examples/module_metadata#concepts
 if (import.meta.main) {
-  await main(function* () {
-    let { current, series } = yield* useConfig();
-
-    // Get stable series (no prereleases) for guides
-    let stableSeries = series.filter((s) => !s.includePrerelease);
-
-    yield* initClones("build/clones");
-    yield* initWorktrees("build/worktrees");
-    yield* initGuides({
-      current,
-      worktrees: stableSeries
-        .filter((s) => s.name !== current)
-        .map((s) => s.name),
-    });
-
-    yield* initBlog();
-    yield* initFonts();
-    yield* initImageStore();
-
-    yield* initJSRClient();
-    yield* initFetch();
-
-    // configures Octokit client
-    yield* initOctokitContext();
-
-    let revolution = createRevolution({
-      app: [
-        route("/", indexRoute()),
-        route("/search", searchRoute()),
-        route("/docs", redirectIndexRoute(firstPage(current))),
-        route("/docs/:id", redirectDocsRoute(current)),
-        // Guides only for stable series (no prereleases)
-        ...stableSeries.map((s) =>
-          route(`/guides/${s.name}`, redirectIndexRoute(firstPage(s.name)))
-        ),
-        route("/guides/:series/:id", guidesRoute({ search: true })),
-        route("/contrib", xIndexRedirect()),
-        route("/contrib/:workspacePath", xPackageRedirect()),
-        route("/x", xIndexRoute({ search: true })),
-        route("/x/:workspacePath", xPackageRoute({ search: true })),
-        route("/api", apiIndexRoute({ search: true })),
-        // API docs for all series including prereleases
-        ...series.map((s) =>
-          route(
-            `/api/${s.name}/:symbol`,
-            apiReferenceRoute(s.name, { search: true }),
-          )
-        ),
-        // Experimental API docs (namespaced; empty for series without the
-        // `./experimental` entrypoint)
-        ...series.map((s) =>
-          route(
-            `/api/${s.name}/experimental/:symbol`,
-            apiReferenceRoute(s.name, {
-              search: true,
-              entrypoint: "./experimental",
-            }),
-          )
-        ),
-        route("/blog", blogIndexRoute({ search: true })),
-        route("/blog/feed.xml", blogFeedRoute()),
-        route("/llms.txt", llmsTxtRoute()),
-        route("/blog/tags/:tag", blogTagRoute({ search: true })),
-        route("/blog/:id", blogPostRoute({ search: true })),
-        route("/blog/:id/:name.png", blogImageRoute()),
-        route("/blog{/*path}", assetsRoute("blog")),
-        route("/pagefind{/*path}", pagefindRoute({ pagefindDir: "pagefind" })),
-        route("/assets/*path", assetsRoute("assets")),
-      ],
-      plugins: [
-        yield* tailwindPlugin({ input: "main.css", outdir: "tailwind" }),
-        inlineSvgPlugin({
-          basedir: new URL(".", import.meta.url).pathname,
-        }),
-        currentRequestPlugin(),
-        etagPlugin(),
-        sitemapPlugin(),
-      ],
-    });
-
-    let server = yield* revolution.start();
-    console.log(`www -> ${urlFromServer(server)}`);
-
-    yield* suspend();
+  let intent = parse(www, {
+    argv: Deno.args,
+    envs: [{ name: "environment", value: Deno.env.toObject() }],
   });
+
+  if (!intent.ok) {
+    console.error(printErrors(intent));
+    // No Effection scope exists yet, so there is nothing to unwind.
+    Deno.exit(1);
+  } else if (intent.method === "help") {
+    console.log(printHelp(intent));
+  } else {
+    await main(() => serve(intent.model));
+  }
+}
+
+function* serve(options: Options) {
+  yield* verboseLogging(options.verbose);
+
+  let { current, series } = yield* useConfig();
+
+  // Get stable series (no prereleases) for guides
+  let stableSeries = series.filter((s) => !s.includePrerelease);
+
+  yield* initClones(options.clonesDir);
+  yield* initWorktrees(options.worktreesDir);
+  yield* initGuides({
+    current,
+    worktrees: stableSeries
+      .filter((s) => s.name !== current)
+      .map((s) => s.name),
+  });
+
+  yield* initBlog();
+  yield* initFonts();
+  yield* initImageStore();
+
+  yield* initJSRClient(options.jsrApi);
+  yield* initFetch();
+
+  // configures Octokit client
+  yield* initOctokitContext(options.githubToken);
+
+  let revolution = createRevolution({
+    app: [
+      route("/", indexRoute()),
+      route("/search", searchRoute()),
+      route("/docs", redirectIndexRoute(firstPage(current))),
+      route("/docs/:id", redirectDocsRoute(current)),
+      // Guides only for stable series (no prereleases)
+      ...stableSeries.map((s) =>
+        route(`/guides/${s.name}`, redirectIndexRoute(firstPage(s.name)))
+      ),
+      route("/guides/:series/:id", guidesRoute({ search: true })),
+      route("/contrib", xIndexRedirect()),
+      route("/contrib/:workspacePath", xPackageRedirect()),
+      route("/x", xIndexRoute({ search: true })),
+      route("/x/:workspacePath", xPackageRoute({ search: true })),
+      route("/api", apiIndexRoute({ search: true })),
+      // API docs for all series including prereleases
+      ...series.map((s) =>
+        route(
+          `/api/${s.name}/:symbol`,
+          apiReferenceRoute(s.name, { search: true }),
+        )
+      ),
+      // Experimental API docs (namespaced; empty for series without the
+      // `./experimental` entrypoint)
+      ...series.map((s) =>
+        route(
+          `/api/${s.name}/experimental/:symbol`,
+          apiReferenceRoute(s.name, {
+            search: true,
+            entrypoint: "./experimental",
+          }),
+        )
+      ),
+      route("/blog", blogIndexRoute({ search: true })),
+      route("/blog/feed.xml", blogFeedRoute()),
+      route("/llms.txt", llmsTxtRoute()),
+      route("/blog/tags/:tag", blogTagRoute({ search: true })),
+      route("/blog/:id", blogPostRoute({ search: true })),
+      route("/blog/:id/:name.png", blogImageRoute()),
+      route("/blog{/*path}", assetsRoute("blog")),
+      route(
+        "/pagefind{/*path}",
+        pagefindRoute({ pagefindDir: options.pagefindDir }),
+      ),
+      route("/assets/*path", assetsRoute("assets")),
+    ],
+    plugins: [
+      yield* tailwindPlugin({
+        input: options.tailwindInput,
+        outdir: options.tailwindOutdir,
+      }),
+      inlineSvgPlugin({
+        basedir: new URL(".", import.meta.url).pathname,
+      }),
+      currentRequestPlugin(),
+      yield* etagPlugin({ deploymentId: options.denoDeploymentId }),
+      sitemapPlugin(),
+    ],
+  });
+
+  let server = yield* revolution.start({ port: options.port });
+  console.log(`www -> ${urlFromServer(server)}`);
+
+  yield* suspend();
 }
 
 function urlFromServer(server: ServerInfo) {

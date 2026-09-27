@@ -1,23 +1,29 @@
+import { type Operation, until } from "effection";
 import { RevolutionPlugin } from "revolution";
 import { encodeBase64 } from "@std/encoding/base64";
 
-const DEPLOYMENT_ID =
-  // The same deployment will be shared by the many isolates that serve it
-  // but because pages do not change, we can use this id as the ETAG
-  Deno.env.get("DENO_DEPLOYMENT_ID") ||
-  // For local development, just create a new id every time the module is
-  // reloaded i.e. whenever the dev server restarts.
-  crypto.randomUUID();
+export interface EtagOptions {
+  /**
+   * The same deployment will be shared by the many isolates that serve it but
+   * because pages do not change, we can use this id as the ETAG. When it is
+   * empty — local development — a new id is created every time the server
+   * boots, i.e. whenever the dev server restarts.
+   */
+  readonly deploymentId: string;
+}
 
-const DEPLOYMENT_ID_HASH = await crypto.subtle.digest(
-  "SHA-1",
-  new TextEncoder().encode(DEPLOYMENT_ID),
-);
+export function* etagPlugin(
+  { deploymentId }: EtagOptions,
+): Operation<RevolutionPlugin> {
+  let id = deploymentId === "" ? crypto.randomUUID() : deploymentId;
 
-const ETAG = `"${encodeBase64(DEPLOYMENT_ID_HASH)}"`;
-const WEAK_ETAG = `W/"${encodeBase64(DEPLOYMENT_ID_HASH)}"`;
+  let hash = yield* until(
+    crypto.subtle.digest("SHA-1", new TextEncoder().encode(id)),
+  );
 
-export function etagPlugin(): RevolutionPlugin {
+  let ETAG = `"${encodeBase64(hash)}"`;
+  let WEAK_ETAG = `W/"${encodeBase64(hash)}"`;
+
   return {
     *http(request, next) {
       let ifNoneMatch = request.headers.get("if-none-match");

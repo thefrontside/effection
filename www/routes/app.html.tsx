@@ -3,7 +3,7 @@ import type { JSXChild } from "revolution";
 
 import { Footer } from "../components/footer.tsx";
 import { Header, type HeaderProps } from "../components/header.tsx";
-import { useAbsoluteUrl, useCanonicalUrl } from "../plugins/current-request.ts";
+import { canonical, url } from "../context/url.ts";
 import { JSXElement } from "revolution/jsx-runtime";
 
 export type Options = {
@@ -25,11 +25,9 @@ export function* useAppHtml({
   head,
   image = "/assets/images/meta-effection.png",
 }: Options): Operation<({ children, search }: AppHtmlProps) => JSX.Element> {
-  let ogImageURL = yield* useAbsoluteUrl(image);
+  let ogImageURL = yield* url(image);
 
-  let canonicalURL = yield* useCanonicalUrl({
-    base: "https://frontside.com/effection",
-  });
+  let canonicalURL = yield* canonical();
 
   let header = yield* Header({ hasLeftSidebar });
 

@@ -1,5 +1,5 @@
 import { Operation, until } from "effection";
-import { createApi } from "./context-api.ts";
+import { createApi } from "@effectionx/context-api";
 import { rewrite } from "./url-rewrite.ts";
 import { log } from "./logging.ts";
 

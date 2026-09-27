@@ -1,6 +1,6 @@
-import { call, type Operation } from "effection";
+import { type Operation } from "effection";
 import { posixNormalize } from "_posixNormalize";
-import { type Api, createApi } from "./context-api.ts";
+import { type Api, createApi } from "@effectionx/context-api";
 import { CurrentRequest } from "./request.ts";
 
 export interface UrlApi {
@@ -9,7 +9,7 @@ export interface UrlApi {
    * original, whatever origin actually served it. `main` supplies it from
    * configuration; `urlApi.around` can rebase it for a narrower scope.
    */
-  base: Operation<string>;
+  base: string;
 
   /**
    * Fully qualify a path against the origin that served the current request,
@@ -31,7 +31,7 @@ export interface UrlApi {
 
 // annotated, because `canonical` reads `base` back through the api
 export const urlApi: Api<UrlApi> = createApi<UrlApi>("url", {
-  base: call(() => "https://frontside.com/effection"),
+  base: "https://frontside.com/effection",
 
   *url(path) {
     let request = yield* CurrentRequest.expect();

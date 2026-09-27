@@ -1,5 +1,5 @@
 import type { Operation } from "effection";
-import { createApi } from "./context-api.ts";
+import { createApi } from "@effectionx/context-api";
 
 export interface Logger {
   info: (message: string, ...args: unknown[]) => Operation<void>;

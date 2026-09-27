@@ -64,9 +64,7 @@ function* serve(options: Options) {
 
   // the origin pages name as the original, wherever this copy is served
   yield* urlApi.around({
-    *base() {
-      return options.base;
-    },
+    base: () => options.base,
   });
 
   let { current, series } = yield* useConfig();

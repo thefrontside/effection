@@ -2,7 +2,7 @@ import type { Operation, Stream } from "effection";
 import { each, spawn, until, withResolvers } from "effection";
 import md5 from "md5";
 import { regex } from "arktype";
-import { createApi } from "./context-api.ts";
+import { createApi } from "@effectionx/context-api";
 import { exec, ExecOptions, ProcessResult } from "@effectionx/process";
 import { log } from "./logging.ts";
 import { cwd, useCwd } from "./shell.ts";

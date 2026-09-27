@@ -1,5 +1,5 @@
 import { Operation } from "effection";
-import { createApi } from "./context-api.ts";
+import { createApi } from "@effectionx/context-api";
 
 interface UrlRewrite {
   rewrite(

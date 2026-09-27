@@ -66,7 +66,9 @@ function* serve(options: Options) {
   // Get stable series (no prereleases) for guides
   let stableSeries = series.filter((s) => !s.includePrerelease);
 
-  yield* initClones(options.clonesDir);
+  yield* initClones(options.clonesDir, {
+    checkouts: localCheckouts(options.effectionxDir),
+  });
   yield* initWorktrees(options.worktreesDir);
   yield* initGuides({
     current,
@@ -150,6 +152,18 @@ function* serve(options: Options) {
   console.log(`www -> ${urlFromServer(server)}`);
 
   yield* suspend();
+}
+
+/**
+ * Checkouts to use instead of cloning from GitHub, so that a repository you
+ * are working in shows up on the site:
+ *
+ * ```
+ * EFFECTIONX_DIR=../effectionx deno task dev
+ * ```
+ */
+function localCheckouts(effectionx: string): Record<string, string> {
+  return effectionx ? { "thefrontside/effectionx": effectionx } : {};
 }
 
 function urlFromServer(server: ServerInfo) {

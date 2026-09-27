@@ -3,6 +3,34 @@
 The Effection website shows documentation and packages that it pulls from GIT
 repositories on GitHub.
 
+## Configuration
+
+Every argument and environment variable the site accepts is declared in one
+place, [`cli.ts`](./cli.ts), using
+[Configliere](https://github.com/thefrontside/configliere). Inputs are validated
+before `main()` starts, so a bad value fails immediately with a message instead
+of surfacing as a confusing runtime error later in the boot.
+
+Run `deno run -A main.tsx --help` for the current list. Each parameter is
+addressable two ways — as a `--kebab-case` flag or as a `SCREAMING_SNAKE_CASE`
+environment variable — and the command line wins when both are supplied.
+
+| Flag                   | Environment          | Default           | Purpose                                               |
+| ---------------------- | -------------------- | ----------------- | ----------------------------------------------------- |
+| `--port`               | `PORT`               | `8000`            | Port the HTTP server listens on. `0` picks a free one |
+| `--github-token`       | `GITHUB_TOKEN`       | _unauthenticated_ | GitHub access token for the API                       |
+| `--jsr-api`            | `JSR_API`            | _none_            | JSR API token; the score card is skipped without it   |
+| `--deno-deployment-id` | `DENO_DEPLOYMENT_ID` | fresh id per boot | Deployment identity behind the `ETag`                 |
+| `--clones-dir`         | `CLONES_DIR`         | `build/clones`    | Git clones of the documented repositories             |
+| `--worktrees-dir`      | `WORKTREES_DIR`      | `build/worktrees` | A git worktree per documented series                  |
+| `--pagefind-dir`       | `PAGEFIND_DIR`       | `pagefind`        | Generated Pagefind search bundle                      |
+| `--tailwind-input`     | `TAILWIND_INPUT`     | `main.css`        | Tailwind entry stylesheet                             |
+| `--tailwind-outdir`    | `TAILWIND_OUTDIR`    | `tailwind`        | Where the compiled stylesheet is written              |
+| `--verbose`            | `VERBOSE`            | `false`           | Emit debug and warning logs, not just info and error  |
+
+The defaults reproduce what used to be hardcoded, so `deno task dev` and the
+deployment workflow need no flags.
+
 ## About Git Integration
 
 The Effection website uses sophisticated GitHub integration to dynamically load

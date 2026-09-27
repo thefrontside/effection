@@ -4,13 +4,13 @@ import { operations } from "../context/fetch.ts";
 
 const OctokitContext = createContext<Octokit>("github-client");
 
-export function* initOctokitContext() {
-  let token = Deno.env.get("GITHUB_TOKEN");
-
+export function* initOctokitContext(token: string) {
   let scope = yield* useScope();
 
   let octokit = new Octokit({
-    auth: token,
+    // Octokit treats an empty string as a credential and sends it; `undefined`
+    // is what makes it fall back to unauthenticated requests.
+    auth: token === "" ? undefined : token,
     request: {
       fetch: (url: string, init?: RequestInit) => {
         return scope.run(() => operations.fetch(url, init));

@@ -27,9 +27,7 @@ export function* useAppHtml({
 }: Options): Operation<({ children, search }: AppHtmlProps) => JSX.Element> {
   let ogImageURL = yield* url(image);
 
-  let canonicalURL = yield* canonical({
-    base: "https://frontside.com/effection",
-  });
+  let canonicalURL = yield* canonical();
 
   let header = yield* Header({ hasLeftSidebar });
 

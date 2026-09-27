@@ -1,9 +1,16 @@
-import { type Operation } from "effection";
+import { call, type Operation } from "effection";
 import { posixNormalize } from "_posixNormalize";
-import { createApi } from "./context-api.ts";
+import { type Api, createApi } from "./context-api.ts";
 import { CurrentRequest } from "./request.ts";
 
 export interface UrlApi {
+  /**
+   * Where the site says it lives: the origin every page names as the
+   * original, whatever origin actually served it. `main` supplies it from
+   * configuration; `urlApi.around` can rebase it for a narrower scope.
+   */
+  base: Operation<string>;
+
   /**
    * Fully qualify a path against the origin that served the current request,
    * so that a document advertises the site a reader is actually on.
@@ -17,12 +24,15 @@ export interface UrlApi {
    * The canonical url for the current path, under `base`.
    *
    * A preview and the dev server serve the same page from their own origin,
-   * but every copy names production as the original.
+   * but every copy names the same original.
    */
-  canonical(options: { base: string }): Operation<string>;
+  canonical(): Operation<string>;
 }
 
-export const urlApi = createApi<UrlApi>("url", {
+// annotated, because `canonical` reads `base` back through the api
+export const urlApi: Api<UrlApi> = createApi<UrlApi>("url", {
+  base: call(() => "https://frontside.com/effection"),
+
   *url(path) {
     let request = yield* CurrentRequest.expect();
     let absolute = new URL(path, new URL(request.url).origin);
@@ -32,16 +42,21 @@ export const urlApi = createApi<UrlApi>("url", {
     return absolute.toString();
   },
 
-  *canonical({ base }) {
+  *canonical() {
     let request = yield* CurrentRequest.expect();
+    // through the api, so that an override of `base` reaches here too
+    let base = yield* urlApi.operations.base;
 
     let requested = new URL(request.url);
-    let canonical = new URL(base);
+    let original = new URL(base);
 
-    canonical.pathname = `${canonical.pathname}${requested.pathname}`;
+    // normalized, because a base without a path contributes its own "/"
+    original.pathname = posixNormalize(
+      `${original.pathname}${requested.pathname}`,
+    );
 
-    return String(canonical);
+    return String(original);
   },
 });
 
-export const { url, canonical } = urlApi.operations;
+export const { base, canonical, url } = urlApi.operations;

@@ -3,7 +3,7 @@ import type { JSXChild } from "revolution";
 
 import { Footer } from "../components/footer.tsx";
 import { Header, type HeaderProps } from "../components/header.tsx";
-import { canonical, url } from "../context/url.ts";
+import { currentUrl, url } from "../context/url.ts";
 import { JSXElement } from "revolution/jsx-runtime";
 
 export type Options = {
@@ -27,7 +27,7 @@ export function* useAppHtml({
 }: Options): Operation<({ children, search }: AppHtmlProps) => JSX.Element> {
   let ogImageURL = yield* url(image);
 
-  let canonicalURL = yield* canonical();
+  let canonicalURL = yield* currentUrl();
 
   let header = yield* Header({ hasLeftSidebar });
 

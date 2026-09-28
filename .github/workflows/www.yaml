@@ -70,7 +70,7 @@ jobs:
 
       - name: Download Staticalize
         run: |
-          wget https://github.com/thefrontside/staticalize/releases/download/v0.3.0/staticalize-linux.tar.gz \
+          wget https://github.com/thefrontside/staticalize/releases/download/v0.3.1/staticalize-linux.tar.gz \
             -O /tmp/staticalize-linux.tar.gz
           tar -xzf /tmp/staticalize-linux.tar.gz -C /usr/local/bin
           chmod +x /usr/local/bin/staticalize-linux
@@ -81,8 +81,8 @@ jobs:
             --site=http://127.0.0.1:8000 \
             --output=www/built \
             --base=${{ steps.site.outputs.url }} \
-            --concurrency=75 \
-            --retries=3
+            --canonical=https://frontside.com/effection \
+            --concurrency=75
 
       - name: Deploy Preview to Netlify
         id: netlify
@@ -173,7 +173,7 @@ jobs:
 
       - name: Download Staticalize
         run: |
-          wget https://github.com/thefrontside/staticalize/releases/download/v0.3.0/staticalize-linux.tar.gz \
+          wget https://github.com/thefrontside/staticalize/releases/download/v0.3.1/staticalize-linux.tar.gz \
             -O /tmp/staticalize-linux.tar.gz
           tar -xzf /tmp/staticalize-linux.tar.gz -C /usr/local/bin
           chmod +x /usr/local/bin/staticalize-linux
@@ -183,9 +183,9 @@ jobs:
           staticalize-linux \
             --site=http://127.0.0.1:8000 \
             --output=www/built \
-            --base=https://frontside.com/effection \
-            --concurrency=75 \
-            --retries=3
+            --base=https://effection.netlify.app \
+            --canonical=https://frontside.com/effection \
+            --concurrency=75
 
       - name: Deploy to Production
         run: |

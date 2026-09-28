@@ -39,7 +39,6 @@ import { initClones } from "./lib/clones.ts";
 import { initOctokitContext } from "./lib/octokit.ts";
 import { currentRequestPlugin } from "./plugins/current-request.ts";
 import { verboseLogging } from "./context/logging.ts";
-import { urlApi } from "./context/url.ts";
 
 // Learn more at https://docs.deno.com/runtime/manual/examples/module_metadata#concepts
 if (import.meta.main) {
@@ -61,11 +60,6 @@ if (import.meta.main) {
 
 function* serve(options: Options) {
   yield* verboseLogging(options.verbose);
-
-  // the origin pages name as the original, wherever this copy is served
-  yield* urlApi.around({
-    base: () => options.base,
-  });
 
   let { current, series } = yield* useConfig();
 

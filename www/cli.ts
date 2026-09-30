@@ -73,13 +73,6 @@ export const www = command(
     schema(fallback("")),
   ),
   option(
-    name("base"),
-    description(
-      "Origin every page names as the original, whatever origin served it.",
-    ),
-    schema(fallback("https://frontside.com/effection")),
-  ),
-  option(
     name("clonesDir"),
     description("Directory holding git clones of the documented repositories."),
     schema(fallback("build/clones")),

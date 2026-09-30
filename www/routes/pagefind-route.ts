@@ -6,7 +6,7 @@ import { assetsRoute } from "./assets-route.ts";
 import { exists } from "../lib/fs.ts";
 import type { RoutePath, SitemapRoute } from "../plugins/sitemap.ts";
 
-const STATICALIZE = "jsr:@frontside/staticalize@0.2.7/cli";
+const STATICALIZE = "npm:staticalize@0.3.1";
 const PAGEFIND = "npm:pagefind@1.5.2";
 
 /**

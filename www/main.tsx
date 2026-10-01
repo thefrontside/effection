@@ -37,6 +37,13 @@ import { redirectIndexRoute } from "./routes/redirect-index-route.tsx";
 import { searchRoute } from "./routes/search-route.tsx";
 import { initClones } from "./lib/clones.ts";
 import { initOctokitContext } from "./lib/octokit.ts";
+import { guidesMarkdownRoute } from "./routes/guides-markdown-route.ts";
+import { xPackageMarkdownRoute } from "./routes/x-package-markdown-route.ts";
+import {
+  apiIndexMarkdownRoute,
+  apiSymbolMarkdownRoute,
+} from "./routes/api-markdown-route.ts";
+import { agentsMdRoute } from "./routes/agents-md-route.ts";
 import { currentRequestPlugin } from "./plugins/current-request.ts";
 import { verboseLogging } from "./context/logging.ts";
 
@@ -97,12 +104,27 @@ function* serve(options: Options) {
       ...stableSeries.map((s) =>
         route(`/guides/${s.name}`, redirectIndexRoute(firstPage(s.name)))
       ),
+      // before the page route, so that `.md` is a suffix and not a guide id
+      route("/guides/:series/:id.md", guidesMarkdownRoute()),
       route("/guides/:series/:id", guidesRoute({ search: true })),
       route("/contrib", xIndexRedirect()),
       route("/contrib/:workspacePath", xPackageRedirect()),
       route("/x", xIndexRoute({ search: true })),
+      // before the page route, so that `.md` is a suffix and not a package
+      route("/x/:workspacePath.md", xPackageMarkdownRoute()),
       route("/x/:workspacePath", xPackageRoute({ search: true })),
       route("/api", apiIndexRoute({ search: true })),
+      // before the page routes, so that `.md` is a suffix and not a symbol
+      route("/api.md", apiIndexMarkdownRoute()),
+      ...series.map((s) =>
+        route(`/api/${s.name}/:symbol.md`, apiSymbolMarkdownRoute(s.name))
+      ),
+      ...series.map((s) =>
+        route(
+          `/api/${s.name}/experimental/:symbol.md`,
+          apiSymbolMarkdownRoute(s.name, { entrypoint: "./experimental" }),
+        )
+      ),
       // API docs for all series including prereleases
       ...series.map((s) =>
         route(
@@ -124,6 +146,7 @@ function* serve(options: Options) {
       route("/blog", blogIndexRoute({ search: true })),
       route("/blog/feed.xml", blogFeedRoute()),
       route("/llms.txt", llmsTxtRoute()),
+      route("/AGENTS.md", agentsMdRoute()),
       route("/blog/tags/:tag", blogTagRoute({ search: true })),
       route("/blog/:id", blogPostRoute({ search: true })),
       route("/blog/:id/:name.png", blogImageRoute()),

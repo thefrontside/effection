@@ -1,4 +1,4 @@
-import { basename } from "@std/path";
+import { basename, toFileUrl } from "@std/path";
 import {
   all,
   createContext,
@@ -98,7 +98,11 @@ export function loadGuides(dirpath: string): Operation<Guides> {
     let loaders = new Map<string, Task<GuidesPage>>();
 
     let structureModule = yield* until(
-      import(`${dirpath}/docs/structure.json`, { with: { type: "json" } }),
+      // a path is not a module specifier on windows, where it starts with a
+      // drive letter that deno reads as an unsupported scheme
+      import(toFileUrl(`${dirpath}/docs/structure.json`).href, {
+        with: { type: "json" },
+      }),
     );
 
     let structure = Structure.parse(structureModule.default);

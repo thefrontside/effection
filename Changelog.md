@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.2.0
+
+- ✨ Allow `each()` to iterate existing `Subscription`s (#1079)
+
 ## 4.1.1
 
 - 🐛 Run scope destructors in reverse order of registration (#1215)

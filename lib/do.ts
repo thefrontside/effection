@@ -7,7 +7,9 @@ import type { Effect, Operation } from "./types.ts";
  * @param effect - the effect to perform
  * @returns an operation that performs `effect`
  */
-export function Do<T>(effect: Effect<T>): Operation<T> {
+export function Do<T, Requires = never>(
+  effect: Effect<T, Requires>,
+): Operation<T, Requires> {
   return {
     [Symbol.iterator]() {
       let result: Result<T> | undefined = undefined;

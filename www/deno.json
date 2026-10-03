@@ -1,6 +1,6 @@
 {
   "tasks": {
-    "dev": "deno run -A --watch main.tsx",
+    "dev": "deno run -A tasks/watch.ts deno run -A main.tsx",
     "staticalize": "deno run -A npm:staticalize@0.3.1 --site http://localhost:8000 --output=built --base=http://localhost:8000",
     "test": "deno test --allow-run --allow-write --allow-read --allow-env",
     "smoke": "deno test --allow-net --allow-env tests/markdown-routes.ts"
@@ -40,6 +40,7 @@
     "jsxImportSource": "revolution"
   },
   "imports": {
+    "@effectionx/watch": "npm:@effectionx/watch@^0.4.7",
     "@frontside/configliere": "jsr:@frontside/configliere@^0.6.0",
     "@jsdevtools/rehype-toc": "npm:@jsdevtools/rehype-toc@3.0.2",
     "@libs/xml": "jsr:@libs/xml@^7.0.3",

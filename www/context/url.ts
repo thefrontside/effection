@@ -1,5 +1,5 @@
 import { type Operation } from "effection";
-import { posixNormalize } from "_posixNormalize";
+import { normalize as posixNormalize } from "@std/path/posix/normalize";
 import { createApi } from "@effectionx/context-api";
 import { CurrentRequest } from "./request.ts";
 

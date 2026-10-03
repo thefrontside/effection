@@ -1,4 +1,4 @@
-import { main, suspend } from "effection";
+import { main, type Operation, resource, suspend } from "effection";
 import { parse, printErrors, printHelp } from "@frontside/configliere";
 import { createRevolution, ServerInfo } from "revolution";
 
@@ -65,113 +65,127 @@ if (import.meta.main) {
   }
 }
 
+/**
+ * The running site, as a resource: everything it needs is set up before it is
+ * provided, and the server shuts down when the enclosing scope exits.
+ *
+ * `main.tsx` keeps it running until the process ends; a test holds it for the
+ * length of a suite and lets its scope close.
+ */
+export function useSite(options: Options): Operation<ServerInfo> {
+  return resource(function* (provide) {
+    yield* verboseLogging(options.verbose);
+
+    let { current, series } = yield* useConfig();
+
+    // Get stable series (no prereleases) for guides
+    let stableSeries = series.filter((s) => !s.includePrerelease);
+
+    yield* initClones(options.clonesDir, {
+      checkouts: localCheckouts(options.effectionxDir),
+    });
+    yield* initWorktrees(options.worktreesDir);
+    yield* initGuides({
+      current,
+      worktrees: stableSeries
+        .filter((s) => s.name !== current)
+        .map((s) => s.name),
+    });
+
+    yield* initBlog();
+    yield* initFonts();
+    yield* initImageStore();
+
+    yield* initJSRClient(options.jsrApi);
+    yield* initFetch();
+
+    // configures Octokit client
+    yield* initOctokitContext(options.githubToken);
+
+    let revolution = createRevolution({
+      app: [
+        route("/", indexRoute()),
+        route("/search", searchRoute()),
+        route("/docs", redirectIndexRoute(firstPage(current))),
+        route("/docs/:id", redirectDocsRoute(current)),
+        // Guides only for stable series (no prereleases)
+        ...stableSeries.map((s) =>
+          route(`/guides/${s.name}`, redirectIndexRoute(firstPage(s.name)))
+        ),
+        // before the page route, so that `.md` is a suffix and not a guide id
+        route("/guides/:series/:id.md", guidesMarkdownRoute()),
+        route("/guides/:series/:id", guidesRoute({ search: true })),
+        route("/contrib", xIndexRedirect()),
+        route("/contrib/:workspacePath", xPackageRedirect()),
+        route("/x", xIndexRoute({ search: true })),
+        // before the page route, so that `.md` is a suffix and not a package
+        route("/x/:workspacePath.md", xPackageMarkdownRoute()),
+        route("/x/:workspacePath", xPackageRoute({ search: true })),
+        route("/api", apiIndexRoute({ search: true })),
+        // before the page routes, so that `.md` is a suffix and not a symbol
+        route("/api.md", apiIndexMarkdownRoute()),
+        ...series.map((s) =>
+          route(`/api/${s.name}/:symbol.md`, apiSymbolMarkdownRoute(s.name))
+        ),
+        ...series.map((s) =>
+          route(
+            `/api/${s.name}/experimental/:symbol.md`,
+            apiSymbolMarkdownRoute(s.name, { entrypoint: "./experimental" }),
+          )
+        ),
+        // API docs for all series including prereleases
+        ...series.map((s) =>
+          route(
+            `/api/${s.name}/:symbol`,
+            apiReferenceRoute(s.name, { search: true }),
+          )
+        ),
+        // Experimental API docs (namespaced; empty for series without the
+        // `./experimental` entrypoint)
+        ...series.map((s) =>
+          route(
+            `/api/${s.name}/experimental/:symbol`,
+            apiReferenceRoute(s.name, {
+              search: true,
+              entrypoint: "./experimental",
+            }),
+          )
+        ),
+        route("/blog", blogIndexRoute({ search: true })),
+        route("/blog/feed.xml", blogFeedRoute()),
+        route("/llms.txt", llmsTxtRoute()),
+        route("/AGENTS.md", agentsMdRoute()),
+        route("/blog/tags/:tag", blogTagRoute({ search: true })),
+        route("/blog/:id", blogPostRoute({ search: true })),
+        route("/blog/:id/:name.png", blogImageRoute()),
+        route("/blog{/*path}", assetsRoute("blog")),
+        route(
+          "/pagefind{/*path}",
+          pagefindRoute({ pagefindDir: options.pagefindDir }),
+        ),
+        route("/assets/*path", assetsRoute("assets")),
+      ],
+      plugins: [
+        yield* tailwindPlugin({
+          input: options.tailwindInput,
+          outdir: options.tailwindOutdir,
+        }),
+        inlineSvgPlugin({
+          basedir: new URL(".", import.meta.url).pathname,
+        }),
+        currentRequestPlugin(),
+        yield* etagPlugin({ deploymentId: options.denoDeploymentId }),
+        sitemapPlugin(),
+      ],
+    });
+
+    yield* provide(yield* revolution.start({ port: options.port }));
+  });
+}
+
 function* serve(options: Options) {
-  yield* verboseLogging(options.verbose);
+  let server = yield* useSite(options);
 
-  let { current, series } = yield* useConfig();
-
-  // Get stable series (no prereleases) for guides
-  let stableSeries = series.filter((s) => !s.includePrerelease);
-
-  yield* initClones(options.clonesDir, {
-    checkouts: localCheckouts(options.effectionxDir),
-  });
-  yield* initWorktrees(options.worktreesDir);
-  yield* initGuides({
-    current,
-    worktrees: stableSeries
-      .filter((s) => s.name !== current)
-      .map((s) => s.name),
-  });
-
-  yield* initBlog();
-  yield* initFonts();
-  yield* initImageStore();
-
-  yield* initJSRClient(options.jsrApi);
-  yield* initFetch();
-
-  // configures Octokit client
-  yield* initOctokitContext(options.githubToken);
-
-  let revolution = createRevolution({
-    app: [
-      route("/", indexRoute()),
-      route("/search", searchRoute()),
-      route("/docs", redirectIndexRoute(firstPage(current))),
-      route("/docs/:id", redirectDocsRoute(current)),
-      // Guides only for stable series (no prereleases)
-      ...stableSeries.map((s) =>
-        route(`/guides/${s.name}`, redirectIndexRoute(firstPage(s.name)))
-      ),
-      // before the page route, so that `.md` is a suffix and not a guide id
-      route("/guides/:series/:id.md", guidesMarkdownRoute()),
-      route("/guides/:series/:id", guidesRoute({ search: true })),
-      route("/contrib", xIndexRedirect()),
-      route("/contrib/:workspacePath", xPackageRedirect()),
-      route("/x", xIndexRoute({ search: true })),
-      // before the page route, so that `.md` is a suffix and not a package
-      route("/x/:workspacePath.md", xPackageMarkdownRoute()),
-      route("/x/:workspacePath", xPackageRoute({ search: true })),
-      route("/api", apiIndexRoute({ search: true })),
-      // before the page routes, so that `.md` is a suffix and not a symbol
-      route("/api.md", apiIndexMarkdownRoute()),
-      ...series.map((s) =>
-        route(`/api/${s.name}/:symbol.md`, apiSymbolMarkdownRoute(s.name))
-      ),
-      ...series.map((s) =>
-        route(
-          `/api/${s.name}/experimental/:symbol.md`,
-          apiSymbolMarkdownRoute(s.name, { entrypoint: "./experimental" }),
-        )
-      ),
-      // API docs for all series including prereleases
-      ...series.map((s) =>
-        route(
-          `/api/${s.name}/:symbol`,
-          apiReferenceRoute(s.name, { search: true }),
-        )
-      ),
-      // Experimental API docs (namespaced; empty for series without the
-      // `./experimental` entrypoint)
-      ...series.map((s) =>
-        route(
-          `/api/${s.name}/experimental/:symbol`,
-          apiReferenceRoute(s.name, {
-            search: true,
-            entrypoint: "./experimental",
-          }),
-        )
-      ),
-      route("/blog", blogIndexRoute({ search: true })),
-      route("/blog/feed.xml", blogFeedRoute()),
-      route("/llms.txt", llmsTxtRoute()),
-      route("/AGENTS.md", agentsMdRoute()),
-      route("/blog/tags/:tag", blogTagRoute({ search: true })),
-      route("/blog/:id", blogPostRoute({ search: true })),
-      route("/blog/:id/:name.png", blogImageRoute()),
-      route("/blog{/*path}", assetsRoute("blog")),
-      route(
-        "/pagefind{/*path}",
-        pagefindRoute({ pagefindDir: options.pagefindDir }),
-      ),
-      route("/assets/*path", assetsRoute("assets")),
-    ],
-    plugins: [
-      yield* tailwindPlugin({
-        input: options.tailwindInput,
-        outdir: options.tailwindOutdir,
-      }),
-      inlineSvgPlugin({
-        basedir: new URL(".", import.meta.url).pathname,
-      }),
-      currentRequestPlugin(),
-      yield* etagPlugin({ deploymentId: options.denoDeploymentId }),
-      sitemapPlugin(),
-    ],
-  });
-
-  let server = yield* revolution.start({ port: options.port });
   console.log(`www -> ${urlFromServer(server)}`);
 
   yield* suspend();

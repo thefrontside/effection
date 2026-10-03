@@ -1,4 +1,4 @@
-import { describe, it } from "../testing.ts";
+import { describe, it } from "@effectionx/bdd";
 import { expect } from "expect";
 import { createJsDocSanitizer, escapeMdxSyntax } from "./use-markdown.tsx";
 

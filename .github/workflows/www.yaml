@@ -55,6 +55,14 @@ jobs:
           echo "url=$URL" >> "$GITHUB_OUTPUT"
           echo "Preview will be served from $URL" >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Smoke test
+        run: deno task smoke
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          JSR_API: ${{ secrets.JSR_API }}
+        timeout-minutes: 5
+        working-directory: ./www
+
       - name: Serve Website
         run: |
           deno run -A main.tsx &
@@ -65,13 +73,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           JSR_API: ${{ secrets.JSR_API }}
-        timeout-minutes: 5
-        working-directory: ./www
-
-      - name: Smoke test
-        run: deno task smoke
-        env:
-          SMOKE_URL: http://127.0.0.1:8000
         timeout-minutes: 5
         working-directory: ./www
 
@@ -165,6 +166,14 @@ jobs:
         with:
           deno-version: v2.9.1
 
+      - name: Smoke test
+        run: deno task smoke
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          JSR_API: ${{ secrets.JSR_API }}
+        timeout-minutes: 5
+        working-directory: ./www
+
       - name: Serve Website
         run: |
           deno run -A main.tsx &
@@ -175,13 +184,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           JSR_API: ${{ secrets.JSR_API }}
-        timeout-minutes: 5
-        working-directory: ./www
-
-      - name: Smoke test
-        run: deno task smoke
-        env:
-          SMOKE_URL: http://127.0.0.1:8000
         timeout-minutes: 5
         working-directory: ./www
 

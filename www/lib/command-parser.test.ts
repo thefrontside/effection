@@ -1,4 +1,4 @@
-import { describe, it } from "../testing.ts";
+import { describe, it } from "@effectionx/bdd";
 import { expect } from "expect";
 import { parseCommand, splitCommand } from "./command-parser.ts";
 

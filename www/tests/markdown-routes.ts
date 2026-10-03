@@ -1,6 +1,6 @@
 import { assertEquals, assertMatch, assertStringIncludes } from "@std/assert";
 import { beforeAll, describe, it } from "@effectionx/bdd";
-import { until } from "effection";
+import { fetch, type FetchResponse } from "@effectionx/fetch";
 import { parse } from "@frontside/configliere";
 
 import { useSite } from "../main.tsx";
@@ -43,7 +43,7 @@ function options() {
   };
 }
 
-function markdown(response: Response) {
+function markdown(response: FetchResponse) {
   assertEquals(response.status, 200);
   assertEquals(
     response.headers.get("Content-Type"),
@@ -73,15 +73,10 @@ describe("the markdown an agent reads", () => {
   // `site` is where the documents are fetched from; the urls inside them
   // belong to whatever the site is configured to advertise, which is not
   // necessarily the address these cases are talking to
-  function get(path: string) {
-    return until(
-      fetch(new URL(path, site)).then(
-        async (response): Promise<[Response, string]> => [
-          response,
-          await response.text(),
-        ],
-      ),
-    );
+  function* get(path: string) {
+    let response = yield* fetch(new URL(path, site));
+
+    return [response, yield* response.text()] as const;
   }
 
   it("/AGENTS.md serves the behavioral contract", function* () {

@@ -20,7 +20,7 @@ function][v3-call]. It could invoke functions, evaluate promises,
 treat constants as operations, establish error boundaries, and even
 manage concurrency to boot. But one piece of feedback that we
 consistently got was "how does this relate to
-`Function.prototype.call()." Sadly, the answer was: only tangentially.
+`Function.prototype.call()`?" Sadly, the answer was: only tangentially.
 
 So in order to make using `call()` require no learning beyond how its
 vanilla counterpart works, we've simplified it to what you would
@@ -162,8 +162,8 @@ parent: start
 child: start
 parent: middle
 parent: before async
-parent: end
 child: end
+parent: end
 ```
 
 But in v4, the output changes to:
@@ -173,14 +173,18 @@ parent: start
 parent: middle
 parent: before async
 child: start
-parent: end
 child: end
+parent: end
 ```
 
 The key difference is that the child task doesn't get to run until the
 parent yields control to a truly asynchronous operation—in this case,
-`sleep(1)`. Purely synchronous operations, even when wrapped with
+`sleep(100)`. Purely synchronous operations, even when wrapped with
 `yield* call()`, won't give child tasks a chance to execute. Furthermore, in cases where a single event schedules multiple tasks to resume, the parent task will resume first.
+
+Parent priority does not prevent a child from resuming while its parent
+is suspended. In both versions, the child finishes its `sleep(10)` and
+prints `child: end` while the parent is still waiting on `sleep(100)`.
 
 This change makes task execution more predictable and allows parents
 to always have the necessary priority required to supervise the

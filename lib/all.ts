@@ -8,7 +8,8 @@ import { trap } from "./trap.ts";
  * the same purpose as
  * [Promise.all](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/all).
  *
- * If any of the operations become errored, then `all` will also become errored.
+ * If any operation errors, `all()` halts the others and waits for their
+ * teardown before propagating.
  *
  * @example
  * ``` javascript

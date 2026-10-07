@@ -1,4 +1,4 @@
-import type { Operation, Task, Yielded } from "./types.ts";
+import type { Operation, RequirementsOf, Task, Yielded } from "./types.ts";
 import { spawn } from "./spawn.ts";
 import { trap } from "./trap.ts";
 
@@ -27,29 +27,31 @@ import { trap } from "./trap.ts";
  * @returns the list of values that the operations evaluate to, in the order they were given
  * @since 3.0
  */
-export function* all<T extends readonly Operation<unknown>[] | []>(
+export function all<T extends readonly Operation<unknown, unknown>[] | []>(
   ops: T,
-): Operation<All<T>> {
-  let tasks: Task<unknown>[] = [];
-  try {
-    return yield* trap(function* (): Operation<All<T>> {
-      for (let operation of ops) {
-        let member = () => operation;
-        tasks.push(yield* spawn(member));
-      }
-      let results: unknown[] = [];
+): Operation<All<T>, RequirementsOf<T[number]>> {
+  return (function* () {
+    let tasks: Task<unknown>[] = [];
+    try {
+      return yield* trap(function* (): Operation<All<T>> {
+        for (let operation of ops) {
+          let member = () => operation;
+          tasks.push(yield* spawn(member));
+        }
+        let results: unknown[] = [];
+        for (let task of tasks) {
+          let result = yield* task;
+          results.push(result);
+        }
+        return results as All<T>;
+      });
+    } catch (error) {
       for (let task of tasks) {
-        let result = yield* task;
-        results.push(result);
+        yield* task.halt();
       }
-      return results as All<T>;
-    });
-  } catch (error) {
-    for (let task of tasks) {
-      yield* task.halt();
+      throw error;
     }
-    throw error;
-  }
+  })() as unknown as Operation<All<T>, RequirementsOf<T[number]>>;
 }
 
 /**

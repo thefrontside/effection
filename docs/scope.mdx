@@ -174,20 +174,21 @@ await task.halt();
 
 ## Asynchronous halt
 
-You might be wondering what happens when we `yield*` inside the
-_finally_ block. In fact, Effection handles this case for you:
+You can use `try/finally` for synchronous cleanup. If you need `yield*` during
+cleanup, use [`ensure()`][ensure], otherwise the halt will be lost and
+execution will continue past the operation you were halting.
 
 ``` javascript
-import { run, sleep, suspend } from 'effection';
+import { ensure, run, sleep, suspend } from 'effection';
 
 let task = run(function*() {
-  try {
-    yield* suspend();
-  } finally {
+  yield* ensure(function*() {
     console.log('this task is slow to halt');
     yield* sleep(2000);
     console.log('now it has been halted');
-  }
+  });
+
+  yield* suspend();
 });
 
 await task.halt();
@@ -385,6 +386,7 @@ Whenever you use `createScope()` in this way, it is important that you
 since it will not be destroyed implicitly.
 
 [spawn]: /api/v4/spawn
+[ensure]: /api/v4/ensure
 [use-abort-signal]: /api/v4/useAbortSignal
 [scope]: /api/v4/Scope
 [create-scope]: /api/v4/createScope

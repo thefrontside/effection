@@ -11,6 +11,7 @@
     ["operations.mdx", "Operations"],
     ["spawn.mdx", "Spawn"],
     ["resources.mdx", "Resources"],
+    ["cleanup.mdx", "Cleanup"],
     ["collections.mdx", "Streams and Subscriptions"],
     ["events.mdx", "Events"],
     ["errors.mdx", "Error Handling"],

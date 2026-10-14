@@ -74,7 +74,7 @@ jobs:
           path: ./build/npm
 
       - name: Publish NPM
-        run: npm publish --access=public --tag=latest
+        run: npm publish --access=public --tag=next
         working-directory: ./build/npm
 
   publish-jsr:

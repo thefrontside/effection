@@ -44,7 +44,6 @@ jobs:
         working-directory: bench
         run: |
           npm install ../effection.tgz --legacy-peer-deps
-          npm install --legacy-peer-deps
 
       - name: run benchmarks under CodSpeed (performance)
         uses: CodSpeedHQ/action@v4

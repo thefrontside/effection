@@ -42,10 +42,8 @@ jobs:
       # even though it IS Effection 4. Overriding the peer check is correct here.
       - name: install bench deps
         working-directory: bench
-        # npm's audit step can fail silently for this dependency graph.
-        # Benchmark setup only needs to install the dependencies.
         run: |
-          npm install ../effection.tgz --legacy-peer-deps --no-audit
+          npm install ../effection.tgz --legacy-peer-deps
 
       - name: run benchmarks under CodSpeed (performance)
         uses: CodSpeedHQ/action@v4

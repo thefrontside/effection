@@ -72,7 +72,7 @@ export function createCoroutine<T>(
       let { resumeWith } = routine.data;
       if (!resumeWith.ok) {
         data.unwinding = false;
-        let error: unknown = resumeWith.error;
+        let error: unknown = resumeWith.cause;
         try {
           unbox(resumeWith);
         } catch (cause) {

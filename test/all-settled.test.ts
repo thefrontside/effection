@@ -72,12 +72,12 @@ describe("allSettled()", () => {
     expect(result[0]).toMatchObject({ ok: true, value: "foo" });
     expect(result[1]).toMatchObject({
       ok: false,
-      error: { message: "boom: bar" },
+      cause: { message: "boom: bar" },
     });
     expect(result[2]).toMatchObject({ ok: true, value: "baz" });
     expect(result[3]).toMatchObject({
       ok: false,
-      error: { message: "boom: qux" },
+      cause: { message: "boom: qux" },
     });
   });
 
@@ -91,11 +91,11 @@ describe("allSettled()", () => {
 
     expect(result[0]).toMatchObject({
       ok: false,
-      error: { message: "boom: foo" },
+      cause: { message: "boom: foo" },
     });
     expect(result[1]).toMatchObject({
       ok: false,
-      error: { message: "boom: bar" },
+      cause: { message: "boom: bar" },
     });
   });
 
@@ -109,6 +109,26 @@ describe("allSettled()", () => {
     );
 
     expect(result.length).toEqual(3);
+  });
+
+  it("preserves non-Error causes in failed results", async () => {
+    let causes = [{ message: "boom" }, "boom", null, undefined, Symbol("boom")];
+    let results = await run(() =>
+      allSettled(causes.map((cause) =>
+        call(function* () {
+          yield* sleep(0);
+          throw cause;
+        })
+      ))
+    );
+
+    expect(results).toHaveLength(causes.length);
+    for (let [index, result] of results.entries()) {
+      if (result.ok) {
+        throw new Error("expected a failed result");
+      }
+      expect(result.cause).toBe(causes[index]);
+    }
   });
 
   it("does not halt sibling operations when one fails", async () => {
@@ -157,7 +177,7 @@ describe("allSettled()", () => {
     expect(observed.result[0]).toMatchObject({ ok: true, value: "foo" });
     expect(observed.result[1]).toMatchObject({
       ok: false,
-      error: { message: "boom: bar" },
+      cause: { message: "boom: bar" },
     });
   });
 

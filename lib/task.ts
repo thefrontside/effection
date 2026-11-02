@@ -176,7 +176,7 @@ class TaskControl {
     if (final.exists && !final.value.ok && !this.interrupted) {
       // raise if there was an error, and we were not halted.
       this.owner.expect(ErrorContext)
-        .raise(final.value.error);
+        .raise(final.value.cause);
     }
   }
 }

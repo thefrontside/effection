@@ -29,4 +29,12 @@ describe("withResolvers()", () => {
       message: "boom!",
     });
   });
+  it("preserves non-Error rejections", async () => {
+    let cause = { message: "boom" };
+    let { operation, reject } = withResolvers<string>();
+    reject(cause);
+
+    await expect(run(() => operation)).rejects.toBe(cause);
+    await expect(run(() => operation)).rejects.toBe(cause);
+  });
 });

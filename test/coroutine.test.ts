@@ -62,7 +62,7 @@ describe("Coroutine", () => {
 
     await expect(future).resolves.toMatchObject({
       exists: true,
-      value: { ok: false, reason: { message: "boom!" } },
+      value: { ok: false, cause: { message: "boom!" } },
     });
   });
 

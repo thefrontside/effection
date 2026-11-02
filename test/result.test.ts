@@ -10,7 +10,7 @@ describe("Result", () => {
   it("preserves Error instances passed to Err()", () => {
     let error = new Error("oh no");
 
-    expect(Err(error)).toEqual({ ok: false, reason: error });
+    expect(Err(error)).toEqual({ ok: false, cause: error });
   });
 
   it("preserves non-Error causes passed to Err()", () => {
@@ -27,8 +27,8 @@ describe("Result", () => {
       if (result.ok) {
         throw new Error("expected Err() to produce a failed result");
       }
-      expect(result.reason).toBe(cause);
-      expect(result).toEqual({ ok: false, reason: cause });
+      expect(result.cause).toBe(cause);
+      expect(result).toEqual({ ok: false, cause });
     }
   });
 

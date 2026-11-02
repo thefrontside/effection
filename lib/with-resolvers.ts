@@ -80,7 +80,7 @@ export function withResolvers<T>(description?: string): WithResolvers<T> {
         if (outcome.ok) {
           resolve(outcome.value);
         } else {
-          reject(outcome.reason);
+          reject(outcome.cause);
         }
       };
 

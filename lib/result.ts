@@ -6,7 +6,7 @@
  * automatically percolate.
  *
  * A successful result has the shape `{ ok: true, value }` and a failed result
- * has the shape `{ ok: false, reason }`. The reason is the original thrown value
+ * has the shape `{ ok: false, cause }`. The cause is the original thrown value
  * and has type `unknown`.
  *
  * @since 4.1
@@ -16,7 +16,7 @@ export type Result<T> = {
   value: T;
 } | {
   readonly ok: false;
-  reason: unknown;
+  cause: unknown;
 };
 
 /**
@@ -43,7 +43,7 @@ export function Ok<T>(value?: T): Result<T | undefined> {
 }
 
 /**
- * Construct a failed {@link Result}, preserving the reason without wrapping it.
+ * Construct a failed {@link Result}, preserving the cause without wrapping it.
  *
  * ### Example
  *
@@ -51,15 +51,15 @@ export function Ok<T>(value?: T): Result<T | undefined> {
  * import { Err } from 'effection';
  *
  * let result = Err(new Error("oh no"));
- * // { ok: false, reason: Error("oh no") }
+ * // { ok: false, cause: Error("oh no") }
  * ```
  *
  * @since 4.1
  */
-export function Err<T>(reason: unknown): Result<T> {
+export function Err<T>(cause: unknown): Result<T> {
   return {
     ok: false,
-    reason,
+    cause,
   };
 }
 
@@ -70,7 +70,7 @@ export function unbox<T>(result: Result<T>): T {
   if (result.ok) {
     return result.value;
   } else {
-    throw result.reason;
+    throw result.cause;
   }
 }
 

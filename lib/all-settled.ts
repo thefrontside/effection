@@ -11,7 +11,8 @@ import type { Operation, Yielded } from "./types.ts";
  *
  * Unlike {@link all}, `allSettled` never rejects — every operation
  * result is represented as either `{ ok: true, value }` or
- * `{ ok: false, error }`.
+ * `{ ok: false, error }`. Failed results also expose `cause` as an alias for
+ * the deprecated `error` field.
  *
  * ### Example
  *

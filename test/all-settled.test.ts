@@ -72,12 +72,12 @@ describe("allSettled()", () => {
     expect(result[0]).toMatchObject({ ok: true, value: "foo" });
     expect(result[1]).toMatchObject({
       ok: false,
-      error: { message: "boom: bar" },
+      reason: { message: "boom: bar" },
     });
     expect(result[2]).toMatchObject({ ok: true, value: "baz" });
     expect(result[3]).toMatchObject({
       ok: false,
-      error: { message: "boom: qux" },
+      reason: { message: "boom: qux" },
     });
   });
 
@@ -91,11 +91,11 @@ describe("allSettled()", () => {
 
     expect(result[0]).toMatchObject({
       ok: false,
-      error: { message: "boom: foo" },
+      reason: { message: "boom: foo" },
     });
     expect(result[1]).toMatchObject({
       ok: false,
-      error: { message: "boom: bar" },
+      reason: { message: "boom: bar" },
     });
   });
 
@@ -127,7 +127,7 @@ describe("allSettled()", () => {
       if (result.ok) {
         throw new Error("expected a failed result");
       }
-      expect(result.error).toBe(causes[index]);
+      expect(result.reason).toBe(causes[index]);
     }
   });
 
@@ -177,7 +177,7 @@ describe("allSettled()", () => {
     expect(observed.result[0]).toMatchObject({ ok: true, value: "foo" });
     expect(observed.result[1]).toMatchObject({
       ok: false,
-      error: { message: "boom: bar" },
+      reason: { message: "boom: bar" },
     });
   });
 

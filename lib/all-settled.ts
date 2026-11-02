@@ -11,7 +11,7 @@ import type { Operation, Yielded } from "./types.ts";
  *
  * Unlike {@link all}, `allSettled` never rejects — every operation
  * result is represented as either `{ ok: true, value }` or
- * `{ ok: false, error }`.
+ * `{ ok: false, reason }`.
  *
  * ### Example
  *
@@ -24,7 +24,7 @@ import type { Operation, Yielded } from "./types.ts";
  *    until(fetch('http://nope.example')),
  *   ]);
  *  // google => { ok: true, value: Response }
- *  // notASite => { ok: false, error: Error }
+ *  // notASite => { ok: false, reason: Error }
  * });
  * ```
  *

@@ -1,6 +1,4 @@
 import {
-  asyncReject,
-  asyncResolve,
   describe,
   expect,
   expectType,
@@ -17,29 +15,36 @@ import {
   sleep,
   spawn,
   suspend,
+  withResolvers,
 } from "../mod.ts";
 
 describe("race()", () => {
   it("resolves when one of the given operations resolves asynchronously first", async () => {
+    let first = withResolvers<string>();
+    let second = withResolvers<string>();
+    let third = withResolvers<string>();
     let result = run(() =>
-      race([
-        asyncResolve(10, "foo"),
-        asyncResolve(5, "bar"),
-        asyncReject(15, "baz"),
-      ])
+      race([first.operation, second.operation, third.operation])
     );
+
+    second.resolve("bar");
+    first.resolve("foo");
+    third.reject(new Error("boom: baz"));
 
     await expect(result).resolves.toEqual("bar");
   });
 
   it("rejects when one of the given operations rejects asynchronously first", async () => {
+    let first = withResolvers<string>();
+    let second = withResolvers<string>();
+    let third = withResolvers<string>();
     let result = run(() =>
-      race([
-        asyncResolve(10, "foo"),
-        asyncReject(5, "bar"),
-        asyncReject(15, "baz"),
-      ])
+      race([first.operation, second.operation, third.operation])
     );
+
+    second.reject(new Error("boom: bar"));
+    first.resolve("foo");
+    third.reject(new Error("boom: baz"));
 
     await expect(result).rejects.toHaveProperty("message", "boom: bar");
   });

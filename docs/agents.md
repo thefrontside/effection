@@ -167,7 +167,7 @@ const task = yield * op; // returns a TASK (Future) and starts it
 
 - `allSettled()` accepts an array of operations and evaluates them concurrently.
 - It returns an array of `Result<T>` objects in input order
-  (`{ ok: true, value }` or `{ ok: false, reason }`).
+  (`{ ok: true, value }` or `{ ok: false, cause }`).
 - It never short-circuits on error — all operations run to completion.
 - It is analogous to `Promise.allSettled()`, but uses Effection's `Result<T>`
   shape.

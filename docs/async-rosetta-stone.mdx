@@ -224,7 +224,7 @@ function* main() {
 Wait for all operations to settle regardless of whether they succeed
 or fail. Unlike [`all()`][all], [`allSettled()`][allSettled] never
 short-circuits. Every result is represented as either `{ ok: true, value }` 
-or `{ ok: false, error }`.
+or `{ ok: false, reason }`.
 
 Wait for all promises to settle with `Promise.allSettled()`:
 

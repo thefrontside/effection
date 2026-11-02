@@ -111,7 +111,7 @@ describe("allSettled()", () => {
     expect(result.length).toEqual(3);
   });
 
-  it("exposes reason as an alias for error in failed results", async () => {
+  it("exposes cause as an alias for error in failed results", async () => {
     let causes = [
       new Error("boom"),
       { message: "boom" },
@@ -132,13 +132,13 @@ describe("allSettled()", () => {
       if (result.ok) {
         throw new Error("expected a failed result");
       }
-      expect(result.reason).toBe(result.error);
-      expect(result.reason).toBeInstanceOf(Error);
+      expect(result.cause).toBe(result.error);
+      expect(result.cause).toBeInstanceOf(Error);
       let cause = causes[index];
       if (cause instanceof Error) {
-        expect(result.reason).toBe(cause);
+        expect(result.cause).toBe(cause);
       } else {
-        expect(result.reason?.cause).toBe(cause);
+        expect(result.cause?.cause).toBe(cause);
       }
     }
   });

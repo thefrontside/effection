@@ -24,10 +24,10 @@ describe("Result", () => {
     expect(result.error.name).toEqual("ThrownValueError");
     expect(result.error.message).toEqual("oh no");
     expect(result.error.cause).toEqual("oh no");
-    expect(result.reason).toBe(result.error);
+    expect(result.cause).toBe(result.error);
   });
 
-  it("aliases reason to error without changing the v4 object shape", () => {
+  it("aliases cause to error without changing the v4 object shape", () => {
     let error = new Error("oh no");
     let result = Err(error);
 
@@ -35,13 +35,13 @@ describe("Result", () => {
       throw new Error("expected a failed result");
     }
 
-    expect(result.reason).toBe(error);
+    expect(result.cause).toBe(error);
     expect({ ...result }).toEqual({ ok: false, error });
     expectType<Error>(result.error);
-    expectType<Error | undefined>(result.reason);
+    expectType<Error | undefined>(result.cause);
   });
 
-  it("reflects updates to error through reason", () => {
+  it("reflects updates to error through cause", () => {
     let result = Err(new Error("original"));
 
     if (result.ok) {
@@ -50,16 +50,16 @@ describe("Result", () => {
 
     let error = new Error("changed via error");
     result.error = error;
-    expect(result.reason).toBe(error);
+    expect(result.cause).toBe(error);
 
     expect(() => unbox(result)).toThrow(error);
   });
 
-  it("accepts existing hand-written results without reason", () => {
+  it("accepts existing hand-written results without cause", () => {
     let error = new Error("oh no");
     let result: Result<string> = { ok: false, error };
 
-    expect(result.reason).toBeUndefined();
+    expect(result.cause).toBeUndefined();
     expect(() => unbox(result)).toThrow(error);
   });
 

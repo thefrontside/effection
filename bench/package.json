@@ -1,4 +1,5 @@
 {
+  "name": "effection-benchmarks",
   "type": "module",
   "private": true,
   "dependencies": {

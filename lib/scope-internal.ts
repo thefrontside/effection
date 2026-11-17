@@ -112,7 +112,7 @@ export function buildScopeInternal(
         if (outcome.ok) {
           destruction.resolve();
         } else {
-          destruction.reject(outcome.error);
+          destruction.reject(outcome.cause);
         }
       }
 

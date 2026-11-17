@@ -166,7 +166,8 @@ main(function *() {
 If you need to wait for all operations to settle regardless of whether they
 succeed or fail, use [`allSettled()`][allSettled] instead. Unlike `all()`,
 `allSettled()` never short-circuits on error — each result is represented as
-[`Result<T>`][result]: `{ ok: true, value }` or `{ ok: false, error }`.
+[`Result<T>`][result]: `{ ok: true, value }` or `{ ok: false, error }`. Failed
+results also expose `cause` as an alias for the deprecated `error` field.
 
 ``` javascript
 import { allSettled, main } from 'effection';

@@ -6,7 +6,8 @@
  * automatically percolate.
  *
  * A successful result has the shape `{ ok: true, value }` and a failed result
- * has the shape `{ ok: false, error }`.
+ * has the shape `{ ok: false, error }`. Failed results created by Effection also
+ * expose `cause` as an alias for `error`.
  *
  * @since 4.1
  */
@@ -15,6 +16,11 @@ export type Result<T> = {
   value: T;
 } | {
   readonly ok: false;
+  /**
+   * Read-only alias for `error`. Optional to accept existing hand-written results.
+   */
+  readonly cause?: Error;
+  /** @deprecated Use `cause` instead. */
   error: Error;
 };
 
@@ -42,7 +48,8 @@ export function Ok<T>(value?: T): Result<T | undefined> {
 }
 
 /**
- * Construct a failed {@link Result}.
+ * Construct a failed {@link Result} with `cause` and `error` referring to the
+ * same Error. The `cause` alias is non-enumerable to preserve the v4 object shape.
  *
  * ### Example
  *
@@ -56,12 +63,18 @@ export function Ok<T>(value?: T): Result<T | undefined> {
  * @since 4.1
  */
 export function Err<T>(cause: unknown): Result<T> {
-  return {
+  let result: Result<T> = {
     ok: false,
     error: cause instanceof Error
       ? cause
       : new ThrownValueError(String(cause), { cause }),
   };
+  return Object.defineProperty(result, "cause", {
+    configurable: true,
+    get() {
+      return result.error;
+    },
+  });
 }
 
 class ThrownValueError extends Error {

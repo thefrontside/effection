@@ -111,6 +111,38 @@ describe("allSettled()", () => {
     expect(result.length).toEqual(3);
   });
 
+  it("exposes cause as an alias for error in failed results", async () => {
+    let causes = [
+      new Error("boom"),
+      { message: "boom" },
+      "boom",
+      null,
+      undefined,
+    ];
+    let results = await run(() =>
+      allSettled(causes.map((cause) =>
+        call(function* () {
+          yield* sleep(0);
+          throw cause;
+        })
+      ))
+    );
+
+    for (let [index, result] of results.entries()) {
+      if (result.ok) {
+        throw new Error("expected a failed result");
+      }
+      expect(result.cause).toBe(result.error);
+      expect(result.cause).toBeInstanceOf(Error);
+      let cause = causes[index];
+      if (cause instanceof Error) {
+        expect(result.cause).toBe(cause);
+      } else {
+        expect(result.cause?.cause).toBe(cause);
+      }
+    }
+  });
+
   it("does not halt sibling operations when one fails", async () => {
     let teardown = false;
     await run(function* () {
